@@ -14,6 +14,7 @@
 - [要件定義書](docs/requirements/requirements_v0.1.md) — FR 36 / NFR 10・AC・S0 受入基準・トレース（draft）
 - [機能一覧](docs/requirements/function-list_v0.1.md) — FN 61 機能・スライス配分（draft）
 - [媒体・手法別詳細要件](docs/requirements/media-requirements_v0.1.md) — 19 媒体を 7 観点で（draft）
+- [ループ・タスク・ワークフロー要件](docs/requirements/loop-task-workflow_v0.1.md) — 実行モデル 3 分解＋PoC 登録簿（draft）
 - [技術・ツール選定書](docs/requirements/tech-stack_v0.1.md) — スタック集約と再検討トリガー（draft）
 - [用語集](docs/requirements/glossary_v0.1.md) — 独自語の正本（draft）
 - [TAKUMI 素材カタログ](docs/design/takumi-catalog_v0.1.md) — スライスが引くプル型カタログ
