@@ -1,0 +1,79 @@
+# 技術・ツール選定書 v0.1
+
+> status: **draft**（AI 起草 2026-07-30。人の承認で confirmed）
+> charter §10 で確定した選定の集約正本＋実装レベルの具体化。選定理由と代替案・再検討条件を明記。
+
+## 1. ハーネス本体
+
+| 領域 | 選定 | 理由 | 代替（不採用理由） |
+|---|---|---|---|
+| 言語 | **Python 3.12+** | データ・意味判断の中核。HELIX 本体 ADR-010（Python=semantic core）と一貫 | TypeScript（HELIX では boundary 用。本ハーネスは単層で足りる） |
+| DB | **SQLite**（標準 sqlite3） | 数値・状態限定でサーバ不要・単一ファイル・HELIX 本体と同構成 | Postgres（個人規模に過剰）、Notion（判定正本にしない方針） |
+| パッケージ管理 | **uv** | 高速・lock 再現性 | pip+venv（可。uv を第一候補） |
+| テスト | **pytest** | S0 受入基準の機械検証（ゲート拒否テスト等） | — |
+| Lint/Format | **ruff** | 単一ツールで lint+format | — |
+| スケジューラ | **cron（WSL）+ ハーネス内 heartbeat** | 定時起動は OS、回転判断はエンジン | — |
+
+## 2. ブラウザ自動化（五役: SNS・計測・生成 AI・素材・レンダリング）
+
+| 項目 | 選定 | 備考 |
+|---|---|---|
+| 基盤 | **Playwright for Python** | headed/headless 切替（WSLg で headed 可）。persistent context でログインセッション維持 |
+| 突破対象 | SNS（X/note/Instagram/YouTube/stand.fm）、GA4/Search Console/GTM、生成 AI Web UI（ChatGPT/Gemini/Grok）、Canva（MCP フォールバック）、ASP、KDP、LINE 公式、メルカリ等保留分 | 攻略地図（playbooks）を SQLite に蓄積・自己修復 1 回→エスカレーション |
+| レンダリング | 同 Playwright（スクショ・PDF 出力） | 制作パイプラインと基盤共有 |
+| セッション保管 | Playwright storage_state を暗号化保存 | 平文 credential 禁止（NFR-4） |
+
+## 3. コンテンツ基盤
+
+| 領域 | 選定 | 備考 |
+|---|---|---|
+| コンテンツ資産 DB | **WordPress**（REST API + Application Passwords / WP-CLI） | 重い実体はすべて WP。開発は既存テーマ解析＋子テーマ＋自作プラグイン（PHP/HTML/CSS/JS） |
+| ローカル検証環境 | **Docker（wordpress + mariadb）** | 構築→検証→本番反映。テーマ解析もローカル複製上で |
+| 計画・ネタ UI | **Notion**（公式 MCP） | 構築済み: 行動計画/ネタ帳/スプリント DB。低頻度同期のみ |
+| 編集基盤 | **git 管理ブランドワークスペース**（別リポジトリ） | drafts/ assets-src/。審査 PASS = commit hash |
+| デザイン正本 | **Claude Design（DesignSync）** | トークンを全制作物に注入 |
+
+## 4. 制作パイプライン
+
+| 制作物 | ツールチェーン |
+|---|---|
+| 図解・OGP・バナー | HTML/SVG/CSS → Playwright スクショ |
+| スライド・資料（リードマグネット） | HTML → Playwright PDF（slide-monster を素材候補に） |
+| 診断ツール・シミュレータ | HTML/JS → WP 埋め込み → PWA 化（manifest+SW）→ TWA で Google Play（$25 買切） |
+| 3D | three.js（軽量）/ **Blender ヘッドレス bpy**（高品質。RTX 5070 CUDA/OptiX） |
+| 音声 | **VOICEVOX**（localhost API、商用可） |
+| 動画 | **Remotion**（テンプレート化）+ **ffmpeg**（NVENC ハードウェアエンコード） |
+| 電子書籍 | **pandoc** → EPUB → KDP（ブラウザ） |
+| 生成 AI 画像/動画 | 保有アカウント Web UI（ブラウザ）。例外: **Seedance API**（有償・台帳記録・月上限 config） |
+| 素材調達 | **Canva**（MCP 優先）: ストック写真・クリップ・BGM。ライセンス紐づけを DB 管理 |
+
+## 5. 接続レジストリ（初期）
+
+| サービス | 第一経路 | フォールバック |
+|---|---|---|
+| Notion / Canva / HubSpot / Stripe | 公式 MCP | ブラウザ |
+| WordPress | REST API / WP-CLI | — |
+| GA4 / Search Console / GTM / 各 SNS / ASP / KDP / LINE / note / stand.fm | ブラウザ | —（エスカレーション） |
+| Seedance | 有償 API（例外台帳） | ブラウザ生成 AI |
+| Claude Design | DesignSync | 同期済みキャッシュ |
+| 承認・通知 | Claude Code アプリ通知 | — |
+
+## 6. マーケティングサービス選定（確定済みの再掲）
+
+- **CRM/リード/メルマガ**: HubSpot 無料枠（自動化は買わずハーネス駆動）
+- **LINE**: 公式アカウント フリープラン（セグメント配信専用）
+- **コミュニティ**: Discord（媒体として運用）
+- **決済**: Stripe（取引手数料のみ）／ **販売**: note・KDP・アフィリエイト（ASP）
+- **音声配信**: Podcast RSS（WP 自前）主・stand.fm 従・Voicy 保留
+- **分析面**: Python 生成 HTML 主・xlsx→スプシ従・Notion チャート不使用
+- **保留**: Shopify（固定費）・メルカリ（物理オペ）・iOS（$99/年）・R 言語（MMM 段階で再訪）
+
+## 7. 再検討トリガー
+
+| 条件 | 再検討対象 |
+|---|---|
+| メルマガ月 2,000 通超 | 配信専業サービスの無料枠 or HubSpot 有料化 |
+| 本格 EC 化（商品数増） | Shopify |
+| MMM 実装段階 | R（ベイズ回帰系ライブラリ）導入 |
+| iOS 需要の証跡 | App Store（$99/年） |
+| ブラウザ突破の恒常的破損 | 該当サービスのみ API 経路へ切替（例外台帳） |
