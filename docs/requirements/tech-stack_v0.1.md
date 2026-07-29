@@ -7,7 +7,7 @@
 
 | 領域 | 選定 | 理由 | 代替（不採用理由） |
 |---|---|---|---|
-| 言語 | **Python 3.12+** | データ・意味判断の中核。HELIX 本体 ADR-010（Python=semantic core）と一貫 | TypeScript（HELIX では boundary 用。本ハーネスは単層で足りる） |
+| 言語 | **Python 3.14+**（2026-07 現行 stable 3.14.6） | データ・意味判断の中核。HELIX 本体 ADR-010（Python=semantic core）と一貫 | TypeScript（HELIX では boundary 用。本ハーネスは単層で足りる） |
 | DB | **SQLite**（標準 sqlite3） | 数値・状態限定でサーバ不要・単一ファイル・HELIX 本体と同構成 | Postgres（個人規模に過剰）、Notion（判定正本にしない方針） |
 | パッケージ管理 | **uv** | 高速・lock 再現性 | pip+venv（可。uv を第一候補） |
 | テスト | **pytest** | S0 受入基準の機械検証（ゲート拒否テスト等） | — |
@@ -16,9 +16,16 @@
 
 ## 2. ブラウザ自動化（五役: SNS・計測・生成 AI・素材・レンダリング）
 
+2026 年の標準構成に合わせ**三段構え**とする（anti-bot は TLS 指紋・挙動タイミングまで見る多次元検知が主流）:
+
+| 段 | 選定 | 用途 |
+|---|---|---|
+| 1. DOM 駆動（主） | **Playwright for Python**（1.61+）+ LLM 操作判断 | 8 割の作業。headed/headless 切替（WSLg で headed 可）。persistent context でセッション維持 |
+| 2. ステルス層 | **Camoufox**（C++ レベル偽装の Firefox 系 anti-detect） | 検知の堅いサイト（SNS・生成 AI UI 等）で Playwright が弾かれた場合 |
+| 3. ビジョン駆動（フォールバック） | computer use 系（スクショ＋座標操作） | DOM アクセス不能・canvas UI 等の最終手段 |
+
 | 項目 | 選定 | 備考 |
 |---|---|---|
-| 基盤 | **Playwright for Python** | headed/headless 切替（WSLg で headed 可）。persistent context でログインセッション維持 |
 | 突破対象 | SNS（X/note/Instagram/YouTube/stand.fm）、GA4/Search Console/GTM、生成 AI Web UI（ChatGPT/Gemini/Grok）、Canva（MCP フォールバック）、ASP、KDP、LINE 公式、メルカリ等保留分 | 攻略地図（playbooks）を SQLite に蓄積・自己修復 1 回→エスカレーション |
 | レンダリング | 同 Playwright（スクショ・PDF 出力） | 制作パイプラインと基盤共有 |
 | セッション保管 | Playwright storage_state を暗号化保存 | 平文 credential 禁止（NFR-4） |
@@ -77,3 +84,5 @@
 | MMM 実装段階 | R（ベイズ回帰系ライブラリ）導入 |
 | iOS 需要の証跡 | App Store（$99/年） |
 | ブラウザ突破の恒常的破損 | 該当サービスのみ API 経路へ切替（例外台帳） |
+| Remotion のテンプレ表現力・保守性に不満 | Revideo / MotionForge（2026 時点で成熟した OSS 代替） |
+| 実装着手時（全般） | 各ツールの現行版をリサーチエンジンで再確認（本書の版数は 2026-07 時点） |
