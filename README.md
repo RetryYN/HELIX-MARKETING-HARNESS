@@ -8,7 +8,7 @@
 
 ## ドキュメント
 
-- [BR 背骨](docs/requirements/br-backbone_v0.1.md) — 業務要求 30 項目（draft）
+- [BR 背骨](docs/requirements/br-backbone_v0.1.md) — 業務要求 31 項目（draft）
 - [要求一覧](docs/requirements/requirement-list_v0.1.md) — REQ 45 項目・優先度・対応 FR 付き（draft）
 - [要件定義書](docs/requirements/requirements_v0.1.md) — FR 36 / NFR 10・AC・S0 受入基準・トレース（draft）
 - [機能一覧](docs/requirements/function-list_v0.1.md) — FN 61 機能・スライス配分（draft）
