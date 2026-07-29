@@ -1,7 +1,8 @@
-# F1 — TAKUMI 素材のループスクラム・マッピング v0.1
+# TAKUMI 素材カタログ — ループスクラム・マッピング v0.1
 
-> status: draft ／ 目的: TAKUMI の skills / procedures / agents を棚卸しし、二重ループの各ステップへ再配置する設計表。
-> 継承方針は charter §6（そのまま移植せず、素材として HELIX 風にカスタマイズ）。
+> status: reference ／ 目的: TAKUMI の skills / procedures / agents の棚卸しと二重ループへの配置対応表。
+> **一括移植はしない**（charter §7: スライス駆動）— 各スライスが必要とした素材をこの表から引き込む際のカタログ。
+> 継承方針は charter §6（素材として HELIX 風にカスタマイズ）。
 
 ## 1. skills（42本）→ ループステップ配置案
 
@@ -57,7 +58,7 @@
 
 原則（P4）: 作った本人に審査させない。writer/artisan 系と critic/verifier 系は別エージェントのまま維持。
 
-## 4. F1 の作業順（案）
+## 4. 取り込み順の目安（スライスが引く際の参考）
 
 1. 本マッピングの確定
 2. リポジトリ骨格作成（skills/ agents/ loops/ harness/）
