@@ -16,13 +16,20 @@
 
 ## 2. ブラウザ自動化（五役: SNS・計測・生成 AI・素材・レンダリング）
 
+**方針判断: 無人自走の突破は Playwright を正とする。Claude Code 標準ブラウザは無人用途に使わない。**
+Claude Code 内蔵ブラウザ（2026-07 実装）は「対話的・人が監視する前提／クリーンプロファイルで毎回再ログイン／
+書き込みは分類器審査」という設計で、実アカウント操作の安全策としては正しいが、本ハーネスの
+ヒューマンアウトオブループ・cron 無人自走・決定性（NFR-2）・再開性（NFR-3）・攻略地図（playbooks）とは
+噛み合わない。繰り返し可能・セッション永続・CI 投入が要る無人突破には Playwright 系を用いる。
+
 2026 年の標準構成に合わせ**三段構え**とする（anti-bot は TLS 指紋・挙動タイミングまで見る多次元検知が主流）:
 
 | 段 | 選定 | 用途 |
 |---|---|---|
-| 1. DOM 駆動（主） | **Playwright for Python**（1.61+）+ LLM 操作判断 | 8 割の作業。headed/headless 切替（WSLg で headed 可）。persistent context でセッション維持 |
+| 1. DOM 駆動（主） | **Playwright for Python**（1.61+）+ LLM 操作判断 | 無人ループ内の 8 割の作業。headed/headless 切替（WSLg で headed 可）。persistent context でセッション永続 |
 | 2. ステルス層 | **Camoufox**（C++ レベル偽装の Firefox 系 anti-detect） | 検知の堅いサイト（SNS・生成 AI UI 等）で Playwright が弾かれた場合 |
 | 3. ビジョン駆動（フォールバック） | computer use 系（スクショ＋座標操作） | DOM アクセス不能・canvas UI 等の最終手段 |
+| 補助（無人ループ外） | **Claude Code 標準ブラウザ** | 開発中の対話デバッグ・軽い目視確認・OAuth 初回ログイン取得など、人が見ている場面のみ |
 
 | 項目 | 選定 | 備考 |
 |---|---|---|
