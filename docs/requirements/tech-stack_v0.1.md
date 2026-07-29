@@ -79,7 +79,10 @@ Claude Code 内蔵ブラウザ（2026-07 実装）は「対話的・人が監視
 - **コミュニティ**: Discord（媒体として運用）
 - **決済**: Stripe（取引手数料のみ）／ **販売**: note・KDP・アフィリエイト（ASP）
 - **音声配信**: Podcast RSS（WP 自前）主・stand.fm 従・Voicy 保留
-- **分析面**: Python 生成 HTML 主・xlsx→スプシ従・Notion チャート不使用
+- **分析面**: Python 生成 HTML 主・xlsx→スプシ従・Notion チャート不使用。
+  **閲覧・対話分析は Claude Code 内蔵ブラウザを BI ビューアとして使う** — ローカル HTML なので
+  内蔵ブラウザの制約（クリーンプロファイル・attended 前提）が問題にならず、ダッシュボードを
+  Claude と一緒に見ながら SQLite へ追加クエリを投げる対話型 BI が成立する。Notion 埋め込みは共有・常設用
 - **保留**: Shopify（固定費）・メルカリ（物理オペ）・iOS（$99/年）・R 言語（MMM 段階で再訪）
 
 ## 7. 再検討トリガー
