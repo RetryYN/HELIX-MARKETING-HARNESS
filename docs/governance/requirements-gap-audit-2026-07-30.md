@@ -1,6 +1,6 @@
 # 要件定義ギャップ監査 — HELIX 品質バー突合（2026-07-30）
 
-- status: reported
+- status: remediated（是正記録 §8 参照。承認は PO 未実施）
 - 監査対象: README + docs/ 全 9 文書（HEAD 0074937 相当）
 - 比較基準: ~/HELIX-HARNESS の要件定義完了バー（gates.md / gate-design.md / L00-L06-design-phase.md / 各 ledger・監査文書）
 - 監査方法: HELIX 側基準抽出と本リポジトリ棚卸しを独立エージェント 2 レーンで並列実施し、ID 件数・トレース断絶は grep 全件突合で裏取り
@@ -75,3 +75,23 @@ HELIX 本体の全 apparatus（153 要件 ledger、SHA-256 statement digest、au
 ## 7. 推奨クローズ順
 
 1. C-3（件数修正、機械的・10分）→ 2. C-2（トレース方針決定＋対応列、1文書修正）→ 3. C-1（S0 FR への AC 付与＋S1+ deferred 宣言）→ 4. Important-5（evidence 最小スキーマ）→ 5. Important-1〜4（リスク登録簿・ADR 化・法規要求・NFR 暫定値）→ 承認 → S0 着手。
+
+## 8. 是正記録（2026-07-30）
+
+| 指摘 | 処置 | 結果 |
+|---|---|---|
+| C-1 AC 不足 | requirements §4ter 新設。S0 スコープ 19 FR に AC 1:1、S1+ 17 FR は明示 deferred（AC なし実装着手を禁止） | closed |
+| C-2 REQ 断絶・層飛ばし | requirement-list に「対応 FR/NFR」列を全 45 行へ追加（トレース方針を冒頭に明文化）。FR-16/28/55 を新設し FN の BR 直接参照 4 件を解消。FN-413/509/510 は MR ID 参照へ修正。トレース表を 1 行 1 BR（30 行）へ精緻化 | closed |
+| C-3 分母不一致 | 実測へ修正: BR 30 / FN 61（スライス配分 25/13/5/18）/ FR 36 / NFR 10。README・function-list 更新。FN-701 の 18→19 テーブル表記も修正 | closed |
+| Imp-1 リスク登録簿 | [risk-register_v0.1.md](risk-register_v0.1.md) 新設（RSK-01〜08、緩和策・撤退条件付き） | closed |
+| Imp-2 ADR | [adr/](adr/) に ADR-001〜005 起票（言語・接続原則・ブラウザ三段構え・データ正本・WP REST 直） | closed |
+| Imp-3 法規 | NFR-9 新設（特定電子メール法・APPI・fail-close）＋ MR-HS-3 / MR-LINE-2 追加 | closed |
+| Imp-4 NFR 数値ゼロ | 暫定既定値を付与: retry 3 / 支出上限 5,000 円月 / 操作間隔 5 秒以上・公開系 1 日 10 件以下 / バックアップ 14 世代（確定値は H/R/C 充填） | closed |
+| Imp-5 evidence スキーマ | requirements §4bis に最小カラム集合（8 列＋kind 語彙）を定義。FR-28 が done 遷移時に検証 | closed |
+| Imp-6 MR テンプレ欠落 | §0 に明示 N/A 規則を追加し、9 媒体の欠落観点を全て記載（N/A は理由付き） | closed |
+| Min-1 用語集 | [glossary_v0.1.md](../requirements/glossary_v0.1.md) 新設（16 語） | closed |
+| Min-2 承認記録 | [approvals.md](approvals.md) 新設（文書昇格の append ログ） | closed |
+| Min-3 テスト戦略 | requirements §7 に決定性・再開性の検証方法を明文化。カバレッジ目標は S0 完了時確定（明示 deferred） | partially closed |
+| Min-4 バックアップ | NFR-10 新設（日次・14 世代・RSK-06 連動） | closed |
+
+残: 全 draft 文書の PO 承認（approvals.md へ記録）。承認後に S0 着手可。
