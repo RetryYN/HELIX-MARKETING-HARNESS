@@ -3,8 +3,8 @@
 - status: **confirmed**（承認 2026-07-30）
 - 改訂: v0.3 (2026-07-30) — データ基盤を定義（WordPress=コンテンツ資産 DB、Notion=ネタ・計画）。ペア構造（企画↔品質、計画↔計測）を pair_closure のループ版として導入。
 - 改訂: v0.2 (2026-07-30) — アーキテクチャを V-model ペアリングから**ループスクラム型（二重改善ループ）**へ全面変更。自律境界（人/AI の分担）を明文化。
-- 正本リポジトリ: https://github.com/RetryYN/HELIX-MARKETING-HARNESS
-- ベース: https://github.com/RetryYN/TAKUMI_CMO-Claude_Cowark（機能ソース。read-only 参照）
+- 正本リポジトリ: <https://github.com/RetryYN/HELIX-MARKETING-HARNESS>
+- ベース: <https://github.com/RetryYN/TAKUMI_CMO-Claude_Cowark（機能ソース。read-only> 参照）
 - 関連: HELIX（超個人開発システム）本体 = RetryYN/HELIX-HARNESS-OS
 
 ---
@@ -42,7 +42,7 @@ X は日次回転、ブログは週次回転、といった媒体差を許容し
 
 ### 上位ループ（戦略ループ）— ブランド成長サイクルで回す
 
-```
+```text
 リサーチ → 市場分析 → マーケティング戦略 → 行動計画 ─┐
    ↑                                                    │
    └──────────── 改善（下位ループの実測を還流）←────────┘
@@ -54,7 +54,7 @@ X は日次回転、ブログは週次回転、といった媒体差を許容し
 
 ### 下位ループ（実行ループ）— 計画スパンで回す
 
-```
+```text
 媒体戦術 → リサーチ → 企画 → 運用 → 計測 ─┐
    ↑                                        │
    └───────── 改善（次スプリントへ）←───────┘
@@ -308,7 +308,7 @@ TAKUMI スキルや接続・パイプラインは各スライスが必要とし�
 
 ## §8 リポジトリ構成（案）
 
-```
+```text
 HELIX-MARKETING-HARNESS/
 ├── docs/
 │   ├── L0-charter/        # 本書（北極星）
@@ -330,6 +330,7 @@ HELIX-MARKETING-HARNESS/
 ## §9 未決事項（承認時に確定したい）
 
 （全項目確定済み → §10 参照）
+
 ## §10 確定事項
 
 - **WordPress 接続方式（⑥ 確定 2026-07-30）**: コンテンツ運用は **REST API 直（Application Passwords）**。

@@ -9,7 +9,7 @@
 
 ## 1. システム構成（要件レベル）
 
-```
+```text
 harness/（Python）
 ├── engine/        # ループ状態機械・タスク発行・マイクロループ制御      [FR-1x]
 ├── gates/         # ペアゲート・機械ゲート（fail-close）               [FR-2x]
@@ -125,6 +125,7 @@ harness/（Python）
 sprints（1 件固定でよい）, measurements（GA4 の PV のみでよい）
 
 **最小構成要素**:
+
 - エンジン: 下位ループ 1 周のみ（上位ループはスタブ。行動計画は手書き 1 件を DB 投入）
 - ゲート: FR-21（企画↔品質）と FR-27（自己審査禁止）は完全実装。FR-23a（有料指標拒否）は型で実装
 - エージェント: writer（制作）と critic（審査）の 2 体 + マイクロループ 1 種
@@ -133,6 +134,7 @@ sprints（1 件固定でよい）, measurements（GA4 の PV のみでよい）
 - TAKUMI 素材: copywriting / seo-jp / design-evidence-jp あたりをワークフロー 1 本に統合（カタログから引く）
 
 **受入基準（S0 完了条件）**:
+
 1. 記事 1 本が公開され、`evidence` に公開 URL・審査 PASS・commit hash が揃っている
 2. ペア未成立の状態で公開 API を呼ぶとエンジンが拒否することがテストで示されている
 3. author == verifier のタスク割り当てが拒否されることがテストで示されている
