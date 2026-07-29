@@ -1,7 +1,8 @@
 # 媒体・手法別 詳細要件 v0.1
 
 > status: **draft**（AI 起草 2026-07-30。人の承認で confirmed）
-> 上位: [requirements_v0.1.md](requirements_v0.1.md)（FR/NFR）／ [br-backbone_v0.1.md](br-backbone_v0.1.md)
+> 上位: [br-media_v0.1.md](br-media_v0.1.md)（媒体別業務要求 BR-M・調査値付き）／
+> [requirements_v0.1.md](requirements_v0.1.md)（FR/NFR）／ [br-backbone_v0.1.md](br-backbone_v0.1.md)
 > 目的: 各媒体・各手法を「接続・アクション・証跡・KPI寄与・ワークフロー・ゲート・安全」の7観点で個別要件化する。
 > 原則: 媒体追加は外殻に触れずワークフロー＋攻略地図＋接続レジストリ行の追加で完結（NFR-8）。
 > 各媒体要件は `MR-<媒体略号>-<n>` で識別。値（レート・上限）は config 充填（C）。

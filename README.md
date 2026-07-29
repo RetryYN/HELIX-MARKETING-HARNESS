@@ -9,6 +9,7 @@
 ## ドキュメント
 
 - [BR 背骨](docs/requirements/br-backbone_v0.1.md) — 業務要求 31 項目（draft）
+- [媒体別業務要求](docs/requirements/br-media_v0.1.md) — BR-M・21 媒体の構造調査値と PO 判断 8 件（draft）
 - [要求一覧](docs/requirements/requirement-list_v0.1.md) — REQ 45 項目・優先度・対応 FR 付き（draft）
 - [要件定義書](docs/requirements/requirements_v0.1.md) — FR 36 / NFR 10・AC・S0 受入基準・トレース（draft）
 - [機能一覧](docs/requirements/function-list_v0.1.md) — FN 61 機能・スライス配分（draft）
@@ -20,7 +21,7 @@
 ### ガバナンス
 
 - [ADR](docs/governance/adr/) — 大局判断 5 本（言語・接続原則・ブラウザ三段構え・データ正本・WP REST 直）
-- [リスク登録簿](docs/governance/risk-register_v0.1.md) — RSK-01〜08・緩和策・撤退条件
+- [リスク登録簿](docs/governance/risk-register_v0.1.md) — RSK-01〜09・緩和策・撤退条件
 - [要件定義ギャップ監査](docs/governance/requirements-gap-audit-2026-07-30.md) — HELIX 品質バー突合と是正記録
 - [承認ログ](docs/governance/approvals.md)
 
