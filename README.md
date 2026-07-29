@@ -9,7 +9,10 @@
 ## ドキュメント
 
 - [BR 背骨](docs/requirements/br-backbone_v0.1.md) — 業務要求 27 項目（draft）
+- [要求一覧](docs/requirements/requirement-list_v0.1.md) — REQ 45 項目・優先度付き（draft）
 - [要件定義書](docs/requirements/requirements_v0.1.md) — FR/NFR・S0 受入基準・トレース（draft）
+- [機能一覧](docs/requirements/function-list_v0.1.md) — FN 67 機能・スライス配分（draft）
+- [媒体・手法別詳細要件](docs/requirements/media-requirements_v0.1.md) — 19 媒体を 7 観点で（draft）
 - [技術・ツール選定書](docs/requirements/tech-stack_v0.1.md) — スタック集約と再検討トリガー（draft）
 - [TAKUMI 素材カタログ](docs/design/takumi-catalog_v0.1.md) — スライスが引くプル型カタログ
 
