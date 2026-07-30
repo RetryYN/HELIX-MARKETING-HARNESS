@@ -1,0 +1,914 @@
+{
+  "doc": "要求一覧（REQ）",
+  "version": "0.1",
+  "source": "docs/requirements/requirement-list_v0.1.md",
+  "generated": "2026-07-30",
+  "items": [
+    {
+      "id": "REQ-001",
+      "text": "上位ループ（戦略）をブランド成長サイクルで回せること",
+      "source_refs": [
+        "BR-A1"
+      ],
+      "related": [
+        "FR-11"
+      ],
+      "fill_route": "R",
+      "priority": "S",
+      "trace": {
+        "upstream": [
+          "BR-A1"
+        ],
+        "downstream": [
+          "FR-11"
+        ]
+      }
+    },
+    {
+      "id": "REQ-002",
+      "text": "下位ループ（実行）を媒体単位のサイクルで回せること",
+      "source_refs": [
+        "BR-A2"
+      ],
+      "related": [
+        "FR-11"
+      ],
+      "fill_route": "C",
+      "priority": "M",
+      "trace": {
+        "upstream": [
+          "BR-A2"
+        ],
+        "downstream": [
+          "FR-11"
+        ]
+      }
+    },
+    {
+      "id": "REQ-003",
+      "text": "検証マイクロループをタスク内で回し PASS でのみ完了できること",
+      "source_refs": [
+        "BR-A4"
+      ],
+      "related": [
+        "FR-13"
+      ],
+      "fill_route": "C",
+      "priority": "M",
+      "trace": {
+        "upstream": [
+          "BR-A4"
+        ],
+        "downstream": [
+          "FR-13"
+        ]
+      }
+    },
+    {
+      "id": "REQ-004",
+      "text": "ブランド計画（1年地平）を保持し行動計画が trace できること",
+      "source_refs": [
+        "BR-A3"
+      ],
+      "related": [
+        "FR-71"
+      ],
+      "fill_route": "H",
+      "priority": "S",
+      "trace": {
+        "upstream": [
+          "BR-A3"
+        ],
+        "downstream": [
+          "FR-71"
+        ]
+      }
+    },
+    {
+      "id": "REQ-005",
+      "text": "媒体ごとにサイクル長を独立設定でき同期を強制しないこと",
+      "source_refs": [
+        "BR-A2"
+      ],
+      "related": [
+        "FR-14"
+      ],
+      "fill_route": "C",
+      "priority": "S",
+      "trace": {
+        "upstream": [
+          "BR-A2"
+        ],
+        "downstream": [
+          "FR-14"
+        ]
+      }
+    },
+    {
+      "id": "REQ-006",
+      "text": "ループ状態が SQLite 上の状態遷移のみで表現されること",
+      "source_refs": [
+        "BR-A1"
+      ],
+      "related": [
+        "FR-11"
+      ],
+      "fill_route": null,
+      "priority": "M",
+      "trace": {
+        "upstream": [
+          "BR-A1"
+        ],
+        "downstream": [
+          "FR-11"
+        ]
+      }
+    },
+    {
+      "id": "REQ-007",
+      "text": "タスクがワークフローとエージェントを割り当てられて実行されること",
+      "source_refs": [
+        "BR-A4"
+      ],
+      "related": [
+        "FR-12"
+      ],
+      "fill_route": null,
+      "priority": "M",
+      "trace": {
+        "upstream": [
+          "BR-A4"
+        ],
+        "downstream": [
+          "FR-12"
+        ]
+      }
+    },
+    {
+      "id": "REQ-008",
+      "text": "企画↔品質ペア成立まで公開できないこと",
+      "source_refs": [
+        "BR-B1"
+      ],
+      "related": [
+        "FR-21"
+      ],
+      "fill_route": null,
+      "priority": "M",
+      "trace": {
+        "upstream": [
+          "BR-B1"
+        ],
+        "downstream": [
+          "FR-21"
+        ]
+      }
+    },
+    {
+      "id": "REQ-009",
+      "text": "計画↔計測ペア成立までレビュー・還流が発生しないこと",
+      "source_refs": [
+        "BR-B2"
+      ],
+      "related": [
+        "FR-22"
+      ],
+      "fill_route": null,
+      "priority": "S",
+      "trace": {
+        "upstream": [
+          "BR-B2"
+        ],
+        "downstream": [
+          "FR-22"
+        ]
+      }
+    },
+    {
+      "id": "REQ-010",
+      "text": "完了判定が証跡の DB 収束を要件とすること",
+      "source_refs": [
+        "BR-B3"
+      ],
+      "related": [
+        "FR-28"
+      ],
+      "fill_route": null,
+      "priority": "M",
+      "trace": {
+        "upstream": [
+          "BR-B3"
+        ],
+        "downstream": [
+          "FR-28"
+        ]
+      }
+    },
+    {
+      "id": "REQ-011",
+      "text": "作成者と検証者が別エージェントであること",
+      "source_refs": [
+        "BR-B4"
+      ],
+      "related": [
+        "FR-27"
+      ],
+      "fill_route": null,
+      "priority": "M",
+      "trace": {
+        "upstream": [
+          "BR-B4"
+        ],
+        "downstream": [
+          "FR-27"
+        ]
+      }
+    },
+    {
+      "id": "REQ-012",
+      "text": "ゼロ広告費ゲートが有料指標・広告経路を機械遮断すること",
+      "source_refs": [
+        "BR-C1"
+      ],
+      "related": [
+        "FR-23"
+      ],
+      "fill_route": null,
+      "priority": "M",
+      "trace": {
+        "upstream": [
+          "BR-C1"
+        ],
+        "downstream": [
+          "FR-23"
+        ]
+      }
+    },
+    {
+      "id": "REQ-013",
+      "text": "PR 表記なしのアフィリエイト成果物が公開できないこと",
+      "source_refs": [
+        "BR-C2"
+      ],
+      "related": [
+        "FR-24"
+      ],
+      "fill_route": null,
+      "priority": "S",
+      "trace": {
+        "upstream": [
+          "BR-C2"
+        ],
+        "downstream": [
+          "FR-24"
+        ]
+      }
+    },
+    {
+      "id": "REQ-014",
+      "text": "恐怖訴求・偽希少性等が審査で却下されること",
+      "source_refs": [
+        "BR-C3"
+      ],
+      "related": [
+        "FR-25"
+      ],
+      "fill_route": null,
+      "priority": "S",
+      "trace": {
+        "upstream": [
+          "BR-C3"
+        ],
+        "downstream": [
+          "FR-25"
+        ]
+      }
+    },
+    {
+      "id": "REQ-015",
+      "text": "金銭操作が常時人間の束縛承認を要すること",
+      "source_refs": [
+        "BR-C4"
+      ],
+      "related": [
+        "FR-26"
+      ],
+      "fill_route": null,
+      "priority": "S",
+      "trace": {
+        "upstream": [
+          "BR-C4"
+        ],
+        "downstream": [
+          "FR-26"
+        ]
+      }
+    },
+    {
+      "id": "REQ-016",
+      "text": "ヒアリングエンジンが不足スロットを検出し問診・充填できること",
+      "source_refs": [
+        "BR-D1"
+      ],
+      "related": [
+        "FR-31"
+      ],
+      "fill_route": null,
+      "priority": "S",
+      "trace": {
+        "upstream": [
+          "BR-D1"
+        ],
+        "downstream": [
+          "FR-31"
+        ]
+      }
+    },
+    {
+      "id": "REQ-017",
+      "text": "リサーチエンジンが外部照合で KPI 初期形・運用詳細を起草できること",
+      "source_refs": [
+        "BR-D2"
+      ],
+      "related": [
+        "FR-32"
+      ],
+      "fill_route": null,
+      "priority": "S",
+      "trace": {
+        "upstream": [
+          "BR-D2"
+        ],
+        "downstream": [
+          "FR-32"
+        ]
+      }
+    },
+    {
+      "id": "REQ-018",
+      "text": "安全側数値を config として保持し変更を証跡化すること",
+      "source_refs": [
+        "BR-D3"
+      ],
+      "related": [
+        "FR-33"
+      ],
+      "fill_route": "C",
+      "priority": "M",
+      "trace": {
+        "upstream": [
+          "BR-D3"
+        ],
+        "downstream": [
+          "FR-33"
+        ]
+      }
+    },
+    {
+      "id": "REQ-019",
+      "text": "ハーネスが事業非依存で複数プロファイルを共存できること",
+      "source_refs": [
+        "BR-D4"
+      ],
+      "related": [
+        "FR-34"
+      ],
+      "fill_route": "H",
+      "priority": "C",
+      "trace": {
+        "upstream": [
+          "BR-D4"
+        ],
+        "downstream": [
+          "FR-34"
+        ]
+      }
+    },
+    {
+      "id": "REQ-020",
+      "text": "KPI ツリーが露出/マイクロCV/転換/関係/収益の階層を持つこと",
+      "source_refs": [
+        "BR-E1"
+      ],
+      "related": [
+        "FR-61"
+      ],
+      "fill_route": "R",
+      "priority": "M",
+      "trace": {
+        "upstream": [
+          "BR-E1"
+        ],
+        "downstream": [
+          "FR-61"
+        ]
+      }
+    },
+    {
+      "id": "REQ-021",
+      "text": "媒体横断集計（オーガニック版 MMM）が可能なスキーマであること",
+      "source_refs": [
+        "BR-E1"
+      ],
+      "related": [
+        "FR-61"
+      ],
+      "fill_route": null,
+      "priority": "C",
+      "trace": {
+        "upstream": [
+          "BR-E1"
+        ],
+        "downstream": [
+          "FR-61"
+        ]
+      }
+    },
+    {
+      "id": "REQ-022",
+      "text": "計測をブラウザエクスポート→パース→SQLite で取り込めること",
+      "source_refs": [
+        "BR-E2"
+      ],
+      "related": [
+        "FR-62"
+      ],
+      "fill_route": null,
+      "priority": "M",
+      "trace": {
+        "upstream": [
+          "BR-E2"
+        ],
+        "downstream": [
+          "FR-62"
+        ]
+      }
+    },
+    {
+      "id": "REQ-023",
+      "text": "取得証跡（hash・スクショ）を残すこと",
+      "source_refs": [
+        "BR-E2"
+      ],
+      "related": [
+        "FR-62"
+      ],
+      "fill_route": null,
+      "priority": "M",
+      "trace": {
+        "upstream": [
+          "BR-E2"
+        ],
+        "downstream": [
+          "FR-62"
+        ]
+      }
+    },
+    {
+      "id": "REQ-024",
+      "text": "ダッシュボードを SQLite から HTML 自動生成できること",
+      "source_refs": [
+        "BR-E3"
+      ],
+      "related": [
+        "FR-63"
+      ],
+      "fill_route": null,
+      "priority": "S",
+      "trace": {
+        "upstream": [
+          "BR-E3"
+        ],
+        "downstream": [
+          "FR-63"
+        ]
+      }
+    },
+    {
+      "id": "REQ-025",
+      "text": "xlsx エクスポートを提供すること",
+      "source_refs": [
+        "BR-E3"
+      ],
+      "related": [
+        "FR-63"
+      ],
+      "fill_route": null,
+      "priority": "C",
+      "trace": {
+        "upstream": [
+          "BR-E3"
+        ],
+        "downstream": [
+          "FR-63"
+        ]
+      }
+    },
+    {
+      "id": "REQ-026",
+      "text": "接続経路が MCP→ブラウザ→有償API の優先順で選定されること",
+      "source_refs": [
+        "BR-F1"
+      ],
+      "related": [
+        "FR-41"
+      ],
+      "fill_route": null,
+      "priority": "M",
+      "trace": {
+        "upstream": [
+          "BR-F1"
+        ],
+        "downstream": [
+          "FR-41"
+        ]
+      }
+    },
+    {
+      "id": "REQ-027",
+      "text": "有償 API 例外の支出が台帳化され上限で停止すること",
+      "source_refs": [
+        "BR-F1",
+        "NFR-6"
+      ],
+      "related": [
+        "FR-73",
+        "NFR-6"
+      ],
+      "fill_route": "C",
+      "priority": "S",
+      "trace": {
+        "upstream": [
+          "BR-F1",
+          "NFR-6"
+        ],
+        "downstream": [
+          "FR-73",
+          "NFR-6"
+        ]
+      }
+    },
+    {
+      "id": "REQ-028",
+      "text": "ブラウザ自動化が攻略地図を蓄積・参照すること",
+      "source_refs": [
+        "BR-F2"
+      ],
+      "related": [
+        "FR-42"
+      ],
+      "fill_route": null,
+      "priority": "M",
+      "trace": {
+        "upstream": [
+          "BR-F2"
+        ],
+        "downstream": [
+          "FR-42"
+        ]
+      }
+    },
+    {
+      "id": "REQ-029",
+      "text": "攻略地図の破損を検知し自己修復を試みること",
+      "source_refs": [
+        "BR-F2"
+      ],
+      "related": [
+        "FR-43"
+      ],
+      "fill_route": "C",
+      "priority": "S",
+      "trace": {
+        "upstream": [
+          "BR-F2"
+        ],
+        "downstream": [
+          "FR-43"
+        ]
+      }
+    },
+    {
+      "id": "REQ-030",
+      "text": "媒体追加が外殻に触れずワークフロー追加で完結すること",
+      "source_refs": [
+        "BR-F3"
+      ],
+      "related": [
+        "FR-41",
+        "NFR-8"
+      ],
+      "fill_route": null,
+      "priority": "M",
+      "trace": {
+        "upstream": [
+          "BR-F3"
+        ],
+        "downstream": [
+          "FR-41",
+          "NFR-8"
+        ]
+      }
+    },
+    {
+      "id": "REQ-031",
+      "text": "認証情報がリポジトリ・DB・ログに平文で存在しないこと",
+      "source_refs": [
+        "BR-F4"
+      ],
+      "related": [
+        "FR-47",
+        "NFR-4"
+      ],
+      "fill_route": null,
+      "priority": "M",
+      "trace": {
+        "upstream": [
+          "BR-F4"
+        ],
+        "downstream": [
+          "FR-47",
+          "NFR-4"
+        ]
+      }
+    },
+    {
+      "id": "REQ-032",
+      "text": "制作物のソースが git 管理され PASS 版を hash で特定できること",
+      "source_refs": [
+        "BR-G1"
+      ],
+      "related": [
+        "FR-54"
+      ],
+      "fill_route": null,
+      "priority": "M",
+      "trace": {
+        "upstream": [
+          "BR-G1"
+        ],
+        "downstream": [
+          "FR-54"
+        ]
+      }
+    },
+    {
+      "id": "REQ-033",
+      "text": "コンテンツ実体が WP に収束し SQLite は参照のみとすること",
+      "source_refs": [
+        "BR-G2"
+      ],
+      "related": [
+        "FR-55"
+      ],
+      "fill_route": null,
+      "priority": "M",
+      "trace": {
+        "upstream": [
+          "BR-G2"
+        ],
+        "downstream": [
+          "FR-55"
+        ]
+      }
+    },
+    {
+      "id": "REQ-034",
+      "text": "資産のリパーパス（記事→SNS/音声/動画/EPUB）が追跡できること",
+      "source_refs": [
+        "BR-G2"
+      ],
+      "related": [
+        "FR-55"
+      ],
+      "fill_route": null,
+      "priority": "S",
+      "trace": {
+        "upstream": [
+          "BR-G2"
+        ],
+        "downstream": [
+          "FR-55"
+        ]
+      }
+    },
+    {
+      "id": "REQ-035",
+      "text": "デザイントークンが全制作物に適用されること",
+      "source_refs": [
+        "BR-G3"
+      ],
+      "related": [
+        "FR-52"
+      ],
+      "fill_route": null,
+      "priority": "S",
+      "trace": {
+        "upstream": [
+          "BR-G3"
+        ],
+        "downstream": [
+          "FR-52"
+        ]
+      }
+    },
+    {
+      "id": "REQ-036",
+      "text": "WP 開発が既存テーマ解析＋子テーマ/プラグインで行われること",
+      "source_refs": [
+        "BR-G4"
+      ],
+      "related": [
+        "FR-44"
+      ],
+      "fill_route": "R",
+      "priority": "S",
+      "trace": {
+        "upstream": [
+          "BR-G4"
+        ],
+        "downstream": [
+          "FR-44"
+        ]
+      }
+    },
+    {
+      "id": "REQ-037",
+      "text": "企画確定以降がヒューマンアウトオブループであること",
+      "source_refs": [
+        "BR-H1"
+      ],
+      "related": [
+        "FR-31"
+      ],
+      "fill_route": null,
+      "priority": "M",
+      "trace": {
+        "upstream": [
+          "BR-H1"
+        ],
+        "downstream": [
+          "FR-31"
+        ]
+      }
+    },
+    {
+      "id": "REQ-038",
+      "text": "公開が束縛承認を経て、基準充足後オートモードへ移行できること",
+      "source_refs": [
+        "BR-H2"
+      ],
+      "related": [
+        "FR-46"
+      ],
+      "fill_route": "C",
+      "priority": "S",
+      "trace": {
+        "upstream": [
+          "BR-H2"
+        ],
+        "downstream": [
+          "FR-46"
+        ]
+      }
+    },
+    {
+      "id": "REQ-039",
+      "text": "異常（ゲート赤・予算超過・地図破損）が検知・通知されること",
+      "source_refs": [
+        "BR-H3"
+      ],
+      "related": [
+        "FR-16"
+      ],
+      "fill_route": null,
+      "priority": "S",
+      "trace": {
+        "upstream": [
+          "BR-H3"
+        ],
+        "downstream": [
+          "FR-16"
+        ]
+      }
+    },
+    {
+      "id": "REQ-040",
+      "text": "すべてのゲートが判定不能時に通さない側へ倒れること",
+      "source_refs": [
+        "NFR-1"
+      ],
+      "related": [
+        "NFR-1"
+      ],
+      "fill_route": null,
+      "priority": "M",
+      "trace": {
+        "upstream": [
+          "NFR-1"
+        ],
+        "downstream": [
+          "NFR-1"
+        ]
+      }
+    },
+    {
+      "id": "REQ-041",
+      "text": "制作・集計が同一入力→同一出力の決定性を持つこと",
+      "source_refs": [
+        "NFR-2"
+      ],
+      "related": [
+        "NFR-2"
+      ],
+      "fill_route": null,
+      "priority": "M",
+      "trace": {
+        "upstream": [
+          "NFR-2"
+        ],
+        "downstream": [
+          "NFR-2"
+        ]
+      }
+    },
+    {
+      "id": "REQ-042",
+      "text": "プロセス強制終了後も SQLite 状態から再開できること",
+      "source_refs": [
+        "NFR-3"
+      ],
+      "related": [
+        "NFR-3"
+      ],
+      "fill_route": null,
+      "priority": "M",
+      "trace": {
+        "upstream": [
+          "NFR-3"
+        ],
+        "downstream": [
+          "NFR-3"
+        ]
+      }
+    },
+    {
+      "id": "REQ-043",
+      "text": "滞留状況が 1 クエリで把握できる可観測性を持つこと",
+      "source_refs": [
+        "NFR-5"
+      ],
+      "related": [
+        "NFR-5"
+      ],
+      "fill_route": null,
+      "priority": "S",
+      "trace": {
+        "upstream": [
+          "NFR-5"
+        ],
+        "downstream": [
+          "NFR-5"
+        ]
+      }
+    },
+    {
+      "id": "REQ-044",
+      "text": "全媒体でブラウザ操作が人間相当のランダム化レート節度を守ること",
+      "source_refs": [
+        "BR-F5"
+      ],
+      "related": [
+        "NFR-7",
+        "FR-42"
+      ],
+      "fill_route": "C",
+      "priority": "M",
+      "trace": {
+        "upstream": [
+          "BR-F5"
+        ],
+        "downstream": [
+          "NFR-7",
+          "FR-42"
+        ]
+      }
+    },
+    {
+      "id": "REQ-045",
+      "text": "各媒体が MR 要件（媒体別詳細）を満たして稼働すること",
+      "source_refs": [],
+      "related": [
+        "FN-413"
+      ],
+      "fill_route": null,
+      "priority": "媒体別",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "FN-413"
+        ]
+      }
+    }
+  ]
+}

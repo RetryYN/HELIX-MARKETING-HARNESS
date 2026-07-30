@@ -1,0 +1,1033 @@
+{
+  "doc": "媒体・手法別 詳細要件",
+  "version": "0.1",
+  "source": "docs/requirements/media-requirements_v0.1.md",
+  "generated": "2026-07-30",
+  "items": [
+    {
+      "id": "MR-WP-1",
+      "media": "WP",
+      "media_name": "1.1 WordPress",
+      "text": "記事公開は下書き作成→審査→ペア成立→公開の順で、審査未了の直接公開経路を持たない",
+      "trace": {
+        "upstream": [
+          "BR-M-WP-1"
+        ],
+        "downstream": []
+      },
+      "connection": "REST API（Application Passwords）主 ＋ WP-CLI（構築系）。ローカル Docker で検証",
+      "actions": "記事作成/更新/下書き/公開、メディアアップロード、カテゴリ・タグ管理、 カスタム投稿タイプ操作、子テーマ・プラグイン配備（WP-CLI）、パーマリンク・SEO 設定",
+      "evidence": "投稿 URL、REST レスポンス（投稿ID・リビジョン）、公開時スクショ、commit hash（原稿ソース）",
+      "kpi_contribution": "露出（PV・検索流入）、マイクロCV（記事内 CTA クリック・資料DL）",
+      "workflow": "seo-jp, copywriting, content-design, design-evidence-jp, web-design",
+      "gate": "企画↔品質（公開前 critic PASS 必須）、PR表記（アフィリエイト記事）、ゼロ広告費",
+      "safety": "公開は束縛承認→オート移行。REST 書き込みは成立ペアID必須（FR-44）"
+    },
+    {
+      "id": "MR-WP-2",
+      "media": "WP",
+      "media_name": "1.1 WordPress",
+      "text": "メディアは WP に一元保管し、SQLite は URL/ID 参照のみ（BR-G2）",
+      "trace": {
+        "upstream": [
+          "BR-M-WP-2"
+        ],
+        "downstream": []
+      },
+      "connection": "REST API（Application Passwords）主 ＋ WP-CLI（構築系）。ローカル Docker で検証",
+      "actions": "記事作成/更新/下書き/公開、メディアアップロード、カテゴリ・タグ管理、 カスタム投稿タイプ操作、子テーマ・プラグイン配備（WP-CLI）、パーマリンク・SEO 設定",
+      "evidence": "投稿 URL、REST レスポンス（投稿ID・リビジョン）、公開時スクショ、commit hash（原稿ソース）",
+      "kpi_contribution": "露出（PV・検索流入）、マイクロCV（記事内 CTA クリック・資料DL）",
+      "workflow": "seo-jp, copywriting, content-design, design-evidence-jp, web-design",
+      "gate": "企画↔品質（公開前 critic PASS 必須）、PR表記（アフィリエイト記事）、ゼロ広告費",
+      "safety": "公開は束縛承認→オート移行。REST 書き込みは成立ペアID必須（FR-44）"
+    },
+    {
+      "id": "MR-WP-3",
+      "media": "WP",
+      "media_name": "1.1 WordPress",
+      "text": "テーマ解析結果（フック・テンプレート階層・スタイル体系）を playbooks に構造化保存",
+      "trace": {
+        "upstream": [
+          "BR-M-WP-3"
+        ],
+        "downstream": []
+      },
+      "connection": "REST API（Application Passwords）主 ＋ WP-CLI（構築系）。ローカル Docker で検証",
+      "actions": "記事作成/更新/下書き/公開、メディアアップロード、カテゴリ・タグ管理、 カスタム投稿タイプ操作、子テーマ・プラグイン配備（WP-CLI）、パーマリンク・SEO 設定",
+      "evidence": "投稿 URL、REST レスポンス（投稿ID・リビジョン）、公開時スクショ、commit hash（原稿ソース）",
+      "kpi_contribution": "露出（PV・検索流入）、マイクロCV（記事内 CTA クリック・資料DL）",
+      "workflow": "seo-jp, copywriting, content-design, design-evidence-jp, web-design",
+      "gate": "企画↔品質（公開前 critic PASS 必須）、PR表記（アフィリエイト記事）、ゼロ広告費",
+      "safety": "公開は束縛承認→オート移行。REST 書き込みは成立ペアID必須（FR-44）"
+    },
+    {
+      "id": "MR-WP-4",
+      "media": "WP",
+      "media_name": "1.1 WordPress",
+      "text": "ポッドキャスト RSS を WP から配信できる（§4.2 と連携）",
+      "trace": {
+        "upstream": [
+          "BR-M-WP-1",
+          "BR-M-WP-2",
+          "BR-M-WP-3"
+        ],
+        "downstream": []
+      },
+      "connection": "REST API（Application Passwords）主 ＋ WP-CLI（構築系）。ローカル Docker で検証",
+      "actions": "記事作成/更新/下書き/公開、メディアアップロード、カテゴリ・タグ管理、 カスタム投稿タイプ操作、子テーマ・プラグイン配備（WP-CLI）、パーマリンク・SEO 設定",
+      "evidence": "投稿 URL、REST レスポンス（投稿ID・リビジョン）、公開時スクショ、commit hash（原稿ソース）",
+      "kpi_contribution": "露出（PV・検索流入）、マイクロCV（記事内 CTA クリック・資料DL）",
+      "workflow": "seo-jp, copywriting, content-design, design-evidence-jp, web-design",
+      "gate": "企画↔品質（公開前 critic PASS 必須）、PR表記（アフィリエイト記事）、ゼロ広告費",
+      "safety": "公開は束縛承認→オート移行。REST 書き込みは成立ペアID必須（FR-44）"
+    },
+    {
+      "id": "MR-WP-5",
+      "media": "WP",
+      "media_name": "1.1 WordPress",
+      "text": "（レート・BR-F5）: 自サイトへの機械間 API のためランダム間隔は N/A。ただし REST 書き込みは バースト上限 30 req/分・公開 10 件/日（C: `rate.wp.*`）を守り、自サイトの可用性に負荷をかけない",
+      "trace": {
+        "upstream": [
+          "BR-M-WP-1",
+          "BR-M-WP-2",
+          "BR-M-WP-3"
+        ],
+        "downstream": []
+      },
+      "connection": "REST API（Application Passwords）主 ＋ WP-CLI（構築系）。ローカル Docker で検証",
+      "actions": "記事作成/更新/下書き/公開、メディアアップロード、カテゴリ・タグ管理、 カスタム投稿タイプ操作、子テーマ・プラグイン配備（WP-CLI）、パーマリンク・SEO 設定",
+      "evidence": "投稿 URL、REST レスポンス（投稿ID・リビジョン）、公開時スクショ、commit hash（原稿ソース）",
+      "kpi_contribution": "露出（PV・検索流入）、マイクロCV（記事内 CTA クリック・資料DL）",
+      "workflow": "seo-jp, copywriting, content-design, design-evidence-jp, web-design",
+      "gate": "企画↔品質（公開前 critic PASS 必須）、PR表記（アフィリエイト記事）、ゼロ広告費",
+      "safety": "公開は束縛承認→オート移行。REST 書き込みは成立ペアID必須（FR-44）"
+    },
+    {
+      "id": "MR-X-1",
+      "media": "X",
+      "media_name": "2.1 X",
+      "text": "日次回転（媒体特性）に対応し、スプリント長を他媒体と独立設定できる",
+      "trace": {
+        "upstream": [
+          "BR-M-X-1"
+        ],
+        "downstream": []
+      },
+      "connection": "ブラウザ（Playwright→検知時 Camoufox）。API 不使用",
+      "actions": "ポスト投稿、スレッド投稿、画像/動画添付、リプライ応答、インプレッション取得",
+      "evidence": "ポスト URL、投稿確認スクショ、インプレッション/エンゲージメント数値",
+      "kpi_contribution": "露出（インプレッション・プロフィールアクセス）、関係（フォロワー増・エンゲージ率）",
+      "workflow": "sns-jp, copywriting, breakout-content-jp, engagement-reply-jp",
+      "gate": "企画↔品質、倫理、ゼロ広告費（プロモ投稿禁止）",
+      "safety": "日次投稿レート・応答レート（C）、攻略地図必須、投稿は承認→オート"
+    },
+    {
+      "id": "MR-X-2",
+      "media": "X",
+      "media_name": "2.1 X",
+      "text": "リプライ応答は engagement-reply ワークフローで、倫理ゲート通過後のみ送出",
+      "trace": {
+        "upstream": [
+          "BR-M-X-2"
+        ],
+        "downstream": []
+      },
+      "connection": "ブラウザ（Playwright→検知時 Camoufox）。API 不使用",
+      "actions": "ポスト投稿、スレッド投稿、画像/動画添付、リプライ応答、インプレッション取得",
+      "evidence": "ポスト URL、投稿確認スクショ、インプレッション/エンゲージメント数値",
+      "kpi_contribution": "露出（インプレッション・プロフィールアクセス）、関係（フォロワー増・エンゲージ率）",
+      "workflow": "sns-jp, copywriting, breakout-content-jp, engagement-reply-jp",
+      "gate": "企画↔品質、倫理、ゼロ広告費（プロモ投稿禁止）",
+      "safety": "日次投稿レート・応答レート（C）、攻略地図必須、投稿は承認→オート"
+    },
+    {
+      "id": "MR-X-3",
+      "media": "X",
+      "media_name": "2.1 X",
+      "text": "（レート・BR-F5）: 検知リスク高。書き込み間隔 2〜8 秒の一様乱数、投稿 5 件/日・ リプライ 10 件/日（C: `rate.x.*`）。警告・CAPTCHA 頻発時は間隔範囲を自動で広げ、凍結兆候で操作停止（RSK-01）",
+      "trace": {
+        "upstream": [
+          "BR-M-X-3"
+        ],
+        "downstream": []
+      },
+      "connection": "ブラウザ（Playwright→検知時 Camoufox）。API 不使用",
+      "actions": "ポスト投稿、スレッド投稿、画像/動画添付、リプライ応答、インプレッション取得",
+      "evidence": "ポスト URL、投稿確認スクショ、インプレッション/エンゲージメント数値",
+      "kpi_contribution": "露出（インプレッション・プロフィールアクセス）、関係（フォロワー増・エンゲージ率）",
+      "workflow": "sns-jp, copywriting, breakout-content-jp, engagement-reply-jp",
+      "gate": "企画↔品質、倫理、ゼロ広告費（プロモ投稿禁止）",
+      "safety": "日次投稿レート・応答レート（C）、攻略地図必須、投稿は承認→オート"
+    },
+    {
+      "id": "MR-NOTE-1",
+      "media": "NOTE",
+      "media_name": "2.2 note",
+      "text": "有料コンテンツの価格設定・変更は金銭 escalation 対象",
+      "trace": {
+        "upstream": [
+          "BR-M-NOTE-1"
+        ],
+        "downstream": []
+      },
+      "connection": "ブラウザ。API なし",
+      "actions": "記事投稿、有料記事/マガジン作成・価格設定・販売状況取得",
+      "evidence": "記事 URL、公開スクショ、販売数・売上（収益系）",
+      "kpi_contribution": "露出（ビュー・スキ）、収益（有料記事売上）",
+      "workflow": "storytelling, sales-writing, copywriting, content-design",
+      "gate": "企画↔品質、金銭（価格設定は束縛承認）、PR表記",
+      "safety": "価格変更は常時人間承認（FR-26）"
+    },
+    {
+      "id": "MR-NOTE-2",
+      "media": "NOTE",
+      "media_name": "2.2 note",
+      "text": "（レート・BR-F5）: 書き込み間隔 1〜5 秒の一様乱数、記事投稿 2 件/日（C: `rate.note.*`）",
+      "trace": {
+        "upstream": [
+          "BR-M-NOTE-2"
+        ],
+        "downstream": []
+      },
+      "connection": "ブラウザ。API なし",
+      "actions": "記事投稿、有料記事/マガジン作成・価格設定・販売状況取得",
+      "evidence": "記事 URL、公開スクショ、販売数・売上（収益系）",
+      "kpi_contribution": "露出（ビュー・スキ）、収益（有料記事売上）",
+      "workflow": "storytelling, sales-writing, copywriting, content-design",
+      "gate": "企画↔品質、金銭（価格設定は束縛承認）、PR表記",
+      "safety": "価格変更は常時人間承認（FR-26）"
+    },
+    {
+      "id": "MR-YT-1",
+      "media": "YT",
+      "media_name": "2.3 YouTube",
+      "text": "動画 1 本の制作は台本→音声→素材→合成の制作パイプライン（FR-53）を経由",
+      "trace": {
+        "upstream": [
+          "FR-53",
+          "BR-M-YT-1"
+        ],
+        "downstream": []
+      },
+      "connection": "ブラウザ（アップロード・メタ設定）。Studio の分析はエクスポート取得",
+      "actions": "動画アップロード、タイトル/説明/タグ/サムネ設定、公開/限定公開、コメント応答、 アナリティクスエクスポート",
+      "evidence": "動画 URL、公開スクショ、再生数・視聴維持率・登録者増",
+      "kpi_contribution": "露出（再生数・インプレッション）、関係（登録者・コメント）",
+      "workflow": "video-script, storytelling ＋ 制作パイプライン（Remotion/VOICEVOX）",
+      "gate": "企画↔品質、倫理、ゼロ広告費",
+      "safety": "アップロードは承認→オート。長時間処理のため非同期タスク化"
+    },
+    {
+      "id": "MR-YT-2",
+      "media": "YT",
+      "media_name": "2.3 YouTube",
+      "text": "ショート（9:16）版を同一素材から ffmpeg プロファイルで派生生成できる",
+      "trace": {
+        "upstream": [
+          "BR-M-YT-2"
+        ],
+        "downstream": []
+      },
+      "connection": "ブラウザ（アップロード・メタ設定）。Studio の分析はエクスポート取得",
+      "actions": "動画アップロード、タイトル/説明/タグ/サムネ設定、公開/限定公開、コメント応答、 アナリティクスエクスポート",
+      "evidence": "動画 URL、公開スクショ、再生数・視聴維持率・登録者増",
+      "kpi_contribution": "露出（再生数・インプレッション）、関係（登録者・コメント）",
+      "workflow": "video-script, storytelling ＋ 制作パイプライン（Remotion/VOICEVOX）",
+      "gate": "企画↔品質、倫理、ゼロ広告費",
+      "safety": "アップロードは承認→オート。長時間処理のため非同期タスク化"
+    },
+    {
+      "id": "MR-YT-3",
+      "media": "YT",
+      "media_name": "2.3 YouTube",
+      "text": "（レート・BR-F5）: Studio 操作の書き込み間隔 2〜8 秒の一様乱数、アップロード 2 件/日・ コメント応答 10 件/日（C: `rate.yt.*`）。アップロードは非同期のため完了待ちはレート対象外",
+      "trace": {
+        "upstream": [
+          "BR-M-YT-3"
+        ],
+        "downstream": []
+      },
+      "connection": "ブラウザ（アップロード・メタ設定）。Studio の分析はエクスポート取得",
+      "actions": "動画アップロード、タイトル/説明/タグ/サムネ設定、公開/限定公開、コメント応答、 アナリティクスエクスポート",
+      "evidence": "動画 URL、公開スクショ、再生数・視聴維持率・登録者増",
+      "kpi_contribution": "露出（再生数・インプレッション）、関係（登録者・コメント）",
+      "workflow": "video-script, storytelling ＋ 制作パイプライン（Remotion/VOICEVOX）",
+      "gate": "企画↔品質、倫理、ゼロ広告費",
+      "safety": "アップロードは承認→オート。長時間処理のため非同期タスク化"
+    },
+    {
+      "id": "MR-IG-1",
+      "media": "IG",
+      "media_name": "2.4 Instagram",
+      "text": "ビジュアル主媒体のため design-evidence 審査（コントラスト・可読性）を品質ゲートに含む",
+      "trace": {
+        "upstream": [
+          "BR-M-IG-1"
+        ],
+        "downstream": []
+      },
+      "connection": "ブラウザ。API 不使用",
+      "actions": "フィード投稿、リール投稿、画像/動画添付、キャプション・ハッシュタグ、インサイト取得",
+      "evidence": "投稿 URL、スクショ、リーチ・保存・エンゲージ数値",
+      "kpi_contribution": "露出（リーチ・インプレッション）、関係（保存・フォロワー）",
+      "workflow": "sns-jp, breakout-content-jp ＋ 画像/リール制作",
+      "gate": "企画↔品質、倫理、ゼロ広告費",
+      "safety": "検知が堅いため Camoufox 優先、レート厳守"
+    },
+    {
+      "id": "MR-IG-2",
+      "media": "IG",
+      "media_name": "2.4 Instagram",
+      "text": "（レート・BR-F5）: 検知リスク最高帯。書き込み間隔 5〜15 秒の一様乱数、投稿 3 件/日 （C: `rate.ig.*`）。Camoufox 経由でも本範囲を下限とし、他媒体の既定値へ緩和しない",
+      "trace": {
+        "upstream": [
+          "BR-M-IG-2"
+        ],
+        "downstream": []
+      },
+      "connection": "ブラウザ。API 不使用",
+      "actions": "フィード投稿、リール投稿、画像/動画添付、キャプション・ハッシュタグ、インサイト取得",
+      "evidence": "投稿 URL、スクショ、リーチ・保存・エンゲージ数値",
+      "kpi_contribution": "露出（リーチ・インプレッション）、関係（保存・フォロワー）",
+      "workflow": "sns-jp, breakout-content-jp ＋ 画像/リール制作",
+      "gate": "企画↔品質、倫理、ゼロ広告費",
+      "safety": "検知が堅いため Camoufox 優先、レート厳守"
+    },
+    {
+      "id": "MR-DC-1",
+      "media": "DC",
+      "media_name": "3.1 Discord",
+      "text": "コミュニティは媒体として下位ループで回し、活性度を関係系 KPI へ還流",
+      "trace": {
+        "upstream": [
+          "BR-M-DC-1"
+        ],
+        "downstream": []
+      },
+      "connection": "公式 MCP または Bot（優先）＋ブラウザ補完",
+      "actions": "チャンネル投稿、スレッド運営、メンバー応答、ロール/オンボード運用、活性度計測",
+      "evidence": "メッセージ URL/ID、投稿ログ、アクティブメンバー数・発言数",
+      "kpi_contribution": "関係（DAU/WAU・発言数・定着率）、転換（コミュニティ経由の CV）",
+      "workflow": "engagement-reply-jp, referral-advocacy-jp, content-ops-jp",
+      "gate": "倫理、企画↔品質（告知コンテンツ）",
+      "safety": "応答レート、モデレーション基準（C）"
+    },
+    {
+      "id": "MR-DC-2",
+      "media": "DC",
+      "media_name": "3.1 Discord",
+      "text": "荒れ・炎上検知時は crisis ワークフロー（TAKUMI 継承）へエスカレーション",
+      "trace": {
+        "upstream": [
+          "BR-M-DC-2"
+        ],
+        "downstream": []
+      },
+      "connection": "公式 MCP または Bot（優先）＋ブラウザ補完",
+      "actions": "チャンネル投稿、スレッド運営、メンバー応答、ロール/オンボード運用、活性度計測",
+      "evidence": "メッセージ URL/ID、投稿ログ、アクティブメンバー数・発言数",
+      "kpi_contribution": "関係（DAU/WAU・発言数・定着率）、転換（コミュニティ経由の CV）",
+      "workflow": "engagement-reply-jp, referral-advocacy-jp, content-ops-jp",
+      "gate": "倫理、企画↔品質（告知コンテンツ）",
+      "safety": "応答レート、モデレーション基準（C）"
+    },
+    {
+      "id": "MR-DC-3",
+      "media": "DC",
+      "media_name": "3.1 Discord",
+      "text": "（レート・BR-F5）: MCP/Bot は API quota 準拠（ランダム間隔 N/A）。投稿・応答は 30 件/日（C: `rate.dc.*`）でスパム化を防ぐ。ブラウザ補完時のみ間隔 1〜5 秒の一様乱数を適用",
+      "trace": {
+        "upstream": [
+          "BR-M-DC-3"
+        ],
+        "downstream": []
+      },
+      "connection": "公式 MCP または Bot（優先）＋ブラウザ補完",
+      "actions": "チャンネル投稿、スレッド運営、メンバー応答、ロール/オンボード運用、活性度計測",
+      "evidence": "メッセージ URL/ID、投稿ログ、アクティブメンバー数・発言数",
+      "kpi_contribution": "関係（DAU/WAU・発言数・定着率）、転換（コミュニティ経由の CV）",
+      "workflow": "engagement-reply-jp, referral-advocacy-jp, content-ops-jp",
+      "gate": "倫理、企画↔品質（告知コンテンツ）",
+      "safety": "応答レート、モデレーション基準（C）"
+    },
+    {
+      "id": "MR-PC-1",
+      "media": "PC",
+      "media_name": "4.1 ポッドキャスト",
+      "text": "動画パイプラインの音声を流用し、動画 1 本から音声版を副産物生成（重複制作しない）",
+      "trace": {
+        "upstream": [
+          "BR-M-PC-1"
+        ],
+        "downstream": []
+      },
+      "connection": "コード生成（WP に RSS 生成・配信）。Spotify/Apple/Amazon Music はディレクトリ登録",
+      "actions": "台本生成→VOICEVOX 音声化→mp3→WP メディア→RSS 更新、各プラットフォーム登録",
+      "evidence": "RSS URL、エピソード URL、mp3 hash、再生数（各プラットフォームからエクスポート）",
+      "kpi_contribution": "露出（再生数・登録者）",
+      "workflow": "video-script（台本流用）＋音声パイプライン",
+      "gate": "企画↔品質、倫理",
+      "safety": "審査なし配信のため品質ゲートを厳格適用"
+    },
+    {
+      "id": "MR-PC-2",
+      "media": "PC",
+      "media_name": "4.1 ポッドキャスト",
+      "text": "（レート・BR-F5）: 自サイト（WP）配信のためランダム間隔 N/A。RSS 更新はエピソード公開時のみ。 外部ディレクトリ登録操作はブラウザ既定値（間隔 1〜5 秒・C: `rate.pc.*`）に従う",
+      "trace": {
+        "upstream": [
+          "BR-M-PC-2"
+        ],
+        "downstream": []
+      },
+      "connection": "コード生成（WP に RSS 生成・配信）。Spotify/Apple/Amazon Music はディレクトリ登録",
+      "actions": "台本生成→VOICEVOX 音声化→mp3→WP メディア→RSS 更新、各プラットフォーム登録",
+      "evidence": "RSS URL、エピソード URL、mp3 hash、再生数（各プラットフォームからエクスポート）",
+      "kpi_contribution": "露出（再生数・登録者）",
+      "workflow": "video-script（台本流用）＋音声パイプライン",
+      "gate": "企画↔品質、倫理",
+      "safety": "審査なし配信のため品質ゲートを厳格適用"
+    },
+    {
+      "id": "MR-STFM-1",
+      "media": "STFM",
+      "media_name": "4.2 stand.fm",
+      "text": "ポッドキャストと同一音源を流用可能",
+      "trace": {
+        "upstream": [
+          "BR-M-STFM-1"
+        ],
+        "downstream": []
+      },
+      "connection": "ブラウザ。API なし",
+      "actions": "音声投稿、説明設定、再生数取得",
+      "evidence": "収録 URL、スクショ、再生数",
+      "kpi_contribution": "露出（再生数）、関係（フォロワー）",
+      "workflow": "音声パイプライン共用",
+      "gate": "企画↔品質、倫理",
+      "safety": "レート厳守"
+    },
+    {
+      "id": "MR-STFM-2",
+      "media": "STFM",
+      "media_name": "4.2 stand.fm",
+      "text": "（レート・BR-F5）: 書き込み間隔 1〜5 秒の一様乱数、投稿 2 件/日（C: `rate.stfm.*`）",
+      "trace": {
+        "upstream": [
+          "BR-M-STFM-2"
+        ],
+        "downstream": []
+      },
+      "connection": "ブラウザ。API なし",
+      "actions": "音声投稿、説明設定、再生数取得",
+      "evidence": "収録 URL、スクショ、再生数",
+      "kpi_contribution": "露出（再生数）、関係（フォロワー）",
+      "workflow": "音声パイプライン共用",
+      "gate": "企画↔品質、倫理",
+      "safety": "レート厳守"
+    },
+    {
+      "id": "MR-KDP-1",
+      "media": "KDP",
+      "media_name": "5.1 Amazon KDP",
+      "text": "WP 資産記事群から pandoc で EPUB を決定的生成（同一入力→同一出力）",
+      "trace": {
+        "upstream": [
+          "BR-M-KDP-1"
+        ],
+        "downstream": []
+      },
+      "connection": "ブラウザ。API なし",
+      "actions": "EPUB アップロード、書誌/価格/カテゴリ設定、出版、ロイヤリティレポート取得",
+      "evidence": "商品 URL、出版スクショ、ロイヤリティ売上（収益系）",
+      "kpi_contribution": "露出（Amazon 内）、収益（ロイヤリティ）",
+      "workflow": "WP 資産のテーマ別再編 → pandoc EPUB 生成",
+      "gate": "企画↔品質、金銭（価格設定＝束縛承認）",
+      "safety": "価格操作は金銭 escalation"
+    },
+    {
+      "id": "MR-KDP-2",
+      "media": "KDP",
+      "media_name": "5.1 Amazon KDP",
+      "text": "出版は媒体（発見面）＋収益（ロイヤリティ）の両属で二系統 KPI に寄与",
+      "trace": {
+        "upstream": [
+          "BR-M-KDP-2"
+        ],
+        "downstream": []
+      },
+      "connection": "ブラウザ。API なし",
+      "actions": "EPUB アップロード、書誌/価格/カテゴリ設定、出版、ロイヤリティレポート取得",
+      "evidence": "商品 URL、出版スクショ、ロイヤリティ売上（収益系）",
+      "kpi_contribution": "露出（Amazon 内）、収益（ロイヤリティ）",
+      "workflow": "WP 資産のテーマ別再編 → pandoc EPUB 生成",
+      "gate": "企画↔品質、金銭（価格設定＝束縛承認）",
+      "safety": "価格操作は金銭 escalation"
+    },
+    {
+      "id": "MR-KDP-3",
+      "media": "KDP",
+      "media_name": "5.1 Amazon KDP",
+      "text": "（レート・BR-F5）: 低頻度媒体。書き込み間隔 1〜5 秒の一様乱数、出版系操作 1 件/日 （C: `rate.kdp.*`）。Amazon アカウントは購買と共用のため凍結影響が大きく、警告兆候で即停止（RSK-01）",
+      "trace": {
+        "upstream": [
+          "BR-M-KDP-3"
+        ],
+        "downstream": []
+      },
+      "connection": "ブラウザ。API なし",
+      "actions": "EPUB アップロード、書誌/価格/カテゴリ設定、出版、ロイヤリティレポート取得",
+      "evidence": "商品 URL、出版スクショ、ロイヤリティ売上（収益系）",
+      "kpi_contribution": "露出（Amazon 内）、収益（ロイヤリティ）",
+      "workflow": "WP 資産のテーマ別再編 → pandoc EPUB 生成",
+      "gate": "企画↔品質、金銭（価格設定＝束縛承認）",
+      "safety": "価格操作は金銭 escalation"
+    },
+    {
+      "id": "MR-HS-1",
+      "media": "HS",
+      "media_name": "6.1 メルマガ / HubSpot",
+      "text": "ナーチャリング自動化は HubSpot 有料機能を使わずハーネスループが SQLite 判定で駆動",
+      "trace": {
+        "upstream": [
+          "BR-M-HS-1"
+        ],
+        "downstream": []
+      },
+      "connection": "公式 MCP 主＋ブラウザ補完",
+      "actions": "コンタクト管理、フォーム/LP のリード取得、リスト配信、開封/クリック取得。CRM 全般",
+      "evidence": "配信 ID、送信数、開封/クリック率、リード獲得記録",
+      "kpi_contribution": "転換（リード数・フォーム完了率）、関係（開封・クリック）",
+      "workflow": "sales-writing, copywriting, messaging-design-jp, retention 系",
+      "gate": "企画↔品質、倫理、金銭（有料商品案内）",
+      "safety": "月 2,000 通上限監視（C）、超過で停止＆再検討トリガー。法規は NFR-9"
+    },
+    {
+      "id": "MR-HS-2",
+      "media": "HS",
+      "media_name": "6.1 メルマガ / HubSpot",
+      "text": "リード受け皿（診断ツール・資料DL・LP フォーム）を集約し転換系 KPI の起点にする",
+      "trace": {
+        "upstream": [
+          "BR-M-HS-2"
+        ],
+        "downstream": []
+      },
+      "connection": "公式 MCP 主＋ブラウザ補完",
+      "actions": "コンタクト管理、フォーム/LP のリード取得、リスト配信、開封/クリック取得。CRM 全般",
+      "evidence": "配信 ID、送信数、開封/クリック率、リード獲得記録",
+      "kpi_contribution": "転換（リード数・フォーム完了率）、関係（開封・クリック）",
+      "workflow": "sales-writing, copywriting, messaging-design-jp, retention 系",
+      "gate": "企画↔品質、倫理、金銭（有料商品案内）",
+      "safety": "月 2,000 通上限監視（C）、超過で停止＆再検討トリガー。法規は NFR-9"
+    },
+    {
+      "id": "MR-HS-3",
+      "media": "HS",
+      "media_name": "6.1 メルマガ / HubSpot",
+      "text": "配信はオプトイン済みコンタクトのみを対象とし、全メールに配信停止導線を含むことを 公開ゲートで機械検証する（特定電子メール法・NFR-9）。リード個人情報は HubSpot 側に置き、 SQLite へは ID・スコア等の非個人情報のみ同期する（APPI）",
+      "trace": {
+        "upstream": [
+          "NFR-9",
+          "BR-M-HS-3"
+        ],
+        "downstream": []
+      },
+      "connection": "公式 MCP 主＋ブラウザ補完",
+      "actions": "コンタクト管理、フォーム/LP のリード取得、リスト配信、開封/クリック取得。CRM 全般",
+      "evidence": "配信 ID、送信数、開封/クリック率、リード獲得記録",
+      "kpi_contribution": "転換（リード数・フォーム完了率）、関係（開封・クリック）",
+      "workflow": "sales-writing, copywriting, messaging-design-jp, retention 系",
+      "gate": "企画↔品質、倫理、金銭（有料商品案内）",
+      "safety": "月 2,000 通上限監視（C）、超過で停止＆再検討トリガー。法規は NFR-9"
+    },
+    {
+      "id": "MR-HS-4",
+      "media": "HS",
+      "media_name": "6.1 メルマガ / HubSpot",
+      "text": "（レート・BR-F5）: MCP は API quota 準拠（ランダム間隔 N/A）。配信は月 2,000 通の 無料枠内で計画的に配分（C: `rate.hs.*`）。ブラウザ補完時のみ間隔 1〜5 秒の一様乱数を適用",
+      "trace": {
+        "upstream": [
+          "BR-M-HS-4"
+        ],
+        "downstream": []
+      },
+      "connection": "公式 MCP 主＋ブラウザ補完",
+      "actions": "コンタクト管理、フォーム/LP のリード取得、リスト配信、開封/クリック取得。CRM 全般",
+      "evidence": "配信 ID、送信数、開封/クリック率、リード獲得記録",
+      "kpi_contribution": "転換（リード数・フォーム完了率）、関係（開封・クリック）",
+      "workflow": "sales-writing, copywriting, messaging-design-jp, retention 系",
+      "gate": "企画↔品質、倫理、金銭（有料商品案内）",
+      "safety": "月 2,000 通上限監視（C）、超過で停止＆再検討トリガー。法規は NFR-9"
+    },
+    {
+      "id": "MR-LINE-1",
+      "media": "LINE",
+      "media_name": "6.2 LINE 公式アカウント",
+      "text": "配信対象は必ずセグメント抽出（見込み度スコア）を経る。無差別一斉配信を構造的に禁止",
+      "trace": {
+        "upstream": [
+          "BR-M-LINE-1"
+        ],
+        "downstream": []
+      },
+      "connection": "ブラウザ（管理画面）。Messaging API は使わない",
+      "actions": "セグメント配信、リッチメッセージ、友だち管理、配信結果取得",
+      "evidence": "配信スクショ、到達/開封/ブロック数",
+      "kpi_contribution": "関係（開封・クリック・ブロック率）、転換",
+      "workflow": "messaging-design-jp, psych-nudge-jp",
+      "gate": "企画↔品質、倫理（プッシュの節度）",
+      "safety": "月 200 通上限のため**全体一斉禁止・セグメント配信専用**。見込み度判定は SQLite/HubSpot データ"
+    },
+    {
+      "id": "MR-LINE-2",
+      "media": "LINE",
+      "media_name": "6.2 LINE 公式アカウント",
+      "text": "配信は友だち登録（オプトイン）済みのみ。ブロック率を関係 KPI で監視し、 閾値（C）超過で当該セグメント配信を停止する（NFR-9）",
+      "trace": {
+        "upstream": [
+          "NFR-9",
+          "BR-M-LINE-2"
+        ],
+        "downstream": []
+      },
+      "connection": "ブラウザ（管理画面）。Messaging API は使わない",
+      "actions": "セグメント配信、リッチメッセージ、友だち管理、配信結果取得",
+      "evidence": "配信スクショ、到達/開封/ブロック数",
+      "kpi_contribution": "関係（開封・クリック・ブロック率）、転換",
+      "workflow": "messaging-design-jp, psych-nudge-jp",
+      "gate": "企画↔品質、倫理（プッシュの節度）",
+      "safety": "月 200 通上限のため**全体一斉禁止・セグメント配信専用**。見込み度判定は SQLite/HubSpot データ"
+    },
+    {
+      "id": "MR-LINE-3",
+      "media": "LINE",
+      "media_name": "6.2 LINE 公式アカウント",
+      "text": "（レート・BR-F5）: 管理画面のブラウザ操作は間隔 2〜8 秒の一様乱数。配信は月 200 通の 無料枠から逆算し週 1 回・1 セグメント以内を既定とする（C: `rate.line.*`）",
+      "trace": {
+        "upstream": [
+          "BR-M-LINE-3"
+        ],
+        "downstream": []
+      },
+      "connection": "ブラウザ（管理画面）。Messaging API は使わない",
+      "actions": "セグメント配信、リッチメッセージ、友だち管理、配信結果取得",
+      "evidence": "配信スクショ、到達/開封/ブロック数",
+      "kpi_contribution": "関係（開封・クリック・ブロック率）、転換",
+      "workflow": "messaging-design-jp, psych-nudge-jp",
+      "gate": "企画↔品質、倫理（プッシュの節度）",
+      "safety": "月 200 通上限のため**全体一斉禁止・セグメント配信専用**。見込み度判定は SQLite/HubSpot データ"
+    },
+    {
+      "id": "MR-STRIPE-1",
+      "media": "STRIPE",
+      "media_name": "7.1 Stripe",
+      "text": "決済リンク発行までは自走可、価格/返金/設定変更は常時人間承認（FR-26）",
+      "trace": {
+        "upstream": [
+          "FR-26",
+          "BR-M-STRIPE-1"
+        ],
+        "downstream": []
+      },
+      "connection": "公式 MCP 主",
+      "actions": "商品/価格作成、決済リンク/Checkout 発行、WP 埋め込み、売上照会",
+      "evidence": "決済リンク URL、取引 ID、売上額（収益系）",
+      "kpi_contribution": "収益（売上・購入数・客単価）",
+      "workflow": "offer-design-jp, sales-writing",
+      "gate": "金銭（価格変更・返金・決済設定＝束縛承認、常時）",
+      "safety": "手数料以外の固定費ゼロ。金銭操作は全て escalation"
+    },
+    {
+      "id": "MR-STRIPE-2",
+      "media": "STRIPE",
+      "media_name": "7.1 Stripe",
+      "text": "（レート・BR-F5）: 公式 MCP/API のため N/A（API quota 準拠。人間相当偽装は不要かつ不適切）",
+      "trace": {
+        "upstream": [
+          "BR-M-STRIPE-2"
+        ],
+        "downstream": []
+      },
+      "connection": "公式 MCP 主",
+      "actions": "商品/価格作成、決済リンク/Checkout 発行、WP 埋め込み、売上照会",
+      "evidence": "決済リンク URL、取引 ID、売上額（収益系）",
+      "kpi_contribution": "収益（売上・購入数・客単価）",
+      "workflow": "offer-design-jp, sales-writing",
+      "gate": "金銭（価格変更・返金・決済設定＝束縛承認、常時）",
+      "safety": "手数料以外の固定費ゼロ。金銭操作は全て escalation"
+    },
+    {
+      "id": "MR-AFF-1",
+      "media": "AFF",
+      "media_name": "7.2 アフィリエイト / ASP",
+      "text": "アフィリエイトリンクを含む成果物は PR 表記ブロック検証に合格しない限り公開ゲートを通過しない",
+      "trace": {
+        "upstream": [
+          "BR-M-AFF-1"
+        ],
+        "downstream": []
+      },
+      "connection": "ブラウザ。API 貧弱のため突破",
+      "actions": "案件検索、提携申請、リンク発行、WP 埋め込み、成果レポート取得（A8/もしも/Amazon/楽天）",
+      "evidence": "提携状態、リンク、成果/報酬レポート（収益系）",
+      "kpi_contribution": "収益（アフィリエイト報酬）、記事単位の露出→クリック→成果歩留まり",
+      "workflow": "sales-writing, ad-compliance-jp",
+      "gate": "**PR表記必須**（表記なしは公開不可・FR-24）、企画↔品質、倫理",
+      "safety": "ステマ規制遵守を機械ゲート化"
+    },
+    {
+      "id": "MR-AFF-2",
+      "media": "AFF",
+      "media_name": "7.2 アフィリエイト / ASP",
+      "text": "成果レポートを記事単位で紐づけ、どのコンテンツが収益化したかを追跡",
+      "trace": {
+        "upstream": [
+          "BR-M-AFF-2"
+        ],
+        "downstream": []
+      },
+      "connection": "ブラウザ。API 貧弱のため突破",
+      "actions": "案件検索、提携申請、リンク発行、WP 埋め込み、成果レポート取得（A8/もしも/Amazon/楽天）",
+      "evidence": "提携状態、リンク、成果/報酬レポート（収益系）",
+      "kpi_contribution": "収益（アフィリエイト報酬）、記事単位の露出→クリック→成果歩留まり",
+      "workflow": "sales-writing, ad-compliance-jp",
+      "gate": "**PR表記必須**（表記なしは公開不可・FR-24）、企画↔品質、倫理",
+      "safety": "ステマ規制遵守を機械ゲート化"
+    },
+    {
+      "id": "MR-AFF-3",
+      "media": "AFF",
+      "media_name": "7.2 アフィリエイト / ASP",
+      "text": "（レート・BR-F5）: 書き込み間隔 1〜5 秒の一様乱数、提携申請 5 件/日（C: `rate.aff.*`）。 レポート取得（読み取り）はレート対象外",
+      "trace": {
+        "upstream": [
+          "BR-M-AFF-3"
+        ],
+        "downstream": []
+      },
+      "connection": "ブラウザ。API 貧弱のため突破",
+      "actions": "案件検索、提携申請、リンク発行、WP 埋め込み、成果レポート取得（A8/もしも/Amazon/楽天）",
+      "evidence": "提携状態、リンク、成果/報酬レポート（収益系）",
+      "kpi_contribution": "収益（アフィリエイト報酬）、記事単位の露出→クリック→成果歩留まり",
+      "workflow": "sales-writing, ad-compliance-jp",
+      "gate": "**PR表記必須**（表記なしは公開不可・FR-24）、企画↔品質、倫理",
+      "safety": "ステマ規制遵守を機械ゲート化"
+    },
+    {
+      "id": "MR-PWA-1",
+      "media": "PWA",
+      "media_name": "8.1 PWA",
+      "text": "診断ツールは結果画面から HubSpot フォームへ接続しマイクロCV を計測",
+      "trace": {
+        "upstream": [
+          "BR-M-PWA-1"
+        ],
+        "downstream": []
+      },
+      "connection": "コード生成（manifest + Service Worker）＋ WP/ホスティング配備",
+      "actions": "診断ツール/シミュレータの PWA 化、インストール可能化、オフライン対応",
+      "evidence": "公開 URL、Lighthouse スコア、インストール数",
+      "kpi_contribution": "マイクロCV（診断完走率）、転換（結果→リード）",
+      "workflow": "web-design, cro-jp, psych-ux-jp",
+      "gate": "企画↔品質（機能検証）、倫理",
+      "safety": "公開は束縛承認→オート移行。Lighthouse スコアを品質検証に含む"
+    },
+    {
+      "id": "MR-PWA-2",
+      "media": "PWA",
+      "media_name": "8.1 PWA",
+      "text": "（レート・BR-F5）: 自前配備（コード生成）のため N/A",
+      "trace": {
+        "upstream": [
+          "BR-M-PWA-2"
+        ],
+        "downstream": []
+      },
+      "connection": "コード生成（manifest + Service Worker）＋ WP/ホスティング配備",
+      "actions": "診断ツール/シミュレータの PWA 化、インストール可能化、オフライン対応",
+      "evidence": "公開 URL、Lighthouse スコア、インストール数",
+      "kpi_contribution": "マイクロCV（診断完走率）、転換（結果→リード）",
+      "workflow": "web-design, cro-jp, psych-ux-jp",
+      "gate": "企画↔品質（機能検証）、倫理",
+      "safety": "公開は束縛承認→オート移行。Lighthouse スコアを品質検証に含む"
+    },
+    {
+      "id": "MR-PLAY-1",
+      "media": "PLAY",
+      "media_name": "8.2 Google Play / TWA",
+      "text": "PWA をそのまま TWA でパッケージし二重制作しない",
+      "trace": {
+        "upstream": [
+          "BR-M-PLAY-1"
+        ],
+        "downstream": []
+      },
+      "connection": "ビルド（TWA パッケージ）＋ Play Console（ブラウザ）",
+      "actions": "TWA 生成、ストア登録、公開、レビュー/DL 取得",
+      "evidence": "ストア URL、公開スクショ、DL 数",
+      "kpi_contribution": "露出（ストア面）、マイクロCV",
+      "workflow": "PWA（§8.1）の成果物を流用（独自制作なし）",
+      "gate": "企画↔品質（PWA 側で通過済みを引き継ぐ）、金銭（登録費は spend_ledger 記録）",
+      "safety": "登録 $25 買切（固定費原則の許容例外）"
+    },
+    {
+      "id": "MR-PLAY-2",
+      "media": "PLAY",
+      "media_name": "8.2 Google Play / TWA",
+      "text": "（レート・BR-F5）: 低頻度媒体。Console 操作は間隔 2〜8 秒の一様乱数、 リリース系操作 1 件/日（C: `rate.play.*`）",
+      "trace": {
+        "upstream": [
+          "BR-M-PLAY-2"
+        ],
+        "downstream": []
+      },
+      "connection": "ビルド（TWA パッケージ）＋ Play Console（ブラウザ）",
+      "actions": "TWA 生成、ストア登録、公開、レビュー/DL 取得",
+      "evidence": "ストア URL、公開スクショ、DL 数",
+      "kpi_contribution": "露出（ストア面）、マイクロCV",
+      "workflow": "PWA（§8.1）の成果物を流用（独自制作なし）",
+      "gate": "企画↔品質（PWA 側で通過済みを引き継ぐ）、金銭（登録費は spend_ledger 記録）",
+      "safety": "登録 $25 買切（固定費原則の許容例外）"
+    },
+    {
+      "id": "MR-CANVA-1",
+      "media": "CANVA",
+      "media_name": "9.1 Canva",
+      "text": "取得素材とライセンス・利用先を DB 紐づけ管理（ライセンス証跡）",
+      "trace": {
+        "upstream": [
+          "BR-M-CANVA-1"
+        ],
+        "downstream": []
+      },
+      "actions": "ストック写真/映像クリップ/BGM 取得。デザイン制作はしない",
+      "evidence": "素材 ID、ライセンス種別、利用先",
+      "kpi_contribution": "N/A（インプット側。KPI は素材を使う成果物側で計測）",
+      "workflow": "N/A（制作パイプラインの素材調達ステップとして呼ばれる）",
+      "gate": "N/A（公開系ではない。ライセンス証跡の完備を FR-28 で検証）",
+      "safety": "MCP レート内。ライセンス条件外の利用を素材登録時に拒否"
+    },
+    {
+      "id": "MR-CANVA-2",
+      "media": "CANVA",
+      "media_name": "9.1 Canva",
+      "text": "（レート・BR-F5）: MCP は API quota 準拠（N/A）。ブラウザ補完時のみ間隔 1〜5 秒の一様乱数",
+      "trace": {
+        "upstream": [
+          "BR-M-CANVA-2"
+        ],
+        "downstream": []
+      },
+      "actions": "ストック写真/映像クリップ/BGM 取得。デザイン制作はしない",
+      "evidence": "素材 ID、ライセンス種別、利用先",
+      "kpi_contribution": "N/A（インプット側。KPI は素材を使う成果物側で計測）",
+      "workflow": "N/A（制作パイプラインの素材調達ステップとして呼ばれる）",
+      "gate": "N/A（公開系ではない。ライセンス証跡の完備を FR-28 で検証）",
+      "safety": "MCP レート内。ライセンス条件外の利用を素材登録時に拒否"
+    },
+    {
+      "id": "MR-GENAI-1",
+      "media": "GENAI",
+      "media_name": "9.2 生成 AI",
+      "text": "生成物と生成プロンプトを証跡化。API 課金しない",
+      "trace": {
+        "upstream": [
+          "BR-M-GENAI-1"
+        ],
+        "downstream": []
+      },
+      "actions": "画像・動画・補助テキスト生成。保有アカウント Web UI 操作",
+      "evidence": "生成物 DL、生成プロンプト、生成日時",
+      "kpi_contribution": "N/A（インプット側）",
+      "workflow": "N/A（制作パイプラインの生成ステップとして呼ばれる）",
+      "gate": "N/A（単体ゲートなし。生成物は下流成果物の企画↔品質・倫理ゲートで審査される）",
+      "safety": "レート節度・アカウント保全（RSK-08）。規約抵触の警告で当該サービスの自動操作を停止"
+    },
+    {
+      "id": "MR-GENAI-2",
+      "media": "GENAI",
+      "media_name": "9.2 生成 AI",
+      "text": "（レート・BR-F5）: 検知リスク高（bot 検知が積極的）。操作間隔 5〜15 秒の一様乱数、 生成セッション 20 件/日（C: `rate.genai.*`）。警告検知で当該サービス停止（RSK-08）",
+      "trace": {
+        "upstream": [
+          "BR-M-GENAI-2"
+        ],
+        "downstream": []
+      },
+      "actions": "画像・動画・補助テキスト生成。保有アカウント Web UI 操作",
+      "evidence": "生成物 DL、生成プロンプト、生成日時",
+      "kpi_contribution": "N/A（インプット側）",
+      "workflow": "N/A（制作パイプラインの生成ステップとして呼ばれる）",
+      "gate": "N/A（単体ゲートなし。生成物は下流成果物の企画↔品質・倫理ゲートで審査される）",
+      "safety": "レート節度・アカウント保全（RSK-08）。規約抵触の警告で当該サービスの自動操作を停止"
+    },
+    {
+      "id": "MR-SEED-1",
+      "media": "SEED",
+      "media_name": "9.3 Seedance",
+      "text": "ゼロAPI費原則の明示的例外。全利用を spend_ledger に記録し支出可視化",
+      "trace": {
+        "upstream": [
+          "BR-M-SEED-1"
+        ],
+        "downstream": []
+      },
+      "actions": "実写風・モーション動画生成",
+      "evidence": "生成物、プロンプト、**利用コスト（spend_ledger）**",
+      "kpi_contribution": "N/A（インプット側）",
+      "workflow": "N/A（動画パイプラインの生成ステップとして呼ばれる）",
+      "gate": "支出上限（NFR-6）。生成物は下流成果物のゲートで審査される",
+      "safety": "月上限（C）超過で停止（NFR-6）"
+    },
+    {
+      "id": "MR-SEED-2",
+      "media": "SEED",
+      "media_name": "9.3 Seedance",
+      "text": "（レート・BR-F5）: 公式 API のためランダム間隔 N/A。上限は支出側（NFR-6）で制御",
+      "trace": {
+        "upstream": [
+          "NFR-6",
+          "BR-M-SEED-2"
+        ],
+        "downstream": []
+      },
+      "actions": "実写風・モーション動画生成",
+      "evidence": "生成物、プロンプト、**利用コスト（spend_ledger）**",
+      "kpi_contribution": "N/A（インプット側）",
+      "workflow": "N/A（動画パイプラインの生成ステップとして呼ばれる）",
+      "gate": "支出上限（NFR-6）。生成物は下流成果物のゲートで審査される",
+      "safety": "月上限（C）超過で停止（NFR-6）"
+    },
+    {
+      "id": "MR-MEAS-1",
+      "media": "MEAS",
+      "media_name": "10.1 GA4 / Search Console / GTM",
+      "text": "エクスポートファイルの hash と取得スクショを証跡化（BR-E2）",
+      "trace": {
+        "upstream": [
+          "BR-M-MEAS-1"
+        ],
+        "downstream": []
+      },
+      "actions": "管理画面から Excel/CSV エクスポート → パース → SQLite 時系列",
+      "evidence": "エクスポートファイル hash、取得スクショ",
+      "kpi_contribution": "露出（PV・検索順位・流入）の一次データ源",
+      "workflow": "N/A（計測取得は FN-602/603 の共通パイプライン）",
+      "gate": "N/A（読取専用・公開系操作なし）",
+      "safety": "レート節度（NFR-7）。取得のみでサイト状態を変更しない"
+    },
+    {
+      "id": "MR-MEAS-2",
+      "media": "MEAS",
+      "media_name": "10.1 GA4 / Search Console / GTM",
+      "text": "パース失敗は隔離し部分投入を許す（FR-62）",
+      "trace": {
+        "upstream": [
+          "FR-62",
+          "BR-M-MEAS-2"
+        ],
+        "downstream": []
+      },
+      "actions": "管理画面から Excel/CSV エクスポート → パース → SQLite 時系列",
+      "evidence": "エクスポートファイル hash、取得スクショ",
+      "kpi_contribution": "露出（PV・検索順位・流入）の一次データ源",
+      "workflow": "N/A（計測取得は FN-602/603 の共通パイプライン）",
+      "gate": "N/A（読取専用・公開系操作なし）",
+      "safety": "レート節度（NFR-7）。取得のみでサイト状態を変更しない"
+    },
+    {
+      "id": "MR-MEAS-3",
+      "media": "MEAS",
+      "media_name": "10.1 GA4 / Search Console / GTM",
+      "text": "（レート・BR-F5）: 読み取り専用のため書き込みレート N/A。エクスポート操作は 間隔 1〜3 秒目安・20 件/日（C: `rate.meas.*`）で管理画面に負荷をかけない",
+      "trace": {
+        "upstream": [
+          "BR-M-MEAS-3"
+        ],
+        "downstream": []
+      },
+      "actions": "管理画面から Excel/CSV エクスポート → パース → SQLite 時系列",
+      "evidence": "エクスポートファイル hash、取得スクショ",
+      "kpi_contribution": "露出（PV・検索順位・流入）の一次データ源",
+      "workflow": "N/A（計測取得は FN-602/603 の共通パイプライン）",
+      "gate": "N/A（読取専用・公開系操作なし）",
+      "safety": "レート節度（NFR-7）。取得のみでサイト状態を変更しない"
+    },
+    {
+      "id": "MR-NOTION-1",
+      "media": "NOTION",
+      "media_name": "11.1 Notion",
+      "text": "Notion 障害時もループは SQLite のみで継続（判定に関与させない・FR-45）",
+      "trace": {
+        "upstream": [
+          "FR-45",
+          "BR-M-NOTION-1"
+        ],
+        "downstream": []
+      },
+      "actions": "行動計画読取り、レビュー結果書戻し。ネタ帳・スプリント参照",
+      "evidence": "同期ログ（読取り/書戻しの対象・時刻）",
+      "kpi_contribution": "N/A（内部基盤・計画 UI）",
+      "workflow": "N/A（FN-408 の同期処理のみ）",
+      "gate": "N/A（判定に関与しない）",
+      "safety": "低頻度同期のみ。MCP レート内"
+    },
+    {
+      "id": "MR-NOTION-2",
+      "media": "NOTION",
+      "media_name": "11.1 Notion",
+      "text": "（レート・BR-F5）: 公式 MCP のため N/A（API quota 準拠・低頻度同期のみ）",
+      "trace": {
+        "upstream": [
+          "BR-M-NOTION-2"
+        ],
+        "downstream": []
+      },
+      "actions": "行動計画読取り、レビュー結果書戻し。ネタ帳・スプリント参照",
+      "evidence": "同期ログ（読取り/書戻しの対象・時刻）",
+      "kpi_contribution": "N/A（内部基盤・計画 UI）",
+      "workflow": "N/A（FN-408 の同期処理のみ）",
+      "gate": "N/A（判定に関与しない）",
+      "safety": "低頻度同期のみ。MCP レート内"
+    },
+    {
+      "id": "MR-DS-1",
+      "media": "DS",
+      "media_name": "11.2 Claude Design",
+      "text": "トークン取得不能時は直近同期キャッシュで継続（FR-52）",
+      "trace": {
+        "upstream": [
+          "FR-52",
+          "BR-M-DS-1"
+        ],
+        "downstream": []
+      },
+      "actions": "デザイントークン取得、全制作物へ注入",
+      "evidence": "取得トークンの版・同期時刻",
+      "kpi_contribution": "N/A（内部基盤・デザイン正本）",
+      "workflow": "N/A（FN-504 のトークン注入のみ）",
+      "gate": "N/A（判定に関与しない）",
+      "safety": "読取専用"
+    },
+    {
+      "id": "MR-DS-2",
+      "media": "DS",
+      "media_name": "11.2 Claude Design",
+      "text": "（レート・BR-F5）: N/A（読取専用・公式経路）",
+      "trace": {
+        "upstream": [
+          "BR-M-DS-1"
+        ],
+        "downstream": []
+      },
+      "actions": "デザイントークン取得、全制作物へ注入",
+      "evidence": "取得トークンの版・同期時刻",
+      "kpi_contribution": "N/A（内部基盤・デザイン正本）",
+      "workflow": "N/A（FN-504 のトークン注入のみ）",
+      "gate": "N/A（判定に関与しない）",
+      "safety": "読取専用"
+    }
+  ]
+}

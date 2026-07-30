@@ -1,0 +1,1144 @@
+{
+  "doc": "要件定義書",
+  "version": "0.1",
+  "source": "docs/requirements/requirements_v0.1.md",
+  "generated": "2026-07-30",
+  "items": [
+    {
+      "id": "FR-11",
+      "kind": "FR",
+      "text": "ループ状態機械: `loop_runs`（上位/下位/マイクロの3種）を状態遷移表で駆動する。遷移は `(現状態, イベント, ガード条件) → 次状態` の宣言的定義とし、コード分岐に埋め込まない",
+      "area": "",
+      "slice": "S0",
+      "trace": {
+        "upstream": [
+          "BR-A1",
+          "BR-A3"
+        ],
+        "downstream": [
+          "AC-11",
+          "FN-101",
+          "FN-108"
+        ]
+      }
+    },
+    {
+      "id": "FR-12",
+      "kind": "FR",
+      "text": "タスク発行: ループステップ到達時に `tasks` 行を生成し、ワークフロー ID・担当エージェント・ 期待成果物型を割り当てる。タスクは `pending → in_progress → verifying → done/failed/escalated` を遷移",
+      "area": "",
+      "slice": "S0",
+      "trace": {
+        "upstream": [
+          "BR-A4"
+        ],
+        "downstream": [
+          "AC-12",
+          "FN-102",
+          "FN-104"
+        ]
+      }
+    },
+    {
+      "id": "FR-13",
+      "kind": "FR",
+      "text": "検証マイクロループ: `verifying` で検証エージェントを起動し、FAIL 時は差し戻し理由付きで `in_progress` へ戻す。リトライ回数は `config.retry_limit`（C・暫定既定値 3）で制御し、超過時 `escalated`",
+      "area": "",
+      "slice": "S0",
+      "trace": {
+        "upstream": [
+          "BR-A4",
+          "BR-B4"
+        ],
+        "downstream": [
+          "AC-13",
+          "FN-103"
+        ]
+      }
+    },
+    {
+      "id": "FR-14",
+      "kind": "FR",
+      "text": "スプリント制御: 媒体ごとに独立した `sprints` を持ち、開始条件（KPI 目標の存在 = 計画側の充足）を 満たさない限り開始できない",
+      "area": "",
+      "slice": "S1+",
+      "trace": {
+        "upstream": [
+          "BR-A2"
+        ],
+        "downstream": [
+          "FN-106"
+        ]
+      }
+    },
+    {
+      "id": "FR-15",
+      "kind": "FR",
+      "text": "還流: スプリントレビュー成立（FR-22）時に `learnings` を生成し、上位ループの次回転の入力キューへ積む",
+      "area": "",
+      "slice": "S1+",
+      "trace": {
+        "upstream": [
+          "BR-A3",
+          "BR-B2",
+          "FR-22"
+        ],
+        "downstream": [
+          "FN-107"
+        ]
+      }
+    },
+    {
+      "id": "FR-16",
+      "kind": "FR",
+      "text": "エスカレーション制御: 異常（ゲート赤・予算超過・地図破損・リトライ超過）を検知した場合、該当タスクを `escalated` に遷移させ、通知（FR-46 経路）と安全停止（該当ループの保留）へ振り分ける（← BR-H3）",
+      "area": "",
+      "slice": "S1+",
+      "trace": {
+        "upstream": [
+          "BR-H3",
+          "FR-46",
+          "BR-H3"
+        ],
+        "downstream": [
+          "FN-110"
+        ]
+      }
+    },
+    {
+      "id": "FR-21",
+      "kind": "FR",
+      "text": "企画↔品質ペア判定: `pair_plan_quality` が (企画レコード, 審査 PASS レコード) の両参照を持つ場合のみ 成立。公開系コネクタ（FR-4x）は成立済みペア ID なしの呼び出しを拒否する（fail-close）",
+      "area": "",
+      "slice": "S0",
+      "trace": {
+        "upstream": [
+          "BR-B1",
+          "FR-4"
+        ],
+        "downstream": [
+          "AC-21",
+          "FN-201",
+          "FN-202"
+        ]
+      }
+    },
+    {
+      "id": "FR-22",
+      "kind": "FR",
+      "text": "計画↔計測ペア判定: `pair_kpi_measure` が (KPI 目標, 計測スナップショット) の両参照を持つ場合のみ レビュー成立イベントを発火",
+      "area": "",
+      "slice": "S1+",
+      "trace": {
+        "upstream": [
+          "BR-B2"
+        ],
+        "downstream": [
+          "FN-203"
+        ]
+      }
+    },
+    {
+      "id": "FR-23",
+      "kind": "FR",
+      "text": "ゼロ広告費ゲート: (a) KPI ノード登録時に有料指標（CAC/ROAS/広告費）の型を拒否、 (b) ブラウザ自動化の URL 許可リストに広告マネージャ・課金ドメインを含めない（deny-by-default）",
+      "area": "",
+      "slice": "S0",
+      "trace": {
+        "upstream": [
+          "BR-C1"
+        ],
+        "downstream": [
+          "AC-23",
+          "FN-204"
+        ]
+      }
+    },
+    {
+      "id": "FR-24",
+      "kind": "FR",
+      "text": "PR 表記ゲート: アフィリエイトリンクを含む成果物は、PR 表記ブロックの存在検証に合格しない限り 公開ゲートを通過しない",
+      "area": "",
+      "slice": "S1+",
+      "trace": {
+        "upstream": [
+          "BR-C2"
+        ],
+        "downstream": [
+          "FN-205"
+        ]
+      }
+    },
+    {
+      "id": "FR-25",
+      "kind": "FR",
+      "text": "倫理ゲート: 審査ワークフローに P5 チェック項目（恐怖訴求・偽希少性・不安増幅・診断の押し付け）を 必須項目として含み、該当時は FAIL",
+      "area": "",
+      "slice": "S1+",
+      "trace": {
+        "upstream": [
+          "BR-C3"
+        ],
+        "downstream": [
+          "FN-206"
+        ]
+      }
+    },
+    {
+      "id": "FR-26",
+      "kind": "FR",
+      "text": "金銭 escalation: 価格変更・返金・決済設定に類する操作型のタスクは、オートモード状態に関わらず 束縛承認（FR-46）を要求する",
+      "area": "",
+      "slice": "S1+",
+      "trace": {
+        "upstream": [
+          "BR-C4",
+          "FR-46"
+        ],
+        "downstream": [
+          "FN-207"
+        ]
+      }
+    },
+    {
+      "id": "FR-27",
+      "kind": "FR",
+      "text": "自己審査禁止: `tasks.author_agent == tasks.verifier_agent` となる割り当てを DB 制約とエンジン両方で拒否",
+      "area": "",
+      "slice": "S0",
+      "trace": {
+        "upstream": [
+          "BR-B4"
+        ],
+        "downstream": [
+          "AC-27",
+          "FN-105"
+        ]
+      }
+    },
+    {
+      "id": "FR-28",
+      "kind": "FR",
+      "text": "証跡完備検証: タスク完了（`done` 遷移）時に、タスク種別ごとに定義された必須証跡（§4bis）が `evidence` に揃っていることを検証し、欠落時は遷移を拒否する（← BR-B3）",
+      "area": "",
+      "slice": "S0",
+      "trace": {
+        "upstream": [
+          "BR-B3",
+          "BR-B3"
+        ],
+        "downstream": [
+          "AC-28",
+          "FN-208"
+        ]
+      }
+    },
+    {
+      "id": "FR-31",
+      "kind": "FR",
+      "text": "ヒアリングエンジン: スキーマ（§4）の必須スロットの空きを検出し、質問リストを生成して Claude Code 対話で人に照会、回答を型検証して充填する。未充足のままでは依存タスクを開始しない",
+      "area": "",
+      "slice": "S1+",
+      "trace": {
+        "upstream": [
+          "BR-D1"
+        ],
+        "downstream": [
+          "FN-301",
+          "FN-302"
+        ]
+      }
+    },
+    {
+      "id": "FR-32",
+      "kind": "FR",
+      "text": "リサーチエンジン: Web 検索で KPI 初期形・媒体標準指標・運用詳細を取得し、出典 URL 付きで draft を起草する。出典なしの値は draft に書けない（幻覚抑止）",
+      "area": "",
+      "slice": "S1+",
+      "trace": {
+        "upstream": [
+          "BR-D2"
+        ],
+        "downstream": [
+          "FN-303",
+          "FN-304"
+        ]
+      }
+    },
+    {
+      "id": "FR-33",
+      "kind": "FR",
+      "text": "設定管理: `config` テーブル（key, value, type, changed_at, changed_by, reason）。 変更は履歴保持（UPDATE でなく INSERT）。安全側数値の既定値は保守的に設定",
+      "area": "",
+      "slice": "S0",
+      "trace": {
+        "upstream": [
+          "BR-D3"
+        ],
+        "downstream": [
+          "AC-33",
+          "FN-305"
+        ]
+      }
+    },
+    {
+      "id": "FR-34",
+      "kind": "FR",
+      "text": "事業非依存: 事業前提は `business_profiles` に分離し、複数プロファイルの共存を許すスキーマとする",
+      "area": "",
+      "slice": "S1+",
+      "trace": {
+        "upstream": [
+          "BR-D4"
+        ],
+        "downstream": [
+          "FN-306"
+        ]
+      }
+    },
+    {
+      "id": "FR-41",
+      "kind": "FR",
+      "text": "接続レジストリ: サービスごとに (優先経路: MCP/ブラウザ/API, フォールバック経路, 認証方式) を 宣言的に保持。経路選定はレジストリ参照で行いコードに埋め込まない",
+      "area": "",
+      "slice": "S0",
+      "trace": {
+        "upstream": [
+          "BR-F1",
+          "BR-F3"
+        ],
+        "downstream": [
+          "AC-41",
+          "FN-401",
+          "FN-412"
+        ]
+      }
+    },
+    {
+      "id": "FR-42",
+      "kind": "FR",
+      "text": "ブラウザ自動化基盤: Playwright 系で headed/headless を切替可能。操作は攻略地図 （`playbooks`: サイト・手順・セレクタ・最終成功日時）を参照して実行し、成功時に地図を更新",
+      "area": "",
+      "slice": "S0",
+      "trace": {
+        "upstream": [
+          "BR-F2",
+          "BR-F5"
+        ],
+        "downstream": [
+          "AC-42",
+          "FN-402",
+          "FN-403",
+          "FN-404"
+        ]
+      }
+    },
+    {
+      "id": "FR-43",
+      "kind": "FR",
+      "text": "攻略地図の自己修復: セレクタ不一致等の破損検知時、ページ再解析による地図再生成を 1 回試み、 失敗時はタスクを `escalated` にして通知（BR-H3）",
+      "area": "",
+      "slice": "S1+",
+      "trace": {
+        "upstream": [
+          "BR-F2",
+          "BR-H3"
+        ],
+        "downstream": [
+          "FN-405"
+        ]
+      }
+    },
+    {
+      "id": "FR-44",
+      "kind": "FR",
+      "text": "WP コネクタ: REST（投稿・メディア・下書き）+ WP-CLI（構築系）。書き込み系は成立済みペア ID を要求（FR-21）",
+      "area": "",
+      "slice": "S0",
+      "trace": {
+        "upstream": [
+          "BR-G4",
+          "FR-21"
+        ],
+        "downstream": [
+          "AC-44",
+          "FN-406",
+          "FN-407"
+        ]
+      }
+    },
+    {
+      "id": "FR-45",
+      "kind": "FR",
+      "text": "Notion 同期: スプリント開始時に計画を読取り、レビュー成立時に結果を書戻す低頻度同期。 Notion 障害時もループは SQLite のみで継続可能（Notion は判定に関与しない）",
+      "area": "",
+      "slice": "S1+",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "FN-408"
+        ]
+      }
+    },
+    {
+      "id": "FR-46",
+      "kind": "FR",
+      "text": "承認チャネル: Claude Code アプリ通知で束縛承認（対象・操作・時点を明記）を送り、 応答を `approvals` に証跡化。オートモード判定は `config.auto_mode_criteria`（C）と実績証跡から機械判定",
+      "area": "",
+      "slice": "S0",
+      "trace": {
+        "upstream": [
+          "BR-H1",
+          "BR-H2"
+        ],
+        "downstream": [
+          "AC-46",
+          "FN-409",
+          "FN-410"
+        ]
+      }
+    },
+    {
+      "id": "FR-47",
+      "kind": "FR",
+      "text": "秘匿情報: 認証情報・セッションは OS キーチェーンまたは暗号化ストアに置き、 リポジトリ・SQLite・ログへの平文書き込みを禁止（BR-F4）",
+      "area": "",
+      "slice": "S0",
+      "trace": {
+        "upstream": [
+          "BR-F4",
+          "BR-F4"
+        ],
+        "downstream": [
+          "AC-47",
+          "FN-411"
+        ]
+      }
+    },
+    {
+      "id": "FR-51",
+      "kind": "FR",
+      "text": "レンダリングパイプライン: HTML/SVG → ブラウザスクショ（画像）／HTML → PDF（スライド・資料）。 入力ソースは git ワークスペース、出力は WP メディアへアップし `assets` に参照登録",
+      "area": "",
+      "slice": "S0",
+      "trace": {
+        "upstream": [
+          "BR-G1"
+        ],
+        "downstream": [
+          "AC-51",
+          "FN-501",
+          "FN-502",
+          "FN-503"
+        ]
+      }
+    },
+    {
+      "id": "FR-52",
+      "kind": "FR",
+      "text": "デザイントークン適用: Claude Design（DesignSync）から取得したトークンをレンダリング時に注入。 トークン取得不能時は直近同期済みキャッシュで継続",
+      "area": "",
+      "slice": "S1+",
+      "trace": {
+        "upstream": [
+          "BR-G3"
+        ],
+        "downstream": [
+          "FN-504"
+        ]
+      }
+    },
+    {
+      "id": "FR-53",
+      "kind": "FR",
+      "text": "音声・動画・EPUB: VOICEVOX(localhost)・Remotion/ffmpeg(NVENC)・pandoc の各パイプライン。 すべて入力（台本・素材参照）から出力まで再現可能なコード実行として記録",
+      "area": "",
+      "slice": "S1+",
+      "trace": {
+        "upstream": [
+          "BR-G1"
+        ],
+        "downstream": [
+          "FN-505",
+          "FN-506",
+          "FN-507",
+          "FN-508"
+        ]
+      }
+    },
+    {
+      "id": "FR-54",
+      "kind": "FR",
+      "text": "版と証跡: 審査に出す成果物はワークスペースの commit hash で特定。PASS 記録は hash に紐づく",
+      "area": "",
+      "slice": "S0",
+      "trace": {
+        "upstream": [
+          "BR-G1",
+          "BR-B3"
+        ],
+        "downstream": [
+          "AC-54",
+          "FN-511"
+        ]
+      }
+    },
+    {
+      "id": "FR-55",
+      "kind": "FR",
+      "text": "資産収束・リパーパス追跡: コンテンツ実体は WP へアップし `assets` に参照登録する。 派生制作（記事→SNS/スライド/音声/動画/EPUB）は元資産への参照を保持し、リパーパス系譜を追跡できる（← BR-G2）",
+      "area": "",
+      "slice": "S1+",
+      "trace": {
+        "upstream": [
+          "BR-G2",
+          "BR-G2"
+        ],
+        "downstream": [
+          "FN-512"
+        ]
+      }
+    },
+    {
+      "id": "FR-61",
+      "kind": "FR",
+      "text": "KPI ツリー: `kpi_nodes`（階層: 露出/マイクロCV/転換/関係/収益, 媒体タグ, 集計式）+ `measurements`（node_id, 値, 期間, 取得証跡 ID）。媒体横断集計クエリが書ける正規化を維持",
+      "area": "",
+      "slice": "S0",
+      "trace": {
+        "upstream": [
+          "BR-E1"
+        ],
+        "downstream": [
+          "AC-61",
+          "FN-601",
+          "FN-604"
+        ]
+      }
+    },
+    {
+      "id": "FR-62",
+      "kind": "FR",
+      "text": "取り込みパイプライン: 取得（正規 API またはブラウザエクスポート。経路は接続レジストリと [ADR-006](../governance/adr/ADR-006-official-api-routes.md) に従い、GA4/GSC は正規 API）→ 取得物のハッシュ記録 → パーサ（サービス別）→ `measurements` 投入。パース失敗はエラー隔離し部分投入を許す",
+      "area": "",
+      "slice": "S0",
+      "trace": {
+        "upstream": [
+          "BR-E2"
+        ],
+        "downstream": [
+          "AC-62",
+          "FN-602",
+          "FN-603"
+        ]
+      }
+    },
+    {
+      "id": "FR-63",
+      "kind": "FR",
+      "text": "ダッシュボード生成: SQLite → HTML（自己完結・依存 CDN なし）。生成物も証跡として保存。 xlsx エクスポート（従）を提供",
+      "area": "",
+      "slice": "S1+",
+      "trace": {
+        "upstream": [
+          "BR-E3"
+        ],
+        "downstream": [
+          "FN-605",
+          "FN-606"
+        ]
+      }
+    },
+    {
+      "id": "FR-71",
+      "kind": "FR",
+      "text": "主要テーブル（S0 最小集合は §4）: business_profiles, brand_plans, action_plans, sprints, loop_runs, tasks, workflows, agents, pair_plan_quality, pair_kpi_measure, evidence, kpi_nodes, measurements, learnings, playbooks, assets, approvals, config, spend_ledger",
+      "area": "",
+      "slice": "S0",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "AC-71",
+          "FN-701",
+          "FN-703"
+        ]
+      }
+    },
+    {
+      "id": "FR-72",
+      "kind": "FR",
+      "text": "マイグレーション: スキーマ版数を持ち、前方参照のみで昇格（HELIX 同様、壊す変更をしない）",
+      "area": "",
+      "slice": "S0",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "AC-72",
+          "FN-702"
+        ]
+      }
+    },
+    {
+      "id": "FR-73",
+      "kind": "FR",
+      "text": "例外支出台帳: `spend_ledger`（サービス・金額・用途・タスク参照）。Seedance 等の例外利用を全件記録",
+      "area": "",
+      "slice": "S1+",
+      "trace": {
+        "upstream": [
+          "BR-F1"
+        ],
+        "downstream": [
+          "FN-607"
+        ]
+      }
+    },
+    {
+      "id": "NFR-1",
+      "kind": "NFR",
+      "title": "fail-close: 全ゲートは判定不能時に「通さない」側へ倒す。ゲートの無効化フラグを持たない",
+      "text": "fail-close: 全ゲートは判定不能時に「通さない」側へ倒す。ゲートの無効化フラグを持たない",
+      "trace": {
+        "upstream": [
+          "BR-C1",
+          "BR-C2",
+          "BR-C3"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "NFR-2",
+      "kind": "NFR",
+      "title": "決定性: 制作・集計は同一入力→同一出力。非決定要素（生成 AI・外部サイト）は出力を証跡化して固定",
+      "text": "決定性: 制作・集計は同一入力→同一出力。非決定要素（生成 AI・外部サイト）は出力を証跡化して固定",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      }
+    },
+    {
+      "id": "NFR-3",
+      "kind": "NFR",
+      "title": "再開性: 全ループ・タスクは SQLite の状態から再開可能。プロセス強制終了で状態を失わない （遷移は書き込み後に実行）",
+      "text": "再開性: 全ループ・タスクは SQLite の状態から再開可能。プロセス強制終了で状態を失わない （遷移は書き込み後に実行）",
+      "trace": {
+        "upstream": [
+          "BR-A1"
+        ],
+        "downstream": [
+          "FN-109"
+        ]
+      }
+    },
+    {
+      "id": "NFR-4",
+      "kind": "NFR",
+      "title": "秘匿: 平文credential ゼロ（FR-47）。ログ・証跡への秘匿情報混入をマスキングで防ぐ",
+      "text": "秘匿: 平文credential ゼロ（FR-47）。ログ・証跡への秘匿情報混入をマスキングで防ぐ",
+      "trace": {
+        "upstream": [
+          "BR-F4",
+          "FR-47"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "NFR-5",
+      "kind": "NFR",
+      "title": "可観測性: すべての状態遷移・ゲート判定・外部操作は構造化ログ（SQLite）に残り、 「いまどこで何が滞留しているか」を 1 クエリで答えられる",
+      "text": "可観測性: すべての状態遷移・ゲート判定・外部操作は構造化ログ（SQLite）に残り、 「いまどこで何が滞留しているか」を 1 クエリで答えられる",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "FN-704",
+          "FN-705"
+        ]
+      }
+    },
+    {
+      "id": "NFR-6",
+      "kind": "NFR",
+      "title": "支出上限: `config.spend_cap_monthly`（C・暫定既定値 5,000 円/月）超過で有償経路のタスクを自動停止",
+      "text": "支出上限: `config.spend_cap_monthly`（C・暫定既定値 5,000 円/月）超過で有償経路のタスクを自動停止",
+      "trace": {
+        "upstream": [
+          "BR-F1"
+        ],
+        "downstream": [
+          "FN-607"
+        ]
+      }
+    },
+    {
+      "id": "NFR-7",
+      "kind": "NFR",
+      "title": "レート節度: （← BR-F5）: ブラウザ自動化の**書き込み・公開系操作**は人間相当のランダム化された操作間隔を守り、 対象サービスに負荷をかけない。間隔は固定値でなく範囲からの乱数とする（固定間隔はそれ自体が機械の署名になるため）。 暫定既定値（C）: 間隔 1〜5 秒の一様乱数、1 媒体あたり公開系操作 1 日 10 件以下。 読み取り系（ページ遷移・計測エクスポート等）は通常のページ操作速度でよい。 乱数のシード・生成値は再現性のため構造化ログに記録する（NFR-2 決定性はログ再生で担保）",
+      "text": "レート節度: （← BR-F5）: ブラウザ自動化の**書き込み・公開系操作**は人間相当のランダム化された操作間隔を守り、 対象サービスに負荷をかけない。間隔は固定値でなく範囲からの乱数とする（固定間隔はそれ自体が機械の署名になるため）。 暫定既定値（C）: 間隔 1〜5 秒の一様乱数、1 媒体あたり公開系操作 1 日 10 件以下。 読み取り系（ページ遷移・計測エクスポート等）は通常のページ操作速度でよい。 乱数のシード・生成値は再現性のため構造化ログに記録する（NFR-2 決定性はログ再生で担保）",
+      "trace": {
+        "upstream": [
+          "BR-F5",
+          "BR-F5",
+          "NFR-2"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "NFR-8",
+      "kind": "NFR",
+      "title": "保守性: 媒体追加がワークフロー＋攻略地図＋接続レジストリ行の追加のみで完結（外殻コード変更ゼロ）",
+      "text": "保守性: 媒体追加がワークフロー＋攻略地図＋接続レジストリ行の追加のみで完結（外殻コード変更ゼロ）",
+      "trace": {
+        "upstream": [
+          "BR-F3"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "NFR-9",
+      "kind": "NFR",
+      "title": "法規遵守: 景表法ステマ規制（FR-24）に加え、メール/LINE 配信は特定電子メール法の オプトイン・配信停止導線を機械ゲート化し（MR-HS-3, MR-LINE-2）、リード個人情報は APPI に従い 収集目的の範囲内でのみ保持・利用する。機械ゲート化できない配信形態は採用しない（fail-close）",
+      "text": "法規遵守: 景表法ステマ規制（FR-24）に加え、メール/LINE 配信は特定電子メール法の オプトイン・配信停止導線を機械ゲート化し（MR-HS-3, MR-LINE-2）、リード個人情報は APPI に従い 収集目的の範囲内でのみ保持・利用する。機械ゲート化できない配信形態は採用しない（fail-close）",
+      "trace": {
+        "upstream": [
+          "BR-C2",
+          "FR-24",
+          "MR-HS-3",
+          "MR-LINE-2"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "NFR-10",
+      "kind": "NFR",
+      "title": "バックアップ・復旧: SQLite は日次バックアップ＋世代保持（C・暫定 14 世代）。 ブラウザセッション・WP はそれぞれ暗号化ストアの複製・WP 側バックアップで復旧可能とする（RSK-06）",
+      "text": "バックアップ・復旧: SQLite は日次バックアップ＋世代保持（C・暫定 14 世代）。 ブラウザセッション・WP はそれぞれ暗号化ストアの複製・WP 側バックアップで復旧可能とする（RSK-06）",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      }
+    },
+    {
+      "id": "AC-11",
+      "kind": "AC",
+      "target": "FR-11",
+      "text": "遷移表に無い (状態, イベント) の組を与えると遷移が拒否され状態が変化しないことがテストで示される",
+      "given": [
+        "状態遷移表と有効な loop_runs が fixture として存在する"
+      ],
+      "when": [
+        "遷移表に無い (状態, イベント) の組を与える"
+      ],
+      "then": [
+        "遷移が拒否され状態が変化しないことがテストで示される"
+      ],
+      "trace": {
+        "upstream": [
+          "FR-11"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "AC-12",
+      "kind": "AC",
+      "target": "FR-12",
+      "text": "ループステップ到達で tasks 行が生成され、ワークフロー ID・担当・期待成果物型がすべて非 NULL である",
+      "given": [
+        "ループステップと tasks テーブルが fixture として存在する"
+      ],
+      "when": [
+        "ループステップへ到達する"
+      ],
+      "then": [
+        "tasks 行が生成され、ワークフロー ID・担当・期待成果物型がすべて非 NULL である"
+      ],
+      "trace": {
+        "upstream": [
+          "FR-12"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "AC-13",
+      "kind": "AC",
+      "target": "FR-13",
+      "text": "検証 FAIL の差し戻しが retry_limit（暫定 3）回で `escalated` になることがテストで示される",
+      "given": [
+        "retry_limit（暫定 3）と検証対象タスクが fixture として存在する"
+      ],
+      "when": [
+        "検証 FAIL の差し戻しを retry_limit 回実行する"
+      ],
+      "then": [
+        "タスクが escalated になることがテストで示される"
+      ],
+      "trace": {
+        "upstream": [
+          "FR-13"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "AC-21",
+      "kind": "AC",
+      "target": "FR-21",
+      "text": "審査 PASS レコードなしの公開呼び出しをエンジンが拒否する（S0 受入基準 2 と同一）",
+      "given": [
+        "企画レコードはあるが審査 PASS レコードがない状態を用意する"
+      ],
+      "when": [
+        "公開呼び出しを行う"
+      ],
+      "then": [
+        "エンジンが公開を拒否する"
+      ],
+      "trace": {
+        "upstream": [
+          "FR-21"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "AC-23",
+      "kind": "AC",
+      "target": "FR-23",
+      "text": "CAC/ROAS 等の有料指標型の kpi_nodes 登録が拒否される",
+      "given": [
+        "kpi_nodes 登録機能を用意する"
+      ],
+      "when": [
+        "CAC/ROAS 等の有料指標型を登録する"
+      ],
+      "then": [
+        "登録が拒否される"
+      ],
+      "trace": {
+        "upstream": [
+          "FR-23"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "AC-27",
+      "kind": "AC",
+      "target": "FR-27",
+      "text": "author == verifier の割当が DB 制約とエンジンの双方で拒否される（S0 受入基準 3 と同一）",
+      "given": [
+        "author と verifier を同一エージェントにした割当を用意する"
+      ],
+      "when": [
+        "そのタスク割当を DB とエンジンへ渡す"
+      ],
+      "then": [
+        "DB 制約とエンジンの双方で拒否される"
+      ],
+      "trace": {
+        "upstream": [
+          "FR-27"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "AC-28",
+      "kind": "AC",
+      "target": "FR-28",
+      "text": "必須証跡（kind 集合）が欠けたタスクは `done` に遷移できないことがテストで示される",
+      "given": [
+        "必須証跡 kind 集合の一部が欠けたタスクを用意する"
+      ],
+      "when": [
+        "タスクを done に遷移させる"
+      ],
+      "then": [
+        "done への遷移が拒否されることがテストで示される"
+      ],
+      "trace": {
+        "upstream": [
+          "FR-28"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "AC-33",
+      "kind": "AC",
+      "target": "FR-33",
+      "text": "config 変更が INSERT で履歴化され、変更前の値と変更理由が後から取得できる",
+      "given": [
+        "既存 config 値と変更理由を用意する"
+      ],
+      "when": [
+        "config を変更する"
+      ],
+      "then": [
+        "変更が INSERT で履歴化され、変更前の値と変更理由を後から取得できる"
+      ],
+      "trace": {
+        "upstream": [
+          "FR-33"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "AC-41",
+      "kind": "AC",
+      "target": "FR-41",
+      "text": "経路の切替がレジストリ行の変更のみで反映される（コード変更なし）",
+      "given": [
+        "接続レジストリに経路を持つサービスを用意する"
+      ],
+      "when": [
+        "レジストリ行だけを変更して経路を切り替える"
+      ],
+      "then": [
+        "コード変更なしで切替が反映される"
+      ],
+      "trace": {
+        "upstream": [
+          "FR-41"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "AC-42",
+      "kind": "AC",
+      "target": "FR-42",
+      "text": "playbooks を参照した操作が成功し、成功時に最終成功日時が更新される",
+      "given": [
+        "成功可能な playbook と対象操作を用意する"
+      ],
+      "when": [
+        "playbooks を参照して操作する"
+      ],
+      "then": [
+        "操作が成功し、最終成功日時が更新される"
+      ],
+      "trace": {
+        "upstream": [
+          "FR-42"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "AC-44",
+      "kind": "AC",
+      "target": "FR-44",
+      "text": "成立ペア ID なしの WP 書き込みが拒否され、ありでは下書き→公開が成功する",
+      "given": [
+        "WP コネクタと、成立ペア ID なし／ありの二つの状態を用意する"
+      ],
+      "when": [
+        "各状態で WP 書き込みを呼び出す"
+      ],
+      "then": [
+        "ペア ID なしは拒否され、ありは下書き→公開が成功する"
+      ],
+      "trace": {
+        "upstream": [
+          "FR-44"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "AC-46",
+      "kind": "AC",
+      "target": "FR-46",
+      "text": "承認要求が通知され、応答が approvals に証跡化されるまで対象タスクが進行しない",
+      "given": [
+        "承認対象タスクと通知経路を用意する"
+      ],
+      "when": [
+        "承認要求を通知し、応答前後のタスク進行を観測する"
+      ],
+      "then": [
+        "応答が approvals に証跡化されるまで対象タスクが進行しない"
+      ],
+      "trace": {
+        "upstream": [
+          "FR-46"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "AC-47",
+      "kind": "AC",
+      "target": "FR-47",
+      "text": "リポジトリ・SQLite・ログの全文検索で平文 credential の検出が 0 件である",
+      "given": [
+        "リポジトリ・SQLite・ログを検索可能な fixture として用意する"
+      ],
+      "when": [
+        "平文 credential を全文検索する"
+      ],
+      "then": [
+        "検出件数が 0 件である"
+      ],
+      "trace": {
+        "upstream": [
+          "FR-47"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "AC-51",
+      "kind": "AC",
+      "target": "FR-51",
+      "text": "同一入力ソースからの再実行で同一出力（ファイルハッシュ一致）が得られる",
+      "given": [
+        "同一入力ソースと決定的な制作・集計処理を用意する"
+      ],
+      "when": [
+        "同一入力から 2 回再実行する"
+      ],
+      "then": [
+        "同一出力（ファイルハッシュ一致）が得られる"
+      ],
+      "trace": {
+        "upstream": [
+          "FR-51"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "AC-54",
+      "kind": "AC",
+      "target": "FR-54",
+      "text": "審査 PASS が commit hash に紐づき、hash から成果物ソースを復元できる",
+      "given": [
+        "commit hash と成果物ソース、審査 PASS 記録を用意する"
+      ],
+      "when": [
+        "審査 PASS を記録して hash から復元する"
+      ],
+      "then": [
+        "PASS が commit hash に紐づき、成果物ソースを復元できる"
+      ],
+      "trace": {
+        "upstream": [
+          "FR-54"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "AC-61",
+      "kind": "AC",
+      "target": "FR-61",
+      "text": "PV 計測値が該当 kpi_node に紐づき、取得証跡 ID を持って measurements に存在する",
+      "given": [
+        "PV 計測値、該当 kpi_node、取得証跡を用意する"
+      ],
+      "when": [
+        "PV 計測値を取り込む"
+      ],
+      "then": [
+        "該当 kpi_node に紐づき、取得証跡 ID を持って measurements に存在する"
+      ],
+      "trace": {
+        "upstream": [
+          "FR-61"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "AC-62",
+      "kind": "AC",
+      "target": "FR-62",
+      "text": "破損した入力ファイルはエラー隔離され、正常行のみが measurements に投入される",
+      "given": [
+        "正常行と破損行を含む入力ファイルを用意する"
+      ],
+      "when": [
+        "入力ファイルをパースして取り込む"
+      ],
+      "then": [
+        "破損行はエラー隔離され、正常行のみが measurements に投入される"
+      ],
+      "trace": {
+        "upstream": [
+          "FR-62"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "AC-71",
+      "kind": "AC",
+      "target": "FR-71",
+      "text": "S0 最小スキーマ（§4）の全テーブルが DDL から再現生成できる",
+      "given": [
+        "S0 最小スキーマの DDL を用意する"
+      ],
+      "when": [
+        "DDL からデータベースを再生成する"
+      ],
+      "then": [
+        "§4 の全テーブルが再現生成できる"
+      ],
+      "trace": {
+        "upstream": [
+          "FR-71"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "AC-72",
+      "kind": "AC",
+      "target": "FR-72",
+      "text": "スキーマ版数が記録され、旧版 DB からの昇格マイグレーションが成功する",
+      "given": [
+        "旧版 DB とマイグレーション定義を用意する"
+      ],
+      "when": [
+        "旧版 DB を前方昇格する"
+      ],
+      "then": [
+        "スキーマ版数が記録され、昇格マイグレーションが成功する"
+      ],
+      "trace": {
+        "upstream": [
+          "FR-72"
+        ],
+        "downstream": []
+      }
+    }
+  ],
+  "deferred": [
+    "FR-14",
+    "FR-15",
+    "FR-16",
+    "FR-22",
+    "FR-24",
+    "FR-25",
+    "FR-26",
+    "FR-31",
+    "FR-32",
+    "FR-34",
+    "FR-43",
+    "FR-45",
+    "FR-52",
+    "FR-53",
+    "FR-55",
+    "FR-63",
+    "FR-73"
+  ]
+}

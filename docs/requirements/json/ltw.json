@@ -1,0 +1,1035 @@
+{
+  "doc": "ループ・タスク・ワークフロー要件定義",
+  "version": "0.1",
+  "source": "docs/requirements/loop-task-workflow_v0.1.md",
+  "generated": "2026-07-30",
+  "items": [],
+  "loops": [
+    {
+      "id": "LP-U",
+      "type": "上位ループ（ブランド成長サイクル）",
+      "cycle": "月次",
+      "start_condition": "ブランド計画（brand_plans）が存在",
+      "feedback": "全媒体の learnings を集約し行動計画・KPI 目標を更新 → 下位ループへ再発行",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      }
+    },
+    {
+      "id": "LP-OPS",
+      "type": "運用巡回（ヘルスチェック）",
+      "cycle": "日次",
+      "start_condition": "常時",
+      "feedback": "異常検知 → T-OPS タスク発火（WF-OPS-7）",
+      "trace": {
+        "upstream": [
+          "T-OPS",
+          "WF-OPS-7"
+        ],
+        "downstream": [
+          "T-OPS",
+          "WF-OPS-7"
+        ]
+      }
+    },
+    {
+      "id": "LP-D",
+      "type": "日次回転",
+      "cycle": "1 日",
+      "start_condition": "KPI 目標あり＋前日レビュー完了",
+      "feedback": "日次でエンゲージ実績を蓄積、週次で learnings 化",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      }
+    },
+    {
+      "id": "LP-W",
+      "type": "週次回転",
+      "cycle": "1 週",
+      "start_condition": "KPI 目標あり",
+      "feedback": "スプリントレビュー（計画↔計測ペア）で learnings 生成",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      }
+    },
+    {
+      "id": "LP-M",
+      "type": "月次回転",
+      "cycle": "2 週〜1 月",
+      "start_condition": "KPI 目標＋制作資産の充足",
+      "feedback": "同上",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      }
+    },
+    {
+      "id": "LP-E",
+      "type": "イベント駆動",
+      "cycle": "なし（トリガ発火）",
+      "start_condition": "上流イベント（記事公開・還流指示）",
+      "feedback": "発火元ループに帰属",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      }
+    },
+    {
+      "id": "LP-MEAS",
+      "type": "計測サイクル",
+      "cycle": "週次（全媒体横断）",
+      "start_condition": "常時",
+      "feedback": "measurements 投入→計画↔計測ペア成立判定",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      }
+    },
+    {
+      "id": "LP-R1",
+      "text": "各媒体ループは独立に回り、他媒体の遅延に影響されない（BR-A2）",
+      "trace": {
+        "upstream": [
+          "BR-A2"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "LP-R2",
+      "text": "ループ開始はペア条件（KPI 目標の存在）を満たすまでブロック（FR-14）",
+      "trace": {
+        "upstream": [
+          "FR-14"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "LP-R3",
+      "text": "サイクル長・回転数は config で媒体別に変更でき、コード変更を要しない（NFR-8）",
+      "trace": {
+        "upstream": [
+          "NFR-8"
+        ],
+        "downstream": []
+      }
+    }
+  ],
+  "task_types": [
+    {
+      "id": "T-PLAN",
+      "title": "企画",
+      "author": "strategist",
+      "verifier": "critic",
+      "required_evidence": "企画レコード（訴求・ターゲット・狙い）",
+      "gate": "倫理",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      }
+    },
+    {
+      "id": "T-PROD",
+      "title": "制作",
+      "author": "writer/producer",
+      "verifier": "critic",
+      "required_evidence": "commit_hash",
+      "gate": "企画↔品質（審査 PASS で成立）",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      }
+    },
+    {
+      "id": "T-REVIEW",
+      "title": "審査",
+      "author": "critic",
+      "verifier": "—（審査自体が verifier 行為）",
+      "required_evidence": "review_pass",
+      "gate": "倫理・PR 表記・design-evidence（媒体による）",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      }
+    },
+    {
+      "id": "T-PUB",
+      "title": "公開",
+      "author": "connector",
+      "verifier": "gate-engine",
+      "required_evidence": "published_url ＋ screenshot",
+      "gate": "公開ゲート（成立ペア ID 必須）・束縛承認",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      }
+    },
+    {
+      "id": "T-ENGAGE",
+      "title": "応答",
+      "author": "responder",
+      "verifier": "critic（事後サンプル審査）",
+      "required_evidence": "応答ログ",
+      "gate": "倫理・レート",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      }
+    },
+    {
+      "id": "T-MEAS",
+      "title": "計測取込",
+      "author": "collector",
+      "verifier": "parser（型検証）",
+      "required_evidence": "file_hash ＋ screenshot",
+      "gate": "なし（読取専用）",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      }
+    },
+    {
+      "id": "T-SYNC",
+      "title": "登録・同期",
+      "author": "connector",
+      "verifier": "gate-engine",
+      "required_evidence": "API レスポンス/同期ログ",
+      "gate": "種別による（金銭系は束縛承認）",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      }
+    },
+    {
+      "id": "T-FILL",
+      "title": "充填（ヒアリング/リサーチ/config）",
+      "author": "filler-engine",
+      "verifier": "型検証（スキーマ）",
+      "required_evidence": "充填記録＋出典 URL（リサーチ時）",
+      "gate": "出典なし値の拒否（FR-32）",
+      "trace": {
+        "upstream": [
+          "FR-32"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "T-OPS",
+      "title": "基盤運用（構築・接続・地図・復旧）",
+      "author": "operator",
+      "verifier": "ヘルスチェック（機械検証）",
+      "required_evidence": "実行ログ＋検証結果",
+      "gate": "種別による（credential 操作は attended）",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      }
+    },
+    {
+      "id": "T-R1",
+      "text": "タスク型ごとの必須証跡 kind 集合はワークフロー定義が宣言し、FR-28 が `done` 遷移時に検証する",
+      "trace": {
+        "upstream": [
+          "FR-28"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "T-R2",
+      "text": "T-PUB は T-PROD の審査 PASS（ペア成立）なしに生成されない（エンジンがタスク発行段階で拒否）",
+      "trace": {
+        "upstream": [
+          "T-PUB",
+          "T-PROD"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "T-R3",
+      "text": "T-ENGAGE は事前審査なしで送出できるが、倫理ゲートのルールベース検査（禁止表現）を 送出前に必ず通す。事後サンプル審査で FAIL が出た場合、当該媒体の T-ENGAGE を停止",
+      "trace": {
+        "upstream": [
+          "T-ENGAGE"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "T-R4",
+      "text": "金銭属性を持つタスク（価格設定・返金等）は型に関わらず束縛承認を要求（FR-26）",
+      "trace": {
+        "upstream": [
+          "FR-26"
+        ],
+        "downstream": []
+      }
+    }
+  ],
+  "workflows": [
+    {
+      "id": "WF-WP-1",
+      "purpose": "ブログ記事制作",
+      "steps": "seo-jp → copywriting → content-design → design-evidence-jp（審査）",
+      "trace": {
+        "upstream": [
+          "WF-WP-1"
+        ],
+        "downstream": []
+      },
+      "output": "記事ソース（commit）"
+    },
+    {
+      "id": "WF-WP-2",
+      "purpose": "記事公開",
+      "steps": "ペア検証 → REST 下書き → 束縛承認 → 公開 → スクショ",
+      "trace": {
+        "upstream": [
+          "WF-WP-2"
+        ],
+        "downstream": []
+      },
+      "output": "published_url"
+    },
+    {
+      "id": "WF-MEAS-1",
+      "purpose": "GA4 PV 取込",
+      "steps": "エクスポート取得 → hash → パース → measurements",
+      "trace": {
+        "upstream": [
+          "WF-MEAS-1"
+        ],
+        "downstream": []
+      },
+      "output": "計測行"
+    },
+    {
+      "id": "WF-DASH-1",
+      "purpose": "ダッシュボード生成",
+      "steps": "SQLite クエリ → HTML 生成 → 証跡保存",
+      "trace": {
+        "upstream": [
+          "WF-DASH-1"
+        ],
+        "downstream": []
+      },
+      "output": "HTML"
+    },
+    {
+      "id": "WF-NOTION-1",
+      "purpose": "計画同期",
+      "steps": "読取り → 差分検出 → 書戻し",
+      "trace": {
+        "upstream": [
+          "WF-NOTION-1"
+        ],
+        "downstream": []
+      },
+      "output": "同期ログ"
+    },
+    {
+      "id": "WF-X-1",
+      "purpose": "ポスト制作・投稿",
+      "steps": "sns-jp → copywriting → 審査 → 投稿 → スクショ",
+      "trace": {
+        "upstream": [
+          "WF-X-1",
+          "POC-01"
+        ],
+        "downstream": []
+      },
+      "poc": "POC-01"
+    },
+    {
+      "id": "WF-X-2",
+      "purpose": "リプライ応答",
+      "steps": "engagement-reply-jp → 倫理ルール検査 → 送出",
+      "trace": {
+        "upstream": [
+          "WF-X-2",
+          "POC-01"
+        ],
+        "downstream": []
+      },
+      "poc": "POC-01"
+    },
+    {
+      "id": "WF-NOTE-1",
+      "purpose": "note 記事・有料記事",
+      "steps": "storytelling → sales-writing → 審査 → 投稿（価格は束縛承認）",
+      "trace": {
+        "upstream": [
+          "WF-NOTE-1",
+          "POC-05"
+        ],
+        "downstream": []
+      },
+      "poc": "POC-05"
+    },
+    {
+      "id": "WF-YT-1",
+      "purpose": "動画制作",
+      "steps": "video-script → VOICEVOX → 素材 → Remotion/ffmpeg 合成",
+      "trace": {
+        "upstream": [
+          "WF-YT-1",
+          "POC-08"
+        ],
+        "downstream": []
+      },
+      "poc": "POC-08"
+    },
+    {
+      "id": "WF-YT-2",
+      "purpose": "動画公開",
+      "steps": "審査 → アップロード → メタ設定 → AI 開示フラグ → スクショ",
+      "trace": {
+        "upstream": [
+          "WF-YT-2",
+          "POC-01"
+        ],
+        "downstream": []
+      },
+      "poc": "POC-01（YT 変種）"
+    },
+    {
+      "id": "WF-IG-1",
+      "purpose": "フィード/リール投稿",
+      "steps": "sns-jp → design-evidence 審査 → 投稿",
+      "trace": {
+        "upstream": [
+          "WF-IG-1",
+          "POC-02"
+        ],
+        "downstream": []
+      },
+      "poc": "POC-02"
+    },
+    {
+      "id": "WF-PC-1",
+      "purpose": "Podcast 派生配信",
+      "steps": "音声抽出 → mp3 → WP メディア → RSS 更新",
+      "trace": {
+        "upstream": [
+          "WF-PC-1",
+          "POC-08"
+        ],
+        "downstream": []
+      },
+      "poc": "POC-08"
+    },
+    {
+      "id": "WF-KDP-1",
+      "purpose": "EPUB 出版",
+      "steps": "WP 資産再編 → pandoc EPUB → 審査 → AI 申告 → 出版（価格は束縛承認）",
+      "trace": {
+        "upstream": [
+          "WF-KDP-1",
+          "POC-09"
+        ],
+        "downstream": []
+      },
+      "poc": "POC-09"
+    },
+    {
+      "id": "WF-HS-1",
+      "purpose": "メルマガ配信",
+      "steps": "messaging-design-jp → 法規要素検証（NFR-9）→ 審査 → MCP 配信",
+      "trace": {
+        "upstream": [
+          "WF-HS-1",
+          "NFR-9",
+          "POC-10"
+        ],
+        "downstream": []
+      },
+      "poc": "POC-10"
+    },
+    {
+      "id": "WF-LINE-1",
+      "purpose": "セグメント配信",
+      "steps": "セグメント抽出 → messaging-design-jp → 審査 → 配信",
+      "trace": {
+        "upstream": [
+          "WF-LINE-1",
+          "POC-11"
+        ],
+        "downstream": []
+      },
+      "poc": "POC-11"
+    },
+    {
+      "id": "WF-AFF-1",
+      "purpose": "提携・リンク埋込",
+      "steps": "案件選定 → 提携申請 → PR 表記付き記事（WF-WP-1 に合流） → 表記位置検証",
+      "trace": {
+        "upstream": [
+          "WF-AFF-1",
+          "WF-WP-1",
+          "POC-12"
+        ],
+        "downstream": []
+      },
+      "poc": "POC-12"
+    },
+    {
+      "id": "WF-ASSET-1",
+      "purpose": "素材調達",
+      "steps": "素材要求 → 取得（経路は POC-13）→ ライセンス台帳登録",
+      "trace": {
+        "upstream": [
+          "WF-ASSET-1",
+          "POC-13"
+        ],
+        "downstream": []
+      },
+      "poc": "POC-13"
+    },
+    {
+      "id": "WF-PLAN-1",
+      "purpose": "ブランド計画策定（初回・年次改訂）",
+      "steps": "事業前提充填（WF-FILL-1 呼出）→ 市場・媒体標準リサーチ → ブランド計画 draft（1 年地平・北極星 KPI）→ **人の承認（束縛）** → brand_plans 投入",
+      "trace": {
+        "upstream": [
+          "WF-PLAN-1",
+          "WF-FILL-1"
+        ],
+        "downstream": []
+      },
+      "human_involvement": "承認のみ"
+    },
+    {
+      "id": "WF-PLAN-2",
+      "purpose": "行動計画更新（月次）",
+      "steps": "learnings 集約 → KPI 実績と目標の乖離分析 → 行動計画 draft 更新 → ブランド計画への trace 検証 → Notion 書戻し",
+      "trace": {
+        "upstream": [
+          "WF-PLAN-2"
+        ],
+        "downstream": []
+      },
+      "human_involvement": "なし（乖離が閾値超過時のみ通知）"
+    },
+    {
+      "id": "WF-PLAN-3",
+      "purpose": "KPI ツリー構築・改訂",
+      "steps": "媒体標準指標リサーチ（出典必須）→ ツリー draft（露出/マイクロCV/転換/関係/収益の 5 層）→ 有料指標の型拒否検証（FR-23）→ kpi_nodes 投入",
+      "trace": {
+        "upstream": [
+          "WF-PLAN-3",
+          "FR-23"
+        ],
+        "downstream": []
+      },
+      "human_involvement": "なし"
+    },
+    {
+      "id": "WF-PLAN-4",
+      "purpose": "媒体ポートフォリオ選定・スプリント計画",
+      "steps": "行動計画 → 媒体別リソース配分 → KPI 目標設定 → スプリント生成（目標なしは開始拒否 = FR-14）→ タスクキュー生成",
+      "trace": {
+        "upstream": [
+          "WF-PLAN-4",
+          "FR-14"
+        ],
+        "downstream": []
+      },
+      "human_involvement": "なし"
+    },
+    {
+      "id": "WF-PLAN-5",
+      "purpose": "スプリントレビュー・還流",
+      "steps": "計画↔計測ペア成立検証（FR-22）→ 達成/未達の要因分析 → learnings 生成 → 上位ループ入力キュー投入",
+      "trace": {
+        "upstream": [
+          "WF-PLAN-5",
+          "FR-22"
+        ],
+        "downstream": []
+      },
+      "human_involvement": "なし"
+    },
+    {
+      "id": "WF-PLAN-6",
+      "purpose": "ネタ・企画の起票",
+      "steps": "Notion ネタ帳読取り＋リサーチ → 企画 draft（訴求・ターゲット・狙い）→ 倫理ゲート → 企画レコード確定",
+      "trace": {
+        "upstream": [
+          "WF-PLAN-6"
+        ],
+        "downstream": []
+      },
+      "human_involvement": "なし"
+    },
+    {
+      "id": "WF-FILL-1",
+      "purpose": "初回セットアップ（事業前提の充填）",
+      "steps": "スキーマ必須スロットの欠損検出（FR-31）→ 問診リスト生成 → **Claude Code 対話で人に照会** → 回答の型検証 → business_profiles / config 投入",
+      "trace": {
+        "upstream": [
+          "WF-FILL-1",
+          "FR-31"
+        ],
+        "downstream": []
+      },
+      "human_involvement": "回答（唯一の設計上の人手入力）"
+    },
+    {
+      "id": "WF-FILL-2",
+      "purpose": "config 変更",
+      "steps": "変更要求（理由付き）→ 影響範囲の確認（依存タスク列挙）→ INSERT 履歴充填（FR-33）→ 変更通知",
+      "trace": {
+        "upstream": [
+          "WF-FILL-2",
+          "FR-33"
+        ],
+        "downstream": []
+      },
+      "human_involvement": "安全側→危険側の変更のみ束縛承認"
+    },
+    {
+      "id": "WF-FILL-3",
+      "purpose": "リサーチ充填",
+      "steps": "不足スロット特定 → Web 検索 → 出典付き draft（出典なし値は拒否 = FR-32）→ 型検証 → スロット投入",
+      "trace": {
+        "upstream": [
+          "WF-FILL-3",
+          "FR-32"
+        ],
+        "downstream": []
+      },
+      "human_involvement": "なし"
+    },
+    {
+      "id": "WF-FILL-4",
+      "purpose": "別事業プロファイル追加",
+      "steps": "WF-FILL-1 再実行 → プロファイル分離検証（FR-34: 既存事業への影響ゼロ確認）→ 有効化",
+      "trace": {
+        "upstream": [
+          "WF-FILL-4",
+          "WF-FILL-1",
+          "FR-34"
+        ],
+        "downstream": []
+      },
+      "human_involvement": "回答＋有効化承認"
+    },
+    {
+      "id": "WF-PROD-TEXT",
+      "purpose": "記事・台本・コピー",
+      "steps": "企画（WF-PLAN-6 出力）→ 構成 → 執筆（seo-jp/copywriting/storytelling）→ 推敲 → commit",
+      "trace": {
+        "upstream": [
+          "WF-PROD-TEXT",
+          "WF-PLAN-6"
+        ],
+        "downstream": []
+      },
+      "poc": "—"
+    },
+    {
+      "id": "WF-PROD-IMG",
+      "purpose": "図解・OGP・バナー",
+      "steps": "構成案 → HTML/SVG 生成 → デザイントークン注入（FR-52）→ Playwright スクショ → design-evidence 審査。写実・イラスト系素材は Codex CLI image_gen（BR-M-GENAI-4）で生成し同審査へ",
+      "trace": {
+        "upstream": [
+          "WF-PROD-IMG",
+          "FR-52",
+          "BR-M-GENAI-4"
+        ],
+        "downstream": []
+      },
+      "poc": "—"
+    },
+    {
+      "id": "WF-PROD-SLIDE",
+      "purpose": "スライド・資料 PDF",
+      "steps": "構成 → HTML（slide テンプレート）→ トークン注入 → Playwright PDF → 審査",
+      "trace": {
+        "upstream": [
+          "WF-PROD-SLIDE"
+        ],
+        "downstream": []
+      },
+      "poc": "—"
+    },
+    {
+      "id": "WF-PROD-AUDIO",
+      "purpose": "音声（Podcast/stand.fm 用）",
+      "steps": "台本（WF-PROD-TEXT 出力）→ VOICEVOX 音声合成 → mp3 変換 → 音質機械検証（長さ・無音区間）",
+      "trace": {
+        "upstream": [
+          "WF-PROD-AUDIO",
+          "WF-PROD-TEXT",
+          "POC-08"
+        ],
+        "downstream": []
+      },
+      "poc": "POC-08"
+    },
+    {
+      "id": "WF-PROD-VIDEO",
+      "purpose": "動画",
+      "steps": "台本 → 音声（WF-PROD-AUDIO）→ 素材調達（WF-ASSET-1）→ Remotion 合成 → NVENC エンコード → 審査",
+      "trace": {
+        "upstream": [
+          "WF-PROD-VIDEO",
+          "WF-PROD-AUDIO",
+          "WF-ASSET-1",
+          "POC-08"
+        ],
+        "downstream": []
+      },
+      "poc": "POC-08"
+    },
+    {
+      "id": "WF-PROD-SHORT",
+      "purpose": "ショート派生（9:16）",
+      "steps": "元動画 → ハイライト抽出 → ffmpeg プロファイル変換 → 独自編集付与（BR-M-YT-3）→ 審査",
+      "trace": {
+        "upstream": [
+          "WF-PROD-SHORT",
+          "BR-M-YT-3",
+          "POC-08"
+        ],
+        "downstream": []
+      },
+      "poc": "POC-08"
+    },
+    {
+      "id": "WF-PROD-EPUB",
+      "purpose": "電子書籍",
+      "steps": "WP 資産のテーマ別選定 → 再編・加筆 → pandoc EPUB（決定的生成）→ 検証（hash 一致）",
+      "trace": {
+        "upstream": [
+          "WF-PROD-EPUB",
+          "POC-08"
+        ],
+        "downstream": []
+      },
+      "poc": "POC-08"
+    },
+    {
+      "id": "WF-PROD-APP",
+      "purpose": "診断ツール・シミュレータ",
+      "steps": "機能要件定義 → HTML/JS 実装 → 機能検証（テスト）→ Lighthouse → PWA 化（manifest+SW）",
+      "trace": {
+        "upstream": [
+          "WF-PROD-APP"
+        ],
+        "downstream": []
+      },
+      "poc": "—"
+    },
+    {
+      "id": "WF-PROD-REPURPOSE",
+      "purpose": "リパーパス計画・実行",
+      "steps": "元資産選定 → 派生先媒体の選定（KPI 目標照合）→ 各 WF-PROD-\\* を子タスクとして発火 → assets 系譜登録（FR-55）",
+      "trace": {
+        "upstream": [
+          "WF-PROD-REPURPOSE",
+          "WF-PROD-",
+          "FR-55"
+        ],
+        "downstream": []
+      },
+      "poc": "—"
+    },
+    {
+      "id": "WF-OPS-1",
+      "purpose": "環境構築（初回）",
+      "steps": "uv 依存解決 → DB 初期化（DDL）→ マイグレーション適用 → ヘルスチェック（全テーブル・設定検証）",
+      "trace": {
+        "upstream": [
+          "WF-OPS-1"
+        ],
+        "downstream": []
+      },
+      "human_involvement": "併走（初回のみ）"
+    },
+    {
+      "id": "WF-OPS-2",
+      "purpose": "アカウント接続",
+      "steps": "credential 登録（**人が入力**・暗号化ストア直行 = FR-47）→ attended ログイン/OAuth でセッション取得 → storage_state 暗号化保存 → 接続検証（read 操作）",
+      "trace": {
+        "upstream": [
+          "WF-OPS-2",
+          "FR-47"
+        ],
+        "downstream": []
+      },
+      "human_involvement": "credential 入力・初回ログイン"
+    },
+    {
+      "id": "WF-OPS-3",
+      "purpose": "媒体追加",
+      "steps": "接続レジストリ行追加 → WF-OPS-2（当該媒体）→ 攻略地図初期作成（WF-OPS-4）→ WF 定義投入 → KPI ノード追加 → 試験投稿（審査・承認付き）",
+      "trace": {
+        "upstream": [
+          "WF-OPS-3",
+          "WF-OPS-2",
+          "WF-OPS-4"
+        ],
+        "downstream": []
+      },
+      "human_involvement": "試験投稿の承認"
+    },
+    {
+      "id": "WF-OPS-4",
+      "purpose": "攻略地図の作成・修復",
+      "steps": "対象ページ解析 → 地図 draft（手順・セレクタ）→ 試行検証（read 操作で確認）→ playbooks 保存。破損時は再解析 1 回 → 失敗で escalate（FR-43）",
+      "trace": {
+        "upstream": [
+          "WF-OPS-4",
+          "FR-43"
+        ],
+        "downstream": []
+      },
+      "human_involvement": "なし"
+    },
+    {
+      "id": "WF-OPS-5",
+      "purpose": "バックアップ・復旧",
+      "steps": "日次 snapshot（SQLite・世代管理 = NFR-10）→ 完全性検証 → 月次で復元試験 → 結果を証跡化",
+      "trace": {
+        "upstream": [
+          "WF-OPS-5",
+          "NFR-10"
+        ],
+        "downstream": []
+      },
+      "human_involvement": "なし"
+    },
+    {
+      "id": "WF-OPS-6",
+      "purpose": "デザイントークン同期",
+      "steps": "DesignSync 取得 → 差分検証 → キャッシュ更新（取得不能時はキャッシュ継続 = MR-DS-1）",
+      "trace": {
+        "upstream": [
+          "WF-OPS-6",
+          "MR-DS-1"
+        ],
+        "downstream": []
+      },
+      "human_involvement": "なし"
+    },
+    {
+      "id": "WF-OPS-7",
+      "purpose": "異常対応",
+      "steps": "escalated 検知（LP-OPS/FR-16）→ 診断（分類: 地図破損/レート/認証切れ/予算/その他）→ 自動復旧可なら該当 WF-OPS 発火 → 不能なら通知＋安全停止",
+      "trace": {
+        "upstream": [
+          "WF-OPS-7",
+          "LP-OPS",
+          "FR-16",
+          "WF-OPS"
+        ],
+        "downstream": []
+      },
+      "human_involvement": "通知への応答（不能時のみ）"
+    },
+    {
+      "id": "WF-OPS-8",
+      "purpose": "セッション保守",
+      "steps": "有効期限・失効の定期検査（LP-OPS 内）→ 失効検知 → attended 再ログイン要求を通知",
+      "trace": {
+        "upstream": [
+          "WF-OPS-8",
+          "LP-OPS"
+        ],
+        "downstream": []
+      },
+      "human_involvement": "再ログインのみ"
+    }
+  ],
+  "poc": [
+    {
+      "id": "POC-01",
+      "verification": "X ブラウザ投稿の生存性（Playwright→Camoufox、検知・BAN 兆候の観測込み）",
+      "success_criteria": "テストアカウントで 2 週間・MR-X-3 レート内の投稿/応答が警告ゼロで継続",
+      "fail_route": "X の優先度降格（note/WP へ再配分）or Premium+API 検討",
+      "blocked": "WF-X-1/2、LP-D(X)",
+      "trace": {
+        "upstream": [
+          "WF-X-1",
+          "LP-D"
+        ],
+        "downstream": [
+          "WF-X-1",
+          "LP-D"
+        ]
+      }
+    },
+    {
+      "id": "POC-02",
+      "verification": "IG Graph API 経路（プロアカウント・投稿＋インサイト取得）",
+      "success_criteria": "API でリール/フィード投稿と insights 取得が成功",
+      "fail_route": "ブラウザ突破（Camoufox）の POC-01 相当を IG で再実施",
+      "blocked": "WF-IG-1（§99-1 の PO 判断とセット）",
+      "trace": {
+        "upstream": [
+          "WF-IG-1"
+        ],
+        "downstream": [
+          "WF-IG-1"
+        ]
+      }
+    },
+    {
+      "id": "POC-03",
+      "verification": "GA4 Data API / GSC API の疎通検証（経路は ADR-006 で決定済）",
+      "success_criteria": "API で S0 対象サイトの PV が証跡付きで取得できる",
+      "fail_route": "ブラウザエクスポートへ一時フォールバックし API 阻害要因を解消",
+      "blocked": "WF-MEAS-1 の実装（§99-3 決定済）",
+      "trace": {
+        "upstream": [
+          "WF-MEAS-1"
+        ],
+        "downstream": [
+          "WF-MEAS-1"
+        ]
+      }
+    },
+    {
+      "id": "POC-05",
+      "verification": "note ブラウザ投稿＋アナリティクス CSV 取得",
+      "success_criteria": "下書き投稿→公開→CSV DL が 2 週間安定",
+      "fail_route": "note の手動運用格下げ",
+      "blocked": "WF-NOTE-1",
+      "trace": {
+        "upstream": [
+          "WF-NOTE-1"
+        ],
+        "downstream": [
+          "WF-NOTE-1"
+        ]
+      }
+    },
+    {
+      "id": "POC-08",
+      "verification": "音声/動画パイプライン（VOICEVOX→mp3、Remotion+NVENC 合成、pandoc EPUB）",
+      "success_criteria": "台本→動画 1 本・音声 1 本・EPUB 1 冊が決定的に再現生成できる（hash 一致）",
+      "fail_route": "ツール代替（tech-stack §7 トリガー）",
+      "blocked": "WF-YT-1, WF-PC-1, WF-KDP-1",
+      "trace": {
+        "upstream": [
+          "WF-YT-1",
+          "WF-PC-1",
+          "WF-KDP-1"
+        ],
+        "downstream": [
+          "WF-YT-1",
+          "WF-PC-1",
+          "WF-KDP-1"
+        ]
+      }
+    },
+    {
+      "id": "POC-09",
+      "verification": "KDP 出版フロー（ブラウザ・AI 申告含む）の自動化可能範囲の特定",
+      "success_criteria": "アップロード→申告→出版の各ステップの自動化可否が確定し、人手ステップが列挙される",
+      "fail_route": "KDP を半自動媒体（人手併用）として要件を書き直す",
+      "blocked": "WF-KDP-1",
+      "trace": {
+        "upstream": [
+          "WF-KDP-1"
+        ],
+        "downstream": [
+          "WF-KDP-1"
+        ]
+      }
+    },
+    {
+      "id": "POC-10",
+      "verification": "HubSpot MCP 配信＋法規要素（オプトイン記録・停止導線）の機械検証",
+      "success_criteria": "MCP でセグメント配信でき、法規 3 要素がテンプレ検証で機械判定できる",
+      "fail_route": "ブラウザ補完 or 配信専業サービス再検討",
+      "blocked": "WF-HS-1",
+      "trace": {
+        "upstream": [
+          "WF-HS-1"
+        ],
+        "downstream": [
+          "WF-HS-1"
+        ]
+      }
+    },
+    {
+      "id": "POC-11",
+      "verification": "LINE 配信経路（Messaging API vs 管理画面ブラウザ、§99-2 の判断材料）",
+      "success_criteria": "選定経路でセグメント配信＋結果取得が成功",
+      "fail_route": "もう一方の経路へ切替",
+      "blocked": "WF-LINE-1",
+      "trace": {
+        "upstream": [
+          "WF-LINE-1"
+        ],
+        "downstream": [
+          "WF-LINE-1"
+        ]
+      }
+    },
+    {
+      "id": "POC-12",
+      "verification": "ASP 管理画面の自動化可能範囲（A8/もしも。楽天は対象外）",
+      "success_criteria": "リンク発行と成果 CSV 取得の自動化可否が確定",
+      "fail_route": "AFF を半自動媒体として要件を書き直す",
+      "blocked": "WF-AFF-1",
+      "trace": {
+        "upstream": [
+          "WF-AFF-1"
+        ],
+        "downstream": [
+          "WF-AFF-1"
+        ]
+      }
+    },
+    {
+      "id": "POC-13",
+      "verification": "素材調達経路（Canva MCP の実際の限界確認＋代替: attended/ブラウザ/Openverse）",
+      "success_criteria": "1 記事分の素材がライセンス台帳付きで調達できる経路が 1 つ確立",
+      "fail_route": "素材は attended 工程（人が選ぶ）に確定",
+      "blocked": "WF-ASSET-1（§99-6 とセット）",
+      "trace": {
+        "upstream": [
+          "WF-ASSET-1"
+        ],
+        "downstream": [
+          "WF-ASSET-1"
+        ]
+      }
+    },
+    {
+      "id": "POC-R1",
+      "text": "各 PoC の実施・判定は evidence（実行ログ・スクショ・hash）で記録し、PASS/FAIL の宣言のみの 判定を認めない（BR-B3 準拠）",
+      "trace": {
+        "upstream": [
+          "BR-B3"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "POC-R2",
+      "text": "PoC 用アカウント・環境は本番アカウントと分離する（特に Google 系 — RSK-09）",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      }
+    },
+    {
+      "id": "POC-R3",
+      "text": "PoC の期限は各スライス計画で定め、期限超過は FAIL 分岐として扱う（塩漬け禁止）",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      }
+    }
+  ]
+}
