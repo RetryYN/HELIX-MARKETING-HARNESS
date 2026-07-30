@@ -1,0 +1,47 @@
+{
+  "doc": "mr/DS",
+  "version": "0.1",
+  "source": "docs/requirements/media-requirements_v0.1.md",
+  "generated": "2026-07-30",
+  "media": "DS",
+  "media_name": "11.2 Claude Design",
+  "items": [
+    {
+      "id": "MR-DS-1",
+      "media": "DS",
+      "media_name": "11.2 Claude Design",
+      "text": "トークン取得不能時は直近同期キャッシュで継続（FR-52）",
+      "trace": {
+        "upstream": [
+          "FR-52",
+          "BR-M-DS-1"
+        ],
+        "downstream": []
+      },
+      "actions": "デザイントークン取得、全制作物へ注入",
+      "evidence": "取得トークンの版・同期時刻",
+      "kpi_contribution": "N/A（内部基盤・デザイン正本）",
+      "workflow": "N/A（FN-504 のトークン注入のみ）",
+      "gate": "N/A（判定に関与しない）",
+      "safety": "読取専用"
+    },
+    {
+      "id": "MR-DS-2",
+      "media": "DS",
+      "media_name": "11.2 Claude Design",
+      "text": "（レート・BR-F5）: N/A（読取専用・公式経路）",
+      "trace": {
+        "upstream": [
+          "BR-M-DS-1"
+        ],
+        "downstream": []
+      },
+      "actions": "デザイントークン取得、全制作物へ注入",
+      "evidence": "取得トークンの版・同期時刻",
+      "kpi_contribution": "N/A（内部基盤・デザイン正本）",
+      "workflow": "N/A（FN-504 のトークン注入のみ）",
+      "gate": "N/A（判定に関与しない）",
+      "safety": "読取専用"
+    }
+  ]
+}

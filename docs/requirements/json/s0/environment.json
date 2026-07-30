@@ -1,0 +1,38 @@
+{
+  "doc": "s0/environment",
+  "version": "0.1",
+  "source": "docs/requirements/s0-contract_v0.1.md",
+  "generated": "2026-07-30",
+  "items": [
+    {
+      "target": "ローカル WP",
+      "user_provides": "Docker の `wordpress` + `mariadb`、テスト用サイト・管理者",
+      "harness_assumes": "REST 接続、下書き→公開、URL/スクショ確認",
+      "test_policy": "唯一の実 WP 書込み先。E2E はここで行う"
+    },
+    {
+      "target": "本番 WP",
+      "user_provides": "実サイト、Application Password を暗号化ストア経由で投入",
+      "harness_assumes": "credential は暗号化ストアから実行時注入し、SQLite・repo・ログに保存しない",
+      "test_policy": "S0 は read 接続又は設定検証まで。自動テストの書込み禁止"
+    },
+    {
+      "target": "GA4",
+      "user_provides": "既存 property、読取権限を持つ分離 credential",
+      "harness_assumes": "property ID は config の非秘匿値、認証値は暗号化ストア",
+      "test_policy": "fixture/mock 又は dry-run。実 property への書込みは存在しない"
+    },
+    {
+      "target": "承認通知",
+      "user_provides": "Claude Code アプリで通知を受け取れる利用者",
+      "harness_assumes": "binding subject / operation / at を通知・照合し approvals/evidence に記録",
+      "test_policy": "通知 transport は mock 可。approve/reject/timeout を fixture で検証"
+    },
+    {
+      "target": "credential 全般",
+      "user_provides": "テスト用と本番用を別発行・別保管し、初回投入は人が行う",
+      "harness_assumes": "テスト credential を本番 endpoint に、本番 credential を Docker/mock に使用しない。平文出力禁止",
+      "test_policy": "CI は mock/dry-run と test credential のみ"
+    }
+  ]
+}

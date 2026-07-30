@@ -1,0 +1,67 @@
+{
+  "doc": "mr/X",
+  "version": "0.1",
+  "source": "docs/requirements/media-requirements_v0.1.md",
+  "generated": "2026-07-30",
+  "media": "X",
+  "media_name": "2.1 X",
+  "items": [
+    {
+      "id": "MR-X-1",
+      "media": "X",
+      "media_name": "2.1 X",
+      "text": "日次回転（媒体特性）に対応し、スプリント長を他媒体と独立設定できる",
+      "trace": {
+        "upstream": [
+          "BR-M-X-1"
+        ],
+        "downstream": []
+      },
+      "connection": "ブラウザ（Playwright→検知時 Camoufox）。API 不使用",
+      "actions": "ポスト投稿、スレッド投稿、画像/動画添付、リプライ応答、インプレッション取得",
+      "evidence": "ポスト URL、投稿確認スクショ、インプレッション/エンゲージメント数値",
+      "kpi_contribution": "露出（インプレッション・プロフィールアクセス）、関係（フォロワー増・エンゲージ率）",
+      "workflow": "sns-jp, copywriting, breakout-content-jp, engagement-reply-jp",
+      "gate": "企画↔品質、倫理、ゼロ広告費（プロモ投稿禁止）",
+      "safety": "日次投稿レート・応答レート（C）、攻略地図必須、投稿は承認→オート"
+    },
+    {
+      "id": "MR-X-2",
+      "media": "X",
+      "media_name": "2.1 X",
+      "text": "リプライ応答は engagement-reply ワークフローで、倫理ゲート通過後のみ送出",
+      "trace": {
+        "upstream": [
+          "BR-M-X-2"
+        ],
+        "downstream": []
+      },
+      "connection": "ブラウザ（Playwright→検知時 Camoufox）。API 不使用",
+      "actions": "ポスト投稿、スレッド投稿、画像/動画添付、リプライ応答、インプレッション取得",
+      "evidence": "ポスト URL、投稿確認スクショ、インプレッション/エンゲージメント数値",
+      "kpi_contribution": "露出（インプレッション・プロフィールアクセス）、関係（フォロワー増・エンゲージ率）",
+      "workflow": "sns-jp, copywriting, breakout-content-jp, engagement-reply-jp",
+      "gate": "企画↔品質、倫理、ゼロ広告費（プロモ投稿禁止）",
+      "safety": "日次投稿レート・応答レート（C）、攻略地図必須、投稿は承認→オート"
+    },
+    {
+      "id": "MR-X-3",
+      "media": "X",
+      "media_name": "2.1 X",
+      "text": "（レート・BR-F5）: 検知リスク高。書き込み間隔 2〜8 秒の一様乱数、投稿 5 件/日・ リプライ 10 件/日（C: `rate.x.*`）。警告・CAPTCHA 頻発時は間隔範囲を自動で広げ、凍結兆候で操作停止（RSK-01）",
+      "trace": {
+        "upstream": [
+          "BR-M-X-3"
+        ],
+        "downstream": []
+      },
+      "connection": "ブラウザ（Playwright→検知時 Camoufox）。API 不使用",
+      "actions": "ポスト投稿、スレッド投稿、画像/動画添付、リプライ応答、インプレッション取得",
+      "evidence": "ポスト URL、投稿確認スクショ、インプレッション/エンゲージメント数値",
+      "kpi_contribution": "露出（インプレッション・プロフィールアクセス）、関係（フォロワー増・エンゲージ率）",
+      "workflow": "sns-jp, copywriting, breakout-content-jp, engagement-reply-jp",
+      "gate": "企画↔品質、倫理、ゼロ広告費（プロモ投稿禁止）",
+      "safety": "日次投稿レート・応答レート（C）、攻略地図必須、投稿は承認→オート"
+    }
+  ]
+}

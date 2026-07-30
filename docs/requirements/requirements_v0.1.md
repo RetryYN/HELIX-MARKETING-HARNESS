@@ -186,7 +186,7 @@ sprints（1 件固定でよい）, measurements（GA4 の PV のみでよい）
 方針: **S0 スコープの FR に AC を 1:1 で付す**。S1 以降の FR の AC は各スライス着手時に確定する
 （明示 deferred — §6 参照。AC なしでのスライス実装着手は不可）。
 各 AC の Given/When/Then 展開（前提 fixture・観測点・期待エラーを含む機械検証形）は
-JSON 正本（[json/requirements.json](json/requirements.json) の ac エントリ）に持ち、
+JSON 正本（[json/ac.json](json/ac.json)）に持ち、
 fixture と外部環境の前提は [s0-contract_v0.1.md](s0-contract_v0.1.md) の環境契約に従う。
 
 | AC | 対象 FR | 受入条件（検証可能形） |

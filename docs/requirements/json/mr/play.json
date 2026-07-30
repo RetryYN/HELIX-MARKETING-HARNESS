@@ -1,0 +1,48 @@
+{
+  "doc": "mr/PLAY",
+  "version": "0.1",
+  "source": "docs/requirements/media-requirements_v0.1.md",
+  "generated": "2026-07-30",
+  "media": "PLAY",
+  "media_name": "8.2 Google Play / TWA",
+  "items": [
+    {
+      "id": "MR-PLAY-1",
+      "media": "PLAY",
+      "media_name": "8.2 Google Play / TWA",
+      "text": "PWA をそのまま TWA でパッケージし二重制作しない",
+      "trace": {
+        "upstream": [
+          "BR-M-PLAY-1"
+        ],
+        "downstream": []
+      },
+      "connection": "ビルド（TWA パッケージ）＋ Play Console（ブラウザ）",
+      "actions": "TWA 生成、ストア登録、公開、レビュー/DL 取得",
+      "evidence": "ストア URL、公開スクショ、DL 数",
+      "kpi_contribution": "露出（ストア面）、マイクロCV",
+      "workflow": "PWA（§8.1）の成果物を流用（独自制作なし）",
+      "gate": "企画↔品質（PWA 側で通過済みを引き継ぐ）、金銭（登録費は spend_ledger 記録）",
+      "safety": "登録 $25 買切（固定費原則の許容例外）"
+    },
+    {
+      "id": "MR-PLAY-2",
+      "media": "PLAY",
+      "media_name": "8.2 Google Play / TWA",
+      "text": "（レート・BR-F5）: 低頻度媒体。Console 操作は間隔 2〜8 秒の一様乱数、 リリース系操作 1 件/日（C: `rate.play.*`）",
+      "trace": {
+        "upstream": [
+          "BR-M-PLAY-2"
+        ],
+        "downstream": []
+      },
+      "connection": "ビルド（TWA パッケージ）＋ Play Console（ブラウザ）",
+      "actions": "TWA 生成、ストア登録、公開、レビュー/DL 取得",
+      "evidence": "ストア URL、公開スクショ、DL 数",
+      "kpi_contribution": "露出（ストア面）、マイクロCV",
+      "workflow": "PWA（§8.1）の成果物を流用（独自制作なし）",
+      "gate": "企画↔品質（PWA 側で通過済みを引き継ぐ）、金銭（登録費は spend_ledger 記録）",
+      "safety": "登録 $25 買切（固定費原則の許容例外）"
+    }
+  ]
+}

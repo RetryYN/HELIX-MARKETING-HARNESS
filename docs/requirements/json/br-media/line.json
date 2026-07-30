@@ -1,0 +1,63 @@
+{
+  "doc": "br-media/LINE",
+  "version": "0.1",
+  "source": "docs/requirements/br-media_v0.1.md",
+  "generated": "2026-07-30",
+  "media": "LINE",
+  "media_name": "LINE 公式アカウント",
+  "items": [
+    {
+      "id": "BR-M-LINE-1",
+      "media": "LINE",
+      "media_name": "LINE 公式アカウント",
+      "structure": "無料 200 通/月（追加購入不可の硬い上限）。応答メッセージ（自動応答）は カウント対象外。**Messaging API は無料・全プランで利用可**（課金は通数のみ）。 2026-10 に従量料金の改定予定。",
+      "text": "⚠ 管理画面のブラウザ自動化ではなく **Messaging API（無料・公式）** の採用を 検討すること（charter「Messaging API は使わない」の再考。API でも 200 通/月の上限は同一で、 規約リスクだけが消える）",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "MR-LINE-1"
+        ]
+      }
+    },
+    {
+      "id": "BR-M-LINE-2",
+      "media": "LINE",
+      "media_name": "LINE 公式アカウント",
+      "structure": "無料 200 通/月（追加購入不可の硬い上限）。応答メッセージ（自動応答）は カウント対象外。**Messaging API は無料・全プランで利用可**（課金は通数のみ）。 2026-10 に従量料金の改定予定。",
+      "text": "200 通/月を配信予算とし、週 1 回・1 セグメント以内を既定とすること（MR-LINE-3）",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "MR-LINE-3",
+          "MR-LINE-2"
+        ]
+      }
+    },
+    {
+      "id": "BR-M-LINE-3",
+      "media": "LINE",
+      "media_name": "LINE 公式アカウント",
+      "structure": "無料 200 通/月（追加購入不可の硬い上限）。応答メッセージ（自動応答）は カウント対象外。**Messaging API は無料・全プランで利用可**（課金は通数のみ）。 2026-10 に従量料金の改定予定。",
+      "text": "応答メッセージ（無料・無制限）を一次対応に活用し、プッシュ配信は 見込み度上位セグメントに温存すること",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "MR-LINE-3"
+        ]
+      }
+    },
+    {
+      "id": "BR-M-LINE-4",
+      "media": "LINE",
+      "media_name": "LINE 公式アカウント",
+      "structure": "無料 200 通/月（追加購入不可の硬い上限）。応答メッセージ（自動応答）は カウント対象外。**Messaging API は無料・全プランで利用可**（課金は通数のみ）。 2026-10 に従量料金の改定予定。",
+      "text": "ブロック率を媒体健全性 KPI とし、閾値超過でセグメント配信を停止すること（MR-LINE-2）",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "MR-LINE-2"
+        ]
+      }
+    }
+  ]
+}

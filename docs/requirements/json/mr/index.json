@@ -1,0 +1,30 @@
+{
+  "doc": "mr/index",
+  "version": "0.1",
+  "source": "docs/requirements/media-requirements_v0.1.md",
+  "generated": "2026-07-30",
+  "media_files": {
+    "WP": "wp.json",
+    "X": "x.json",
+    "NOTE": "note.json",
+    "YT": "yt.json",
+    "IG": "ig.json",
+    "DC": "dc.json",
+    "PC": "pc.json",
+    "STFM": "stfm.json",
+    "KDP": "kdp.json",
+    "HS": "hs.json",
+    "LINE": "line.json",
+    "STRIPE": "stripe.json",
+    "AFF": "aff.json",
+    "PWA": "pwa.json",
+    "PLAY": "play.json",
+    "CANVA": "canva.json",
+    "GENAI": "genai.json",
+    "SEED": "seed.json",
+    "MEAS": "meas.json",
+    "NOTION": "notion.json",
+    "DS": "ds.json"
+  },
+  "item_count": 54
+}

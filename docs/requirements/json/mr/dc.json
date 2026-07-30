@@ -1,0 +1,67 @@
+{
+  "doc": "mr/DC",
+  "version": "0.1",
+  "source": "docs/requirements/media-requirements_v0.1.md",
+  "generated": "2026-07-30",
+  "media": "DC",
+  "media_name": "3.1 Discord",
+  "items": [
+    {
+      "id": "MR-DC-1",
+      "media": "DC",
+      "media_name": "3.1 Discord",
+      "text": "コミュニティは媒体として下位ループで回し、活性度を関係系 KPI へ還流",
+      "trace": {
+        "upstream": [
+          "BR-M-DC-1"
+        ],
+        "downstream": []
+      },
+      "connection": "公式 MCP または Bot（優先）＋ブラウザ補完",
+      "actions": "チャンネル投稿、スレッド運営、メンバー応答、ロール/オンボード運用、活性度計測",
+      "evidence": "メッセージ URL/ID、投稿ログ、アクティブメンバー数・発言数",
+      "kpi_contribution": "関係（DAU/WAU・発言数・定着率）、転換（コミュニティ経由の CV）",
+      "workflow": "engagement-reply-jp, referral-advocacy-jp, content-ops-jp",
+      "gate": "倫理、企画↔品質（告知コンテンツ）",
+      "safety": "応答レート、モデレーション基準（C）"
+    },
+    {
+      "id": "MR-DC-2",
+      "media": "DC",
+      "media_name": "3.1 Discord",
+      "text": "荒れ・炎上検知時は crisis ワークフロー（TAKUMI 継承）へエスカレーション",
+      "trace": {
+        "upstream": [
+          "BR-M-DC-2"
+        ],
+        "downstream": []
+      },
+      "connection": "公式 MCP または Bot（優先）＋ブラウザ補完",
+      "actions": "チャンネル投稿、スレッド運営、メンバー応答、ロール/オンボード運用、活性度計測",
+      "evidence": "メッセージ URL/ID、投稿ログ、アクティブメンバー数・発言数",
+      "kpi_contribution": "関係（DAU/WAU・発言数・定着率）、転換（コミュニティ経由の CV）",
+      "workflow": "engagement-reply-jp, referral-advocacy-jp, content-ops-jp",
+      "gate": "倫理、企画↔品質（告知コンテンツ）",
+      "safety": "応答レート、モデレーション基準（C）"
+    },
+    {
+      "id": "MR-DC-3",
+      "media": "DC",
+      "media_name": "3.1 Discord",
+      "text": "（レート・BR-F5）: MCP/Bot は API quota 準拠（ランダム間隔 N/A）。投稿・応答は 30 件/日（C: `rate.dc.*`）でスパム化を防ぐ。ブラウザ補完時のみ間隔 1〜5 秒の一様乱数を適用",
+      "trace": {
+        "upstream": [
+          "BR-M-DC-3"
+        ],
+        "downstream": []
+      },
+      "connection": "公式 MCP または Bot（優先）＋ブラウザ補完",
+      "actions": "チャンネル投稿、スレッド運営、メンバー応答、ロール/オンボード運用、活性度計測",
+      "evidence": "メッセージ URL/ID、投稿ログ、アクティブメンバー数・発言数",
+      "kpi_contribution": "関係（DAU/WAU・発言数・定着率）、転換（コミュニティ経由の CV）",
+      "workflow": "engagement-reply-jp, referral-advocacy-jp, content-ops-jp",
+      "gate": "倫理、企画↔品質（告知コンテンツ）",
+      "safety": "応答レート、モデレーション基準（C）"
+    }
+  ]
+}

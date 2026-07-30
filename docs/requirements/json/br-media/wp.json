@@ -1,0 +1,50 @@
+{
+  "doc": "br-media/WP",
+  "version": "0.1",
+  "source": "docs/requirements/br-media_v0.1.md",
+  "generated": "2026-07-30",
+  "media": "WP",
+  "media_name": "WordPress",
+  "items": [
+    {
+      "id": "BR-M-WP-1",
+      "media": "WP",
+      "media_name": "WordPress",
+      "structure": "REST API は投稿/メディア/タクソノミーの CRUD 完備。Application Passwords は コア標準・HTTPS 必須・**権限粒度はユーザー単位のみ**（パスワード別スコープなし）。 コアにレート制限なし（自主設定前提）。セルフホストは API 利用の規約制限なし。",
+      "text": "専用ボットユーザー（Editor 相当の最小ロール）を作り、ハーネスはそのユーザーの Application Password のみで書き込むこと。Administrator 権限をハーネスに渡さない",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "MR-WP-1"
+        ]
+      }
+    },
+    {
+      "id": "BR-M-WP-2",
+      "media": "WP",
+      "media_name": "WordPress",
+      "structure": "REST API は投稿/メディア/タクソノミーの CRUD 完備。Application Passwords は コア標準・HTTPS 必須・**権限粒度はユーザー単位のみ**（パスワード別スコープなし）。 コアにレート制限なし（自主設定前提）。セルフホストは API 利用の規約制限なし。",
+      "text": "レート制限はコアに無いため、書き込み自制（MR-WP-5）をハーネス側の責務とすること",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "MR-WP-5",
+          "MR-WP-2"
+        ]
+      }
+    },
+    {
+      "id": "BR-M-WP-3",
+      "media": "WP",
+      "media_name": "WordPress",
+      "structure": "REST API は投稿/メディア/タクソノミーの CRUD 完備。Application Passwords は コア標準・HTTPS 必須・**権限粒度はユーザー単位のみ**（パスワード別スコープなし）。 コアにレート制限なし（自主設定前提）。セルフホストは API 利用の規約制限なし。",
+      "text": "パスワードは個別発行・個別失効・最終使用日時の追跡を運用に組み込むこと（漏洩時の局所化）",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "MR-WP-3"
+        ]
+      }
+    }
+  ]
+}

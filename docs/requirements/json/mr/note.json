@@ -1,0 +1,48 @@
+{
+  "doc": "mr/NOTE",
+  "version": "0.1",
+  "source": "docs/requirements/media-requirements_v0.1.md",
+  "generated": "2026-07-30",
+  "media": "NOTE",
+  "media_name": "2.2 note",
+  "items": [
+    {
+      "id": "MR-NOTE-1",
+      "media": "NOTE",
+      "media_name": "2.2 note",
+      "text": "有料コンテンツの価格設定・変更は金銭 escalation 対象",
+      "trace": {
+        "upstream": [
+          "BR-M-NOTE-1"
+        ],
+        "downstream": []
+      },
+      "connection": "ブラウザ。API なし",
+      "actions": "記事投稿、有料記事/マガジン作成・価格設定・販売状況取得",
+      "evidence": "記事 URL、公開スクショ、販売数・売上（収益系）",
+      "kpi_contribution": "露出（ビュー・スキ）、収益（有料記事売上）",
+      "workflow": "storytelling, sales-writing, copywriting, content-design",
+      "gate": "企画↔品質、金銭（価格設定は束縛承認）、PR表記",
+      "safety": "価格変更は常時人間承認（FR-26）"
+    },
+    {
+      "id": "MR-NOTE-2",
+      "media": "NOTE",
+      "media_name": "2.2 note",
+      "text": "（レート・BR-F5）: 書き込み間隔 1〜5 秒の一様乱数、記事投稿 2 件/日（C: `rate.note.*`）",
+      "trace": {
+        "upstream": [
+          "BR-M-NOTE-2"
+        ],
+        "downstream": []
+      },
+      "connection": "ブラウザ。API なし",
+      "actions": "記事投稿、有料記事/マガジン作成・価格設定・販売状況取得",
+      "evidence": "記事 URL、公開スクショ、販売数・売上（収益系）",
+      "kpi_contribution": "露出（ビュー・スキ）、収益（有料記事売上）",
+      "workflow": "storytelling, sales-writing, copywriting, content-design",
+      "gate": "企画↔品質、金銭（価格設定は束縛承認）、PR表記",
+      "safety": "価格変更は常時人間承認（FR-26）"
+    }
+  ]
+}

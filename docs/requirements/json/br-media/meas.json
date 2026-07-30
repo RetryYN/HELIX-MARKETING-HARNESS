@@ -1,0 +1,49 @@
+{
+  "doc": "br-media/MEAS",
+  "version": "0.1",
+  "source": "docs/requirements/br-media_v0.1.md",
+  "generated": "2026-07-30",
+  "media": "MEAS",
+  "media_name": "GA4 / Search Console",
+  "items": [
+    {
+      "id": "BR-M-MEAS-1",
+      "media": "MEAS",
+      "media_name": "GA4 / Search Console",
+      "structure": "GA4 探索は CSV 最大 10 万行・無料版のデータ保持は既定 2 か月→最大 14 か月。 GSC は **UI エクスポート 1,000 行切り詰め・データ保持 16 か月**。API（GA4 Data API / Search Analytics API 25,000 行）と BigQuery エクスポートは無料の正規自動化経路。**UI の Playwright 自動化はグレー**で、 違反認定時は Google アカウント全体の停止リスク（GENAI と同じ連座構造）。",
+      "text": "⚠ 計測の自動取得は **GA4 Data API / Search Analytics API（無料・正規）を第一経路**に 再設計すること（charter「ブラウザエクスポート」の再考。API の方が行数上限も緩く証跡も安定する）",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "MR-MEAS-1"
+        ]
+      }
+    },
+    {
+      "id": "BR-M-MEAS-2",
+      "media": "MEAS",
+      "media_name": "GA4 / Search Console",
+      "structure": "GA4 探索は CSV 最大 10 万行・無料版のデータ保持は既定 2 か月→最大 14 か月。 GSC は **UI エクスポート 1,000 行切り詰め・データ保持 16 か月**。API（GA4 Data API / Search Analytics API 25,000 行）と BigQuery エクスポートは無料の正規自動化経路。**UI の Playwright 自動化はグレー**で、 違反認定時は Google アカウント全体の停止リスク（GENAI と同じ連座構造）。",
+      "text": "GA4 のデータ保持を初期設定で 14 か月へ変更し、それを超える履歴は SQLite 側を 正本とすること（GSC 16 か月も同様）",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "MR-MEAS-2"
+        ]
+      }
+    },
+    {
+      "id": "BR-M-MEAS-3",
+      "media": "MEAS",
+      "media_name": "GA4 / Search Console",
+      "structure": "GA4 探索は CSV 最大 10 万行・無料版のデータ保持は既定 2 か月→最大 14 か月。 GSC は **UI エクスポート 1,000 行切り詰め・データ保持 16 か月**。API（GA4 Data API / Search Analytics API 25,000 行）と BigQuery エクスポートは無料の正規自動化経路。**UI の Playwright 自動化はグレー**で、 違反認定時は Google アカウント全体の停止リスク（GENAI と同じ連座構造）。",
+      "text": "UI エクスポートを使う場合は 1,000 行制限（GSC）を前提に、詳細データは API で補完すること",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "MR-MEAS-3"
+        ]
+      }
+    }
+  ]
+}

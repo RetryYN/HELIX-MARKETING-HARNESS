@@ -1,0 +1,121 @@
+{
+  "doc": "ltw/loops",
+  "version": "0.1",
+  "source": "docs/requirements/loop-task-workflow_v0.1.md",
+  "generated": "2026-07-30",
+  "items": [
+    {
+      "id": "LP-U",
+      "type": "上位ループ（ブランド成長サイクル）",
+      "cycle": "月次",
+      "start_condition": "ブランド計画（brand_plans）が存在",
+      "feedback": "全媒体の learnings を集約し行動計画・KPI 目標を更新 → 下位ループへ再発行",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      }
+    },
+    {
+      "id": "LP-OPS",
+      "type": "運用巡回（ヘルスチェック）",
+      "cycle": "日次",
+      "start_condition": "常時",
+      "feedback": "異常検知 → T-OPS タスク発火（WF-OPS-7）",
+      "trace": {
+        "upstream": [
+          "T-OPS",
+          "WF-OPS-7"
+        ],
+        "downstream": [
+          "T-OPS",
+          "WF-OPS-7"
+        ]
+      }
+    },
+    {
+      "id": "LP-D",
+      "type": "日次回転",
+      "cycle": "1 日",
+      "start_condition": "KPI 目標あり＋前日レビュー完了",
+      "feedback": "日次でエンゲージ実績を蓄積、週次で learnings 化",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      }
+    },
+    {
+      "id": "LP-W",
+      "type": "週次回転",
+      "cycle": "1 週",
+      "start_condition": "KPI 目標あり",
+      "feedback": "スプリントレビュー（計画↔計測ペア）で learnings 生成",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      }
+    },
+    {
+      "id": "LP-M",
+      "type": "月次回転",
+      "cycle": "2 週〜1 月",
+      "start_condition": "KPI 目標＋制作資産の充足",
+      "feedback": "同上",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      }
+    },
+    {
+      "id": "LP-E",
+      "type": "イベント駆動",
+      "cycle": "なし（トリガ発火）",
+      "start_condition": "上流イベント（記事公開・還流指示）",
+      "feedback": "発火元ループに帰属",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      }
+    },
+    {
+      "id": "LP-MEAS",
+      "type": "計測サイクル",
+      "cycle": "週次（全媒体横断）",
+      "start_condition": "常時",
+      "feedback": "measurements 投入→計画↔計測ペア成立判定",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      }
+    },
+    {
+      "id": "LP-R1",
+      "text": "各媒体ループは独立に回り、他媒体の遅延に影響されない（BR-A2）",
+      "trace": {
+        "upstream": [
+          "BR-A2"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "LP-R2",
+      "text": "ループ開始はペア条件（KPI 目標の存在）を満たすまでブロック（FR-14）",
+      "trace": {
+        "upstream": [
+          "FR-14"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "LP-R3",
+      "text": "サイクル長・回転数は config で媒体別に変更でき、コード変更を要しない（NFR-8）",
+      "trace": {
+        "upstream": [
+          "NFR-8"
+        ],
+        "downstream": []
+      }
+    }
+  ]
+}

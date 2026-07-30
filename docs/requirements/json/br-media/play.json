@@ -1,0 +1,50 @@
+{
+  "doc": "br-media/PLAY",
+  "version": "0.1",
+  "source": "docs/requirements/br-media_v0.1.md",
+  "generated": "2026-07-30",
+  "media": "PLAY",
+  "media_name": "Google Play / TWA",
+  "items": [
+    {
+      "id": "BR-M-PLAY-1",
+      "media": "PLAY",
+      "media_name": "Google Play / TWA",
+      "structure": "$25 買切＋本人確認。**個人アカウントは「12 名のテスターが 14 日間連続オプトイン」の クローズドテスト要件（2026 年も有効）**。Target API 36（2026-08-31 以降）。 **Play Developer API で公開まで自動化可能（公式サポート・唯一の完全正当自動化媒体）**。 最大却下リスクはポリシー 4.3（Minimum Functionality）のサイトラッパー判定。",
+      "text": "⚠ 個人アカウントの 12 テスター×14 日要件の充足手段（知人・テスターコミュニティ等）を S3 着手前に PO が確定すること。充足不能なら本媒体を保留へ降格",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "MR-PLAY-1"
+        ]
+      }
+    },
+    {
+      "id": "BR-M-PLAY-2",
+      "media": "PLAY",
+      "media_name": "Google Play / TWA",
+      "structure": "$25 買切＋本人確認。**個人アカウントは「12 名のテスターが 14 日間連続オプトイン」の クローズドテスト要件（2026 年も有効）**。Target API 36（2026-08-31 以降）。 **Play Developer API で公開まで自動化可能（公式サポート・唯一の完全正当自動化媒体）**。 最大却下リスクはポリシー 4.3（Minimum Functionality）のサイトラッパー判定。",
+      "text": "リリース自動化は Play Developer API（公式）で行うこと（ブラウザ操作は初期設定のみ）",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "MR-PLAY-2"
+        ]
+      }
+    },
+    {
+      "id": "BR-M-PLAY-3",
+      "media": "PLAY",
+      "media_name": "Google Play / TWA",
+      "structure": "$25 買切＋本人確認。**個人アカウントは「12 名のテスターが 14 日間連続オプトイン」の クローズドテスト要件（2026 年も有効）**。Target API 36（2026-08-31 以降）。 **Play Developer API で公開まで自動化可能（公式サポート・唯一の完全正当自動化媒体）**。 最大却下リスクはポリシー 4.3（Minimum Functionality）のサイトラッパー判定。",
+      "text": "TWA はオフライン・通知等の付加価値実装（BR-M-PWA-2）を却下対策の前提とすること",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "MR-PLAY-1",
+          "MR-PLAY-2"
+        ]
+      }
+    }
+  ]
+}

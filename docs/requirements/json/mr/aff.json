@@ -1,0 +1,67 @@
+{
+  "doc": "mr/AFF",
+  "version": "0.1",
+  "source": "docs/requirements/media-requirements_v0.1.md",
+  "generated": "2026-07-30",
+  "media": "AFF",
+  "media_name": "7.2 アフィリエイト / ASP",
+  "items": [
+    {
+      "id": "MR-AFF-1",
+      "media": "AFF",
+      "media_name": "7.2 アフィリエイト / ASP",
+      "text": "アフィリエイトリンクを含む成果物は PR 表記ブロック検証に合格しない限り公開ゲートを通過しない",
+      "trace": {
+        "upstream": [
+          "BR-M-AFF-1"
+        ],
+        "downstream": []
+      },
+      "connection": "ブラウザ。API 貧弱のため突破",
+      "actions": "案件検索、提携申請、リンク発行、WP 埋め込み、成果レポート取得（A8/もしも/Amazon/楽天）",
+      "evidence": "提携状態、リンク、成果/報酬レポート（収益系）",
+      "kpi_contribution": "収益（アフィリエイト報酬）、記事単位の露出→クリック→成果歩留まり",
+      "workflow": "sales-writing, ad-compliance-jp",
+      "gate": "**PR表記必須**（表記なしは公開不可・FR-24）、企画↔品質、倫理",
+      "safety": "ステマ規制遵守を機械ゲート化"
+    },
+    {
+      "id": "MR-AFF-2",
+      "media": "AFF",
+      "media_name": "7.2 アフィリエイト / ASP",
+      "text": "成果レポートを記事単位で紐づけ、どのコンテンツが収益化したかを追跡",
+      "trace": {
+        "upstream": [
+          "BR-M-AFF-2"
+        ],
+        "downstream": []
+      },
+      "connection": "ブラウザ。API 貧弱のため突破",
+      "actions": "案件検索、提携申請、リンク発行、WP 埋め込み、成果レポート取得（A8/もしも/Amazon/楽天）",
+      "evidence": "提携状態、リンク、成果/報酬レポート（収益系）",
+      "kpi_contribution": "収益（アフィリエイト報酬）、記事単位の露出→クリック→成果歩留まり",
+      "workflow": "sales-writing, ad-compliance-jp",
+      "gate": "**PR表記必須**（表記なしは公開不可・FR-24）、企画↔品質、倫理",
+      "safety": "ステマ規制遵守を機械ゲート化"
+    },
+    {
+      "id": "MR-AFF-3",
+      "media": "AFF",
+      "media_name": "7.2 アフィリエイト / ASP",
+      "text": "（レート・BR-F5）: 書き込み間隔 1〜5 秒の一様乱数、提携申請 5 件/日（C: `rate.aff.*`）。 レポート取得（読み取り）はレート対象外",
+      "trace": {
+        "upstream": [
+          "BR-M-AFF-3"
+        ],
+        "downstream": []
+      },
+      "connection": "ブラウザ。API 貧弱のため突破",
+      "actions": "案件検索、提携申請、リンク発行、WP 埋め込み、成果レポート取得（A8/もしも/Amazon/楽天）",
+      "evidence": "提携状態、リンク、成果/報酬レポート（収益系）",
+      "kpi_contribution": "収益（アフィリエイト報酬）、記事単位の露出→クリック→成果歩留まり",
+      "workflow": "sales-writing, ad-compliance-jp",
+      "gate": "**PR表記必須**（表記なしは公開不可・FR-24）、企画↔品質、倫理",
+      "safety": "ステマ規制遵守を機械ゲート化"
+    }
+  ]
+}

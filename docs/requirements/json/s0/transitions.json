@@ -1,0 +1,145 @@
+{
+  "doc": "s0/transitions",
+  "version": "0.1",
+  "source": "docs/requirements/s0-contract_v0.1.md",
+  "generated": "2026-07-30",
+  "items": [
+    {
+      "entity": "loop_runs",
+      "from": "pending",
+      "event": "start",
+      "guard": "上位: brand plan が存在／下位: parent が running かつ sprint の KPI target が存在／マイクロ: 親 task が in_progress",
+      "to": "running"
+    },
+    {
+      "entity": "loop_runs",
+      "from": "running",
+      "event": "wait",
+      "guard": "外部応答・承認・子 task 完了待ち",
+      "to": "waiting"
+    },
+    {
+      "entity": "loop_runs",
+      "from": "waiting",
+      "event": "resume",
+      "guard": "待機対象の証跡又は承認が充足",
+      "to": "running"
+    },
+    {
+      "entity": "loop_runs",
+      "from": "running",
+      "event": "complete",
+      "guard": "全子 task が done、必須ゲート PASS、必須証跡完備",
+      "to": "completed"
+    },
+    {
+      "entity": "loop_runs",
+      "from": "running / waiting",
+      "event": "retryable_failure",
+      "guard": "再実行可能で retry_count < `config.retry_limit`",
+      "to": "running"
+    },
+    {
+      "entity": "loop_runs",
+      "from": "running / waiting",
+      "event": "retry_exhausted",
+      "guard": "retry_count >= `config.retry_limit`",
+      "to": "escalated"
+    },
+    {
+      "entity": "loop_runs",
+      "from": "pending / running / waiting",
+      "event": "fatal_failure",
+      "guard": "認証失効、ゲート赤、地図破損、予算超過等で自動回復不可",
+      "to": "escalated"
+    },
+    {
+      "entity": "loop_runs",
+      "from": "pending / running / waiting",
+      "event": "cancel",
+      "guard": "人の明示取消。外部書込み未実行又は補償済み",
+      "to": "cancelled"
+    },
+    {
+      "entity": "tasks",
+      "from": "pending",
+      "event": "claim",
+      "guard": "author/verifier が active かつ別 agent、親 loop が running、入力と workflow が有効",
+      "to": "in_progress"
+    },
+    {
+      "entity": "tasks",
+      "from": "in_progress",
+      "event": "submit_for_verification",
+      "guard": "workflow の実行出力が保存済み、author 側必須証跡が有効",
+      "to": "verifying"
+    },
+    {
+      "entity": "tasks",
+      "from": "verifying",
+      "event": "verify_pass",
+      "guard": "verifier が author と別、全必須証跡・全ゲートが PASS",
+      "to": "done"
+    },
+    {
+      "entity": "tasks",
+      "from": "verifying",
+      "event": "verify_fail",
+      "guard": "差戻し理由と verifier 証跡があり、`retry_count + 1 < config.retry_limit`",
+      "to": "in_progress（retry_count を 1 増加）"
+    },
+    {
+      "entity": "tasks",
+      "from": "verifying",
+      "event": "verify_fail",
+      "guard": "差戻し理由と verifier 証跡があり、`retry_count + 1 >= config.retry_limit`",
+      "to": "escalated（retry_count を 1 増加）"
+    },
+    {
+      "entity": "tasks",
+      "from": "pending / in_progress / verifying",
+      "event": "non_retryable_failure",
+      "guard": "秘匿違反、承認拒否、予算超過、未定義遷移、回復不能な外部失敗",
+      "to": "failed 又は escalated"
+    },
+    {
+      "entity": "tasks",
+      "from": "pending / in_progress / verifying",
+      "event": "escalate",
+      "guard": "人の判断待ち又は安全停止が必要",
+      "to": "escalated"
+    }
+  ],
+  "restart_rules": [
+    {
+      "state": "pending",
+      "on_restart": "そのまま再度 claim 可",
+      "safety": "task の idempotency key を保持"
+    },
+    {
+      "state": "in_progress（外部操作前）",
+      "on_restart": "同じ author で再開又は lease 失効後に再 claim",
+      "safety": "workspace・入力・既存証跡を再読込"
+    },
+    {
+      "state": "in_progress（外部操作中/後）",
+      "on_restart": "`operation_log` の external operation ID を先に照合し、成功済みなら出力・証跡を補完して verifying へ進める",
+      "safety": "照合不能なら外部書込みを再送せず escalated"
+    },
+    {
+      "state": "verifying",
+      "on_restart": "verifier が既存出力・証跡を再検証",
+      "safety": "PASS/FAIL 証跡が既にあれば同じ結果を採用し二重加算しない"
+    },
+    {
+      "state": "waiting",
+      "on_restart": "承認・子 task・外部ジョブを再照合し、充足なら resume、未充足なら待機継続",
+      "safety": "承認は binding subject/operation/at の完全一致のみ有効"
+    },
+    {
+      "state": "done / failed / escalated / completed / cancelled",
+      "on_restart": "終端のまま",
+      "safety": "新しい run/task を明示発行するまで遷移不可"
+    }
+  ]
+}

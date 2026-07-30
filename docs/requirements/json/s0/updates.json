@@ -1,0 +1,26 @@
+{
+  "doc": "s0/updates",
+  "version": "0.1",
+  "source": "docs/requirements/s0-contract_v0.1.md",
+  "generated": "2026-07-30",
+  "items": [
+    {
+      "update": "S0.1",
+      "purpose": "DB、状態機械、ゲート、証跡の基盤を実働化",
+      "fn_ids": ["FN-101", "FN-102", "FN-103", "FN-104", "FN-105", "FN-201", "FN-202", "FN-204", "FN-208", "FN-305", "FN-701", "FN-702", "FN-703", "FN-704"],
+      "acceptance": "19 テーブル＋schema_version の生成、未定義遷移拒否、author != verifier、pair 未成立公開拒否、必須証跡欠落時の done 拒否、config INSERT 履歴"
+    },
+    {
+      "update": "S0.2",
+      "purpose": "記事制作、審査、束縛承認、ローカル WP 公開を一気通貫化",
+      "fn_ids": ["FN-401", "FN-402", "FN-404", "FN-406", "FN-409", "FN-411", "FN-501", "FN-511"],
+      "acceptance": "WF-WP-1/2 により commit hash と review PASS を pair 化し、Claude Code アプリ承認後に Docker WP へ公開。URL・スクショ・approval を evidence に収束"
+    },
+    {
+      "update": "S0.3",
+      "purpose": "GA4 計測、接続レジストリ、攻略地図、最小ダッシュボード用データ面を成立",
+      "fn_ids": ["FN-601", "FN-602", "FN-603"],
+      "acceptance": "WF-MEAS-1 で PV を取得証跡付きで measurements に投入し、registry/playbooks を使う。S0 の DB クエリを最小ダッシュボードのデータソースとして固定（HTML 生成 FN-605 自体は S1）"
+    }
+  ]
+}

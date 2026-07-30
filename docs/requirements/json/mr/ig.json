@@ -1,0 +1,48 @@
+{
+  "doc": "mr/IG",
+  "version": "0.1",
+  "source": "docs/requirements/media-requirements_v0.1.md",
+  "generated": "2026-07-30",
+  "media": "IG",
+  "media_name": "2.4 Instagram",
+  "items": [
+    {
+      "id": "MR-IG-1",
+      "media": "IG",
+      "media_name": "2.4 Instagram",
+      "text": "ビジュアル主媒体のため design-evidence 審査（コントラスト・可読性）を品質ゲートに含む",
+      "trace": {
+        "upstream": [
+          "BR-M-IG-1"
+        ],
+        "downstream": []
+      },
+      "connection": "ブラウザ。API 不使用",
+      "actions": "フィード投稿、リール投稿、画像/動画添付、キャプション・ハッシュタグ、インサイト取得",
+      "evidence": "投稿 URL、スクショ、リーチ・保存・エンゲージ数値",
+      "kpi_contribution": "露出（リーチ・インプレッション）、関係（保存・フォロワー）",
+      "workflow": "sns-jp, breakout-content-jp ＋ 画像/リール制作",
+      "gate": "企画↔品質、倫理、ゼロ広告費",
+      "safety": "検知が堅いため Camoufox 優先、レート厳守"
+    },
+    {
+      "id": "MR-IG-2",
+      "media": "IG",
+      "media_name": "2.4 Instagram",
+      "text": "（レート・BR-F5）: 検知リスク最高帯。書き込み間隔 5〜15 秒の一様乱数、投稿 3 件/日 （C: `rate.ig.*`）。Camoufox 経由でも本範囲を下限とし、他媒体の既定値へ緩和しない",
+      "trace": {
+        "upstream": [
+          "BR-M-IG-2"
+        ],
+        "downstream": []
+      },
+      "connection": "ブラウザ。API 不使用",
+      "actions": "フィード投稿、リール投稿、画像/動画添付、キャプション・ハッシュタグ、インサイト取得",
+      "evidence": "投稿 URL、スクショ、リーチ・保存・エンゲージ数値",
+      "kpi_contribution": "露出（リーチ・インプレッション）、関係（保存・フォロワー）",
+      "workflow": "sns-jp, breakout-content-jp ＋ 画像/リール制作",
+      "gate": "企画↔品質、倫理、ゼロ広告費",
+      "safety": "検知が堅いため Camoufox 優先、レート厳守"
+    }
+  ]
+}

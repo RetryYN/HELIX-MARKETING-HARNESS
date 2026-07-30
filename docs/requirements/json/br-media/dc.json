@@ -1,0 +1,64 @@
+{
+  "doc": "br-media/DC",
+  "version": "0.1",
+  "source": "docs/requirements/br-media_v0.1.md",
+  "generated": "2026-07-30",
+  "media": "DC",
+  "media_name": "Discord",
+  "items": [
+    {
+      "id": "BR-M-DC-1",
+      "media": "DC",
+      "media_name": "Discord",
+      "structure": "Bot は無料・100 サーバー未満なら privileged intents（メッセージ本文含む)は Portal トグルのみで有効。レートはグローバル 50 req/秒、メッセージ約 5 通/5 秒/チャンネル。 **self-bot（ユーザーアカウント自動化）は明示禁止**。Server Insights はメンバー 500 人以上required。",
+      "text": "自動化はすべて Bot アカウント経由とし、ユーザーアカウントの自動操作を設計から排除すること",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "MR-DC-1"
+        ]
+      }
+    },
+    {
+      "id": "BR-M-DC-2",
+      "media": "DC",
+      "media_name": "Discord",
+      "structure": "Bot は無料・100 サーバー未満なら privileged intents（メッセージ本文含む)は Portal トグルのみで有効。レートはグローバル 50 req/秒、メッセージ約 5 通/5 秒/チャンネル。 **self-bot（ユーザーアカウント自動化）は明示禁止**。Server Insights はメンバー 500 人以上required。",
+      "text": "Bot 権限は必要最小限のビットフィールドで招待すること（管理権限を持たせない）",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "MR-DC-2"
+        ]
+      }
+    },
+    {
+      "id": "BR-M-DC-3",
+      "media": "DC",
+      "media_name": "Discord",
+      "structure": "Bot は無料・100 サーバー未満なら privileged intents（メッセージ本文含む)は Portal トグルのみで有効。レートはグローバル 50 req/秒、メッセージ約 5 通/5 秒/チャンネル。 **self-bot（ユーザーアカウント自動化）は明示禁止**。Server Insights はメンバー 500 人以上required。",
+      "text": "500 人未満の間は Server Insights が使えないため、活性度計測（DAU・発言数）は Bot の自前収集で設計すること",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "MR-DC-3"
+        ]
+      }
+    },
+    {
+      "id": "BR-M-DC-4",
+      "media": "DC",
+      "media_name": "Discord",
+      "structure": "Bot は無料・100 サーバー未満なら privileged intents（メッセージ本文含む)は Portal トグルのみで有効。レートはグローバル 50 req/秒、メッセージ約 5 通/5 秒/チャンネル。 **self-bot（ユーザーアカウント自動化）は明示禁止**。Server Insights はメンバー 500 人以上required。",
+      "text": "メッセージ送信はチャンネル毎 5 通/5 秒のレート内でキューイングすること",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "MR-DC-1",
+          "MR-DC-2",
+          "MR-DC-3"
+        ]
+      }
+    }
+  ]
+}
