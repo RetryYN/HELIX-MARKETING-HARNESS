@@ -27,7 +27,7 @@
 - [ADR](docs/governance/adr/) — 大局判断 6 本（言語・接続原則・ブラウザ三段構え・データ正本・WP REST 直・公式 API 経路）
 - [リスク登録簿](docs/governance/risk-register_v0.1.md) — RSK-01〜09・緩和策・撤退条件
 - [要件定義ギャップ監査](docs/governance/requirements-gap-audit-2026-07-30.md) — HELIX 品質バー突合と是正記録
-- [要件整合ゲート台帳](docs/governance/requirements-gates.md) — CI で毎 push 実行される fail-close ゲート 26 本
+- [要件整合ゲート台帳](docs/governance/requirements-gates.md) — CI で毎 push 実行される fail-close ゲート 38 本
 - [承認ログ](docs/governance/approvals.md)
 
 ## 実装エージェント
