@@ -60,7 +60,7 @@
 | FN-410 | オートモード判定 | 実績証跡と基準から自動移行判定 | FR-46 | S3 |
 | FN-411 | 秘匿情報ストア | credential/セッションの暗号化保管 | FR-47 | S0 |
 | FN-412 | MCP コネクタ群 | Notion/Canva/HubSpot/Stripe/Discord | FR-41 | S3 |
-| FN-413 | 媒体別ブラウザ操作 | X/note/YouTube/IG/LINE/KDP/ASP/GA4 等 | MR-X/NOTE/YT/IG/STFM/KDP/LINE/AFF/MEAS-* | S3 |
+| FN-413 | 媒体別外部操作 | ブラウザ: X/note/YouTube/stand.fm/KDP/ASP。公式 API: IG Graph/LINE Messaging/GA4・GSC（ADR-006） | MR-X/NOTE/YT/IG/STFM/KDP/LINE/AFF/MEAS-* | S3 |
 
 ## producers/ — 制作
 
@@ -84,7 +84,7 @@
 | FN | 機能 | 概要 | FR | S |
 |---|---|---|---|---|
 | FN-601 | KPI ツリー管理 | kpi_nodes の階層・媒体タグ・集計式 | FR-61 | S0 |
-| FN-602 | 計測エクスポート取得 | ブラウザで CSV/xlsx 取得＋hash/スクショ証跡 | FR-62 | S0 |
+| FN-602 | 計測データ取得 | GA4/GSC 正規 API（ADR-006）＋hash 証跡。API 阻害時のみブラウザエクスポート | FR-62 | S0 |
 | FN-603 | パーサ群 | サービス別パース→measurements 投入（部分投入可） | FR-62 | S0 |
 | FN-604 | 横断集計 | 媒体横断クエリ（MMM 前段） | FR-61 | S3 |
 | FN-605 | HTML ダッシュボード生成 | 自己完結 HTML 出力・証跡保存 | FR-63 | S1 |

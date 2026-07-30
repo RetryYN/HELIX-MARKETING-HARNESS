@@ -583,14 +583,15 @@
     {
       "id": "FN-413",
       "module": "connectors",
-      "title": "媒体別ブラウザ操作",
+      "title": "媒体別外部操作",
       "summary": "X/note/YouTube/IG/LINE/KDP/ASP/GA4 等",
       "related": [],
       "slice": "S3",
       "trace": {
         "upstream": [],
         "downstream": []
-      }
+      },
+      "text": "ブラウザ: X/note/YouTube/stand.fm/KDP/ASP。公式 API: IG Graph/LINE Messaging/GA4・GSC（ADR-006）"
     },
     {
       "id": "FN-501",
@@ -805,7 +806,7 @@
     {
       "id": "FN-602",
       "module": "metrics",
-      "title": "計測エクスポート取得",
+      "title": "計測データ取得",
       "summary": "ブラウザで CSV/xlsx 取得＋hash/スクショ証跡",
       "related": [
         "FR-62"
@@ -816,7 +817,8 @@
           "FR-62"
         ],
         "downstream": []
-      }
+      },
+      "text": "GA4/GSC 正規 API（ADR-006）＋hash 証跡。API 阻害時のみブラウザエクスポート"
     },
     {
       "id": "FN-603",

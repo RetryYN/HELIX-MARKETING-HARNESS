@@ -2,7 +2,9 @@
 
 > status: **draft**（AI 起草 2026-07-30。人の承認で confirmed）
 > 上位文書: [requirements_v0.1.md](requirements_v0.1.md)（FR/NFR/AC/S0）／[loop-task-workflow_v0.1.md](loop-task-workflow_v0.1.md)（LP/T/WF）／[br-backbone_v0.1.md](br-backbone_v0.1.md)（BR 背骨）
-> 位置づけ: S0 の実装者・テスト・運用者が共通に従う、SQLite 正準スキーマ、状態機械、WF 実行、移行および環境の契約。上位文書と矛盾した場合は上位文書を優先し、本書を改訂する。
+> 位置づけ: S0 の実装者・テスト・運用者が共通に従う、SQLite 正準スキーマ、状態機械、WF 実行、移行および環境の契約。
+> **DDL・evidence 型契約・状態遷移表は本書が正準**（上位文書は要約参照）。それ以外の要求内容で
+> 上位文書と矛盾した場合は上位文書を優先し、本書を改訂する。
 
 ---
 
@@ -16,7 +18,8 @@
 
 ## 2. 正準 DDL（FR-71）
 
-以下の順序で適用する。`schema_version` は FR-71 の 19 テーブルとは別の、FR-72 の移行管理テーブルである。
+以下の順序で適用する。`schema_version`（FR-72 の移行管理）と `state_transitions`（NFR-5 の状態遷移ログ）は
+FR-71 の 19 業務テーブルとは別のインフラテーブルである。
 一部の FK は後続テーブルへの前方参照を含む（SQLite は DML 時に検証するため適用は成功する）。
 適用後の `PRAGMA foreign_key_check` 成功を契約検証（§8）で必須とする。
 
@@ -29,6 +32,20 @@ CREATE TABLE schema_version (
   migration_name TEXT NOT NULL UNIQUE,
   checksum_sha256 TEXT NOT NULL CHECK (length(checksum_sha256) = 64),
   applied_by TEXT NOT NULL
+);
+
+CREATE TABLE state_transitions (
+  id INTEGER PRIMARY KEY,
+  entity_type TEXT NOT NULL CHECK (entity_type IN ('loop_run', 'task')),
+  entity_id INTEGER NOT NULL,
+  from_state TEXT NOT NULL,
+  event TEXT NOT NULL,
+  to_state TEXT NOT NULL,
+  guard_result TEXT NOT NULL CHECK (guard_result IN ('passed', 'rejected')),
+  details_json TEXT NOT NULL DEFAULT '{}' CHECK (json_valid(details_json)),
+  created_at TEXT NOT NULL,
+  created_by_agent_id INTEGER,
+  FOREIGN KEY (created_by_agent_id) REFERENCES agents(id) ON DELETE RESTRICT
 );
 
 CREATE TABLE business_profiles (
@@ -97,7 +114,7 @@ CREATE TABLE sprints (
 
 CREATE TABLE workflows (
   id INTEGER PRIMARY KEY,
-  workflow_key TEXT NOT NULL UNIQUE,
+  workflow_key TEXT NOT NULL,
   name TEXT NOT NULL,
   task_type TEXT NOT NULL,
   version INTEGER NOT NULL,
@@ -116,6 +133,7 @@ CREATE TABLE loop_runs (
   loop_kind TEXT NOT NULL CHECK (loop_kind IN ('upper', 'lower', 'micro')),
   loop_type TEXT NOT NULL,
   state TEXT NOT NULL CHECK (state IN ('pending', 'running', 'waiting', 'completed', 'failed', 'escalated', 'cancelled')),
+  retry_count INTEGER NOT NULL DEFAULT 0 CHECK (retry_count >= 0),
   idempotency_key TEXT NOT NULL UNIQUE,
   resume_token TEXT,
   started_at TEXT,
@@ -356,7 +374,7 @@ CREATE TABLE spend_ledger (
 
 ## 3. 状態遷移契約（FR-11〜13、NFR-3）
 
-遷移表にない組合せは拒否し、状態・retry_count・証跡を変更しない。各遷移は単一 SQLite transaction で、ガード判定、状態更新、遷移ログ（`operation_log` 証跡）をコミットする。`done`、`failed`、`escalated`、`completed`、`cancelled` は終端状態である。
+遷移表にない組合せは拒否し、状態・retry_count・証跡を変更しない（拒否も `state_transitions` に guard_result = `rejected` で記録する）。各遷移は単一 SQLite transaction で、ガード判定、状態更新、遷移ログ（`state_transitions` 行）をコミットする。`operation_log` 証跡は外部操作専用であり、状態遷移の記録には使わない。`done`、`failed`、`escalated`、`completed`、`cancelled` は終端状態である。
 
 ### 3.1 loop_runs（上位／下位／マイクロ共通）
 

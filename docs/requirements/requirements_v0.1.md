@@ -151,7 +151,8 @@ sprints（1 件固定でよい）, measurements（GA4 の PV のみでよい）
   SQL 直接編集は受入基準 5 に反するため用いない）
 - ゲート: FR-21（企画↔品質）と FR-27（自己審査禁止）は完全実装。FR-23a（有料指標拒否）は型で実装
 - エージェント: writer（制作）と critic（審査）の 2 体 + マイクロループ 1 種
-- コネクタ: WP REST（下書き投稿→公開）+ 承認通知（FR-46 の最小版）+ Notion 読取り最小版（MCP 経由）
+- コネクタ: WP REST（下書き投稿→公開）+ 承認通知（FR-46 の最小版）。Notion 読取りは **S0 では任意**
+  （企画入力はシードコマンド投入が正。MCP 読取りが使えれば併用可。本実装は S1・FN-408）
 - 計測: GA4 正規 API（ADR-006。POC-03 は疎通検証）→ PV 1 指標の取り込み
 - TAKUMI 素材: copywriting / seo-jp / design-evidence-jp あたりをワークフロー 1 本に統合（カタログから引く）
 
@@ -169,21 +170,16 @@ sprints（1 件固定でよい）, measurements（GA4 の PV のみでよい）
 
 ## 4bis. evidence 最小スキーマ（S0 で確定させる要件レベル定義）
 
-`evidence` は完了判定の正本テーブル。S0 時点の最小カラム集合:
+`evidence` は完了判定の正本テーブル。**カラム集合・kind 語彙・型契約の正準定義は
+[s0-contract_v0.1.md](s0-contract_v0.1.md) §2（DDL）と §2.1（kind 別 payload 規則）**であり、
+本節はその要件レベルの要約である:
 
-| カラム | 型 | 意味 |
-|---|---|---|
-| id | INTEGER PK | 証跡 ID |
-| task_id | FK→tasks | どのタスクの証跡か |
-| kind | TEXT | published_url / review_pass / commit_hash / measurement / screenshot / file_hash / approval |
-| value | TEXT | URL・hash・判定値など kind に応じた本体 |
-| file_path | TEXT NULL | スクショ・エクスポートファイルの保存先 |
-| file_hash | TEXT NULL | ファイル証跡の SHA-256 |
-| created_at | TEXT | 記録時刻（ISO8601） |
-| created_by | TEXT | 記録したエージェント/コネクタ |
-
-タスク種別ごとの必須 kind 集合はワークフロー定義が宣言し、FR-28 が `done` 遷移時に検証する。
-カラム追加はマイグレーション（FR-72）で行い、既存 kind の意味変更はしない。
+- 主キー・task_id（FK）・kind（10 種の語彙: plan_record / commit_hash / review_pass / published_url /
+  measurement / screenshot / file_hash / approval / operation_log / dashboard）・value（kind 内の同一性キー）
+- typed payload（`payload_json` に kind 別必須キー）・対象資産 ID・commit hash・外部 operation ID の列
+- `UNIQUE(task_id, kind, value)` による重複投入防止、`created_by_agent_id`（FK→agents）
+- タスク種別ごとの必須 kind 集合は `workflows.required_evidence_json` が宣言し、FR-28 が `done` 遷移時に検証
+- カラム追加はマイグレーション（FR-72）で行い、既存 kind の意味変更はしない
 
 ## 4ter. 受入条件（AC）— S0 スコープ
 
