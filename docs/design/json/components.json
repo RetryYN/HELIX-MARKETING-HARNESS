@@ -1,0 +1,150 @@
+{
+  "doc": "basic-design",
+  "version": "0.1",
+  "source": "docs/design/basic-design_v0.1.md",
+  "generated": "2026-07-31",
+  "items": [
+    {
+      "id": "CMP-01",
+      "name": "状態機械カーネル",
+      "fn_ids": [
+        "FN-101",
+        "FN-704"
+      ],
+      "update": "S0.1",
+      "path": "kernel/state.py",
+      "summary": "遷移表照合・guard・state_transitions 単一 transaction 記録・構造化ログ"
+    },
+    {
+      "id": "CMP-02",
+      "name": "オーケストレータ",
+      "fn_ids": [
+        "FN-102",
+        "FN-103",
+        "FN-104",
+        "FN-105"
+      ],
+      "update": "S0.1",
+      "path": "kernel/orchestrator.py ほか",
+      "summary": "タスク発行・マイクロループ・WF 実行器・author/verifier 別体割当"
+    },
+    {
+      "id": "CMP-03",
+      "name": "ゲートエンジン",
+      "fn_ids": [
+        "FN-201",
+        "FN-202",
+        "FN-204",
+        "FN-208"
+      ],
+      "update": "S0.1",
+      "path": "gates/",
+      "summary": "ペア判定・公開ゲート・ゼロ広告費・証跡完備の fail-close 集約"
+    },
+    {
+      "id": "CMP-04",
+      "name": "証跡ストア",
+      "fn_ids": [
+        "FN-703"
+      ],
+      "update": "S0.1",
+      "path": "evidence/store.py",
+      "summary": "kind 型契約検証つき INSERT・read-only 参照・secret 混入検査"
+    },
+    {
+      "id": "CMP-05",
+      "name": "DB 基盤",
+      "fn_ids": [
+        "FN-701",
+        "FN-702"
+      ],
+      "update": "S0.1",
+      "path": "db/",
+      "summary": "正準 DDL migration・checksum 記録・PRAGMA foreign_keys 接続入口"
+    },
+    {
+      "id": "CMP-06",
+      "name": "config 管理",
+      "fn_ids": [
+        "FN-305"
+      ],
+      "update": "S0.1",
+      "path": "config/store.py",
+      "summary": "append-only 履歴・supersedes 連鎖・UPDATE/DELETE 拒否"
+    },
+    {
+      "id": "CMP-07",
+      "name": "接続レジストリ・秘匿ストア",
+      "fn_ids": [
+        "FN-401",
+        "FN-411"
+      ],
+      "update": "S0.2",
+      "path": "registry/",
+      "summary": "経路優先順の宣言解決・Fernet 暗号化保管・test/prod 分離検査"
+    },
+    {
+      "id": "CMP-08",
+      "name": "ブラウザ基盤",
+      "fn_ids": [
+        "FN-402"
+      ],
+      "update": "S0.2",
+      "path": "connectors/browser.py",
+      "summary": "Playwright 起動・storage_state 永続・headed/headless 切替"
+    },
+    {
+      "id": "CMP-09",
+      "name": "攻略地図ストア",
+      "fn_ids": [
+        "FN-404"
+      ],
+      "update": "S0.2",
+      "path": "connectors/playbooks.py",
+      "summary": "playbooks 保存・参照・last_success_at 更新・broken 降格"
+    },
+    {
+      "id": "CMP-10",
+      "name": "WP REST コネクタ",
+      "fn_ids": [
+        "FN-406"
+      ],
+      "update": "S0.2",
+      "path": "connectors/wp.py",
+      "summary": "idempotency 必須・事前照合・ペア ID 要求・Docker WP allow-list"
+    },
+    {
+      "id": "CMP-11",
+      "name": "承認通知",
+      "fn_ids": [
+        "FN-409"
+      ],
+      "update": "S0.2",
+      "path": "connectors/approval.py",
+      "summary": "binding 3 項目束縛承認・応答証跡化・transport 差替"
+    },
+    {
+      "id": "CMP-12",
+      "name": "制作・版管理",
+      "fn_ids": [
+        "FN-501",
+        "FN-511"
+      ],
+      "update": "S0.2",
+      "path": "content/",
+      "summary": "決定的原稿生成・commit hash 紐づけ"
+    },
+    {
+      "id": "CMP-13",
+      "name": "計測",
+      "fn_ids": [
+        "FN-601",
+        "FN-602",
+        "FN-603"
+      ],
+      "update": "S0.3",
+      "path": "measure/",
+      "summary": "KPI ツリー・GA4 API 第一経路取得・hash 固定・隔離つきパース投入"
+    }
+  ]
+}

@@ -23,6 +23,9 @@
 | G-SUBSTANCE | 全エンティティに 8 文字以上の本文実体 | 空・スタブ本文の完了僭称（HELIX AP-13 相当） |
 | G-PAIR-EXIST/UNIQ/AC/TC/REJ/UPD/DOC | 対の検証設計（verification.json）が存在し、全 AC ↔ TC の双方向カバー・拒否系 ≥7・全 TC の S0.x 割当・ペア台帳の文書実在 | 片肺（検証対のない設計 = HELIX pair gate 違反） |
 | G-PAIR-HDR | 設計 5 文書のヘッダに pair 行（③参照）、検証設計側にも対象列挙（①↔③ 対称） | 片方向ペア（HELIX pair_artifact/trace-bidir 相当） |
+| G-CMP-CNT/UNIQ/FN | 基本設計②のコンポーネント台帳（components.json）が CMP 13・ID 重複ゼロ・S0 25 FN を重複なく完全被覆 | 設計漏れ・二重責務（FN の宙吊り） |
+| G-ITC-CNT/UNIQ/CMP/AC/REJ/UPD | 総合テスト設計④（itest.json）が ITC 16・ID 重複ゼロ・全 CMP と全 AC を双方向カバー・拒否系 ≥7・全件 S0.x 割当 | 片肺（総合テスト対のない設計 = HELIX pair gate 違反） |
+| G-PAIR2-EXIST/HDR | ②↔④ の JSON 正本が存在し、両文書ヘッダが相互 pair 参照、ペア台帳の文書実在 | 片方向ペア（②↔④ 非対称） |
 | G-BASE-EXIST/HASH/STATUS/RATCHET | baseline.json に対し confirmed 文書のハッシュ一致・降格なし・分母縮小/ゲート削減なし。意図的変更は `--update-baseline` を同一コミットで実行 | **デグレ**: confirmed のサイレント改変・後退・こっそりスコープ縮小（HELIX 日付 ratchet 相当） |
 | G-WIRING | スクリプトの全ゲート ID が本台帳に掲載され、CI がスクリプトを呼ぶ | ルールの配線漏れ・死蔵（HELIX lint-wiring 相当） |
 

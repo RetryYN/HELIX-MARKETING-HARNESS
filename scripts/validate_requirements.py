@@ -37,9 +37,11 @@ def md_count(path: Path, pattern: str) -> int:
     return len(set(re.findall(pattern, text)))
 
 
+D = ROOT / "docs/design/json"
+
 # G-JSON: 全 JSON が構文的に妥当
 bad = []
-for f in glob.glob(str(J / "**/*.json"), recursive=True):
+for f in glob.glob(str(J / "**/*.json"), recursive=True) + glob.glob(str(D / "**/*.json"), recursive=True):
     try:
         load(Path(f))
     except Exception as e:  # noqa: BLE001
@@ -253,6 +255,48 @@ for name in PAIRED_DOCS:
         nopair.append(f"{name}:③側の対象列挙なし")
 gate("G-PAIR-HDR", not nopair, f"①↔③ 対称参照 (欠落={nopair})")
 
+# G-CMP / G-ITC / G-PAIR2: 基本設計②↔総合テスト設計④ のペアゲート
+cmp_path, itc_path = D / "components.json", D / "itest.json"
+if cmp_path.exists() and itc_path.exists():
+    comps = load(cmp_path)["items"]
+    itest = load(itc_path)
+    itcs = itest["items"]
+    cmpids = [c["id"] for c in comps]
+    itcids = [t["id"] for t in itcs]
+    gate("G-CMP-CNT", len(comps) == 13, f"CMP=13 (実={len(comps)})")
+    gate("G-CMP-UNIQ", len(cmpids) == len(set(cmpids)), "CMP ID 重複ゼロ")
+    # CMP の fn_ids が S0 25 機能を重複なく完全被覆
+    cfn = [f for c in comps for f in c["fn_ids"]]
+    gate("G-CMP-FN", len(cfn) == len(set(cfn)) and set(cfn) == s0fn,
+         f"CMP が S0 25 FN を重複なく完全被覆 (差分={sorted(set(cfn) ^ s0fn)})")
+    gate("G-ITC-CNT", len(itcs) == 16, f"ITC=16 (実={len(itcs)})")
+    gate("G-ITC-UNIQ", len(itcids) == len(set(itcids)), "ITC ID 重複ゼロ")
+    # ②↔④ 双方向: ITC の参照 CMP 実在＋全 CMP が 1 件以上の ITC に登場
+    refcmp = {c for t in itcs for c in t["cmp"]}
+    gate("G-ITC-CMP", refcmp == set(cmpids),
+         f"ITC↔CMP 双方向カバー (不明={sorted(refcmp - set(cmpids))}, 未カバー={sorted(set(cmpids) - refcmp)})")
+    # AC 連結: 参照 AC 実在＋全 19 AC が総合テストからも参照される
+    acids2 = {i["id"] for i in ac["items"]}
+    refac = {a for t in itcs for a in t["ac"]}
+    gate("G-ITC-AC", refac == acids2,
+         f"ITC↔AC 双方向カバー (不明={sorted(refac - acids2)}, 未カバー={sorted(acids2 - refac)})")
+    rej2 = [t for t in itcs if t.get("polarity") == "reject"]
+    gate("G-ITC-REJ", len(rej2) >= 7, f"総合テストの fail-close 拒否系 >=7 (実={len(rej2)})")
+    badup2 = [t["id"] for t in itcs if t.get("update") not in ("S0.1", "S0.2", "S0.3")]
+    gate("G-ITC-UPD", not badup2, f"全 ITC が S0.1〜S0.3 に割当 (未割当={badup2})")
+    # ②↔④ 対称ヘッダ＋ペア台帳の文書実在
+    bd_head = (ROOT / "docs/design/basic-design_v0.1.md").read_text(encoding="utf-8")[:800]
+    it_head = (ROOT / "docs/design/integration-test-design_v0.1.md").read_text(encoding="utf-8")[:800]
+    pair_docs_ok = all((ROOT / "docs/design" / p[k]).exists()
+                       for p in itest.get("pairs", []) for k in ("design_doc", "test_doc"))
+    gate("G-PAIR2-HDR",
+         "pair:" in bd_head and "integration-test-design" in bd_head
+         and "pair:" in it_head and "basic-design" in it_head
+         and bool(itest.get("pairs")) and pair_docs_ok,
+         "②↔④ 対称 pair 参照＋ペア台帳文書実在")
+else:
+    gate("G-PAIR2-EXIST", False, "components.json / itest.json（②↔④ ペア正本）が存在しない")
+
 # G-BASE: デグレ検出（HELIX 日付 ratchet 相当のベースライン方式）
 # confirmed 文書のサイレント改変・分母縮小・ゲート削減を停止する。
 # 意図的変更は `--update-baseline` でベースラインを同一コミットで更新する。
@@ -260,7 +304,9 @@ import hashlib
 
 BASELINE = ROOT / "docs/governance/baseline.json"
 current_counts = {"BR": len(br), "REQ": len(req), "FR": len(fr), "NFR": len(nfr),
-                  "AC": len(ac["items"]), "FN": len(fn), "BRM": bm, "MR": mr, "WF": len(wf)}
+                  "AC": len(ac["items"]), "FN": len(fn), "BRM": bm, "MR": mr, "WF": len(wf),
+                  "CMP": len(comps) if cmp_path.exists() else 0,
+                  "ITC": len(itcs) if itc_path.exists() else 0}
 confirmed_docs = sorted(
     str(Path(f).relative_to(ROOT)) for f in glob.glob(str(ROOT / "docs/**/*.md"), recursive=True)
     if re.search(r"status:\s*\*{0,2}confirmed\*{0,2}", Path(f).read_text(encoding="utf-8")[:600])

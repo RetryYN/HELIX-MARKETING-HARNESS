@@ -9,11 +9,15 @@
     "FN": 61,
     "BRM": 70,
     "MR": 54,
-    "WF": 44
+    "WF": 44,
+    "CMP": 13,
+    "ITC": 16
   },
-  "gate_count": 40,
+  "gate_count": 51,
   "confirmed_docs": {
     "docs/L0-charter/marketing-harness-charter_v0.3.md": "6313df0cad41c42dd25b80e72ec4aff907cde5eab2d7ae5345e674041655472d",
+    "docs/design/basic-design_v0.1.md": "61e7a833d4c5cacc864dde96401ec9e2ac32cdaa87b1ae926af53e607586b27a",
+    "docs/design/integration-test-design_v0.1.md": "9e5033e8cd7e43974ee57446f03a1d04f983977dd27eb6d8275221b1d58bee2d",
     "docs/requirements/br-backbone_v0.1.md": "a7093529d3e974537ddf9b5d192b724a4072b3d60451fa13d096ba1665051938",
     "docs/requirements/br-media_v0.1.md": "82eaa89dda16a5a7a8ad34435e22b34ec9ee17cf9b705dc6aecace9571ccbfdb",
     "docs/requirements/function-list_v0.1.md": "94b37a30cdd9479160c561c75c7a75557ba43a0c2f2fab5cde413f8653a32c61",
