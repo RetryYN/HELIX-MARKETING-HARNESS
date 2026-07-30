@@ -19,7 +19,9 @@
           "WF-X-1",
           "LP-D"
         ]
-      }
+      },
+      "decision_outcome": null,
+      "promotion_strategy": null
     },
     {
       "id": "POC-02",
@@ -34,7 +36,9 @@
         "downstream": [
           "WF-IG-1"
         ]
-      }
+      },
+      "decision_outcome": null,
+      "promotion_strategy": null
     },
     {
       "id": "POC-03",
@@ -49,7 +53,9 @@
         "downstream": [
           "WF-MEAS-1"
         ]
-      }
+      },
+      "decision_outcome": null,
+      "promotion_strategy": null
     },
     {
       "id": "POC-05",
@@ -64,7 +70,9 @@
         "downstream": [
           "WF-NOTE-1"
         ]
-      }
+      },
+      "decision_outcome": null,
+      "promotion_strategy": null
     },
     {
       "id": "POC-08",
@@ -83,7 +91,9 @@
           "WF-PC-1",
           "WF-KDP-1"
         ]
-      }
+      },
+      "decision_outcome": null,
+      "promotion_strategy": null
     },
     {
       "id": "POC-09",
@@ -98,7 +108,9 @@
         "downstream": [
           "WF-KDP-1"
         ]
-      }
+      },
+      "decision_outcome": null,
+      "promotion_strategy": null
     },
     {
       "id": "POC-10",
@@ -113,7 +125,9 @@
         "downstream": [
           "WF-HS-1"
         ]
-      }
+      },
+      "decision_outcome": null,
+      "promotion_strategy": null
     },
     {
       "id": "POC-11",
@@ -128,7 +142,9 @@
         "downstream": [
           "WF-LINE-1"
         ]
-      }
+      },
+      "decision_outcome": null,
+      "promotion_strategy": null
     },
     {
       "id": "POC-12",
@@ -143,7 +159,9 @@
         "downstream": [
           "WF-AFF-1"
         ]
-      }
+      },
+      "decision_outcome": null,
+      "promotion_strategy": null
     },
     {
       "id": "POC-13",
@@ -158,7 +176,9 @@
         "downstream": [
           "WF-ASSET-1"
         ]
-      }
+      },
+      "decision_outcome": null,
+      "promotion_strategy": null
     },
     {
       "id": "POC-R1",
@@ -168,7 +188,9 @@
           "BR-B3"
         ],
         "downstream": []
-      }
+      },
+      "decision_outcome": null,
+      "promotion_strategy": null
     },
     {
       "id": "POC-R2",
@@ -176,7 +198,9 @@
       "trace": {
         "upstream": [],
         "downstream": []
-      }
+      },
+      "decision_outcome": null,
+      "promotion_strategy": null
     },
     {
       "id": "POC-R3",
@@ -184,7 +208,23 @@
       "trace": {
         "upstream": [],
         "downstream": []
-      }
+      },
+      "decision_outcome": null,
+      "promotion_strategy": null
     }
-  ]
+  ],
+  "exit_schema": {
+    "decision_outcome": [
+      "confirmed",
+      "rejected",
+      "pivot"
+    ],
+    "promotion_strategy": [
+      "reuse-as-is",
+      "reuse-with-hardening",
+      "redesign",
+      "discard"
+    ],
+    "rule": "decision_outcome が confirmed の場合 promotion_strategy 必須。PoC コードの本線昇格は redesign 以外禁止（HELIX poc 規律: 成功基準先行・昇格経路強制）"
+  }
 }

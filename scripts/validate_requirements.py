@@ -155,6 +155,86 @@ badst = [
 ]
 gate("G-TRN-ST", not badst, f"遷移状態が DDL enum 内 (不明={badst})")
 
+# G-CONFIRM: status confirmed を名乗る文書は approvals.md に承認行が実在する（freeze 偽装検出）
+approvals = (ROOT / "docs/governance/approvals.md").read_text(encoding="utf-8")
+imposters = []
+for f in glob.glob(str(ROOT / "docs/**/*.md"), recursive=True):
+    p = Path(f)
+    if p.name == "approvals.md":
+        continue
+    head = p.read_text(encoding="utf-8")[:600]
+    base = re.sub(r"_v[\d.]+$", "", p.stem)  # approvals.md は対象と版を別列で持つ
+    if re.search(r"status:\s*\*{0,2}confirmed\*{0,2}", head) and base not in approvals:
+        imposters.append(p.name)
+gate("G-CONFIRM", not imposters, f"confirmed 文書は承認ログに実在 (偽装={imposters})")
+
+# G-SRC-FRESH: br-media の構造調査値は確認日必須・90 日で失効（出典腐敗検査）
+import datetime
+
+MAX_AGE_DAYS = 90
+today = datetime.date.today()
+stale = []
+for f in glob.glob(str(J / "br-media/*.json")):
+    if "index" in f:
+        continue
+    d = load(Path(f))
+    c = d.get("structure_checked")
+    try:
+        age = (today - datetime.date.fromisoformat(c)).days
+        if age > MAX_AGE_DAYS or age < 0:
+            stale.append(f"{Path(f).name}:{c}")
+    except (TypeError, ValueError):
+        stale.append(f"{Path(f).name}:missing")
+gate("G-SRC-FRESH", not stale, f"媒体構造の調査日が {MAX_AGE_DAYS} 日以内 (失効={stale})")
+
+# G-POC-EXIT: PoC は出口 2 軸 schema に適合（confirmed には promotion_strategy 必須）
+poc = load(J / "ltw/poc.json")
+es = poc.get("exit_schema", {})
+badpoc = []
+for i in poc["items"]:
+    do, ps = i.get("decision_outcome", "MISSING"), i.get("promotion_strategy", "MISSING")
+    if do not in (es.get("decision_outcome", []) + [None]) or ps not in (es.get("promotion_strategy", []) + [None]):
+        badpoc.append(f"{i['id']}:invalid({do},{ps})")
+    elif do == "confirmed" and ps is None:
+        badpoc.append(f"{i['id']}:confirmed-without-strategy")
+gate("G-POC-EXIT", bool(es) and not badpoc, f"PoC 出口 2 軸 schema 適合 (違反={badpoc})")
+
+# G-SUBSTANCE: 全エンティティに本文実体（空・スタブ本文の完了僭称を封じる — AP-13 文書版）
+hollow = []
+for name, items in [("BR", br), ("REQ", req), ("FR/NFR", r), ("FN", fn)]:
+    for i in items:
+        body = " ".join(filter(None, [i.get("title"), i.get("summary"), i.get("text")]))
+        if len(body.strip()) < 8:
+            hollow.append(i["id"])
+for f in glob.glob(str(J / "br-media/*.json")) + glob.glob(str(J / "mr/*.json")):
+    if "index" in f:
+        continue
+    for i in load(Path(f))["items"]:
+        if len((i.get("text") or "").strip()) < 8:
+            hollow.append(i["id"])
+gate("G-SUBSTANCE", not hollow, f"全エンティティ本文実体あり (空={hollow})")
+
+# G-WIRING: メタゲート — スクリプトのゲート ID と台帳・CI 配線の突合
+src = Path(__file__).read_text(encoding="utf-8")
+script_gates = set(re.findall(r'gate\(\s*f?"(G-[A-Z0-9-]+)', src))
+ledger = (ROOT / "docs/governance/requirements-gates.md").read_text(encoding="utf-8")
+# 台帳は「G-CNT-BR/REQ/FR」のスラッシュ族表記を許す: 展開して照合
+ledger_gates: set[str] = set()
+for m in re.findall(r"G-[A-Z0-9]+(?:-[A-Z0-9]+)*(?:/[A-Z0-9]+)*", ledger):
+    parts = m.split("/")
+    ledger_gates.add(parts[0])
+    prefix = parts[0].rsplit("-", 1)[0]
+    ledger_gates.update(f"{prefix}-{s}" for s in parts[1:])
+# f-string 動的 ID（"G-UNIQ-" 等）は族プレフィクスとして照合
+unwired = sorted(
+    g for g in script_gates
+    if not (g in ledger_gates or g.rstrip("-") in ledger_gates
+            or (g.endswith("-") and any(lg.startswith(g) for lg in ledger_gates)))
+)
+ci = (ROOT / ".github/workflows/docs-ci.yml").read_text(encoding="utf-8")
+gate("G-WIRING", "scripts/validate_requirements.py" in ci and not unwired,
+     f"CI 配線 + 台帳掲載 (未掲載={unwired})")
+
 print()
 if failures:
     print(f"NG: {len(failures)} 件のゲート違反")

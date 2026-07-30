@@ -17,6 +17,11 @@
 | G-DDL-APPLY | DDL が空 SQLite へ適用でき FK/integrity 検査が通り 21 テーブル | 実行不能なスキーマ |
 | G-EVK | evidence kind 10 種が JSON 契約と DDL の CHECK で同一集合 | 証跡語彙の乖離 |
 | G-TRN-ENT / G-TRN-ST | 遷移表の entity が loop_runs/tasks、from/to 状態が DDL enum 内 | 実装不能な状態機械定義 |
+| G-CONFIRM | status: confirmed を名乗る文書が approvals.md に承認行を持つ | freeze 偽装（HELIX gate-confirm 相当） |
+| G-SRC-FRESH | br-media 各媒体の structure_checked が 90 日以内 | 出典腐敗（媒体規約・上限は変わる。HELIX source-ledger-freshness 相当） |
+| G-POC-EXIT | PoC が出口 2 軸 schema（decision_outcome × promotion_strategy）に適合、confirmed には strategy 必須 | PoC の独り歩き（HELIX poc 規律相当） |
+| G-SUBSTANCE | 全エンティティに 8 文字以上の本文実体 | 空・スタブ本文の完了僭称（HELIX AP-13 相当） |
+| G-WIRING | スクリプトの全ゲート ID が本台帳に掲載され、CI がスクリプトを呼ぶ | ルールの配線漏れ・死蔵（HELIX lint-wiring 相当） |
 
 ## 運用
 
