@@ -17,13 +17,13 @@
         ],
         "downstream": []
       },
-      "connection": "ブラウザ。API 不使用",
-      "actions": "フィード投稿、リール投稿、画像/動画添付、キャプション・ハッシュタグ、インサイト取得",
+      "connection": "公式 Graph API（無料・プロアカウント。ADR-006/§99-1）。ブラウザは attended 補助のみ",
+      "actions": "フィード/リール投稿、キャプション・ハッシュタグ、インサイト取得（すべて Graph API）",
       "evidence": "投稿 URL、スクショ、リーチ・保存・エンゲージ数値",
       "kpi_contribution": "露出（リーチ・インプレッション）、関係（保存・フォロワー）",
       "workflow": "sns-jp, breakout-content-jp ＋ 画像/リール制作",
       "gate": "企画↔品質、倫理、ゼロ広告費",
-      "safety": "検知が堅いため Camoufox 優先、レート厳守"
+      "safety": "API quota 準拠（検知リスクなし）。日次上限は config で管理。attended ブラウザ補助時のみ間隔 5〜15 秒"
     },
     {
       "id": "MR-IG-2",
@@ -36,13 +36,13 @@
         ],
         "downstream": []
       },
-      "connection": "ブラウザ。API 不使用",
-      "actions": "フィード投稿、リール投稿、画像/動画添付、キャプション・ハッシュタグ、インサイト取得",
+      "connection": "公式 Graph API（無料・プロアカウント。ADR-006/§99-1）。ブラウザは attended 補助のみ",
+      "actions": "フィード/リール投稿、キャプション・ハッシュタグ、インサイト取得（すべて Graph API）",
       "evidence": "投稿 URL、スクショ、リーチ・保存・エンゲージ数値",
       "kpi_contribution": "露出（リーチ・インプレッション）、関係（保存・フォロワー）",
       "workflow": "sns-jp, breakout-content-jp ＋ 画像/リール制作",
       "gate": "企画↔品質、倫理、ゼロ広告費",
-      "safety": "検知が堅いため Camoufox 優先、レート厳守"
+      "safety": "API quota 準拠（検知リスクなし）。日次上限は config で管理。attended ブラウザ補助時のみ間隔 5〜15 秒"
     }
   ]
 }

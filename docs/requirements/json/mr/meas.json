@@ -17,8 +17,8 @@
         ],
         "downstream": []
       },
-      "actions": "管理画面から Excel/CSV エクスポート → パース → SQLite 時系列",
-      "evidence": "エクスポートファイル hash、取得スクショ",
+      "actions": "GA4 Data API / Search Console API で取得 → パース → SQLite 時系列。GTM と API 阻害時のみブラウザエクスポート（一時フォールバック）",
+      "evidence": "API レスポンス/エクスポートファイルの hash、（ブラウザ時のみ）取得スクショ",
       "kpi_contribution": "露出（PV・検索順位・流入）の一次データ源",
       "workflow": "N/A（計測取得は FN-602/603 の共通パイプライン）",
       "gate": "N/A（読取専用・公開系操作なし）",
@@ -36,8 +36,8 @@
         ],
         "downstream": []
       },
-      "actions": "管理画面から Excel/CSV エクスポート → パース → SQLite 時系列",
-      "evidence": "エクスポートファイル hash、取得スクショ",
+      "actions": "GA4 Data API / Search Console API で取得 → パース → SQLite 時系列。GTM と API 阻害時のみブラウザエクスポート（一時フォールバック）",
+      "evidence": "API レスポンス/エクスポートファイルの hash、（ブラウザ時のみ）取得スクショ",
       "kpi_contribution": "露出（PV・検索順位・流入）の一次データ源",
       "workflow": "N/A（計測取得は FN-602/603 の共通パイプライン）",
       "gate": "N/A（読取専用・公開系操作なし）",
@@ -54,8 +54,8 @@
         ],
         "downstream": []
       },
-      "actions": "管理画面から Excel/CSV エクスポート → パース → SQLite 時系列",
-      "evidence": "エクスポートファイル hash、取得スクショ",
+      "actions": "GA4 Data API / Search Console API で取得 → パース → SQLite 時系列。GTM と API 阻害時のみブラウザエクスポート（一時フォールバック）",
+      "evidence": "API レスポンス/エクスポートファイルの hash、（ブラウザ時のみ）取得スクショ",
       "kpi_contribution": "露出（PV・検索順位・流入）の一次データ源",
       "workflow": "N/A（計測取得は FN-602/603 の共通パイプライン）",
       "gate": "N/A（読取専用・公開系操作なし）",

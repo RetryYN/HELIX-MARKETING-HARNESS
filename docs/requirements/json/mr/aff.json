@@ -17,8 +17,8 @@
         ],
         "downstream": []
       },
-      "connection": "ブラウザ。API 貧弱のため突破",
-      "actions": "案件検索、提携申請、リンク発行、WP 埋め込み、成果レポート取得（A8/もしも/Amazon/楽天）",
+      "connection": "ブラウザ（読み取り限定）。楽天は自動操作対象外（規約明示禁止・§99-8）",
+      "actions": "自動化は成果レポート取得（A8/もしも/Amazon）の低頻度読み取りのみ。案件検索・提携申請は attended、リンク発行・WP 埋め込みは制作パイプライン側。楽天は手動運用",
       "evidence": "提携状態、リンク、成果/報酬レポート（収益系）",
       "kpi_contribution": "収益（アフィリエイト報酬）、記事単位の露出→クリック→成果歩留まり",
       "workflow": "sales-writing, ad-compliance-jp",
@@ -36,8 +36,8 @@
         ],
         "downstream": []
       },
-      "connection": "ブラウザ。API 貧弱のため突破",
-      "actions": "案件検索、提携申請、リンク発行、WP 埋め込み、成果レポート取得（A8/もしも/Amazon/楽天）",
+      "connection": "ブラウザ（読み取り限定）。楽天は自動操作対象外（規約明示禁止・§99-8）",
+      "actions": "自動化は成果レポート取得（A8/もしも/Amazon）の低頻度読み取りのみ。案件検索・提携申請は attended、リンク発行・WP 埋め込みは制作パイプライン側。楽天は手動運用",
       "evidence": "提携状態、リンク、成果/報酬レポート（収益系）",
       "kpi_contribution": "収益（アフィリエイト報酬）、記事単位の露出→クリック→成果歩留まり",
       "workflow": "sales-writing, ad-compliance-jp",
@@ -55,8 +55,8 @@
         ],
         "downstream": []
       },
-      "connection": "ブラウザ。API 貧弱のため突破",
-      "actions": "案件検索、提携申請、リンク発行、WP 埋め込み、成果レポート取得（A8/もしも/Amazon/楽天）",
+      "connection": "ブラウザ（読み取り限定）。楽天は自動操作対象外（規約明示禁止・§99-8）",
+      "actions": "自動化は成果レポート取得（A8/もしも/Amazon）の低頻度読み取りのみ。案件検索・提携申請は attended、リンク発行・WP 埋め込みは制作パイプライン側。楽天は手動運用",
       "evidence": "提携状態、リンク、成果/報酬レポート（収益系）",
       "kpi_contribution": "収益（アフィリエイト報酬）、記事単位の露出→クリック→成果歩留まり",
       "workflow": "sales-writing, ad-compliance-jp",
