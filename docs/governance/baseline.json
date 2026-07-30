@@ -1,0 +1,29 @@
+{
+  "updated": "see git log",
+  "counts": {
+    "BR": 31,
+    "REQ": 45,
+    "FR": 36,
+    "NFR": 10,
+    "AC": 19,
+    "FN": 61,
+    "BRM": 70,
+    "MR": 54,
+    "WF": 44
+  },
+  "gate_count": 40,
+  "confirmed_docs": {
+    "docs/L0-charter/marketing-harness-charter_v0.3.md": "6313df0cad41c42dd25b80e72ec4aff907cde5eab2d7ae5345e674041655472d",
+    "docs/requirements/br-backbone_v0.1.md": "a7093529d3e974537ddf9b5d192b724a4072b3d60451fa13d096ba1665051938",
+    "docs/requirements/br-media_v0.1.md": "48b1391623a42f8039d983c2cf232d6b3fc570685da9cfd8e920e6fc31404805",
+    "docs/requirements/function-list_v0.1.md": "94b37a30cdd9479160c561c75c7a75557ba43a0c2f2fab5cde413f8653a32c61",
+    "docs/requirements/glossary_v0.1.md": "0eebaee6bf3ddb8cc63bc84bab2112f310b2f4e2edd1636747c9c11c1bd01686",
+    "docs/requirements/loop-task-workflow_v0.1.md": "22c1f5527003a746d59946dce4e86529892c181d086a3eb14ef6eaed20371f74",
+    "docs/requirements/media-requirements_v0.1.md": "7b5a1193cfe21d61defd4d12d417e8f0cb04eaf42759c07a2f66b2889b6ab1f3",
+    "docs/requirements/requirement-list_v0.1.md": "09f0b066183ed51ae0528ea559299e44d8ac57e95ae405814d90987dbb09c565",
+    "docs/requirements/requirements_v0.1.md": "c7d90d183b4bdd14a9959a0d5e5bd6daade5c3f69879d0fd0e438acb18fa7d5b",
+    "docs/requirements/s0-contract_v0.1.md": "d20ae63018a553ce68c873a390535772a6bdf6575ccf8b45034bd8025a6cb9bf",
+    "docs/requirements/tech-stack_v0.1.md": "cc467cd33fc4d6c9953f326e31554c17ece205047e760cc712fc8c428bcba943",
+    "docs/requirements/verification-design_v0.1.md": "1880858773a48009c98c8a4574663b775238ed666b088b38bd4109e37b8dfe55"
+  }
+}

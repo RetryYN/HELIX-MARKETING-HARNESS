@@ -238,6 +238,61 @@ if ver_path.exists():
 else:
     gate("G-PAIR-EXIST", False, "verification.json（対の検証設計）が存在しない")
 
+# G-PAIR-HDR: HELIX 式 ①↔③ の対称参照 — 設計文書ヘッダに pair 行、検証設計側にも対象列挙
+PAIRED_DOCS = [
+    "requirements_v0.1.md", "s0-contract_v0.1.md", "br-media_v0.1.md",
+    "loop-task-workflow_v0.1.md", "media-requirements_v0.1.md",
+]
+vd_text = (MD / "verification-design_v0.1.md").read_text(encoding="utf-8")
+nopair = []
+for name in PAIRED_DOCS:
+    head = (MD / name).read_text(encoding="utf-8")[:800]
+    if "pair:" not in head or "verification-design" not in head:
+        nopair.append(f"{name}:①側 pair 行なし")
+    if name not in vd_text:
+        nopair.append(f"{name}:③側の対象列挙なし")
+gate("G-PAIR-HDR", not nopair, f"①↔③ 対称参照 (欠落={nopair})")
+
+# G-BASE: デグレ検出（HELIX 日付 ratchet 相当のベースライン方式）
+# confirmed 文書のサイレント改変・分母縮小・ゲート削減を停止する。
+# 意図的変更は `--update-baseline` でベースラインを同一コミットで更新する。
+import hashlib
+
+BASELINE = ROOT / "docs/governance/baseline.json"
+current_counts = {"BR": len(br), "REQ": len(req), "FR": len(fr), "NFR": len(nfr),
+                  "AC": len(ac["items"]), "FN": len(fn), "BRM": bm, "MR": mr, "WF": len(wf)}
+confirmed_docs = sorted(
+    str(Path(f).relative_to(ROOT)) for f in glob.glob(str(ROOT / "docs/**/*.md"), recursive=True)
+    if re.search(r"status:\s*\*{0,2}confirmed\*{0,2}", Path(f).read_text(encoding="utf-8")[:600])
+)
+current_hashes = {d: hashlib.sha256((ROOT / d).read_bytes()).hexdigest() for d in confirmed_docs}
+gate_count_now = len(re.findall(r'gate\(\s*f?"G-', Path(__file__).read_text(encoding="utf-8")))
+
+if "--update-baseline" in sys.argv:
+    BASELINE.write_text(json.dumps({
+        "updated": "see git log", "counts": current_counts,
+        "gate_count": gate_count_now, "confirmed_docs": current_hashes,
+    }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(f"baseline updated: docs={len(current_hashes)}, gates={gate_count_now}, counts={current_counts}")
+    sys.exit(0)
+
+if BASELINE.exists():
+    base = load(BASELINE)
+    # 改変検出: confirmed 文書のハッシュがベースラインと一致（意図的変更は baseline 同時更新）
+    drift = [d for d, h in base["confirmed_docs"].items()
+             if current_hashes.get(d) != h]
+    gate("G-BASE-HASH", not drift,
+         f"confirmed 文書の無断改変なし (差分={drift or '[]'}; 意図的なら --update-baseline を同一コミットで)")
+    # 後退検出: confirmed が draft へ戻っていない（ベースラインの文書が confirmed 集合に残存）
+    demoted = [d for d in base["confirmed_docs"] if d not in current_hashes]
+    gate("G-BASE-STATUS", not demoted, f"confirmed の降格なし (降格={demoted})")
+    # ratchet: 分母縮小・ゲート削減の禁止
+    shrunk = [f"{k}:{base['counts'][k]}→{v}" for k, v in current_counts.items() if v < base["counts"].get(k, 0)]
+    gate("G-BASE-RATCHET", not shrunk and gate_count_now >= base["gate_count"],
+         f"分母縮小/ゲート削減なし (縮小={shrunk}, gates={gate_count_now}>={base['gate_count']})")
+else:
+    gate("G-BASE-EXIST", False, "baseline.json が存在しない（--update-baseline で生成）")
+
 # G-WIRING: メタゲート — スクリプトのゲート ID と台帳・CI 配線の突合
 src = Path(__file__).read_text(encoding="utf-8")
 script_gates = set(re.findall(r'gate\(\s*f?"(G-[A-Z0-9-]+)', src))

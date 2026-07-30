@@ -1,6 +1,7 @@
 # 要件定義書 v0.1
 
 > status: **confirmed**（2026-07-31 PO 承認 — 要件定義完遂指示。AI 起草）
+> pair: [verification-design_v0.1.md §2〜§6](verification-design_v0.1.md)（検証設計③ — HELIX 式 ①↔③ 文書ペア）
 > 上位文書: [br-backbone_v0.1.md](br-backbone_v0.1.md)（BR 背骨）／ charter v0.3（層外 anchor）
 > 機械可読正本: 要件エンティティ（BR/REQ/FR/NFR/AC/FN/MR/WF）は [json/](json/) に JSON 正本を併置する。
 > 人の承認は MD、実装・変換の入力は JSON を用い、編集時は両方を同期する（PO 方針 2026-07-30）。

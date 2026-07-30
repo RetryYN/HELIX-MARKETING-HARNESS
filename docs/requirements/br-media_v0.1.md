@@ -1,6 +1,7 @@
 # 媒体別業務要求（BR-M）v0.1
 
 > status: **confirmed**（2026-07-31 PO 承認 — 要件定義完遂指示。AI 起草）
+> pair: [verification-design_v0.1.md §2・§3・§6](verification-design_v0.1.md)（検証設計③ — HELIX 式 ①↔③ 文書ペア）
 > 位置づけ: [br-backbone_v0.1.md](br-backbone_v0.1.md) の A〜H 背骨を**媒体単位の業務要求**へ展開したもの。
 > 各媒体の構造（プラン・上限・規約・審査）を 2026-07 時点の Web 調査で裏取りし、要求の根拠とする。
 > 調査値は変動するため、**実装着手時にリサーチエンジンで再確認**（tech-stack §7 と同じ規律）。

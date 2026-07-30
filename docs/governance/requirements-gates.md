@@ -22,6 +22,8 @@
 | G-POC-EXIT | PoC が出口 2 軸 schema（decision_outcome × promotion_strategy）に適合、confirmed には strategy 必須 | PoC の独り歩き（HELIX poc 規律相当） |
 | G-SUBSTANCE | 全エンティティに 8 文字以上の本文実体 | 空・スタブ本文の完了僭称（HELIX AP-13 相当） |
 | G-PAIR-EXIST/UNIQ/AC/TC/REJ/UPD/DOC | 対の検証設計（verification.json）が存在し、全 AC ↔ TC の双方向カバー・拒否系 ≥7・全 TC の S0.x 割当・ペア台帳の文書実在 | 片肺（検証対のない設計 = HELIX pair gate 違反） |
+| G-PAIR-HDR | 設計 5 文書のヘッダに pair 行（③参照）、検証設計側にも対象列挙（①↔③ 対称） | 片方向ペア（HELIX pair_artifact/trace-bidir 相当） |
+| G-BASE-EXIST/HASH/STATUS/RATCHET | baseline.json に対し confirmed 文書のハッシュ一致・降格なし・分母縮小/ゲート削減なし。意図的変更は `--update-baseline` を同一コミットで実行 | **デグレ**: confirmed のサイレント改変・後退・こっそりスコープ縮小（HELIX 日付 ratchet 相当） |
 | G-WIRING | スクリプトの全ゲート ID が本台帳に掲載され、CI がスクリプトを呼ぶ | ルールの配線漏れ・死蔵（HELIX lint-wiring 相当） |
 
 ## 運用

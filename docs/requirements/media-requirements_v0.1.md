@@ -1,6 +1,7 @@
 # 媒体・手法別 詳細要件 v0.1
 
 > status: **confirmed**（2026-07-31 PO 承認 — 要件定義完遂指示。AI 起草）
+> pair: [verification-design_v0.1.md §2・§3・§6](verification-design_v0.1.md)（検証設計③ — HELIX 式 ①↔③ 文書ペア）
 > 上位: [br-media_v0.1.md](br-media_v0.1.md)（媒体別業務要求 BR-M・調査値付き）／
 > [requirements_v0.1.md](requirements_v0.1.md)（FR/NFR）／ [br-backbone_v0.1.md](br-backbone_v0.1.md)
 > 目的: 各媒体・各手法を「接続・アクション・証跡・KPI寄与・ワークフロー・ゲート・安全」の7観点で個別要件化する。
