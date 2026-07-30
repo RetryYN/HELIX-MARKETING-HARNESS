@@ -86,21 +86,36 @@
       "from": "verifying",
       "event": "verify_fail",
       "guard": "差戻し理由と verifier 証跡があり、`retry_count + 1 < config.retry_limit`",
-      "to": "in_progress（retry_count を 1 増加）"
+      "to": "in_progress",
+      "effects": [
+        "retry_count を 1 増加"
+      ]
     },
     {
       "entity": "tasks",
       "from": "verifying",
       "event": "verify_fail",
       "guard": "差戻し理由と verifier 証跡があり、`retry_count + 1 >= config.retry_limit`",
-      "to": "escalated（retry_count を 1 増加）"
+      "to": "escalated",
+      "effects": [
+        "retry_count を 1 増加"
+      ]
     },
     {
       "entity": "tasks",
       "from": "pending / in_progress / verifying",
       "event": "non_retryable_failure",
       "guard": "秘匿違反、承認拒否、予算超過、未定義遷移、回復不能な外部失敗",
-      "to": "failed 又は escalated"
+      "to": "failed",
+      "note": "failed=局所失敗で代替 task 発行可 / escalated=人の関与が必要（§3.2 の使い分け）"
+    },
+    {
+      "entity": "tasks",
+      "from": "pending / in_progress / verifying",
+      "event": "non_retryable_failure",
+      "guard": "秘匿違反、承認拒否、予算超過、未定義遷移、回復不能な外部失敗",
+      "to": "escalated",
+      "note": "failed=局所失敗で代替 task 発行可 / escalated=人の関与が必要（§3.2 の使い分け）"
     },
     {
       "entity": "tasks",

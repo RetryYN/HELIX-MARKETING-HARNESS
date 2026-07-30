@@ -22,6 +22,17 @@ jobs:
             README.md
             docs/**/*.md
 
+  requirements-gates:
+    name: Requirements integrity gates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run requirements gates (fail-close)
+        run: python3 scripts/validate_requirements.py
+
   link-check:
     name: Internal link check
     runs-on: ubuntu-latest
