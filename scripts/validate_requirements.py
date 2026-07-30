@@ -214,6 +214,30 @@ for f in glob.glob(str(J / "br-media/*.json")) + glob.glob(str(J / "mr/*.json"))
             hollow.append(i["id"])
 gate("G-SUBSTANCE", not hollow, f"全エンティティ本文実体あり (空={hollow})")
 
+# G-PAIR: 対のテスト/検証設計（HELIX pair gate 相当）
+ver_path = J / "verification.json"
+if ver_path.exists():
+    ver = load(ver_path)
+    tcs = ver["items"]
+    tcids = [t["id"] for t in tcs]
+    gate("G-PAIR-UNIQ", len(tcids) == len(set(tcids)), "TC ID 重複ゼロ")
+    # 全 19 AC が 1 件以上の TC でカバーされる（双方向: TC の ac も実在する AC）
+    acids = {i["id"] for i in ac["items"]}
+    covered = {t["ac"] for t in tcs if t.get("ac")}
+    gate("G-PAIR-AC", acids <= covered, f"全 AC にテストケース対あり (未カバー={sorted(acids - covered)})")
+    gate("G-PAIR-TC", {t["ac"] for t in tcs if t.get("ac", "").startswith("AC-")} <= acids,
+         f"TC の参照 AC 全実在 (不明={sorted({t['ac'] for t in tcs if t.get('ac','').startswith('AC-')} - acids)})")
+    # 拒否系（fail-close 検証）が存在し、全 TC が S0.1〜S0.3 に割当済み
+    rej = [t for t in tcs if t.get("polarity") == "reject"]
+    gate("G-PAIR-REJ", len(rej) >= 7, f"fail-close 拒否系テスト >=7 (実={len(rej)})")
+    badup = [t["id"] for t in tcs if t.get("update") not in ("S0.1", "S0.2", "S0.3")]
+    gate("G-PAIR-UPD", not badup, f"全 TC が S0.1〜S0.3 に割当 (未割当={badup})")
+    # ペア台帳の双方向性: 対象文書が実在する
+    missing_docs = [p["design_doc"] for p in ver.get("pairs", []) if not (ROOT / "docs/requirements" / p["design_doc"]).exists()]
+    gate("G-PAIR-DOC", bool(ver.get("pairs")) and not missing_docs, f"ペア台帳の設計文書実在 (欠落={missing_docs})")
+else:
+    gate("G-PAIR-EXIST", False, "verification.json（対の検証設計）が存在しない")
+
 # G-WIRING: メタゲート — スクリプトのゲート ID と台帳・CI 配線の突合
 src = Path(__file__).read_text(encoding="utf-8")
 script_gates = set(re.findall(r'gate\(\s*f?"(G-[A-Z0-9-]+)', src))

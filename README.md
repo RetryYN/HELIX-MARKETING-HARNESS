@@ -16,6 +16,7 @@
 - [媒体・手法別詳細要件](docs/requirements/media-requirements_v0.1.md) — 19 媒体を 7 観点で（draft）
 - [ループ・タスク・ワークフロー要件](docs/requirements/loop-task-workflow_v0.1.md) — 業務全体の実行モデル 3 分解（計画/充填/制作/運用含む）＋PoC 登録簿（draft）
 - [S0 契約書](docs/requirements/s0-contract_v0.1.md) — 正準 DDL・状態遷移表・WF 実行契約・環境契約・S0.1〜S0.3 分割（draft）
+- [検証設計書](docs/requirements/verification-design_v0.1.md) — 要件定義との対（pair）。TC 59・全 AC カバー・拒否系 27（draft）
 - [JSON 正本](docs/requirements/json/) — 要件エンティティの機械可読正本（実装・変換の入力。MD と同期）
 - [技術・ツール選定書](docs/requirements/tech-stack_v0.1.md) — スタック集約と再検討トリガー（draft）
 - [用語集](docs/requirements/glossary_v0.1.md) — 独自語の正本（draft）
