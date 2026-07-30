@@ -297,6 +297,55 @@ if cmp_path.exists() and itc_path.exists():
 else:
     gate("G-PAIR2-EXIST", False, "components.json / itest.json（②↔④ ペア正本）が存在しない")
 
+# G-DU / G-UTC / G-PAIR3: 詳細設計⑤↔単体テスト設計⑥ のペアゲート
+du_path, ut_path = D / "detailed.json", D / "utest.json"
+if du_path.exists() and ut_path.exists():
+    dus = load(du_path)["items"]
+    utest = load(ut_path)
+    uitems2 = utest["items"]
+    duids = [d["id"] for d in dus]
+    gate("G-DU-CNT", len(dus) == 23, f"DU=23 (実={len(dus)})")
+    gate("G-DU-UNIQ", len(duids) == len(set(duids)), "DU ID 重複ゼロ")
+    # DU の cmp 実在＋全 CMP に 1 件以上の DU、FN 被覆は CMP と同一集合
+    ducmp = {d["cmp"] for d in dus}
+    dufn = [f for d in dus for f in d["fn_ids"]]
+    gate("G-DU-CMP", ducmp == set(cmpids) if cmp_path.exists() else False,
+         f"DU↔CMP 双方向 (不明={sorted(ducmp - set(cmpids))}, 未カバー={sorted(set(cmpids) - ducmp)})")
+    gate("G-DU-FN", len(dufn) == len(set(dufn)) and set(dufn) == s0fn,
+         f"DU が S0 25 FN を重複なく完全被覆 (差分={sorted(set(dufn) ^ s0fn)})")
+    # 単体割当: 全 59 TC が重複なく実在 DU へ、全 DU が 1 件以上のテストを持つ
+    tcall = {t["id"] for t in load(J / "verification.json")["items"]}
+    asg = [u for u in uitems2 if u["kind"] == "tc-assignment"]
+    extra = [u for u in uitems2 if u["kind"] == "unit-extra"]
+    asgids = [u["id"] for u in asg]
+    gate("G-UTC-TC", len(asgids) == len(set(asgids)) and set(asgids) == tcall,
+         f"全 TC 59 を重複なく DU へ割当 (差分={sorted(set(asgids) ^ tcall)})")
+    baddu = sorted({u["du"] for u in uitems2} - set(duids))
+    covdu = {u["du"] for u in uitems2}
+    gate("G-UTC-DU", not baddu and set(duids) <= covdu,
+         f"割当 DU 実在＋全 DU にテストあり (不明={baddu}, 未カバー={sorted(set(duids) - covdu)})")
+    gate("G-UTC-CNT", len(uitems2) == 67 and len(extra) == 8, f"UTC=67（割当59＋UT8）(実={len(uitems2)}/{len(extra)})")
+    # テストファイルは DU と 1 対 1（衝突なし・DU 内は単一ファイル）
+    du2f: dict[str, set] = {}
+    for u in uitems2:
+        du2f.setdefault(u["du"], set()).add(u.get("test_file"))
+    multi = [d for d, fs in du2f.items() if len(fs) != 1 or None in fs]
+    files = [next(iter(fs)) for fs in du2f.values()]
+    gate("G-UTC-FILE", not multi and len(files) == len(set(files)),
+         f"test_file が DU と 1 対 1・衝突なし (違反={multi or [f for f in files if files.count(f) > 1]})")
+    # ⑤↔⑥ 対称ヘッダ＋ペア台帳
+    dd_head = (ROOT / "docs/design/detailed-design_v0.1.md").read_text(encoding="utf-8")[:800]
+    ut_head = (ROOT / "docs/design/unit-test-design_v0.1.md").read_text(encoding="utf-8")[:800]
+    pair3_ok = all((ROOT / "docs/design" / p[k]).exists()
+                   for p in utest.get("pairs", []) for k in ("design_doc", "test_doc"))
+    gate("G-PAIR3-HDR",
+         "pair:" in dd_head and "unit-test-design" in dd_head
+         and "pair:" in ut_head and "detailed-design" in ut_head
+         and bool(utest.get("pairs")) and pair3_ok,
+         "⑤↔⑥ 対称 pair 参照＋ペア台帳文書実在")
+else:
+    gate("G-PAIR3-EXIST", False, "detailed.json / utest.json（⑤↔⑥ ペア正本）が存在しない")
+
 # G-BASE: デグレ検出（HELIX 日付 ratchet 相当のベースライン方式）
 # confirmed 文書のサイレント改変・分母縮小・ゲート削減を停止する。
 # 意図的変更は `--update-baseline` でベースラインを同一コミットで更新する。
@@ -306,7 +355,9 @@ BASELINE = ROOT / "docs/governance/baseline.json"
 current_counts = {"BR": len(br), "REQ": len(req), "FR": len(fr), "NFR": len(nfr),
                   "AC": len(ac["items"]), "FN": len(fn), "BRM": bm, "MR": mr, "WF": len(wf),
                   "CMP": len(comps) if cmp_path.exists() else 0,
-                  "ITC": len(itcs) if itc_path.exists() else 0}
+                  "ITC": len(itcs) if itc_path.exists() else 0,
+                  "DU": len(dus) if du_path.exists() else 0,
+                  "UTC": len(uitems2) if ut_path.exists() else 0}
 confirmed_docs = sorted(
     str(Path(f).relative_to(ROOT)) for f in glob.glob(str(ROOT / "docs/**/*.md"), recursive=True)
     if re.search(r"status:\s*\*{0,2}confirmed\*{0,2}", Path(f).read_text(encoding="utf-8")[:600])

@@ -5,10 +5,11 @@
 ## 正本と現在地
 
 - 北極星: docs/L0-charter/marketing-harness-charter_v0.3.md（confirmed）。進行はスライス駆動。
-- 文書ペア（HELIX 式・片肺禁止）: ①要件定義↔③検証設計（TC 59）、②基本設計↔④総合テスト設計（ITC 16）。
+- 文書ペア（HELIX 式・片肺禁止）3 層: ①要件定義↔③検証設計（TC 59）、②基本設計↔④総合テスト設計
+  （ITC 16）、⑤詳細設計↔⑥単体テスト設計（DU 23／TC 全割当＋UT 5）。
   DDL・状態遷移・evidence 型・WF 契約の正準は docs/requirements/s0-contract_v0.1.md。
-- 現在地: 要件定義＋基本設計 完遂（全文書 confirmed）。次 = **S0.1 実装**
-  （CMP-01〜06、s0-contract §7 の更新分割。src/helix/ と tests/ を新設 — 基本設計 §2）。
+- 現在地: 要件定義＋基本設計＋詳細設計 完遂（全文書 confirmed）。次 = **S0.1 実装**
+  （CMP-01〜06 = DU-01〜12、⑥の割当テストを test-first で赤→実装 — 基本設計 §2・詳細設計 §3）。
 
 ## 編集の鉄則（CI が fail-close で強制）
 
@@ -33,10 +34,11 @@ codex exec -s workspace-write -m gpt-5.6-<sol|terra|luna> -c model_reasoning_eff
 
 ## 実装フェーズのペア規律（TDD × DDD）
 
-HELIX ペアの第 3 層は文書でなくコードで組む: **⑤詳細設計=コード ↔ ⑥単体テスト=pytest**。
+第 3 層は文書ペア（⑤↔⑥）＋コードペア（モジュール↔pytest）の二重: ⑥が TC 59 の DU 割当と
+テストファイル対応（tests/unit/test_<module>.py）の正本。
 
-1. **test-first 必須**: 実装単位ごとに、③検証設計の該当 TC（S0.1=45/S0.2=10/S0.3=4）を pytest 化して
-   赤を確認してから実装する（red→green→refactor）。テストのない実装コミットは差戻し。
+1. **test-first 必須**: 実装単位ごとに、⑥の割当テスト（TC＋UT）を pytest 化して赤を確認してから
+   実装する（red→green→refactor）。テストのない実装コミットは差戻し。
 2. 各 S0 更新の完了条件 = 該当 TC 全 green ＋ ④の該当 ITC green ＋ 前更新の回帰 green。
 3. **DDD 規律**: ドメイン語彙は glossary が正本（ユビキタス言語）。kernel/gates/evidence の層分離、
    検証済み値オブジェクト（PairPass 等）でゲート通過を型強制、永続化はストア層のみ。

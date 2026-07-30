@@ -18,4 +18,6 @@
 | 2026-07-31 | tech-stack | v0.1 | confirmed | PO | 同上 |
 | 2026-07-31 | glossary | v0.1 | confirmed | PO | 同上 |
 | 2026-07-31 | basic-design | v0.1 | confirmed | PO | 基本設計＋総合テスト設計完遂指示（/goal）による承認。CMP 13・S0 25 FN 完全被覆 |
-| 2026-07-31 | integration-test-design | v0.1 | confirmed | PO | 同上。ITC 16・全 CMP/AC 双方向カバー・拒否系 7 |
+| 2026-07-31 | integration-test-design | v0.1 | confirmed | PO | 同上。ITC 16・全 CMP/AC 双方向カバー・拒否系 8 |
+| 2026-07-31 | detailed-design | v0.1 | confirmed | PO | 詳細設計完遂指示（/goal）による承認。DU 23・全 CMP/FN 被覆 |
+| 2026-07-31 | unit-test-design | v0.1 | confirmed | PO | 同上。TC 59 全割当＋UT 8・全 DU カバー |

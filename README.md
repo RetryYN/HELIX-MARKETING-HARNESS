@@ -22,7 +22,9 @@
 - [用語集](docs/requirements/glossary_v0.1.md) — 独自語の正本（confirmed）
 - [基本設計書](docs/design/basic-design_v0.1.md) — ②。CMP 13 コンポーネント・S0 25 FN 完全被覆（confirmed）
 - [総合テスト設計書](docs/design/integration-test-design_v0.1.md) — ④。基本設計との対（pair）。ITC 16・拒否系 7・E2E 含む（confirmed）
-- [設計 JSON 正本](docs/design/json/) — CMP/ITC 台帳の機械可読正本（MD と同期）
+- [詳細設計書](docs/design/detailed-design_v0.1.md) — ⑤。DU 23 モジュール・公開 API 仕様（confirmed）
+- [単体テスト設計書](docs/design/unit-test-design_v0.1.md) — ⑥。詳細設計との対（pair）。TC 59 全割当＋UT 8（confirmed）
+- [設計 JSON 正本](docs/design/json/) — CMP/ITC/DU/UTC 台帳の機械可読正本（MD と同期）
 - [TAKUMI 素材カタログ](docs/design/takumi-catalog_v0.1.md) — スライスが引くプル型カタログ
 
 ### ガバナンス
@@ -30,7 +32,7 @@
 - [ADR](docs/governance/adr/) — 大局判断 6 本（言語・接続原則・ブラウザ三段構え・データ正本・WP REST 直・公式 API 経路）
 - [リスク登録簿](docs/governance/risk-register_v0.1.md) — RSK-01〜09・緩和策・撤退条件
 - [要件定義ギャップ監査](docs/governance/requirements-gap-audit-2026-07-30.md) — HELIX 品質バー突合と是正記録
-- [要件整合ゲート台帳](docs/governance/requirements-gates.md) — CI で毎 push 実行される fail-close ゲート 51 本
+- [要件整合ゲート台帳](docs/governance/requirements-gates.md) — CI で毎 push 実行される fail-close ゲート 60 本
 - [承認ログ](docs/governance/approvals.md)
 
 ## 実装エージェント
@@ -42,6 +44,7 @@ Codex CLI を実装エージェントとして登録済み（`.claude/agents/`�
 ## 現在地
 
 スライス駆動で構築中（L0 charter confirmed 2026-07-30）。
-**要件定義＋基本設計 完遂・全文書 confirmed（2026-07-31 PO 承認）** — §99 全 8 判断クローズ、
-整合ゲート 51 本 CI 常時実行、①↔③（TC 59）と ②↔④（ITC 16）の HELIX 式文書ペア成立。
+**要件定義＋基本設計＋詳細設計 完遂・全文書 confirmed（2026-07-31 PO 承認）** — §99 全 8 判断クローズ、
+整合ゲート 60 本 CI 常時実行、①↔③（TC 59）・②↔④（ITC 16）・⑤↔⑥（DU 23／UTC 64）の
+HELIX 式文書ペア 3 層成立。
 次: **S0.1 実装**（DB・状態機械・ゲート・証跡 — s0-contract §7 の更新分割、CMP-01〜06 が対象）。
