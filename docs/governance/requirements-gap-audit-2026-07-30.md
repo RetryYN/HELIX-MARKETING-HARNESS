@@ -8,7 +8,11 @@
 
 ## 0. 判定
 
-**「HELIX 基準で要件定義完了」とは判定しない。** ただし致命欠陥の多くは軽量修正で閉じられる。区分: Critical 3 / Important 6 / Minor 4。
+> **現在判定（是正後 2026-07-30）**: 下記の初回判定は是正前のもの。Critical 3 / Important 6 / Minor 4 は
+> すべて §8 の是正記録で closed（Min-3 のみ部分）。さらに Codex 外部レビュー（同日）の指摘は
+> s0-contract_v0.1.md（S0 契約確定）・JSON 正本化・ADR-006 で対応。残ブロッカーは PO 承認のみ。
+
+**初回判定: 「HELIX 基準で要件定義完了」とは判定しない。** ただし致命欠陥の多くは軽量修正で閉じられる。区分: Critical 3 / Important 6 / Minor 4。
 
 HELIX の判定規約（gate-design §3: Critical=0 → CONDITIONAL PASS）に照らすと、現状は **FAIL（Critical 3）**。下記 C-1〜C-3 を閉じれば CONDITIONAL PASS（Important/Minor は carry 可）。
 

@@ -15,16 +15,24 @@
 - [機能一覧](docs/requirements/function-list_v0.1.md) — FN 61 機能・スライス配分（draft）
 - [媒体・手法別詳細要件](docs/requirements/media-requirements_v0.1.md) — 19 媒体を 7 観点で（draft）
 - [ループ・タスク・ワークフロー要件](docs/requirements/loop-task-workflow_v0.1.md) — 業務全体の実行モデル 3 分解（計画/充填/制作/運用含む）＋PoC 登録簿（draft）
+- [S0 契約書](docs/requirements/s0-contract_v0.1.md) — 正準 DDL・状態遷移表・WF 実行契約・環境契約・S0.1〜S0.3 分割（draft）
+- [JSON 正本](docs/requirements/json/) — 要件エンティティの機械可読正本（実装・変換の入力。MD と同期）
 - [技術・ツール選定書](docs/requirements/tech-stack_v0.1.md) — スタック集約と再検討トリガー（draft）
 - [用語集](docs/requirements/glossary_v0.1.md) — 独自語の正本（draft）
 - [TAKUMI 素材カタログ](docs/design/takumi-catalog_v0.1.md) — スライスが引くプル型カタログ
 
 ### ガバナンス
 
-- [ADR](docs/governance/adr/) — 大局判断 5 本（言語・接続原則・ブラウザ三段構え・データ正本・WP REST 直）
+- [ADR](docs/governance/adr/) — 大局判断 6 本（言語・接続原則・ブラウザ三段構え・データ正本・WP REST 直・公式 API 経路）
 - [リスク登録簿](docs/governance/risk-register_v0.1.md) — RSK-01〜09・緩和策・撤退条件
 - [要件定義ギャップ監査](docs/governance/requirements-gap-audit-2026-07-30.md) — HELIX 品質バー突合と是正記録
 - [承認ログ](docs/governance/approvals.md)
+
+## 実装エージェント
+
+Codex CLI を実装エージェントとして登録済み（`.claude/agents/`）: **codex-sol**（最高性能・effort low —
+設計判断・レビュー）／ **codex-terra**（中位・medium — 実装主力）／ **codex-luna**（軽量・high —
+定型・変換）／ **codex-imagen**（image_gen — 静的画像生成、BR-M-GENAI-4）。性能順は Sol＞Terra＞Luna。
 
 ## 現在地
 

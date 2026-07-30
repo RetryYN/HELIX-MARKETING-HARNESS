@@ -205,7 +205,7 @@ credential・ログイン、(3) 束縛承認 — の 3 種のみ（BR-H1 の全�
 
 | スライス | 確定実装 | PoC 実施 |
 |---|---|---|
-| S0 | WF-OPS-1/2（WP・GA4 分）, WF-WP-1/2（= WF-PROD-TEXT の WP 具象）, WF-MEAS-1, WF-PLAN-6（手動投入の代替可）, LP-W(WP), T-PLAN/PROD/REVIEW/PUB/MEAS | POC-03（GA4 取得経路）を S0 内で先行 |
+| S0 | WF-OPS-1/2（WP・GA4 分）, WF-WP-1/2（= WF-PROD-TEXT の WP 具象）, WF-MEAS-1, WF-PLAN-6（手動投入の代替可）, LP-W(WP), T-PLAN/PROD/REVIEW/PUB/MEAS | POC-03（GA4 API 疎通）を S0 内で先行 |
 | S1 | WF-PLAN-2/4/5（還流・スプリント）, WF-DASH-1, WF-NOTION-1, WF-PROD-IMG, WF-OPS-5/7, LP-U 最小形, LP-MEAS, LP-OPS | POC-08（音声/動画パイプ）着手 |
 | S2 | WF-FILL-1..4（三エンジン）, WF-PLAN-1/3, LP の複数媒体化, WF-OPS-3（媒体追加の型） | POC-01, 05, 10 |
 | S3+ | 各媒体 WF・WF-PROD-AUDIO/VIDEO/SHORT/EPUB/APP の本実装（PoC PASS 済みのみ）, WF-OPS-4 本格化 | POC-02, 09, 11, 12, 13 |
@@ -220,7 +220,7 @@ credential・ログイン、(3) 束縛承認 — の 3 種のみ（BR-H1 の全�
 |---|---|---|---|---|
 | POC-01 | X ブラウザ投稿の生存性（Playwright→Camoufox、検知・BAN 兆候の観測込み） | テストアカウントで 2 週間・MR-X-3 レート内の投稿/応答が警告ゼロで継続 | X の優先度降格（note/WP へ再配分）or Premium+API 検討 | WF-X-1/2、LP-D(X) |
 | POC-02 | IG Graph API 経路（プロアカウント・投稿＋インサイト取得） | API でリール/フィード投稿と insights 取得が成功 | ブラウザ突破（Camoufox）の POC-01 相当を IG で再実施 | WF-IG-1（§99-1 の PO 判断とセット） |
-| POC-03 | GA4 Data API / GSC API の無料取得（PV・検索クエリ） | API で S0 対象サイトの PV が証跡付きで取得できる | ブラウザエクスポート（現行 charter 経路）へフォールバック | WF-MEAS-1 の経路確定（§99-3） |
+| POC-03 | GA4 Data API / GSC API の疎通検証（経路は ADR-006 で決定済） | API で S0 対象サイトの PV が証跡付きで取得できる | ブラウザエクスポートへ一時フォールバックし API 阻害要因を解消 | WF-MEAS-1 の実装（§99-3 決定済） |
 | POC-05 | note ブラウザ投稿＋アナリティクス CSV 取得 | 下書き投稿→公開→CSV DL が 2 週間安定 | note の手動運用格下げ | WF-NOTE-1 |
 | POC-08 | 音声/動画パイプライン（VOICEVOX→mp3、Remotion+NVENC 合成、pandoc EPUB） | 台本→動画 1 本・音声 1 本・EPUB 1 冊が決定的に再現生成できる（hash 一致） | ツール代替（tech-stack §7 トリガー） | WF-YT-1, WF-PC-1, WF-KDP-1 |
 | POC-09 | KDP 出版フロー（ブラウザ・AI 申告含む）の自動化可能範囲の特定 | アップロード→申告→出版の各ステップの自動化可否が確定し、人手ステップが列挙される | KDP を半自動媒体（人手併用）として要件を書き直す | WF-KDP-1 |
