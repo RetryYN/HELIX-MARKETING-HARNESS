@@ -156,7 +156,7 @@ Notion は表示・入力用の投影のみ（ADR-004）。計画の全変更は
 | WF | 制作物 | ステップ列 | 前提 PoC |
 |---|---|---|---|
 | WF-PROD-TEXT | 記事・台本・コピー | 企画（WF-PLAN-6 出力）→ 構成 → 執筆（seo-jp/copywriting/storytelling）→ 推敲 → commit | — |
-| WF-PROD-IMG | 図解・OGP・バナー | 構成案 → HTML/SVG 生成 → デザイントークン注入（FR-52）→ Playwright スクショ → design-evidence 審査 | — |
+| WF-PROD-IMG | 図解・OGP・バナー | 構成案 → HTML/SVG 生成 → デザイントークン注入（FR-52）→ Playwright スクショ → design-evidence 審査。写実・イラスト系素材は Codex CLI image_gen（BR-M-GENAI-4）で生成し同審査へ | — |
 | WF-PROD-SLIDE | スライド・資料 PDF | 構成 → HTML（slide テンプレート）→ トークン注入 → Playwright PDF → 審査 | — |
 | WF-PROD-AUDIO | 音声（Podcast/stand.fm 用） | 台本（WF-PROD-TEXT 出力）→ VOICEVOX 音声合成 → mp3 変換 → 音質機械検証（長さ・無音区間） | POC-08 |
 | WF-PROD-VIDEO | 動画 | 台本 → 音声（WF-PROD-AUDIO）→ 素材調達（WF-ASSET-1）→ Remotion 合成 → NVENC エンコード → 審査 | POC-08 |

@@ -58,7 +58,8 @@ Claude Code 内蔵ブラウザ（2026-07 実装）は「対話的・人が監視
 | 音声 | **VOICEVOX**（localhost API、商用可） |
 | 動画 | **Remotion**（テンプレート化）+ **ffmpeg**（NVENC ハードウェアエンコード） |
 | 電子書籍 | **pandoc** → EPUB → KDP（ブラウザ） |
-| 生成 AI 画像/動画 | 保有アカウント Web UI（ブラウザ）。例外: **Seedance API**（有償・台帳記録・月上限 config） |
+| 生成 AI 画像（静的） | **Codex CLI 内蔵 image_gen**（`codex exec` 非対話・ChatGPT Pro 枠内で追加費用なし・動作確認済 2026-07-30）主。従: 保有アカウント Web UI（ブラウザ） |
+| 生成 AI 動画 | 保有アカウント Web UI（ブラウザ）。例外: **Seedance API**（有償・台帳記録・月上限 config） |
 | 素材調達 | **Canva**（MCP 優先）: ストック写真・クリップ・BGM。ライセンス紐づけを DB 管理 |
 
 ## 5. 接続レジストリ（初期）
@@ -69,6 +70,7 @@ Claude Code 内蔵ブラウザ（2026-07 実装）は「対話的・人が監視
 | WordPress | REST API / WP-CLI | — |
 | GA4 / Search Console / GTM / 各 SNS / ASP / KDP / LINE / note / stand.fm | ブラウザ | —（エスカレーション） |
 | Seedance | 有償 API（例外台帳） | ブラウザ生成 AI |
+| Codex CLI（画像生成） | CLI 非対話実行（ChatGPT Pro サブスク枠） | ブラウザ生成 AI |
 | Claude Design | DesignSync | 同期済みキャッシュ |
 | 承認・通知 | Claude Code アプリ通知 | — |
 
