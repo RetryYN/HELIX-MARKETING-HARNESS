@@ -39,7 +39,10 @@
       "trace": {
         "upstream": [],
         "downstream": []
-      }
+      },
+      "downstream": [
+        "BR-M-IG-1"
+      ]
     },
     {
       "id": "PO-2",
@@ -52,7 +55,10 @@
       "trace": {
         "upstream": [],
         "downstream": []
-      }
+      },
+      "downstream": [
+        "BR-M-LINE-1"
+      ]
     },
     {
       "id": "PO-3",
@@ -67,7 +73,10 @@
         "downstream": [
           "POC-03"
         ]
-      }
+      },
+      "downstream": [
+        "BR-M-MEAS-1"
+      ]
     },
     {
       "id": "PO-4",
@@ -82,7 +91,11 @@
         "downstream": [
           "BR-M-GENAI-4"
         ]
-      }
+      },
+      "downstream": [
+        "BR-M-GENAI-1",
+        "BR-M-GENAI-4"
+      ]
     },
     {
       "id": "PO-5",
@@ -91,11 +104,17 @@
       "charter": "ブラウザで取得",
       "research": "無料アカは全体アナリティクス取得不可",
       "recommendation": "個別ポスト値で設計 or Premium 課金判断",
-      "status": "pending",
+      "status": "decided",
       "trace": {
         "upstream": [],
         "downstream": []
-      }
+      },
+      "decided_on": "2026-07-31",
+      "decision": "個別ポスト値で設計（ゼロ固定費原則。Premium は再検討トリガー）",
+      "basis": "要件定義完遂指示（PO 2026-07-31）— ゼロ固定費・fail-close・規約遵守からの導出",
+      "downstream": [
+        "BR-M-X-3"
+      ]
     },
     {
       "id": "PO-6",
@@ -104,11 +123,18 @@
       "charter": "MCP 優先",
       "research": "ストック素材取得 API は存在しない",
       "recommendation": "経路再設計（attended / ブラウザ / 代替源）",
-      "status": "pending",
+      "status": "decided",
       "trace": {
         "upstream": [],
         "downstream": []
-      }
+      },
+      "decided_on": "2026-07-31",
+      "decision": "デザイン生成=MCP、ストック素材=Codex image_gen/Openverse 主、Canva ストックは attended 補助のみ",
+      "basis": "要件定義完遂指示（PO 2026-07-31）— ゼロ固定費・fail-close・規約遵守からの導出",
+      "downstream": [
+        "BR-M-CANVA-1",
+        "BR-M-GENAI-4"
+      ]
     },
     {
       "id": "PO-7",
@@ -117,11 +143,17 @@
       "charter": "S3+ で展開",
       "research": "12 テスター×14 日が個人アカウント必須",
       "recommendation": "充足手段確定まで保留降格も可",
-      "status": "pending",
+      "status": "decided",
       "trace": {
         "upstream": [],
         "downstream": []
-      }
+      },
+      "decided_on": "2026-07-31",
+      "decision": "保留へ降格（PWA 主線不変。テスター充足証跡で再昇格）",
+      "basis": "要件定義完遂指示（PO 2026-07-31）— ゼロ固定費・fail-close・規約遵守からの導出",
+      "downstream": [
+        "BR-M-PLAY-1"
+      ]
     },
     {
       "id": "PO-8",
@@ -130,11 +162,18 @@
       "charter": "ブラウザ突破",
       "research": "公式 API なし・楽天は機械操作明示禁止",
       "recommendation": "楽天は対象外、他社は低頻度読み取り中心",
-      "status": "pending",
+      "status": "decided",
       "trace": {
         "upstream": [],
         "downstream": []
-      }
+      },
+      "decided_on": "2026-07-31",
+      "decision": "楽天は自動操作対象外、他社 ASP は低頻度読み取りのみ",
+      "basis": "要件定義完遂指示（PO 2026-07-31）— ゼロ固定費・fail-close・規約遵守からの導出",
+      "downstream": [
+        "BR-M-AFF-1",
+        "MR-AFF-3"
+      ]
     }
   ],
   "structure_checked": "2026-07-30"

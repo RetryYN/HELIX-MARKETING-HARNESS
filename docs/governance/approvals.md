@@ -6,3 +6,14 @@
 | 日付 | 対象 | 版 | 判断 | 承認者 | 備考 |
 |---|---|---|---|---|---|
 | 2026-07-30 | marketing-harness-charter | v0.3 | confirmed | PO | L0 anchor 確定 |
+| 2026-07-31 | br-backbone | v0.1 | confirmed | PO | 要件定義完遂指示（/goal）による一括承認 |
+| 2026-07-31 | br-media | v0.1 | confirmed | PO | 同上。§99 全 8 判断クローズ込み |
+| 2026-07-31 | requirement-list | v0.1 | confirmed | PO | 同上 |
+| 2026-07-31 | requirements | v0.1 | confirmed | PO | 同上 |
+| 2026-07-31 | function-list | v0.1 | confirmed | PO | 同上 |
+| 2026-07-31 | media-requirements | v0.1 | confirmed | PO | 同上。IG/LINE/MEAS は API 経路反映済み |
+| 2026-07-31 | loop-task-workflow | v0.1 | confirmed | PO | 同上 |
+| 2026-07-31 | s0-contract | v0.1 | confirmed | PO | 同上。DDL は SQLite 適用検証済み |
+| 2026-07-31 | verification-design | v0.1 | confirmed | PO | 同上。TC 59・AC 全カバー |
+| 2026-07-31 | tech-stack | v0.1 | confirmed | PO | 同上 |
+| 2026-07-31 | glossary | v0.1 | confirmed | PO | 同上 |

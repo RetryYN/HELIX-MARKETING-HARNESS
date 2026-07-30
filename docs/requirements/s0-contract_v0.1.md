@@ -1,6 +1,6 @@
 # S0 実行契約 v0.1
 
-> status: **draft**（AI 起草 2026-07-30。人の承認で confirmed）
+> status: **confirmed**（2026-07-31 PO 承認 — 要件定義完遂指示。AI 起草）
 > 上位文書: [requirements_v0.1.md](requirements_v0.1.md)（FR/NFR/AC/S0）／[loop-task-workflow_v0.1.md](loop-task-workflow_v0.1.md)（LP/T/WF）／[br-backbone_v0.1.md](br-backbone_v0.1.md)（BR 背骨）
 > 位置づけ: S0 の実装者・テスト・運用者が共通に従う、SQLite 正準スキーマ、状態機械、WF 実行、移行および環境の契約。
 > **DDL・evidence 型契約・状態遷移表は本書が正準**（上位文書は要約参照）。それ以外の要求内容で

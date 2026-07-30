@@ -47,7 +47,7 @@
       "id": "MR-MEAS-3",
       "media": "MEAS",
       "media_name": "10.1 GA4 / Search Console / GTM",
-      "text": "（レート・BR-F5）: 読み取り専用のため書き込みレート N/A。エクスポート操作は 間隔 1〜3 秒目安・20 件/日（C: `rate.meas.*`）で管理画面に負荷をかけない",
+      "text": "（レート・BR-F5）正規 API は quota 準拠（ランダム間隔 N/A）。フォールバックのブラウザエクスポート時のみ間隔 1〜3 秒目安・20 件/日（C: rate.meas.*）",
       "trace": {
         "upstream": [
           "BR-M-MEAS-3"

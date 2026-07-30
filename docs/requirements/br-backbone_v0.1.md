@@ -1,6 +1,6 @@
 # 業務要求（BR）背骨 v0.1
 
-> status: **draft**（AI 起草 2026-07-30。人の承認で confirmed）
+> status: **confirmed**（2026-07-31 PO 承認 — 要件定義完遂指示。AI 起草）
 > 位置づけ: charter（層外 anchor）から降ろした共通の背骨。スライスごとの要求はここを参照して個別に書く。
 > 各 BR は trace 用 ID を持つ。値はハードコードしない — 充填経路（H=ヒアリング / R=リサーチ / C=config）を明記。
 

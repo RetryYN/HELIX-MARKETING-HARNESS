@@ -29,7 +29,7 @@
       "id": "MR-IG-2",
       "media": "IG",
       "media_name": "2.4 Instagram",
-      "text": "（レート・BR-F5）: 検知リスク最高帯。書き込み間隔 5〜15 秒の一様乱数、投稿 3 件/日 （C: `rate.ig.*`）。Camoufox 経由でも本範囲を下限とし、他媒体の既定値へ緩和しない",
+      "text": "（レート・BR-F5）Graph API 経由は API quota 準拠（人間相当のランダム間隔 N/A）。投稿 3 件/日（C: rate.ig.*）。attended ブラウザ補助時のみ間隔 5〜15 秒の一様乱数を適用",
       "trace": {
         "upstream": [
           "BR-M-IG-2"
