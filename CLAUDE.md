@@ -31,6 +31,18 @@ codex exec -s workspace-write -m gpt-5.6-<sol|terra|luna> -c model_reasoning_eff
 - バックグラウンド実行時は **必ず `</dev/null`**（stdin 待ちハング防止）。継続は `codex exec resume --last`。
 - レビューは Sol に依頼し、明示的な「Go」を得てから完遂とする。
 
+## 実装フェーズのペア規律（TDD × DDD）
+
+HELIX ペアの第 3 層は文書でなくコードで組む: **⑤詳細設計=コード ↔ ⑥単体テスト=pytest**。
+
+1. **test-first 必須**: 実装単位ごとに、③検証設計の該当 TC（S0.1=45/S0.2=10/S0.3=4）を pytest 化して
+   赤を確認してから実装する（red→green→refactor）。テストのない実装コミットは差戻し。
+2. 各 S0 更新の完了条件 = 該当 TC 全 green ＋ ④の該当 ITC green ＋ 前更新の回帰 green。
+3. **DDD 規律**: ドメイン語彙は glossary が正本（ユビキタス言語）。kernel/gates/evidence の層分離、
+   検証済み値オブジェクト（PairPass 等）でゲート通過を型強制、永続化はストア層のみ。
+4. 実装開始時に pytest ジョブと「CMP↔テストファイル対応」のペアゲートを CI に追加する
+   （テストのない CMP を fail-close で検出）。
+
 ## 実装時の設計制約（基本設計 §1・§4 の要点)
 
 - fail-close 一元化（拒否はゲート層と状態機械に集約）／単方向依存（cli→kernel→gates→基盤）。
