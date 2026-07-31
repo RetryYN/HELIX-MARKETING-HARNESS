@@ -1430,9 +1430,13 @@ try:
     for p in revs:
         r = load(p)
         rev_bad += [f"{p.name}: {e}" for e in schema_check(rev_schema, r)]
-        if r.get("verdict") != "Go":
-            continue
-        # Go のレビューは、対象コミットが実在し、成果物が「レビュー後に変わっていない」ことを要する
+        # resolved な finding がある成果物は是正コミットの記録を要する
+        if any(f.get("status") == "resolved" for f in r.get("findings", [])) \
+                and not r.get("resolution_commits"):
+            rev_bad.append(f"{p.name}: resolved な finding があるのに resolution_commits が空")
+        # 対象コミットの実在と digest 一致は **verdict によらず** 検査する
+        # （現内容の不変検査だけを Go に限定する）
+        is_go = r.get("verdict") == "Go"
         ok = subprocess.run(  # noqa: S603
             ["git", "cat-file", "-e", f"{r['target_commit']}^{{commit}}"],  # noqa: S607
             capture_output=True, text=True, check=False, cwd=ROOT).returncode == 0
@@ -1453,7 +1457,9 @@ try:
                 rev_bad.append(f"{p.name}: {art} の digest が target_commit の内容と不一致"
                                f"（記録 {dg} / 実 {at_commit}）")
                 continue
-            # (b) 現在の内容がレビュー時点から変わっていないこと
+            # (b) 現在の内容がレビュー時点から変わっていないこと（Go 判定のみ — 是正前提の No-Go は除く）
+            if not is_go:
+                continue
             fp = ROOT / art
             if not fp.exists():
                 rev_bad.append(f"{p.name}: {art} 不在")

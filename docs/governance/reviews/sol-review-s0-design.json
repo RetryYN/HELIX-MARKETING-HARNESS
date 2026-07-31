@@ -36,7 +36,10 @@
       "resolution": "旧記述を履歴と明示し、『次の一手』節で S0.1 実装＋HELIX 経路を単一の現在地として宣言"
     }
   ],
-  "resolution_commits": [],
+  "resolution_commits": [
+    "e66b746384d3ec75eae87c7d6915b5e9b12fd3f4",
+    "3b626bd5a2d973adcacef7885565cb0c2667e918"
+  ],
   "verdict": "No-Go",
   "rounds": 1,
   "completed_at": "2026-08-01"
