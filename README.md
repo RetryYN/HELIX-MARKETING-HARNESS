@@ -59,13 +59,28 @@ Codex CLI を実装エージェントとして登録済み（`.claude/agents/`�
 
 スライス駆動で構築中（L0 charter confirmed 2026-07-30）。
 
-**2026-08-01 全層再降下（粒度是正）完了** — HELIX-HARNESS 本体基準への粒度是正を要求定義から
-単体テスト設計まで実施（[粒度ギャップ監査](docs/governance/granularity-gap-audit-v0.1.md)）。
+### 完了しているもの（S0 スコープ）
+
+- **S0 ウォーキングスケルトンの設計**（要求・要件・検証契約の再降下、S0 基本設計・詳細設計・単体テスト設計）
+- 契約 JSON 正本 8 本が **confirmed**（内容束縛 receipt つき — [承認ログ](docs/governance/approvals.md)）
+
+### 完了していないもの
+
+- **S1 以降**: AC→TC→CMP/SCM→DU→API→UT の再降下が未完のため **planned**
+  （S1 対象の FR/SR には AC/TC を割当済みだが、DU→API→UT の降下と実装は未着手）
+- **S0.1 実装**: 未着手（本クロージャー完了後に HELIX-HARNESS の工程で開始）
+
+**2026-08-01 全層再降下（粒度是正）完了 — S0 スコープに限定** — HELIX-HARNESS 本体基準への粒度是正を
+要求定義から単体テスト設計まで実施（[粒度ギャップ監査](docs/governance/granularity-gap-audit-v0.1.md)）。
 BR 38（12 観点の構造化契約）／FR 36・SR 16（18 観点の実行契約）／NFR 10（計測契約）／
 AC 211・TCC 217（fixture・DB 差分・証跡・禁止副作用・エラー型つき）／CMP・SCM 23（11 観点の設計契約）／
 DU 23（API 58 本の署名・DbC・例外・tx・冪等性）＋独立設計書 6 本＋機能別設計 11 本。
 ゲートは 105 本（BR→REQ→FR/SR→AC→TC→CMP→DU→API→UT の全区間双方向突合、mutation 自己検査つき）。
-Sol ブラインドレビュー（HELIX 基準）で **Go**。
+Sol ブラインドレビュー（HELIX 基準）で **Go**（[レビュー成果物](docs/governance/reviews/)）。
+
+**2026-08-01 クロージャー完了** — 契約正本の confirmed 化・旧正本（ac.json/verification.json/utest.json）の
+superseded 化・実装パッケージの `src/helix/` 統一・意味整合ゲート（構造化参照）・DDL トリガ 14 本
+（brief 不変・TLP 種別と終端状態の一致）。以降の工程は HELIX-HARNESS の Gate/PR 経路で進める。
 
 要件定義＋基本設計＋詳細設計 一次完了・全文書 confirmed（2026-07-31 PO 承認）— §99 全 8 判断クローズ、
 整合ゲート CI 常時実行（件数の正本 = baseline.json の gate_count）、①↔③（TC 59）・②↔④（ITC 16）・

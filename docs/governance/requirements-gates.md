@@ -15,7 +15,7 @@
 | G-GWT | AC 全件に非空の Given/When/Then | 機械検証できない AC（AP-4 相当） |
 | G-S0-CNT / G-S0-SET | S0.1〜S0.3 の fn_ids が 25 件・重複なし・function-list の slice=S0 集合と完全一致 | スコープのサイレント増減 |
 | G-DDL-SYNC | json/s0/ddl.sql が s0-contract の DDL ブロックと一致 | 正準 DDL の二重化・乖離 |
-| G-DDL-APPLY | DDL が空 SQLite へ適用でき FK/integrity 検査が通り 25 テーブル＋append-only トリガ 11 | 実行不能なスキーマ |
+| G-DDL-APPLY | DDL が空 SQLite へ適用でき FK/integrity 検査が通り 25 テーブル＋append-only／整合トリガ 14 | 実行不能なスキーマ |
 | G-EVK | evidence kind 10 種が JSON 契約と DDL の CHECK で同一集合 | 証跡語彙の乖離 |
 | G-TRN-ENT / G-TRN-ST | 遷移表の entity が loop_runs/tasks、from/to 状態が DDL enum 内（複合表記の検査除外なし） | 実装不能な状態機械定義 |
 | G-TRN-UNIQ/REACH/TERM/GUARD | (entity, from, event) の一意性・enum 全非初期状態の到達可能性・終端状態からの遷移不在・全遷移の非空ガード | 非決定的な状態機械（レビュー P0-1） |
@@ -64,6 +64,12 @@
 | G-CHAIN-BIDIR | **BR→REQ→FR/SR→AC→TC→CMP→DU→API→UT の全区間**を突合: BR↔REQ・REQ↔FR/SR は相互参照、FR/SR↔AC と CMP↔DU は厳密等号（DU は cmp＋also_implements で所属宣言）、FR/SR→CMP は実在＋FN 被覆、**全 FR/SR に CMP 接続 ≥1**、S0 の全 AC・全 TC が最低 1 DU に割当、DU.trace.ut = ∪ apis[].ut（末端一致）。**直接 edge** = BR↔REQ／REQ↔FR/SR／FR/SR↔AC／FR/SR→CMP／CMP↔DU／DU↔TC／DU↔API-UT、**導出 edge** = AC→TC（G-TRACE-BIDIR が担保）を経由する TC→CMP（S1 以降を再降下済みとする際は TC→DU 検査の対象スライス拡張が必要） | 鎖の片方向化・区間の抜け（trace があるように見えて逆から辿れない — 全層再降下 完了条件 4） |
 | G-DESIGN-SUBSTANCE | 独立設計書 6 本と機能別設計 11 本が実体を持つ（各 ≥50 行・≥3 節、機能別は trace 表つき） | 参照だけ存在する空設計書（存在検査のすり抜け） |
 | G-DESCENT-SELFTEST | 再降下ゲート群（polarity／DbC／DATA／BIDIR／CHAIN）へ欠陥を注入した**変異データを実際の検出ロジックへ投入**し、検出されることを毎回証明する mutation 自己検査 | 名目だけの粒度ゲート（検出能力の喪失に気づけない） |
+| G-SEMANTIC-REF | 全 FR/SR/AC/TC/CMP/DU の `semantic_refs`（table/column/state/event/evidence_kind/error_type/api）が正本語彙に実在（ddl.sql・transitions.json・evidence-kinds.json・error-taxonomy・du-contracts と突合） | 自由文に埋もれた意味矛盾（存在しない列・状態・証跡種別・エラー型・API の参照） |
+| G-COLUMN-REF | `table_refs`／`column_refs` が ddl.sql の実在テーブル・実在列であること | 列名のドリフト（loop_runs.status 等の実在しない列参照） |
+| G-STATE-EVIDENCE-CONSISTENCY | 状態遷移に触れる AC/TC の証跡が state_transitions・構造化ログで表現され、`operation_log`（evidence kind）は外部操作・業務操作の証跡に限定される | 証跡種別の混同（内部遷移の拒否を外部操作証跡で表現する） |
+| G-CANON-CONFIRMED | 契約 JSON 正本 8 本（br/fr/sr/nfr/ac/tc/cmp/du-contracts）が `status: confirmed`＋`approved_at`／`authority`／`approval_digest` を持ち、digest が内容（approval_digest 列を除く正準化 JSON の sha256[:12]）と一致し、approvals.md に同 digest の承認行が実在 | 内容に束縛されない正本確定・status 僭称（クロージャー §2） |
+| G-LEGACY-SUPERSEDED | 旧正本（ac.json／verification.json／utest.json）が `status: superseded`（または historical）で、実装入力から除外されている | 旧 AC19／TC59／UTC69 体系の二重正本化（クロージャー §3） |
+| G-S0-TEST-REALITY | `tests/skip-budget.json` の `s0_impl_started` が true のとき、DU-01〜12 の全 API に対応する UT が skip されていない（実 red→green を要求）。着手前は false で猶予され、着手時に true へ切替える | skip を「red」と称する test-first の形骸化（クロージャー §7） |
 | G-WIRING | スクリプトの全ゲート ID が本台帳に掲載され、CI がスクリプトを呼ぶ | ルールの配線漏れ・死蔵（HELIX lint-wiring 相当） |
 
 ## 運用

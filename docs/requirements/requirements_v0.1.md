@@ -20,7 +20,7 @@
 ## 1. システム構成（要件レベル）
 
 ```text
-harness/（Python）
+src/helix/（Python — 実装正本パッケージ）
 ├── engine/        # ループ状態機械・タスク発行・マイクロループ制御      [FR-1x]
 ├── gates/         # ペアゲート・機械ゲート（fail-close）               [FR-2x]
 ├── fillers/       # ヒアリング/リサーチ/設定管理の三エンジン           [FR-3x]

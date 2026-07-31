@@ -6,6 +6,7 @@ docs/requirements/ の MD と JSON 正本の整合を検証する。1 件でも 
 """
 
 import glob
+import hashlib
 import json
 import re
 import sqlite3
@@ -150,7 +151,7 @@ norm = lambda s: [ln.rstrip() for ln in s.splitlines() if ln.rstrip() and not ln
 ddl = (J / "s0/ddl.sql").read_text(encoding="utf-8")
 gate("G-DDL-SYNC", norm(md_sql) == norm(ddl), "ddl.sql == MD DDL ブロック")
 
-# G-DDL-APPLY: DDL が空 DB へ適用でき、FK/integrity が通り、テーブル 25・トリガ 11（append-only 10＋TLP 整合）
+# G-DDL-APPLY: DDL が空 DB へ適用でき、FK/integrity が通り、テーブル 25・トリガ 14（append-only 10＋TLP 整合 3＋brief 不変 1）
 con = sqlite3.connect(":memory:")
 try:
     con.executescript(ddl)
@@ -158,7 +159,7 @@ try:
     integ = con.execute("PRAGMA integrity_check").fetchone()[0]
     ntab = con.execute("SELECT count(*) FROM sqlite_master WHERE type='table'").fetchone()[0]
     ntrg = con.execute("SELECT count(*) FROM sqlite_master WHERE type='trigger'").fetchone()[0]
-    gate("G-DDL-APPLY", not fk and integ == "ok" and ntab == 25 and ntrg == 11,
+    gate("G-DDL-APPLY", not fk and integ == "ok" and ntab == 25 and ntrg == 14,
          f"DDL 適用 (fk={fk}, integrity={integ}, tables={ntab}, triggers={ntrg})")
 except sqlite3.Error as e:
     gate("G-DDL-APPLY", False, f"DDL 適用失敗: {e}")
@@ -231,7 +232,6 @@ gate("G-CONFIRM", not imposters, f"confirmed 文書は承認ログに実在 (偽
 
 # G-CONFIRM-DIGEST: 承認は内容へ束縛する（レビュー P0-4 対応）。
 # confirmed 文書ごとに、approvals.md のいずれかの行の digest 列（sha256 先頭 12）が現内容と一致すること。
-import hashlib
 
 
 def sha12(p: Path) -> str:
@@ -638,10 +638,11 @@ else:
             c2.execute(
                 "INSERT INTO tactical_learning_packets (packet_key, packet_kind, loop_run_id,"
                 " strategic_brief_id, strategic_brief_digest, observations_json, hypothesis_result,"
-                " target_hypothesis_ids_json, assessment_reason, causal_interpretation, confidence,"
+                " target_hypothesis_ids_json, assessment_reason, causal_interpretation,"
+                " alternative_explanations_json, confidence,"
                 " evidence_ids_json, recommended_next_action, created_at)"
-                " VALUES ('TLP-G', 'learning', 2, 1, ?, '[]', 'supported', '[]', 'r', 'c', 0.5,"
-                " '[\"EV-1\"]', 'continue', 't')",
+                " VALUES ('TLP-G', 'learning', 2, 1, ?, '[\"OBS-1\"]', 'supported', '[]', 'r', 'c',"
+                " '[\"ALT-1\"]', 0.5, '[\"EV-1\"]', 'continue', 't')",
                 ("a" * 64,))
             # DELETE 検査は FK 参照のない brief（id=2）で行う — FK 拒否がトリガ欠落を偽装しないため
             c2.execute(
@@ -816,6 +817,15 @@ if "--update-baseline" in sys.argv:
         print(f"REFUSED: 承認 receipt（digest 行）のない confirmed 文書があるため baseline を更新しない: {no_receipt}")
         sys.exit(1)
     skip_budget = json.loads((ROOT / "tests" / "skip-budget.json").read_text(encoding="utf-8"))
+    # クロージャー §3: 主要分母は新契約体系。旧 AC19／TC59／UTC69 は historical_counts へ退避
+    duc_now = load(D / "du-contracts.json")["items"]
+    contract_counts = {
+        "AC_CONTRACT": len(load(J / "ac" / "ac-contracts.json")["items"]),
+        "TCC": len(load(J / "verification" / "tc-contracts.json")["items"]),
+        "API": sum(len(x["apis"]) for x in duc_now),
+        "API_UT": len({u for x in duc_now for a in x["apis"] for u in a.get("ut", [])}),
+    }
+    historical_counts = {"AC_LEGACY": 19, "AC_DEFERRED_LEGACY": 17, "TC_LEGACY": 59, "UTC_LEGACY": 69}
     prev_skip = committed_max_skipped()
     if prev_skip is not None and skip_budget["max_skipped"] > prev_skip \
             and not skip_raise_approved(prev_skip, skip_budget["max_skipped"]):
@@ -825,6 +835,7 @@ if "--update-baseline" in sys.argv:
     BASELINE.write_text(json.dumps({
         "updated": "see git log", "counts": current_counts,
         "gate_count": gate_count_now, "max_skipped": skip_budget["max_skipped"],
+        "contract_counts": contract_counts, "historical_counts": historical_counts,
         "confirmed_docs": current_hashes, "artifacts": current_artifacts,
     }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"baseline updated: docs={len(current_hashes)}, artifacts={len(current_artifacts)}, gates={gate_count_now}, counts={current_counts}")
@@ -842,6 +853,13 @@ if BASELINE.exists():
     gate("G-BASE-STATUS", not demoted, f"confirmed の降格なし (降格={demoted})")
     # ratchet: 分母縮小・ゲート削減の禁止
     shrunk = [f"{k}:{base['counts'][k]}→{v}" for k, v in current_counts.items() if v < base["counts"].get(k, 0)]
+    _duc = load(D / "du-contracts.json")["items"]
+    cur_cc = {"AC_CONTRACT": len(load(J / "ac" / "ac-contracts.json")["items"]),
+              "TCC": len(load(J / "verification" / "tc-contracts.json")["items"]),
+              "API": sum(len(x["apis"]) for x in _duc),
+              "API_UT": len({u for x in _duc for a in x["apis"] for u in a.get("ut", [])})}
+    shrunk += [f"{k}:{base.get('contract_counts', {}).get(k)}→{v}" for k, v in cur_cc.items()
+               if v < base.get("contract_counts", {}).get(k, 0)]
     # skip 上限のラチェット: 比較対象は **git HEAD にコミット済みの** baseline（作業ツリーの
     # 同時改変では回避できない）。引き上げには approvals.md の PO 承認行が別途必要。
     cur_skip = json.loads((ROOT / "tests" / "skip-budget.json").read_text(encoding="utf-8"))["max_skipped"]
@@ -1227,6 +1245,179 @@ try:
 except FileNotFoundError as e:
     for gid in ("G-DU-API", "G-DU-DBC", "G-DU-ERROR", "G-DU-DATA", "G-API-UT", "G-NO-HOLLOW-DESIGN"):
         gate(gid, False, f"DU 契約正本が存在しない: {e}")
+
+# ---- クロージャー §5: 意味整合（構造化参照 ↔ 正本）----
+def load_canon() -> dict:
+    """意味検査の正本語彙（DDL・遷移表・evidence kind・エラー分類・API）を読む。"""
+    ddl_txt = (J / "s0" / "ddl.sql").read_text(encoding="utf-8")
+    tbl: dict[str, set] = {}
+    for m in re.finditer(r"CREATE TABLE (?:IF NOT EXISTS )?(\w+)\s*\((.*?)\n\);", ddl_txt, re.S):
+        tbl[m.group(1)] = set(re.findall(r"^\s{2}(\w+)\s+[A-Z]", m.group(2), re.M))
+    trn_c = load(J / "s0" / "transitions.json")["items"]
+    st: dict[str, set] = {}
+    ev = set()
+    for t in trn_c:
+        st.setdefault(t["entity"], set()).update({t["from"], t["to"]})
+        ev.add(t["event"])
+    kinds = {k["kind"] for k in load(J / "s0" / "evidence-kinds.json")["items"]}
+    tax = (ROOT / "docs/design/error-taxonomy_v0.1.md").read_text(encoding="utf-8")
+    errs = set(re.findall(
+        r"[A-Z][A-Za-z]{3,}(?:Error|Rejected|Denied|Missing|Mismatch|Detected|Incomplete|"
+        r"Immutable|Violation|Required|Exhausted)", tax))
+    du_c = load(D / "du-contracts.json")["items"]
+    apis = {m.group(1) for d_ in du_c for a in d_["apis"]
+            if (m := re.match(r"def (\w+)", a["signature"]))}
+    return {"tables": tbl, "states": st, "events": ev, "kinds": kinds, "errors": errs, "apis": apis}
+
+
+def detect_semantic_ref_faults(items, canon) -> list[str]:
+    """構造化参照が正本語彙に実在しない箇所を列挙する（G-SEMANTIC-REF／G-COLUMN-REF の本体）。"""
+    bad: list[str] = []
+    for it in items:
+        r = it.get("semantic_refs")
+        if r is None:
+            bad.append(f"{it.get('id', '?')}:semantic_refs なし")
+            continue
+        for t in r["table_refs"]:
+            if t not in canon["tables"]:
+                bad.append(f"{it['id']}:table {t}")
+        for c in r["column_refs"]:
+            t, col = c.split(".", 1)
+            if t not in canon["tables"] or col not in canon["tables"][t]:
+                bad.append(f"{it['id']}:column {c}")
+        for s in r["state_refs"]:
+            e, name = s.split(".", 1)
+            if e not in canon["states"] or name not in canon["states"][e]:
+                bad.append(f"{it['id']}:state {s}")
+        for e in r["event_refs"]:
+            if e not in canon["events"]:
+                bad.append(f"{it['id']}:event {e}")
+        for k in r["evidence_kind_refs"]:
+            if k not in canon["kinds"]:
+                bad.append(f"{it['id']}:kind {k}")
+        for x in r["error_type_refs"]:
+            if x not in canon["errors"]:
+                bad.append(f"{it['id']}:error {x}")
+        for a in r["api_refs"]:
+            if a not in canon["apis"]:
+                bad.append(f"{it['id']}:api {a}")
+    return bad
+
+
+# operation_log（evidence kind）を証跡にできるのは外部操作・業務操作を伴うドメインのみ。
+# 判定は「構造化参照が外部操作系テーブルに触れる」か「対象が外部操作を担う要件（コネクタ・制作・計測）」。
+EXTERNAL_TABLES = {"external_operations", "playbooks", "approvals", "assets", "measurements", "spend_ledger"}
+EXTERNAL_TARGET = re.compile(r"^(FR-4\d|FR-5\d|FR-6\d)$")
+
+
+def _external_domain(refs: dict, target: str, text: str) -> bool:
+    return (bool(set(refs.get("table_refs", [])) & EXTERNAL_TABLES)
+            or bool(EXTERNAL_TARGET.match(target or ""))
+            or "外部操作" in text)
+
+
+def detect_state_evidence_faults(acs, tcs) -> list[str]:
+    """状態遷移・ゲート拒否の証跡を operation_log（外部操作証跡）で表現している箇所を列挙する。
+
+    正: 状態遷移の拒否・成立は state_transitions、内部ゲート拒否は構造化ログ、
+        operation_log kind は外部操作・業務操作の証跡に限定（クロージャー §5）。
+    """
+    bad: list[str] = []
+    ac_by_id = {a["id"]: a for a in acs}
+    for a in acs:
+        r = a.get("semantic_refs", {})
+        ev_txt = a.get("expected_evidence", "")
+        if "operation_log" not in ev_txt:
+            continue
+        if not _external_domain(r, a.get("target", ""), ev_txt):
+            bad.append(f"{a['id']}:内部遷移・ゲート拒否を operation_log で表現")
+    for t in tcs:
+        r = t.get("semantic_refs", {})
+        ev_txt = t.get("verifies_evidence", "")
+        if "operation_log" not in ev_txt:
+            continue
+        tgt = next((ac_by_id[x]["target"] for x in t.get("ac", []) if x in ac_by_id), "")
+        if not _external_domain(r, tgt, ev_txt):
+            bad.append(f"{t['id']}:内部遷移・ゲート拒否を operation_log で表現")
+    return bad
+
+
+try:
+    canon = load_canon()
+    sem_items = frc + sr_c + acc + tcc + cmpc + duc
+    sem_bad = detect_semantic_ref_faults(sem_items, canon)
+    col_bad = [b for b in sem_bad if ":column " in b or ":table " in b]
+    gate("G-SEMANTIC-REF", not sem_bad,
+         f"構造化参照が正本語彙に実在（table/column/state/event/kind/error/api） (不正={sem_bad[:5]})")
+    gate("G-COLUMN-REF", not col_bad,
+         f"table/column 参照が ddl.sql に実在 (不正={col_bad[:5]})")
+    se_bad = detect_state_evidence_faults(acc, tcc)
+    gate("G-STATE-EVIDENCE-CONSISTENCY", not se_bad,
+         "状態遷移の拒否・成立は state_transitions／構造化ログで表現し operation_log は外部操作に限定 "
+         f"(違反={se_bad[:5]})")
+except (FileNotFoundError, KeyError) as e:
+    for gid in ("G-SEMANTIC-REF", "G-COLUMN-REF", "G-STATE-EVIDENCE-CONSISTENCY"):
+        gate(gid, False, f"意味整合の正本が読めない: {e}")
+
+# ---- クロージャー §2-§3・§7: 正本確定・旧正本の除外・test-first の実体化 ----
+try:
+    CANON_FILES = [J / "br/br-contracts.json", J / "fr/fr-contracts.json",
+                   J / "strategy/sr-contracts.json", J / "nfr/nfr-contracts.json",
+                   J / "ac/ac-contracts.json", J / "verification/tc-contracts.json",
+                   D / "cmp-contracts.json", D / "du-contracts.json"]
+    appr_txt = (ROOT / "docs/governance/approvals.md").read_text(encoding="utf-8")
+    canon_bad: list[str] = []
+    for p in CANON_FILES:
+        d_ = load(p)
+        if d_.get("status") != "confirmed":
+            canon_bad.append(f"{p.name}:status={d_.get('status')}")
+            continue
+        for k in ("approved_at", "approval_digest", "authority"):
+            if not d_.get(k):
+                canon_bad.append(f"{p.name}:{k} 欠落")
+        # 内容 digest が承認 receipt と一致（内容に束縛されない空承認の禁止）
+        body = json.dumps({k: v for k, v in d_.items() if k != "approval_digest"},
+                          ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+        want = hashlib.sha256(body.encode("utf-8")).hexdigest()[:12]
+        if d_.get("approval_digest") != want:
+            canon_bad.append(f"{p.name}:digest 不一致({d_.get('approval_digest')}!={want})")
+        elif f"| {p.name} | v0.1 | confirmed | PO | {want} |" not in appr_txt:
+            canon_bad.append(f"{p.name}:approvals 行なし")
+    gate("G-CANON-CONFIRMED", not canon_bad,
+         f"契約 JSON 正本 8 本が confirmed＋内容束縛 receipt (欠陥={canon_bad[:4]})")
+
+    LEGACY = {J / "ac.json": "ac-contracts.json", J / "verification.json": "tc-contracts.json",
+              D / "utest.json": "du-contracts.json"}
+    legacy_bad = [f"{p.name}:{load(p).get('status')}" for p in LEGACY
+                  if load(p).get("status") not in ("superseded", "historical")]
+    gate("G-LEGACY-SUPERSEDED", not legacy_bad,
+         f"旧正本（ac/verification/utest）が superseded で実装入力から除外 (未処理={legacy_bad})")
+
+    # G-S0-TEST-REALITY: S0.1 対象 API の UT が skip のままなら CI を落とす（test-first の実体化）
+    S0_IMPL_STARTED = bool(load(ROOT / "tests" / "skip-budget.json").get("s0_impl_started"))
+    s0_dus = [x for x in duc if int(x["id"][3:]) <= 12]
+    s0_skipped: list[str] = []
+    for x in s0_dus:
+        for a in x["apis"]:
+            for ref in a.get("ut", []):
+                fname, tname = ref.split("::", 1)
+                fp = ROOT / "tests" / "unit" / fname
+                if not fp.exists():
+                    continue
+                txt = fp.read_text(encoding="utf-8")
+                m = re.search(rf"\ndef {re.escape(tname)}\b", txt)
+                if m is None:
+                    continue
+                head = txt[:m.start()]
+                if "skip" in head[head.rfind("\n\n"):] and S0_IMPL_STARTED:
+                    s0_skipped.append(f"{x['id']}:{ref}")
+    gate("G-S0-TEST-REALITY",
+         not s0_skipped,
+         "S0.1 実装開始後は対象 API の UT を skip のままにできない（実 red→green を要求。"
+         f"開始前は tests/skip-budget.json の s0_impl_started=false で猶予） (skip 残={s0_skipped[:5]})")
+except (FileNotFoundError, KeyError) as e:
+    for gid in ("G-CANON-CONFIRMED", "G-LEGACY-SUPERSEDED", "G-S0-TEST-REALITY"):
+        gate(gid, False, f"正本が読めない: {e}")
 
 # G-DESIGN-SUBSTANCE: 独立設計書・機能別設計の実体（行数＋trace 表＋章立て）— 参照実在だけの穴を塞ぐ
 try:

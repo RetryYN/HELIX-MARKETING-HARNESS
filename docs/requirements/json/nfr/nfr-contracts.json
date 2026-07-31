@@ -13,7 +13,7 @@
       "evidence": [
         "validate_requirements.py の実行ログ（negative test 結果）",
         "pytest レポート（拒否系 TC）",
-        "operation_log の拒否行（実行時）"
+        "拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）（実行時）"
       ],
       "trace_up": [
         "requirements_v0.1 §3",
@@ -203,7 +203,7 @@
       "measurement_env": "CI（python-ci — pytest＋invalid fixture）",
       "violation_behavior": "違反成果物は公開ゲートで拒否し operation_log へ記録（fail-close）。ゲート化できない配信形態の追加要求は採用拒否（要件改訂でもゲート化が前提）。",
       "evidence": [
-        "operation_log の拒否行（PR 表記・オプトイン）",
+        "拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）（PR 表記・オプトイン）",
         "pytest レポート（法規拒否系）",
         "MR 台帳との突合結果"
       ],
@@ -243,5 +243,10 @@
         ]
       }
     }
-  ]
+  ],
+  "status": "confirmed",
+  "approved_at": "2026-08-01T00:00:00+09:00",
+  "authority": "PO",
+  "supersedes": [],
+  "approval_digest": "7083bc33f87e"
 }

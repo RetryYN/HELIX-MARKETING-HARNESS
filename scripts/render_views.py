@@ -20,6 +20,18 @@ GENERATED_HEADER = (
     "<!-- GENERATED FILE — 編集禁止。正本は {src}。再生成 = python3 scripts/render_views.py -->\n\n"
 )
 
+STATUS_LABEL = {"confirmed": "confirmed", "draft": "draft（再降下中）", "superseded": "superseded"}
+
+
+def status_line(data: dict, note: str) -> str:
+    """JSON 正本の status／承認 receipt からビューの status 行を生成する（固定文字列を持たない）。"""
+    st = STATUS_LABEL.get(data.get("status", "draft"), data.get("status", "draft"))
+    when = (data.get("approved_at") or "")[:10]
+    who = data.get("authority", "")
+    receipt = data.get("approval_digest", "")
+    tail = f"（{when} {who} 承認 — receipt {receipt}）" if receipt else ""
+    return f"> status: **{st}**{tail}。{note}\n"
+
 
 def render_br_contracts() -> tuple[Path, str]:
     src = REQ / "json" / "br" / "br-contracts.json"
@@ -27,7 +39,7 @@ def render_br_contracts() -> tuple[Path, str]:
     out = []
     out.append(GENERATED_HEADER.format(src="docs/requirements/json/br/br-contracts.json"))
     out.append("# 業務要求 構造化契約（BR contracts）v" + data["version"] + "\n\n")
-    out.append("> status: **draft（再降下中）**（2026-08-01 全層再降下 §2 — JSON 内容正本の生成ビュー）\n")
+    out.append(status_line(data, "JSON 内容正本の生成ビュー（全層再降下 §2）"))
     out.append("> 位置づけ: [br-backbone_v0.1.md](br-backbone_v0.1.md) の全 BR を 12 観点の構造化契約へ展開した正本ビュー。\n")
     out.append("> 1 行要求文の禁止（G-REQ-CONTRACT が schema 適合・全 BR 被覆・12 要求群被覆・本ビュー同期を fail-close 検査）。\n\n")
 
@@ -104,7 +116,7 @@ def _make_contract_renderer(src_rel: str, out_name: str, title: str, pair_note: 
         data = json.loads(src.read_text())
         out = [GENERATED_HEADER.format(src=f"docs/requirements/{src_rel}")]
         out.append(f"# {title} v{data['version']}\n\n")
-        out.append("> status: **draft（再降下中）**（2026-08-01 全層再降下 §3 — JSON 内容正本の生成ビュー）\n")
+        out.append(status_line(data, "JSON 内容正本の生成ビュー（全層再降下 §3）"))
         out.append(f"> {pair_note}\n\n")
         for it in data["items"]:
             out.append(_contract_md(it))
@@ -117,7 +129,7 @@ def render_nfr_contracts() -> tuple[Path, str]:
     data = json.loads(src.read_text())
     out = [GENERATED_HEADER.format(src="docs/requirements/json/nfr/nfr-contracts.json")]
     out.append("# 非機能要件 計測契約（NFR contracts）v" + data["version"] + "\n\n")
-    out.append("> status: **draft（再降下中）**（2026-08-01 全層再降下 §3 — JSON 内容正本の生成ビュー）\n")
+    out.append(status_line(data, "JSON 内容正本の生成ビュー（全層再降下 §3）"))
     out.append("> 各 NFR に測定対象・測定方法・閾値・測定環境・違反時動作・証跡を必須化（G-NFR-MEASURABLE）。\n\n")
     for it in data["items"]:
         out.append(f"## {it['id']} {it['title']}\n\n")
@@ -137,7 +149,7 @@ def render_ac_catalog() -> tuple[Path, str]:
     data = json.loads(src.read_text())
     out = [GENERATED_HEADER.format(src="docs/requirements/json/ac/ac-contracts.json")]
     out.append("# 受入条件 検証契約カタログ（AC contracts）v" + data["version"] + "\n\n")
-    out.append("> status: **draft（再降下中）**（2026-08-01 全層再降下 §4 — JSON 内容正本の生成ビュー）\n")
+    out.append(status_line(data, "JSON 内容正本の生成ビュー（全層再降下 §4）"))
     out.append("> 各 AC に GWT＋fixture・観測点・期待状態・DB 差分・証跡・禁止副作用・エラー型・対象更新を必須化\n")
     out.append("> （G-AC-COVERAGE／G-AC-POLARITY）。既存 AC-01〜19（json/ac.json）は履歴として保持。\n\n")
     pol = {"normal": "正常", "reject": "拒否", "boundary-recovery": "境界・復旧"}
@@ -161,7 +173,7 @@ def render_tc_catalog() -> tuple[Path, str]:
     data = json.loads(src.read_text())
     out = [GENERATED_HEADER.format(src="docs/requirements/json/verification/tc-contracts.json")]
     out.append("# テストケース 検証契約カタログ（TC contracts）v" + data["version"] + "\n\n")
-    out.append("> status: **draft（再降下中）**（2026-08-01 全層再降下 §5 — JSON 内容正本の生成ビュー）\n")
+    out.append(status_line(data, "JSON 内容正本の生成ビュー（全層再降下 §5）"))
     out.append("> 全 AC 検証契約と双方向接続（G-TRACE-BIDIR）。状態・DB 差分・証跡・禁止副作用・外部呼出回数を検証。\n")
     out.append("> 既存 TC-01〜59（verification.json）は履歴として保持。\n\n")
     out.append("| TC | kind | AC | 検証する状態 | DB 差分 | 証跡 | 禁止副作用の不在 | 外部呼出 | slice |\n")
@@ -179,7 +191,7 @@ def render_cmp_contracts() -> tuple[Path, str]:
     data = json.loads(src.read_text())
     out = [GENERATED_HEADER.format(src="docs/design/json/cmp-contracts.json")]
     out.append("# コンポーネント設計契約（CMP/SCM contracts）v" + data["version"] + "\n\n")
-    out.append("> status: **draft（再降下中）**（2026-08-01 全層再降下 §6 — JSON 内容正本の生成ビュー）\n")
+    out.append(status_line(data, "JSON 内容正本の生成ビュー（全層再降下 §6）"))
     out.append("> 各 CMP/SCM に 11 観点の設計契約を必須化（G-CMP-INTERFACE）。独立設計書とペアで読む。\n\n")
     for it in data["items"]:
         out.append(f"## {it['id']} {it['title']}\n\n")
@@ -204,7 +216,7 @@ def render_du_contracts() -> tuple[Path, str]:
     data = json.loads(src.read_text())
     out = [GENERATED_HEADER.format(src="docs/design/json/du-contracts.json")]
     out.append("# 詳細設計 実装契約（DU contracts）v" + data["version"] + "\n\n")
-    out.append("> status: **draft（再降下中）**（2026-08-01 全層再降下 §7 — JSON 内容正本の生成ビュー）\n")
+    out.append(status_line(data, "JSON 内容正本の生成ビュー（全層再降下 §7）"))
     out.append("> 各 DU に公開 API 署名・DbC・例外・tx 境界・冪等性・競合制御・AC/TC/UT 対応を必須化\n")
     out.append("> （G-DU-API／G-DU-DBC／G-DU-ERROR／G-DU-DATA／G-API-UT）。\n\n")
     for it in data["items"]:

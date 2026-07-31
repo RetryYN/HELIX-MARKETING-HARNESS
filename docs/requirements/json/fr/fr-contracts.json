@@ -33,15 +33,15 @@
       "state_transitions": [
         "loop_runs: 遷移表（json/s0/transitions.json）の全行が本 FR の対象"
       ],
-      "normal_behavior": "イベント受領 → 遷移表から (現状態, イベント) を一意解決 → ガード条件を DB 状態で評価 → 成立なら loop_runs.status を次状態へ UPDATE し state_transitions へ証跡 INSERT（同一 transaction）。",
-      "rejection_behavior": "遷移表に合致がない・ガード不成立・終端からの遷移要求は TransitionRejected を raise し、DB を変更せず operation_log に拒否理由を記録する（fail-close）。",
+      "normal_behavior": "イベント受領 → 遷移表から (現状態, イベント) を一意解決 → ガード条件を DB 状態で評価 → 成立なら loop_runs.state を次状態へ UPDATE し state_transitions へ証跡 INSERT（同一 transaction）。",
+      "rejection_behavior": "遷移表に合致がない・ガード不成立・終端からの遷移要求は TransitionRejected を raise し、DB を変更せず 拒否理由を構造化ログ（FN-704）へ記録する（fail-close）。",
       "boundary_behavior": "同一 run への同時イベントは transaction の直列化で 1 件のみ成立し、後続は再読込後に再判定。存在しない run_id は即拒否。",
       "retry_resume_recovery": "クラッシュ時は transaction ごと消えるため中間状態が残らない。再開はプロセス再起動後に loop_runs の現状態から続行（申し送りなし — BR-A1）。",
       "human_judgement": "なし（全自動。escalated への遷移後の対処は BR-H3 経由で人間）",
       "side_effects": [
         "loop_runs UPDATE",
         "state_transitions INSERT",
-        "operation_log INSERT（拒否時）"
+        "構造化ログ出力（拒否時 — FN-704）"
       ],
       "idempotency": "同一イベントの再送は現状態不一致で拒否される（状態遷移自体が冪等キー）。証跡は重複しない。",
       "evidence": [
@@ -52,7 +52,7 @@
         "参照: 遷移表 JSON 正本（json/s0/transitions.json — DB テーブルではない）",
         "rw: loop_runs",
         "w: state_transitions",
-        "w: evidence（operation_log 系拒否・操作証跡）",
+        "w: evidence（外部操作証跡 = operation_log kind）",
         "r: strategic_briefs（lower 開始ガード）"
       ],
       "external_deps": [],
@@ -91,7 +91,31 @@
         [
           "AC-11-4"
         ]
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "loop_runs",
+          "state_transitions",
+          "strategic_briefs"
+        ],
+        "column_refs": [
+          "loop_runs.state"
+        ],
+        "state_refs": [
+          "loop_runs.escalated"
+        ],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "TransitionRejected"
+        ],
+        "api_refs": [
+          "verify"
+        ]
+      }
     },
     {
       "id": "FR-12",
@@ -179,7 +203,43 @@
         [
           "AC-12-3"
         ]
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "agents",
+          "evidence",
+          "loop_runs",
+          "pair_plan_quality",
+          "state_transitions",
+          "tasks",
+          "workflows"
+        ],
+        "column_refs": [
+          "tasks.verifier_agent_id"
+        ],
+        "state_refs": [
+          "loop_runs.escalated",
+          "loop_runs.failed",
+          "loop_runs.pending",
+          "loop_runs.running",
+          "tasks.done",
+          "tasks.escalated",
+          "tasks.failed",
+          "tasks.in_progress",
+          "tasks.pending",
+          "tasks.verifying"
+        ],
+        "event_refs": [
+          "claim"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "TaskIssuanceRejected"
+        ],
+        "api_refs": [
+          "claim"
+        ]
+      }
     },
     {
       "id": "FR-13",
@@ -274,7 +334,37 @@
         [
           "AC-13-6"
         ]
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "agents",
+          "config",
+          "evidence",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "tasks.failure_detail"
+        ],
+        "state_refs": [
+          "tasks.done",
+          "tasks.escalated",
+          "tasks.in_progress",
+          "tasks.verifying"
+        ],
+        "event_refs": [
+          "verify_fail",
+          "verify_fail_exhausted",
+          "verify_pass"
+        ],
+        "evidence_kind_refs": [
+          "review_pass"
+        ],
+        "error_type_refs": [
+          "TransitionRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "FR-14",
@@ -350,7 +440,34 @@
           "CMP-02"
         ]
       },
-      "slice": "S1"
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "action_plans",
+          "config",
+          "evidence",
+          "kpi_nodes",
+          "loop_runs",
+          "sprints",
+          "state_transitions"
+        ],
+        "column_refs": [
+          "kpi_nodes.target_json",
+          "sprints.kpi_target_json",
+          "sprints.status"
+        ],
+        "state_refs": [
+          "loop_runs.completed"
+        ],
+        "event_refs": [
+          "start"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "SprintStartRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "FR-15",
@@ -428,7 +545,32 @@
           "CMP-02"
         ]
       },
-      "slice": "S1"
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "kpi_nodes",
+          "learnings",
+          "loop_runs",
+          "measurements",
+          "pair_kpi_measure",
+          "sprints",
+          "state_transitions",
+          "strategic_briefs"
+        ],
+        "column_refs": [
+          "learnings.status"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "measurement"
+        ],
+        "error_type_refs": [
+          "LearningSchemaViolation"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "FR-16",
@@ -533,7 +675,46 @@
         [
           "AC-16-6"
         ]
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "approvals",
+          "config",
+          "evidence",
+          "loop_runs",
+          "playbooks",
+          "spend_ledger",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "tasks.failure_code"
+        ],
+        "state_refs": [
+          "loop_runs.escalated",
+          "loop_runs.failed",
+          "loop_runs.pending",
+          "loop_runs.running",
+          "loop_runs.waiting",
+          "tasks.escalated",
+          "tasks.failed",
+          "tasks.in_progress",
+          "tasks.pending",
+          "tasks.verifying"
+        ],
+        "event_refs": [
+          "escalate",
+          "fatal_failure",
+          "non_retryable_failure",
+          "retry_exhausted",
+          "verify_fail_exhausted"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "TransitionRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "FR-21",
@@ -580,14 +761,14 @@
       "evidence": [
         "pair_plan_quality 行（成立・失効の状態）",
         "evidence.kind = review_pass／plan_record（成立根拠）",
-        "operation_log 拒否行（ペア不成立の公開試行）"
+        "構造化ログの拒否行（ペア不成立の公開試行）"
       ],
       "tables": [
         "rw: pair_plan_quality",
         "r: action_plans",
         "r: tasks（review_task 参照）",
         "r: evidence（review_pass・plan_record）",
-        "w: evidence（operation_log 系拒否・操作証跡）（拒否時）"
+        "w: evidence（外部操作証跡 = operation_log kind）"
       ],
       "external_deps": [],
       "config_values": [],
@@ -625,7 +806,34 @@
         [
           "AC-21-5"
         ]
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "action_plans",
+          "evidence",
+          "pair_plan_quality",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "evidence.kind"
+        ],
+        "state_refs": [
+          "tasks.failed",
+          "tasks.pending"
+        ],
+        "event_refs": [
+          "non_retryable_failure"
+        ],
+        "evidence_kind_refs": [
+          "commit_hash",
+          "operation_log",
+          "plan_record",
+          "review_pass"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "FR-22",
@@ -702,7 +910,32 @@
           "CMP-03"
         ]
       },
-      "slice": "S1"
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "kpi_nodes",
+          "learnings",
+          "measurements",
+          "pair_kpi_measure",
+          "sprints",
+          "state_transitions"
+        ],
+        "column_refs": [
+          "evidence.kind",
+          "kpi_nodes.target_json",
+          "sprints.kpi_target_json",
+          "sprints.status"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "measurement",
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "FR-23",
@@ -735,16 +968,16 @@
       "retry_resume_recovery": "ゲートは無状態（判定のみ）。再実行は同一判定を返す。リスト更新後は次回判定から反映。",
       "human_judgement": "なし（PO でも解除不可の機械的制約 — BR-C1）",
       "side_effects": [
-        "operation_log INSERT（拒否時のみ）"
+        "構造化ログ出力（拒否時のみ — FN-704）"
       ],
       "idempotency": "判定は pure（同一入力→同一判定）。拒否ログは操作単位で 1 行。",
       "evidence": [
-        "operation_log の拒否行（URL・指標名・理由）"
+        "拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）（URL・指標名・理由）"
       ],
       "tables": [
         "r: config（URL 許可リスト）",
         "r: kpi_nodes（重複検査）",
-        "w: evidence（operation_log 系拒否・操作証跡）"
+        "w: evidence（外部操作証跡 = operation_log kind）"
       ],
       "external_deps": [],
       "config_values": [
@@ -781,7 +1014,25 @@
         [
           "AC-23-5"
         ]
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "evidence",
+          "kpi_nodes",
+          "state_transitions"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "PaidMetricRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "FR-24",
@@ -818,17 +1069,17 @@
       "retry_resume_recovery": "ゲートは無状態（判定のみ）。再実行は同一 commit に対し同一判定を返す。表記追加後は再 commit → 再審査 → 新 pair 成立を経て再判定。",
       "human_judgement": "なし（機械検証。表記規則自体の改訂は要件改訂で行う）",
       "side_effects": [
-        "operation_log INSERT（拒否時のみ）"
+        "構造化ログ出力（拒否時のみ — FN-704）"
       ],
       "idempotency": "判定は pure（同一 commit＋同一リスト→同一判定）。拒否ログは公開試行単位で 1 行。",
       "evidence": [
-        "operation_log の拒否行（対象成果物 commit hash・検出リンク・欠落規則）",
+        "拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）（対象成果物 commit hash・検出リンク・欠落規則）",
         "通過時は review_pass 証跡の checked_items に表記検証結果を含める"
       ],
       "tables": [
         "r: config（ASP ドメインリスト）",
         "r: assets（成果物参照）",
-        "w: evidence（operation_log 系拒否・操作証跡）（拒否時）"
+        "w: evidence（外部操作証跡 = operation_log kind）"
       ],
       "external_deps": [],
       "config_values": [
@@ -855,7 +1106,32 @@
           "CMP-03"
         ]
       },
-      "slice": "S1"
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "assets",
+          "config",
+          "evidence",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [],
+        "state_refs": [
+          "tasks.failed",
+          "tasks.pending"
+        ],
+        "event_refs": [
+          "non_retryable_failure"
+        ],
+        "evidence_kind_refs": [
+          "operation_log",
+          "review_pass"
+        ],
+        "error_type_refs": [
+          "PrLabelMissing"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "FR-25",
@@ -933,7 +1209,38 @@
           "CMP-03"
         ]
       },
-      "slice": "S1"
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "evidence",
+          "state_transitions",
+          "tasks",
+          "workflows"
+        ],
+        "column_refs": [
+          "evidence.kind",
+          "workflows.definition_json"
+        ],
+        "state_refs": [
+          "tasks.done",
+          "tasks.escalated",
+          "tasks.in_progress",
+          "tasks.verifying"
+        ],
+        "event_refs": [
+          "verify_fail",
+          "verify_fail_exhausted",
+          "verify_pass"
+        ],
+        "evidence_kind_refs": [
+          "review_pass"
+        ],
+        "error_type_refs": [
+          "EthicsViolation"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "FR-26",
@@ -1020,7 +1327,39 @@
           "CMP-11"
         ]
       },
-      "slice": "S1"
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "approvals",
+          "config",
+          "evidence",
+          "external_operations",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "approvals.decision",
+          "evidence.kind"
+        ],
+        "state_refs": [
+          "tasks.escalated",
+          "tasks.failed",
+          "tasks.in_progress",
+          "tasks.pending"
+        ],
+        "event_refs": [
+          "escalate",
+          "non_retryable_failure"
+        ],
+        "evidence_kind_refs": [
+          "approval",
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "ApprovalRequired"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "FR-27",
@@ -1111,7 +1450,39 @@
         [
           "AC-27-4"
         ]
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "agent_executions",
+          "agents",
+          "evidence",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "agent_executions.principal",
+          "agents.principal"
+        ],
+        "state_refs": [
+          "tasks.done",
+          "tasks.escalated",
+          "tasks.in_progress",
+          "tasks.pending",
+          "tasks.verifying"
+        ],
+        "event_refs": [
+          "claim",
+          "verify_pass"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "IntegrityError",
+          "SelfReviewRejected"
+        ],
+        "api_refs": [
+          "claim"
+        ]
+      }
     },
     {
       "id": "FR-28",
@@ -1202,7 +1573,43 @@
         [
           "AC-28-6"
         ]
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "state_transitions",
+          "tasks",
+          "workflows"
+        ],
+        "column_refs": [
+          "evidence.kind",
+          "tasks.state",
+          "workflows.required_evidence_json"
+        ],
+        "state_refs": [
+          "tasks.done",
+          "tasks.escalated",
+          "tasks.failed",
+          "tasks.verifying"
+        ],
+        "event_refs": [
+          "verify_pass"
+        ],
+        "evidence_kind_refs": [
+          "approval",
+          "commit_hash",
+          "file_hash",
+          "measurement",
+          "plan_record",
+          "published_url",
+          "review_pass",
+          "screenshot"
+        ],
+        "error_type_refs": [
+          "EvidenceIncomplete"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "FR-31",
@@ -1283,7 +1690,29 @@
           "CMP-06"
         ]
       },
-      "slice": "S1"
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "business_profiles",
+          "evidence",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "business_profiles.profile_json"
+        ],
+        "state_refs": [
+          "tasks.pending"
+        ],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "SlotUnfilledRejected"
+        ],
+        "api_refs": [
+          "verify"
+        ]
+      }
     },
     {
       "id": "FR-32",
@@ -1361,7 +1790,26 @@
           "CMP-06"
         ]
       },
-      "slice": "S1"
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "evidence",
+          "kpi_nodes",
+          "state_transitions"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "StaleSourceRejected",
+          "UnsourcedValueRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "FR-33",
@@ -1450,7 +1898,27 @@
         [
           "AC-33-4"
         ]
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "agents",
+          "config",
+          "evidence",
+          "state_transitions"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "AppendOnlyViolation",
+          "ConfigAppendOnlyViolation",
+          "ConfigReasonMissing"
+        ],
+        "api_refs": [
+          "verify"
+        ]
+      }
     },
     {
       "id": "FR-34",
@@ -1525,7 +1993,28 @@
           "CMP-06"
         ]
       },
-      "slice": "S1"
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "action_plans",
+          "brand_plans",
+          "business_profiles",
+          "config",
+          "evidence",
+          "kpi_nodes",
+          "state_transitions"
+        ],
+        "column_refs": [
+          "business_profiles.status"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "CrossProfileAccessDenied"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "FR-41",
@@ -1571,7 +2060,7 @@
       ],
       "tables": [
         "r: config（registry.* 行）",
-        "w: evidence（operation_log 系拒否・操作証跡）",
+        "w: evidence（外部操作証跡 = operation_log kind）",
         "r: spend_ledger（有償経路の台帳配線検査）"
       ],
       "external_deps": [],
@@ -1618,7 +2107,26 @@
         [
           "AC-41-6"
         ]
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "evidence",
+          "playbooks",
+          "spend_ledger",
+          "state_transitions"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "PaidRouteDenied"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "FR-42",
@@ -1656,7 +2164,7 @@
         "テーブル列: external_operations.status: prepared→sent→confirmed/rejected/unknown（書込み系操作ごと — s0-contract §1）"
       ],
       "normal_behavior": "操作要求を受け playbooks から手順を解決し、Playwright を config.browser.headed に従い起動。書込み系は external_operations を prepared でコミット→ Rng（seed 記録済み）で 1〜5 秒待機→ 送信し sent コミット→ 結果確定で confirmed とし operation_log 証跡を派生→ その後に状態遷移。成功時 playbooks.last_success_at を更新。読取り系は通常速度で実行し乱数待機を課さない。",
-      "rejection_behavior": "playbooks 行なし/status=broken は PlaybookMissing/PlaybookBroken で拒否（自己修復は FR-43 へ委譲）。日次書込み上限超過は RateLimitExceeded で当日拒否。X 書込み要求は ProhibitedMediaWrite。許可リスト外 URL は UrlDenied（FR-23）。いずれも operation_log に理由を記録し外部送信を行わない（fail-close）。",
+      "rejection_behavior": "playbooks 行なし/status=broken は PlaybookMissing/PlaybookBroken で拒否（自己修復は FR-43 へ委譲）。日次書込み上限超過は RateLimitExceeded で当日拒否。X 書込み要求は ProhibitedMediaWrite。許可リスト外 URL は UrlDenied（FR-23）。いずれも 拒否理由を構造化ログ（FN-704）へ記録し外部送信を行わない（fail-close）。",
       "boundary_behavior": "間隔乱数は範囲端 1 秒・5 秒を含む一様分布。日次 10 件目は許可・11 件目は拒否（日付境界は Clock 注入基準）。セレクタ不一致は失敗として consecutive_failures を加算し FR-43 の破損検知へ渡す。セッション失効は書込み前に検知し送信しない。",
       "retry_resume_recovery": "送信直後クラッシュは external_operations の status で再開: prepared は同一 idempotency key で再送可、sent はリモート照合で confirmed 化または unknown→escalate（再送しない — s0-contract §3.3）。乱数はログの seed から再現可能（NFR-2）。",
       "human_judgement": "なし（全自動。検知・警告兆候時の媒体停止判断は安全側自動調整＋escalated 経由で人間 — BR-F5）",
@@ -1676,7 +2184,7 @@
       "tables": [
         "rw: playbooks",
         "rw: external_operations",
-        "w: evidence（operation_log 系拒否・操作証跡）（evidence kind）",
+        "w: evidence（外部操作証跡 = operation_log kind）",
         "r: config（browser.headed・rate.*・url_allowlist）",
         "w: evidence（screenshot）"
       ],
@@ -1717,7 +2225,33 @@
           "CMP-09"
         ]
       },
-      "slice": "S1"
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "evidence",
+          "external_operations",
+          "playbooks",
+          "state_transitions"
+        ],
+        "column_refs": [
+          "external_operations.idempotency_key",
+          "external_operations.status",
+          "playbooks.last_success_at"
+        ],
+        "state_refs": [],
+        "event_refs": [
+          "escalate"
+        ],
+        "evidence_kind_refs": [
+          "operation_log",
+          "screenshot"
+        ],
+        "error_type_refs": [
+          "PlaybookMissing"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "FR-43",
@@ -1770,7 +2304,7 @@
       ],
       "tables": [
         "rw: playbooks",
-        "w: evidence（operation_log 系拒否・操作証跡）（evidence kind）",
+        "w: evidence（外部操作証跡 = operation_log kind）",
         "rw: tasks（escalated 遷移は状態機械 FR-11 経由）",
         "w: evidence（screenshot）"
       ],
@@ -1800,7 +2334,31 @@
           "CMP-09"
         ]
       },
-      "slice": "S2"
+      "slice": "S2",
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "playbooks",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "playbooks.status"
+        ],
+        "state_refs": [
+          "tasks.escalated",
+          "tasks.in_progress"
+        ],
+        "event_refs": [
+          "escalate"
+        ],
+        "evidence_kind_refs": [
+          "operation_log",
+          "screenshot"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "FR-44",
@@ -1837,7 +2395,7 @@
         "tasks: WF-WP-2 の in_progress→verifying 等は状態機械（FR-11）経由 — 本 FR は証跡化までを担う"
       ],
       "normal_behavior": "書込み要求のペア ID・endpoint・（公開時は）approval を検証し、external_operations を prepared でコミット→ REST 送信→ sent コミット→ WP 応答（post ID・リビジョン）で confirmed とし operation_log 証跡（response_hash・external_operation_id）を派生→ その後に状態遷移。公開時は canonical URL を published_url evidence と assets に登録。WP-CLI 構築系はテーマ解析結果を playbooks に保存。",
-      "rejection_behavior": "成立済みペア ID なしは PairRequired、Docker 以外の WP endpoint への書込み設定は ProductionWriteDenied、公開時の approved approval なし・binding 不一致は ApprovalRequired/ApprovalBindingMismatch で拒否し、いずれも外部送信 0 回で operation_log に理由を記録（fail-close）。WP 側エラー（4xx/5xx）は rejected とし証跡化して呼出元へ失敗を返す。",
+      "rejection_behavior": "成立済みペア ID なしは PairRequired、Docker 以外の WP endpoint への書込み設定は ProductionWriteDenied、公開時の approved approval なし・binding 不一致は ApprovalRequired/ApprovalBindingMismatch で拒否し、いずれも外部送信 0 回で 拒否理由を構造化ログ（FN-704）へ記録（fail-close）。WP 側エラー（4xx/5xx）は rejected とし証跡化して呼出元へ失敗を返す。",
       "boundary_behavior": "レート上限（30 req/分）到達時はバースト待機し上限を超えない。下書きと公開は別 idempotency key の別 external_operations 行（1 操作 = 1 行）。同一 idempotency key の再要求は UNIQUE 制約で既存行に照合され二重送信しない。",
       "retry_resume_recovery": "sent のままクラッシュした最危険 kill point（WP 側成功・ローカル sent）は、WP 側を post ID / idempotency key で照合し成功確認できれば confirmed 化して証跡補完、照合不能なら unknown とし再送せず escalate（s0-contract §3.3・§8）。prepared は同一 key で再送可。",
       "human_judgement": "公開の束縛承認（FR-46 経由）。unknown 照合不能時の対処は escalated 経由で人間。それ以外は全自動",
@@ -1857,7 +2415,7 @@
       ],
       "tables": [
         "rw: external_operations",
-        "w: evidence（operation_log 系拒否・操作証跡） / published_url（evidence）",
+        "w: evidence（外部操作証跡 = operation_log kind） / published_url（evidence）",
         "w: assets",
         "r: pair_plan_quality（ペア成立検証）",
         "r: approvals（公開時）",
@@ -1897,7 +2455,45 @@
           "CMP-10"
         ]
       },
-      "slice": "S1"
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "approvals",
+          "assets",
+          "config",
+          "evidence",
+          "external_operations",
+          "pair_plan_quality",
+          "playbooks",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "external_operations.idempotency_key",
+          "external_operations.status"
+        ],
+        "state_refs": [
+          "tasks.escalated",
+          "tasks.in_progress",
+          "tasks.verifying"
+        ],
+        "event_refs": [
+          "escalate"
+        ],
+        "evidence_kind_refs": [
+          "approval",
+          "operation_log",
+          "published_url",
+          "screenshot"
+        ],
+        "error_type_refs": [
+          "ApprovalBindingMismatch",
+          "ApprovalRequired",
+          "PairRequired",
+          "ProductionWriteDenied"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "FR-45",
@@ -1949,7 +2545,7 @@
       ],
       "tables": [
         "rw: external_operations",
-        "w: evidence（operation_log 系拒否・操作証跡）（evidence）",
+        "w: evidence（外部操作証跡 = operation_log kind）（evidence）",
         "r: sprints / learnings（書戻し元）",
         "w: action_plans / sprints への draft 参照材料",
         "r: config（registry.notion・rate.notion.*）"
@@ -1983,7 +2579,37 @@
           "CMP-07"
         ]
       },
-      "slice": "S1"
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "action_plans",
+          "config",
+          "evidence",
+          "external_operations",
+          "learnings",
+          "loop_runs",
+          "sprints",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "external_operations.status"
+        ],
+        "state_refs": [
+          "loop_runs.escalated",
+          "loop_runs.failed",
+          "tasks.escalated",
+          "tasks.failed"
+        ],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "file_hash",
+          "measurement",
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "FR-46",
@@ -2039,7 +2665,7 @@
       "tables": [
         "rw: approvals",
         "w: evidence（approval）",
-        "w: evidence（operation_log 系拒否・操作証跡）",
+        "w: evidence（外部操作証跡 = operation_log kind）",
         "rw: tasks（遷移は FR-11 経由）",
         "r: config（approval_retry_limit・auto_mode_criteria）"
       ],
@@ -2085,7 +2711,42 @@
         [
           "AC-46-4"
         ]
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "approvals",
+          "config",
+          "evidence",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "approvals.decision",
+          "approvals.evidence_id"
+        ],
+        "state_refs": [
+          "tasks.done",
+          "tasks.escalated",
+          "tasks.failed",
+          "tasks.in_progress",
+          "tasks.pending",
+          "tasks.verifying"
+        ],
+        "event_refs": [
+          "escalate",
+          "non_retryable_failure",
+          "verify_pass"
+        ],
+        "evidence_kind_refs": [
+          "approval",
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "ApprovalBindingMismatch",
+          "ApprovalRequired"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "FR-47",
@@ -2132,7 +2793,7 @@
         "全文検索 0 件の検査結果（AC-47 の検証観測）"
       ],
       "tables": [
-        "w: evidence（operation_log 系拒否・操作証跡）（evidence kind — 検知時のみ）",
+        "w: evidence（外部操作証跡 = operation_log kind）（evidence kind — 検知時のみ）",
         "r: config（マスキング規則の非秘匿設定）"
       ],
       "external_deps": [
@@ -2176,7 +2837,28 @@
         [
           "AC-47-6"
         ]
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "evidence",
+          "state_transitions"
+        ],
+        "column_refs": [
+          "evidence.external_operation_id"
+        ],
+        "state_refs": [],
+        "event_refs": [
+          "escalate"
+        ],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "CredentialLeakDetected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "FR-51",
@@ -2230,7 +2912,7 @@
         "r: workflows（出力プロファイル）",
         "w: assets",
         "w: evidence",
-        "w: evidence（operation_log 系拒否・操作証跡）",
+        "w: evidence（外部操作証跡 = operation_log kind）",
         "r: config（サイズ上限・WP 接続参照）"
       ],
       "external_deps": [
@@ -2280,7 +2962,30 @@
         [
           "AC-51-5"
         ]
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "assets",
+          "config",
+          "evidence",
+          "state_transitions",
+          "tasks",
+          "workflows"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "file_hash",
+          "operation_log",
+          "screenshot"
+        ],
+        "error_type_refs": [
+          "UnversionedSourceRejected",
+          "WpTargetDenied"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "FR-52",
@@ -2324,7 +3029,7 @@
         "operation_log 行（取得失敗・フォールバック）"
       ],
       "tables": [
-        "w: evidence（operation_log 系拒否・操作証跡）",
+        "w: evidence（外部操作証跡 = operation_log kind）",
         "r: config（DesignSync 接続参照・再試行回数）"
       ],
       "external_deps": [
@@ -2357,7 +3062,22 @@
           "CMP-12"
         ]
       },
-      "slice": "S1"
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "evidence",
+          "state_transitions"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "FR-53",
@@ -2409,7 +3129,7 @@
         "r: assets（素材参照・parent 解決）",
         "w: assets",
         "w: evidence",
-        "w: evidence（operation_log 系拒否・操作証跡）",
+        "w: evidence（外部操作証跡 = operation_log kind）",
         "r: config"
       ],
       "external_deps": [
@@ -2450,7 +3170,27 @@
           "CMP-12"
         ]
       },
-      "slice": "S3+"
+      "slice": "S3+",
+      "semantic_refs": {
+        "table_refs": [
+          "assets",
+          "config",
+          "evidence",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "file_hash",
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "UnversionedSourceRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "FR-54",
@@ -2491,13 +3231,13 @@
       ],
       "side_effects": [
         "evidence INSERT（commit_hash / review_pass）",
-        "operation_log INSERT（拒否時）"
+        "構造化ログ出力（拒否時 — FN-704）"
       ],
       "idempotency": "同一 (task_id, kind, commit_hash) の再記録は UNIQUE 制約で 1 行に収束。判定（一致検査）は pure。",
       "tables": [
         "r: tasks",
         "w: evidence",
-        "w: evidence（operation_log 系拒否・操作証跡）",
+        "w: evidence（外部操作証跡 = operation_log kind）",
         "r: pair_plan_quality（審査経路整合の参照）"
       ],
       "external_deps": [
@@ -2537,7 +3277,28 @@
         [
           "AC-54-5"
         ]
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "pair_plan_quality",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "commit_hash",
+          "operation_log",
+          "review_pass"
+        ],
+        "error_type_refs": [
+          "CommitHashMismatch",
+          "UnversionedSourceRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "FR-55",
@@ -2572,7 +3333,7 @@
       "human_judgement": "なし（全自動）",
       "side_effects": [
         "assets INSERT",
-        "operation_log INSERT（拒否時）"
+        "構造化ログ出力（拒否時 — FN-704）"
       ],
       "idempotency": "UNIQUE(canonical_url)・UNIQUE(wp_media_id) が冪等キー。同一資産の再登録は行を増やさない。",
       "evidence": [
@@ -2583,7 +3344,7 @@
       "tables": [
         "rw: assets",
         "r: tasks（source_task_id 整合）",
-        "w: evidence（operation_log 系拒否・操作証跡）"
+        "w: evidence（外部操作証跡 = operation_log kind）"
       ],
       "external_deps": [
         "Docker WP（実体の置き場 — 本 FR 自体は参照登録のみ）"
@@ -2621,7 +3382,30 @@
         [
           "AC-55-4"
         ]
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "assets",
+          "config",
+          "evidence",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "assets.parent_asset_id",
+          "assets.source_task_id"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log",
+          "published_url"
+        ],
+        "error_type_refs": [
+          "ContentBodyRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "FR-61",
@@ -2661,7 +3445,7 @@
       "human_judgement": "KPI ツリー初期形の承認（リサーチ充填後 — BR-E1。以後のノード登録・集計は全自動）",
       "side_effects": [
         "kpi_nodes INSERT/UPDATE(status)",
-        "operation_log INSERT（拒否時）"
+        "構造化ログ出力（拒否時 — FN-704）"
       ],
       "idempotency": "UNIQUE(business_profile_id, node_key) が冪等キー。集計は pure（同一 DB 状態→同一結果）。",
       "evidence": [
@@ -2672,7 +3456,7 @@
         "rw: kpi_nodes",
         "r: business_profiles",
         "r: measurements（集計）",
-        "w: evidence（operation_log 系拒否・操作証跡）"
+        "w: evidence（外部操作証跡 = operation_log kind）"
       ],
       "external_deps": [],
       "config_values": [],
@@ -2713,7 +3497,28 @@
         [
           "AC-61-4"
         ]
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "business_profiles",
+          "evidence",
+          "kpi_nodes",
+          "measurements",
+          "state_transitions"
+        ],
+        "column_refs": [
+          "kpi_nodes.status"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "PaidMetricRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "FR-62",
@@ -2769,7 +3574,7 @@
         "r: kpi_nodes",
         "r: tasks",
         "w: evidence",
-        "w: evidence（operation_log 系拒否・操作証跡）",
+        "w: evidence（外部操作証跡 = operation_log kind）",
         "r: playbooks（ブラウザ経路手順）",
         "r: config"
       ],
@@ -2820,7 +3625,29 @@
         [
           "AC-62-7"
         ]
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "evidence",
+          "kpi_nodes",
+          "measurements",
+          "playbooks",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "file_hash",
+          "measurement",
+          "operation_log",
+          "screenshot"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "FR-63",
@@ -2859,7 +3686,7 @@
       "side_effects": [
         "HTML/xlsx ファイル生成",
         "evidence INSERT（dashboard）",
-        "operation_log INSERT（拒否時）"
+        "構造化ログ出力（拒否時 — FN-704）"
       ],
       "idempotency": "同一 DB 状態→同一出力 hash（pure な変換）。証跡は hash を value とする UNIQUE で重複しない。",
       "evidence": [
@@ -2872,7 +3699,7 @@
         "r: pair_kpi_measure",
         "r: sprints",
         "w: evidence",
-        "w: evidence（operation_log 系拒否・操作証跡）",
+        "w: evidence（外部操作証跡 = operation_log kind）",
         "r: config"
       ],
       "external_deps": [],
@@ -2905,7 +3732,30 @@
           "CMP-13"
         ]
       },
-      "slice": "S1"
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "evidence",
+          "kpi_nodes",
+          "measurements",
+          "pair_kpi_measure",
+          "sprints",
+          "state_transitions"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "dashboard",
+          "file_hash",
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "ExternalReferenceDetected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "FR-71",
@@ -2993,7 +3843,25 @@
         [
           "AC-71-2"
         ]
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "evidence",
+          "schema_version",
+          "state_transitions"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [
+          "retryable_failure"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": [
+          "verify"
+        ]
+      }
     },
     {
       "id": "FR-72",
@@ -3083,7 +3951,26 @@
         [
           "AC-72-5"
         ]
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "loop_runs",
+          "schema_version",
+          "state_transitions",
+          "tactical_learning_packets"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "MigrationChecksumMismatch"
+        ],
+        "api_refs": [
+          "verify"
+        ]
+      }
     },
     {
       "id": "FR-73",
@@ -3160,7 +4047,33 @@
           "CMP-13"
         ]
       },
-      "slice": "S1"
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "approvals",
+          "config",
+          "evidence",
+          "external_operations",
+          "spend_ledger",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "SpendRecordIncomplete"
+        ],
+        "api_refs": []
+      }
     }
-  ]
+  ],
+  "status": "confirmed",
+  "approved_at": "2026-08-01T00:00:00+09:00",
+  "authority": "PO",
+  "supersedes": [],
+  "approval_digest": "86b7f317f551"
 }

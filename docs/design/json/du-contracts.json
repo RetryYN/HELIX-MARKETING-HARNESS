@@ -179,7 +179,65 @@
       },
       "also_implements": [
         "SCM-03"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "agent_executions",
+          "agents",
+          "brand_plans",
+          "config",
+          "evidence",
+          "loop_runs",
+          "sprints",
+          "state_transitions",
+          "strategic_briefs",
+          "tasks",
+          "workflows"
+        ],
+        "column_refs": [],
+        "state_refs": [
+          "loop_runs.cancelled",
+          "loop_runs.completed",
+          "loop_runs.escalated",
+          "loop_runs.failed",
+          "tasks.done",
+          "tasks.escalated",
+          "tasks.failed"
+        ],
+        "event_refs": [
+          "cancel",
+          "claim",
+          "complete",
+          "escalate",
+          "fatal_failure",
+          "non_retryable_failure",
+          "resume",
+          "retry_exhausted",
+          "retryable_failure",
+          "start",
+          "submit_for_verification",
+          "verify_fail",
+          "verify_fail_exhausted",
+          "verify_pass",
+          "wait"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "FatalError",
+          "GateRejected",
+          "RetryableError",
+          "TransitionRejected"
+        ],
+        "api_refs": [
+          "check_complete",
+          "connect",
+          "generate_tactical_learning_packet",
+          "get",
+          "register_guard",
+          "transition",
+          "validate_strategic_brief"
+        ]
+      }
     },
     {
       "id": "DU-02",
@@ -575,7 +633,82 @@
       "also_implements": [
         "SCM-02",
         "SCM-04"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "agent_executions",
+          "agents",
+          "config",
+          "evidence",
+          "external_operations",
+          "loop_runs",
+          "pair_plan_quality",
+          "sprints",
+          "state_transitions",
+          "strategic_briefs",
+          "tactical_learning_packets",
+          "tasks",
+          "workflows"
+        ],
+        "column_refs": [
+          "external_operations.status"
+        ],
+        "state_refs": [
+          "loop_runs.cancelled",
+          "loop_runs.completed",
+          "loop_runs.escalated",
+          "loop_runs.failed",
+          "loop_runs.pending",
+          "loop_runs.running",
+          "loop_runs.waiting",
+          "tasks.done",
+          "tasks.escalated",
+          "tasks.failed",
+          "tasks.in_progress",
+          "tasks.pending",
+          "tasks.verifying"
+        ],
+        "event_refs": [
+          "claim",
+          "complete",
+          "escalate",
+          "resume",
+          "retryable_failure",
+          "start",
+          "verify_fail",
+          "verify_fail_exhausted",
+          "wait"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "BriefSchemaRejected",
+          "FatalError",
+          "GateRejected",
+          "RetryableError",
+          "SelfReviewRejected",
+          "TaskIssuanceRejected"
+        ],
+        "api_refs": [
+          "assign",
+          "check_complete",
+          "claim",
+          "connect",
+          "generate_tactical_learning_packet",
+          "get",
+          "get_tactical_learning_packet",
+          "issue_strategic_brief",
+          "issue_task",
+          "load",
+          "record",
+          "register_guard",
+          "resume",
+          "run_microloop",
+          "run_step",
+          "supersede_strategic_brief",
+          "transition",
+          "validate_strategic_brief"
+        ]
+      }
     },
     {
       "id": "DU-03",
@@ -654,6 +787,29 @@
         ],
         "feature_design": [
           "features/state-machine.md"
+        ]
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "agents",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "agents.principal",
+          "tasks.verifier_agent_id"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "SelfReviewRejected",
+          "TaskIssuanceRejected"
+        ],
+        "api_refs": [
+          "assign",
+          "connect",
+          "issue_task"
         ]
       }
     },
@@ -786,6 +942,45 @@
           "features/external-operations.md",
           "features/campaign.md"
         ]
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "evidence",
+          "external_operations",
+          "state_transitions",
+          "tasks",
+          "workflows"
+        ],
+        "column_refs": [
+          "external_operations.status"
+        ],
+        "state_refs": [
+          "tasks.done",
+          "tasks.in_progress"
+        ],
+        "event_refs": [
+          "claim",
+          "escalate",
+          "resume"
+        ],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "ConnectorError",
+          "FatalError",
+          "GateRejected",
+          "RetryableError"
+        ],
+        "api_refs": [
+          "connect",
+          "get",
+          "load",
+          "record",
+          "resume",
+          "run_step"
+        ]
       }
     },
     {
@@ -878,7 +1073,7 @@
       "idempotency": "同一 (plan_id, review_evidence_id) の再成立要求は UNIQUE で拒否（冪等拒否）。require_pair は read-only で何度でも安全。revoke は変更検知時のみ 1 回作用",
       "retry_resume": "stateless 判定＋DB 行のみが状態。クラッシュ後は pair_plan_quality 現在行からの再判定（再実行安全）。revoked 後の復帰は再審査→再 establish のみ",
       "concurrency": "成立/失効は単独 transaction の行更新で直列化（kernel 単一 writer）。同時 establish は UNIQUE 制約が防衛。判定はコネクタ呼出し前に完了（拒否時は外部到達 0 回）",
-      "logging_evidence": "成立 = pair_plan_quality 行（review_task_id/review_evidence_id で審査に FK 接続）。拒否は operation_log 拒否行／例外＋構造化ログ（plan_id・事由コードのみ）",
+      "logging_evidence": "成立 = pair_plan_quality 行（review_task_id/review_evidence_id で審査に FK 接続）。拒否は 構造化ログの拒否行／例外＋構造化ログ（plan_id・事由コードのみ）",
       "depends_on_apis": [
         "DU-09: for_task(), exists()（review_pass/commit_hash 証跡の照合）",
         "DU-10: connect()"
@@ -910,6 +1105,37 @@
         "feature_design": [
           "features/campaign.md",
           "features/evidence.md"
+        ]
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "action_plans",
+          "evidence",
+          "pair_plan_quality",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "pair_plan_quality.status"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "commit_hash",
+          "review_pass"
+        ],
+        "error_type_refs": [
+          "CommitHashMismatch",
+          "FatalError",
+          "GateRejected"
+        ],
+        "api_refs": [
+          "connect",
+          "establish",
+          "exists",
+          "for_task",
+          "require_pair",
+          "revoke_if_changed"
         ]
       }
     },
@@ -965,7 +1191,7 @@
       "idempotency": "read-only 判定のため何度実行しても DB 不変・同一入力同一判定（決定的）",
       "retry_resume": "stateless で復旧不要。再実行は DB 現在状態（pair・証跡）からの再判定のみ",
       "concurrency": "競合なし（read-only）。判定と公開実行の間の pair 失効は、コネクタ側の PairPass 必須引数＋遷移 guard の再検証で防衛（二重ゲート）",
-      "logging_evidence": "拒否は operation_log 拒否行（plan_id・事由コード）と state_transitions rejected 行（遷移 guard 経由時）。成立はログのみ（証跡は既存の pair/evidence 行）",
+      "logging_evidence": "拒否は 構造化ログの拒否行（plan_id・事由コード）と state_transitions rejected 行（遷移 guard 経由時）。成立はログのみ（証跡は既存の pair/evidence 行）",
       "depends_on_apis": [
         "DU-05: require_pair()",
         "DU-09: for_task(), exists()（証跡完備の照合）",
@@ -1001,6 +1227,34 @@
         ],
         "feature_design": [
           "features/campaign.md"
+        ]
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "action_plans",
+          "evidence",
+          "pair_plan_quality",
+          "state_transitions"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [
+          "non_retryable_failure"
+        ],
+        "evidence_kind_refs": [
+          "commit_hash",
+          "review_pass"
+        ],
+        "error_type_refs": [
+          "CommitHashMismatch",
+          "EvidenceIncomplete"
+        ],
+        "api_refs": [
+          "check_publishable",
+          "connect",
+          "exists",
+          "for_task",
+          "require_pair"
         ]
       }
     },
@@ -1063,7 +1317,7 @@
       "idempotency": "純関数のため同一入力同一判定。何度実行しても安全",
       "retry_resume": "stateless・復旧対象なし。再実行は同一判定の再取得のみ",
       "concurrency": "競合なし（純関数）。DB CHECK（kpi_nodes.metric_type NOT IN ('cac','roas','ad_spend')）が並行経路の最終防衛",
-      "logging_evidence": "拒否は例外＋operation_log 拒否行（呼出し側が記録 — metric_type/URL と事由コードのみ、credential なし）",
+      "logging_evidence": "拒否は例外＋構造化ログの拒否行（呼出し側が記録 — metric_type/URL と事由コードのみ、credential なし）",
       "depends_on_apis": [],
       "trace": {
         "ac": [
@@ -1090,6 +1344,27 @@
         ],
         "feature_design": [
           "features/kpi-handoff.md"
+        ]
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "kpi_nodes",
+          "state_transitions"
+        ],
+        "column_refs": [
+          "kpi_nodes.metric_type"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "GateRejected",
+          "PaidMetricRejected"
+        ],
+        "api_refs": [
+          "check_domain",
+          "check_metric_type"
         ]
       }
     },
@@ -1171,6 +1446,33 @@
         ],
         "feature_design": [
           "features/evidence.md"
+        ]
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "state_transitions",
+          "tasks",
+          "workflows"
+        ],
+        "column_refs": [
+          "evidence.kind"
+        ],
+        "state_refs": [
+          "tasks.done",
+          "tasks.verifying"
+        ],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "EvidenceIncomplete",
+          "FatalError"
+        ],
+        "api_refs": [
+          "check_complete",
+          "connect",
+          "for_task",
+          "load"
         ]
       }
     },
@@ -1332,6 +1634,43 @@
         "feature_design": [
           "features/evidence.md"
         ]
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "agents",
+          "approvals",
+          "assets",
+          "config",
+          "evidence",
+          "external_operations",
+          "pair_plan_quality",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [
+          "escalate"
+        ],
+        "evidence_kind_refs": [
+          "approval",
+          "commit_hash",
+          "file_hash",
+          "operation_log",
+          "review_pass"
+        ],
+        "error_type_refs": [
+          "CredentialLeakDetected",
+          "GateRejected",
+          "SelfReviewRejected"
+        ],
+        "api_refs": [
+          "connect",
+          "exists",
+          "for_task",
+          "record",
+          "scan"
+        ]
       }
     },
     {
@@ -1346,7 +1685,7 @@
           ],
           "postcondition": [
             "PRAGMA foreign_keys=ON・journal_mode=WAL・busy_timeout（config.sqlite_busy_timeout_ms）を設定し row_factory を構成した Connection を返す（唯一の接続入口 — これを経ない接続経路をコード上に存在させない）",
-            "保護トリガ（config/evidence/state_transitions/strategic_briefs/tactical_learning_packets の append-only トリガ 11 本）の存在を確認してから返す"
+            "保護トリガ（config/evidence/state_transitions/strategic_briefs/tactical_learning_packets の append-only／整合トリガ 14 本）の存在を確認してから返す"
           ],
           "raises": [
             {
@@ -1405,7 +1744,28 @@
       },
       "also_implements": [
         "SCM-01"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "evidence",
+          "state_transitions",
+          "strategic_briefs",
+          "tactical_learning_packets"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [
+          "retryable_failure"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "FatalError"
+        ],
+        "api_refs": [
+          "connect"
+        ]
+      }
     },
     {
       "id": "DU-11",
@@ -1421,7 +1781,7 @@
           "postcondition": [
             "未適用の連番 SQL を順に適用し、適用ごとに version・migration_name・checksum_sha256・applied_at（clock）・applied_by を schema_version へ同一 transaction で INSERT",
             "適用済み version はスキップ（schema_version 照合による冪等再開 — version が冪等キー）",
-            "0001 適用後は 25 テーブル（業務 23＋インフラ 2）＋保護トリガ 11 本が成立する"
+            "0001 適用後は 25 テーブル（業務 23＋インフラ 2）＋保護トリガ 14 本が成立する"
           ],
           "raises": [
             {
@@ -1435,7 +1795,7 @@
           ],
           "pure": false,
           "ut": [
-            "test_db_migrate.py::test_apply_all_empty_db_creates_25_tables_and_11_triggers",
+            "test_db_migrate.py::test_apply_all_empty_db_creates_25_tables_and_14_triggers",
             "test_db_migrate.py::test_apply_all_records_version_checksum_applied_at_by",
             "test_db_migrate.py::test_apply_all_skips_applied_versions_idempotent",
             "test_db_migrate.py::test_apply_all_duplicate_version_stops_fatal",
@@ -1452,7 +1812,7 @@
             "conn は migration 適用済み DB への接続"
           ],
           "postcondition": [
-            "PRAGMA foreign_key_check／integrity_check 違反 0 件・25 テーブルと保護トリガ 11 本の存在・TLP 孤児検査（packet を持たない終端 lower run = 0 件）・相互整合検査（approvals.evidence_id ↔ approval 証跡、pair passed の review 証跡実在、measurements.evidence_id の kind=measurement）を全通過した場合のみ返る",
+            "PRAGMA foreign_key_check／integrity_check 違反 0 件・25 テーブルと保護トリガ 14 本の存在・TLP 孤児検査（packet を持たない終端 lower run = 0 件）・相互整合検査（approvals.evidence_id ↔ approval 証跡、pair passed の review 証跡実在、measurements.evidence_id の kind=measurement）を全通過した場合のみ返る",
             "検査はすべて read-only（何度でも安全・自動修復しない）"
           ],
           "raises": [
@@ -1541,7 +1901,7 @@
           "TCC-SR-11-6"
         ],
         "ut": [
-          "test_db_migrate.py::test_apply_all_empty_db_creates_25_tables_and_11_triggers",
+          "test_db_migrate.py::test_apply_all_empty_db_creates_25_tables_and_14_triggers",
           "test_db_migrate.py::test_apply_all_records_version_checksum_applied_at_by",
           "test_db_migrate.py::test_apply_all_skips_applied_versions_idempotent",
           "test_db_migrate.py::test_apply_all_duplicate_version_stops_fatal",
@@ -1563,7 +1923,41 @@
       },
       "also_implements": [
         "SCM-01"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "approvals",
+          "evidence",
+          "loop_runs",
+          "measurements",
+          "pair_plan_quality",
+          "schema_version",
+          "state_transitions",
+          "strategic_briefs",
+          "tactical_learning_packets"
+        ],
+        "column_refs": [
+          "approvals.evidence_id",
+          "measurements.evidence_id"
+        ],
+        "state_refs": [],
+        "event_refs": [
+          "escalate"
+        ],
+        "evidence_kind_refs": [
+          "approval",
+          "measurement"
+        ],
+        "error_type_refs": [
+          "FatalError",
+          "MigrationChecksumMismatch"
+        ],
+        "api_refs": [
+          "apply_all",
+          "connect",
+          "verify"
+        ]
+      }
     },
     {
       "id": "DU-12",
@@ -1667,6 +2061,25 @@
         ],
         "feature_design": [
           "features/brand-isolation.md"
+        ]
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "state_transitions"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "ConfigReasonMissing",
+          "GateRejected"
+        ],
+        "api_refs": [
+          "connect",
+          "get",
+          "set"
         ]
       }
     },
@@ -1775,6 +2188,31 @@
         ],
         "feature_design": [
           "external-operations.md"
+        ]
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "playbooks",
+          "state_transitions"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [
+          "escalate",
+          "non_retryable_failure"
+        ],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "PaidRouteDenied"
+        ],
+        "api_refs": [
+          "connect",
+          "get",
+          "list_declared",
+          "resolve"
         ]
       }
     },
@@ -1919,6 +2357,40 @@
         "feature_design": [
           "external-operations.md",
           "brand-isolation.md"
+        ]
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "approvals",
+          "assets",
+          "config",
+          "evidence",
+          "external_operations",
+          "measurements",
+          "playbooks",
+          "spend_ledger",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [
+          "escalate"
+        ],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "CredentialEndpointMismatch",
+          "CredentialLeakDetected"
+        ],
+        "api_refs": [
+          "check_endpoint",
+          "connect",
+          "get",
+          "get_credential",
+          "mask",
+          "scan"
         ]
       }
     },
@@ -2078,6 +2550,45 @@
           "external-operations.md",
           "brand-isolation.md"
         ]
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "external_operations",
+          "state_transitions"
+        ],
+        "column_refs": [
+          "external_operations.status"
+        ],
+        "state_refs": [],
+        "event_refs": [
+          "escalate",
+          "retryable_failure"
+        ],
+        "evidence_kind_refs": [
+          "file_hash",
+          "operation_log",
+          "screenshot"
+        ],
+        "error_type_refs": [
+          "CrossProfileAccessDenied",
+          "FatalError",
+          "RetryableError"
+        ],
+        "api_refs": [
+          "check_domain",
+          "check_endpoint",
+          "connect",
+          "get",
+          "get_credential",
+          "launch",
+          "record",
+          "record_failure",
+          "record_success",
+          "resolve",
+          "run_playbook",
+          "screenshot"
+        ]
       }
     },
     {
@@ -2203,6 +2714,32 @@
         "feature_design": [
           "external-operations.md"
         ]
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "external_operations",
+          "playbooks",
+          "state_transitions"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [
+          "escalate"
+        ],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "FatalError",
+          "PlaybookMissing"
+        ],
+        "api_refs": [
+          "connect",
+          "get",
+          "record_failure",
+          "record_success"
+        ]
       }
     },
     {
@@ -2266,7 +2803,7 @@
           "raises": [
             {
               "type": "ApprovalRequired",
-              "when": "ApprovalPass 未提示・無効での公開要求（kind=blocked — 外部送信 0 回で拒否し operation_log に理由記録）"
+              "when": "ApprovalPass 未提示・無効での公開要求（kind=blocked — 外部送信 0 回で拒否し 拒否理由を構造化ログ（FN-704）へ記録）"
             },
             {
               "type": "PairRequired",
@@ -2424,6 +2961,52 @@
           "external-operations.md",
           "evidence.md"
         ]
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "assets",
+          "config",
+          "evidence",
+          "external_operations",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "external_operations.status"
+        ],
+        "state_refs": [
+          "tasks.escalated",
+          "tasks.verifying"
+        ],
+        "event_refs": [
+          "escalate"
+        ],
+        "evidence_kind_refs": [
+          "operation_log",
+          "published_url"
+        ],
+        "error_type_refs": [
+          "ApprovalRequired",
+          "FatalError",
+          "IntegrityError",
+          "PairRequired",
+          "ProductionWriteDenied",
+          "RetryableError"
+        ],
+        "api_refs": [
+          "check_endpoint",
+          "check_publishable",
+          "connect",
+          "create_draft",
+          "get",
+          "get_credential",
+          "publish",
+          "record",
+          "register_asset",
+          "require_pair",
+          "resolve",
+          "upload_media"
+        ]
       }
     },
     {
@@ -2557,6 +3140,49 @@
           "external-operations.md",
           "brand-isolation.md"
         ]
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "approvals",
+          "config",
+          "evidence",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "approvals.decision",
+          "approvals.evidence_id"
+        ],
+        "state_refs": [
+          "tasks.escalated",
+          "tasks.failed",
+          "tasks.pending"
+        ],
+        "event_refs": [
+          "escalate",
+          "non_retryable_failure",
+          "resume",
+          "wait"
+        ],
+        "evidence_kind_refs": [
+          "approval",
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "ApprovalBindingMismatch",
+          "ApprovalRejected",
+          "ApprovalRetryExhausted",
+          "FatalError"
+        ],
+        "api_refs": [
+          "connect",
+          "get",
+          "poll",
+          "record",
+          "request",
+          "rerequest_on_expired",
+          "transition"
+        ]
       }
     },
     {
@@ -2638,6 +3264,28 @@
         ],
         "feature_design": [
           "campaign.md"
+        ]
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "state_transitions"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [
+          "verify_fail"
+        ],
+        "evidence_kind_refs": [
+          "commit_hash",
+          "plan_record"
+        ],
+        "error_type_refs": [
+          "FatalError",
+          "UnversionedSourceRejected"
+        ],
+        "api_refs": [
+          "generate",
+          "link"
         ]
       }
     },
@@ -2777,6 +3425,31 @@
           "evidence.md",
           "campaign.md"
         ]
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "state_transitions"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "commit_hash",
+          "review_pass"
+        ],
+        "error_type_refs": [
+          "FatalError",
+          "GateRejected"
+        ],
+        "api_refs": [
+          "commit_workspace",
+          "connect",
+          "link",
+          "record",
+          "restore",
+          "tree"
+        ]
       }
     },
     {
@@ -2902,6 +3575,32 @@
           "kpi-handoff.md",
           "brand-isolation.md"
         ]
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "business_profiles",
+          "config",
+          "kpi_nodes",
+          "measurements",
+          "pair_kpi_measure",
+          "state_transitions"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "FatalError",
+          "IntegrityError",
+          "PaidMetricRejected"
+        ],
+        "api_refs": [
+          "archive_node",
+          "check_metric_type",
+          "connect",
+          "create_node",
+          "tree"
+        ]
       }
     },
     {
@@ -3015,6 +3714,47 @@
         "feature_design": [
           "kpi-handoff.md",
           "external-operations.md"
+        ]
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "evidence",
+          "external_operations",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [],
+        "state_refs": [
+          "tasks.failed"
+        ],
+        "event_refs": [
+          "escalate",
+          "start"
+        ],
+        "evidence_kind_refs": [
+          "file_hash",
+          "operation_log",
+          "screenshot"
+        ],
+        "error_type_refs": [
+          "CredentialEndpointMismatch",
+          "FatalError",
+          "GateRejected",
+          "RetryableError"
+        ],
+        "api_refs": [
+          "check_endpoint",
+          "connect",
+          "fetch",
+          "get",
+          "get_credential",
+          "ingest",
+          "launch",
+          "record",
+          "request",
+          "resolve",
+          "screenshot"
         ]
       }
     },
@@ -3141,7 +3881,46 @@
           "kpi-handoff.md",
           "evidence.md"
         ]
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "kpi_nodes",
+          "measurements",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [],
+        "state_refs": [
+          "tasks.failed"
+        ],
+        "event_refs": [
+          "non_retryable_failure"
+        ],
+        "evidence_kind_refs": [
+          "file_hash",
+          "measurement"
+        ],
+        "error_type_refs": [
+          "FatalError",
+          "GateRejected"
+        ],
+        "api_refs": [
+          "check_metric_type",
+          "connect",
+          "ingest",
+          "parse",
+          "record"
+        ]
       }
     }
-  ]
+  ],
+  "status": "confirmed",
+  "approved_at": "2026-08-01T00:00:00+09:00",
+  "authority": "PO",
+  "supersedes": [
+    "docs/design/json/utest.json",
+    "docs/design/detailed-design_v0.1.md §3（API 正本宣言）"
+  ],
+  "approval_digest": "4d1ef4b6c613"
 }

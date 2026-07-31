@@ -2,7 +2,7 @@
 
 # 受入条件 検証契約カタログ（AC contracts）v0.1
 
-> status: **draft（再降下中）**（2026-08-01 全層再降下 §4 — JSON 内容正本の生成ビュー）
+> status: **confirmed**（2026-08-01 PO 承認 — receipt f45a142308b6）。JSON 内容正本の生成ビュー（全層再降下 §4）
 > 各 AC に GWT＋fixture・観測点・期待状態・DB 差分・証跡・禁止副作用・エラー型・対象更新を必須化
 > （G-AC-COVERAGE／G-AC-POLARITY）。既存 AC-01〜19（json/ac.json）は履歴として保持。
 
@@ -60,7 +60,7 @@
 - **Given**: pair_plan_quality（status = passed）が未成立の action plan に対する T-PUB 発行要求 ／ **When**: T-PUB タスクの発行を実行する ／ **Then**: TaskIssuanceRejected で発行段階で拒否され、tasks に行が作られない（T-R2 — 審査 PASS ペアなしに T-PUB は生成されない）
 - **fixture**: seed: action_plans 1 行、pair_plan_quality 0 行、workflows に WF-WP-2（status='active'）、loop_runs 1 行（state='running'）
 - **観測点**: raise される例外型／tasks SELECT 件数 ／ **期待状態**: T-PUB の tasks 行が存在しない
-- **期待 DB 差分**: 差分なし（tasks 0 行増） ／ **期待証跡**: なし（発行前拒否 — 外部操作ではないため operation_log 対象外）
+- **期待 DB 差分**: 差分なし（tasks 0 行増） ／ **期待証跡**: なし（発行前拒否 — 外部操作ではないため evidence（operation_log kind）の対象外）
 - **禁止副作用**: tasks への T-PUB 行 INSERT・WP コネクタの呼出し ／ **エラー型**: TaskIssuanceRejected
 - **対象更新**: S0.1（CMP-02）＋S0.2 の公開系回帰／T-R2 ガード ／ **TC**: TCC-12-2
 
@@ -116,7 +116,7 @@
 - **Given**: verifying の task に対し、author と同一 principal に属する execution からの verify_pass（PASS 判定）要求 ／ **When**: verify_pass イベントを適用する ／ **Then**: SelfReviewRejected で PASS が拒否され、task は verifying のまま state・retry_count は不変で、拒否が記録される（PASS 判定者は常に author と別 principal — FR-27）
 - **fixture**: seed: author agent A1（principal P1）と同一 P1 の agent A2、A1 作成の verifying task、A2 execution からの PASS 要求
 - **観測点**: raise される例外型／tasks SELECT（status・retry_count）／state_transitions ／ **期待状態**: task は verifying のまま（done へ遷移しない）
-- **期待 DB 差分**: state_transitions に guard_result = rejected 1 行 ／ **期待証跡**: operation_log の拒否行（自己審査 PASS 拒否）
+- **期待 DB 差分**: state_transitions に guard_result = rejected 1 行 ／ **期待証跡**: 拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）（自己審査 PASS 拒否）
 - **禁止副作用**: done への遷移・review_pass 証跡の生成 ／ **エラー型**: SelfReviewRejected
 - **対象更新**: S0.1（審査ゲート）／verify_pass ガード ／ **TC**: TCC-13-4
 
@@ -124,7 +124,7 @@
 
 - **Given**: 検証 FAIL の差戻し要求から差戻し理由（reason）と verifier 証跡参照を除いた入力 ／ **When**: verify_fail 遷移を要求する ／ **Then**: 理由・証跡のない FAIL 遷移は VerificationEvidenceMissing で拒否され、task は verifying のまま
 - **fixture**: seed: verifying 状態の task 1 件、reason=None・evidence_id=None の遷移要求
-- **観測点**: raise される例外型／tasks.status／state_transitions 件数 ／ **期待状態**: task は verifying のまま
+- **観測点**: raise される例外型／tasks.state／state_transitions 件数 ／ **期待状態**: task は verifying のまま
 - **期待 DB 差分**: state_transitions 差分なし・tasks 差分なし ／ **期待証跡**: 拒否の構造化ログ（理由欠落）
 - **禁止副作用**: 理由なし差戻しの成立・retry_count の増加 ／ **エラー型**: VerificationEvidenceMissing
 - **対象更新**: S0.1（検証マイクロループ） ／ **TC**: TCC-13-5
@@ -229,7 +229,7 @@
 
 - **Given**: 承認 decision = rejected を受けた task ／ **When**: escalate 遷移（人へのエスカレーション）を要求する ／ **Then**: rejected は escalate 経路に乗らず TransitionRejected となり、non_retryable_failure 経由の failed のみが許される
 - **fixture**: seed: approvals.decision='rejected' に紐づく in_progress task
-- **観測点**: raise される例外型／tasks.status ／ **期待状態**: task は in_progress のまま（escalated にならない）
+- **観測点**: raise される例外型／tasks.state ／ **期待状態**: task は in_progress のまま（escalated にならない）
 - **期待 DB 差分**: tasks 差分なし ／ **期待証跡**: 拒否の構造化ログ（rejected は escalate 対象外）
 - **禁止副作用**: rejected からの escalated 遷移の成立 ／ **エラー型**: TransitionRejected
 - **対象更新**: S0.1（異常検知・エスカレーション） ／ **TC**: TCC-16-4
@@ -259,8 +259,8 @@
 - **Given**: action plan 1 件、commit hash が一致する review_pass 証跡、pair_plan_quality に status = passed の成立ペア ／ **When**: 公開系コネクタが成立ペア ID つきで公開前検証を実行する ／ **Then**: 検証は通過し、WP 下書き作成（外部操作の prepared 化）へ進める
 - **fixture**: seed: action_plans 1 行、T-REVIEW done ＋ evidence(review_pass, commit_hash=制作 hash)、pair_plan_quality(plan_id, review_evidence_id, status='passed')
 - **観測点**: 公開前検証 API の戻り値／external_operations SELECT／operation_log 件数 ／ **期待状態**: T-PUB が公開ステップへ進行可能（pair 検証 PASS）
-- **期待 DB 差分**: pair_plan_quality 差分なし（既存行を根拠に通過）、operation_log 拒否行なし ／ **期待証跡**: なし（正常通過は既存 pair 行が根拠）
-- **禁止副作用**: pair 行の変更・operation_log への拒否行追加 ／ **エラー型**: なし
+- **期待 DB 差分**: pair_plan_quality 差分なし（既存行を根拠に通過）、構造化ログの拒否行なし ／ **期待証跡**: なし（正常通過は既存 pair 行が根拠）
+- **禁止副作用**: pair 行の変更・構造化ログ以外への拒否記録（evidence への拒否行の混入）追加 ／ **エラー型**: なし
 - **対象更新**: S0.2（ゲート層）／pair_plan.check_established・公開前検証 ／ **TC**: TCC-21-1
 
 ### AC-21-2（拒否）
@@ -268,7 +268,7 @@
 - **Given**: review_pass 証跡も pair_plan_quality 行も存在しない action plan ／ **When**: 公開系コネクタがペア ID なしで公開呼び出しを実行する ／ **Then**: PairNotEstablished で拒否され、WP API は一度も呼ばれず、T-PUB は non_retryable_failure で failed になる
 - **fixture**: seed: action_plans 1 行のみ（tasks/evidence/pair なし）、T-PUB task を verifying 前の公開検証に投入
 - **観測点**: raise される例外型／external_operations SELECT（0 行）／state_transitions・operation_log SELECT ／ **期待状態**: T-PUB = failed（failure_code = pair 不成立）
-- **期待 DB 差分**: state_transitions +1 行（failed 遷移）、operation_log +1 行（拒否）、external_operations 差分なし ／ **期待証跡**: operation_log 拒否行（plan_id・理由 = pair 不成立）
+- **期待 DB 差分**: state_transitions +1 行（failed 遷移）、構造化ログ +1 行（拒否）、external_operations 差分なし ／ **期待証跡**: 構造化ログの拒否行（plan_id・理由 = pair 不成立）
 - **禁止副作用**: WP API 呼出し（external_operations への行追加）・pair_plan_quality への行追加 ／ **エラー型**: PairNotEstablished
 - **対象更新**: S0.2（ゲート層）／公開ゲート FN-202 ／ **TC**: TCC-21-2
 
@@ -277,7 +277,7 @@
 - **Given**: 成立済み pair（passed）を持つ plan の記事を再 commit（内容変更）して pair が revoked 化された状態 ／ **When**: 旧ペア ID を根拠に公開前検証を実行し、その後、再審査 PASS で新 pair を成立させて再実行する ／ **Then**: revoked ペアでの公開は PairNotEstablished で拒否され、再審査後の新 pair でのみ通過する（復旧経路 = 再審査のみ）
 - **fixture**: seed: pair_plan_quality(status='revoked') 1 行 → 再審査 T-REVIEW done ＋新 review_pass ＋新 pair(passed) を追加投入
 - **観測点**: 1 回目の例外型／2 回目の検証戻り値／pair_plan_quality SELECT ／ **期待状態**: 1 回目拒否・2 回目通過。revoked 行は revoked のまま保持（履歴保持）
-- **期待 DB 差分**: pair_plan_quality +1 行（新 passed）、operation_log +1 行（1 回目拒否） ／ **期待証跡**: operation_log 拒否行（理由 = pair revoked）＋新 review_pass 証跡
+- **期待 DB 差分**: pair_plan_quality +1 行（新 passed）、構造化ログ +1 行（1 回目拒否） ／ **期待証跡**: 構造化ログの拒否行（理由 = pair revoked）＋新 review_pass 証跡
 - **禁止副作用**: revoked 行の passed への書き戻し・revoked ペアでの外部書込み ／ **エラー型**: PairNotEstablished（1 回目）／なし（2 回目）
 - **対象更新**: S0.2（ゲート層）／pair 失効と再成立 ／ **TC**: TCC-21-3
 
@@ -335,8 +335,8 @@
 - **Given**: 有料指標を含まない KPI ノード定義（例: 週間表示回数）と、許可リストに含まれる URL ／ **When**: KPI 登録とブラウザ遷移判定を実行する ／ **Then**: 登録は成功し、遷移は許可され、拒否ログは増えない
 - **fixture**: seed: config.url_allowlist=['blog.example.test']、kpi_nodes 空
 - **観測点**: 登録 API 戻り値／kpi_nodes SELECT／operation_log 件数 ／ **期待状態**: kpi_nodes に 1 行（非有料型）
-- **期待 DB 差分**: kpi_nodes +1 行、operation_log 差分なし ／ **期待証跡**: なし（正常通過は証跡不要）
-- **禁止副作用**: operation_log への拒否行の追加 ／ **エラー型**: なし
+- **期待 DB 差分**: kpi_nodes +1 行、構造化ログ差分なし ／ **期待証跡**: なし（正常通過は証跡不要）
+- **禁止副作用**: 外部操作証跡（operation_log kind）の記録 ／ **エラー型**: なし
 - **対象更新**: S0.2（ゲート層）／zero_ad.check_metric・check_url ／ **TC**: TCC-23-1
 
 ### AC-23-2（拒否）
@@ -344,7 +344,7 @@
 - **Given**: 有料指標型（ROAS）の KPI ノード定義と、許可リスト外の広告マネージャ URL ／ **When**: KPI 登録とブラウザ遷移判定を実行する ／ **Then**: 登録は PaidMetricRejected、遷移は UrlDenied で拒否され、それぞれ operation_log に理由が残る
 - **fixture**: seed: config.url_allowlist=['blog.example.test']、登録要求 = {type:'ROAS'}、URL='`https://ads.example.com`'
 - **観測点**: raise される例外型／operation_log SELECT ／ **期待状態**: kpi_nodes 空のまま
-- **期待 DB 差分**: operation_log +2 行（指標拒否・URL 拒否） ／ **期待証跡**: operation_log 拒否行（指標名・URL・理由）
+- **期待 DB 差分**: operation_log +2 行（指標拒否・URL 拒否） ／ **期待証跡**: 構造化ログの拒否行（指標名・URL・理由）
 - **禁止副作用**: kpi_nodes への行追加・外部への実遷移 ／ **エラー型**: PaidMetricRejected／UrlDenied
 - **対象更新**: S0.2（ゲート層） ／ **TC**: TCC-23-2
 
@@ -353,7 +353,7 @@
 - **Given**: config.url_allowlist が空（未設定）の状態 ／ **When**: 任意の URL への遷移判定を実行する ／ **Then**: deny-by-default によりすべて拒否される（判定不能は通さない側へ倒れる）
 - **fixture**: seed: config から url_allowlist 行を削除
 - **観測点**: raise される例外型／operation_log SELECT ／ **期待状態**: 遷移 0 件許可
-- **期待 DB 差分**: operation_log +1 行（拒否） ／ **期待証跡**: operation_log 拒否行（理由 = allowlist 未設定）
+- **期待 DB 差分**: 構造化ログ +1 行（拒否） ／ **期待証跡**: 構造化ログの拒否行（理由 = allowlist 未設定）
 - **禁止副作用**: URL 許可（fail-open） ／ **エラー型**: UrlDenied
 - **対象更新**: S0.2（ゲート層） ／ **TC**: TCC-23-3
 
@@ -382,8 +382,8 @@
 - **Given**: ASP ドメインへのアフィリエイトリンクと規定の PR 表記ブロックを両方含む commit 固定済み記事 ／ **When**: 公開前の PR 表記検証を実行する ／ **Then**: 表記検証に合格して公開ゲートを通過し、拒否ログは増えない
 - **fixture**: seed: config.affiliate_domainlist=['asp.example.test']、記事 HTML に アフィリエイトリンク（`https://asp.example.test/...`） と PR 表記ブロック（必須文言）を含む fixture ファイル
 - **観測点**: 検証 API の戻り値／operation_log 件数 ／ **期待状態**: T-PUB が公開ステップへ進行可能（表記検証 PASS）
-- **期待 DB 差分**: operation_log 差分なし ／ **期待証跡**: なし（正常通過。審査側 review_pass の checked_items に表記検証結果）
-- **禁止副作用**: operation_log への拒否行追加・表記なしでの通過 ／ **エラー型**: なし
+- **期待 DB 差分**: 構造化ログ差分なし ／ **期待証跡**: なし（正常通過。審査側 review_pass の checked_items に表記検証結果）
+- **禁止副作用**: 構造化ログ以外への拒否記録（evidence への拒否行の混入）追加・表記なしでの通過 ／ **エラー型**: なし
 - **対象更新**: S1（ゲート層）／pr_label.check ／ **TC**: TCC-24-1
 
 ### AC-24-2（拒否）
@@ -391,7 +391,7 @@
 - **Given**: ASP ドメインへのアフィリエイトリンクを含み PR 表記ブロックがない記事 ／ **When**: 公開前の PR 表記検証を実行する ／ **Then**: PrLabelMissing で公開ゲートを通過せず、operation_log に検出リンクと欠落規則が記録され、外部書込みは発生しない
 - **fixture**: seed: config.affiliate_domainlist=['asp.example.test']、記事 HTML にリンクのみ・表記ブロックなし
 - **観測点**: raise される例外型／operation_log SELECT／external_operations SELECT（0 行） ／ **期待状態**: T-PUB = failed（non_retryable_failure）
-- **期待 DB 差分**: operation_log +1 行（拒否）、external_operations 差分なし ／ **期待証跡**: operation_log 拒否行（commit hash・検出リンク・欠落規則）
+- **期待 DB 差分**: 構造化ログ +1 行（拒否）、external_operations 差分なし ／ **期待証跡**: 構造化ログの拒否行（commit hash・検出リンク・欠落規則）
 - **禁止副作用**: WP API 呼出し・表記なし成果物の公開ゲート通過 ／ **エラー型**: PrLabelMissing
 - **対象更新**: S1（ゲート層）／pr_label.check ／ **TC**: TCC-24-2
 
@@ -400,7 +400,7 @@
 - **Given**: config.affiliate_domainlist が未設定（config 行なし）の状態と、短縮 URL 経由で ASP へリダイレクトするリンクを含む記事 ／ **When**: 公開前の PR 表記検証を実行し、その後リストを設定して再実行する ／ **Then**: リスト未設定時は判定不能として公開を拒否（fail-close）し、リスト設定後は展開後の最終 URL で ASP 該当と判定して表記検証が適用される
 - **fixture**: seed: config から affiliate_domainlist 行を削除 → 再実行前に config INSERT（履歴追加）で設定、短縮 URL fixture（リダイレクト mock）
 - **観測点**: 1 回目の例外型／2 回目の判定結果（最終 URL での ASP 該当）／operation_log SELECT ／ **期待状態**: 1 回目 = 拒否（判定不能）、2 回目 = 表記有無に応じた通常判定
-- **期待 DB 差分**: operation_log +1 行（1 回目拒否）、config +1 行（リスト設定 — INSERT 履歴） ／ **期待証跡**: operation_log 拒否行（理由 = domainlist 未設定）
+- **期待 DB 差分**: 構造化ログ +1 行（1 回目拒否）、config +1 行（リスト設定 — INSERT 履歴） ／ **期待証跡**: 構造化ログの拒否行（理由 = domainlist 未設定）
 - **禁止副作用**: リスト未設定での通過（fail-open）・展開前 URL のみでの非該当判定 ／ **エラー型**: PrLabelMissing（判定不能時も拒否種別を統一）
 - **対象更新**: S1（ゲート層）／domainlist 未設定の fail-close とリダイレクト展開判定 ／ **TC**: TCC-24-3
 
@@ -601,7 +601,7 @@
 - **Given**: fill=R 指定スロット（例: 媒体標準指標）と、出典 URL・取得日時つきの Web 検索結果（鮮度 90 日以内） ／ **When**: リサーチ起草を実行する ／ **Then**: 全値に出典 URL が紐付いた draft が生成され、structure_checked 日付が付与され、拒否ログは増えない
 - **fixture**: seed: config.source_freshness_days=90、検索結果 mock = [{value:'CTR 中央値 1.5%', url:'`https://source.example.test/report`', fetched_at:今日}]
 - **観測点**: draft の出典 URL 列／structure_checked 日付／構造化ログ件数 ／ **期待状態**: draft 1 件（全値出典つき・未昇格の draft 状態）
-- **期待 DB 差分**: draft +1 件、evidence +1 行（operation_log — Web 取得） ／ **期待証跡**: draft の出典 URL 列＋取得の operation_log 証跡
+- **期待 DB 差分**: draft +1 件、evidence +1 行（operation_log — Web 取得） ／ **期待証跡**: draft の出典 URL 列＋Web 取得の外部操作証跡（evidence kind = operation_log）
 - **禁止副作用**: draft の正本への自動昇格・外部への書込み ／ **エラー型**: なし
 - **対象更新**: S1（リサーチエンジン）／fillers.draft_research ／ **TC**: TCC-32-1
 
@@ -715,8 +715,8 @@
 - **Given**: config に notion のレジストリ行（優先 mcp・fallback browser）が投入済みで、経路をコードに埋め込んだ分岐が存在しない状態 ／ **When**: notion の経路解決を実行し、その後 config INSERT で優先経路を browser に変更して再解決する ／ **Then**: 1 回目は mcp、2 回目は browser が返り、切替はレジストリ行の変更のみで反映される（コード変更なし — AC-41 原文）
 - **fixture**: seed: config('registry.notion', {"primary":"mcp","fallback":"browser","auth":"mcp_oauth"})、変更は同 key の config INSERT（履歴保持）
 - **観測点**: resolve_route の戻り値（route_type）／config SELECT（2 行の履歴）／operation_log 件数 ／ **期待状態**: 最新 config 行の宣言どおりの経路が返る
-- **期待 DB 差分**: config +1 行（経路変更 INSERT）。operation_log 差分なし ／ **期待証跡**: なし（正常解決は証跡不要）
-- **禁止副作用**: コード側分岐による経路決定・operation_log への拒否行追加・外部 HTTP 呼出（0 回） ／ **エラー型**: なし
+- **期待 DB 差分**: config +1 行（経路変更 INSERT）。構造化ログ差分なし ／ **期待証跡**: なし（正常解決は証跡不要）
+- **禁止副作用**: コード側分岐による経路決定・構造化ログ以外への拒否記録（evidence への拒否行の混入）追加・外部 HTTP 呼出（0 回） ／ **エラー型**: なし
 - **対象更新**: S0.2（CMP-07 接続レジストリ）／registry.resolve_route ／ **TC**: TCC-41-1
 
 ### AC-41-2（拒否）
@@ -724,7 +724,7 @@
 - **Given**: レジストリ未登録のサービス（unknown_svc）と、有償 API 例外宣言を持たないサービス（note）への有償経路要求 ／ **When**: unknown_svc の経路解決と、note の route_type=api（有償）強制解決を要求する ／ **Then**: 前者は RouteNotRegistered、後者は PaidRouteDenied で拒否され、いずれも operation_log に理由が残る
 - **fixture**: seed: config('registry.note', {"primary":"browser"})（paid_exception なし）、unknown_svc の registry 行なし
 - **観測点**: raise される例外型／operation_log SELECT（service・理由） ／ **期待状態**: 経路は 1 件も返却されない
-- **期待 DB 差分**: operation_log +2 行（未登録拒否・有償経路拒否） ／ **期待証跡**: operation_log 拒否行（service・要求経路・理由）
+- **期待 DB 差分**: operation_log +2 行（未登録拒否・有償経路拒否） ／ **期待証跡**: 構造化ログの拒否行（service・要求経路・理由）
 - **禁止副作用**: 有償 API への接続試行（外部 HTTP 呼出 0 回）・spend_ledger への行追加 ／ **エラー型**: RouteNotRegistered／PaidRouteDenied
 - **対象更新**: S0.2（CMP-07 接続レジストリ） ／ **TC**: TCC-41-2
 
@@ -733,7 +733,7 @@
 - **Given**: registry.gtm の JSON 値が破損（json_valid 不成立相当の型不一致）しており、fallback 宣言のないサービス（instagram）の第一経路が失敗通知済みの状態 ／ **When**: gtm と instagram の経路解決を実行する ／ **Then**: 破損行は解決不能として拒否（fail-close — 推測で経路を返さない）、fallback なしの第一経路失敗は RouteNotRegistered で経路なしとなり呼出元を escalated 誘導する
 - **fixture**: seed: config('registry.gtm', "broken-not-json")、config('registry.instagram', {"primary":"api","paid_exception":false}) ＋ instagram 第一経路の失敗通知
 - **観測点**: raise される例外型／operation_log SELECT ／ **期待状態**: 両要求とも経路返却 0 件
-- **期待 DB 差分**: operation_log +2 行（破損拒否・経路なし） ／ **期待証跡**: operation_log 拒否行（理由 = registry 行破損／fallback なし）
+- **期待 DB 差分**: operation_log +2 行（破損拒否・経路なし） ／ **期待証跡**: 構造化ログの拒否行（理由 = registry 行破損／fallback なし）
 - **禁止副作用**: 破損行からの部分的な経路返却（fail-open）・外部 HTTP 呼出（0 回） ／ **エラー型**: RouteNotRegistered
 - **対象更新**: S0.2（CMP-07 接続レジストリ） ／ **TC**: TCC-41-3
 
@@ -742,7 +742,7 @@
 - **Given**: X（旧 Twitter）のブラウザ書込み経路（service='x', route_type='browser', write=true）をレジストリへ登録する要求 ／ **When**: レジストリ行の登録を実行する ／ **Then**: 登録要求自体が XBrowserRouteDenied で拒否され、registry に行が作られない（BR-M-X-4 — X のブラウザ書込み経路は登録できない）
 - **fixture**: seed: 空の x 経路レジストリ、登録要求 = {service:'x', route_type:'browser', operation:'write'}
 - **観測点**: raise される例外型／registry SELECT（x の browser 書込み行 0 件）／operation_log ／ **期待状態**: registry 不変（x の browser 書込み行なし）
-- **期待 DB 差分**: operation_log に拒否 1 行 ／ **期待証跡**: operation_log の拒否行（BR-M-X-4 理由つき）
+- **期待 DB 差分**: operation_log に拒否 1 行 ／ **期待証跡**: 拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）（BR-M-X-4 理由つき）
 - **禁止副作用**: x の browser 書込み経路行の混入・後続経路解決での採用 ／ **エラー型**: XBrowserRouteDenied
 - **対象更新**: S0.1（経路レジストリ）／登録検証 ／ **TC**: TCC-41-4
 
@@ -780,7 +780,7 @@
 - **Given**: X への書込み操作要求と、当日すでに書込み 10 件（上限）に達した note への 11 件目の書込み要求 ／ **When**: 両方の書込み系ブラウザ操作を実行する ／ **Then**: X は ProhibitedMediaWrite（BR-M-X-4）、note は RateLimitExceeded で拒否され、外部送信は 0 回で operation_log に理由が残る
 - **fixture**: seed: 当日分 external_operations に note 書込み confirmed 10 行、X 用 playbook は書込み系を投入しない、config.rate.note.daily_write_cap=10
 - **観測点**: raise される例外型／operation_log SELECT／external_operations 件数 ／ **期待状態**: external_operations に新規 sent/confirmed 行なし
-- **期待 DB 差分**: operation_log +2 行（X 拒否・上限拒否）。external_operations 差分なし ／ **期待証跡**: operation_log 拒否行（media・理由 = prohibited／daily_cap）
+- **期待 DB 差分**: operation_log +2 行（X 拒否・上限拒否）。external_operations 差分なし ／ **期待証跡**: 構造化ログの拒否行（media・理由 = prohibited／daily_cap）
 - **禁止副作用**: 外部サイトへのブラウザ書込み送信（0 回）・playbooks.last_success_at の更新 ／ **エラー型**: ProhibitedMediaWrite／RateLimitExceeded
 - **対象更新**: S1（CMP-08 ブラウザ基盤） ／ **TC**: TCC-42-2
 
@@ -788,7 +788,7 @@
 
 - **Given**: 書込み送信直後に external_operations が sent のままプロセスが強制終了し、mock 媒体側では操作が成功済みの状態（最危険 kill point） ／ **When**: 再起動後に §3.3 の再開規則で当該操作を照合・再開する ／ **Then**: リモート照合（idempotency key / remote object ID）で成功が確認され confirmed 化＋証跡補完され、再送は発生しない。照合不能ケースは unknown とし escalate する
 - **fixture**: seed: external_operations(status='sent', idempotency_key='k1') 1 行＋mock 媒体に k1 成功応答、照合不能ケース用に mock が k2 を未知と応答する sent 行 1 行
-- **観測点**: external_operations.status SELECT／mock 媒体の受信回数カウンタ／tasks.status ／ **期待状態**: k1 = confirmed、k2 = unknown で対象タスク escalated
+- **観測点**: external_operations.status SELECT／mock 媒体の受信回数カウンタ／tasks.state ／ **期待状態**: k1 = confirmed、k2 = unknown で対象タスク escalated
 - **期待 DB 差分**: external_operations 2 行 UPDATE（confirmed/unknown）、operation_log +2 行（照合結果）、state_transitions +1 行（escalate） ／ **期待証跡**: operation_log 行（照合結果・external_operation_id 補完）
 - **禁止副作用**: 同一 idempotency key の再送（mock 受信カウンタ増加 0）・unknown の confirmed 化 ／ **エラー型**: なし（k2 側は escalate 遷移 — OperationUnverifiable 記録）
 - **対象更新**: S1（CMP-08）／recovery.reconcile_sent ／ **TC**: TCC-42-3 TCC-RESUME-1
@@ -808,7 +808,7 @@
 
 - **Given**: 再解析しても検証手順が通らない mock ページ（対象要素が存在しない）と、破損通知済みの playbooks 行 ／ **When**: 自己修復を実行し 1 回目の再生成が失敗する ／ **Then**: 追加試行は行われず playbook は broken のまま、対象タスクが escalated に遷移し FR-46 経路の通知が送出される（BR-H3）
 - **fixture**: seed: playbooks(status='active', consecutive_failures=3)、mock ページから対象要素を削除、対象 task = in_progress
-- **観測点**: playbooks.status／tasks.status／state_transitions SELECT／通知 mock の送出記録 ／ **期待状態**: playbook = broken、task = escalated
+- **観測点**: playbooks.status／tasks.state／state_transitions SELECT／通知 mock の送出記録 ／ **期待状態**: playbook = broken、task = escalated
 - **期待 DB 差分**: playbooks.status UPDATE（broken）、state_transitions +1 行（escalate）、operation_log +2 行（検知・再生成失敗） ／ **期待証跡**: operation_log 行（再生成失敗理由）＋escalate 遷移行
 - **禁止副作用**: 2 回目以降の自動再生成試行・broken 地図での書込み操作続行・地図の推測書換え ／ **エラー型**: PlaybookRepairFailed（escalate 事由として記録）
 - **対象更新**: S2（地図自己修復 FN-405） ／ **TC**: TCC-43-2
@@ -817,7 +817,7 @@
 
 - **Given**: 再生成の途中（broken 化コミット後・地図 UPDATE 前）でプロセスが強制終了した状態 ／ **When**: 再起動後に破損中 playbook を検出して自己修復を再実行する ／ **Then**: status=broken が残っているため再生成が最初からやり直され（読取りのみで外部副作用なし）、成功すれば active へ復帰する。status=retired の行は修復対象外として即 escalated となる
 - **fixture**: seed: playbooks 2 行（status='broken' の note 行／status='retired' の kdp 行）、mock ページは note の正セレクタを提供
-- **観測点**: playbooks SELECT（再実行後の status）／operation_log SELECT／tasks.status（retired 側） ／ **期待状態**: note 行 = active、kdp 行 = retired のまま対象タスク escalated
+- **観測点**: playbooks SELECT（再実行後の status）／operation_log SELECT／tasks.state（retired 側） ／ **期待状態**: note 行 = active、kdp 行 = retired のまま対象タスク escalated
 - **期待 DB 差分**: playbooks 1 行 UPDATE（active）、state_transitions +1 行（retired 側 escalate）、operation_log +2 行以上 ／ **期待証跡**: operation_log 行（再開後の再生成試行・retired 拒否）
 - **禁止副作用**: 中間状態の地図（部分更新）での操作再開・retired 行の自動復活・外部書込み ／ **エラー型**: PlaybookRepairFailed（retired 側）
 - **対象更新**: S2（地図自己修復 FN-405）／recovery 経路 ／ **TC**: TCC-43-3
@@ -838,7 +838,7 @@
 - **Given**: 成立済みペア ID なしの書込み要求と、書込み先が Docker 以外の本番 WP URL に設定された書込み要求 ／ **When**: 両方の WP REST 書込みを実行する ／ **Then**: 前者は PairRequired、後者は ProductionWriteDenied で拒否され、外部 HTTP 呼出は 0 回、operation_log に理由が残る（AC-44 原文の拒否側＋環境契約 §6）
 - **fixture**: seed: pair_plan_quality 空、config の WP endpoint を '`https://real-site.example.com`' に設定したケースを用意、WP mock の受信カウンタ 0 初期化
 - **観測点**: raise される例外型／operation_log SELECT／WP mock 受信カウンタ ／ **期待状態**: external_operations に prepared 行すら作られない（検証は送信前）
-- **期待 DB 差分**: operation_log +2 行（ペアなし拒否・本番書込み拒否）。external_operations 差分なし ／ **期待証跡**: operation_log 拒否行（理由 = pair 未成立／非 Docker endpoint）
+- **期待 DB 差分**: operation_log +2 行（ペアなし拒否・本番書込み拒否）。external_operations 差分なし ／ **期待証跡**: 構造化ログの拒否行（理由 = pair 未成立／非 Docker endpoint）
 - **禁止副作用**: 外部 HTTP 呼出（受信カウンタ 0 のまま）・本番 WP への一切の書込み ／ **エラー型**: PairRequired／ProductionWriteDenied
 - **対象更新**: S0.2（CMP-10 WP REST コネクタ） ／ **TC**: TCC-44-2
 
@@ -886,7 +886,7 @@
 
 - **Given**: 公開待ちタスクと、binding 3 項目（対象記事・publish 操作・時点）を明記した承認要求、mock 通知 transport が approved を応答する状態 ／ **When**: 承認要求を送出し、応答受領後に binding 3 項目一致の公開を実行する ／ **Then**: 要求が通知され、応答が approvals に証跡化されるまで対象タスクは進行せず（waiting）、approved 受領後に approval evidence が登録され公開が許可される（AC-46 原文）
 - **fixture**: seed: task(pending) 1 件、mock transport（approved・responder_ref='po'）、binding = (post:123, publish, 2026-08-01T10:00)
-- **観測点**: approvals SELECT（decision・binding・evidence_id）／応答前後の tasks.status／公開ゲートの通過可否 ／ **期待状態**: approvals = approved・evidence 相互整合、task = 進行再開
+- **観測点**: approvals SELECT（decision・binding・evidence_id）／応答前後の tasks.state／公開ゲートの通過可否 ／ **期待状態**: approvals = approved・evidence 相互整合、task = 進行再開
 - **期待 DB 差分**: approvals +1 行（pending→approved UPDATE）、evidence +1 行（kind=approval）、state_transitions +2 行（waiting→in_progress 系） ／ **期待証跡**: approval evidence（decision=approved・binding 3 項目・approvals.evidence_id 整合）
 - **禁止副作用**: 応答受領前の公開実行・approvals 行の書換えによる decision 変更 ／ **エラー型**: なし
 - **対象更新**: S0.2（CMP-11 承認通知）／WF-WP-2 手順 3 ／ **TC**: TCC-46-1
@@ -895,8 +895,8 @@
 
 - **Given**: binding_at のみ異なる approved approval を持つ公開要求と、decision=rejected の応答を受けた別タスク ／ **When**: binding 不一致のままの公開と、rejected 後のタスク進行を試みる ／ **Then**: 公開は ApprovalBindingMismatch で拒否され（3 項目の 1 つでも不一致なら通らない）、rejected は non_retryable_failure として task が failed になり自動再試行されない
 - **fixture**: seed: approvals(approved, binding_at='2026-08-01T10:00') に対し公開時点 '2026-08-01T11:00' を提示、別 task に mock transport が rejected 応答
-- **観測点**: raise される例外型／operation_log SELECT／tasks.status・state_transitions ／ **期待状態**: 公開 0 件、rejected 側 task = failed（retry_count 増加なし）
-- **期待 DB 差分**: operation_log +1 行（binding 不一致）、approvals 1 行 UPDATE（rejected）、state_transitions +1 行（failed） ／ **期待証跡**: operation_log 拒否行（不一致項目の明示）＋approvals rejected 行
+- **観測点**: raise される例外型／operation_log SELECT／tasks.state・state_transitions ／ **期待状態**: 公開 0 件、rejected 側 task = failed（retry_count 増加なし）
+- **期待 DB 差分**: operation_log +1 行（binding 不一致）、approvals 1 行 UPDATE（rejected）、state_transitions +1 行（failed） ／ **期待証跡**: 構造化ログの拒否行（不一致項目の明示）＋approvals rejected 行
 - **禁止副作用**: 不一致のままの公開（外部書込み 0 回）・rejected タスクの自動リトライ・escalated への迂回 ／ **エラー型**: ApprovalBindingMismatch／NonRetryableFailure
 - **対象更新**: S0.2（CMP-11 承認通知） ／ **TC**: TCC-46-2
 
@@ -904,7 +904,7 @@
 
 - **Given**: config.approval_retry_limit=2 で、mock transport が常に expired を返す承認要求と、pending 応答のままクラッシュ→再起動したタスク ／ **When**: expired の再要求ループを上限まで進め、pending 側は再起動後に待機再開する ／ **Then**: expired は再要求で待機を継続し、再要求 2 回目（上限到達）で escalated に遷移する。pending 側は approvals.decision から待機状態が復元され、二重の承認要求は作られない
 - **fixture**: seed: config('approval_retry_limit', 2)、mock transport（常時 expired）、pending 行 1 件（UNIQUE binding）を残して再起動
-- **観測点**: approvals 行数と decision 履歴／tasks.status／state_transitions SELECT ／ **期待状態**: expired 側 task = escalated、pending 側 = waiting 継続（要求は 1 件のまま）
+- **観測点**: approvals 行数と decision 履歴／tasks.state／state_transitions SELECT ／ **期待状態**: expired 側 task = escalated、pending 側 = waiting 継続（要求は 1 件のまま）
 - **期待 DB 差分**: approvals は再要求分のみ増加（上限到達で停止）、state_transitions +1 行（escalate）。pending 側 approvals 差分なし ／ **期待証跡**: approvals の expired 履歴＋escalate 遷移行（事由 = approval_retry_limit 到達）
 - **禁止副作用**: 上限超過後の再要求継続（無限待機）・同一 binding の重複 approvals 行・expired の failed 化（rejected と混同） ／ **エラー型**: ApprovalRetryExhausted（escalate 事由として記録）
 - **対象更新**: S0.2（CMP-11 承認通知）／expired 再要求経路 ／ **TC**: TCC-46-3
@@ -933,7 +933,7 @@
 
 - **Given**: 秘匿ストアに未投入のサービス（notion）への接続要求と、operation_log へ書き出される文字列に secret 値が混入したケース ／ **When**: notion 接続と、混入文字列のログ書出しを実行する ／ **Then**: 接続は SecretUnavailable で開始されず（外部呼出 0 回）、混入書出しはマスクされた上で CredentialLeakDetected が記録され書出し元タスクが escalated へ誘導される
 - **fixture**: seed: mock キーチェーン（notion キーなし）、書出し文字列 = 'auth failed: token=wp-app-pass-XYZ'（既知 secret 混入）
-- **観測点**: raise される例外型／operation_log SELECT（マスク後文字列）／tasks.status ／ **期待状態**: 接続 0 件、ログには伏字（token=***）のみ、書出し元 task = escalated 誘導
+- **観測点**: raise される例外型／operation_log SELECT（マスク後文字列）／tasks.state ／ **期待状態**: 接続 0 件、ログには伏字（token=***）のみ、書出し元 task = escalated 誘導
 - **期待 DB 差分**: operation_log +2 行（SecretUnavailable・CredentialLeakDetected — いずれも平文なし） ／ **期待証跡**: operation_log 検知行（マスク済み — 秘匿値そのものを含まない）
 - **禁止副作用**: 平文のままのログ永続化・秘匿値なしでの外部接続試行（外部 HTTP 呼出 0 回） ／ **エラー型**: SecretUnavailable／CredentialLeakDetected
 - **対象更新**: S0.2（CMP-07 秘匿ストア） ／ **TC**: TCC-47-2
@@ -942,7 +942,7 @@
 
 - **Given**: 保管済みセッションが期限切れになった状態と、テスト credential を本番 endpoint に組み合わせた設定（環境契約 §6 違反） ／ **When**: 期限切れセッションでの接続と、不一致組合せでの接続を実行し、その後 credential 再投入からタスクを再開する ／ **Then**: 期限切れは検知され再投入待ちの escalated（人の関与）へ、credential/endpoint 不一致は実行拒否となる。再投入後は同一タスク状態から再実行でき正常接続する
 - **fixture**: seed: mock キーチェーンに expired セッション、test credential ＋ production endpoint の組合せ設定、再投入手順で有効値に上書き
-- **観測点**: raise される例外型／tasks.status（escalated→再開）／operation_log SELECT ／ **期待状態**: 再投入前 = escalated・接続 0 件、再投入後 = 同一タスクが接続成功
+- **観測点**: raise される例外型／tasks.state（escalated→再開）／operation_log SELECT ／ **期待状態**: 再投入前 = escalated・接続 0 件、再投入後 = 同一タスクが接続成功
 - **期待 DB 差分**: operation_log +2 行（期限切れ・組合せ拒否）、state_transitions に escalate と再開の遷移 ／ **期待証跡**: operation_log 行（理由 = session expired／credential-endpoint mismatch — 平文なし）
 - **禁止副作用**: 期限切れセッションでの外部送信・テスト credential の本番 endpoint 使用（fail-open）・再投入値の SQLite 保存 ／ **エラー型**: SecretUnavailable（期限切れ）／CredentialEndpointMismatch
 - **対象更新**: S0.2（CMP-07 秘匿ストア）／再投入・再開経路 ／ **TC**: TCC-47-3
@@ -990,7 +990,7 @@
 - **Given**: 未 commit の編集（dirty 作業ツリー）を含む入力ソースと、接続先が本番 WP を指す registry 設定 ／ **When**: レンダリングと WP アップロードを要求する ／ **Then**: 未 commit ソースは UnversionedSourceRejected、本番 WP 宛は WpTargetDenied で拒否され、成果物・参照行が一切作られない
 - **fixture**: seed: fixture リポジトリに未 commit 変更を作る／config.wp_target を docker 以外（prod 想定値）に seed
 - **観測点**: raise される例外型／assets・evidence 件数／operation_log SELECT ／ **期待状態**: assets 空のまま、WP モックへの書込み呼出 0 回
-- **期待 DB 差分**: operation_log +2 行（未 commit 拒否・接続先拒否）のみ ／ **期待証跡**: operation_log 拒否行（理由 = uncommitted source／wp target denied）
+- **期待 DB 差分**: operation_log +2 行（未 commit 拒否・接続先拒否）のみ ／ **期待証跡**: 構造化ログの拒否行（理由 = uncommitted source／wp target denied）
 - **禁止副作用**: assets/evidence への行追加・WP（モック含む）への書込み呼出 ／ **エラー型**: UnversionedSourceRejected／WpTargetDenied
 - **対象更新**: S0.2（制作層）／content/renderer 入口検査 ／ **TC**: TCC-51-2
 
@@ -1037,7 +1037,7 @@
 - **Given**: DesignSync が到達不能で、トークンキャッシュも存在しない初期状態 ／ **When**: トークン注入つきレンダリングを実行する ／ **Then**: DesignTokenUnavailable が raise され、トークンなしの出力が生成されない（fail-close）
 - **fixture**: seed: DesignSync モックを接続エラー応答に設定、config.designsync_cache_path 先を空にする
 - **観測点**: raise される例外型／出力ディレクトリの内容／operation_log SELECT ／ **期待状態**: レンダリング出力 0 件
-- **期待 DB 差分**: operation_log +1 行（取得失敗・キャッシュなし拒否）のみ ／ **期待証跡**: operation_log 拒否行（理由 = token unavailable, no cache）
+- **期待 DB 差分**: operation_log +1 行（取得失敗・キャッシュなし拒否）のみ ／ **期待証跡**: 構造化ログの拒否行（理由 = token unavailable, no cache）
 - **禁止副作用**: トークン未適用出力の生成・assets/evidence への登録 ／ **エラー型**: DesignTokenUnavailable
 - **対象更新**: S1（制作層）／design_tokens の fail-close 経路 ／ **TC**: TCC-52-2
 
@@ -1066,7 +1066,7 @@
 - **Given**: 存在しない素材 asset_id を参照する台本と、実行途中でエラー終了する ffmpeg モック ／ **When**: video パイプラインを実行する ／ **Then**: 参照不能は UnversionedSourceRejected、実行失敗は PipelineExecutionFailed で拒否され、部分出力が assets/WP に登録されない
 - **fixture**: seed: 台本の素材参照 = asset_id 999（不在）／別ケース: ffmpeg モックを exit 1 に設定し中間 mp4 断片を temp に生成させる
 - **観測点**: raise される例外型／assets・evidence 件数／temp 領域と WP モックの状態 ／ **期待状態**: assets 差分なし、WP への登録 0 件
-- **期待 DB 差分**: operation_log +2 行（参照拒否・実行失敗）のみ ／ **期待証跡**: operation_log 拒否行（理由 = missing asset ref／pipeline failed at encode）
+- **期待 DB 差分**: operation_log +2 行（参照拒否・実行失敗）のみ ／ **期待証跡**: 構造化ログの拒否行（理由 = missing asset ref／pipeline failed at encode）
 - **禁止副作用**: 部分出力（中間 mp4）の assets 登録・WP アップロード ／ **エラー型**: UnversionedSourceRejected／PipelineExecutionFailed
 - **対象更新**: S3+（制作層）／pipelines の fail-close 経路 ／ **TC**: TCC-53-2
 
@@ -1095,7 +1095,7 @@
 - **Given**: task の commit_hash 証跡は H1 だが、PASS 記録要求が別 hash H2 を指定している状態（版すり替え相当） ／ **When**: review_pass 記録を要求する ／ **Then**: CommitHashMismatch で拒否され、review_pass 証跡が作られず operation_log に理由が残る
 - **fixture**: seed: evidence に (task, commit_hash, H1) を事前投入、PASS 要求 = {commit_hash: H2, result: 'PASS'}
 - **観測点**: raise される例外型／evidence SELECT (kind='review_pass')／operation_log SELECT ／ **期待状態**: review_pass 証跡 0 件のまま
-- **期待 DB 差分**: operation_log +1 行（hash 不一致拒否）のみ ／ **期待証跡**: operation_log 拒否行（理由 = commit hash mismatch H1≠H2）
+- **期待 DB 差分**: operation_log +1 行（hash 不一致拒否）のみ ／ **期待証跡**: 構造化ログの拒否行（理由 = commit hash mismatch H1≠H2）
 - **禁止副作用**: H2 での review_pass 記録・既存 commit_hash 証跡の書換え ／ **エラー型**: CommitHashMismatch
 - **対象更新**: S0.2（制作層）／versioning の束縛検査 ／ **TC**: TCC-54-2
 
@@ -1142,7 +1142,7 @@
 - **Given**: 本文実体（50KB の記事テキスト）を metadata に含む登録要求と、存在しない parent_asset_id=999 を指す派生登録要求 ／ **When**: それぞれ assets 登録を実行する ／ **Then**: 実体混入は ContentBodyRejected、不在 parent は AssetReferenceInvalid で拒否され、行が作られない
 - **fixture**: seed: config.asset_metadata_max_bytes=4096、要求 1 = metadata_json に 50KB 本文、要求 2 = {parent_asset_id:999}
 - **観測点**: raise される例外型／assets 件数／operation_log SELECT ／ **期待状態**: assets 差分なし
-- **期待 DB 差分**: operation_log +2 行（実体混入拒否・参照不正拒否）のみ ／ **期待証跡**: operation_log 拒否行（理由 = content body in metadata／parent not found）
+- **期待 DB 差分**: operation_log +2 行（実体混入拒否・参照不正拒否）のみ ／ **期待証跡**: 構造化ログの拒否行（理由 = content body in metadata／parent not found）
 - **禁止副作用**: 本文実体を含む行の INSERT・出自なし派生行の作成 ／ **エラー型**: ContentBodyRejected／AssetReferenceInvalid
 - **対象更新**: S0.2（制作層）／assets 登録の入口検査 ／ **TC**: TCC-55-2
 
@@ -1151,7 +1151,7 @@
 - **Given**: 登録済み資産と同一 canonical_url での再登録要求（クラッシュ後リトライ相当）と、自己参照系譜（parent = 自 ID）を作る要求 ／ **When**: それぞれ assets 登録を実行する ／ **Then**: 同一 URL の再登録は行を増やさず既存行で冪等完了し、自己参照・循環は拒否される
 - **fixture**: seed: assets に A1（canonical_url='`http://wp.test/post/1`'）、要求 1 = 同一 URL 再登録、要求 2 = A1 の parent を A1 自身へ更新する派生登録
 - **観測点**: assets 件数・戻り値（既存 ID）／raise される例外型 ／ **期待状態**: assets 1 行のまま（A1）、循環系譜 0 件
-- **期待 DB 差分**: assets 差分なし、operation_log +1 行（循環拒否） ／ **期待証跡**: operation_log 拒否行（理由 = circular lineage）
+- **期待 DB 差分**: assets 差分なし、operation_log +1 行（循環拒否） ／ **期待証跡**: 構造化ログの拒否行（理由 = circular lineage）
 - **禁止副作用**: canonical_url 重複行の作成・循環系譜の成立 ／ **エラー型**: AssetReferenceInvalid（循環のみ。再登録は正常冪等）
 - **対象更新**: S0.2（制作層）／assets の冪等・系譜検査 ／ **TC**: TCC-55-3
 
@@ -1171,7 +1171,7 @@
 - **Given**: business_profile 1 件と、露出層の親ノード（node_key='exposure.blog'）が登録済みの状態 ／ **When**: 5 階層それぞれに非有料指標ノード（例: micro_cv 層の 'newsletter_signup'、metric_type='count'）を登録し、layer×medium の横断集計クエリを実行する ／ **Then**: 全ノードが 5 階層のいずれかに接地して登録され、集計クエリが媒体横断の断面を返す
 - **fixture**: seed: business_profiles 1 行、kpi_nodes に exposure 親 1 行、measurements にノード紐付き値 2 行（媒体 blog/x）
 - **観測点**: kpi_nodes SELECT（layer・node_key・UNIQUE）／横断集計クエリの結果セット ／ **期待状態**: kpi_nodes に 5 階層のノードが存在し、全 measurements がノードへ FK 接続
-- **期待 DB 差分**: kpi_nodes +5 行、operation_log 差分なし ／ **期待証跡**: なし（正常登録は証跡不要 — 拒否時のみ operation_log）
+- **期待 DB 差分**: kpi_nodes +5 行、構造化ログ差分なし ／ **期待証跡**: なし（正常登録は証跡不要 — 拒否時のみ構造化ログ（FN-704））
 - **禁止副作用**: 戦略正本（brand_plans 等）への書込み・有料指標型の混入 ／ **エラー型**: なし
 - **対象更新**: S0.3（計測層）／measure/kpi_tree.register_node・cross_query ／ **TC**: TCC-61-1
 
@@ -1180,7 +1180,7 @@
 - **Given**: 有料指標型（metric_type='roas'）のノード定義と、登録済み node_key と重複する定義と、別 profile の親を指す定義 ／ **When**: それぞれ kpi_nodes 登録を実行する ／ **Then**: 有料指標は PaidMetricRejected（FR-23 連携）、重複キー・越境親は KpiNodeInvalid で拒否され、いずれも行が作られない
 - **fixture**: seed: business_profiles 2 行、profile1 に node_key='exposure.blog' 登録済み、要求 = {metric_type:'roas'}／{node_key:'exposure.blog'}／{parent: profile2 のノード}
 - **観測点**: raise される例外型／kpi_nodes 件数／operation_log SELECT ／ **期待状態**: kpi_nodes は seed の行のみ
-- **期待 DB 差分**: operation_log +3 行（有料拒否・重複拒否・越境拒否）のみ ／ **期待証跡**: operation_log 拒否行（指標型・node_key・理由）
+- **期待 DB 差分**: operation_log +3 行（有料拒否・重複拒否・越境拒否）のみ ／ **期待証跡**: 構造化ログの拒否行（指標型・node_key・理由）
 - **禁止副作用**: cac/roas/ad_spend 型ノードの成立（アプリ層を迂回した直接 INSERT も DDL CHECK で拒否されること） ／ **エラー型**: PaidMetricRejected／KpiNodeInvalid
 - **対象更新**: S0.3（計測層）／kpi_tree の登録検査＋DDL CHECK ／ **TC**: TCC-61-2
 
@@ -1301,7 +1301,7 @@
 - **Given**: テンプレートに外部 CDN 参照（script src='`https://cdn.example.com/x.js`'）が混入した構成と、credential 様文字列が config 経由で集計に紛れ込む構成 ／ **When**: HTML ダッシュボード生成を実行する ／ **Then**: 自己検査が外部参照・secret 混入を検出して ExternalReferenceDetected で成果物を破棄し、証跡化されない
 - **fixture**: seed: 汚染テンプレート fixture／集計対象に 'password=…' 様文字列を含む seed 行
 - **観測点**: raise される例外型／出力ディレクトリ（成果物なし）／evidence 件数／operation_log SELECT ／ **期待状態**: 出力ファイル 0 件、dashboard 証跡 0 件
-- **期待 DB 差分**: operation_log +1 行（検出・破棄）のみ ／ **期待証跡**: operation_log 拒否行（理由 = external reference detected／secret pattern）
+- **期待 DB 差分**: operation_log +1 行（検出・破棄）のみ ／ **期待証跡**: 構造化ログの拒否行（理由 = external reference detected／secret pattern）
 - **禁止副作用**: 汚染 HTML の出力先残留・汚染成果物の証跡化 ／ **エラー型**: ExternalReferenceDetected
 - **対象更新**: S1（計測層）／dashboard の自己検査・fail-close ／ **TC**: TCC-63-2
 
@@ -1444,7 +1444,7 @@
 - **Given**: lower run が strategy_revision（上流の学習成果物）を提出しようとし、upper run が TLP を提出しようとする ／ **When**: 両提出を実行する ／ **Then**: 両方とも LoopScopeViolation（TLP 側は DDL 整合トリガの IntegrityError）で拒否され、DB は変化しない
 - **fixture**: seed: AC-SR-01-1 と同じ run 構成、提出 payload = 越境型
 - **観測点**: raise される例外型／operation_log SELECT／対象テーブル行数 ／ **期待状態**: 両 run の状態・学習正本とも提出前のまま
-- **期待 DB 差分**: operation_log +2 行（越境拒否 ×2）のみ ／ **期待証跡**: operation_log 拒否行（loop_kind・提出型・理由）
+- **期待 DB 差分**: operation_log +2 行（越境拒否 ×2）のみ ／ **期待証跡**: 構造化ログの拒否行（loop_kind・提出型・理由）
 - **禁止副作用**: 越境成果物の永続化・単一ループへの統合的書込み ／ **エラー型**: LoopScopeViolation／IntegrityError
 - **対象更新**: S1（上流戦略スライス） ／ **TC**: TCC-SR-01-2
 
@@ -1456,7 +1456,7 @@
 - **fixture**: fixture: json/strategy/fixtures/ の valid market_observation（fact のみ）
 - **観測点**: 投入 API 戻り値／受理レコードの schema 検証結果 ／ **期待状態**: observation 1 件受理（fact のみ）
 - **期待 DB 差分**: observation レコード +1（S1 ストア） ／ **期待証跡**: schema 検証 PASS の記録
-- **禁止副作用**: 解釈フィールドの自動付加・operation_log への拒否行 ／ **エラー型**: なし
+- **禁止副作用**: 解釈フィールドの自動付加・構造化ログ以外への拒否記録（evidence への拒否行の混入） ／ **エラー型**: なし
 - **対象更新**: S1（上流戦略スライス — SCM-05） ／ **TC**: TCC-SR-02-1
 
 ### AC-SR-02-2（拒否）
@@ -1464,7 +1464,7 @@
 - **Given**: fact フィールドに AI 解釈文が混在した（又は解釈用フィールドを付加した）market_observation payload ／ **When**: 観測投入を実行する ／ **Then**: ObservationInterpretationRejected（G-OBS-INTERPRETATION）で拒否され、operation_log に違反フィールドが記録される
 - **fixture**: fixture: json/strategy/fixtures/ の invalid market_observation（解釈混在）
 - **観測点**: raise される例外型／operation_log SELECT ／ **期待状態**: observation 未受理
-- **期待 DB 差分**: operation_log +1 行（拒否）のみ ／ **期待証跡**: operation_log 拒否行（違反フィールド・理由）
+- **期待 DB 差分**: 構造化ログ +1 行（拒否）のみ ／ **期待証跡**: 構造化ログの拒否行（違反フィールド・理由）
 - **禁止副作用**: 混在 payload の部分受理・fact の自動書換え ／ **エラー型**: ObservationInterpretationMixRejected
 - **対象更新**: S1（上流戦略スライス — G-OBS-INTERPRETATION） ／ **TC**: TCC-SR-02-2
 
@@ -1473,7 +1473,7 @@
 - **Given**: market_observation schema がロード不能（fixture/schema 破損）の状態と、同一テキストを TLP.causal_interpretation として提出するケース ／ **When**: 観測投入と TLP 提出をそれぞれ実行する ／ **Then**: schema 判定不能の観測投入は拒否側へ倒れ（fail-close）、同一テキストでも TLP の解釈フィールド経由なら受理される（分離の単位はフィールド・レコード）
 - **fixture**: seed: schema ファイルを破損させた環境＋正規 TLP payload（causal_interpretation に同一文）
 - **観測点**: raise される例外型／tactical_learning_packets SELECT ／ **期待状態**: 観測 0 件受理、TLP は正規経路で受理
-- **期待 DB 差分**: operation_log +1 行（判定不能拒否）、tactical_learning_packets +1 行 ／ **期待証跡**: operation_log 拒否行（理由 = schema 判定不能）
+- **期待 DB 差分**: operation_log +1 行（判定不能拒否）、tactical_learning_packets +1 行 ／ **期待証跡**: 構造化ログの拒否行（理由 = schema 判定不能）
 - **禁止副作用**: 判定不能時の受理（fail-open） ／ **エラー型**: ObservationInterpretationMixRejected（判定不能時）
 - **対象更新**: S1（上流戦略スライス） ／ **TC**: TCC-SR-02-3
 
@@ -1493,7 +1493,7 @@
 - **Given**: schema 必須フィールドを欠いた market_model と、3 モデル以外の自由 JSON 成果物 ／ **When**: 市場分析の成果物投入を実行する ／ **Then**: 両方とも ModelSchemaRejected で拒否され、欠落フィールド一覧が operation_log に残る
 - **fixture**: fixture: json/strategy/fixtures/ の invalid market_model（必須欠落）＋自由 JSON
 - **観測点**: raise される例外型／operation_log SELECT ／ **期待状態**: モデル 0 件受理
-- **期待 DB 差分**: operation_log +2 行（拒否）のみ ／ **期待証跡**: operation_log 拒否行（欠落フィールド一覧）
+- **期待 DB 差分**: 構造化ログ +2 行（拒否）のみ ／ **期待証跡**: 構造化ログの拒否行（欠落フィールド一覧）
 - **禁止副作用**: 部分受理・自由 JSON の正本混入 ／ **エラー型**: ModelSchemaRejected
 - **対象更新**: S1（上流戦略スライス） ／ **TC**: TCC-SR-03-2
 
@@ -1502,7 +1502,7 @@
 - **Given**: schema 外の未知フィールドを付加した segment_context と、観測 0 件を根拠とする problem_model ／ **When**: 成果物投入を実行する ／ **Then**: additionalProperties 違反と根拠欠落の両方が拒否され（黙認しない）、観測補充後の再投入は新版として受理される
 - **fixture**: fixture: 未知フィールド付き segment_context＋観測参照空の problem_model、その後 valid 版
 - **観測点**: raise される例外型／再投入後のモデルレコード SELECT ／ **期待状態**: 初回 0 件受理→再投入で 1 版受理
-- **期待 DB 差分**: operation_log +2 行（拒否）、その後モデルレコード +1 ／ **期待証跡**: operation_log 拒否行（additionalProperties／根拠欠落）
+- **期待 DB 差分**: 構造化ログ +2 行（拒否）、その後モデルレコード +1 ／ **期待証跡**: 構造化ログの拒否行（additionalProperties／根拠欠落）
 - **禁止副作用**: 未知フィールドの黙認（fail-open） ／ **エラー型**: ModelSchemaRejected
 - **対象更新**: S1（上流戦略スライス） ／ **TC**: TCC-SR-03-3
 
@@ -1514,7 +1514,7 @@
 - **fixture**: fixture: json/strategy/fixtures/ の valid segment_context（状況ベース）
 - **観測点**: 投入 API 戻り値／受理レコード ／ **期待状態**: segment 1 件受理
 - **期待 DB 差分**: segment レコード +1（S1 ストア） ／ **期待証跡**: schema 検証 PASS の記録
-- **禁止副作用**: operation_log への拒否行 ／ **エラー型**: なし
+- **禁止副作用**: 構造化ログ以外への拒否記録（evidence への拒否行の混入） ／ **エラー型**: なし
 - **対象更新**: S1（上流戦略スライス — G-SEGMENT-CONTEXT） ／ **TC**: TCC-SR-04-1
 
 ### AC-SR-04-2（拒否）
@@ -1522,7 +1522,7 @@
 - **Given**: 年齢・性別・職業・趣味の人口統計属性だけで構成された segment_context payload（状況フィールドなし） ／ **When**: セグメント投入を実行する ／ **Then**: PersonaSegmentRejected（G-SEGMENT-CONTEXT）で拒否され、欠落した状況フィールド一覧が operation_log に残る
 - **fixture**: fixture: json/strategy/fixtures/ の invalid segment_context（人口統計のみ）
 - **観測点**: raise される例外型／operation_log SELECT ／ **期待状態**: segment 0 件受理
-- **期待 DB 差分**: operation_log +1 行（拒否）のみ ／ **期待証跡**: operation_log 拒否行（欠落状況フィールド一覧）
+- **期待 DB 差分**: 構造化ログ +1 行（拒否）のみ ／ **期待証跡**: 構造化ログの拒否行（欠落状況フィールド一覧）
 - **禁止副作用**: ペルソナ型 segment の正本混入 ／ **エラー型**: PersonaSegmentRejected
 - **対象更新**: S1（上流戦略スライス） ／ **TC**: TCC-SR-04-2
 
@@ -1531,7 +1531,7 @@
 - **Given**: 状況フィールドが空文字・空配列のみで人口統計が併記された segment と、状況＋人口統計（補助）が両方実質記入された segment ／ **When**: 両者のセグメント投入を実行する ／ **Then**: 空文字・空配列は「実質未記入」として拒否され、混在（人口統計が補助）は受理される
 - **fixture**: fixture: 状況空の segment＋状況実記入・人口統計併記の segment
 - **観測点**: raise される例外型／受理レコード SELECT ／ **期待状態**: 前者 0 件・後者 1 件受理
-- **期待 DB 差分**: operation_log +1 行（拒否）、segment レコード +1 ／ **期待証跡**: operation_log 拒否行（理由 = 状況フィールド実質未記入）
+- **期待 DB 差分**: 構造化ログ +1 行（拒否）、segment レコード +1 ／ **期待証跡**: 構造化ログの拒否行（理由 = 状況フィールド実質未記入）
 - **禁止副作用**: 空フィールドの記入扱い（fail-open） ／ **エラー型**: PersonaSegmentRejected（空フィールド時）
 - **対象更新**: S1（上流戦略スライス） ／ **TC**: TCC-SR-04-3
 
@@ -1551,7 +1551,7 @@
 - **Given**: rejected_options が空の strategic_choice と disconfirming_conditions 欠落の value_hypothesis ／ **When**: 成果物投入を実行する ／ **Then**: 両方とも IncompleteStrategyRejected で拒否され、欠落要素が operation_log に残る
 - **fixture**: fixture: json/strategy/fixtures/ の invalid strategic_choice（棄却案空）＋invalid value_hypothesis（反証なし）
 - **観測点**: raise される例外型／operation_log SELECT ／ **期待状態**: 0 件受理
-- **期待 DB 差分**: operation_log +2 行（拒否）のみ ／ **期待証跡**: operation_log 拒否行（欠落要素一覧）
+- **期待 DB 差分**: 構造化ログ +2 行（拒否）のみ ／ **期待証跡**: 構造化ログの拒否行（欠落要素一覧）
 - **禁止副作用**: 反証不能な仮説の正本混入 ／ **エラー型**: IncompleteStrategyRejected
 - **対象更新**: S1（上流戦略スライス） ／ **TC**: TCC-SR-05-2
 
@@ -1560,7 +1560,7 @@
 - **Given**: rejected_options ちょうど 1 件（minItems 境界）の strategic_choice と、棄却理由が空文字の strategic_choice ／ **When**: 両者の成果物投入を実行する ／ **Then**: 1 件（理由実記入）は受理され、空文字理由は欠落と同等に拒否される
 - **fixture**: fixture: rejected_options 1 件 valid＋理由空文字 invalid
 - **観測点**: raise される例外型／受理レコード SELECT ／ **期待状態**: 前者 1 版受理・後者 0 件
-- **期待 DB 差分**: 戦略モデルレコード +1、operation_log +1 行（拒否） ／ **期待証跡**: operation_log 拒否行（理由 = 棄却理由空）
+- **期待 DB 差分**: 戦略モデルレコード +1、構造化ログ +1 行（拒否） ／ **期待証跡**: 構造化ログの拒否行（理由 = 棄却理由空）
 - **禁止副作用**: 空文字理由の記入扱い ／ **エラー型**: IncompleteStrategyRejected（空文字時）
 - **対象更新**: S1（上流戦略スライス） ／ **TC**: TCC-SR-05-3
 
@@ -1580,7 +1580,7 @@
 - **Given**: trace ID（strategic_choice_id）欠落の brief draft と、計測計画が KPI 目標値の割当だけの brief draft ／ **When**: issue_strategic_brief（S0 シードコマンド）を実行する ／ **Then**: 両方とも BriefSchemaRejected で INSERT されず、operation_log に理由（trace 欠落／計測計画の実質欠如）が残る
 - **fixture**: seed: strategic_choice_id 空の draft＋measurement_plan_json = KPI 目標値のみの draft
 - **観測点**: raise される例外型／strategic_briefs SELECT／operation_log SELECT ／ **期待状態**: strategic_briefs 空のまま
-- **期待 DB 差分**: operation_log +2 行（拒否）のみ ／ **期待証跡**: operation_log 拒否行（欠落・無効理由）
+- **期待 DB 差分**: 構造化ログ +2 行（拒否）のみ ／ **期待証跡**: 構造化ログの拒否行（欠落・無効理由）
 - **禁止副作用**: 無効 brief の INSERT・digest の発番 ／ **エラー型**: BriefSchemaRejected
 - **対象更新**: S0.1（DU-02 — issue_strategic_brief） ／ **TC**: TCC-SR-06-1
 
@@ -1759,7 +1759,7 @@
 - **Given**: 支持根拠 1 件（単一の計測値）だけの accept 提案と、counter_evidence_ids フィールド自体を欠いた提案 ／ **When**: revision の accepted 適用を試行する ／ **Then**: 両方とも RevisionEvidenceRejected（G-REVISION-EVIDENCE）で拒否され、新版・旧版遷移とも発生しない
 - **fixture**: seed: 意味モデル v1＋根拠 1 件（KPI 計測のみ）の提案＋反証フィールド欠落の提案
 - **観測点**: raise される例外型／意味モデル行数・status／operation_log SELECT ／ **期待状態**: v1 = active のまま・revision accepted 0 件
-- **期待 DB 差分**: operation_log +2 行（拒否）のみ ／ **期待証跡**: operation_log 拒否行（根拠不足／反証未明示）
+- **期待 DB 差分**: 構造化ログ +2 行（拒否）のみ ／ **期待証跡**: 構造化ログの拒否行（根拠不足／反証未明示）
 - **禁止副作用**: 単一計測値による自動 accept・新版の先行生成 ／ **エラー型**: RevisionEvidenceRejected
 - **対象更新**: S1（上流戦略スライス） ／ **TC**: TCC-SR-10-2
 
@@ -1768,7 +1768,7 @@
 - **Given**: 同一根拠 ID を 2 回列挙した提案（実質 1 件）、異なる ID ちょうど 2 件の提案、maintain 提案の 3 ケース ／ **When**: 各 revision の適用を実行する ／ **Then**: 重複 ID は uniqueItems 違反で拒否、異なる 2 件は accept 成立（最低境界）、maintain は new_version_id なしで revision 記録のみ残り「見て維持した」が記録される
 - **fixture**: seed: 根拠 [E1, E1] の提案＋[E1, E2] の提案＋maintain 提案
 - **観測点**: raise される例外型／revision 記録／版の増減 ／ **期待状態**: 重複 = 拒否、2 件 = v2 生成、maintain = 版不変・記録 1 件
-- **期待 DB 差分**: 新版 +1（2 件ケースのみ）、revision 記録 +2（accept・maintain）、operation_log +1（拒否） ／ **期待証跡**: maintain の revision 記録（版遷移なし）
+- **期待 DB 差分**: 新版 +1（2 件ケースのみ）、revision 記録 +2（accept・maintain）、構造化ログ +1（拒否） ／ **期待証跡**: maintain の revision 記録（版遷移なし）
 - **禁止副作用**: 重複 ID の 2 件扱い・maintain での版生成 ／ **エラー型**: RevisionEvidenceRejected（重複時）
 - **対象更新**: S1（上流戦略スライス） ／ **TC**: TCC-SR-10-3
 
@@ -1853,7 +1853,7 @@
 - **Given**: PV 急落という単一の計測値変動だけを根拠とした戦略モデルの自動 revision accept 要求 ／ **When**: revision 適用を試行する ／ **Then**: SR-10 の根拠規律（支持根拠 ≥2・重複不可）により RevisionEvidenceRejected で拒否され、数値変化だけでは戦略が変わらない
 - **fixture**: seed: 意味モデル v1＋根拠 = 計測 1 件のみの accept 提案
 - **観測点**: raise される例外型／意味モデルの版・status ／ **期待状態**: 意味モデル不変（v1 = active）
-- **期待 DB 差分**: operation_log +1 行（拒否）のみ ／ **期待証跡**: operation_log 拒否行（理由 = 単一計測値根拠）
+- **期待 DB 差分**: 構造化ログ +1 行（拒否）のみ ／ **期待証跡**: 構造化ログの拒否行（理由 = 単一計測値根拠）
 - **禁止副作用**: KPI 変動による戦略正本の自動更新 ／ **エラー型**: RevisionEvidenceRejected
 - **対象更新**: S1（上流戦略スライス — SCM-08） ／ **TC**: TCC-SR-12-2
 
@@ -1874,7 +1874,7 @@
 - **fixture**: fixture: json/strategy/fixtures/ の valid content plan（5 キー完備）
 - **観測点**: 承認 API 戻り値／evidence SELECT（kind = plan_record） ／ **期待状態**: 企画承認済み・plan_record 証跡 1 件
 - **期待 DB 差分**: evidence +1 行（plan_record） ／ **期待証跡**: evidence 行（payload_json に 5 宣言）
-- **禁止副作用**: operation_log への拒否行 ／ **エラー型**: なし
+- **禁止副作用**: 構造化ログ以外への拒否記録（evidence への拒否行の混入） ／ **エラー型**: なし
 - **対象更新**: S1（SCM-10 — 実行時強制。S1 前半は docs ゲート） ／ **TC**: TCC-SR-13-1
 
 ### AC-SR-13-2（拒否）
@@ -1882,7 +1882,7 @@
 - **Given**: recognition_change キーを欠いた集客目的のコンテンツ企画 ／ **When**: T-PLAN の plan_record 承認を実行する ／ **Then**: ContentValueDeclarationRejected（G-CONTENT-VALUE-DEFINITION）で承認が拒否され、集客目的であることは免除理由にならない
 - **fixture**: fixture: json/strategy/fixtures/ の invalid content plan（recognition_change 欠落）
 - **観測点**: raise される例外型／evidence 件数／operation_log SELECT ／ **期待状態**: 企画未承認・plan_record 0 件
-- **期待 DB 差分**: operation_log +1 行（拒否）のみ ／ **期待証跡**: operation_log 拒否行（欠落キー = recognition_change）
+- **期待 DB 差分**: 構造化ログ +1 行（拒否）のみ ／ **期待証跡**: 構造化ログの拒否行（欠落キー = recognition_change）
 - **禁止副作用**: 宣言なし企画の主要企画としての承認 ／ **エラー型**: ContentValueDeclarationRejected
 - **対象更新**: S1（SCM-10） ／ **TC**: TCC-SR-13-2
 
@@ -1891,7 +1891,7 @@
 - **Given**: 5 キーが存在するが comparison_axes = []・defined_value = 空文字の企画と、target_hypothesis_ids が実在しない仮説 ID を指す企画 ／ **When**: 両企画の承認を実行する ／ **Then**: 空配列・空文字は「未宣言」として拒否され、実在しない仮説参照も拒否される — 宣言補完後の再提出は承認される
 - **fixture**: fixture: 空値 5 キー企画＋架空 ID 参照企画、その後の補完版
 - **観測点**: raise される例外型／再提出後の evidence SELECT ／ **期待状態**: 初回 2 件拒否→補完後 1 件承認
-- **期待 DB 差分**: operation_log +2 行（拒否）、その後 evidence +1 行 ／ **期待証跡**: operation_log 拒否行（空値／参照不整合）
+- **期待 DB 差分**: 構造化ログ +2 行（拒否）、その後 evidence +1 行 ／ **期待証跡**: 構造化ログの拒否行（空値／参照不整合）
 - **禁止副作用**: 空値の宣言扱い（fail-open） ／ **エラー型**: ContentValueDeclarationRejected
 - **対象更新**: S1（SCM-10） ／ **TC**: TCC-SR-13-3
 
@@ -1903,7 +1903,7 @@
 - **fixture**: seed: media-roles.json（12 語彙）＋valid brief draft（problem-framing）
 - **観測点**: strategic_briefs SELECT（media_role 列） ／ **期待状態**: brief 1 行発行（media_role = problem-framing）
 - **期待 DB 差分**: strategic_briefs +1 行 ／ **期待証跡**: brief 行そのもの（役割語彙保存）
-- **禁止副作用**: operation_log への拒否行 ／ **エラー型**: なし
+- **禁止副作用**: 構造化ログ以外への拒否記録（evidence への拒否行の混入） ／ **エラー型**: なし
 - **対象更新**: S1（SCM-09 — G-MEDIA-ROLE） ／ **TC**: TCC-SR-14-1
 
 ### AC-SR-14-2（拒否）
@@ -1911,7 +1911,7 @@
 - **Given**: media_role = 'wordpress'（媒体名）と media_role = 'Proof'（大文字揺れ）を宣言した brief draft 2 件 ／ **When**: issue_strategic_brief を実行する ／ **Then**: 両方とも MediaRoleRejected（G-MEDIA-ROLE）で発行が拒否され、宣言値と台帳語彙が operation_log に残る
 - **fixture**: seed: media-roles.json＋invalid draft 2 件（媒体名・大小文字揺れ）
 - **観測点**: raise される例外型／strategic_briefs 件数／operation_log SELECT ／ **期待状態**: brief 0 件発行
-- **期待 DB 差分**: operation_log +2 行（拒否）のみ ／ **期待証跡**: operation_log 拒否行（宣言値・台帳版）
+- **期待 DB 差分**: 構造化ログ +2 行（拒否）のみ ／ **期待証跡**: 構造化ログの拒否行（宣言値・台帳版）
 - **禁止副作用**: 媒体名の media_role としての保存・揺れの自動正規化 ／ **エラー型**: MediaRoleRejected
 - **対象更新**: S1（SCM-09） ／ **TC**: TCC-SR-14-2
 
@@ -1920,7 +1920,7 @@
 - **Given**: media-roles.json が欠損（削除・パース不能）した環境 ／ **When**: 任意の media_role で brief 発行を試行し、その後台帳を復旧して再発行する ／ **Then**: 台帳欠損時は全宣言が拒否され（deny-by-default）、台帳復旧後の再発行は成立する
 - **fixture**: seed: media-roles.json を削除した環境→復旧した環境、valid draft
 - **観測点**: raise される例外型／復旧後の strategic_briefs SELECT ／ **期待状態**: 欠損時 0 件・復旧後 1 件発行
-- **期待 DB 差分**: operation_log +1 行（拒否）、復旧後 strategic_briefs +1 行 ／ **期待証跡**: operation_log 拒否行（理由 = 台帳ロード不能）
+- **期待 DB 差分**: 構造化ログ +1 行（拒否）、復旧後 strategic_briefs +1 行 ／ **期待証跡**: 構造化ログの拒否行（理由 = 台帳ロード不能）
 - **禁止副作用**: 台帳欠損時の全許可（fail-open） ／ **エラー型**: MediaRoleRejected（台帳欠損時）
 - **対象更新**: S1（SCM-09） ／ **TC**: TCC-SR-14-3
 

@@ -27,7 +27,8 @@
     "fixed_values",
     "trace_up",
     "trace_down",
-    "slice"
+    "slice",
+    "semantic_refs"
   ],
   "properties": {
     "id": {
@@ -252,6 +253,80 @@
         }
       },
       "description": "invariants[i] を負方向に検証する AC 群（S0 契約は invariants と同数必須 — G-INVARIANT-TRACE）"
+    },
+    "semantic_refs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "table_refs",
+        "column_refs",
+        "state_refs",
+        "event_refs",
+        "evidence_kind_refs",
+        "error_type_refs",
+        "api_refs"
+      ],
+      "description": "構造化参照（G-SEMANTIC-REF/G-COLUMN-REF/G-STATE-EVIDENCE-CONSISTENCY が正本と突合）。自由文でなくこの配列が意味整合の検査対象。",
+      "properties": {
+        "table_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          },
+          "description": "参照テーブル（ddl.sql と突合）"
+        },
+        "column_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z_]+\\.[a-z_]+$"
+          },
+          "description": "<table>.<column>（ddl.sql と突合）"
+        },
+        "state_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z_]+\\.[a-z_]+$"
+          },
+          "description": "<entity>.<state>（transitions.json と突合）"
+        },
+        "event_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          },
+          "description": "遷移イベント（transitions.json と突合）"
+        },
+        "evidence_kind_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          },
+          "description": "evidence kind（evidence-kinds.json と突合）"
+        },
+        "error_type_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          },
+          "description": "エラー型（error-taxonomy と突合）"
+        },
+        "api_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          },
+          "description": "公開 API 名（du-contracts と突合）"
+        }
+      }
     }
   }
 }

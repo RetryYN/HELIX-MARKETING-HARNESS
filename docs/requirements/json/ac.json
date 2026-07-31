@@ -422,5 +422,10 @@
     "FR-55",
     "FR-63",
     "FR-73"
-  ]
+  ],
+  "status": "superseded",
+  "superseded_at": "2026-08-01",
+  "superseded_by": "ac-contracts.json",
+  "authority": "PO",
+  "note": "AC 19＋deferred 17 の旧体系 — 2026-08-01 クロージャーで実装入力から除外。履歴として保持（削除しない）。実装・検証の入力は ac-contracts.json を用いる。"
 }

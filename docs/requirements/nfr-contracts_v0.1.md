@@ -2,7 +2,7 @@
 
 # 非機能要件 計測契約（NFR contracts）v0.1
 
-> status: **draft（再降下中）**（2026-08-01 全層再降下 §3 — JSON 内容正本の生成ビュー）
+> status: **confirmed**（2026-08-01 PO 承認 — receipt 7083bc33f87e）。JSON 内容正本の生成ビュー（全層再降下 §3）
 > 各 NFR に測定対象・測定方法・閾値・測定環境・違反時動作・証跡を必須化（G-NFR-MEASURABLE）。
 
 ## NFR-1 fail-close（判定不能は通さない）
@@ -12,7 +12,7 @@
 - **閾値**: invalid fixture の拒否率 100%（1 件でも通過で fail）・ゲート無効化フラグ検出 0 件・判定不能入力の通過 0 件
 - **測定環境**: CI（GitHub Actions: python-ci／requirements-gates 相当ジョブ）＋ローカル pytest
 - **違反時の動作**: CI 赤で merge を遮断（fail-close）。実行時は該当操作を拒否し operation_log へ記録、ゲート自体の破損検知は fatal_failure で escalated。
-- **証跡**: validate_requirements.py の実行ログ（negative test 結果）／pytest レポート（拒否系 TC）／operation_log の拒否行（実行時）
+- **証跡**: validate_requirements.py の実行ログ（negative test 結果）／pytest レポート（拒否系 TC）／拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）（実行時）
 - **trace**: 上流 = requirements_v0.1 §3 BR-B4 ／ 下流 = STC-G 系（invalid fixture 拒否） 拒否系 TC 群（検証設計③）
 
 ## NFR-2 決定性（同一入力→同一出力）
@@ -92,7 +92,7 @@
 - **閾値**: PR 表記なしアフィリエイト成果物の公開 0 件（拒否率 100%）・オプトインなし配信 0 件・機械ゲート化不能な配信形態の採用 0 件
 - **測定環境**: CI（python-ci — pytest＋invalid fixture）
 - **違反時の動作**: 違反成果物は公開ゲートで拒否し operation_log へ記録（fail-close）。ゲート化できない配信形態の追加要求は採用拒否（要件改訂でもゲート化が前提）。
-- **証跡**: operation_log の拒否行（PR 表記・オプトイン）／pytest レポート（法規拒否系）／MR 台帳との突合結果
+- **証跡**: 拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）（PR 表記・オプトイン）／pytest レポート（法規拒否系）／MR 台帳との突合結果
 - **trace**: 上流 = requirements_v0.1 §3 MR-HS-3 MR-LINE-2 ／ 下流 = 法規ゲート拒否 TC 群
 
 ## NFR-10 バックアップ・復旧（日次＋14 世代）

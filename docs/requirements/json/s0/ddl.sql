@@ -474,3 +474,31 @@ WHEN (SELECT loop_kind FROM loop_runs WHERE id = NEW.loop_run_id) IS NOT 'lower'
   OR (SELECT digest FROM strategic_briefs WHERE id = NEW.strategic_brief_id)
       IS NOT NEW.strategic_brief_digest
 BEGIN SELECT RAISE(ABORT, 'tlp integrity: run must be lower+terminal and brief/digest must match'); END;
+CREATE TRIGGER loop_runs_brief_immutable BEFORE UPDATE OF strategic_brief_id, strategic_brief_digest
+  ON loop_runs
+WHEN NEW.strategic_brief_id IS NOT OLD.strategic_brief_id
+  OR NEW.strategic_brief_digest IS NOT OLD.strategic_brief_digest
+BEGIN SELECT RAISE(ABORT, 'loop_runs brief binding is immutable after insert'); END;
+CREATE TRIGGER tlp_kind_matches_terminal_state BEFORE INSERT ON tactical_learning_packets
+WHEN (NEW.packet_kind = 'learning'
+      AND (SELECT state FROM loop_runs WHERE id = NEW.loop_run_id) IS NOT 'completed')
+  OR (NEW.packet_kind = 'failure'
+      AND (SELECT state FROM loop_runs WHERE id = NEW.loop_run_id)
+          NOT IN ('failed', 'escalated', 'cancelled'))
+BEGIN SELECT RAISE(ABORT,
+  'tlp kind must match terminal state: completed=learning, failed/escalated/cancelled=failure'); END;
+CREATE TRIGGER tlp_kind_field_rules BEFORE INSERT ON tactical_learning_packets
+WHEN (NEW.packet_kind = 'failure'
+      AND (NEW.causal_interpretation IS NOT NULL
+           OR NEW.hypothesis_result IS NOT NULL
+           OR NEW.assessment_reason IS NOT NULL
+           OR NEW.alternative_explanations_json IS NOT '[]'
+           OR NEW.proposed_revision_targets_json IS NOT '[]'))
+  OR (NEW.packet_kind = 'learning'
+      AND (NEW.causal_interpretation IS NULL
+           OR NEW.hypothesis_result IS NULL
+           OR NEW.assessment_reason IS NULL
+           OR json_array_length(NEW.observations_json) = 0
+           OR json_array_length(NEW.alternative_explanations_json) = 0))
+BEGIN SELECT RAISE(ABORT,
+  'tlp field rules: failure must not carry interpretation; learning requires observations/assessment/causal/alternatives'); END;

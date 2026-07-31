@@ -4,71 +4,563 @@
   "source": "docs/requirements/verification-design_v0.1.md",
   "generated": "2026-07-31",
   "items": [
-    {"id":"TC-011","ac":"AC-11","kind":"unit","fixture":"sqlite_seed","polarity":"reject","update":"S0.1","text":"未定義遷移を拒否し状態・retry_countを不変、拒否ログを残す。"},
-    {"id":"TC-012","ac":"AC-12","kind":"integration","fixture":"sqlite_seed","polarity":"accept","update":"S0.1","text":"ループ到達でworkflow・author・output kind非NULLのtaskを発行する。"},
-    {"id":"TC-013","ac":"AC-13","kind":"integration","fixture":"sqlite_seed","polarity":"accept","update":"S0.1","text":"retry_limit=3の3回目FAILでescalatedにする。"},
-    {"id":"TC-021","ac":"AC-21","kind":"integration","fixture":"sqlite_seed","polarity":"reject","update":"S0.1","text":"PASSなしの公開要求をconnector呼出前に拒否する。"},
-    {"id":"TC-023","ac":"AC-23","kind":"unit","fixture":"sqlite_seed","polarity":"reject","update":"S0.1","text":"CAC/ROAS/広告費型kpi_nodeを登録拒否する。"},
-    {"id":"TC-027","ac":"AC-27","kind":"integration","fixture":"sqlite_seed","polarity":"reject","update":"S0.1","text":"同一author/verifierをDB制約とengineの双方で拒否する。"},
-    {"id":"TC-028","ac":"AC-28","kind":"integration","fixture":"sqlite_seed","polarity":"reject","update":"S0.1","text":"required kind欠落時のdone遷移を拒否する。"},
-    {"id":"TC-033","ac":"AC-33","kind":"integration","fixture":"sqlite_seed","polarity":"accept","update":"S0.1","text":"configをINSERT履歴化し旧値・理由を取得できる。"},
-    {"id":"TC-041","ac":"AC-41","kind":"integration","fixture":"sqlite_seed","polarity":"accept","update":"S0.3","text":"レジストリ行だけの切替が選択経路に反映される。"},
-    {"id":"TC-042","ac":"AC-42","kind":"integration","fixture":"sqlite_seed","polarity":"accept","update":"S0.3","text":"playbook参照操作の成功後に最終成功日時を更新する。"},
-    {"id":"TC-044-R","ac":"AC-44","kind":"integration","fixture":"sqlite_seed,wp_docker","polarity":"reject","update":"S0.2","text":"成立pair IDなしのWP書込みをREST呼出前に拒否する。"},
-    {"id":"TC-044-A","ac":"AC-44","kind":"e2e","fixture":"sqlite_seed,wp_docker,approval_mock","polarity":"accept","update":"S0.2","text":"成立pair・束縛承認後、Docker WPで下書き→公開する。"},
-    {"id":"TC-046","ac":"AC-46","kind":"integration","fixture":"sqlite_seed,approval_mock","polarity":"accept","update":"S0.2","text":"approvals/evidenceへの記録前は待機し、記録後だけ進行する。"},
-    {"id":"TC-047","ac":"AC-47","kind":"integration","fixture":"sqlite_seed","polarity":"accept","update":"S0.1","text":"repo、SQLite、構造化ログのcredential検出件数をゼロにする。"},
-    {"id":"TC-051","ac":"AC-51","kind":"property","fixture":"sqlite_seed","polarity":"accept","update":"S0.2","text":"同一ソース二回の制作出力SHA-256を一致させる。"},
-    {"id":"TC-054","ac":"AC-54","kind":"integration","fixture":"sqlite_seed","polarity":"accept","update":"S0.2","text":"review_passをcommit hashに束縛しsourceを復元する。"},
-    {"id":"TC-061","ac":"AC-61","kind":"integration","fixture":"sqlite_seed,ga4_mock","polarity":"accept","update":"S0.3","text":"PVをnode/evidence FK付きmeasurementsに投入する。"},
-    {"id":"TC-062","ac":"AC-62","kind":"integration","fixture":"sqlite_seed,ga4_mock","polarity":"accept","update":"S0.3","text":"破損行を隔離し正常行だけを投入する。"},
-    {"id":"TC-071","ac":"AC-71","kind":"integration","fixture":"sqlite_seed","polarity":"accept","update":"S0.1","text":"S0最小スキーマをDDLから再生成する。"},
-    {"id":"TC-072","ac":"AC-72","kind":"integration","fixture":"sqlite_seed","polarity":"accept","update":"S0.1","text":"旧版を前方昇格しschema_versionを記録する。"},
-    {"id":"TC-GATE-01","ac":"","kind":"integration","fixture":"sqlite_seed,wp_docker","polarity":"reject","update":"S0.1","text":"ペア未成立公開を外部API呼出前にfail-closeする。"},
-    {"id":"TC-GATE-02","ac":"","kind":"integration","fixture":"sqlite_seed","polarity":"reject","update":"S0.1","text":"自己審査をDBとengineの双方でfail-closeする。"},
-    {"id":"TC-GATE-03","ac":"","kind":"integration","fixture":"sqlite_seed","polarity":"reject","update":"S0.1","text":"必須証跡欠落時のdoneをfail-closeする。"},
-    {"id":"TC-GATE-04","ac":"","kind":"unit","fixture":"sqlite_seed","polarity":"reject","update":"S0.1","text":"有料指標をdeny-by-defaultで拒否する。"},
-    {"id":"TC-GATE-05","ac":"","kind":"unit","fixture":"sqlite_seed","polarity":"reject","update":"S0.1","text":"未定義遷移を状態不変で拒否する。"},
-    {"id":"TC-GATE-06","ac":"","kind":"integration","fixture":"sqlite_seed,approval_mock","polarity":"reject","update":"S0.2","text":"承認binding不一致時に公開しない。"},
-    {"id":"TC-GATE-07","ac":"","kind":"integration","fixture":"sqlite_seed,wp_docker","polarity":"reject","update":"S0.2","text":"外部operation照合不能時に再送せずescalatedにする。"},
-    {"id":"TC-NFR-02","ac":"AC-51","kind":"property","fixture":"sqlite_seed","polarity":"accept","update":"S0.2","text":"同一入力二回の出力SHA-256と固定済みevidenceを一致させる。"},
-    {"id":"TC-RST-01","ac":"","kind":"integration","fixture":"sqlite_seed","polarity":"accept","update":"S0.1","text":"pendingはidempotency keyを保持し再claimできる。"},
-    {"id":"TC-RST-02","ac":"","kind":"integration","fixture":"sqlite_seed","polarity":"accept","update":"S0.1","text":"外部操作前in_progressは入力・workspace・既存証跡を再読込して再開する。"},
-    {"id":"TC-RST-03","ac":"","kind":"integration","fixture":"sqlite_seed,wp_docker","polarity":"accept","update":"S0.2","text":"外部操作中/後はoperation_log照合済みの成功を補完してverifyingへ進める。"},
-    {"id":"TC-RST-04","ac":"","kind":"integration","fixture":"sqlite_seed","polarity":"accept","update":"S0.1","text":"verifyingは既存PASS/FAILを再利用しretryを二重加算しない。"},
-    {"id":"TC-RST-05","ac":"","kind":"integration","fixture":"sqlite_seed,approval_mock","polarity":"accept","update":"S0.2","text":"waitingはbinding完全一致でresumeし、未充足ではwaitingを維持する。"},
-    {"id":"TC-RST-06","ac":"","kind":"unit","fixture":"sqlite_seed","polarity":"reject","update":"S0.1","text":"終端状態は明示発行まで遷移不可である。"},
-    {"id":"TC-SCH-01","ac":"","kind":"integration","fixture":"sqlite_seed","polarity":"accept","update":"S0.1","text":"空DBにDDL/migrationを適用しintegrity_checkを成功させる。"},
-    {"id":"TC-SCH-02","ac":"","kind":"integration","fixture":"sqlite_seed","polarity":"reject","update":"S0.1","text":"FK違反DMLを拒否しforeign_key_checkを成功させる。"},
-    {"id":"TC-SCH-03","ac":"","kind":"integration","fixture":"sqlite_seed","polarity":"accept","update":"S0.1","text":"同一workflow_keyの異なるversionを共存させ重複versionを拒否する。"},
-    {"id":"TC-SCH-04","ac":"","kind":"integration","fixture":"sqlite_seed","polarity":"reject","update":"S0.1","text":"configのUPDATE/DELETEを拒否しsupersedes付きINSERTだけを受理する。"},
-    {"id":"TC-SCH-05","ac":"","kind":"integration","fixture":"sqlite_seed","polarity":"reject","update":"S0.1","text":"同一(task_id,kind,value)の二回目evidence INSERTを拒否する。"},
-    {"id":"TC-EVD-01-A","ac":"","kind":"unit","fixture":"sqlite_seed","polarity":"accept","update":"S0.1","text":"plan_recordの完全payloadとplan整合を受理する。"},
-    {"id":"TC-EVD-01-R","ac":"","kind":"unit","fixture":"sqlite_seed","polarity":"reject","update":"S0.1","text":"plan_recordの必須キー欠落又はplan不整合を拒否する。"},
-    {"id":"TC-EVD-02-A","ac":"","kind":"unit","fixture":"sqlite_seed","polarity":"accept","update":"S0.1","text":"commit_hashの完全payloadと列同値を受理する。"},
-    {"id":"TC-EVD-02-R","ac":"","kind":"unit","fixture":"sqlite_seed","polarity":"reject","update":"S0.1","text":"commit_hashの必須キー欠落、列不一致又は桁数不正を拒否する。"},
-    {"id":"TC-EVD-03-A","ac":"","kind":"unit","fixture":"sqlite_seed","polarity":"accept","update":"S0.1","text":"別reviewerのPASS review_passを受理する。"},
-    {"id":"TC-EVD-03-R","ac":"","kind":"unit","fixture":"sqlite_seed","polarity":"reject","update":"S0.1","text":"PASS以外、hash欠落又は同一reviewerを拒否する。"},
-    {"id":"TC-EVD-04-A","ac":"","kind":"unit","fixture":"sqlite_seed","polarity":"accept","update":"S0.1","text":"assets URLと一致するpublished_urlを受理する。"},
-    {"id":"TC-EVD-04-R","ac":"","kind":"unit","fixture":"sqlite_seed","polarity":"reject","update":"S0.1","text":"published_urlの必須値欠落又はassets URL不整合を拒否する。"},
-    {"id":"TC-EVD-05-A","ac":"","kind":"unit","fixture":"sqlite_seed","polarity":"accept","update":"S0.1","text":"完全なmeasurement payloadとevidence参照を受理する。"},
-    {"id":"TC-EVD-05-R","ac":"","kind":"unit","fixture":"sqlite_seed","polarity":"reject","update":"S0.1","text":"measurementの必須値欠落又はevidence参照不能を拒否する。"},
-    {"id":"TC-EVD-06-A","ac":"","kind":"unit","fixture":"sqlite_seed","polarity":"accept","update":"S0.1","text":"完全なscreenshot payloadを受理する。"},
-    {"id":"TC-EVD-06-R","ac":"","kind":"unit","fixture":"sqlite_seed","polarity":"reject","update":"S0.1","text":"screenshotのpath/hash/captured_at欠落を拒否する。"},
-    {"id":"TC-EVD-07-A","ac":"","kind":"unit","fixture":"sqlite_seed","polarity":"accept","update":"S0.1","text":"SHA-256のfile_hash payloadを受理する。"},
-    {"id":"TC-EVD-07-R","ac":"","kind":"unit","fixture":"sqlite_seed","polarity":"reject","update":"S0.1","text":"file_hashの必須値欠落又はSHA-256以外を拒否する。"},
-    {"id":"TC-EVD-08-A","ac":"","kind":"unit","fixture":"sqlite_seed","polarity":"accept","update":"S0.1","text":"approvalsと整合するapproved approval payloadを受理する。"},
-    {"id":"TC-EVD-08-R","ac":"","kind":"unit","fixture":"sqlite_seed","polarity":"reject","update":"S0.1","text":"approvalの決定値又はbinding欠落、approvals不整合を拒否する。"},
-    {"id":"TC-EVD-09-A","ac":"","kind":"unit","fixture":"sqlite_seed","polarity":"accept","update":"S0.1","text":"秘匿情報を含まないoperation_log payloadを受理する。"},
-    {"id":"TC-EVD-09-R","ac":"","kind":"unit","fixture":"sqlite_seed","polarity":"reject","update":"S0.1","text":"operation_logの必須値欠落又はsecret/本文/credential混入を拒否する。"},
-    {"id":"TC-EVD-10-A","ac":"","kind":"unit","fixture":"sqlite_seed","polarity":"accept","update":"S0.1","text":"完全なdashboard payloadを受理する。"},
-    {"id":"TC-EVD-10-R","ac":"","kind":"unit","fixture":"sqlite_seed","polarity":"reject","update":"S0.1","text":"dashboardのpath/hash/period_end欠落を拒否する。"}
+    {
+      "id": "TC-011",
+      "ac": "AC-11",
+      "kind": "unit",
+      "fixture": "sqlite_seed",
+      "polarity": "reject",
+      "update": "S0.1",
+      "text": "未定義遷移を拒否し状態・retry_countを不変、拒否ログを残す。"
+    },
+    {
+      "id": "TC-012",
+      "ac": "AC-12",
+      "kind": "integration",
+      "fixture": "sqlite_seed",
+      "polarity": "accept",
+      "update": "S0.1",
+      "text": "ループ到達でworkflow・author・output kind非NULLのtaskを発行する。"
+    },
+    {
+      "id": "TC-013",
+      "ac": "AC-13",
+      "kind": "integration",
+      "fixture": "sqlite_seed",
+      "polarity": "accept",
+      "update": "S0.1",
+      "text": "retry_limit=3の3回目FAILでescalatedにする。"
+    },
+    {
+      "id": "TC-021",
+      "ac": "AC-21",
+      "kind": "integration",
+      "fixture": "sqlite_seed",
+      "polarity": "reject",
+      "update": "S0.1",
+      "text": "PASSなしの公開要求をconnector呼出前に拒否する。"
+    },
+    {
+      "id": "TC-023",
+      "ac": "AC-23",
+      "kind": "unit",
+      "fixture": "sqlite_seed",
+      "polarity": "reject",
+      "update": "S0.1",
+      "text": "CAC/ROAS/広告費型kpi_nodeを登録拒否する。"
+    },
+    {
+      "id": "TC-027",
+      "ac": "AC-27",
+      "kind": "integration",
+      "fixture": "sqlite_seed",
+      "polarity": "reject",
+      "update": "S0.1",
+      "text": "同一author/verifierをDB制約とengineの双方で拒否する。"
+    },
+    {
+      "id": "TC-028",
+      "ac": "AC-28",
+      "kind": "integration",
+      "fixture": "sqlite_seed",
+      "polarity": "reject",
+      "update": "S0.1",
+      "text": "required kind欠落時のdone遷移を拒否する。"
+    },
+    {
+      "id": "TC-033",
+      "ac": "AC-33",
+      "kind": "integration",
+      "fixture": "sqlite_seed",
+      "polarity": "accept",
+      "update": "S0.1",
+      "text": "configをINSERT履歴化し旧値・理由を取得できる。"
+    },
+    {
+      "id": "TC-041",
+      "ac": "AC-41",
+      "kind": "integration",
+      "fixture": "sqlite_seed",
+      "polarity": "accept",
+      "update": "S0.3",
+      "text": "レジストリ行だけの切替が選択経路に反映される。"
+    },
+    {
+      "id": "TC-042",
+      "ac": "AC-42",
+      "kind": "integration",
+      "fixture": "sqlite_seed",
+      "polarity": "accept",
+      "update": "S0.3",
+      "text": "playbook参照操作の成功後に最終成功日時を更新する。"
+    },
+    {
+      "id": "TC-044-R",
+      "ac": "AC-44",
+      "kind": "integration",
+      "fixture": "sqlite_seed,wp_docker",
+      "polarity": "reject",
+      "update": "S0.2",
+      "text": "成立pair IDなしのWP書込みをREST呼出前に拒否する。"
+    },
+    {
+      "id": "TC-044-A",
+      "ac": "AC-44",
+      "kind": "e2e",
+      "fixture": "sqlite_seed,wp_docker,approval_mock",
+      "polarity": "accept",
+      "update": "S0.2",
+      "text": "成立pair・束縛承認後、Docker WPで下書き→公開する。"
+    },
+    {
+      "id": "TC-046",
+      "ac": "AC-46",
+      "kind": "integration",
+      "fixture": "sqlite_seed,approval_mock",
+      "polarity": "accept",
+      "update": "S0.2",
+      "text": "approvals/evidenceへの記録前は待機し、記録後だけ進行する。"
+    },
+    {
+      "id": "TC-047",
+      "ac": "AC-47",
+      "kind": "integration",
+      "fixture": "sqlite_seed",
+      "polarity": "accept",
+      "update": "S0.1",
+      "text": "repo、SQLite、構造化ログのcredential検出件数をゼロにする。"
+    },
+    {
+      "id": "TC-051",
+      "ac": "AC-51",
+      "kind": "property",
+      "fixture": "sqlite_seed",
+      "polarity": "accept",
+      "update": "S0.2",
+      "text": "同一ソース二回の制作出力SHA-256を一致させる。"
+    },
+    {
+      "id": "TC-054",
+      "ac": "AC-54",
+      "kind": "integration",
+      "fixture": "sqlite_seed",
+      "polarity": "accept",
+      "update": "S0.2",
+      "text": "review_passをcommit hashに束縛しsourceを復元する。"
+    },
+    {
+      "id": "TC-061",
+      "ac": "AC-61",
+      "kind": "integration",
+      "fixture": "sqlite_seed,ga4_mock",
+      "polarity": "accept",
+      "update": "S0.3",
+      "text": "PVをnode/evidence FK付きmeasurementsに投入する。"
+    },
+    {
+      "id": "TC-062",
+      "ac": "AC-62",
+      "kind": "integration",
+      "fixture": "sqlite_seed,ga4_mock",
+      "polarity": "accept",
+      "update": "S0.3",
+      "text": "破損行を隔離し正常行だけを投入する。"
+    },
+    {
+      "id": "TC-071",
+      "ac": "AC-71",
+      "kind": "integration",
+      "fixture": "sqlite_seed",
+      "polarity": "accept",
+      "update": "S0.1",
+      "text": "S0最小スキーマをDDLから再生成する。"
+    },
+    {
+      "id": "TC-072",
+      "ac": "AC-72",
+      "kind": "integration",
+      "fixture": "sqlite_seed",
+      "polarity": "accept",
+      "update": "S0.1",
+      "text": "旧版を前方昇格しschema_versionを記録する。"
+    },
+    {
+      "id": "TC-GATE-01",
+      "ac": "",
+      "kind": "integration",
+      "fixture": "sqlite_seed,wp_docker",
+      "polarity": "reject",
+      "update": "S0.1",
+      "text": "ペア未成立公開を外部API呼出前にfail-closeする。"
+    },
+    {
+      "id": "TC-GATE-02",
+      "ac": "",
+      "kind": "integration",
+      "fixture": "sqlite_seed",
+      "polarity": "reject",
+      "update": "S0.1",
+      "text": "自己審査をDBとengineの双方でfail-closeする。"
+    },
+    {
+      "id": "TC-GATE-03",
+      "ac": "",
+      "kind": "integration",
+      "fixture": "sqlite_seed",
+      "polarity": "reject",
+      "update": "S0.1",
+      "text": "必須証跡欠落時のdoneをfail-closeする。"
+    },
+    {
+      "id": "TC-GATE-04",
+      "ac": "",
+      "kind": "unit",
+      "fixture": "sqlite_seed",
+      "polarity": "reject",
+      "update": "S0.1",
+      "text": "有料指標をdeny-by-defaultで拒否する。"
+    },
+    {
+      "id": "TC-GATE-05",
+      "ac": "",
+      "kind": "unit",
+      "fixture": "sqlite_seed",
+      "polarity": "reject",
+      "update": "S0.1",
+      "text": "未定義遷移を状態不変で拒否する。"
+    },
+    {
+      "id": "TC-GATE-06",
+      "ac": "",
+      "kind": "integration",
+      "fixture": "sqlite_seed,approval_mock",
+      "polarity": "reject",
+      "update": "S0.2",
+      "text": "承認binding不一致時に公開しない。"
+    },
+    {
+      "id": "TC-GATE-07",
+      "ac": "",
+      "kind": "integration",
+      "fixture": "sqlite_seed,wp_docker",
+      "polarity": "reject",
+      "update": "S0.2",
+      "text": "外部operation照合不能時に再送せずescalatedにする。"
+    },
+    {
+      "id": "TC-NFR-02",
+      "ac": "AC-51",
+      "kind": "property",
+      "fixture": "sqlite_seed",
+      "polarity": "accept",
+      "update": "S0.2",
+      "text": "同一入力二回の出力SHA-256と固定済みevidenceを一致させる。"
+    },
+    {
+      "id": "TC-RST-01",
+      "ac": "",
+      "kind": "integration",
+      "fixture": "sqlite_seed",
+      "polarity": "accept",
+      "update": "S0.1",
+      "text": "pendingはidempotency keyを保持し再claimできる。"
+    },
+    {
+      "id": "TC-RST-02",
+      "ac": "",
+      "kind": "integration",
+      "fixture": "sqlite_seed",
+      "polarity": "accept",
+      "update": "S0.1",
+      "text": "外部操作前in_progressは入力・workspace・既存証跡を再読込して再開する。"
+    },
+    {
+      "id": "TC-RST-03",
+      "ac": "",
+      "kind": "integration",
+      "fixture": "sqlite_seed,wp_docker",
+      "polarity": "accept",
+      "update": "S0.2",
+      "text": "外部操作中/後はoperation_log照合済みの成功を補完してverifyingへ進める。"
+    },
+    {
+      "id": "TC-RST-04",
+      "ac": "",
+      "kind": "integration",
+      "fixture": "sqlite_seed",
+      "polarity": "accept",
+      "update": "S0.1",
+      "text": "verifyingは既存PASS/FAILを再利用しretryを二重加算しない。"
+    },
+    {
+      "id": "TC-RST-05",
+      "ac": "",
+      "kind": "integration",
+      "fixture": "sqlite_seed,approval_mock",
+      "polarity": "accept",
+      "update": "S0.2",
+      "text": "waitingはbinding完全一致でresumeし、未充足ではwaitingを維持する。"
+    },
+    {
+      "id": "TC-RST-06",
+      "ac": "",
+      "kind": "unit",
+      "fixture": "sqlite_seed",
+      "polarity": "reject",
+      "update": "S0.1",
+      "text": "終端状態は明示発行まで遷移不可である。"
+    },
+    {
+      "id": "TC-SCH-01",
+      "ac": "",
+      "kind": "integration",
+      "fixture": "sqlite_seed",
+      "polarity": "accept",
+      "update": "S0.1",
+      "text": "空DBにDDL/migrationを適用しintegrity_checkを成功させる。"
+    },
+    {
+      "id": "TC-SCH-02",
+      "ac": "",
+      "kind": "integration",
+      "fixture": "sqlite_seed",
+      "polarity": "reject",
+      "update": "S0.1",
+      "text": "FK違反DMLを拒否しforeign_key_checkを成功させる。"
+    },
+    {
+      "id": "TC-SCH-03",
+      "ac": "",
+      "kind": "integration",
+      "fixture": "sqlite_seed",
+      "polarity": "accept",
+      "update": "S0.1",
+      "text": "同一workflow_keyの異なるversionを共存させ重複versionを拒否する。"
+    },
+    {
+      "id": "TC-SCH-04",
+      "ac": "",
+      "kind": "integration",
+      "fixture": "sqlite_seed",
+      "polarity": "reject",
+      "update": "S0.1",
+      "text": "configのUPDATE/DELETEを拒否しsupersedes付きINSERTだけを受理する。"
+    },
+    {
+      "id": "TC-SCH-05",
+      "ac": "",
+      "kind": "integration",
+      "fixture": "sqlite_seed",
+      "polarity": "reject",
+      "update": "S0.1",
+      "text": "同一(task_id,kind,value)の二回目evidence INSERTを拒否する。"
+    },
+    {
+      "id": "TC-EVD-01-A",
+      "ac": "",
+      "kind": "unit",
+      "fixture": "sqlite_seed",
+      "polarity": "accept",
+      "update": "S0.1",
+      "text": "plan_recordの完全payloadとplan整合を受理する。"
+    },
+    {
+      "id": "TC-EVD-01-R",
+      "ac": "",
+      "kind": "unit",
+      "fixture": "sqlite_seed",
+      "polarity": "reject",
+      "update": "S0.1",
+      "text": "plan_recordの必須キー欠落又はplan不整合を拒否する。"
+    },
+    {
+      "id": "TC-EVD-02-A",
+      "ac": "",
+      "kind": "unit",
+      "fixture": "sqlite_seed",
+      "polarity": "accept",
+      "update": "S0.1",
+      "text": "commit_hashの完全payloadと列同値を受理する。"
+    },
+    {
+      "id": "TC-EVD-02-R",
+      "ac": "",
+      "kind": "unit",
+      "fixture": "sqlite_seed",
+      "polarity": "reject",
+      "update": "S0.1",
+      "text": "commit_hashの必須キー欠落、列不一致又は桁数不正を拒否する。"
+    },
+    {
+      "id": "TC-EVD-03-A",
+      "ac": "",
+      "kind": "unit",
+      "fixture": "sqlite_seed",
+      "polarity": "accept",
+      "update": "S0.1",
+      "text": "別reviewerのPASS review_passを受理する。"
+    },
+    {
+      "id": "TC-EVD-03-R",
+      "ac": "",
+      "kind": "unit",
+      "fixture": "sqlite_seed",
+      "polarity": "reject",
+      "update": "S0.1",
+      "text": "PASS以外、hash欠落又は同一reviewerを拒否する。"
+    },
+    {
+      "id": "TC-EVD-04-A",
+      "ac": "",
+      "kind": "unit",
+      "fixture": "sqlite_seed",
+      "polarity": "accept",
+      "update": "S0.1",
+      "text": "assets URLと一致するpublished_urlを受理する。"
+    },
+    {
+      "id": "TC-EVD-04-R",
+      "ac": "",
+      "kind": "unit",
+      "fixture": "sqlite_seed",
+      "polarity": "reject",
+      "update": "S0.1",
+      "text": "published_urlの必須値欠落又はassets URL不整合を拒否する。"
+    },
+    {
+      "id": "TC-EVD-05-A",
+      "ac": "",
+      "kind": "unit",
+      "fixture": "sqlite_seed",
+      "polarity": "accept",
+      "update": "S0.1",
+      "text": "完全なmeasurement payloadとevidence参照を受理する。"
+    },
+    {
+      "id": "TC-EVD-05-R",
+      "ac": "",
+      "kind": "unit",
+      "fixture": "sqlite_seed",
+      "polarity": "reject",
+      "update": "S0.1",
+      "text": "measurementの必須値欠落又はevidence参照不能を拒否する。"
+    },
+    {
+      "id": "TC-EVD-06-A",
+      "ac": "",
+      "kind": "unit",
+      "fixture": "sqlite_seed",
+      "polarity": "accept",
+      "update": "S0.1",
+      "text": "完全なscreenshot payloadを受理する。"
+    },
+    {
+      "id": "TC-EVD-06-R",
+      "ac": "",
+      "kind": "unit",
+      "fixture": "sqlite_seed",
+      "polarity": "reject",
+      "update": "S0.1",
+      "text": "screenshotのpath/hash/captured_at欠落を拒否する。"
+    },
+    {
+      "id": "TC-EVD-07-A",
+      "ac": "",
+      "kind": "unit",
+      "fixture": "sqlite_seed",
+      "polarity": "accept",
+      "update": "S0.1",
+      "text": "SHA-256のfile_hash payloadを受理する。"
+    },
+    {
+      "id": "TC-EVD-07-R",
+      "ac": "",
+      "kind": "unit",
+      "fixture": "sqlite_seed",
+      "polarity": "reject",
+      "update": "S0.1",
+      "text": "file_hashの必須値欠落又はSHA-256以外を拒否する。"
+    },
+    {
+      "id": "TC-EVD-08-A",
+      "ac": "",
+      "kind": "unit",
+      "fixture": "sqlite_seed",
+      "polarity": "accept",
+      "update": "S0.1",
+      "text": "approvalsと整合するapproved approval payloadを受理する。"
+    },
+    {
+      "id": "TC-EVD-08-R",
+      "ac": "",
+      "kind": "unit",
+      "fixture": "sqlite_seed",
+      "polarity": "reject",
+      "update": "S0.1",
+      "text": "approvalの決定値又はbinding欠落、approvals不整合を拒否する。"
+    },
+    {
+      "id": "TC-EVD-09-A",
+      "ac": "",
+      "kind": "unit",
+      "fixture": "sqlite_seed",
+      "polarity": "accept",
+      "update": "S0.1",
+      "text": "秘匿情報を含まないoperation_log payloadを受理する。"
+    },
+    {
+      "id": "TC-EVD-09-R",
+      "ac": "",
+      "kind": "unit",
+      "fixture": "sqlite_seed",
+      "polarity": "reject",
+      "update": "S0.1",
+      "text": "operation_logの必須値欠落又はsecret/本文/credential混入を拒否する。"
+    },
+    {
+      "id": "TC-EVD-10-A",
+      "ac": "",
+      "kind": "unit",
+      "fixture": "sqlite_seed",
+      "polarity": "accept",
+      "update": "S0.1",
+      "text": "完全なdashboard payloadを受理する。"
+    },
+    {
+      "id": "TC-EVD-10-R",
+      "ac": "",
+      "kind": "unit",
+      "fixture": "sqlite_seed",
+      "polarity": "reject",
+      "update": "S0.1",
+      "text": "dashboardのpath/hash/period_end欠落を拒否する。"
+    }
   ],
   "pairs": [
-    {"design_doc":"requirements_v0.1.md","verification_section":"§2〜§6"},
-    {"design_doc":"s0-contract_v0.1.md","verification_section":"§2〜§5"},
-    {"design_doc":"br-media_v0.1.md","verification_section":"§2、§3、§6"},
-    {"design_doc":"loop-task-workflow_v0.1.md","verification_section":"§2〜§4"},
-    {"design_doc":"media-requirements_v0.1.md","verification_section":"§2、§3、§6"}
-  ]
+    {
+      "design_doc": "requirements_v0.1.md",
+      "verification_section": "§2〜§6"
+    },
+    {
+      "design_doc": "s0-contract_v0.1.md",
+      "verification_section": "§2〜§5"
+    },
+    {
+      "design_doc": "br-media_v0.1.md",
+      "verification_section": "§2、§3、§6"
+    },
+    {
+      "design_doc": "loop-task-workflow_v0.1.md",
+      "verification_section": "§2〜§4"
+    },
+    {
+      "design_doc": "media-requirements_v0.1.md",
+      "verification_section": "§2、§3、§6"
+    }
+  ],
+  "status": "superseded",
+  "superseded_at": "2026-08-01",
+  "superseded_by": "verification/tc-contracts.json",
+  "authority": "PO",
+  "note": "TC 59 の旧体系 — 2026-08-01 クロージャーで実装入力から除外。履歴として保持（削除しない）。実装・検証の入力は verification/tc-contracts.json を用いる。"
 }

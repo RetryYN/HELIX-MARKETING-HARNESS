@@ -34,7 +34,7 @@
       "completion_evidence": [
         "state_transitions の遷移証跡行",
         "loop_runs の状態列",
-        "遷移拒否時の operation_log"
+        "遷移拒否時の構造化ログ（FN-704）"
       ],
       "trace_up": [
         "charter v0.4 §3 アーキテクチャ（ループスクラム）",
@@ -216,7 +216,7 @@
       "failure_impact": "未審査・無企画のコンテンツが公開され、ブランド毀損と媒体アカウント リスクが直結する。",
       "completion_evidence": [
         "pair_plan_quality 行（両参照）",
-        "公開拒否時の operation_log",
+        "公開拒否時の構造化ログ（FN-704）",
         "公開成功時の URL 証跡"
       ],
       "trace_up": [
@@ -1797,5 +1797,10 @@
       ],
       "fill": "—"
     }
-  ]
+  ],
+  "status": "confirmed",
+  "approved_at": "2026-08-01T00:00:00+09:00",
+  "authority": "PO",
+  "supersedes": [],
+  "approval_digest": "d5a8189e1cb2"
 }

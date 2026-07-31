@@ -10,12 +10,16 @@
   戦略層は strategy-loop-requirements／strategy-learning-contract ↔ strategy-loop-design／
   strategy-loop-test-design のペア（SR 16／SCM 10／STC。JSON 正本 = json/strategy/）。
   DDL・状態遷移・evidence 型・WF 契約の正準は docs/requirements/s0-contract_v0.1.md。
-- 現在地: **全層再降下（粒度是正）完了・Sol ブラインドレビュー Go**（2026-08-01）。実装・検証の入力は
+- 現在地: **S0 スコープの設計クロージャー完了**（2026-08-01。S0 スケルトン＋要求/要件/検証契約の再降下＋
+  S0 基本・詳細・単体テスト設計。**S1 以降は planned** — AC→TC→CMP/SCM→DU→API→UT の再降下が未完）。実装・検証の入力は
   **契約正本**（JSON）を用いる: BR = json/br/br-contracts.json／FR = json/fr/fr-contracts.json／
   SR = json/strategy/sr-contracts.json／NFR = json/nfr/nfr-contracts.json／AC = json/ac/ac-contracts.json／
   TC = json/verification/tc-contracts.json／CMP = design/json/cmp-contracts.json／
   DU = design/json/du-contracts.json。MD は **生成ビュー**（`python3 scripts/render_views.py`。手編集禁止）。
   次 = **S0.1 実装**（DU-01〜12 の API 29 本を test-first。各 API の UT は du-contracts の apis[].ut が正本）。
+  着手時は `tests/skip-budget.json` の `s0_impl_started` を true にする（以後 G-S0-TEST-REALITY が
+  S0.1 対象 UT の skip を CI で落とす — 実 red→green を強制）。実装パッケージは **`src/helix/`**。
+  進行は HELIX-HARNESS の工程・Gate・PR 経路に従う（本リポジトリ内の独自手動進行はしない）。
   S0.1 の完了条件 = 割当 UT の red→green ＋ **STC-I-01〜06**（AC-SR-01〜06）green ＋ skip 上限の引き下げ
   （tests/skip-budget.json — 引き上げには approvals.md の構造化 PO 承認行が必要）。
 

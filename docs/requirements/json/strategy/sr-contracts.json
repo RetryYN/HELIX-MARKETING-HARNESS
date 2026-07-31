@@ -34,11 +34,11 @@
       "retry_resume_recovery": "対応表照合は無状態のため再実行安全。クラッシュ時は提出 transaction ごと消え、越境した中間状態は残らない。再開は loop_runs の現状態から続行。",
       "human_judgement": "なし（全自動。責務分離の変更は要件改訂 = PO 承認事項）",
       "side_effects": [
-        "operation_log INSERT（拒否時のみ）"
+        "構造化ログ出力（拒否時のみ — FN-704）"
       ],
       "idempotency": "照合は pure（同一入力→同一判定）。拒否ログは提出操作単位で 1 行。",
       "evidence": [
-        "operation_log の拒否行（loop_kind・提出型・理由）"
+        "拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）（loop_kind・提出型・理由）"
       ],
       "tables": [
         "r: loop_runs（loop_kind 判定）",
@@ -68,6 +68,27 @@
       "slice": "S1",
       "ac_na": {
         "boundary-recovery": "責務分離は構造宣言（型 × loop_kind の静的対応）であり、上限・空・同時実行等の数量的境界と復旧シナリオが定義されない。復旧は各 run の SR-07/08 側 AC が担う。"
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "loop_runs",
+          "state_transitions",
+          "tactical_learning_packets"
+        ],
+        "column_refs": [
+          "loop_runs.loop_kind",
+          "tactical_learning_packets.loop_run_id"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "LoopScopeViolation"
+        ],
+        "api_refs": []
       }
     },
     {
@@ -100,12 +121,12 @@
       "retry_resume_recovery": "schema 検証は無状態。再実行は同一判定。受理 transaction がクラッシュで消えた場合は再投入で冪等に再受理。",
       "human_judgement": "なし（全自動。schema 改訂は要件改訂）",
       "side_effects": [
-        "operation_log INSERT（拒否時）",
+        "構造化ログ出力（拒否時 — FN-704）",
         "market_observation レコード追加（S1 — SCM-05）"
       ],
       "idempotency": "schema 検証は pure。同一 observation の再投入は同一性キーで重複検出（S1 ストア）。",
       "evidence": [
-        "operation_log の拒否行（違反フィールド・理由）",
+        "拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）（違反フィールド・理由）",
         "受理 observation の schema 検証結果"
       ],
       "tables": [
@@ -130,7 +151,26 @@
           "SCM-05"
         ]
       },
-      "slice": "S1"
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "state_transitions",
+          "tactical_learning_packets"
+        ],
+        "column_refs": [
+          "tactical_learning_packets.causal_interpretation"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "ObservationInterpretationMixRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "SR-03",
@@ -163,11 +203,11 @@
       "human_judgement": "なし（全自動。schema 改訂は要件改訂）",
       "side_effects": [
         "3 モデルレコードの追加（S1 — SCM-06）",
-        "operation_log INSERT（拒否時）"
+        "構造化ログ出力（拒否時 — FN-704）"
       ],
       "idempotency": "同一入力からの生成は同一版として重複検出（append-only 版管理 — SR-11 と同規律）。",
       "evidence": [
-        "operation_log の拒否行（欠落フィールド一覧）",
+        "拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）（欠落フィールド一覧）",
         "受理モデルの schema 検証結果と観測 trace"
       ],
       "tables": [],
@@ -190,7 +230,23 @@
           "SCM-06"
         ]
       },
-      "slice": "S1"
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "state_transitions"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "ModelSchemaRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "SR-04",
@@ -222,12 +278,12 @@
       "retry_resume_recovery": "ゲートは無状態（判定のみ）。再実行は同一判定。修正後の segment は新版として再投入。",
       "human_judgement": "なし（全自動。状況フィールド定義の変更は要件改訂）",
       "side_effects": [
-        "operation_log INSERT（拒否時）",
+        "構造化ログ出力（拒否時 — FN-704）",
         "segment_context レコード追加（S1）"
       ],
       "idempotency": "判定は pure。同一 payload の再投入は同一判定・同一版。",
       "evidence": [
-        "operation_log の拒否行（欠落した状況フィールド一覧）"
+        "拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）（欠落した状況フィールド一覧）"
       ],
       "tables": [],
       "external_deps": [],
@@ -249,7 +305,23 @@
           "SCM-06"
         ]
       },
-      "slice": "S1"
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "state_transitions"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "PersonaSegmentRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "SR-05",
@@ -283,11 +355,11 @@
       "human_judgement": "なし（検証は全自動。戦略内容そのものの妥当性判断は上流ループの改善工程 = SR-10 側）",
       "side_effects": [
         "5 種戦略モデルレコードの追加（S1 — SCM-07）",
-        "operation_log INSERT（拒否時）"
+        "構造化ログ出力（拒否時 — FN-704）"
       ],
       "idempotency": "同一 payload は同一版として重複検出。判定は pure。",
       "evidence": [
-        "operation_log の拒否行（欠落要素一覧）",
+        "拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）（欠落要素一覧）",
         "受理モデルの schema 検証結果"
       ],
       "tables": [],
@@ -311,7 +383,23 @@
           "SCM-07"
         ]
       },
-      "slice": "S1"
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "state_transitions"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "IncompleteStrategyRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "SR-06",
@@ -343,23 +431,23 @@
         "テーブル列: strategic_briefs.status: draft→active（発行）、active→superseded（新版発行時 — status 列のみ遷移可）、active→retired"
       ],
       "normal_behavior": "brief draft を schema・trace・計測計画の実質性で検証 → 正準化 JSON の SHA-256 で digest を算出 → version・digest・status = active で strategic_briefs へ INSERT する（1 発行 = 1 transaction）。",
-      "rejection_behavior": "trace ID 欠落・media_role 台帳外・計測計画が KPI 目標値だけ・schema 非適合は BriefSchemaRejected で INSERT せず operation_log に理由を記録する（fail-close）。digest 長 64 以外は DDL CHECK でも拒否。",
+      "rejection_behavior": "trace ID 欠落・media_role 台帳外・計測計画が KPI 目標値だけ・schema 非適合は BriefSchemaRejected で INSERT せず 拒否理由を構造化ログ（FN-704）へ記録する（fail-close）。digest 長 64 以外は DDL CHECK でも拒否。",
       "boundary_behavior": "valid_until NULL は無期限として有効。supersedes による新版発行時、旧版は superseded へ遷移し、旧版に紐づく実行中 run は完走を許すが新規 run は新版のみ参照する。同一 (brief_key, version) の再 INSERT は UNIQUE 制約で拒否。",
       "retry_resume_recovery": "発行 transaction がクラッシュで消えた場合は再発行で同一 digest の行を得る（決定性）。シードコマンドの再実行は UNIQUE(brief_key, version) で重複検出。",
       "human_judgement": "S0 の brief 内容は人間（PO）がシードとして与える。発行処理・digest 算出は全自動。",
       "side_effects": [
         "strategic_briefs INSERT",
         "旧版 status UPDATE（superseded — 新版発行時のみ）",
-        "operation_log INSERT（拒否時）"
+        "構造化ログ出力（拒否時 — FN-704）"
       ],
       "idempotency": "digest 決定性により同一内容の再発行は同一 digest。UNIQUE(brief_key, version) が二重発行を検出。",
       "evidence": [
         "strategic_briefs 行そのもの（digest・版が証跡）",
-        "operation_log の拒否行"
+        "拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）"
       ],
       "tables": [
         "w: strategic_briefs",
-        "w: evidence（operation_log 系拒否・操作証跡）（拒否時）",
+        "w: evidence（外部操作証跡 = operation_log kind）",
         "r: config（シード投入時の検証設定）"
       ],
       "external_deps": [],
@@ -397,7 +485,27 @@
         [
           "AC-SR-06-5"
         ]
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "evidence",
+          "state_transitions",
+          "strategic_briefs"
+        ],
+        "column_refs": [
+          "strategic_briefs.status"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "BriefSchemaRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "SR-07",
@@ -473,7 +581,32 @@
         [
           "AC-SR-07-2"
         ]
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "loop_runs",
+          "state_transitions",
+          "strategic_briefs"
+        ],
+        "column_refs": [
+          "loop_runs.strategic_brief_id"
+        ],
+        "state_refs": [
+          "loop_runs.pending",
+          "loop_runs.running"
+        ],
+        "event_refs": [
+          "start"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "GateRejected"
+        ],
+        "api_refs": [
+          "validate_strategic_brief"
+        ]
+      }
     },
     {
       "id": "SR-08",
@@ -562,7 +695,35 @@
           "AC-SR-08-2",
           "AC-SR-06"
         ]
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "loop_runs",
+          "state_transitions",
+          "strategic_briefs",
+          "tactical_learning_packets"
+        ],
+        "column_refs": [],
+        "state_refs": [
+          "loop_runs.cancelled",
+          "loop_runs.completed",
+          "loop_runs.escalated",
+          "loop_runs.failed",
+          "loop_runs.running",
+          "loop_runs.waiting"
+        ],
+        "event_refs": [
+          "escalate"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "IntegrityError"
+        ],
+        "api_refs": [
+          "verify"
+        ]
+      }
     },
     {
       "id": "SR-09",
@@ -595,18 +756,18 @@
       "retry_resume_recovery": "拒否は DB 無変更のため再実行安全。トリガは接続・プロセスに依存せず DDL として常時有効（クラッシュ後も防御が残る）。",
       "human_judgement": "なし（PO でもトリガ・経路制限をバイパスできない。戦略変更は SR-10 の revision 手続きのみ）",
       "side_effects": [
-        "operation_log INSERT（拒否時）",
+        "構造化ログ出力（拒否時 — FN-704）",
         "tactical_learning_packets INSERT（正規還流時 — SR-08）"
       ],
       "idempotency": "拒否は pure（同一要求→同一拒否）。TLP 提出の冪等性は SR-08 の UNIQUE(loop_run_id) が担う。",
       "evidence": [
-        "operation_log の拒否行（要求元・対象・操作）",
+        "拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）（要求元・対象・操作）",
         "静的検査結果（書込み経路 2 API 限定 — STC-I-06）"
       ],
       "tables": [
         "r: strategic_briefs（保護対象）",
         "w: tactical_learning_packets（唯一の還流経路）",
-        "w: evidence（operation_log 系拒否・操作証跡）（拒否時）"
+        "w: evidence（外部操作証跡 = operation_log kind）"
       ],
       "external_deps": [],
       "config_values": [],
@@ -642,7 +803,27 @@
         [
           "AC-SR-09-4"
         ]
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "kpi_nodes",
+          "measurements",
+          "state_transitions",
+          "strategic_briefs",
+          "tactical_learning_packets"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "IntegrityError"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "SR-10",
@@ -672,7 +853,7 @@
         "テーブル列: strategic_briefs.status: active→superseded/retired（revision accepted・maintain 以外 — 新版 INSERT と同一 transaction）"
       ],
       "normal_behavior": "上流の改善工程が TLP・観測・反証・信頼度・時間差を評価して revision を起票 → 支持根拠 ≥2（重複なし）・反証明示・対象版一致を検証 → accepted なら（maintain 以外）新版 INSERT・旧版 status 遷移・revision 記録を単一 transaction で実行する。",
-      "rejection_behavior": "支持根拠 0〜1 件・重複 ID による水増し・counter_evidence_ids 欠落・target_version 不一致・new_version_id 欠落（accepted かつ maintain 以外）は RevisionEvidenceRejected で拒否し、operation_log に理由を記録する（fail-close）。",
+      "rejection_behavior": "支持根拠 0〜1 件・重複 ID による水増し・counter_evidence_ids 欠落・target_version 不一致・new_version_id 欠落（accepted かつ maintain 以外）は RevisionEvidenceRejected で拒否し、拒否理由を構造化ログ（FN-704）へ記録する（fail-close）。",
       "boundary_behavior": "支持根拠ちょうど 2 件（異なる ID）は accept 可。同一根拠 ID の重複や単一 KPI の 2 期間参照は 2 件扱いしない（uniqueItems）。maintain は new_version_id 不要で revision 記録のみ残す。",
       "retry_resume_recovery": "accepted 処理は単一 transaction のため、クラッシュ時は revision・新版・旧版遷移がすべて消え不整合が残らない。再提案は同一根拠から冪等に再評価。",
       "human_judgement": "S1 の revision エンジンは提案まで自動、accept 判断は judge 工程（上流ループ内）。単一計測値による自動 accept は人間でも不可（機械的拒否）。",
@@ -680,12 +861,12 @@
         "strategy_revision 記録の INSERT",
         "新版意味モデル INSERT（accepted・maintain 以外）",
         "旧版 status UPDATE",
-        "operation_log INSERT（拒否時）"
+        "構造化ログ出力（拒否時 — FN-704）"
       ],
       "idempotency": "同一 target_version への accepted revision は版遷移済みのため再適用不可（target_version 不一致で拒否）。提案の再評価は無害。",
       "evidence": [
         "strategy_revision 行（根拠・反証・信頼度・対象版）",
-        "operation_log の拒否行"
+        "拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）"
       ],
       "tables": [
         "r: tactical_learning_packets（根拠参照）",
@@ -713,7 +894,25 @@
           "SCM-08"
         ]
       },
-      "slice": "S1"
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "state_transitions",
+          "strategic_briefs",
+          "tactical_learning_packets"
+        ],
+        "column_refs": [
+          "strategic_briefs.status"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "RevisionEvidenceRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "SR-11",
@@ -797,7 +996,25 @@
         [
           "AC-SR-11-6"
         ]
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "state_transitions",
+          "strategic_briefs",
+          "tactical_learning_packets"
+        ],
+        "column_refs": [
+          "strategic_briefs.status"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "IntegrityError"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "SR-12",
@@ -862,7 +1079,25 @@
           "SCM-08"
         ]
       },
-      "slice": "S1"
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "kpi_nodes",
+          "measurements",
+          "state_transitions",
+          "strategic_briefs",
+          "tactical_learning_packets"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "RevisionEvidenceRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "SR-13",
@@ -895,16 +1130,16 @@
       "human_judgement": "なし（宣言の存在検証は全自動。企画内容の質は T-REVIEW の別 agent 審査が担う）",
       "side_effects": [
         "evidence INSERT（kind = plan_record — 承認時）",
-        "operation_log INSERT（拒否時）"
+        "構造化ログ出力（拒否時 — FN-704）"
       ],
       "idempotency": "検証は pure。plan_record は UNIQUE(task_id, kind, value) で重複投入を検出。",
       "evidence": [
         "evidence 行（kind = plan_record — 5 宣言を payload_json に保持）",
-        "operation_log の拒否行（欠落キー一覧）"
+        "拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）（欠落キー一覧）"
       ],
       "tables": [
         "w: evidence（plan_record）",
-        "w: evidence（operation_log 系拒否・操作証跡）（拒否時）",
+        "w: evidence（外部操作証跡 = operation_log kind）",
         "r: tasks（T-PLAN 対象判定）"
       ],
       "external_deps": [],
@@ -927,7 +1162,25 @@
           "SCM-10"
         ]
       },
-      "slice": "S1"
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log",
+          "plan_record"
+        ],
+        "error_type_refs": [
+          "ContentValueDeclarationRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "SR-14",
@@ -959,16 +1212,16 @@
       "retry_resume_recovery": "照合は無状態。台帳更新（語彙追加）後は次回発行から反映。既発行 brief は digest 固定のため遡及変更されない。",
       "human_judgement": "台帳への語彙追加・変更は PO 承認（S1 の config 経由変更 — 履歴は config の append-only 契約に従う）。照合は全自動。",
       "side_effects": [
-        "operation_log INSERT（拒否時のみ）"
+        "構造化ログ出力（拒否時のみ — FN-704）"
       ],
       "idempotency": "照合は pure（同一宣言 × 同一台帳→同一判定）。",
       "evidence": [
-        "operation_log の拒否行（宣言値・台帳版）",
+        "拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）（宣言値・台帳版）",
         "strategic_briefs.media_role 列（受理証跡）"
       ],
       "tables": [
         "r: strategic_briefs（media_role 列）",
-        "w: evidence（operation_log 系拒否・操作証跡）（拒否時）",
+        "w: evidence（外部操作証跡 = operation_log kind）",
         "r: config（S1 — 台帳変更履歴）"
       ],
       "external_deps": [],
@@ -992,7 +1245,27 @@
           "SCM-09"
         ]
       },
-      "slice": "S1"
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "evidence",
+          "state_transitions",
+          "strategic_briefs"
+        ],
+        "column_refs": [
+          "strategic_briefs.media_role"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "MediaRoleRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "SR-15",
@@ -1074,7 +1347,21 @@
         [
           "AC-SR-15-6"
         ]
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "state_transitions",
+          "strategic_briefs",
+          "tactical_learning_packets"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "SR-16",
@@ -1137,7 +1424,26 @@
           "SCM-08"
         ]
       },
-      "slice": "S1"
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "loop_runs",
+          "state_transitions",
+          "strategic_briefs"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     }
-  ]
+  ],
+  "status": "confirmed",
+  "approved_at": "2026-08-01T00:00:00+09:00",
+  "authority": "PO",
+  "supersedes": [],
+  "approval_digest": "572e080e88bc"
 }

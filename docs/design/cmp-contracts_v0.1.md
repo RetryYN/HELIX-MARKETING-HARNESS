@@ -2,7 +2,7 @@
 
 # コンポーネント設計契約（CMP/SCM contracts）v0.1
 
-> status: **draft（再降下中）**（2026-08-01 全層再降下 §6 — JSON 内容正本の生成ビュー）
+> status: **confirmed**（2026-08-01 PO 承認 — receipt 87b382a4a724）。JSON 内容正本の生成ビュー（全層再降下 §6）
 > 各 CMP/SCM に 11 観点の設計契約を必須化（G-CMP-INTERFACE）。独立設計書とペアで読む。
 
 ## CMP-01 状態機械カーネル（kernel/state.py）
@@ -12,7 +12,7 @@
 - **責務境界**: やる: (現状態, イベント) の遷移表照合、guard 実行、loop_runs/tasks の状態 UPDATE、state_transitions への許可・拒否証跡記録、終端状態からの遷移拒否、retry_count 管理（verify_fail guard 内のみ）。やらない: タスク発行・WF 実行（CMP-02）、ゲート判定の実体（CMP-03 が guard として供給）、外部 I/O、遷移表の定義（s0-contract §3 が正準）。
 - **依存方向**: ドメイン層（kernel）。cli/CMP-02 から呼ばれ、CMP-05（db）・CMP-03（guard 経由）に依存する。基盤層からは依存されない。fail-close の二極の一方（もう一方は CMP-03）。
 - **データフロー**: イベント＋entity_id 入力 → 遷移表照合 → guard を DB 現在状態で評価 → 成立時 loop_runs/tasks UPDATE＋state_transitions INSERT（同一 transaction）→ TransitionResult 返却。拒否時は rejected 行を記録し DB 不変。
-- **状態所有者**: loop_runs.status／tasks.status／state_transitions（業務状態遷移の唯一の書込み主体。kernel＋ストア層原則） ／ **transaction 所有者**: 本 CMP（1 状態遷移 = 1 transaction。guard・状態更新・遷移ログを単一 BEGIN/COMMIT で所有）
+- **状態所有者**: loop_runs.state／tasks.state／state_transitions（業務状態遷移の唯一の書込み主体。kernel＋ストア層原則） ／ **transaction 所有者**: 本 CMP（1 状態遷移 = 1 transaction。guard・状態更新・遷移ログを単一 BEGIN/COMMIT で所有）
 - **エラー分類**: TransitionRejected: 遷移表不一致・guard 不成立・終端からの遷移要求 → GateRejected 系。DB 不変で拒否行のみ記録／GateRejected: 状態・DB を変更しない拒否の正規化型（brief 検証失敗・claim 資格違反等を含む）／FatalError: 未登録 event の許可遷移（配線漏れ）・遷移表破損 → 即停止・escalate
 - **degradation／復旧**: クラッシュ時は transaction ごと消え中間状態が残らない（申し送りなし — BR-A1）。再開はプロセス再起動後に loop_runs/tasks の現状態から続行。遷移表ロード不能は起動時 FatalError で fail-close。
 - **セキュリティ境界**: 秘密を扱わない。構造化ログ（FN-704 二重化）には entity/event/guard_result/duration のみで本文・credential を含めない。brand/profile 隔離は guard が business_profile_id スコープで評価。

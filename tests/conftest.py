@@ -52,7 +52,10 @@ def insert_tlp(c: sqlite3.Connection, run_id: int, brief_id: int, kind: str = "l
         "recommended_next_action": "continue", "created_at": "t",
     }
     if kind == "learning":
-        cols.update(hypothesis_result="supported", assessment_reason="r", causal_interpretation="c")
+        # learning は観測・仮説判定・因果解釈・対立説明が必須（DDL: tlp_kind_field_rules）
+        cols.update(observations_json='["OBS-1"]', hypothesis_result="supported",
+                    assessment_reason="r", causal_interpretation="c",
+                    alternative_explanations_json='["ALT-1"]')
     else:
         cols.update(failure_fact="f", reproduction_conditions="rc", recovery_conditions="rv")
     cols.update(extra)

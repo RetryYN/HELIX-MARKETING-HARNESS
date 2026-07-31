@@ -28,7 +28,7 @@ jobs:
       - name: import-linter (単方向依存 kernel→gates→db)
         run: uv run lint-imports
       - name: pytest + coverage (STC-I / DDL / migration 試験)
-        run: uv run pytest --cov=harness --cov-report=term
+        run: uv run pytest --cov=helix --cov-report=term --cov-fail-under=0
       - name: skip 件数ラチェット (green の誤読防止 — tests/skip-budget.json)
         run: python3 scripts/check_skip_budget.py
 

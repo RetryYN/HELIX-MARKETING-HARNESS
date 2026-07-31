@@ -2,7 +2,7 @@
 
 # 戦略要件 実行契約（SR contracts） v0.1
 
-> status: **draft（再降下中）**（2026-08-01 全層再降下 §3 — JSON 内容正本の生成ビュー）
+> status: **confirmed**（2026-08-01 PO 承認 — receipt 572e080e88bc）。JSON 内容正本の生成ビュー（全層再降下 §3）
 > 各 SR に 18 観点の実行契約を必須化。brief／TLP／revision の正準は strategy-learning-contract。
 
 ## SR-01 二重ループの責務分離
@@ -18,9 +18,9 @@
 - **境界動作**: micro run は下流の内部検証ループであり、どちらの学習正本にも直接書かない（親 task 経由のみ）。loop_kind 判定不能（対応表にない型）は拒否側へ倒す。
 - **再試行・再開・復旧**: 対応表照合は無状態のため再実行安全。クラッシュ時は提出 transaction ごと消え、越境した中間状態は残らない。再開は loop_runs の現状態から続行。
 - **人間判断／escalation**: なし（全自動。責務分離の変更は要件改訂 = PO 承認事項）
-- **副作用**: operation_log INSERT（拒否時のみ）
+- **副作用**: 構造化ログ出力（拒否時のみ — FN-704）
 - **冪等性**: 照合は pure（同一入力→同一判定）。拒否ログは提出操作単位で 1 行。
-- **証跡**: operation_log の拒否行（loop_kind・提出型・理由）
+- **証跡**: 拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）（loop_kind・提出型・理由）
 - **使用テーブル・正本**: r: loop_runs（loop_kind 判定）／r: tactical_learning_packets（lower 限定の整合検査）
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: 成果物型 × loop_kind 対応表（上流 = 意味モデル、下流 = 公開物/計測/TLP — 変更は要件改訂）
@@ -40,9 +40,9 @@
 - **境界動作**: 同一テキストでも別レコード（TLP.causal_interpretation）としての提出は受理する — 分離の単位はフィールド・レコードであり字句ではない。空の fact は必須欠落として拒否。
 - **再試行・再開・復旧**: schema 検証は無状態。再実行は同一判定。受理 transaction がクラッシュで消えた場合は再投入で冪等に再受理。
 - **人間判断／escalation**: なし（全自動。schema 改訂は要件改訂）
-- **副作用**: operation_log INSERT（拒否時）／market_observation レコード追加（S1 — SCM-05）
+- **副作用**: 構造化ログ出力（拒否時 — FN-704）／market_observation レコード追加（S1 — SCM-05）
 - **冪等性**: schema 検証は pure。同一 observation の再投入は同一性キーで重複検出（S1 ストア）。
-- **証跡**: operation_log の拒否行（違反フィールド・理由）／受理 observation の schema 検証結果
+- **証跡**: 拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）（違反フィールド・理由）／受理 observation の schema 検証結果
 - **使用テーブル・正本**: w: tactical_learning_packets（causal_interpretation — 解釈の正規経路）
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: market_observation schema（json/strategy/ — 変更は要件改訂）
@@ -61,9 +61,9 @@
 - **境界動作**: additionalProperties は schema 準拠で拒否（未知フィールドの黙認をしない）。観測 0 件からのモデル生成は根拠欠落として拒否。
 - **再試行・再開・復旧**: schema 検証は無状態。生成失敗は入力（観測 ID 群）から再実行可能。受理は版単位で冪等（同一内容 = 同一版）。
 - **人間判断／escalation**: なし（全自動。schema 改訂は要件改訂）
-- **副作用**: 3 モデルレコードの追加（S1 — SCM-06）／operation_log INSERT（拒否時）
+- **副作用**: 3 モデルレコードの追加（S1 — SCM-06）／構造化ログ出力（拒否時 — FN-704）
 - **冪等性**: 同一入力からの生成は同一版として重複検出（append-only 版管理 — SR-11 と同規律）。
-- **証跡**: operation_log の拒否行（欠落フィールド一覧）／受理モデルの schema 検証結果と観測 trace
+- **証跡**: 拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）（欠落フィールド一覧）／受理モデルの schema 検証結果と観測 trace
 - **使用テーブル・正本**: なし
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: market_model／segment_context／problem_model schema（json/strategy/）
@@ -82,9 +82,9 @@
 - **境界動作**: 人口統計＋状況の混在は受理（人口統計が補助である限り）。状況フィールドが空文字・空配列のみの場合は「実質未記入」として人口統計のみと同等に拒否。
 - **再試行・再開・復旧**: ゲートは無状態（判定のみ）。再実行は同一判定。修正後の segment は新版として再投入。
 - **人間判断／escalation**: なし（全自動。状況フィールド定義の変更は要件改訂）
-- **副作用**: operation_log INSERT（拒否時）／segment_context レコード追加（S1）
+- **副作用**: 構造化ログ出力（拒否時 — FN-704）／segment_context レコード追加（S1）
 - **冪等性**: 判定は pure。同一 payload の再投入は同一判定・同一版。
-- **証跡**: operation_log の拒否行（欠落した状況フィールド一覧）
+- **証跡**: 拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）（欠落した状況フィールド一覧）
 - **使用テーブル・正本**: なし
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: segment_context schema の状況ベース必須フィールド集合（json/strategy/）
@@ -103,9 +103,9 @@
 - **境界動作**: rejected_options ちょうど 1 件（minItems 境界）は受理。棄却理由が空文字の場合は欠落と同等に拒否。反証条件が「なし」と明記された仮説は反証不能として拒否。
 - **再試行・再開・復旧**: schema 検証は無状態。欠落補完後は新版として再投入（append-only — SR-11）。
 - **人間判断／escalation**: なし（検証は全自動。戦略内容そのものの妥当性判断は上流ループの改善工程 = SR-10 側）
-- **副作用**: 5 種戦略モデルレコードの追加（S1 — SCM-07）／operation_log INSERT（拒否時）
+- **副作用**: 5 種戦略モデルレコードの追加（S1 — SCM-07）／構造化ログ出力（拒否時 — FN-704）
 - **冪等性**: 同一 payload は同一版として重複検出。判定は pure。
-- **証跡**: operation_log の拒否行（欠落要素一覧）／受理モデルの schema 検証結果
+- **証跡**: 拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）（欠落要素一覧）／受理モデルの schema 検証結果
 - **使用テーブル・正本**: なし
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: strategic_choice schema（rejected_options minItems 1）／value_hypothesis schema（disconfirming_conditions 必須）
@@ -120,14 +120,14 @@
 - **不変条件**: 同一内容の brief は常に同一 digest を得る（決定性 — キー順・空白差で不変）／brief の内容列は発行後 UPDATE 不可（strategic_briefs_no_update トリガ）／改訂は supersedes_id による新版 INSERT のみ
 - **状態遷移**: テーブル列: strategic_briefs.status: draft→active（発行）、active→superseded（新版発行時 — status 列のみ遷移可）、active→retired
 - **正常動作**: brief draft を schema・trace・計測計画の実質性で検証 → 正準化 JSON の SHA-256 で digest を算出 → version・digest・status = active で strategic_briefs へ INSERT する（1 発行 = 1 transaction）。
-- **拒否・異常動作**: trace ID 欠落・media_role 台帳外・計測計画が KPI 目標値だけ・schema 非適合は BriefSchemaRejected で INSERT せず operation_log に理由を記録する（fail-close）。digest 長 64 以外は DDL CHECK でも拒否。
+- **拒否・異常動作**: trace ID 欠落・media_role 台帳外・計測計画が KPI 目標値だけ・schema 非適合は BriefSchemaRejected で INSERT せず 拒否理由を構造化ログ（FN-704）へ記録する（fail-close）。digest 長 64 以外は DDL CHECK でも拒否。
 - **境界動作**: valid_until NULL は無期限として有効。supersedes による新版発行時、旧版は superseded へ遷移し、旧版に紐づく実行中 run は完走を許すが新規 run は新版のみ参照する。同一 (brief_key, version) の再 INSERT は UNIQUE 制約で拒否。
 - **再試行・再開・復旧**: 発行 transaction がクラッシュで消えた場合は再発行で同一 digest の行を得る（決定性）。シードコマンドの再実行は UNIQUE(brief_key, version) で重複検出。
 - **人間判断／escalation**: S0 の brief 内容は人間（PO）がシードとして与える。発行処理・digest 算出は全自動。
-- **副作用**: strategic_briefs INSERT／旧版 status UPDATE（superseded — 新版発行時のみ）／operation_log INSERT（拒否時）
+- **副作用**: strategic_briefs INSERT／旧版 status UPDATE（superseded — 新版発行時のみ）／構造化ログ出力（拒否時 — FN-704）
 - **冪等性**: digest 決定性により同一内容の再発行は同一 digest。UNIQUE(brief_key, version) が二重発行を検出。
-- **証跡**: strategic_briefs 行そのもの（digest・版が証跡）／operation_log の拒否行
-- **使用テーブル・正本**: w: strategic_briefs／w: evidence（operation_log 系拒否・操作証跡）（拒否時）／r: config（シード投入時の検証設定）
+- **証跡**: strategic_briefs 行そのもの（digest・版が証跡）／拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）
+- **使用テーブル・正本**: w: strategic_briefs／w: evidence（外部操作証跡 = operation_log kind）／r: config（シード投入時の検証設定）
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: digest 正準化規則（キー昇順・(",",":")・UTF-8/NFC・digest/status/created_at 除外 — strategy-learning-contract §1 2bis）／media-roles.json 台帳（S0 は JSON 正本）
 - **trace**: 上流 = BR-A2 REQ-050 ／ 下流 = AC-SR-01 AC-SR-06-1 AC-SR-06-2 AC-SR-06-3 AC-SR-06-4 AC-SR-06-5 SCM-02 ／ スライス = S0
@@ -187,10 +187,10 @@
 - **境界動作**: status/valid_until 列のみの遷移（superseded 化等）は上流 API 経由でのみ許可 — トリガ WHEN 条件の境界。TLP 大量提出（同一 brief への多 run）でも正本は 1 バイトも変わらない。
 - **再試行・再開・復旧**: 拒否は DB 無変更のため再実行安全。トリガは接続・プロセスに依存せず DDL として常時有効（クラッシュ後も防御が残る）。
 - **人間判断／escalation**: なし（PO でもトリガ・経路制限をバイパスできない。戦略変更は SR-10 の revision 手続きのみ）
-- **副作用**: operation_log INSERT（拒否時）／tactical_learning_packets INSERT（正規還流時 — SR-08）
+- **副作用**: 構造化ログ出力（拒否時 — FN-704）／tactical_learning_packets INSERT（正規還流時 — SR-08）
 - **冪等性**: 拒否は pure（同一要求→同一拒否）。TLP 提出の冪等性は SR-08 の UNIQUE(loop_run_id) が担う。
-- **証跡**: operation_log の拒否行（要求元・対象・操作）／静的検査結果（書込み経路 2 API 限定 — STC-I-06）
-- **使用テーブル・正本**: r: strategic_briefs（保護対象）／w: tactical_learning_packets（唯一の還流経路）／w: evidence（operation_log 系拒否・操作証跡）（拒否時）
+- **証跡**: 拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）（要求元・対象・操作）／静的検査結果（書込み経路 2 API 限定 — STC-I-06）
+- **使用テーブル・正本**: r: strategic_briefs（保護対象）／w: tactical_learning_packets（唯一の還流経路）／w: evidence（外部操作証跡 = operation_log kind）
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: 書込み許可 API 一覧（issue_strategic_brief／supersede_strategic_brief の 2 本 — 変更は要件改訂）
 - **trace**: 上流 = BR-B2 BR-B3 REQ-047 ／ 下流 = AC-SR-04 AC-SR-09-1 AC-SR-09-2 AC-SR-09-3 AC-SR-09-4 SCM-01 SCM-04 ／ スライス = S0
@@ -204,13 +204,13 @@
 - **不変条件**: 単一の計測値だけを根拠とした自動 accept が存在しない（支持根拠 ≥2・重複不可）／maintain も明示的 revision として記録される（「見ていない」と「見て維持した」の区別）／counter_evidence_ids は未評価時も空配列で明示される（省略不可）
 - **状態遷移**: テーブル列: strategic_briefs.status: active→superseded/retired（revision accepted・maintain 以外 — 新版 INSERT と同一 transaction）
 - **正常動作**: 上流の改善工程が TLP・観測・反証・信頼度・時間差を評価して revision を起票 → 支持根拠 ≥2（重複なし）・反証明示・対象版一致を検証 → accepted なら（maintain 以外）新版 INSERT・旧版 status 遷移・revision 記録を単一 transaction で実行する。
-- **拒否・異常動作**: 支持根拠 0〜1 件・重複 ID による水増し・counter_evidence_ids 欠落・target_version 不一致・new_version_id 欠落（accepted かつ maintain 以外）は RevisionEvidenceRejected で拒否し、operation_log に理由を記録する（fail-close）。
+- **拒否・異常動作**: 支持根拠 0〜1 件・重複 ID による水増し・counter_evidence_ids 欠落・target_version 不一致・new_version_id 欠落（accepted かつ maintain 以外）は RevisionEvidenceRejected で拒否し、拒否理由を構造化ログ（FN-704）へ記録する（fail-close）。
 - **境界動作**: 支持根拠ちょうど 2 件（異なる ID）は accept 可。同一根拠 ID の重複や単一 KPI の 2 期間参照は 2 件扱いしない（uniqueItems）。maintain は new_version_id 不要で revision 記録のみ残す。
 - **再試行・再開・復旧**: accepted 処理は単一 transaction のため、クラッシュ時は revision・新版・旧版遷移がすべて消え不整合が残らない。再提案は同一根拠から冪等に再評価。
 - **人間判断／escalation**: S1 の revision エンジンは提案まで自動、accept 判断は judge 工程（上流ループ内）。単一計測値による自動 accept は人間でも不可（機械的拒否）。
-- **副作用**: strategy_revision 記録の INSERT／新版意味モデル INSERT（accepted・maintain 以外）／旧版 status UPDATE／operation_log INSERT（拒否時）
+- **副作用**: strategy_revision 記録の INSERT／新版意味モデル INSERT（accepted・maintain 以外）／旧版 status UPDATE／構造化ログ出力（拒否時 — FN-704）
 - **冪等性**: 同一 target_version への accepted revision は版遷移済みのため再適用不可（target_version 不一致で拒否）。提案の再評価は無害。
-- **証跡**: strategy_revision 行（根拠・反証・信頼度・対象版）／operation_log の拒否行
+- **証跡**: strategy_revision 行（根拠・反証・信頼度・対象版）／拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）
 - **使用テーブル・正本**: r: tactical_learning_packets（根拠参照）／r: evidence（根拠実在検証）／w: strategic_briefs（affected brief の新版発行 — accepted 後続）
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: accepted の最低支持根拠数 = 2（重複不可 — strategy-learning-contract §3。変更は要件改訂）／revision_type 語彙（maintain/refine/pivot/reject/retire）
@@ -271,10 +271,10 @@
 - **境界動作**: 5 キーが存在しても空文字・空配列は「未宣言」として欠落と同等に拒否。target_hypothesis_ids は実在する戦略仮説 ID を最低 1 件参照する。
 - **再試行・再開・復旧**: 検証は無状態。宣言補完後の再提出で承認可。S0/S1 前半は docs ゲート（CI）、S1 で実行時強制（SCM-10）へ昇格 — いずれも同一契約。
 - **人間判断／escalation**: なし（宣言の存在検証は全自動。企画内容の質は T-REVIEW の別 agent 審査が担う）
-- **副作用**: evidence INSERT（kind = plan_record — 承認時）／operation_log INSERT（拒否時）
+- **副作用**: evidence INSERT（kind = plan_record — 承認時）／構造化ログ出力（拒否時 — FN-704）
 - **冪等性**: 検証は pure。plan_record は UNIQUE(task_id, kind, value) で重複投入を検出。
-- **証跡**: evidence 行（kind = plan_record — 5 宣言を payload_json に保持）／operation_log の拒否行（欠落キー一覧）
-- **使用テーブル・正本**: w: evidence（plan_record）／w: evidence（operation_log 系拒否・操作証跡）（拒否時）／r: tasks（T-PLAN 対象判定）
+- **証跡**: evidence 行（kind = plan_record — 5 宣言を payload_json に保持）／拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）（欠落キー一覧）
+- **使用テーブル・正本**: w: evidence（plan_record）／w: evidence（外部操作証跡 = operation_log kind）／r: tasks（T-PLAN 対象判定）
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: content-plan-contract.json の 5 必須キー（変更は要件改訂）
 - **trace**: 上流 = BR-G1 BR-G2 REQ-051 ／ 下流 = AC-SR-13-1 AC-SR-13-2 AC-SR-13-3 SCM-10 ／ スライス = S1
@@ -292,10 +292,10 @@
 - **境界動作**: 台帳ファイル欠損・空・パース不能時は全宣言を拒否する（deny-by-default）。大文字小文字・前後空白の揺れは正規化せず不一致として拒否（宣言の厳密性を優先）。
 - **再試行・再開・復旧**: 照合は無状態。台帳更新（語彙追加）後は次回発行から反映。既発行 brief は digest 固定のため遡及変更されない。
 - **人間判断／escalation**: 台帳への語彙追加・変更は PO 承認（S1 の config 経由変更 — 履歴は config の append-only 契約に従う）。照合は全自動。
-- **副作用**: operation_log INSERT（拒否時のみ）
+- **副作用**: 構造化ログ出力（拒否時のみ — FN-704）
 - **冪等性**: 照合は pure（同一宣言 × 同一台帳→同一判定）。
-- **証跡**: operation_log の拒否行（宣言値・台帳版）／strategic_briefs.media_role 列（受理証跡）
-- **使用テーブル・正本**: r: strategic_briefs（media_role 列）／w: evidence（operation_log 系拒否・操作証跡）（拒否時）／r: config（S1 — 台帳変更履歴）
+- **証跡**: 拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）（宣言値・台帳版）／strategic_briefs.media_role 列（受理証跡）
+- **使用テーブル・正本**: r: strategic_briefs（media_role 列）／w: evidence（外部操作証跡 = operation_log kind）／r: config（S1 — 台帳変更履歴）
 - **外部依存**: なし
 - **設定値**: config.media_roles_ledger（S1 — 台帳の DB 化後。S0 は json/strategy/media-roles.json） ／ **固定値**: 初期 12 役割語彙（media-roles.json v0.1）
 - **trace**: 上流 = BR-A2 REQ-050 ／ 下流 = AC-SR-14-1 AC-SR-14-2 AC-SR-14-3 SCM-09 ／ スライス = S1

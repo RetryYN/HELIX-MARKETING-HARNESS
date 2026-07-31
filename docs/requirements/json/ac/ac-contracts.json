@@ -19,7 +19,30 @@
       "target_update": "S0.1（CMP-01 kernel/state.py）／loop_runs start 遷移",
       "tc": [
         "TCC-11-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "loop_runs",
+          "sprints",
+          "state_transitions",
+          "strategic_briefs"
+        ],
+        "column_refs": [
+          "loop_runs.state"
+        ],
+        "state_refs": [
+          "loop_runs.pending",
+          "loop_runs.running"
+        ],
+        "event_refs": [
+          "start"
+        ],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-11-2",
@@ -38,7 +61,27 @@
       "target_update": "S0.1（CMP-01）／未定義遷移の fail-close",
       "tc": [
         "TCC-11-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "loop_runs",
+          "state_transitions"
+        ],
+        "column_refs": [
+          "loop_runs.state"
+        ],
+        "state_refs": [
+          "loop_runs.running"
+        ],
+        "event_refs": [
+          "start"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "TransitionRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-11-3",
@@ -59,7 +102,29 @@
         "TCC-11-3",
         "TCC-CONFLICT-1",
         "TCC-KILL-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "loop_runs",
+          "state_transitions"
+        ],
+        "column_refs": [
+          "loop_runs.state"
+        ],
+        "state_refs": [
+          "loop_runs.completed",
+          "loop_runs.running"
+        ],
+        "event_refs": [
+          "cancel",
+          "wait"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "TransitionRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-11-4",
@@ -78,7 +143,25 @@
       "target_update": "S0.1（状態機械・run 保持列保護）／loop_runs 更新経路",
       "tc": [
         "TCC-11-4"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "loop_runs"
+        ],
+        "column_refs": [
+          "loop_runs.strategic_brief_id"
+        ],
+        "state_refs": [
+          "loop_runs.running"
+        ],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "IntegrityError",
+          "TransitionRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-12-1",
@@ -97,7 +180,29 @@
       "target_update": "S0.1（CMP-02 kernel/orchestrator.py・assigner.py）／タスク発行",
       "tc": [
         "TCC-12-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "agents",
+          "loop_runs",
+          "tasks",
+          "workflows"
+        ],
+        "column_refs": [
+          "tasks.state"
+        ],
+        "state_refs": [
+          "loop_runs.pending",
+          "loop_runs.running",
+          "tasks.pending"
+        ],
+        "event_refs": [
+          "claim"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-12-2",
@@ -110,13 +215,35 @@
       "observation_point": "raise される例外型／tasks SELECT 件数",
       "expected_state": "T-PUB の tasks 行が存在しない",
       "expected_db_delta": "差分なし（tasks 0 行増）",
-      "expected_evidence": "なし（発行前拒否 — 外部操作ではないため operation_log 対象外）",
+      "expected_evidence": "なし（発行前拒否 — 外部操作ではないため evidence（operation_log kind）の対象外）",
       "forbidden_side_effects": "tasks への T-PUB 行 INSERT・WP コネクタの呼出し",
       "error_type": "TaskIssuanceRejected",
       "target_update": "S0.1（CMP-02）＋S0.2 の公開系回帰／T-R2 ガード",
       "tc": [
         "TCC-12-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "action_plans",
+          "evidence",
+          "loop_runs",
+          "pair_plan_quality",
+          "tasks",
+          "workflows"
+        ],
+        "column_refs": [],
+        "state_refs": [
+          "loop_runs.running"
+        ],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "TaskIssuanceRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-12-3",
@@ -135,7 +262,20 @@
       "target_update": "S0.1（CMP-02）／発行の冪等性・クラッシュ再開",
       "tc": [
         "TCC-12-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "tasks"
+        ],
+        "column_refs": [],
+        "state_refs": [
+          "tasks.pending"
+        ],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-12-4",
@@ -154,7 +294,21 @@
       "target_update": "S0.1（タスク発行）／tasks INSERT 経路",
       "tc": [
         "TCC-12-4"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "tasks"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "IntegrityError",
+          "TaskIssuanceRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-13-1",
@@ -173,7 +327,30 @@
       "target_update": "S0.1（CMP-02 マイクロループ＋CMP-01 状態機械）／verify_pass",
       "tc": [
         "TCC-13-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "agents",
+          "evidence",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.done",
+          "tasks.verifying"
+        ],
+        "event_refs": [
+          "verify_pass"
+        ],
+        "evidence_kind_refs": [
+          "review_pass"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-13-2",
@@ -192,7 +369,28 @@
       "target_update": "S0.1（CMP-02＋CMP-01）／verify_fail ガード",
       "tc": [
         "TCC-13-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.in_progress",
+          "tasks.verifying"
+        ],
+        "event_refs": [
+          "verify_fail"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "TransitionRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-13-3",
@@ -211,7 +409,30 @@
       "target_update": "S0.1（CMP-02）／retry_limit 境界（AC-13 の正本条件）",
       "tc": [
         "TCC-13-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "tasks.failure_detail",
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.escalated",
+          "tasks.failed",
+          "tasks.in_progress",
+          "tasks.verifying"
+        ],
+        "event_refs": [
+          "verify_fail_exhausted"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-13-4",
@@ -224,13 +445,34 @@
       "observation_point": "raise される例外型／tasks SELECT（status・retry_count）／state_transitions",
       "expected_state": "task は verifying のまま（done へ遷移しない）",
       "expected_db_delta": "state_transitions に guard_result = rejected 1 行",
-      "expected_evidence": "operation_log の拒否行（自己審査 PASS 拒否）",
+      "expected_evidence": "拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）（自己審査 PASS 拒否）",
       "forbidden_side_effects": "done への遷移・review_pass 証跡の生成",
       "error_type": "SelfReviewRejected",
       "target_update": "S0.1（審査ゲート）／verify_pass ガード",
       "tc": [
         "TCC-13-4"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [],
+        "state_refs": [
+          "tasks.done",
+          "tasks.verifying"
+        ],
+        "event_refs": [
+          "verify_pass"
+        ],
+        "evidence_kind_refs": [
+          "review_pass"
+        ],
+        "error_type_refs": [
+          "SelfReviewRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-13-5",
@@ -240,7 +482,7 @@
       "when": "verify_fail 遷移を要求する",
       "then": "理由・証跡のない FAIL 遷移は VerificationEvidenceMissing で拒否され、task は verifying のまま",
       "fixture": "seed: verifying 状態の task 1 件、reason=None・evidence_id=None の遷移要求",
-      "observation_point": "raise される例外型／tasks.status／state_transitions 件数",
+      "observation_point": "raise される例外型／tasks.state／state_transitions 件数",
       "expected_state": "task は verifying のまま",
       "expected_db_delta": "state_transitions 差分なし・tasks 差分なし",
       "expected_evidence": "拒否の構造化ログ（理由欠落）",
@@ -249,7 +491,25 @@
       "target_update": "S0.1（検証マイクロループ）",
       "tc": [
         "TCC-13-5"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.verifying"
+        ],
+        "event_refs": [
+          "verify_fail"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-13-6",
@@ -268,7 +528,18 @@
       "target_update": "S0.1（FR-13 の不変条件強制）",
       "tc": [
         "TCC-13-6"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "GateRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-14-1",
@@ -287,7 +558,22 @@
       "target_update": "S1（FN-106 スプリント制御）／開始条件と媒体独立性",
       "tc": [
         "TCC-14-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "action_plans",
+          "config",
+          "sprints"
+        ],
+        "column_refs": [
+          "sprints.status"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-14-2",
@@ -306,7 +592,32 @@
       "target_update": "S1（FN-106）＋S0.1 start ガードの回帰／LP-R2",
       "tc": [
         "TCC-14-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "kpi_nodes",
+          "loop_runs",
+          "sprints",
+          "state_transitions"
+        ],
+        "column_refs": [
+          "loop_runs.state",
+          "sprints.status"
+        ],
+        "state_refs": [
+          "loop_runs.pending",
+          "loop_runs.running"
+        ],
+        "event_refs": [
+          "start"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "SprintStartRejected",
+          "TransitionRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-14-3",
@@ -325,7 +636,21 @@
       "target_update": "S1（FN-106）／期限境界と再開（無状態判定の再実行）",
       "tc": [
         "TCC-14-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "sprints",
+          "tasks"
+        ],
+        "column_refs": [
+          "sprints.status"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-15-1",
@@ -344,7 +669,27 @@
       "target_update": "S1（FN-107 還流処理）／レビュー成立→learnings 生成",
       "tc": [
         "TCC-15-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "kpi_nodes",
+          "learnings",
+          "loop_runs",
+          "measurements",
+          "pair_kpi_measure",
+          "sprints",
+          "strategic_briefs"
+        ],
+        "column_refs": [
+          "learnings.status"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-15-2",
@@ -363,7 +708,23 @@
       "target_update": "S1（FN-107)／片肺禁止ガード",
       "tc": [
         "TCC-15-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "learnings",
+          "measurements",
+          "pair_kpi_measure",
+          "sprints",
+          "strategic_briefs"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-15-3",
@@ -382,7 +743,19 @@
       "target_update": "S1（FN-107）／還流の冪等性・クラッシュ再開",
       "tc": [
         "TCC-15-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "learnings",
+          "pair_kpi_measure"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-16-1",
@@ -401,7 +774,36 @@
       "target_update": "S0.1（CMP-01 状態機械）＋S0.2（CMP-11 通知）／escalate・fatal_failure",
       "tc": [
         "TCC-16-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "loop_runs",
+          "playbooks",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "loop_runs.state",
+          "playbooks.status",
+          "tasks.failure_code",
+          "tasks.state"
+        ],
+        "state_refs": [
+          "loop_runs.escalated",
+          "loop_runs.failed",
+          "loop_runs.running",
+          "tasks.escalated",
+          "tasks.failed",
+          "tasks.in_progress"
+        ],
+        "event_refs": [
+          "escalate",
+          "fatal_failure"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-16-2",
@@ -420,7 +822,33 @@
       "target_update": "S0.1（CMP-01）＋S0.2 承認分類の回帰／終端保護と正準分類",
       "tc": [
         "TCC-16-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "approvals",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "state_transitions.guard_result",
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.done",
+          "tasks.escalated",
+          "tasks.failed",
+          "tasks.in_progress"
+        ],
+        "event_refs": [
+          "escalate",
+          "non_retryable_failure"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "TransitionRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-16-3",
@@ -439,7 +867,28 @@
       "target_update": "S0.2（CMP-11 承認通知＋CMP-01）／approval_retry_limit 境界",
       "tc": [
         "TCC-16-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "approvals",
+          "config",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.escalated",
+          "tasks.failed"
+        ],
+        "event_refs": [
+          "escalate"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-16-4",
@@ -449,7 +898,7 @@
       "when": "escalate 遷移（人へのエスカレーション）を要求する",
       "then": "rejected は escalate 経路に乗らず TransitionRejected となり、non_retryable_failure 経由の failed のみが許される",
       "fixture": "seed: approvals.decision='rejected' に紐づく in_progress task",
-      "observation_point": "raise される例外型／tasks.status",
+      "observation_point": "raise される例外型／tasks.state",
       "expected_state": "task は in_progress のまま（escalated にならない）",
       "expected_db_delta": "tasks 差分なし",
       "expected_evidence": "拒否の構造化ログ（rejected は escalate 対象外）",
@@ -458,7 +907,31 @@
       "target_update": "S0.1（異常検知・エスカレーション）",
       "tc": [
         "TCC-16-4"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "approvals",
+          "tasks"
+        ],
+        "column_refs": [
+          "approvals.decision",
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.escalated",
+          "tasks.failed",
+          "tasks.in_progress"
+        ],
+        "event_refs": [
+          "escalate",
+          "non_retryable_failure"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "TransitionRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-16-5",
@@ -477,7 +950,20 @@
       "target_update": "S0.1（FR-16 の不変条件強制）",
       "tc": [
         "TCC-16-5"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [
+          "escalate"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "GateRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-16-6",
@@ -496,7 +982,18 @@
       "target_update": "S0.1（FR-16 の不変条件強制）",
       "tc": [
         "TCC-16-6"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "GateRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-21-1",
@@ -508,14 +1005,32 @@
       "fixture": "seed: action_plans 1 行、T-REVIEW done ＋ evidence(review_pass, commit_hash=制作 hash)、pair_plan_quality(plan_id, review_evidence_id, status='passed')",
       "observation_point": "公開前検証 API の戻り値／external_operations SELECT／operation_log 件数",
       "expected_state": "T-PUB が公開ステップへ進行可能（pair 検証 PASS）",
-      "expected_db_delta": "pair_plan_quality 差分なし（既存行を根拠に通過）、operation_log 拒否行なし",
+      "expected_db_delta": "pair_plan_quality 差分なし（既存行を根拠に通過）、構造化ログの拒否行なし",
       "expected_evidence": "なし（正常通過は既存 pair 行が根拠）",
-      "forbidden_side_effects": "pair 行の変更・operation_log への拒否行追加",
+      "forbidden_side_effects": "pair 行の変更・構造化ログ以外への拒否記録（evidence への拒否行の混入）追加",
       "error_type": "なし",
       "target_update": "S0.2（ゲート層）／pair_plan.check_established・公開前検証",
       "tc": [
         "TCC-21-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "action_plans",
+          "evidence",
+          "external_operations",
+          "pair_plan_quality"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "commit_hash",
+          "operation_log",
+          "review_pass"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-21-2",
@@ -527,14 +1042,38 @@
       "fixture": "seed: action_plans 1 行のみ（tasks/evidence/pair なし）、T-PUB task を verifying 前の公開検証に投入",
       "observation_point": "raise される例外型／external_operations SELECT（0 行）／state_transitions・operation_log SELECT",
       "expected_state": "T-PUB = failed（failure_code = pair 不成立）",
-      "expected_db_delta": "state_transitions +1 行（failed 遷移）、operation_log +1 行（拒否）、external_operations 差分なし",
-      "expected_evidence": "operation_log 拒否行（plan_id・理由 = pair 不成立）",
+      "expected_db_delta": "state_transitions +1 行（failed 遷移）、構造化ログ +1 行（拒否）、external_operations 差分なし",
+      "expected_evidence": "構造化ログの拒否行（plan_id・理由 = pair 不成立）",
       "forbidden_side_effects": "WP API 呼出し（external_operations への行追加）・pair_plan_quality への行追加",
       "error_type": "PairNotEstablished",
       "target_update": "S0.2（ゲート層）／公開ゲート FN-202",
       "tc": [
         "TCC-21-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "action_plans",
+          "evidence",
+          "external_operations",
+          "pair_plan_quality",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [],
+        "state_refs": [
+          "tasks.failed",
+          "tasks.verifying"
+        ],
+        "event_refs": [
+          "non_retryable_failure"
+        ],
+        "evidence_kind_refs": [
+          "operation_log",
+          "review_pass"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-21-3",
@@ -546,14 +1085,27 @@
       "fixture": "seed: pair_plan_quality(status='revoked') 1 行 → 再審査 T-REVIEW done ＋新 review_pass ＋新 pair(passed) を追加投入",
       "observation_point": "1 回目の例外型／2 回目の検証戻り値／pair_plan_quality SELECT",
       "expected_state": "1 回目拒否・2 回目通過。revoked 行は revoked のまま保持（履歴保持）",
-      "expected_db_delta": "pair_plan_quality +1 行（新 passed）、operation_log +1 行（1 回目拒否）",
-      "expected_evidence": "operation_log 拒否行（理由 = pair revoked）＋新 review_pass 証跡",
+      "expected_db_delta": "pair_plan_quality +1 行（新 passed）、構造化ログ +1 行（1 回目拒否）",
+      "expected_evidence": "構造化ログの拒否行（理由 = pair revoked）＋新 review_pass 証跡",
       "forbidden_side_effects": "revoked 行の passed への書き戻し・revoked ペアでの外部書込み",
       "error_type": "PairNotEstablished（1 回目）／なし（2 回目）",
       "target_update": "S0.2（ゲート層）／pair 失効と再成立",
       "tc": [
         "TCC-21-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "pair_plan_quality"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "review_pass"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-21-4",
@@ -572,7 +1124,21 @@
       "target_update": "S0.1（ペアゲート）",
       "tc": [
         "TCC-21-4"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "assets",
+          "config",
+          "evidence",
+          "pair_plan_quality"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-21-5",
@@ -591,7 +1157,18 @@
       "target_update": "S0.1（FR-21 の不変条件強制）",
       "tc": [
         "TCC-21-5"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "GateRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-22-1",
@@ -610,7 +1187,27 @@
       "target_update": "S1（ゲート層）／pair_kpi.check_established・レビュー成立イベント",
       "tc": [
         "TCC-22-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "kpi_nodes",
+          "learnings",
+          "measurements",
+          "pair_kpi_measure",
+          "sprints"
+        ],
+        "column_refs": [
+          "sprints.status"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "measurement"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-22-2",
@@ -629,7 +1226,25 @@
       "target_update": "S1（ゲート層）／pair_kpi 片肺検出",
       "tc": [
         "TCC-22-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "kpi_nodes",
+          "learnings",
+          "measurements",
+          "pair_kpi_measure",
+          "sprints",
+          "state_transitions"
+        ],
+        "column_refs": [
+          "sprints.status"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-22-3",
@@ -648,7 +1263,25 @@
       "target_update": "S1（ゲート層）／目標空の判定不能処理と後着計測での再判定",
       "tc": [
         "TCC-22-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "measurements",
+          "pair_kpi_measure",
+          "sprints"
+        ],
+        "column_refs": [
+          "sprints.status"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "measurement"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-23-1",
@@ -660,14 +1293,28 @@
       "fixture": "seed: config.url_allowlist=['blog.example.test']、kpi_nodes 空",
       "observation_point": "登録 API 戻り値／kpi_nodes SELECT／operation_log 件数",
       "expected_state": "kpi_nodes に 1 行（非有料型）",
-      "expected_db_delta": "kpi_nodes +1 行、operation_log 差分なし",
+      "expected_db_delta": "kpi_nodes +1 行、構造化ログ差分なし",
       "expected_evidence": "なし（正常通過は証跡不要）",
-      "forbidden_side_effects": "operation_log への拒否行の追加",
+      "forbidden_side_effects": "外部操作証跡（operation_log kind）の記録",
       "error_type": "なし",
       "target_update": "S0.2（ゲート層）／zero_ad.check_metric・check_url",
       "tc": [
         "TCC-23-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "kpi_nodes"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-23-2",
@@ -680,13 +1327,29 @@
       "observation_point": "raise される例外型／operation_log SELECT",
       "expected_state": "kpi_nodes 空のまま",
       "expected_db_delta": "operation_log +2 行（指標拒否・URL 拒否）",
-      "expected_evidence": "operation_log 拒否行（指標名・URL・理由）",
+      "expected_evidence": "構造化ログの拒否行（指標名・URL・理由）",
       "forbidden_side_effects": "kpi_nodes への行追加・外部への実遷移",
       "error_type": "PaidMetricRejected／UrlDenied",
       "target_update": "S0.2（ゲート層）",
       "tc": [
         "TCC-23-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "kpi_nodes"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "PaidMetricRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-23-3",
@@ -698,14 +1361,27 @@
       "fixture": "seed: config から url_allowlist 行を削除",
       "observation_point": "raise される例外型／operation_log SELECT",
       "expected_state": "遷移 0 件許可",
-      "expected_db_delta": "operation_log +1 行（拒否）",
-      "expected_evidence": "operation_log 拒否行（理由 = allowlist 未設定）",
+      "expected_db_delta": "構造化ログ +1 行（拒否）",
+      "expected_evidence": "構造化ログの拒否行（理由 = allowlist 未設定）",
       "forbidden_side_effects": "URL 許可（fail-open）",
       "error_type": "UrlDenied",
       "target_update": "S0.2（ゲート層）",
       "tc": [
         "TCC-23-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-23-4",
@@ -724,7 +1400,21 @@
       "target_update": "S0.2（ゲート層）",
       "tc": [
         "TCC-23-4"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "kpi_nodes"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "PaidMetricRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-23-5",
@@ -743,7 +1433,18 @@
       "target_update": "S0.1（FR-23 の不変条件強制）",
       "tc": [
         "TCC-23-5"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "GateRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-24-1",
@@ -755,14 +1456,29 @@
       "fixture": "seed: config.affiliate_domainlist=['asp.example.test']、記事 HTML に アフィリエイトリンク（`https://asp.example.test/...`） と PR 表記ブロック（必須文言）を含む fixture ファイル",
       "observation_point": "検証 API の戻り値／operation_log 件数",
       "expected_state": "T-PUB が公開ステップへ進行可能（表記検証 PASS）",
-      "expected_db_delta": "operation_log 差分なし",
+      "expected_db_delta": "構造化ログ差分なし",
       "expected_evidence": "なし（正常通過。審査側 review_pass の checked_items に表記検証結果）",
-      "forbidden_side_effects": "operation_log への拒否行追加・表記なしでの通過",
+      "forbidden_side_effects": "構造化ログ以外への拒否記録（evidence への拒否行の混入）追加・表記なしでの通過",
       "error_type": "なし",
       "target_update": "S1（ゲート層）／pr_label.check",
       "tc": [
         "TCC-24-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "evidence"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log",
+          "review_pass"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-24-2",
@@ -774,14 +1490,32 @@
       "fixture": "seed: config.affiliate_domainlist=['asp.example.test']、記事 HTML にリンクのみ・表記ブロックなし",
       "observation_point": "raise される例外型／operation_log SELECT／external_operations SELECT（0 行）",
       "expected_state": "T-PUB = failed（non_retryable_failure）",
-      "expected_db_delta": "operation_log +1 行（拒否）、external_operations 差分なし",
-      "expected_evidence": "operation_log 拒否行（commit hash・検出リンク・欠落規則）",
+      "expected_db_delta": "構造化ログ +1 行（拒否）、external_operations 差分なし",
+      "expected_evidence": "構造化ログの拒否行（commit hash・検出リンク・欠落規則）",
       "forbidden_side_effects": "WP API 呼出し・表記なし成果物の公開ゲート通過",
       "error_type": "PrLabelMissing",
       "target_update": "S1（ゲート層）／pr_label.check",
       "tc": [
         "TCC-24-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "external_operations"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [
+          "non_retryable_failure"
+        ],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "PrLabelMissing"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-24-3",
@@ -793,14 +1527,29 @@
       "fixture": "seed: config から affiliate_domainlist 行を削除 → 再実行前に config INSERT（履歴追加）で設定、短縮 URL fixture（リダイレクト mock）",
       "observation_point": "1 回目の例外型／2 回目の判定結果（最終 URL での ASP 該当）／operation_log SELECT",
       "expected_state": "1 回目 = 拒否（判定不能）、2 回目 = 表記有無に応じた通常判定",
-      "expected_db_delta": "operation_log +1 行（1 回目拒否）、config +1 行（リスト設定 — INSERT 履歴）",
-      "expected_evidence": "operation_log 拒否行（理由 = domainlist 未設定）",
+      "expected_db_delta": "構造化ログ +1 行（1 回目拒否）、config +1 行（リスト設定 — INSERT 履歴）",
+      "expected_evidence": "構造化ログの拒否行（理由 = domainlist 未設定）",
       "forbidden_side_effects": "リスト未設定での通過（fail-open）・展開前 URL のみでの非該当判定",
       "error_type": "PrLabelMissing（判定不能時も拒否種別を統一）",
       "target_update": "S1（ゲート層）／domainlist 未設定の fail-close とリダイレクト展開判定",
       "tc": [
         "TCC-24-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "PrLabelMissing"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-25-1",
@@ -819,7 +1568,31 @@
       "target_update": "S1（審査 WF）／ethics.check（S0 は fail-close ルールセット）",
       "tc": [
         "TCC-25-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "state_transitions",
+          "tasks",
+          "workflows"
+        ],
+        "column_refs": [
+          "tasks.state",
+          "workflows.definition_json"
+        ],
+        "state_refs": [
+          "tasks.done",
+          "tasks.verifying"
+        ],
+        "event_refs": [
+          "verify_pass"
+        ],
+        "evidence_kind_refs": [
+          "review_pass"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-25-2",
@@ -838,7 +1611,34 @@
       "target_update": "S1（審査 WF）／ethics.check FAIL 経路",
       "tc": [
         "TCC-25-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "evidence",
+          "pair_plan_quality",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.done",
+          "tasks.in_progress",
+          "tasks.verifying"
+        ],
+        "event_refs": [
+          "verify_fail"
+        ],
+        "evidence_kind_refs": [
+          "review_pass"
+        ],
+        "error_type_refs": [
+          "EthicsViolation"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-25-3",
@@ -857,7 +1657,32 @@
       "target_update": "S1（審査 WF）／retry 上限と escalation 境界",
       "tc": [
         "TCC-25-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.done",
+          "tasks.escalated",
+          "tasks.in_progress",
+          "tasks.verifying"
+        ],
+        "event_refs": [
+          "verify_fail",
+          "verify_fail_exhausted"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "EthicsViolation"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-26-1",
@@ -876,7 +1701,25 @@
       "target_update": "S1（ゲート層＋承認チャネル）／money_escalation.require_approval",
       "tc": [
         "TCC-26-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "approvals",
+          "config",
+          "evidence",
+          "external_operations"
+        ],
+        "column_refs": [
+          "evidence.kind"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "approval"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-26-2",
@@ -895,7 +1738,33 @@
       "target_update": "S1（ゲート層＋承認チャネル）／rejected の failed 化",
       "tc": [
         "TCC-26-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "approvals",
+          "external_operations",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "approvals.decision",
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.escalated",
+          "tasks.failed",
+          "tasks.in_progress"
+        ],
+        "event_refs": [
+          "escalate",
+          "non_retryable_failure"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "ApprovalRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-26-3",
@@ -914,7 +1783,32 @@
       "target_update": "S1（ゲート層＋承認チャネル）／expired 再要求と approval_retry_limit",
       "tc": [
         "TCC-26-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "approvals",
+          "config",
+          "loop_runs",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [],
+        "state_refs": [
+          "loop_runs.escalated",
+          "loop_runs.failed",
+          "loop_runs.pending",
+          "loop_runs.waiting",
+          "tasks.escalated",
+          "tasks.failed",
+          "tasks.pending"
+        ],
+        "event_refs": [
+          "escalate"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-27-1",
@@ -933,7 +1827,29 @@
       "target_update": "S0.1（kernel＋DB 基盤）／assigner.assign・kernel.claim",
       "tc": [
         "TCC-27-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "agent_executions",
+          "agents",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.in_progress"
+        ],
+        "event_refs": [
+          "claim"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": [
+          "claim"
+        ]
+      }
     },
     {
       "id": "AC-27-2",
@@ -952,7 +1868,30 @@
       "target_update": "S0.1（kernel＋DB 基盤）／CHECK 制約と claim ガードの二重拒否",
       "tc": [
         "TCC-27-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "agents",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [],
+        "state_refs": [
+          "tasks.in_progress",
+          "tasks.pending"
+        ],
+        "event_refs": [
+          "claim"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "IntegrityError",
+          "SelfReviewRejected"
+        ],
+        "api_refs": [
+          "claim"
+        ]
+      }
     },
     {
       "id": "AC-27-3",
@@ -971,7 +1910,29 @@
       "target_update": "S0.1（kernel）／lease 失効後の再 claim ガード（s0-contract §1・§3.3）",
       "tc": [
         "TCC-27-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "tasks.lease_owner_execution_id"
+        ],
+        "state_refs": [
+          "tasks.in_progress"
+        ],
+        "event_refs": [
+          "claim"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "SelfReviewRejected"
+        ],
+        "api_refs": [
+          "claim"
+        ]
+      }
     },
     {
       "id": "AC-27-4",
@@ -990,7 +1951,24 @@
       "target_update": "S0.1（DDL 制約）／tasks INSERT",
       "tc": [
         "TCC-27-4"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "tasks"
+        ],
+        "column_refs": [
+          "tasks.verifier_agent_id"
+        ],
+        "state_refs": [
+          "tasks.failed"
+        ],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "IntegrityError"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-27-5",
@@ -1009,7 +1987,18 @@
       "target_update": "S0.1（FR-27 の不変条件強制）",
       "tc": [
         "TCC-27-5"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "GateRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-28-1",
@@ -1028,7 +2017,30 @@
       "target_update": "S0.1（ゲート層＋証跡ストア）／evidence_complete.check",
       "tc": [
         "TCC-28-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "state_transitions",
+          "tasks",
+          "workflows"
+        ],
+        "column_refs": [
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.done",
+          "tasks.verifying"
+        ],
+        "event_refs": [
+          "verify_pass"
+        ],
+        "evidence_kind_refs": [
+          "plan_record"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-28-2",
@@ -1047,7 +2059,33 @@
       "target_update": "S0.1（ゲート層）／done 遷移ガードの証跡完備検証",
       "tc": [
         "TCC-28-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.done",
+          "tasks.verifying"
+        ],
+        "event_refs": [
+          "verify_pass"
+        ],
+        "evidence_kind_refs": [
+          "approval",
+          "published_url",
+          "screenshot"
+        ],
+        "error_type_refs": [
+          "EvidenceIncomplete"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-28-3",
@@ -1066,7 +2104,31 @@
       "target_update": "S0.1（ゲート層）／宣言不正の fail-close と証跡追記による復旧",
       "tc": [
         "TCC-28-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "state_transitions",
+          "tasks",
+          "workflows"
+        ],
+        "column_refs": [
+          "evidence.kind",
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.done",
+          "tasks.verifying"
+        ],
+        "event_refs": [
+          "verify_pass"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "EvidenceIncomplete"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-28-4",
@@ -1085,7 +2147,24 @@
       "target_update": "S0.3（証跡完備検証）",
       "tc": [
         "TCC-28-4"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "tasks"
+        ],
+        "column_refs": [],
+        "state_refs": [
+          "tasks.done",
+          "tasks.verifying"
+        ],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "EvidenceIncomplete"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-28-5",
@@ -1104,7 +2183,18 @@
       "target_update": "S0.1（FR-28 の不変条件強制）",
       "tc": [
         "TCC-28-5"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "GateRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-28-6",
@@ -1123,7 +2213,18 @@
       "target_update": "S0.1（FR-28 の不変条件強制）",
       "tc": [
         "TCC-28-6"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "GateRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-31-1",
@@ -1142,7 +2243,19 @@
       "target_update": "S1（ヒアリングエンジン）／fillers.detect_gaps・fill_from_answer",
       "tc": [
         "TCC-31-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "business_profiles",
+          "evidence"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-31-2",
@@ -1161,7 +2274,26 @@
       "target_update": "S1（ヒアリングエンジン）／開始前提ガード",
       "tc": [
         "TCC-31-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "business_profiles",
+          "tasks"
+        ],
+        "column_refs": [
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.in_progress",
+          "tasks.pending"
+        ],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "SlotUnfilledRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-31-3",
@@ -1180,7 +2312,18 @@
       "target_update": "S1（ヒアリングエンジン）／空き検出の再開性",
       "tc": [
         "TCC-31-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "business_profiles"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-32-1",
@@ -1193,13 +2336,27 @@
       "observation_point": "draft の出典 URL 列／structure_checked 日付／構造化ログ件数",
       "expected_state": "draft 1 件（全値出典つき・未昇格の draft 状態）",
       "expected_db_delta": "draft +1 件、evidence +1 行（operation_log — Web 取得）",
-      "expected_evidence": "draft の出典 URL 列＋取得の operation_log 証跡",
+      "expected_evidence": "draft の出典 URL 列＋Web 取得の外部操作証跡（evidence kind = operation_log）",
       "forbidden_side_effects": "draft の正本への自動昇格・外部への書込み",
       "error_type": "なし",
       "target_update": "S1（リサーチエンジン）／fillers.draft_research",
       "tc": [
         "TCC-32-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "evidence"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-32-2",
@@ -1218,7 +2375,18 @@
       "target_update": "S1（リサーチエンジン）／fillers.validate_source",
       "tc": [
         "TCC-32-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "UnsourcedValueRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-32-3",
@@ -1237,7 +2405,20 @@
       "target_update": "S1（リサーチエンジン）／鮮度境界判定",
       "tc": [
         "TCC-32-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "StaleSourceRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-33-1",
@@ -1256,7 +2437,18 @@
       "target_update": "S0.1（config 管理）／config.set・config.get",
       "tc": [
         "TCC-33-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-33-2",
@@ -1275,7 +2467,22 @@
       "target_update": "S0.1（config 管理）／append-only トリガ＋事前検証",
       "tc": [
         "TCC-33-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "AppendOnlyViolation",
+          "ConfigAppendOnlyViolation",
+          "ConfigReasonMissing"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-33-3",
@@ -1294,7 +2501,18 @@
       "target_update": "S0.1（config 管理）／既定値フォールバック",
       "tc": [
         "TCC-33-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-33-4",
@@ -1313,7 +2531,23 @@
       "target_update": "S0.1（config 管理）／UNIQUE 制約",
       "tc": [
         "TCC-33-4"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config"
+        ],
+        "column_refs": [
+          "config.changed_at",
+          "config.key"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "IntegrityError"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-33-5",
@@ -1332,7 +2566,20 @@
       "target_update": "S0.1（設定管理）",
       "tc": [
         "TCC-33-5"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "ConfigReasonMissing"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-33-6",
@@ -1351,7 +2598,18 @@
       "target_update": "S0.1（FR-33 の不変条件強制）",
       "tc": [
         "TCC-33-6"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "GateRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-34-1",
@@ -1370,7 +2628,19 @@
       "target_update": "S1（プロファイル管理）／profiles.register・ストア層スコープ解決",
       "tc": [
         "TCC-34-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "brand_plans",
+          "business_profiles"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-34-2",
@@ -1389,7 +2659,21 @@
       "target_update": "S1（プロファイル管理）／ストア層スコープ強制（BR-I1）",
       "tc": [
         "TCC-34-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "brand_plans",
+          "business_profiles"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "CrossProfileAccessDenied"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-34-3",
@@ -1408,7 +2692,20 @@
       "target_update": "S1（プロファイル管理）／status 境界・UNIQUE 制約",
       "tc": [
         "TCC-34-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "business_profiles"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "ArchivedProfileWriteDenied"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-41-1",
@@ -1420,14 +2717,28 @@
       "fixture": "seed: config('registry.notion', {\"primary\":\"mcp\",\"fallback\":\"browser\",\"auth\":\"mcp_oauth\"})、変更は同 key の config INSERT（履歴保持）",
       "observation_point": "resolve_route の戻り値（route_type）／config SELECT（2 行の履歴）／operation_log 件数",
       "expected_state": "最新 config 行の宣言どおりの経路が返る",
-      "expected_db_delta": "config +1 行（経路変更 INSERT）。operation_log 差分なし",
+      "expected_db_delta": "config +1 行（経路変更 INSERT）。構造化ログ差分なし",
       "expected_evidence": "なし（正常解決は証跡不要）",
-      "forbidden_side_effects": "コード側分岐による経路決定・operation_log への拒否行追加・外部 HTTP 呼出（0 回）",
+      "forbidden_side_effects": "コード側分岐による経路決定・構造化ログ以外への拒否記録（evidence への拒否行の混入）追加・外部 HTTP 呼出（0 回）",
       "error_type": "なし",
       "target_update": "S0.2（CMP-07 接続レジストリ）／registry.resolve_route",
       "tc": [
         "TCC-41-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "evidence"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-41-2",
@@ -1440,13 +2751,29 @@
       "observation_point": "raise される例外型／operation_log SELECT（service・理由）",
       "expected_state": "経路は 1 件も返却されない",
       "expected_db_delta": "operation_log +2 行（未登録拒否・有償経路拒否）",
-      "expected_evidence": "operation_log 拒否行（service・要求経路・理由）",
+      "expected_evidence": "構造化ログの拒否行（service・要求経路・理由）",
       "forbidden_side_effects": "有償 API への接続試行（外部 HTTP 呼出 0 回）・spend_ledger への行追加",
       "error_type": "RouteNotRegistered／PaidRouteDenied",
       "target_update": "S0.2（CMP-07 接続レジストリ）",
       "tc": [
         "TCC-41-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "spend_ledger"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "PaidRouteDenied"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-41-3",
@@ -1459,13 +2786,26 @@
       "observation_point": "raise される例外型／operation_log SELECT",
       "expected_state": "両要求とも経路返却 0 件",
       "expected_db_delta": "operation_log +2 行（破損拒否・経路なし）",
-      "expected_evidence": "operation_log 拒否行（理由 = registry 行破損／fallback なし）",
+      "expected_evidence": "構造化ログの拒否行（理由 = registry 行破損／fallback なし）",
       "forbidden_side_effects": "破損行からの部分的な経路返却（fail-open）・外部 HTTP 呼出（0 回）",
       "error_type": "RouteNotRegistered",
       "target_update": "S0.2（CMP-07 接続レジストリ）",
       "tc": [
         "TCC-41-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-41-4",
@@ -1478,13 +2818,26 @@
       "observation_point": "raise される例外型／registry SELECT（x の browser 書込み行 0 件）／operation_log",
       "expected_state": "registry 不変（x の browser 書込み行なし）",
       "expected_db_delta": "operation_log に拒否 1 行",
-      "expected_evidence": "operation_log の拒否行（BR-M-X-4 理由つき）",
+      "expected_evidence": "拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）（BR-M-X-4 理由つき）",
       "forbidden_side_effects": "x の browser 書込み経路行の混入・後続経路解決での採用",
       "error_type": "XBrowserRouteDenied",
       "target_update": "S0.1（経路レジストリ）／登録検証",
       "tc": [
         "TCC-41-4"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "state_transitions"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-41-5",
@@ -1503,7 +2856,24 @@
       "target_update": "S0.1（コネクタ選定）",
       "tc": [
         "TCC-41-5"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "playbooks",
+          "tasks",
+          "workflows"
+        ],
+        "column_refs": [],
+        "state_refs": [
+          "tasks.done"
+        ],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-41-6",
@@ -1522,7 +2892,18 @@
       "target_update": "S0.1（FR-41 の不変条件強制）",
       "tc": [
         "TCC-41-6"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "GateRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-42-1",
@@ -1541,7 +2922,25 @@
       "target_update": "S1（CMP-08 ブラウザ基盤）／browser.execute_playbook",
       "tc": [
         "TCC-42-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "external_operations",
+          "playbooks"
+        ],
+        "column_refs": [
+          "external_operations.status",
+          "playbooks.last_success_at"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-42-2",
@@ -1554,13 +2953,30 @@
       "observation_point": "raise される例外型／operation_log SELECT／external_operations 件数",
       "expected_state": "external_operations に新規 sent/confirmed 行なし",
       "expected_db_delta": "operation_log +2 行（X 拒否・上限拒否）。external_operations 差分なし",
-      "expected_evidence": "operation_log 拒否行（media・理由 = prohibited／daily_cap）",
+      "expected_evidence": "構造化ログの拒否行（media・理由 = prohibited／daily_cap）",
       "forbidden_side_effects": "外部サイトへのブラウザ書込み送信（0 回）・playbooks.last_success_at の更新",
       "error_type": "ProhibitedMediaWrite／RateLimitExceeded",
       "target_update": "S1（CMP-08 ブラウザ基盤）",
       "tc": [
         "TCC-42-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "external_operations",
+          "playbooks"
+        ],
+        "column_refs": [
+          "playbooks.last_success_at"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-42-3",
@@ -1570,7 +2986,7 @@
       "when": "再起動後に §3.3 の再開規則で当該操作を照合・再開する",
       "then": "リモート照合（idempotency key / remote object ID）で成功が確認され confirmed 化＋証跡補完され、再送は発生しない。照合不能ケースは unknown とし escalate する",
       "fixture": "seed: external_operations(status='sent', idempotency_key='k1') 1 行＋mock 媒体に k1 成功応答、照合不能ケース用に mock が k2 を未知と応答する sent 行 1 行",
-      "observation_point": "external_operations.status SELECT／mock 媒体の受信回数カウンタ／tasks.status",
+      "observation_point": "external_operations.status SELECT／mock 媒体の受信回数カウンタ／tasks.state",
       "expected_state": "k1 = confirmed、k2 = unknown で対象タスク escalated",
       "expected_db_delta": "external_operations 2 行 UPDATE（confirmed/unknown）、operation_log +2 行（照合結果）、state_transitions +1 行（escalate）",
       "expected_evidence": "operation_log 行（照合結果・external_operation_id 補完）",
@@ -1580,7 +2996,29 @@
       "tc": [
         "TCC-42-3",
         "TCC-RESUME-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "external_operations",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "external_operations.status",
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.escalated"
+        ],
+        "event_refs": [
+          "escalate"
+        ],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-43-1",
@@ -1599,7 +3037,24 @@
       "target_update": "S2（地図自己修復 FN-405）／playbook.self_heal",
       "tc": [
         "TCC-43-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "playbooks"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log",
+          "screenshot"
+        ],
+        "error_type_refs": [],
+        "api_refs": [
+          "screenshot"
+        ]
+      }
     },
     {
       "id": "AC-43-2",
@@ -1609,7 +3064,7 @@
       "when": "自己修復を実行し 1 回目の再生成が失敗する",
       "then": "追加試行は行われず playbook は broken のまま、対象タスクが escalated に遷移し FR-46 経路の通知が送出される（BR-H3）",
       "fixture": "seed: playbooks(status='active', consecutive_failures=3)、mock ページから対象要素を削除、対象 task = in_progress",
-      "observation_point": "playbooks.status／tasks.status／state_transitions SELECT／通知 mock の送出記録",
+      "observation_point": "playbooks.status／tasks.state／state_transitions SELECT／通知 mock の送出記録",
       "expected_state": "playbook = broken、task = escalated",
       "expected_db_delta": "playbooks.status UPDATE（broken）、state_transitions +1 行（escalate）、operation_log +2 行（検知・再生成失敗）",
       "expected_evidence": "operation_log 行（再生成失敗理由）＋escalate 遷移行",
@@ -1618,7 +3073,30 @@
       "target_update": "S2（地図自己修復 FN-405）",
       "tc": [
         "TCC-43-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "playbooks",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "playbooks.status",
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.escalated",
+          "tasks.in_progress"
+        ],
+        "event_refs": [
+          "escalate"
+        ],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-43-3",
@@ -1628,7 +3106,7 @@
       "when": "再起動後に破損中 playbook を検出して自己修復を再実行する",
       "then": "status=broken が残っているため再生成が最初からやり直され（読取りのみで外部副作用なし）、成功すれば active へ復帰する。status=retired の行は修復対象外として即 escalated となる",
       "fixture": "seed: playbooks 2 行（status='broken' の note 行／status='retired' の kdp 行）、mock ページは note の正セレクタを提供",
-      "observation_point": "playbooks SELECT（再実行後の status）／operation_log SELECT／tasks.status（retired 側）",
+      "observation_point": "playbooks SELECT（再実行後の status）／operation_log SELECT／tasks.state（retired 側）",
       "expected_state": "note 行 = active、kdp 行 = retired のまま対象タスク escalated",
       "expected_db_delta": "playbooks 1 行 UPDATE（active）、state_transitions +1 行（retired 側 escalate）、operation_log +2 行以上",
       "expected_evidence": "operation_log 行（再開後の再生成試行・retired 拒否）",
@@ -1637,7 +3115,28 @@
       "target_update": "S2（地図自己修復 FN-405）／recovery 経路",
       "tc": [
         "TCC-43-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "playbooks",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.escalated"
+        ],
+        "event_refs": [
+          "escalate"
+        ],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-44-1",
@@ -1656,7 +3155,26 @@
       "target_update": "S0.2（CMP-10 WP REST コネクタ）／WF-WP-2 手順 2・4",
       "tc": [
         "TCC-44-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "approvals",
+          "assets",
+          "evidence",
+          "external_operations",
+          "pair_plan_quality"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "approval",
+          "operation_log",
+          "published_url"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-44-2",
@@ -1669,13 +3187,31 @@
       "observation_point": "raise される例外型／operation_log SELECT／WP mock 受信カウンタ",
       "expected_state": "external_operations に prepared 行すら作られない（検証は送信前）",
       "expected_db_delta": "operation_log +2 行（ペアなし拒否・本番書込み拒否）。external_operations 差分なし",
-      "expected_evidence": "operation_log 拒否行（理由 = pair 未成立／非 Docker endpoint）",
+      "expected_evidence": "構造化ログの拒否行（理由 = pair 未成立／非 Docker endpoint）",
       "forbidden_side_effects": "外部 HTTP 呼出（受信カウンタ 0 のまま）・本番 WP への一切の書込み",
       "error_type": "PairRequired／ProductionWriteDenied",
       "target_update": "S0.2（CMP-10 WP REST コネクタ）",
       "tc": [
         "TCC-44-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "external_operations",
+          "pair_plan_quality"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "PairRequired",
+          "ProductionWriteDenied"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-44-3",
@@ -1694,7 +3230,24 @@
       "target_update": "S0.2（CMP-10）／recovery.reconcile_sent（WF-WP-2 手順 4）",
       "tc": [
         "TCC-44-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "external_operations"
+        ],
+        "column_refs": [
+          "external_operations.status"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log",
+          "published_url"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-45-1",
@@ -1713,7 +3266,25 @@
       "target_update": "S1（Notion 同期 FN-408）／notion.sync_read・sync_writeback",
       "tc": [
         "TCC-45-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "external_operations",
+          "learnings",
+          "sprints"
+        ],
+        "column_refs": [
+          "external_operations.status"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-45-2",
@@ -1732,7 +3303,25 @@
       "target_update": "S1（Notion 同期 FN-408）",
       "tc": [
         "TCC-45-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "loop_runs",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [],
+        "state_refs": [
+          "loop_runs.failed",
+          "tasks.failed"
+        ],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-45-3",
@@ -1751,7 +3340,23 @@
       "target_update": "S1（Notion 同期 FN-408）／cursor・recovery 経路",
       "tc": [
         "TCC-45-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "external_operations"
+        ],
+        "column_refs": [
+          "external_operations.status"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-46-1",
@@ -1761,7 +3366,7 @@
       "when": "承認要求を送出し、応答受領後に binding 3 項目一致の公開を実行する",
       "then": "要求が通知され、応答が approvals に証跡化されるまで対象タスクは進行せず（waiting）、approved 受領後に approval evidence が登録され公開が許可される（AC-46 原文）",
       "fixture": "seed: task(pending) 1 件、mock transport（approved・responder_ref='po'）、binding = (post:123, publish, 2026-08-01T10:00)",
-      "observation_point": "approvals SELECT（decision・binding・evidence_id）／応答前後の tasks.status／公開ゲートの通過可否",
+      "observation_point": "approvals SELECT（decision・binding・evidence_id）／応答前後の tasks.state／公開ゲートの通過可否",
       "expected_state": "approvals = approved・evidence 相互整合、task = 進行再開",
       "expected_db_delta": "approvals +1 行（pending→approved UPDATE）、evidence +1 行（kind=approval）、state_transitions +2 行（waiting→in_progress 系）",
       "expected_evidence": "approval evidence（decision=approved・binding 3 項目・approvals.evidence_id 整合）",
@@ -1770,7 +3375,29 @@
       "target_update": "S0.2（CMP-11 承認通知）／WF-WP-2 手順 3",
       "tc": [
         "TCC-46-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "approvals",
+          "evidence",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "approvals.evidence_id",
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.in_progress",
+          "tasks.pending"
+        ],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "approval"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-46-2",
@@ -1780,16 +3407,41 @@
       "when": "binding 不一致のままの公開と、rejected 後のタスク進行を試みる",
       "then": "公開は ApprovalBindingMismatch で拒否され（3 項目の 1 つでも不一致なら通らない）、rejected は non_retryable_failure として task が failed になり自動再試行されない",
       "fixture": "seed: approvals(approved, binding_at='2026-08-01T10:00') に対し公開時点 '2026-08-01T11:00' を提示、別 task に mock transport が rejected 応答",
-      "observation_point": "raise される例外型／operation_log SELECT／tasks.status・state_transitions",
+      "observation_point": "raise される例外型／operation_log SELECT／tasks.state・state_transitions",
       "expected_state": "公開 0 件、rejected 側 task = failed（retry_count 増加なし）",
       "expected_db_delta": "operation_log +1 行（binding 不一致）、approvals 1 行 UPDATE（rejected）、state_transitions +1 行（failed）",
-      "expected_evidence": "operation_log 拒否行（不一致項目の明示）＋approvals rejected 行",
+      "expected_evidence": "構造化ログの拒否行（不一致項目の明示）＋approvals rejected 行",
       "forbidden_side_effects": "不一致のままの公開（外部書込み 0 回）・rejected タスクの自動リトライ・escalated への迂回",
       "error_type": "ApprovalBindingMismatch／NonRetryableFailure",
       "target_update": "S0.2（CMP-11 承認通知）",
       "tc": [
         "TCC-46-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "approvals",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.escalated",
+          "tasks.failed"
+        ],
+        "event_refs": [
+          "non_retryable_failure"
+        ],
+        "evidence_kind_refs": [
+          "approval",
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "ApprovalBindingMismatch"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-46-3",
@@ -1799,7 +3451,7 @@
       "when": "expired の再要求ループを上限まで進め、pending 側は再起動後に待機再開する",
       "then": "expired は再要求で待機を継続し、再要求 2 回目（上限到達）で escalated に遷移する。pending 側は approvals.decision から待機状態が復元され、二重の承認要求は作られない",
       "fixture": "seed: config('approval_retry_limit', 2)、mock transport（常時 expired）、pending 行 1 件（UNIQUE binding）を残して再起動",
-      "observation_point": "approvals 行数と decision 履歴／tasks.status／state_transitions SELECT",
+      "observation_point": "approvals 行数と decision 履歴／tasks.state／state_transitions SELECT",
       "expected_state": "expired 側 task = escalated、pending 側 = waiting 継続（要求は 1 件のまま）",
       "expected_db_delta": "approvals は再要求分のみ増加（上限到達で停止）、state_transitions +1 行（escalate）。pending 側 approvals 差分なし",
       "expected_evidence": "approvals の expired 履歴＋escalate 遷移行（事由 = approval_retry_limit 到達）",
@@ -1808,7 +3460,32 @@
       "target_update": "S0.2（CMP-11 承認通知）／expired 再要求経路",
       "tc": [
         "TCC-46-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "approvals",
+          "config",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "approvals.decision",
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.escalated",
+          "tasks.failed",
+          "tasks.pending"
+        ],
+        "event_refs": [
+          "escalate"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "ApprovalRetryExhausted"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-46-4",
@@ -1827,7 +3504,20 @@
       "target_update": "S0.1（承認証跡）／append-only トリガ",
       "tc": [
         "TCC-46-4"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "approvals"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "IntegrityError"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-47-1",
@@ -1846,7 +3536,21 @@
       "target_update": "S0.2（CMP-07 秘匿ストア）／secrets.get・masking 層",
       "tc": [
         "TCC-47-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "external_operations"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-47-2",
@@ -1856,7 +3560,7 @@
       "when": "notion 接続と、混入文字列のログ書出しを実行する",
       "then": "接続は SecretUnavailable で開始されず（外部呼出 0 回）、混入書出しはマスクされた上で CredentialLeakDetected が記録され書出し元タスクが escalated へ誘導される",
       "fixture": "seed: mock キーチェーン（notion キーなし）、書出し文字列 = 'auth failed: token=wp-app-pass-XYZ'（既知 secret 混入）",
-      "observation_point": "raise される例外型／operation_log SELECT（マスク後文字列）／tasks.status",
+      "observation_point": "raise される例外型／operation_log SELECT（マスク後文字列）／tasks.state",
       "expected_state": "接続 0 件、ログには伏字（token=***）のみ、書出し元 task = escalated 誘導",
       "expected_db_delta": "operation_log +2 行（SecretUnavailable・CredentialLeakDetected — いずれも平文なし）",
       "expected_evidence": "operation_log 検知行（マスク済み — 秘匿値そのものを含まない）",
@@ -1865,7 +3569,27 @@
       "target_update": "S0.2（CMP-07 秘匿ストア）",
       "tc": [
         "TCC-47-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "tasks"
+        ],
+        "column_refs": [
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.escalated",
+          "tasks.failed"
+        ],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "CredentialLeakDetected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-47-3",
@@ -1875,7 +3599,7 @@
       "when": "期限切れセッションでの接続と、不一致組合せでの接続を実行し、その後 credential 再投入からタスクを再開する",
       "then": "期限切れは検知され再投入待ちの escalated（人の関与）へ、credential/endpoint 不一致は実行拒否となる。再投入後は同一タスク状態から再実行でき正常接続する",
       "fixture": "seed: mock キーチェーンに expired セッション、test credential ＋ production endpoint の組合せ設定、再投入手順で有効値に上書き",
-      "observation_point": "raise される例外型／tasks.status（escalated→再開）／operation_log SELECT",
+      "observation_point": "raise される例外型／tasks.state（escalated→再開）／operation_log SELECT",
       "expected_state": "再投入前 = escalated・接続 0 件、再投入後 = 同一タスクが接続成功",
       "expected_db_delta": "operation_log +2 行（期限切れ・組合せ拒否）、state_transitions に escalate と再開の遷移",
       "expected_evidence": "operation_log 行（理由 = session expired／credential-endpoint mismatch — 平文なし）",
@@ -1884,7 +3608,29 @@
       "target_update": "S0.2（CMP-07 秘匿ストア）／再投入・再開経路",
       "tc": [
         "TCC-47-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.escalated"
+        ],
+        "event_refs": [
+          "escalate"
+        ],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "CredentialEndpointMismatch"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-47-4",
@@ -1903,7 +3649,20 @@
       "target_update": "S0.1（秘密管理）",
       "tc": [
         "TCC-47-4"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "CredentialLeakDetected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-47-5",
@@ -1922,7 +3681,22 @@
       "target_update": "S0.1（FR-47 の不変条件強制）",
       "tc": [
         "TCC-47-5"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence"
+        ],
+        "column_refs": [
+          "evidence.external_operation_id"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "GateRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-47-6",
@@ -1941,7 +3715,20 @@
       "target_update": "S0.1（FR-47 の不変条件強制）",
       "tc": [
         "TCC-47-6"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "GateRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-51-1",
@@ -1960,7 +3747,24 @@
       "target_update": "S0.2（制作層）／content/renderer.render",
       "tc": [
         "TCC-51-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "assets",
+          "config",
+          "evidence",
+          "tasks"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "file_hash",
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-51-2",
@@ -1973,13 +3777,31 @@
       "observation_point": "raise される例外型／assets・evidence 件数／operation_log SELECT",
       "expected_state": "assets 空のまま、WP モックへの書込み呼出 0 回",
       "expected_db_delta": "operation_log +2 行（未 commit 拒否・接続先拒否）のみ",
-      "expected_evidence": "operation_log 拒否行（理由 = uncommitted source／wp target denied）",
+      "expected_evidence": "構造化ログの拒否行（理由 = uncommitted source／wp target denied）",
       "forbidden_side_effects": "assets/evidence への行追加・WP（モック含む）への書込み呼出",
       "error_type": "UnversionedSourceRejected／WpTargetDenied",
       "target_update": "S0.2（制作層）／content/renderer 入口検査",
       "tc": [
         "TCC-51-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "assets",
+          "config",
+          "evidence"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "UnversionedSourceRejected",
+          "WpTargetDenied"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-51-3",
@@ -1998,7 +3820,21 @@
       "target_update": "S0.2（制作層）／renderer の再開経路",
       "tc": [
         "TCC-51-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "assets",
+          "evidence"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "file_hash"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-51-4",
@@ -2017,7 +3853,24 @@
       "target_update": "S0.1（制作パイプライン）",
       "tc": [
         "TCC-51-4"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "assets",
+          "config",
+          "external_operations"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "WpTargetDenied"
+        ],
+        "api_refs": [
+          "publish"
+        ]
+      }
     },
     {
       "id": "AC-51-5",
@@ -2036,7 +3889,18 @@
       "target_update": "S0.1（FR-51 の不変条件強制）",
       "tc": [
         "TCC-51-5"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "GateRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-52-1",
@@ -2055,7 +3919,20 @@
       "target_update": "S1（制作層）／content/design_tokens.fetch_and_inject",
       "tc": [
         "TCC-52-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-52-2",
@@ -2068,13 +3945,28 @@
       "observation_point": "raise される例外型／出力ディレクトリの内容／operation_log SELECT",
       "expected_state": "レンダリング出力 0 件",
       "expected_db_delta": "operation_log +1 行（取得失敗・キャッシュなし拒否）のみ",
-      "expected_evidence": "operation_log 拒否行（理由 = token unavailable, no cache）",
+      "expected_evidence": "構造化ログの拒否行（理由 = token unavailable, no cache）",
       "forbidden_side_effects": "トークン未適用出力の生成・assets/evidence への登録",
       "error_type": "DesignTokenUnavailable",
       "target_update": "S1（制作層）／design_tokens の fail-close 経路",
       "tc": [
         "TCC-52-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "assets",
+          "config",
+          "evidence"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-52-3",
@@ -2093,7 +3985,20 @@
       "target_update": "S1（制作層）／design_tokens のキャッシュフォールバック",
       "tc": [
         "TCC-52-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-53-1",
@@ -2112,7 +4017,22 @@
       "target_update": "S3+（制作層）／content/pipelines.voice",
       "tc": [
         "TCC-53-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "assets",
+          "config",
+          "evidence"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "file_hash"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-53-2",
@@ -2125,13 +4045,29 @@
       "observation_point": "raise される例外型／assets・evidence 件数／temp 領域と WP モックの状態",
       "expected_state": "assets 差分なし、WP への登録 0 件",
       "expected_db_delta": "operation_log +2 行（参照拒否・実行失敗）のみ",
-      "expected_evidence": "operation_log 拒否行（理由 = missing asset ref／pipeline failed at encode）",
+      "expected_evidence": "構造化ログの拒否行（理由 = missing asset ref／pipeline failed at encode）",
       "forbidden_side_effects": "部分出力（中間 mp4）の assets 登録・WP アップロード",
       "error_type": "UnversionedSourceRejected／PipelineExecutionFailed",
       "target_update": "S3+（制作層）／pipelines の fail-close 経路",
       "tc": [
         "TCC-53-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "assets",
+          "evidence"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "UnversionedSourceRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-53-3",
@@ -2150,7 +4086,21 @@
       "target_update": "S3+（制作層）／pipelines の temp 破棄・再実行復旧",
       "tc": [
         "TCC-53-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "assets",
+          "evidence"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "file_hash"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-54-1",
@@ -2169,7 +4119,22 @@
       "target_update": "S0.2（制作層）／content/versioning.record_commit・bind_pass",
       "tc": [
         "TCC-54-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "tasks"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "commit_hash",
+          "review_pass"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-54-2",
@@ -2182,13 +4147,30 @@
       "observation_point": "raise される例外型／evidence SELECT (kind='review_pass')／operation_log SELECT",
       "expected_state": "review_pass 証跡 0 件のまま",
       "expected_db_delta": "operation_log +1 行（hash 不一致拒否）のみ",
-      "expected_evidence": "operation_log 拒否行（理由 = commit hash mismatch H1≠H2）",
+      "expected_evidence": "構造化ログの拒否行（理由 = commit hash mismatch H1≠H2）",
       "forbidden_side_effects": "H2 での review_pass 記録・既存 commit_hash 証跡の書換え",
       "error_type": "CommitHashMismatch",
       "target_update": "S0.2（制作層）／versioning の束縛検査",
       "tc": [
         "TCC-54-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "commit_hash",
+          "operation_log",
+          "review_pass"
+        ],
+        "error_type_refs": [
+          "CommitHashMismatch"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-54-3",
@@ -2207,7 +4189,21 @@
       "target_update": "S0.2（制作層）／versioning の冪等・桁検査",
       "tc": [
         "TCC-54-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "commit_hash",
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-54-4",
@@ -2226,7 +4222,18 @@
       "target_update": "S0.1（版管理）",
       "tc": [
         "TCC-54-4"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "assets"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-54-5",
@@ -2245,7 +4252,18 @@
       "target_update": "S0.1（FR-54 の不変条件強制）",
       "tc": [
         "TCC-54-5"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "GateRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-55-1",
@@ -2264,7 +4282,20 @@
       "target_update": "S0.2（制作層）／content/assets.register_derived",
       "tc": [
         "TCC-55-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "assets"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "published_url"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-55-2",
@@ -2277,13 +4308,29 @@
       "observation_point": "raise される例外型／assets 件数／operation_log SELECT",
       "expected_state": "assets 差分なし",
       "expected_db_delta": "operation_log +2 行（実体混入拒否・参照不正拒否）のみ",
-      "expected_evidence": "operation_log 拒否行（理由 = content body in metadata／parent not found）",
+      "expected_evidence": "構造化ログの拒否行（理由 = content body in metadata／parent not found）",
       "forbidden_side_effects": "本文実体を含む行の INSERT・出自なし派生行の作成",
       "error_type": "ContentBodyRejected／AssetReferenceInvalid",
       "target_update": "S0.2（制作層）／assets 登録の入口検査",
       "tc": [
         "TCC-55-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "assets",
+          "config"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "ContentBodyRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-55-3",
@@ -2296,13 +4343,26 @@
       "observation_point": "assets 件数・戻り値（既存 ID）／raise される例外型",
       "expected_state": "assets 1 行のまま（A1）、循環系譜 0 件",
       "expected_db_delta": "assets 差分なし、operation_log +1 行（循環拒否）",
-      "expected_evidence": "operation_log 拒否行（理由 = circular lineage）",
+      "expected_evidence": "構造化ログの拒否行（理由 = circular lineage）",
       "forbidden_side_effects": "canonical_url 重複行の作成・循環系譜の成立",
       "error_type": "AssetReferenceInvalid（循環のみ。再登録は正常冪等）",
       "target_update": "S0.2（制作層）／assets の冪等・系譜検査",
       "tc": [
         "TCC-55-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "assets"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-55-4",
@@ -2321,7 +4381,18 @@
       "target_update": "S0.1（FR-55 の不変条件強制）",
       "tc": [
         "TCC-55-4"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "GateRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-61-1",
@@ -2333,14 +4404,28 @@
       "fixture": "seed: business_profiles 1 行、kpi_nodes に exposure 親 1 行、measurements にノード紐付き値 2 行（媒体 blog/x）",
       "observation_point": "kpi_nodes SELECT（layer・node_key・UNIQUE）／横断集計クエリの結果セット",
       "expected_state": "kpi_nodes に 5 階層のノードが存在し、全 measurements がノードへ FK 接続",
-      "expected_db_delta": "kpi_nodes +5 行、operation_log 差分なし",
-      "expected_evidence": "なし（正常登録は証跡不要 — 拒否時のみ operation_log）",
+      "expected_db_delta": "kpi_nodes +5 行、構造化ログ差分なし",
+      "expected_evidence": "なし（正常登録は証跡不要 — 拒否時のみ構造化ログ（FN-704））",
       "forbidden_side_effects": "戦略正本（brand_plans 等）への書込み・有料指標型の混入",
       "error_type": "なし",
       "target_update": "S0.3（計測層）／measure/kpi_tree.register_node・cross_query",
       "tc": [
         "TCC-61-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "brand_plans",
+          "business_profiles",
+          "kpi_nodes",
+          "measurements"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-61-2",
@@ -2353,13 +4438,29 @@
       "observation_point": "raise される例外型／kpi_nodes 件数／operation_log SELECT",
       "expected_state": "kpi_nodes は seed の行のみ",
       "expected_db_delta": "operation_log +3 行（有料拒否・重複拒否・越境拒否）のみ",
-      "expected_evidence": "operation_log 拒否行（指標型・node_key・理由）",
+      "expected_evidence": "構造化ログの拒否行（指標型・node_key・理由）",
       "forbidden_side_effects": "cac/roas/ad_spend 型ノードの成立（アプリ層を迂回した直接 INSERT も DDL CHECK で拒否されること）",
       "error_type": "PaidMetricRejected／KpiNodeInvalid",
       "target_update": "S0.3（計測層）／kpi_tree の登録検査＋DDL CHECK",
       "tc": [
         "TCC-61-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "business_profiles",
+          "kpi_nodes"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "PaidMetricRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-61-3",
@@ -2378,7 +4479,23 @@
       "target_update": "S0.3（計測層）／kpi_tree の退役・FK 保護",
       "tc": [
         "TCC-61-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "kpi_nodes",
+          "measurements"
+        ],
+        "column_refs": [
+          "kpi_nodes.status"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "IntegrityError"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-61-4",
@@ -2397,7 +4514,22 @@
       "target_update": "S0.1（KPI ツリー）／戦略正本保護トリガ",
       "tc": [
         "TCC-61-4"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "kpi_nodes",
+          "measurements",
+          "strategic_briefs"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "IntegrityError"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-61-5",
@@ -2416,7 +4548,18 @@
       "target_update": "S0.1（KPI ツリー）",
       "tc": [
         "TCC-61-5"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "kpi_nodes"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-61-6",
@@ -2435,7 +4578,18 @@
       "target_update": "S0.1（FR-61 の不変条件強制）",
       "tc": [
         "TCC-61-6"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "GateRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-62-1",
@@ -2454,7 +4608,26 @@
       "target_update": "S0.3（計測層）／measure/importer.import_export",
       "tc": [
         "TCC-62-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "kpi_nodes",
+          "measurements",
+          "tasks"
+        ],
+        "column_refs": [
+          "measurements.imported_at"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "file_hash",
+          "measurement"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-62-2",
@@ -2473,7 +4646,22 @@
       "target_update": "S0.3（計測層）／importer のエラー隔離・fail-close",
       "tc": [
         "TCC-62-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "evidence",
+          "measurements"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-62-3",
@@ -2492,7 +4680,21 @@
       "target_update": "S0.3（計測層）／importer の transaction・空境界",
       "tc": [
         "TCC-62-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "measurements"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "measurement"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-62-4",
@@ -2511,7 +4713,18 @@
       "target_update": "S0.1（計測取り込み）",
       "tc": [
         "TCC-62-4"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "measurements"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-62-5",
@@ -2530,7 +4743,21 @@
       "target_update": "S0.1（計測取り込み）",
       "tc": [
         "TCC-62-5"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "measurements"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "measurement"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-62-6",
@@ -2549,7 +4776,18 @@
       "target_update": "S0.1（FR-62 の不変条件強制）",
       "tc": [
         "TCC-62-6"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "GateRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-62-7",
@@ -2568,7 +4806,18 @@
       "target_update": "S0.1（FR-62 の不変条件強制）",
       "tc": [
         "TCC-62-7"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "GateRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-63-1",
@@ -2587,7 +4836,23 @@
       "target_update": "S1（計測層）／measure/dashboard.generate_html",
       "tc": [
         "TCC-63-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "kpi_nodes",
+          "measurements"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "dashboard",
+          "file_hash"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-63-2",
@@ -2600,13 +4865,30 @@
       "observation_point": "raise される例外型／出力ディレクトリ（成果物なし）／evidence 件数／operation_log SELECT",
       "expected_state": "出力ファイル 0 件、dashboard 証跡 0 件",
       "expected_db_delta": "operation_log +1 行（検出・破棄）のみ",
-      "expected_evidence": "operation_log 拒否行（理由 = external reference detected／secret pattern）",
+      "expected_evidence": "構造化ログの拒否行（理由 = external reference detected／secret pattern）",
       "forbidden_side_effects": "汚染 HTML の出力先残留・汚染成果物の証跡化",
       "error_type": "ExternalReferenceDetected",
       "target_update": "S1（計測層）／dashboard の自己検査・fail-close",
       "tc": [
         "TCC-63-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "evidence"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "dashboard",
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "ExternalReferenceDetected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-63-3",
@@ -2625,7 +4907,21 @@
       "target_update": "S1（計測層）／dashboard の空境界・アトミック書出し",
       "tc": [
         "TCC-63-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "measurements"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "dashboard"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-71-1",
@@ -2644,7 +4940,23 @@
       "target_update": "S0.1（DB 基盤）／db.migrate・db.verify",
       "tc": [
         "TCC-71-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "evidence",
+          "schema_version",
+          "state_transitions"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": [
+          "verify"
+        ]
+      }
     },
     {
       "id": "AC-71-2",
@@ -2663,7 +4975,20 @@
       "target_update": "S0.1（DB 基盤）／db.verify の fail-close",
       "tc": [
         "TCC-71-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "spend_ledger"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": [
+          "verify"
+        ]
+      }
     },
     {
       "id": "AC-71-3",
@@ -2682,7 +5007,21 @@
       "target_update": "S0.1（DB 基盤）／冪等適用＋保護トリガ",
       "tc": [
         "TCC-71-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "schema_version"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "AppendOnlyViolation"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-71-4",
@@ -2701,7 +5040,24 @@
       "target_update": "S0.1（スキーマ基盤）／FK RESTRICT",
       "tc": [
         "TCC-71-4"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "loop_runs",
+          "tasks"
+        ],
+        "column_refs": [],
+        "state_refs": [
+          "loop_runs.failed",
+          "tasks.failed"
+        ],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "IntegrityError"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-72-1",
@@ -2720,7 +5076,20 @@
       "target_update": "S0.1（DB 基盤）／db.migrate の expand 昇格",
       "tc": [
         "TCC-72-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "schema_version"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": [
+          "verify"
+        ]
+      }
     },
     {
       "id": "AC-72-2",
@@ -2739,7 +5108,20 @@
       "target_update": "S0.1（DB 基盤）／checksum 照合ゲート",
       "tc": [
         "TCC-72-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "schema_version"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "MigrationChecksumMismatch"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-72-3",
@@ -2759,7 +5141,20 @@
       "tc": [
         "TCC-72-3",
         "TCC-RESUME-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "schema_version"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": [
+          "verify"
+        ]
+      }
     },
     {
       "id": "AC-72-4",
@@ -2778,7 +5173,18 @@
       "target_update": "S0.1（migration）",
       "tc": [
         "TCC-72-4"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "schema_version"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-72-5",
@@ -2797,7 +5203,18 @@
       "target_update": "S0.1（FR-72 の不変条件強制）",
       "tc": [
         "TCC-72-5"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "GateRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-73-1",
@@ -2816,7 +5233,23 @@
       "target_update": "S1（支出台帳）／spend.record・spend.monthly_total",
       "tc": [
         "TCC-73-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "approvals",
+          "external_operations",
+          "spend_ledger",
+          "tasks"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-73-2",
@@ -2835,7 +5268,20 @@
       "target_update": "S1（支出台帳）／NOT NULL・UNIQUE 制約＋事前検証",
       "tc": [
         "TCC-73-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "spend_ledger"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "SpendRecordIncomplete"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-73-3",
@@ -2854,7 +5300,21 @@
       "target_update": "S1（支出台帳）／0 円境界＋クラッシュ復旧の冪等記録",
       "tc": [
         "TCC-73-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "external_operations",
+          "spend_ledger"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-01-1",
@@ -2873,7 +5333,18 @@
       "target_update": "S1（上流戦略スライス — SCM-06/07/08）",
       "tc": [
         "TCC-SR-01-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "tactical_learning_packets"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-01-2",
@@ -2886,13 +5357,27 @@
       "observation_point": "raise される例外型／operation_log SELECT／対象テーブル行数",
       "expected_state": "両 run の状態・学習正本とも提出前のまま",
       "expected_db_delta": "operation_log +2 行（越境拒否 ×2）のみ",
-      "expected_evidence": "operation_log 拒否行（loop_kind・提出型・理由）",
+      "expected_evidence": "構造化ログの拒否行（loop_kind・提出型・理由）",
       "forbidden_side_effects": "越境成果物の永続化・単一ループへの統合的書込み",
       "error_type": "LoopScopeViolation／IntegrityError",
       "target_update": "S1（上流戦略スライス）",
       "tc": [
         "TCC-SR-01-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "IntegrityError",
+          "LoopScopeViolation"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-02-1",
@@ -2906,12 +5391,23 @@
       "expected_state": "observation 1 件受理（fact のみ）",
       "expected_db_delta": "observation レコード +1（S1 ストア）",
       "expected_evidence": "schema 検証 PASS の記録",
-      "forbidden_side_effects": "解釈フィールドの自動付加・operation_log への拒否行",
+      "forbidden_side_effects": "解釈フィールドの自動付加・構造化ログ以外への拒否記録（evidence への拒否行の混入）",
       "error_type": "なし",
       "target_update": "S1（上流戦略スライス — SCM-05）",
       "tc": [
         "TCC-SR-02-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-02-2",
@@ -2923,14 +5419,28 @@
       "fixture": "fixture: json/strategy/fixtures/ の invalid market_observation（解釈混在）",
       "observation_point": "raise される例外型／operation_log SELECT",
       "expected_state": "observation 未受理",
-      "expected_db_delta": "operation_log +1 行（拒否）のみ",
-      "expected_evidence": "operation_log 拒否行（違反フィールド・理由）",
+      "expected_db_delta": "構造化ログ +1 行（拒否）のみ",
+      "expected_evidence": "構造化ログの拒否行（違反フィールド・理由）",
       "forbidden_side_effects": "混在 payload の部分受理・fact の自動書換え",
       "error_type": "ObservationInterpretationMixRejected",
       "target_update": "S1（上流戦略スライス — G-OBS-INTERPRETATION）",
       "tc": [
         "TCC-SR-02-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "ObservationInterpretationMixRejected",
+          "ObservationInterpretationRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-02-3",
@@ -2943,13 +5453,28 @@
       "observation_point": "raise される例外型／tactical_learning_packets SELECT",
       "expected_state": "観測 0 件受理、TLP は正規経路で受理",
       "expected_db_delta": "operation_log +1 行（判定不能拒否）、tactical_learning_packets +1 行",
-      "expected_evidence": "operation_log 拒否行（理由 = schema 判定不能）",
+      "expected_evidence": "構造化ログの拒否行（理由 = schema 判定不能）",
       "forbidden_side_effects": "判定不能時の受理（fail-open）",
       "error_type": "ObservationInterpretationMixRejected（判定不能時）",
       "target_update": "S1（上流戦略スライス）",
       "tc": [
         "TCC-SR-02-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "tactical_learning_packets"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "ObservationInterpretationMixRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-03-1",
@@ -2968,7 +5493,16 @@
       "target_update": "S1（上流戦略スライス — SCM-06）",
       "tc": [
         "TCC-SR-03-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-03-2",
@@ -2980,14 +5514,27 @@
       "fixture": "fixture: json/strategy/fixtures/ の invalid market_model（必須欠落）＋自由 JSON",
       "observation_point": "raise される例外型／operation_log SELECT",
       "expected_state": "モデル 0 件受理",
-      "expected_db_delta": "operation_log +2 行（拒否）のみ",
-      "expected_evidence": "operation_log 拒否行（欠落フィールド一覧）",
+      "expected_db_delta": "構造化ログ +2 行（拒否）のみ",
+      "expected_evidence": "構造化ログの拒否行（欠落フィールド一覧）",
       "forbidden_side_effects": "部分受理・自由 JSON の正本混入",
       "error_type": "ModelSchemaRejected",
       "target_update": "S1（上流戦略スライス）",
       "tc": [
         "TCC-SR-03-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "ModelSchemaRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-03-3",
@@ -2999,14 +5546,25 @@
       "fixture": "fixture: 未知フィールド付き segment_context＋観測参照空の problem_model、その後 valid 版",
       "observation_point": "raise される例外型／再投入後のモデルレコード SELECT",
       "expected_state": "初回 0 件受理→再投入で 1 版受理",
-      "expected_db_delta": "operation_log +2 行（拒否）、その後モデルレコード +1",
-      "expected_evidence": "operation_log 拒否行（additionalProperties／根拠欠落）",
+      "expected_db_delta": "構造化ログ +2 行（拒否）、その後モデルレコード +1",
+      "expected_evidence": "構造化ログの拒否行（additionalProperties／根拠欠落）",
       "forbidden_side_effects": "未知フィールドの黙認（fail-open）",
       "error_type": "ModelSchemaRejected",
       "target_update": "S1（上流戦略スライス）",
       "tc": [
         "TCC-SR-03-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "ModelSchemaRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-04-1",
@@ -3020,12 +5578,23 @@
       "expected_state": "segment 1 件受理",
       "expected_db_delta": "segment レコード +1（S1 ストア）",
       "expected_evidence": "schema 検証 PASS の記録",
-      "forbidden_side_effects": "operation_log への拒否行",
+      "forbidden_side_effects": "構造化ログ以外への拒否記録（evidence への拒否行の混入）",
       "error_type": "なし",
       "target_update": "S1（上流戦略スライス — G-SEGMENT-CONTEXT）",
       "tc": [
         "TCC-SR-04-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-04-2",
@@ -3037,14 +5606,27 @@
       "fixture": "fixture: json/strategy/fixtures/ の invalid segment_context（人口統計のみ）",
       "observation_point": "raise される例外型／operation_log SELECT",
       "expected_state": "segment 0 件受理",
-      "expected_db_delta": "operation_log +1 行（拒否）のみ",
-      "expected_evidence": "operation_log 拒否行（欠落状況フィールド一覧）",
+      "expected_db_delta": "構造化ログ +1 行（拒否）のみ",
+      "expected_evidence": "構造化ログの拒否行（欠落状況フィールド一覧）",
       "forbidden_side_effects": "ペルソナ型 segment の正本混入",
       "error_type": "PersonaSegmentRejected",
       "target_update": "S1（上流戦略スライス）",
       "tc": [
         "TCC-SR-04-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "PersonaSegmentRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-04-3",
@@ -3056,14 +5638,25 @@
       "fixture": "fixture: 状況空の segment＋状況実記入・人口統計併記の segment",
       "observation_point": "raise される例外型／受理レコード SELECT",
       "expected_state": "前者 0 件・後者 1 件受理",
-      "expected_db_delta": "operation_log +1 行（拒否）、segment レコード +1",
-      "expected_evidence": "operation_log 拒否行（理由 = 状況フィールド実質未記入）",
+      "expected_db_delta": "構造化ログ +1 行（拒否）、segment レコード +1",
+      "expected_evidence": "構造化ログの拒否行（理由 = 状況フィールド実質未記入）",
       "forbidden_side_effects": "空フィールドの記入扱い（fail-open）",
       "error_type": "PersonaSegmentRejected（空フィールド時）",
       "target_update": "S1（上流戦略スライス）",
       "tc": [
         "TCC-SR-04-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "PersonaSegmentRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-05-1",
@@ -3082,7 +5675,16 @@
       "target_update": "S1（上流戦略スライス — SCM-07）",
       "tc": [
         "TCC-SR-05-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-05-2",
@@ -3094,14 +5696,27 @@
       "fixture": "fixture: json/strategy/fixtures/ の invalid strategic_choice（棄却案空）＋invalid value_hypothesis（反証なし）",
       "observation_point": "raise される例外型／operation_log SELECT",
       "expected_state": "0 件受理",
-      "expected_db_delta": "operation_log +2 行（拒否）のみ",
-      "expected_evidence": "operation_log 拒否行（欠落要素一覧）",
+      "expected_db_delta": "構造化ログ +2 行（拒否）のみ",
+      "expected_evidence": "構造化ログの拒否行（欠落要素一覧）",
       "forbidden_side_effects": "反証不能な仮説の正本混入",
       "error_type": "IncompleteStrategyRejected",
       "target_update": "S1（上流戦略スライス）",
       "tc": [
         "TCC-SR-05-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "IncompleteStrategyRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-05-3",
@@ -3113,14 +5728,25 @@
       "fixture": "fixture: rejected_options 1 件 valid＋理由空文字 invalid",
       "observation_point": "raise される例外型／受理レコード SELECT",
       "expected_state": "前者 1 版受理・後者 0 件",
-      "expected_db_delta": "戦略モデルレコード +1、operation_log +1 行（拒否）",
-      "expected_evidence": "operation_log 拒否行（理由 = 棄却理由空）",
+      "expected_db_delta": "戦略モデルレコード +1、構造化ログ +1 行（拒否）",
+      "expected_evidence": "構造化ログの拒否行（理由 = 棄却理由空）",
       "forbidden_side_effects": "空文字理由の記入扱い",
       "error_type": "IncompleteStrategyRejected（空文字時）",
       "target_update": "S1（上流戦略スライス）",
       "tc": [
         "TCC-SR-05-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "IncompleteStrategyRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-01",
@@ -3140,7 +5766,16 @@
       "tc": [
         "STC-I-04",
         "TCC-SR-01"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-06-1",
@@ -3152,14 +5787,29 @@
       "fixture": "seed: strategic_choice_id 空の draft＋measurement_plan_json = KPI 目標値のみの draft",
       "observation_point": "raise される例外型／strategic_briefs SELECT／operation_log SELECT",
       "expected_state": "strategic_briefs 空のまま",
-      "expected_db_delta": "operation_log +2 行（拒否）のみ",
-      "expected_evidence": "operation_log 拒否行（欠落・無効理由）",
+      "expected_db_delta": "構造化ログ +2 行（拒否）のみ",
+      "expected_evidence": "構造化ログの拒否行（欠落・無効理由）",
       "forbidden_side_effects": "無効 brief の INSERT・digest の発番",
       "error_type": "BriefSchemaRejected",
       "target_update": "S0.1（DU-02 — issue_strategic_brief）",
       "tc": [
         "TCC-SR-06-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "strategic_briefs"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "BriefSchemaRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-06-2",
@@ -3178,7 +5828,24 @@
       "target_update": "S0.1（DU-02 — supersede 連鎖）",
       "tc": [
         "TCC-SR-06-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "loop_runs",
+          "strategic_briefs"
+        ],
+        "column_refs": [],
+        "state_refs": [
+          "loop_runs.completed",
+          "loop_runs.running"
+        ],
+        "event_refs": [
+          "start"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-06-3",
@@ -3198,7 +5865,20 @@
       "tc": [
         "STC-I-04",
         "TCC-SR-06-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "loop_runs"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "GateRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-06-4",
@@ -3217,7 +5897,18 @@
       "target_update": "S0.1（brief 発行）",
       "tc": [
         "TCC-SR-06-4"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "strategic_briefs"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-06-5",
@@ -3236,7 +5927,18 @@
       "target_update": "S0.1（SR-06 の不変条件強制）",
       "tc": [
         "TCC-SR-06-5"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "GateRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-02",
@@ -3256,7 +5958,20 @@
       "tc": [
         "STC-I-03",
         "TCC-SR-02"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "loop_runs"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "GateRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-07-1",
@@ -3275,7 +5990,24 @@
       "target_update": "S0.1（DU-01 — start ガード）",
       "tc": [
         "TCC-SR-07-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "loop_runs",
+          "state_transitions"
+        ],
+        "column_refs": [],
+        "state_refs": [
+          "loop_runs.pending",
+          "loop_runs.running"
+        ],
+        "event_refs": [
+          "start"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-07-2",
@@ -3294,7 +6026,23 @@
       "target_update": "S0.1（DU-01/02 — 有効期間境界）",
       "tc": [
         "TCC-SR-07-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "loop_runs",
+          "state_transitions"
+        ],
+        "column_refs": [],
+        "state_refs": [
+          "loop_runs.running"
+        ],
+        "event_refs": [
+          "start"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-03",
@@ -3315,7 +6063,23 @@
         "STC-I-05",
         "TCC-KILL-2",
         "TCC-SR-03"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "loop_runs",
+          "state_transitions",
+          "tactical_learning_packets"
+        ],
+        "column_refs": [],
+        "state_refs": [
+          "loop_runs.completed",
+          "loop_runs.failed"
+        ],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-06",
@@ -3336,7 +6100,20 @@
         "STC-I-05",
         "TCC-CONFLICT-2",
         "TCC-SR-06"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "tactical_learning_packets"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "IntegrityError"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-08-1",
@@ -3355,7 +6132,26 @@
       "target_update": "S0.1（DU-10 — packet_kind CHECK）",
       "tc": [
         "TCC-SR-08-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "loop_runs",
+          "tactical_learning_packets"
+        ],
+        "column_refs": [
+          "loop_runs.state"
+        ],
+        "state_refs": [
+          "loop_runs.failed",
+          "loop_runs.running"
+        ],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "IntegrityError"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-08-2",
@@ -3374,7 +6170,25 @@
       "target_update": "S0.1（DU-02 — 同一 transaction 契約）",
       "tc": [
         "TCC-SR-08-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "loop_runs",
+          "state_transitions",
+          "tactical_learning_packets"
+        ],
+        "column_refs": [
+          "loop_runs.state"
+        ],
+        "state_refs": [
+          "loop_runs.completed",
+          "loop_runs.running"
+        ],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-08-3",
@@ -3393,7 +6207,20 @@
       "target_update": "S0.1（戦略層 TLP）／append-only トリガ",
       "tc": [
         "TCC-SR-08-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "tactical_learning_packets"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "IntegrityError"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-04",
@@ -3413,7 +6240,20 @@
       "tc": [
         "STC-I-06",
         "TCC-SR-04"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "strategic_briefs"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "IntegrityError"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-09-1",
@@ -3432,7 +6272,19 @@
       "target_update": "S0.1（DU-02 — 還流経路）",
       "tc": [
         "TCC-SR-09-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "strategic_briefs",
+          "tactical_learning_packets"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-09-2",
@@ -3451,7 +6303,19 @@
       "target_update": "S0.1（DU-02/10 — 推奨≠決定の境界）",
       "tc": [
         "TCC-SR-09-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "strategic_briefs",
+          "tactical_learning_packets"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-09-3",
@@ -3470,7 +6334,21 @@
       "target_update": "S0.1（上流正本保護）",
       "tc": [
         "TCC-SR-09-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "measurements",
+          "strategic_briefs"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "IntegrityError"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-09-4",
@@ -3489,7 +6367,21 @@
       "target_update": "S0.1（SR-09 の不変条件強制）",
       "tc": [
         "TCC-SR-09-4"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "kpi_nodes",
+          "measurements"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "GateRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-10-1",
@@ -3508,7 +6400,16 @@
       "target_update": "S1（上流戦略スライス — SCM-08）",
       "tc": [
         "TCC-SR-10-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-10-2",
@@ -3520,14 +6421,27 @@
       "fixture": "seed: 意味モデル v1＋根拠 1 件（KPI 計測のみ）の提案＋反証フィールド欠落の提案",
       "observation_point": "raise される例外型／意味モデル行数・status／operation_log SELECT",
       "expected_state": "v1 = active のまま・revision accepted 0 件",
-      "expected_db_delta": "operation_log +2 行（拒否）のみ",
-      "expected_evidence": "operation_log 拒否行（根拠不足／反証未明示）",
+      "expected_db_delta": "構造化ログ +2 行（拒否）のみ",
+      "expected_evidence": "構造化ログの拒否行（根拠不足／反証未明示）",
       "forbidden_side_effects": "単一計測値による自動 accept・新版の先行生成",
       "error_type": "RevisionEvidenceRejected",
       "target_update": "S1（上流戦略スライス）",
       "tc": [
         "TCC-SR-10-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "RevisionEvidenceRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-10-3",
@@ -3539,14 +6453,25 @@
       "fixture": "seed: 根拠 [E1, E1] の提案＋[E1, E2] の提案＋maintain 提案",
       "observation_point": "raise される例外型／revision 記録／版の増減",
       "expected_state": "重複 = 拒否、2 件 = v2 生成、maintain = 版不変・記録 1 件",
-      "expected_db_delta": "新版 +1（2 件ケースのみ）、revision 記録 +2（accept・maintain）、operation_log +1（拒否）",
+      "expected_db_delta": "新版 +1（2 件ケースのみ）、revision 記録 +2（accept・maintain）、構造化ログ +1（拒否）",
       "expected_evidence": "maintain の revision 記録（版遷移なし）",
       "forbidden_side_effects": "重複 ID の 2 件扱い・maintain での版生成",
       "error_type": "RevisionEvidenceRejected（重複時）",
       "target_update": "S1（上流戦略スライス）",
       "tc": [
         "TCC-SR-10-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "RevisionEvidenceRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-05",
@@ -3567,7 +6492,18 @@
         "STC-I-01",
         "STC-I-02",
         "TCC-SR-05"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "IntegrityError"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-11-1",
@@ -3586,7 +6522,18 @@
       "target_update": "S0.1（DU-10 — 版連鎖）",
       "tc": [
         "TCC-SR-11-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "strategic_briefs"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-11-2",
@@ -3605,7 +6552,18 @@
       "target_update": "S0.1（DU-10 — トリガ WHEN 境界）",
       "tc": [
         "TCC-SR-11-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "IntegrityError"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-11-3",
@@ -3624,7 +6582,18 @@
       "target_update": "S0.1（append-only 版管理）",
       "tc": [
         "TCC-SR-11-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "IntegrityError"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-11-4",
@@ -3643,7 +6612,20 @@
       "target_update": "S0.1（append-only 版管理）",
       "tc": [
         "TCC-SR-11-4"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "strategic_briefs"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "IntegrityError"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-11-5",
@@ -3662,7 +6644,18 @@
       "target_update": "S0.1（SR-11 の不変条件強制）",
       "tc": [
         "TCC-SR-11-5"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "GateRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-11-6",
@@ -3681,7 +6674,18 @@
       "target_update": "S0.1（SR-11 の不変条件強制）",
       "tc": [
         "TCC-SR-11-6"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "GateRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-12-1",
@@ -3700,7 +6704,23 @@
       "target_update": "S1（上流戦略スライス — KPI/意味正本の分離）",
       "tc": [
         "TCC-SR-12-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "kpi_nodes",
+          "measurements",
+          "strategic_briefs",
+          "tactical_learning_packets"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "measurement"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-12-2",
@@ -3712,14 +6732,25 @@
       "fixture": "seed: 意味モデル v1＋根拠 = 計測 1 件のみの accept 提案",
       "observation_point": "raise される例外型／意味モデルの版・status",
       "expected_state": "意味モデル不変（v1 = active）",
-      "expected_db_delta": "operation_log +1 行（拒否）のみ",
-      "expected_evidence": "operation_log 拒否行（理由 = 単一計測値根拠）",
+      "expected_db_delta": "構造化ログ +1 行（拒否）のみ",
+      "expected_evidence": "構造化ログの拒否行（理由 = 単一計測値根拠）",
       "forbidden_side_effects": "KPI 変動による戦略正本の自動更新",
       "error_type": "RevisionEvidenceRejected",
       "target_update": "S1（上流戦略スライス — SCM-08）",
       "tc": [
         "TCC-SR-12-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "RevisionEvidenceRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-12-3",
@@ -3738,7 +6769,21 @@
       "target_update": "S1（上流戦略スライス）",
       "tc": [
         "TCC-SR-12-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "strategic_briefs",
+          "tactical_learning_packets"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "measurement"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-13-1",
@@ -3752,12 +6797,25 @@
       "expected_state": "企画承認済み・plan_record 証跡 1 件",
       "expected_db_delta": "evidence +1 行（plan_record）",
       "expected_evidence": "evidence 行（payload_json に 5 宣言）",
-      "forbidden_side_effects": "operation_log への拒否行",
+      "forbidden_side_effects": "構造化ログ以外への拒否記録（evidence への拒否行の混入）",
       "error_type": "なし",
       "target_update": "S1（SCM-10 — 実行時強制。S1 前半は docs ゲート）",
       "tc": [
         "TCC-SR-13-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "plan_record"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-13-2",
@@ -3769,14 +6827,30 @@
       "fixture": "fixture: json/strategy/fixtures/ の invalid content plan（recognition_change 欠落）",
       "observation_point": "raise される例外型／evidence 件数／operation_log SELECT",
       "expected_state": "企画未承認・plan_record 0 件",
-      "expected_db_delta": "operation_log +1 行（拒否）のみ",
-      "expected_evidence": "operation_log 拒否行（欠落キー = recognition_change）",
+      "expected_db_delta": "構造化ログ +1 行（拒否）のみ",
+      "expected_evidence": "構造化ログの拒否行（欠落キー = recognition_change）",
       "forbidden_side_effects": "宣言なし企画の主要企画としての承認",
       "error_type": "ContentValueDeclarationRejected",
       "target_update": "S1（SCM-10）",
       "tc": [
         "TCC-SR-13-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log",
+          "plan_record"
+        ],
+        "error_type_refs": [
+          "ContentValueDeclarationRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-13-3",
@@ -3788,14 +6862,27 @@
       "fixture": "fixture: 空値 5 キー企画＋架空 ID 参照企画、その後の補完版",
       "observation_point": "raise される例外型／再提出後の evidence SELECT",
       "expected_state": "初回 2 件拒否→補完後 1 件承認",
-      "expected_db_delta": "operation_log +2 行（拒否）、その後 evidence +1 行",
-      "expected_evidence": "operation_log 拒否行（空値／参照不整合）",
+      "expected_db_delta": "構造化ログ +2 行（拒否）、その後 evidence +1 行",
+      "expected_evidence": "構造化ログの拒否行（空値／参照不整合）",
       "forbidden_side_effects": "空値の宣言扱い（fail-open）",
       "error_type": "ContentValueDeclarationRejected",
       "target_update": "S1（SCM-10）",
       "tc": [
         "TCC-SR-13-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "ContentValueDeclarationRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-14-1",
@@ -3809,12 +6896,24 @@
       "expected_state": "brief 1 行発行（media_role = problem-framing）",
       "expected_db_delta": "strategic_briefs +1 行",
       "expected_evidence": "brief 行そのもの（役割語彙保存）",
-      "forbidden_side_effects": "operation_log への拒否行",
+      "forbidden_side_effects": "構造化ログ以外への拒否記録（evidence への拒否行の混入）",
       "error_type": "なし",
       "target_update": "S1（SCM-09 — G-MEDIA-ROLE）",
       "tc": [
         "TCC-SR-14-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "strategic_briefs"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-14-2",
@@ -3826,14 +6925,29 @@
       "fixture": "seed: media-roles.json＋invalid draft 2 件（媒体名・大小文字揺れ）",
       "observation_point": "raise される例外型／strategic_briefs 件数／operation_log SELECT",
       "expected_state": "brief 0 件発行",
-      "expected_db_delta": "operation_log +2 行（拒否）のみ",
-      "expected_evidence": "operation_log 拒否行（宣言値・台帳版）",
+      "expected_db_delta": "構造化ログ +2 行（拒否）のみ",
+      "expected_evidence": "構造化ログの拒否行（宣言値・台帳版）",
       "forbidden_side_effects": "媒体名の media_role としての保存・揺れの自動正規化",
       "error_type": "MediaRoleRejected",
       "target_update": "S1（SCM-09）",
       "tc": [
         "TCC-SR-14-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "strategic_briefs"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "MediaRoleRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-14-3",
@@ -3845,14 +6959,27 @@
       "fixture": "seed: media-roles.json を削除した環境→復旧した環境、valid draft",
       "observation_point": "raise される例外型／復旧後の strategic_briefs SELECT",
       "expected_state": "欠損時 0 件・復旧後 1 件発行",
-      "expected_db_delta": "operation_log +1 行（拒否）、復旧後 strategic_briefs +1 行",
-      "expected_evidence": "operation_log 拒否行（理由 = 台帳ロード不能）",
+      "expected_db_delta": "構造化ログ +1 行（拒否）、復旧後 strategic_briefs +1 行",
+      "expected_evidence": "構造化ログの拒否行（理由 = 台帳ロード不能）",
       "forbidden_side_effects": "台帳欠損時の全許可（fail-open）",
       "error_type": "MediaRoleRejected（台帳欠損時）",
       "target_update": "S1（SCM-09）",
       "tc": [
         "TCC-SR-14-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "strategic_briefs"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "MediaRoleRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-15-1",
@@ -3871,7 +6998,16 @@
       "target_update": "S0.1（完了ゲート — STC-I-01〜06）",
       "tc": [
         "TCC-SR-15-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-15-2",
@@ -3890,7 +7026,16 @@
       "target_update": "S0.1（G-BASELINE／ratchet）",
       "tc": [
         "TCC-SR-15-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-15-3",
@@ -3909,7 +7054,16 @@
       "target_update": "S0.1（スコープ境界）",
       "tc": [
         "TCC-SR-15-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-15-4",
@@ -3928,7 +7082,16 @@
       "target_update": "S0.1（ガバナンス）",
       "tc": [
         "TCC-SR-15-4"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-15-5",
@@ -3947,7 +7110,18 @@
       "target_update": "S0.1（SR-15 の不変条件強制）",
       "tc": [
         "TCC-SR-15-5"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "GateRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-15-6",
@@ -3966,7 +7140,18 @@
       "target_update": "S0.1（SR-15 の不変条件強制）",
       "tc": [
         "TCC-SR-15-6"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "GateRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-16-1",
@@ -3985,7 +7170,16 @@
       "target_update": "S1（上流戦略スライス — SCM-08）",
       "tc": [
         "TCC-SR-16-1"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-16-2",
@@ -4004,7 +7198,16 @@
       "target_update": "S1（上流戦略スライス）",
       "tc": [
         "TCC-SR-16-2"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "AC-SR-16-3",
@@ -4023,7 +7226,23 @@
       "target_update": "S1（上流戦略スライス）",
       "tc": [
         "TCC-SR-16-3"
-      ]
+      ],
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     }
-  ]
+  ],
+  "status": "confirmed",
+  "approved_at": "2026-08-01T00:00:00+09:00",
+  "authority": "PO",
+  "supersedes": [
+    "docs/requirements/json/ac.json"
+  ],
+  "approval_digest": "f45a142308b6"
 }

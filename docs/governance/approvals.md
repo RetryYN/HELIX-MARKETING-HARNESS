@@ -89,3 +89,31 @@
 | 日付 | 対象 | 版 | 判定 | 承認者 | digest | 備考 |
 |---|---|---|---|---|---|---|
 | 2026-08-01 | 全層再降下・粒度是正 | — | completed | PO | — | 要求定義〜単体テスト設計を HELIX-HARNESS 基準へ再降下。Sol ブラインドレビュー（第 7 次）で明示的 Go。S0.1 実装の再開を許可 |
+
+## 契約 JSON 正本の confirmed 承認（2026-08-01 クロージャー §2）
+
+> 実装・検証の唯一の入力。digest は JSON 内容（approval_digest 列を除く正準化 JSON）の sha256[:12]。
+
+| 日付 | 対象 | 版 | 判定 | 承認者 | digest | 件数 |
+|---|---|---|---|---|---|---|
+| 2026-08-01 | br-contracts.json | v0.1 | confirmed | PO | d5a8189e1cb2 | 38 |
+| 2026-08-01 | fr-contracts.json | v0.1 | confirmed | PO | 86b7f317f551 | 36 |
+| 2026-08-01 | sr-contracts.json | v0.1 | confirmed | PO | 572e080e88bc | 16 |
+| 2026-08-01 | nfr-contracts.json | v0.1 | confirmed | PO | 7083bc33f87e | 10 |
+| 2026-08-01 | ac-contracts.json | v0.1 | confirmed | PO | f45a142308b6 | 211 |
+| 2026-08-01 | tc-contracts.json | v0.1 | confirmed | PO | a95a47ea1980 | 217 |
+| 2026-08-01 | cmp-contracts.json | v0.1 | confirmed | PO | 87b382a4a724 | 23 |
+| 2026-08-01 | du-contracts.json | v0.1 | confirmed | PO | df3c3c5eac2e | 23 |
+| 2026-08-01 | ac.json / verification.json / utest.json | v0.1 | superseded | PO | — | 旧 AC19／TC59／UTC69 体系を実装入力から除外（履歴保持） |
+| 2026-08-01 | cmp-contracts | v0.1 | confirmed | PO | 0c0730cc4fc5 | 生成ビュー（JSON 正本の confirmed に従属） |
+| 2026-08-01 | du-contracts | v0.1 | confirmed | PO | 572efedf3606 | 生成ビュー（JSON 正本の confirmed に従属） |
+| 2026-08-01 | ac-catalog | v0.1 | confirmed | PO | 54b525b6e255 | 生成ビュー（JSON 正本の confirmed に従属） |
+| 2026-08-01 | br-contracts | v0.1 | confirmed | PO | a26fb25be728 | 生成ビュー（JSON 正本の confirmed に従属） |
+| 2026-08-01 | fr-contracts | v0.1 | confirmed | PO | 9bc48f64fe85 | 生成ビュー（JSON 正本の confirmed に従属） |
+| 2026-08-01 | nfr-contracts | v0.1 | confirmed | PO | 42f8015d02da | 生成ビュー（JSON 正本の confirmed に従属） |
+| 2026-08-01 | sr-contracts | v0.1 | confirmed | PO | 30aaab174a57 | 生成ビュー（JSON 正本の confirmed に従属） |
+| 2026-08-01 | tc-catalog | v0.1 | confirmed | PO | bad31952bafb | 生成ビュー（JSON 正本の confirmed に従属） |
+| 2026-08-01 | requirements | v0.1 | confirmed | PO | 812e44db8158 | クロージャー改訂（DDL トリガ追加・実装正本パス） |
+| 2026-08-01 | s0-contract | v0.1 | confirmed | PO | ddc3780ddf60 | クロージャー改訂（DDL トリガ追加・実装正本パス） |
+| 2026-08-01 | du-contracts.json | v0.1 | confirmed | PO | 4d1ef4b6c613 | クロージャー確定版（semantic_refs 導入後の内容束縛 receipt） |
+| 2026-08-01 | du-contracts | v0.1 | confirmed | PO | 58d5dfd18042 | 生成ビュー（クロージャー確定版 — トリガ 14 本・semantic_refs 反映） |

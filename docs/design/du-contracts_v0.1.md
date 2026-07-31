@@ -2,7 +2,7 @@
 
 # 詳細設計 実装契約（DU contracts）v0.1
 
-> status: **draft（再降下中）**（2026-08-01 全層再降下 §7 — JSON 内容正本の生成ビュー）
+> status: **confirmed**（2026-08-01 PO 承認 — receipt 4d1ef4b6c613）。JSON 内容正本の生成ビュー（全層再降下 §7）
 > 各 DU に公開 API 署名・DbC・例外・tx 境界・冪等性・競合制御・AC/TC/UT 対応を必須化
 > （G-DU-API／G-DU-DBC／G-DU-ERROR／G-DU-DATA／G-API-UT）。
 
@@ -169,7 +169,7 @@
 - **pure／副作用端点**: hash 一致判定・PASS 検証は純関数部。副作用端点は pair_plan_quality の INSERT/UPDATE のみ。PairPass 偽造検知（sentinel 不一致）は FatalError で即停止
 - **冪等性**: 同一 (plan_id, review_evidence_id) の再成立要求は UNIQUE で拒否（冪等拒否）。require_pair は read-only で何度でも安全。revoke は変更検知時のみ 1 回作用 ／ **retry/resume**: stateless 判定＋DB 行のみが状態。クラッシュ後は pair_plan_quality 現在行からの再判定（再実行安全）。revoked 後の復帰は再審査→再 establish のみ
 - **競合制御**: 成立/失効は単独 transaction の行更新で直列化（kernel 単一 writer）。同時 establish は UNIQUE 制約が防衛。判定はコネクタ呼出し前に完了（拒否時は外部到達 0 回）
-- **ログ・証跡**: 成立 = pair_plan_quality 行（review_task_id/review_evidence_id で審査に FK 接続）。拒否は operation_log 拒否行／例外＋構造化ログ（plan_id・事由コードのみ）
+- **ログ・証跡**: 成立 = pair_plan_quality 行（review_task_id/review_evidence_id で審査に FK 接続）。拒否は 構造化ログの拒否行／例外＋構造化ログ（plan_id・事由コードのみ）
 - **依存 API**: DU-09: for_task(), exists()（review_pass/commit_hash 証跡の照合）／DU-10: connect()
 - **trace**: AC = AC-21-1 AC-21-2 AC-21-3 AC-21-4 AC-21-5 ／ TC = TCC-21-1 TCC-21-2 TCC-21-3 TCC-21-4 TCC-21-5 ／ UT = test_gates_pair.py::test_establish_hash_match_creates_passed_pair_and_pairpass test_gates_pair.py::test_establish_hash_mismatch_rejected_no_row test_gates_pair.py::test_establish_duplicate_pair_rejected test_gates_pair.py::test_require_pair_missing_or_revoked_rejected test_gates_pair.py::test_require_pair_passed_returns_pairpass test_gates_pair.py::test_revoke_if_changed_revokes_on_commit_change test_gates_pair.py::test_pairpass_forgery_without_sentinel_raises_fatal ／ 機能別設計 = features/campaign.md、features/evidence.md
 
@@ -188,7 +188,7 @@
 - **pure／副作用端点**: 全体が read-only 判定（stateless ゲート）。副作用なし・PairPass の返却は DU-05 の構築独占経路を経由
 - **冪等性**: read-only 判定のため何度実行しても DB 不変・同一入力同一判定（決定的） ／ **retry/resume**: stateless で復旧不要。再実行は DB 現在状態（pair・証跡）からの再判定のみ
 - **競合制御**: 競合なし（read-only）。判定と公開実行の間の pair 失効は、コネクタ側の PairPass 必須引数＋遷移 guard の再検証で防衛（二重ゲート）
-- **ログ・証跡**: 拒否は operation_log 拒否行（plan_id・事由コード）と state_transitions rejected 行（遷移 guard 経由時）。成立はログのみ（証跡は既存の pair/evidence 行）
+- **ログ・証跡**: 拒否は 構造化ログの拒否行（plan_id・事由コード）と state_transitions rejected 行（遷移 guard 経由時）。成立はログのみ（証跡は既存の pair/evidence 行）
 - **依存 API**: DU-05: require_pair()／DU-09: for_task(), exists()（証跡完備の照合）／DU-10: connect()
 - **trace**: AC = AC-21-1 AC-21-2 AC-21-3 AC-21-4 AC-21-5 AC-44-1 AC-44-2 AC-44-3 ／ TC = TCC-21-1 TCC-21-2 TCC-21-3 TCC-21-4 TCC-21-5 TCC-44-1 TCC-44-2 TCC-44-3 ／ UT = test_gates_publish.py::test_check_publishable_all_conditions_returns_pairpass test_gates_publish.py::test_check_publishable_without_pair_rejected test_gates_publish.py::test_check_publishable_hash_mismatch_rejected test_gates_publish.py::test_check_publishable_missing_evidence_rejected test_gates_publish.py::test_check_publishable_rejection_precedes_connector_call ／ 機能別設計 = features/campaign.md
 
@@ -213,7 +213,7 @@
 - **pure／副作用端点**: 両 API とも純関数（引数のみで判定・副作用なし・テスト注入可能）。denylist の取得は呼出し側の責務（config 経由）
 - **冪等性**: 純関数のため同一入力同一判定。何度実行しても安全 ／ **retry/resume**: stateless・復旧対象なし。再実行は同一判定の再取得のみ
 - **競合制御**: 競合なし（純関数）。DB CHECK（kpi_nodes.metric_type NOT IN ('cac','roas','ad_spend')）が並行経路の最終防衛
-- **ログ・証跡**: 拒否は例外＋operation_log 拒否行（呼出し側が記録 — metric_type/URL と事由コードのみ、credential なし）
+- **ログ・証跡**: 拒否は例外＋構造化ログの拒否行（呼出し側が記録 — metric_type/URL と事由コードのみ、credential なし）
 - **依存 API**: なし
 - **trace**: AC = AC-23-1 AC-23-2 AC-23-3 AC-23-4 AC-23-5 ／ TC = TCC-23-1 TCC-23-2 TCC-23-3 TCC-23-4 TCC-23-5 ／ UT = test_gates_zero_ad.py::test_check_metric_type_free_metric_passes test_gates_zero_ad.py::test_check_metric_type_deny_types_rejected test_gates_zero_ad.py::test_check_metric_type_case_variant_rejected test_gates_zero_ad.py::test_check_domain_denylist_hit_rejected test_gates_zero_ad.py::test_check_domain_clean_domain_passes test_gates_zero_ad.py::test_check_domain_empty_allowlist_fail_close ／ 機能別設計 = features/kpi-handoff.md
 
@@ -272,7 +272,7 @@
 ### `def connect(path: str | Path) -> Connection`
 
 - **pre**: path は migration 適用済み SQLite ファイル（未適用 DB は不正な実行環境）
-- **post**: PRAGMA foreign_keys=ON・journal_mode=WAL・busy_timeout（config.sqlite_busy_timeout_ms）を設定し row_factory を構成した Connection を返す（唯一の接続入口 — これを経ない接続経路をコード上に存在させない）／保護トリガ（config/evidence/state_transitions/strategic_briefs/tactical_learning_packets の append-only トリガ 11 本）の存在を確認してから返す
+- **post**: PRAGMA foreign_keys=ON・journal_mode=WAL・busy_timeout（config.sqlite_busy_timeout_ms）を設定し row_factory を構成した Connection を返す（唯一の接続入口 — これを経ない接続経路をコード上に存在させない）／保護トリガ（config/evidence/state_transitions/strategic_briefs/tactical_learning_packets の append-only／整合トリガ 14 本）の存在を確認してから返す
 - **raises**: `FatalError`（保護トリガ未適用・PRAGMA 設定不能・スキーマ未適用 DB（不正な実行環境として接続を返さない — fail-close）） ／ **pure**: no
 
 - **DTO・値オブジェクト**: なし
@@ -291,13 +291,13 @@
 ### `def apply_all(conn: Connection, migrations_dir: Path, clock: Clock, applied_by: str) -> list[Applied]`
 
 - **pre**: migrations_dir に NNNN_description.sql の連番・不変ファイルが存在（0001 = s0-contract §2 正準 DDL と等価 — G-DDL-APPLY が JSON 正本側を常時検証）／適用済み migration は編集されていない（checksum で検証）
-- **post**: 未適用の連番 SQL を順に適用し、適用ごとに version・migration_name・checksum_sha256・applied_at（clock）・applied_by を schema_version へ同一 transaction で INSERT／適用済み version はスキップ（schema_version 照合による冪等再開 — version が冪等キー）／0001 適用後は 25 テーブル（業務 23＋インフラ 2）＋保護トリガ 11 本が成立する
+- **post**: 未適用の連番 SQL を順に適用し、適用ごとに version・migration_name・checksum_sha256・applied_at（clock）・applied_by を schema_version へ同一 transaction で INSERT／適用済み version はスキップ（schema_version 照合による冪等再開 — version が冪等キー）／0001 適用後は 25 テーブル（業務 23＋インフラ 2）＋保護トリガ 14 本が成立する
 - **raises**: `FatalError`（同 version 既存（重複適用）・非連番・SQL 適用失敗（当該版ごと rollback し停止 — MigrationChecksumMismatch/SchemaVerificationFailed を包含する正規化先））／`MigrationChecksumMismatch`（適用済み migration ファイルの事後編集による checksum 不一致（適用前に停止）） ／ **pure**: no
 
 ### `def verify(conn: Connection) -> None`
 
 - **pre**: conn は migration 適用済み DB への接続
-- **post**: PRAGMA foreign_key_check／integrity_check 違反 0 件・25 テーブルと保護トリガ 11 本の存在・TLP 孤児検査（packet を持たない終端 lower run = 0 件）・相互整合検査（approvals.evidence_id ↔ approval 証跡、pair passed の review 証跡実在、measurements.evidence_id の kind=measurement）を全通過した場合のみ返る／検査はすべて read-only（何度でも安全・自動修復しない）
+- **post**: PRAGMA foreign_key_check／integrity_check 違反 0 件・25 テーブルと保護トリガ 14 本の存在・TLP 孤児検査（packet を持たない終端 lower run = 0 件）・相互整合検査（approvals.evidence_id ↔ approval 証跡、pair passed の review 証跡実在、measurements.evidence_id の kind=measurement）を全通過した場合のみ返る／検査はすべて read-only（何度でも安全・自動修復しない）
 - **raises**: `MigrationVerifyFailed`（FK/integrity 検査失敗・テーブル/トリガ欠落・相互整合違反（FatalError 系 — 不合格 DB は使用開始拒否・backup 復元へ））／`FatalError`（TLP 孤児検出（packet なし終端 lower run > 0 件 → escalate。自動修復しない — fail-close）） ／ **pure**: no
 
 - **DTO・値オブジェクト**: Applied(version: int, migration_name: str, checksum_sha256: str, applied_at: str) — 適用結果の値オブジェクト（frozen）
@@ -309,7 +309,7 @@
 - **競合制御**: migration 適用は単独プロセス・排他実行が前提（適用中の業務書込みなし）。transaction 単位の適用で部分適用状態を残さない
 - **ログ・証跡**: schema_version 行（version/checksum/applied_at/applied_by）が適用証跡の正本。verify 結果は検証ログ（違反項目の列挙 — credential なし）。backfill は migration に混ぜず件数・hash・失敗を evidence に残す（db-design §4）
 - **依存 API**: DU-10: connect()
-- **trace**: AC = AC-71-1 AC-71-2 AC-71-3 AC-71-4 AC-72-1 AC-72-2 AC-72-3 AC-72-4 AC-72-5 AC-SR-05 AC-SR-11-1 AC-SR-11-2 AC-SR-11-3 AC-SR-11-4 AC-SR-11-5 AC-SR-11-6 ／ TC = STC-I-01 STC-I-02 TCC-71-1 TCC-71-2 TCC-71-3 TCC-71-4 TCC-72-1 TCC-72-2 TCC-72-3 TCC-72-4 TCC-72-5 TCC-RESUME-2 TCC-SR-05 TCC-SR-11-1 TCC-SR-11-2 TCC-SR-11-3 TCC-SR-11-4 TCC-SR-11-5 TCC-SR-11-6 ／ UT = test_db_migrate.py::test_apply_all_empty_db_creates_25_tables_and_11_triggers test_db_migrate.py::test_apply_all_records_version_checksum_applied_at_by test_db_migrate.py::test_apply_all_skips_applied_versions_idempotent test_db_migrate.py::test_apply_all_duplicate_version_stops_fatal test_db_migrate.py::test_apply_all_checksum_mismatch_stops_before_apply test_db_migrate.py::test_apply_all_crash_mid_migration_rolls_back_whole_version test_db_migrate.py::test_verify_complete_schema_passes test_db_migrate.py::test_verify_missing_table_or_trigger_fails test_db_migrate.py::test_verify_foreign_key_violation_fails test_db_migrate.py::test_verify_tlp_orphan_detected_fatal test_db_migrate.py::test_append_only_triggers_reject_update_and_delete test_db_migrate.py::test_strategic_briefs_content_update_rejected_status_transition_allowed test_db_migrate.py::test_tlp_integrity_trigger_rejects_mismatched_insert ／ 機能別設計 = features/migration.md、features/tlp.md、features/strategic-brief.md
+- **trace**: AC = AC-71-1 AC-71-2 AC-71-3 AC-71-4 AC-72-1 AC-72-2 AC-72-3 AC-72-4 AC-72-5 AC-SR-05 AC-SR-11-1 AC-SR-11-2 AC-SR-11-3 AC-SR-11-4 AC-SR-11-5 AC-SR-11-6 ／ TC = STC-I-01 STC-I-02 TCC-71-1 TCC-71-2 TCC-71-3 TCC-71-4 TCC-72-1 TCC-72-2 TCC-72-3 TCC-72-4 TCC-72-5 TCC-RESUME-2 TCC-SR-05 TCC-SR-11-1 TCC-SR-11-2 TCC-SR-11-3 TCC-SR-11-4 TCC-SR-11-5 TCC-SR-11-6 ／ UT = test_db_migrate.py::test_apply_all_empty_db_creates_25_tables_and_14_triggers test_db_migrate.py::test_apply_all_records_version_checksum_applied_at_by test_db_migrate.py::test_apply_all_skips_applied_versions_idempotent test_db_migrate.py::test_apply_all_duplicate_version_stops_fatal test_db_migrate.py::test_apply_all_checksum_mismatch_stops_before_apply test_db_migrate.py::test_apply_all_crash_mid_migration_rolls_back_whole_version test_db_migrate.py::test_verify_complete_schema_passes test_db_migrate.py::test_verify_missing_table_or_trigger_fails test_db_migrate.py::test_verify_foreign_key_violation_fails test_db_migrate.py::test_verify_tlp_orphan_detected_fatal test_db_migrate.py::test_append_only_triggers_reject_update_and_delete test_db_migrate.py::test_strategic_briefs_content_update_rejected_status_transition_allowed test_db_migrate.py::test_tlp_integrity_trigger_rejects_mismatched_insert ／ 機能別設計 = features/migration.md、features/tlp.md、features/strategic-brief.md
 
 ## DU-12 `config/store.py`（CMP-06）
 
@@ -472,7 +472,7 @@
 
 - **pre**: approval_pass は decision=approved かつ binding 3 項目完全一致の照合を通過した検証済み値オブジェクト（承認設計 §6 — 承認照合 API のみが生成）／idempotency_key は公開専用の key（下書き作成の key と別 — 別 external_operations 行）／pair・承認・証跡の再検証（公開直前ゲート）を通過済み — 拒否時はここへ到達しない
 - **post**: external_operations 行を prepared→sent→confirmed で遷移させ、confirmed 後に operation_log 証跡を派生記録し、canonical URL・WP post ID を PublishedRef で返す／published_url 証跡は register_asset で asset_id を得てから記録する（s0-contract §2.1 の整合列を先に成立 — WF-WP-2 ステップ 6）／承認なしの公開は operation_log 上 0 件が不変条件（ApprovalRequired で送信 0 回拒否）
-- **raises**: `ApprovalRequired`（ApprovalPass 未提示・無効での公開要求（kind=blocked — 外部送信 0 回で拒否し operation_log に理由記録））／`PairRequired`（PairPass 未提示・無効（WP API を呼ばない））／`ProductionWriteDenied`（Docker 以外の WP endpoint への公開設定（送信 0 回で拒否））／`RateLimitExceeded`（日次 cap・バースト上限到達（実行前拒否））／`OperationUnverifiable`（公開状態が sent のまま照合不能（unknown → escalated。再送しない）） ／ **pure**: no
+- **raises**: `ApprovalRequired`（ApprovalPass 未提示・無効での公開要求（kind=blocked — 外部送信 0 回で拒否し 拒否理由を構造化ログ（FN-704）へ記録））／`PairRequired`（PairPass 未提示・無効（WP API を呼ばない））／`ProductionWriteDenied`（Docker 以外の WP endpoint への公開設定（送信 0 回で拒否））／`RateLimitExceeded`（日次 cap・バースト上限到達（実行前拒否））／`OperationUnverifiable`（公開状態が sent のまま照合不能（unknown → escalated。再送しない）） ／ **pure**: no
 
 ### `def upload_media(conn: Connection, task_id: int, pair_pass: PairPass, media_path: Path, idempotency_key: str, clock: Clock) -> MediaRef`
 

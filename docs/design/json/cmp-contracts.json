@@ -20,7 +20,7 @@
       "responsibility_boundary": "やる: (現状態, イベント) の遷移表照合、guard 実行、loop_runs/tasks の状態 UPDATE、state_transitions への許可・拒否証跡記録、終端状態からの遷移拒否、retry_count 管理（verify_fail guard 内のみ）。やらない: タスク発行・WF 実行（CMP-02）、ゲート判定の実体（CMP-03 が guard として供給）、外部 I/O、遷移表の定義（s0-contract §3 が正準）。",
       "dependency_direction": "ドメイン層（kernel）。cli/CMP-02 から呼ばれ、CMP-05（db）・CMP-03（guard 経由）に依存する。基盤層からは依存されない。fail-close の二極の一方（もう一方は CMP-03）。",
       "data_flow": "イベント＋entity_id 入力 → 遷移表照合 → guard を DB 現在状態で評価 → 成立時 loop_runs/tasks UPDATE＋state_transitions INSERT（同一 transaction）→ TransitionResult 返却。拒否時は rejected 行を記録し DB 不変。",
-      "state_owner": "loop_runs.status／tasks.status／state_transitions（業務状態遷移の唯一の書込み主体。kernel＋ストア層原則）",
+      "state_owner": "loop_runs.state／tasks.state／state_transitions（業務状態遷移の唯一の書込み主体。kernel＋ストア層原則）",
       "transaction_owner": "本 CMP（1 状態遷移 = 1 transaction。guard・状態更新・遷移ログを単一 BEGIN/COMMIT で所有）",
       "error_classes": [
         "TransitionRejected: 遷移表不一致・guard 不成立・終端からの遷移要求 → GateRejected 系。DB 不変で拒否行のみ記録",
@@ -42,6 +42,40 @@
         "design_doc": [
           "state-machine-design_v0.1.md",
           "error-taxonomy_v0.1.md"
+        ]
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "loop_runs",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "loop_runs.state",
+          "tasks.state"
+        ],
+        "state_refs": [
+          "loop_runs.escalated",
+          "loop_runs.pending",
+          "tasks.escalated",
+          "tasks.pending"
+        ],
+        "event_refs": [
+          "claim",
+          "escalate",
+          "start",
+          "verify_fail"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "FatalError",
+          "GateRejected",
+          "TransitionRejected"
+        ],
+        "api_refs": [
+          "connect",
+          "register_guard",
+          "transition"
         ]
       }
     },
@@ -102,6 +136,55 @@
         "design_doc": [
           "error-taxonomy_v0.1.md"
         ]
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "evidence",
+          "strategic_briefs",
+          "tactical_learning_packets",
+          "tasks"
+        ],
+        "column_refs": [],
+        "state_refs": [
+          "tasks.escalated",
+          "tasks.pending",
+          "tasks.verifying"
+        ],
+        "event_refs": [
+          "claim",
+          "escalate",
+          "resume",
+          "retryable_failure"
+        ],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "FatalError",
+          "GateRejected",
+          "RetryableError",
+          "SelfReviewRejected",
+          "TaskIssuanceRejected"
+        ],
+        "api_refs": [
+          "assign",
+          "claim",
+          "connect",
+          "generate_tactical_learning_packet",
+          "get",
+          "get_tactical_learning_packet",
+          "issue_strategic_brief",
+          "issue_task",
+          "load",
+          "record",
+          "resume",
+          "run_microloop",
+          "run_step",
+          "supersede_strategic_brief",
+          "transition",
+          "validate_strategic_brief"
+        ]
       }
     },
     {
@@ -158,6 +241,38 @@
         "design_doc": [
           "error-taxonomy_v0.1.md"
         ]
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "evidence",
+          "pair_plan_quality"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "commit_hash",
+          "review_pass"
+        ],
+        "error_type_refs": [
+          "CommitHashMismatch",
+          "EvidenceIncomplete",
+          "FatalError",
+          "GateRejected",
+          "PaidMetricRejected"
+        ],
+        "api_refs": [
+          "check_complete",
+          "check_domain",
+          "check_metric_type",
+          "check_publishable",
+          "connect",
+          "establish",
+          "get",
+          "require_pair",
+          "revoke_if_changed"
+        ]
       }
     },
     {
@@ -199,6 +314,34 @@
         ],
         "design_doc": [
           "error-taxonomy_v0.1.md"
+        ]
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "approvals",
+          "config",
+          "evidence"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "commit_hash",
+          "file_hash",
+          "review_pass"
+        ],
+        "error_type_refs": [
+          "CredentialLeakDetected",
+          "GateRejected",
+          "IntegrityError",
+          "SelfReviewRejected"
+        ],
+        "api_refs": [
+          "connect",
+          "exists",
+          "for_task",
+          "record",
+          "scan"
         ]
       }
     },
@@ -246,6 +389,33 @@
           "db-design_v0.1.md",
           "error-taxonomy_v0.1.md"
         ]
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "loop_runs",
+          "schema_version",
+          "strategic_briefs",
+          "tactical_learning_packets"
+        ],
+        "column_refs": [
+          "loop_runs.strategic_brief_id"
+        ],
+        "state_refs": [],
+        "event_refs": [
+          "escalate"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "FatalError",
+          "IntegrityError",
+          "MigrationChecksumMismatch"
+        ],
+        "api_refs": [
+          "apply_all",
+          "connect",
+          "verify"
+        ]
       }
     },
     {
@@ -287,6 +457,27 @@
         "design_doc": [
           "brand-isolation-design_v0.1.md",
           "error-taxonomy_v0.1.md"
+        ]
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "config"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "AppendOnlyViolation",
+          "ConfigAppendOnlyViolation",
+          "ConfigReasonMissing",
+          "FatalError",
+          "GateRejected"
+        ],
+        "api_refs": [
+          "connect",
+          "get",
+          "set"
         ]
       }
     },
@@ -334,6 +525,31 @@
           "external-if-design_v0.1.md",
           "error-taxonomy_v0.1.md"
         ]
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "evidence"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [
+          "escalate"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "CredentialLeakDetected",
+          "FatalError",
+          "GateRejected",
+          "PaidRouteDenied",
+          "ProductionWriteDenied"
+        ],
+        "api_refs": [
+          "check_endpoint",
+          "connect",
+          "get_credential",
+          "resolve",
+          "scan"
+        ]
       }
     },
     {
@@ -373,6 +589,32 @@
         "design_doc": [
           "external-if-design_v0.1.md",
           "error-taxonomy_v0.1.md"
+        ]
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "evidence"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [
+          "escalate",
+          "retryable_failure"
+        ],
+        "evidence_kind_refs": [
+          "file_hash",
+          "screenshot"
+        ],
+        "error_type_refs": [
+          "FatalError",
+          "RetryableError"
+        ],
+        "api_refs": [
+          "check_endpoint",
+          "get_credential",
+          "launch",
+          "screenshot"
         ]
       }
     },
@@ -415,6 +657,33 @@
         "design_doc": [
           "external-if-design_v0.1.md",
           "error-taxonomy_v0.1.md"
+        ]
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "evidence",
+          "loop_runs",
+          "playbooks",
+          "tasks"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [
+          "escalate"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "FatalError",
+          "GateRejected",
+          "IntegrityError",
+          "PlaybookMissing"
+        ],
+        "api_refs": [
+          "connect",
+          "get",
+          "record_failure",
+          "record_success"
         ]
       }
     },
@@ -462,6 +731,48 @@
           "external-if-design_v0.1.md",
           "error-taxonomy_v0.1.md"
         ]
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "assets",
+          "config",
+          "evidence",
+          "external_operations",
+          "loop_runs",
+          "tasks"
+        ],
+        "column_refs": [
+          "external_operations.status"
+        ],
+        "state_refs": [
+          "loop_runs.escalated",
+          "tasks.escalated"
+        ],
+        "event_refs": [
+          "escalate",
+          "retryable_failure"
+        ],
+        "evidence_kind_refs": [
+          "operation_log",
+          "published_url"
+        ],
+        "error_type_refs": [
+          "ApprovalRequired",
+          "FatalError",
+          "GateRejected",
+          "ProductionWriteDenied",
+          "RetryableError",
+          "WpTargetDenied"
+        ],
+        "api_refs": [
+          "check_endpoint",
+          "create_draft",
+          "get",
+          "get_credential",
+          "publish",
+          "record",
+          "register_asset"
+        ]
       }
     },
     {
@@ -507,6 +818,47 @@
           "external-if-design_v0.1.md",
           "approval-design_v0.1.md",
           "error-taxonomy_v0.1.md"
+        ]
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "approvals",
+          "config",
+          "evidence",
+          "loop_runs",
+          "tasks"
+        ],
+        "column_refs": [
+          "approvals.evidence_id"
+        ],
+        "state_refs": [
+          "loop_runs.escalated",
+          "loop_runs.failed",
+          "loop_runs.pending",
+          "loop_runs.waiting",
+          "tasks.escalated",
+          "tasks.failed",
+          "tasks.pending"
+        ],
+        "event_refs": [
+          "non_retryable_failure"
+        ],
+        "evidence_kind_refs": [
+          "approval"
+        ],
+        "error_type_refs": [
+          "ApprovalBindingMismatch",
+          "ApprovalRequired",
+          "FatalError",
+          "GateRejected",
+          "RetryableError"
+        ],
+        "api_refs": [
+          "get",
+          "poll",
+          "record",
+          "request",
+          "transition"
         ]
       }
     },
@@ -557,6 +909,33 @@
         ],
         "design_doc": [
           "error-taxonomy_v0.1.md"
+        ]
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "evidence"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [
+          "escalate"
+        ],
+        "evidence_kind_refs": [
+          "commit_hash"
+        ],
+        "error_type_refs": [
+          "CommitHashMismatch",
+          "FatalError",
+          "GateRejected",
+          "RetryableError",
+          "UnversionedSourceRejected"
+        ],
+        "api_refs": [
+          "commit_workspace",
+          "generate",
+          "link",
+          "record",
+          "restore"
         ]
       }
     },
@@ -612,6 +991,39 @@
         "design_doc": [
           "error-taxonomy_v0.1.md"
         ]
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "kpi_nodes"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log",
+          "screenshot"
+        ],
+        "error_type_refs": [
+          "FatalError",
+          "GateRejected",
+          "PaidMetricRejected",
+          "RetryableError",
+          "StaleSourceRejected"
+        ],
+        "api_refs": [
+          "check_metric_type",
+          "create_node",
+          "fetch",
+          "get_credential",
+          "ingest",
+          "launch",
+          "parse",
+          "record",
+          "resolve",
+          "screenshot",
+          "tree"
+        ]
       }
     },
     {
@@ -653,6 +1065,30 @@
           "db-design_v0.1.md",
           "error-taxonomy_v0.1.md"
         ]
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "loop_runs",
+          "strategic_briefs",
+          "tactical_learning_packets"
+        ],
+        "column_refs": [
+          "loop_runs.strategic_brief_id"
+        ],
+        "state_refs": [],
+        "event_refs": [
+          "escalate"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "FatalError",
+          "IntegrityError",
+          "MigrationChecksumMismatch"
+        ],
+        "api_refs": [
+          "apply_all",
+          "verify"
+        ]
       }
     },
     {
@@ -691,6 +1127,24 @@
         "design_doc": [
           "error-taxonomy_v0.1.md"
         ]
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "strategic_briefs"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "FatalError",
+          "GateRejected",
+          "IntegrityError"
+        ],
+        "api_refs": [
+          "issue_strategic_brief",
+          "supersede_strategic_brief"
+        ]
       }
     },
     {
@@ -727,6 +1181,29 @@
         "design_doc": [
           "state-machine-design_v0.1.md",
           "error-taxonomy_v0.1.md"
+        ]
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "loop_runs",
+          "state_transitions",
+          "strategic_briefs"
+        ],
+        "column_refs": [],
+        "state_refs": [
+          "loop_runs.pending"
+        ],
+        "event_refs": [
+          "start"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "GateRejected",
+          "TransitionRejected"
+        ],
+        "api_refs": [
+          "register_guard",
+          "validate_strategic_brief"
         ]
       }
     },
@@ -767,6 +1244,29 @@
         "design_doc": [
           "error-taxonomy_v0.1.md"
         ]
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "tactical_learning_packets"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [
+          "escalate"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "GateRejected",
+          "IntegrityError"
+        ],
+        "api_refs": [
+          "generate_tactical_learning_packet",
+          "get",
+          "get_tactical_learning_packet",
+          "transition",
+          "verify"
+        ]
       }
     },
     {
@@ -800,6 +1300,21 @@
         "du": [],
         "design_doc": [
           "error-taxonomy_v0.1.md"
+        ]
+      },
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "GateRejected",
+          "StaleSourceRejected"
+        ],
+        "api_refs": [
+          "connect",
+          "resolve"
         ]
       }
     },
@@ -838,6 +1353,23 @@
           "brand-isolation-design_v0.1.md",
           "error-taxonomy_v0.1.md"
         ]
+      },
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "FatalError",
+          "GateRejected",
+          "IntegrityError",
+          "StaleSourceRejected",
+          "UnsourcedValueRejected"
+        ],
+        "api_refs": [
+          "connect"
+        ]
       }
     },
     {
@@ -872,6 +1404,20 @@
         "du": [],
         "design_doc": [
           "error-taxonomy_v0.1.md"
+        ]
+      },
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "GateRejected",
+          "UnsourcedValueRejected"
+        ],
+        "api_refs": [
+          "issue_strategic_brief"
         ]
       }
     },
@@ -908,6 +1454,21 @@
         "design_doc": [
           "error-taxonomy_v0.1.md"
         ]
+      },
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "GateRejected",
+          "StaleSourceRejected"
+        ],
+        "api_refs": [
+          "get_tactical_learning_packet",
+          "supersede_strategic_brief"
+        ]
       }
     },
     {
@@ -941,6 +1502,24 @@
         "design_doc": [
           "brand-isolation-design_v0.1.md",
           "error-taxonomy_v0.1.md"
+        ]
+      },
+      "semantic_refs": {
+        "table_refs": [
+          "config"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "ConfigReasonMissing",
+          "FatalError",
+          "GateRejected"
+        ],
+        "api_refs": [
+          "get",
+          "set"
         ]
       }
     },
@@ -977,7 +1556,27 @@
           "brand-isolation-design_v0.1.md",
           "error-taxonomy_v0.1.md"
         ]
+      },
+      "semantic_refs": {
+        "table_refs": [],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "FatalError",
+          "GateRejected"
+        ],
+        "api_refs": [
+          "connect",
+          "generate"
+        ]
       }
     }
-  ]
+  ],
+  "status": "confirmed",
+  "approved_at": "2026-08-01T00:00:00+09:00",
+  "authority": "PO",
+  "supersedes": [],
+  "approval_digest": "87b382a4a724"
 }

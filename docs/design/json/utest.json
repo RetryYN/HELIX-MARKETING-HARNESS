@@ -444,5 +444,10 @@
       "text": "claim 所有権: task の author_agent_id に属さない execution（verifier・無関係 agent）の claim は GateRejected、lease 失効前の他 execution claim 拒否、失効後は author agent の新 execution のみ再 claim 可、agents と execution の principal 不一致は複合 FK で IntegrityError",
       "test_file": "tests/unit/test_kernel_orchestrator.py"
     }
-  ]
+  ],
+  "status": "superseded",
+  "superseded_at": "2026-08-01",
+  "superseded_by": "../../requirements/json/verification/tc-contracts.json と du-contracts.json の apis[].ut",
+  "authority": "PO",
+  "note": "UTC 69 の旧体系 — 2026-08-01 クロージャーで実装入力から除外。履歴として保持（削除しない）。実装・検証の入力は ../../requirements/json/verification/tc-contracts.json と du-contracts.json の apis[].ut を用いる。"
 }
