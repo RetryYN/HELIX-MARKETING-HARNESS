@@ -2,8 +2,8 @@
   "review_id": "REV-S0-STRUCT-02",
   "reviewer_principal": "codex-sol（実装者と別 principal の独立ブラインドレビュー）",
   "model": "gpt-5.6-sol",
-  "target_commit": "2a5afa56327c9d11923de10c11adc6ee316ac4bd",
-  "target_tree": "96943876295ff67b5e0b900333eeafe54b16a44d",
+  "target_commit": "403e7260ffeb6e5734eec3f6753ecd0e97d06604",
+  "target_tree": "b7df9e033bb76da3d3ee2b6d958daf4a3e7c67d1",
   "scope": "REV-S0-STRUCT-01 の束縛機構自身に見つかった欠陥の是正 — `target_tree` に `git write-tree` の dangling tree を用いており、push されないため CI の clone 先で 解決できず GitHub Actions が両ワークフローとも失敗した。束縛先を到達可能なコミットの ツリーへ付け替え、同じ穴を G-REVIEW-BINDING で検出できるようにした。束縛対象は変更した 2 ファイル（review_binding.py・test_review_binding.py）のみ。REV-S0-STRUCT-01 が束縛する他の 29 件は内容不変であり、本レビューが supersedes_review で引き継ぐ",
   "reviewed_artifact_digests": {
     "tools/gates/review_binding.py": "e2fd9944f8529199",
@@ -42,7 +42,8 @@
     }
   ],
   "resolution_commits": [
-    "2f3b0b3e332a466fbc20ad7fd2aaba3042784c02"
+    "2f3b0b3e332a466fbc20ad7fd2aaba3042784c02",
+    "403e7260ffeb6e5734eec3f6753ecd0e97d06604"
   ],
   "verdict": "Go",
   "rounds": 7,
