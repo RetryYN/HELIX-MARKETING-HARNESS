@@ -10,9 +10,9 @@ import pytest
 from tests.conftest import DDL
 
 
-def test_ddl_applies_to_empty_db_with_25_tables_14_triggers(conn: sqlite3.Connection) -> None:
+def test_ddl_applies_to_empty_db_with_25_tables_16_triggers(conn: sqlite3.Connection) -> None:
     assert conn.execute("SELECT count(*) FROM sqlite_master WHERE type='table'").fetchone()[0] == 25
-    assert conn.execute("SELECT count(*) FROM sqlite_master WHERE type='trigger'").fetchone()[0] == 14
+    assert conn.execute("SELECT count(*) FROM sqlite_master WHERE type='trigger'").fetchone()[0] == 16
     assert conn.execute("PRAGMA foreign_key_check").fetchall() == []
     assert conn.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
 
@@ -26,7 +26,7 @@ def test_schema_version_recorded_and_upgrades() -> None:
 
 
 @pytest.mark.skip(reason="test-first DU-11: apply_all")
-def test_apply_all_empty_db_creates_25_tables_and_14_triggers() -> None:
+def test_apply_all_empty_db_creates_25_tables_and_16_triggers() -> None:
     """du-contracts DU-11 の契約観点を検証する（実装スライスで red→green）。"""
     raise NotImplementedError
 

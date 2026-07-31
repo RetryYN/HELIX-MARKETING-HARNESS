@@ -1,0 +1,37 @@
+{
+  "doc": "br-media/NOTION",
+  "version": "0.1",
+  "source": "docs/L1-business-requirements/canonical/br-media_v0.1.md",
+  "generated": "2026-07-30",
+  "media": "NOTION",
+  "media_name": "Notion",
+  "items": [
+    {
+      "id": "BR-M-NOTION-1",
+      "media": "NOTION",
+      "media_name": "Notion",
+      "structure": "公式 API/MCP は無料プランで利用可。3 req/秒・rich_text 2,000 字/オブジェクト・ 100 ブロック/配列。公式 webhook あり（公開 HTTPS 必要・集約遅延あり）。",
+      "text": "同期は 3 req/秒と 2,000 字分割を前提にバッチ設計すること",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "MR-NOTION-1"
+        ]
+      }
+    },
+    {
+      "id": "BR-M-NOTION-2",
+      "media": "NOTION",
+      "media_name": "Notion",
+      "structure": "公式 API/MCP は無料プランで利用可。3 req/秒・rich_text 2,000 字/オブジェクト・ 100 ブロック/配列。公式 webhook あり（公開 HTTPS 必要・集約遅延あり）。",
+      "text": "変更検知はポーリング（last_edited_time・分単位精度）を基本とし、 取りこぼし防止にカーソルへ余裕を持たせること（webhook はループ判定に使わない・FR-45 踏襲）",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "MR-NOTION-2"
+        ]
+      }
+    }
+  ],
+  "structure_checked": "2026-07-30"
+}

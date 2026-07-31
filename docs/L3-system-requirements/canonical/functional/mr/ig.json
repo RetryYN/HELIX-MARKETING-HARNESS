@@ -1,0 +1,48 @@
+{
+  "doc": "mr/IG",
+  "version": "0.1",
+  "source": "docs/L3-system-requirements/canonical/functional/media-requirements_v0.1.md",
+  "generated": "2026-07-30",
+  "media": "IG",
+  "media_name": "2.4 Instagram",
+  "items": [
+    {
+      "id": "MR-IG-1",
+      "media": "IG",
+      "media_name": "2.4 Instagram",
+      "text": "ビジュアル主媒体のため design-evidence 審査（コントラスト・可読性）を品質ゲートに含む",
+      "trace": {
+        "upstream": [
+          "BR-M-IG-1"
+        ],
+        "downstream": []
+      },
+      "connection": "公式 Graph API（無料・プロアカウント。ADR-006/§99-1）。ブラウザは attended 補助のみ",
+      "actions": "フィード/リール投稿、キャプション・ハッシュタグ、インサイト取得（すべて Graph API）",
+      "evidence": "投稿 URL、スクショ、リーチ・保存・エンゲージ数値",
+      "kpi_contribution": "露出（リーチ・インプレッション）、関係（保存・フォロワー）",
+      "workflow": "sns-jp, breakout-content-jp ＋ 画像/リール制作",
+      "gate": "企画↔品質、倫理、ゼロ広告費",
+      "safety": "API quota 準拠（検知リスクなし）。日次上限は config で管理。attended ブラウザ補助時のみ間隔 5〜15 秒"
+    },
+    {
+      "id": "MR-IG-2",
+      "media": "IG",
+      "media_name": "2.4 Instagram",
+      "text": "（レート・BR-F5）Graph API 経由は API quota 準拠（人間相当のランダム間隔 N/A）。投稿 3 件/日（C: rate.ig.*）。attended ブラウザ補助時のみ間隔 5〜15 秒の一様乱数を適用",
+      "trace": {
+        "upstream": [
+          "BR-M-IG-2"
+        ],
+        "downstream": []
+      },
+      "connection": "公式 Graph API（無料・プロアカウント。ADR-006/§99-1）。ブラウザは attended 補助のみ",
+      "actions": "フィード/リール投稿、キャプション・ハッシュタグ、インサイト取得（すべて Graph API）",
+      "evidence": "投稿 URL、スクショ、リーチ・保存・エンゲージ数値",
+      "kpi_contribution": "露出（リーチ・インプレッション）、関係（保存・フォロワー）",
+      "workflow": "sns-jp, breakout-content-jp ＋ 画像/リール制作",
+      "gate": "企画↔品質、倫理、ゼロ広告費",
+      "safety": "API quota 準拠（検知リスクなし）。日次上限は config で管理。attended ブラウザ補助時のみ間隔 5〜15 秒"
+    }
+  ]
+}

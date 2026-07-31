@@ -38,15 +38,26 @@ def main() -> int:
     # ラチェット: 上限は baseline に記録した値を超えて増やせない（減少方向のみ許可）
     # 比較対象は git HEAD にコミット済みの baseline（作業ツリーの同時改変では回避できない）
     # 比較元は **親コミット**（CI では検査対象コミット自身が HEAD になるため）
+    # 親コミットが無い（初回コミット）場合のみラチェット非適用。親があるのに baseline を
+    # 解決できない場合は fail-close（物理移行で移動しても旧パスまで遡る）。
+    has_parent = subprocess.run(  # noqa: S603
+        ["git", "rev-parse", "--verify", "HEAD^"],  # noqa: S607
+        capture_output=True, text=True, check=False, cwd=ROOT).returncode == 0
     recorded = None
-    for rev in ("HEAD^", "HEAD"):
-        proc = subprocess.run(  # noqa: S603
-            ["git", "show", f"{rev}:docs/governance/baseline.json"],  # noqa: S607
-            capture_output=True, text=True, check=False, cwd=ROOT)
-        if proc.returncode == 0:
-            recorded = json.loads(proc.stdout).get("max_skipped")
-            break
-    approvals = (ROOT / "docs/governance/approvals.md").read_text()
+    resolved = False
+    if has_parent:
+        for path in ("docs/00-authority/baselines/baseline.json", "docs/governance/baseline.json"):
+            proc = subprocess.run(  # noqa: S603
+                ["git", "show", f"HEAD^:{path}"],  # noqa: S607
+                capture_output=True, text=True, check=False, cwd=ROOT)
+            if proc.returncode == 0:
+                recorded = json.loads(proc.stdout).get("max_skipped")
+                resolved = True
+                break
+        if not resolved:
+            print("FAIL [SKIP-BUDGET] 親コミットの baseline を解決できない（旧パス含む） — fail-close")
+            return 1
+    approvals = (ROOT / "docs/00-authority/approvals/approvals.md").read_text()
     pat = re.compile(
         rf"^\|[^|]*\|\s*skip-budget\s*\|[^|]*{recorded}→{limit}[^|]*\|\s*approved\s*\|\s*PO\s*\|",
         re.MULTILINE)

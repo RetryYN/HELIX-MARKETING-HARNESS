@@ -1,0 +1,37 @@
+{
+  "doc": "br-media/SEED",
+  "version": "0.1",
+  "source": "docs/L1-business-requirements/canonical/br-media_v0.1.md",
+  "generated": "2026-07-30",
+  "media": "SEED",
+  "media_name": "Seedance",
+  "items": [
+    {
+      "id": "BR-M-SEED-1",
+      "media": "SEED",
+      "media_name": "Seedance",
+      "structure": "有償 API（正当な自動化経路）。",
+      "text": "唯一の有償 API 例外として、支出台帳（FR-73）と月上限（NFR-6）の管理下でのみ使うこと",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "MR-SEED-1"
+        ]
+      }
+    },
+    {
+      "id": "BR-M-SEED-2",
+      "media": "SEED",
+      "media_name": "Seedance",
+      "structure": "有償 API（正当な自動化経路）。",
+      "text": "生成物の権利条件を利用開始前に確認し、ライセンス台帳に記録すること",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "MR-SEED-2"
+        ]
+      }
+    }
+  ],
+  "structure_checked": "2026-07-30"
+}

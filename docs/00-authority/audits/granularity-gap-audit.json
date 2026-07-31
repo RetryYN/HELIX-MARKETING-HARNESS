@@ -1,0 +1,136 @@
+{
+  "audit": "granularity-gap-audit",
+  "version": "0.1",
+  "date": "2026-08-01",
+  "directive": "全層再降下・粒度是正指示（PO 2026-08-01）",
+  "reference_canon": {
+    "marketing_philosophy": "TAKUMI_CMO-Claude_Cowark（ゼロ広告費・コンテンツ/ブランディング先行・仮説づくり = 心技体）",
+    "dual_loop": "docs/L0-charter/canonical/marketing-harness-charter_v0.4.md",
+    "granularity_contract_gates": "HELIX-HARNESS 最新 main（~/HELIX-HARNESS）"
+  },
+  "baseline_measurement": {
+    "helix_harness": {
+      "design_docs": 86,
+      "design_lines": 12512,
+      "layers": "L1-L14（要求→要件の 2 段階詳細化＋L6 機能別設計 20 本）",
+      "fr_count": 26,
+      "ac_count": 85,
+      "ac_rule": "全 FR に AC 最低 3 件（正常/異常/境界）＋人間判断点列必須",
+      "l5_subdocs": 7,
+      "l5_lines": 1271,
+      "lint_modules": "src/lint 40 本超（意味検証: design-language / entity-coverage / descent-obligation / effect-intent 等を含む）"
+    },
+    "marketing_harness": {
+      "requirements_docs": 13,
+      "requirements_lines": 2634,
+      "fr_count": 36,
+      "sr_count": 16,
+      "ac_count": 19,
+      "ac_deferred": 17,
+      "ac_sr_count": 6,
+      "detailed_design_lines": 259,
+      "du_count": 23,
+      "gates": 81,
+      "gate_nature": "件数・参照・ペア構造の整合が中心。記述粒度（契約項目の実在）を要求するゲートは G-SUBSTANCE（8 文字下限）のみ"
+    }
+  },
+  "root_cause": "①要求/要件が「責務 1 行」粒度で confirmed になったため、③の TC がその粒度でしか書けず、②⑤が被覆表化した。粒度そのものを fail-close する意味ゲートが不在。",
+  "gaps": [
+    {
+      "id": "GAP-BR",
+      "entity": "BR（31）＋BR-M（70）",
+      "current": "1 行の業務要求文＋出所 trace のみ。",
+      "missing_contract_fields": ["目的", "主体・利用者", "発生状況・トリガー", "現在の問題", "期待する価値・成果", "対象範囲／非対象範囲", "制約", "禁止事項", "人間判断点", "失敗時の影響", "完了を証明する証跡", "上流思想・下流要件への trace"],
+      "downstream_impact": "REQ/FR が価値・禁止・証跡を継承できず、AC が『行が存在する』検証に退化。12 独立要求群（ブランド隔離・責務分離・仮説反証・KPI 交差点・複数媒体・価値認識定義・ゼロ広告費・倫理線・人間AI境界・証跡再開冪等・外部操作承認・学習/失敗packet）が BR 面で未分離。",
+      "remediation": "再降下2（要求定義再構築）＋G-REQ-CONTRACT"
+    },
+    {
+      "id": "GAP-REQ",
+      "entity": "REQ（45）",
+      "current": "requirement-list は 1 行躯体。BR との対応はあるが構造化フィールドなし。",
+      "missing_contract_fields": ["BR と同 12 フィールド", "スコープ内外の明示", "N/A 理由"],
+      "downstream_impact": "要求→要件の 2 段階詳細化（HELIX L1→L3 相当）が 1 段階に潰れている。",
+      "remediation": "再降下2＋G-REQ-CONTRACT"
+    },
+    {
+      "id": "GAP-FR",
+      "entity": "FR（36）",
+      "current": "責務 1 段落（入出力・異常系・判断点は未分離）。",
+      "missing_contract_fields": ["入力", "出力", "事前条件", "事後条件", "不変条件", "状態遷移", "正常動作", "拒否・異常動作", "境界動作", "再試行・再開・復旧", "人間判断／escalation", "副作用", "冪等性", "証跡", "使用テーブル・正本", "外部依存", "設定値／固定値の区別", "上流／下流 trace"],
+      "downstream_impact": "AC が書けない（FR 36 に AC 19 — 大半の FR に AC ゼロ。HELIX は FR 26 に AC 85）。TC が状態・副作用・証跡を検証できない。⑤の API 契約が導出できない。",
+      "remediation": "再降下3＋G-REQ-CONTRACT／G-INVARIANT-TRACE"
+    },
+    {
+      "id": "GAP-SR",
+      "entity": "SR（16）",
+      "current": "宣言文＋schema 参照。実行契約（事前/事後/不変/復旧）は brief/TLP/revision 契約文書に部分散在。",
+      "missing_contract_fields": ["FR と同 18 項目（特に境界動作・再開・競合・冪等性）"],
+      "downstream_impact": "AC-SR が 6 件のみ（SR 16 に対し不足）。STC-I が invariant の境界・競合を検証しない。",
+      "remediation": "再降下3＋G-AC-COVERAGE"
+    },
+    {
+      "id": "GAP-NFR",
+      "entity": "NFR（10）",
+      "current": "目標値の宣言のみ。",
+      "missing_contract_fields": ["測定対象", "測定方法", "閾値", "測定環境", "違反時の動作", "証跡"],
+      "downstream_impact": "NFR が検証不能（測定方法のない閾値）。CI で機械判定できない。",
+      "remediation": "再降下3＋G-NFR-MEASURABLE"
+    },
+    {
+      "id": "GAP-AC",
+      "entity": "AC（19＋deferred 17）／AC-SR（6）",
+      "current": "GWT はあるが fixture・観測点・DB 差分・証跡・禁止副作用・エラー型なし。極性分類（正常/拒否/境界）が体系化されていない。",
+      "missing_contract_fields": ["fixture", "観測点", "期待状態", "期待DB差分", "期待証跡", "禁止副作用", "エラー型", "対象更新", "極性（正常/拒否/境界・復旧、N/A は理由）"],
+      "downstream_impact": "TC が『行が存在する』検証に退化。禁止副作用（例: コネクタの直接書込み）がテスト仕様として存在しない。",
+      "remediation": "再降下4＋G-AC-COVERAGE／G-AC-POLARITY／G-HUMAN-JUDGE"
+    },
+    {
+      "id": "GAP-TC",
+      "entity": "TC（59）／ITC（16）／STC（28）",
+      "current": "AC↔TC の双方向被覆は成立。ただし TC 本文が観測点・副作用・証跡・外部呼出回数を規定しない。",
+      "missing_contract_fields": ["検証する状態遷移", "DB 差分 assert", "証跡 assert", "外部呼出回数", "強制終了・競合・再開系"],
+      "downstream_impact": "UT が薄い契約に対して書かれ、green が品質を意味しない。",
+      "remediation": "再降下5＋G-AC-COVERAGE（TC 側フィールド必須化）"
+    },
+    {
+      "id": "GAP-CMP",
+      "entity": "CMP（13）＋SCM（10）",
+      "current": "責務・FN 被覆・依存方向の宣言まで。interface・エラー分類・degradation なし。",
+      "missing_contract_fields": ["提供 interface", "要求 interface", "責務境界", "依存方向（物理保証）", "データフロー", "状態所有者", "transaction 所有者", "エラー分類", "degradation／復旧方針", "セキュリティ境界", "人間判断点"],
+      "downstream_impact": "外部 IF・DB・状態機械・エラー分類・承認・ブランド隔離が独立設計書を持たず、⑤へ契約が降りない。HELIX の if-detail（AdapterError 5 分類→fail-close 写像）相当が不在。",
+      "remediation": "再降下6＋G-CMP-INTERFACE"
+    },
+    {
+      "id": "GAP-DU",
+      "entity": "DU（23）",
+      "current": "モジュール名簿（責務 1 行＋FN 割当）。API 署名は DU-02 のみ。本文 259 行／23 DU。",
+      "missing_contract_fields": ["公開API署名", "引数・戻り値・DTO・値オブジェクト", "precondition／postcondition", "raise する例外", "状態遷移", "DB read/write", "transaction 境界", "pure／副作用端点", "冪等性", "retry／resume", "競合制御", "ログ・証跡", "依存API", "対応AC／TC／UT"],
+      "downstream_impact": "⑥の UT が関数名を参照できず、テストファイル存在ゲートのみが成立。実装（S0.1）が無契約で始まる。重要機能 11 本（戦略改訂・brief・TLP・ブランド隔離・KPI handoff・キャンペーン・状態機械・外部操作・承認・証跡・migration）の機能別設計が不在（HELIX L6 相当 20 本に対しゼロ）。",
+      "remediation": "再降下7＋G-DU-API／G-DU-DBC／G-DU-ERROR／G-DU-DATA"
+    },
+    {
+      "id": "GAP-UT",
+      "entity": "UTC（69）／STC-I（10）",
+      "current": "TC→DU 割当とファイル存在まで。公開 API との対応なし（API が未定義のため定義不能）。",
+      "missing_contract_fields": ["対象 API（全公開 API に UT ≥1）", "pre/post 検証", "例外検証", "拒否・境界・競合・再開検証"],
+      "downstream_impact": "module-level skip＋存在チェックで green が出る（実行されない検証）。",
+      "remediation": "再降下8＋G-API-UT"
+    },
+    {
+      "id": "GAP-GATE",
+      "entity": "整合ゲート（81）",
+      "current": "件数・参照・ペア・DDL 実行・fixture 拒否は fail-close 済み。記述粒度の意味ゲートが G-SUBSTANCE（8 文字下限）のみ。",
+      "missing_contract_fields": ["G-REQ-CONTRACT", "G-NFR-MEASURABLE", "G-AC-COVERAGE", "G-AC-POLARITY", "G-HUMAN-JUDGE", "G-INVARIANT-TRACE", "G-TRACE-BIDIR", "G-CMP-INTERFACE", "G-DU-API", "G-DU-DBC", "G-DU-ERROR", "G-DU-DATA", "G-API-UT", "G-NO-HOLLOW-DESIGN"],
+      "downstream_impact": "薄い本文のまま confirmed に到達できる（本監査が示した事象そのもの）。",
+      "remediation": "再降下9（14 ゲート追加＋JSON 内容正本化・MD 生成ビュー段階移行）"
+    },
+    {
+      "id": "GAP-SSOT",
+      "entity": "正本管理",
+      "current": "MD と JSON の手動二重更新（G-CNT-* が同期を検査するのみ）。frontmatter 相当のメタ（生成元・SSoT 参照・件数算式）なし。",
+      "missing_contract_fields": ["JSON = 内容正本、MD = 生成ビュー", "件数の算式宣言", "SSoT 参照ヘッダ"],
+      "downstream_impact": "二重更新コストが粒度向上の阻害要因になる。件数の由来が追えない。",
+      "remediation": "再降下9（段階移行 — 新規/改訂エンティティから JSON 正本化）"
+    }
+  ]
+}

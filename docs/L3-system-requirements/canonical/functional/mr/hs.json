@@ -1,0 +1,87 @@
+{
+  "doc": "mr/HS",
+  "version": "0.1",
+  "source": "docs/L3-system-requirements/canonical/functional/media-requirements_v0.1.md",
+  "generated": "2026-07-30",
+  "media": "HS",
+  "media_name": "6.1 メルマガ / HubSpot",
+  "items": [
+    {
+      "id": "MR-HS-1",
+      "media": "HS",
+      "media_name": "6.1 メルマガ / HubSpot",
+      "text": "ナーチャリング自動化は HubSpot 有料機能を使わずハーネスループが SQLite 判定で駆動",
+      "trace": {
+        "upstream": [
+          "BR-M-HS-1"
+        ],
+        "downstream": []
+      },
+      "connection": "公式 MCP 主＋ブラウザ補完",
+      "actions": "コンタクト管理、フォーム/LP のリード取得、リスト配信、開封/クリック取得。CRM 全般",
+      "evidence": "配信 ID、送信数、開封/クリック率、リード獲得記録",
+      "kpi_contribution": "転換（リード数・フォーム完了率）、関係（開封・クリック）",
+      "workflow": "sales-writing, copywriting, messaging-design-jp, retention 系",
+      "gate": "企画↔品質、倫理、金銭（有料商品案内）",
+      "safety": "月 2,000 通上限監視（C）、超過で停止＆再検討トリガー。法規は NFR-9"
+    },
+    {
+      "id": "MR-HS-2",
+      "media": "HS",
+      "media_name": "6.1 メルマガ / HubSpot",
+      "text": "リード受け皿（診断ツール・資料DL・LP フォーム）を集約し転換系 KPI の起点にする",
+      "trace": {
+        "upstream": [
+          "BR-M-HS-2"
+        ],
+        "downstream": []
+      },
+      "connection": "公式 MCP 主＋ブラウザ補完",
+      "actions": "コンタクト管理、フォーム/LP のリード取得、リスト配信、開封/クリック取得。CRM 全般",
+      "evidence": "配信 ID、送信数、開封/クリック率、リード獲得記録",
+      "kpi_contribution": "転換（リード数・フォーム完了率）、関係（開封・クリック）",
+      "workflow": "sales-writing, copywriting, messaging-design-jp, retention 系",
+      "gate": "企画↔品質、倫理、金銭（有料商品案内）",
+      "safety": "月 2,000 通上限監視（C）、超過で停止＆再検討トリガー。法規は NFR-9"
+    },
+    {
+      "id": "MR-HS-3",
+      "media": "HS",
+      "media_name": "6.1 メルマガ / HubSpot",
+      "text": "配信はオプトイン済みコンタクトのみを対象とし、全メールに配信停止導線を含むことを 公開ゲートで機械検証する（特定電子メール法・NFR-9）。リード個人情報は HubSpot 側に置き、 SQLite へは ID・スコア等の非個人情報のみ同期する（APPI）",
+      "trace": {
+        "upstream": [
+          "NFR-9",
+          "BR-M-HS-3"
+        ],
+        "downstream": []
+      },
+      "connection": "公式 MCP 主＋ブラウザ補完",
+      "actions": "コンタクト管理、フォーム/LP のリード取得、リスト配信、開封/クリック取得。CRM 全般",
+      "evidence": "配信 ID、送信数、開封/クリック率、リード獲得記録",
+      "kpi_contribution": "転換（リード数・フォーム完了率）、関係（開封・クリック）",
+      "workflow": "sales-writing, copywriting, messaging-design-jp, retention 系",
+      "gate": "企画↔品質、倫理、金銭（有料商品案内）",
+      "safety": "月 2,000 通上限監視（C）、超過で停止＆再検討トリガー。法規は NFR-9"
+    },
+    {
+      "id": "MR-HS-4",
+      "media": "HS",
+      "media_name": "6.1 メルマガ / HubSpot",
+      "text": "（レート・BR-F5）: MCP は API quota 準拠（ランダム間隔 N/A）。配信は月 2,000 通の 無料枠内で計画的に配分（C: `rate.hs.*`）。ブラウザ補完時のみ間隔 1〜5 秒の一様乱数を適用",
+      "trace": {
+        "upstream": [
+          "BR-M-HS-4"
+        ],
+        "downstream": []
+      },
+      "connection": "公式 MCP 主＋ブラウザ補完",
+      "actions": "コンタクト管理、フォーム/LP のリード取得、リスト配信、開封/クリック取得。CRM 全般",
+      "evidence": "配信 ID、送信数、開封/クリック率、リード獲得記録",
+      "kpi_contribution": "転換（リード数・フォーム完了率）、関係（開封・クリック）",
+      "workflow": "sales-writing, copywriting, messaging-design-jp, retention 系",
+      "gate": "企画↔品質、倫理、金銭（有料商品案内）",
+      "safety": "月 2,000 通上限監視（C）、超過で停止＆再検討トリガー。法規は NFR-9"
+    }
+  ]
+}

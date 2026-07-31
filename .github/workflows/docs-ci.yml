@@ -20,7 +20,11 @@ jobs:
         with:
           globs: |
             README.md
+            CLAUDE.md
+            AGENTS.md
             docs/**/*.md
+            !docs/archive/**
+            !docs/00-authority/superseded/**
 
   requirements-gates:
     name: Requirements integrity gates
@@ -28,12 +32,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # 親コミットの baseline（skip ラチェット）とレビュー成果物の target_commit 解決に必要
+          fetch-depth: 0  # 親コミットの baseline（skip/coverage ラチェット）とレビュー成果物の target_commit 解決に必要
       - uses: actions/setup-python@v5
         with:
           python-version: "3.14"
       - name: Run requirements gates (fail-close)
-        run: python3 scripts/validate_requirements.py
+        run: python3 tools/gates/run_all.py
 
   link-check:
     name: Internal link check
@@ -43,5 +47,9 @@ jobs:
       - name: Run lychee (offline — internal links only)
         uses: lycheeverse/lychee-action@v2
         with:
-          args: --offline --no-progress README.md docs/
+          args: >-
+            --offline --no-progress
+            --exclude-path docs/archive
+            --exclude-path docs/00-authority/superseded
+            README.md CLAUDE.md AGENTS.md docs/
           fail: true

@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "artifact-manifest",
+  "description": "全現役成果物の権威正本。1 artifact ID につき active な canonical は 1 件のみ。G-AUTHORITY-MANIFEST 系が fail-close 検査する。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "status", "authority", "updated", "note", "items"],
+  "properties": {
+    "version": { "type": "string", "minLength": 3 },
+    "status": { "type": "string", "enum": ["active"] },
+    "authority": { "type": "string", "minLength": 2 },
+    "updated": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+    "note": { "type": "string", "minLength": 10 },
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifact_id",
+          "layer",
+          "slice",
+          "domain",
+          "artifact_type",
+          "status",
+          "canonical_path",
+          "view_path",
+          "pair_artifact_id",
+          "supersedes",
+          "previous_paths",
+          "approval_digest",
+          "review_digest"
+        ],
+        "properties": {
+          "artifact_id": { "type": "string", "pattern": "^[A-Z0-9]+(-[A-Z0-9]+)*$" },
+          "layer": {
+            "type": "string",
+            "enum": ["00-authority", "L0", "L1", "L2", "L3", "L4", "L5", "L6"]
+          },
+          "slice": { "type": "string", "enum": ["S0", "S1", "later", "cross"] },
+          "domain": { "type": "string", "minLength": 2 },
+          "artifact_type": {
+            "type": "string",
+            "enum": [
+              "charter",
+              "requirement-doc",
+              "requirement-contract",
+              "requirement-ledger",
+              "schema",
+              "fixture",
+              "ddl",
+              "design-doc",
+              "design-contract",
+              "module-contract",
+              "test-design",
+              "test-ledger",
+              "plan",
+              "catalog"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": ["confirmed", "active", "draft", "superseded", "archived"]
+          },
+          "canonical_path": { "type": "string", "minLength": 5 },
+          "view_path": { "type": ["string", "null"] },
+          "pair_artifact_id": { "type": ["string", "null"] },
+          "supersedes": { "type": "array", "items": { "type": "string" } },
+          "previous_paths": { "type": "array", "items": { "type": "string" } },
+          "approval_digest": { "type": ["string", "null"], "pattern": "^[0-9a-f]{12}$" },
+          "review_digest": { "type": ["string", "null"], "pattern": "^[0-9a-f]{16}$" }
+        }
+      }
+    }
+  }
+}

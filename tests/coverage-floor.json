@@ -1,0 +1,7 @@
+{
+  "note": "pytest coverage の下限ラチェット（tools/coverage_floor.py が CI へ供給し G-COVERAGE-RATCHET が検査）。S0.1 着手が自動検出されると 80 以上へ自動的に引き上がる。宣言値は下げられない（親コミット比較）。",
+  "fail_under": 0,
+  "started_floor": 80,
+  "as_of": "2026-08-01",
+  "reason": "S0.1 未着手（src/helix は __init__.py のみ）。着手検出後は 80% が下限となる"
+}

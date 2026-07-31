@@ -1,0 +1,37 @@
+{
+  "doc": "br-media/PWA",
+  "version": "0.1",
+  "source": "docs/L1-business-requirements/canonical/br-media_v0.1.md",
+  "generated": "2026-07-30",
+  "media": "PWA",
+  "media_name": "PWA",
+  "items": [
+    {
+      "id": "BR-M-PWA-1",
+      "media": "PWA",
+      "media_name": "PWA",
+      "structure": "自前配備のため規約リスクなし。Lighthouse PWA スコアが Play 展開（TWA）の前提。",
+      "text": "診断ツール等は PWA 化を標準とし、Lighthouse スコア 80 以上（目安）を品質ゲートに含めること",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "MR-PWA-1"
+        ]
+      }
+    },
+    {
+      "id": "BR-M-PWA-2",
+      "media": "PWA",
+      "media_name": "PWA",
+      "structure": "自前配備のため規約リスクなし。Lighthouse PWA スコアが Play 展開（TWA）の前提。",
+      "text": "オフライン対応・通知等の付加価値を最初から設計に含めること （Play 展開時の「単なるサイトラッパー」却下（ポリシー 4.3）の予防）",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "MR-PWA-2"
+        ]
+      }
+    }
+  ],
+  "structure_checked": "2026-07-30"
+}

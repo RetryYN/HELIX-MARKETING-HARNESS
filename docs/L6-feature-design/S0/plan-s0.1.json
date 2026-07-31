@@ -1,0 +1,16 @@
+{
+  "plan_id": "PLAN-S0.1",
+  "slice": "S0",
+  "update": "S0.1",
+  "status": "planned",
+  "note": "S0.1 実装計画。着手時に status を in_progress にする（G-IMPL-START-DETECT が自動検出のトリガに使う）。進行方法は PO 判断待ち。",
+  "preconditions": [
+    {
+      "id": "runtime-ut-outcome-gate",
+      "status": "unmet",
+      "description": "pytest の outcome レポート（junit xml／json-report）で S0.1 対象 UT 189 参照・118 関数が individually executed かつ passed であることを検査する実行時ゲートを追加する。G-UT-NO-ESCAPE の AST 検査は動的 import（__import__／importlib.import_module）経由の skip を原理的に検出できないため、着手と同時にこの実行時検査で class 全体を閉じる。",
+      "source": "独立レビュー REV-S0-STRUCT-01（第 4・5 次）の申し送り"
+    }
+  ],
+  "targets": ["DU-01", "DU-02", "DU-03", "DU-04", "DU-05", "DU-06", "DU-07", "DU-08", "DU-09", "DU-10", "DU-11", "DU-12"]
+}

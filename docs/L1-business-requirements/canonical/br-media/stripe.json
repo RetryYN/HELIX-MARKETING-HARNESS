@@ -1,0 +1,53 @@
+{
+  "doc": "br-media/STRIPE",
+  "version": "0.1",
+  "source": "docs/L1-business-requirements/canonical/br-media_v0.1.md",
+  "generated": "2026-07-30",
+  "media": "STRIPE",
+  "media_name": "Stripe",
+  "items": [
+    {
+      "id": "BR-M-STRIPE-1",
+      "media": "STRIPE",
+      "media_name": "Stripe",
+      "structure": "国内カード 3.6%・銀行振込 1.5%・固定費なし。API ファースト設計で自動化は公式に正当。 Sigma（SQL 分析）は有料オプション。",
+      "text": "手数料（3.6% 等）を収益 KPI の原価として KPI ツリーに織り込むこと",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "MR-STRIPE-1"
+        ]
+      }
+    },
+    {
+      "id": "BR-M-STRIPE-2",
+      "media": "STRIPE",
+      "media_name": "Stripe",
+      "structure": "国内カード 3.6%・銀行振込 1.5%・固定費なし。API ファースト設計で自動化は公式に正当。 Sigma（SQL 分析）は有料オプション。",
+      "text": "レポートは無料のダッシュボード CSV / Reports API を使い、Sigma（有料）は 導入しないこと（固定費ゼロ原則）",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "MR-STRIPE-2"
+        ]
+      }
+    },
+    {
+      "id": "BR-M-STRIPE-3",
+      "media": "STRIPE",
+      "media_name": "Stripe",
+      "structure": "国内カード 3.6%・銀行振込 1.5%・固定費なし。API ファースト設計で自動化は公式に正当。 Sigma（SQL 分析）は有料オプション。",
+      "text": "金銭操作の束縛承認（BR-C4）は API 経由でも同一に適用すること",
+      "trace": {
+        "upstream": [
+          "BR-C4"
+        ],
+        "downstream": [
+          "MR-STRIPE-1",
+          "MR-STRIPE-2"
+        ]
+      }
+    }
+  ],
+  "structure_checked": "2026-07-30"
+}

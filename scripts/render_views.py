@@ -14,7 +14,10 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-REQ = ROOT / "docs" / "requirements"
+L1 = ROOT / "docs" / "L1-business-requirements"
+L3 = ROOT / "docs" / "L3-system-requirements"
+L4 = ROOT / "docs" / "L4-basic-design"
+L5 = ROOT / "docs" / "L5-detailed-design"
 
 GENERATED_HEADER = (
     "<!-- GENERATED FILE — 編集禁止。正本は {src}。再生成 = python3 scripts/render_views.py -->\n\n"
@@ -34,13 +37,13 @@ def status_line(data: dict, note: str) -> str:
 
 
 def render_br_contracts() -> tuple[Path, str]:
-    src = REQ / "json" / "br" / "br-contracts.json"
+    src = L1 / "canonical" / "br" / "br-contracts.json"
     data = json.loads(src.read_text())
     out = []
-    out.append(GENERATED_HEADER.format(src="docs/requirements/json/br/br-contracts.json"))
+    out.append(GENERATED_HEADER.format(src="docs/L1-business-requirements/canonical/br/br-contracts.json"))
     out.append("# 業務要求 構造化契約（BR contracts）v" + data["version"] + "\n\n")
     out.append(status_line(data, "JSON 内容正本の生成ビュー（全層再降下 §2）"))
-    out.append("> 位置づけ: [br-backbone_v0.1.md](br-backbone_v0.1.md) の全 BR を 12 観点の構造化契約へ展開した正本ビュー。\n")
+    out.append("> 位置づけ: [br-backbone_v0.1.md](../canonical/br-backbone_v0.1.md) の全 BR を 12 観点の構造化契約へ展開した正本ビュー。\n")
     out.append("> 1 行要求文の禁止（G-REQ-CONTRACT が schema 適合・全 BR 被覆・12 要求群被覆・本ビュー同期を fail-close 検査）。\n\n")
 
     groups: dict[str, list] = {}
@@ -77,7 +80,7 @@ def render_br_contracts() -> tuple[Path, str]:
             if it["mandated_groups"]:
                 out.append(f"- **担当する独立要求群**: {'、'.join(it['mandated_groups'])}\n")
             out.append(f"- **充填経路**: {it['fill']}\n\n")
-    return REQ / "br-contracts_v0.1.md", "".join(out)
+    return L1 / "views" / "br-contracts_v0.1.md", "".join(out)
 
 
 def _contract_md(it: dict) -> str:
@@ -112,22 +115,22 @@ def _contract_md(it: dict) -> str:
 
 def _make_contract_renderer(src_rel: str, out_name: str, title: str, pair_note: str):
     def render() -> tuple[Path, str]:
-        src = REQ / Path(src_rel)
+        src = ROOT / src_rel
         data = json.loads(src.read_text())
-        out = [GENERATED_HEADER.format(src=f"docs/requirements/{src_rel}")]
+        out = [GENERATED_HEADER.format(src=src_rel)]
         out.append(f"# {title} v{data['version']}\n\n")
         out.append(status_line(data, "JSON 内容正本の生成ビュー（全層再降下 §3）"))
         out.append(f"> {pair_note}\n\n")
         for it in data["items"]:
             out.append(_contract_md(it))
-        return REQ / out_name, "".join(out)
+        return L3 / "views" / out_name, "".join(out)
     return render
 
 
 def render_nfr_contracts() -> tuple[Path, str]:
-    src = REQ / "json" / "nfr" / "nfr-contracts.json"
+    src = L3 / "canonical" / "nonfunctional" / "nfr-contracts.json"
     data = json.loads(src.read_text())
-    out = [GENERATED_HEADER.format(src="docs/requirements/json/nfr/nfr-contracts.json")]
+    out = [GENERATED_HEADER.format(src="docs/L3-system-requirements/canonical/nonfunctional/nfr-contracts.json")]
     out.append("# 非機能要件 計測契約（NFR contracts）v" + data["version"] + "\n\n")
     out.append(status_line(data, "JSON 内容正本の生成ビュー（全層再降下 §3）"))
     out.append("> 各 NFR に測定対象・測定方法・閾値・測定環境・違反時動作・証跡を必須化（G-NFR-MEASURABLE）。\n\n")
@@ -141,17 +144,17 @@ def render_nfr_contracts() -> tuple[Path, str]:
         out.append(f"- **証跡**: {'／'.join(it['evidence'])}\n")
         td = it["trace_down"]
         out.append(f"- **trace**: 上流 = {' '.join(it['trace_up'])} ／ 下流 = {' '.join(td.get('ac', []) + td.get('tc', [])) or '（割当待ち）'}\n\n")
-    return REQ / "nfr-contracts_v0.1.md", "".join(out)
+    return L3 / "views" / "nfr-contracts_v0.1.md", "".join(out)
 
 
 def render_ac_catalog() -> tuple[Path, str]:
-    src = REQ / "json" / "ac" / "ac-contracts.json"
+    src = L3 / "canonical" / "acceptance" / "ac-contracts.json"
     data = json.loads(src.read_text())
-    out = [GENERATED_HEADER.format(src="docs/requirements/json/ac/ac-contracts.json")]
+    out = [GENERATED_HEADER.format(src="docs/L3-system-requirements/canonical/acceptance/ac-contracts.json")]
     out.append("# 受入条件 検証契約カタログ（AC contracts）v" + data["version"] + "\n\n")
     out.append(status_line(data, "JSON 内容正本の生成ビュー（全層再降下 §4）"))
     out.append("> 各 AC に GWT＋fixture・観測点・期待状態・DB 差分・証跡・禁止副作用・エラー型・対象更新を必須化\n")
-    out.append("> （G-AC-COVERAGE／G-AC-POLARITY）。既存 AC-01〜19（json/ac.json）は履歴として保持。\n\n")
+    out.append("> （G-AC-COVERAGE／G-AC-POLARITY）。旧体系の受入条件は historical 記録のみ（現行分母は本カタログ）。\n\n")
     pol = {"normal": "正常", "reject": "拒否", "boundary-recovery": "境界・復旧"}
     cur = None
     for it in data["items"]:
@@ -165,17 +168,17 @@ def render_ac_catalog() -> tuple[Path, str]:
         out.append(f"- **期待 DB 差分**: {it['expected_db_delta']} ／ **期待証跡**: {it['expected_evidence']}\n")
         out.append(f"- **禁止副作用**: {it['forbidden_side_effects']} ／ **エラー型**: {it['error_type']}\n")
         out.append(f"- **対象更新**: {it['target_update']} ／ **TC**: {' '.join(it['tc']) or '（割当待ち）'}\n\n")
-    return REQ / "ac-catalog_v0.1.md", "".join(out)
+    return L3 / "views" / "ac-catalog_v0.1.md", "".join(out)
 
 
 def render_tc_catalog() -> tuple[Path, str]:
-    src = REQ / "json" / "verification" / "tc-contracts.json"
+    src = L3 / "verification" / "tc-contracts.json"
     data = json.loads(src.read_text())
-    out = [GENERATED_HEADER.format(src="docs/requirements/json/verification/tc-contracts.json")]
+    out = [GENERATED_HEADER.format(src="docs/L3-system-requirements/verification/tc-contracts.json")]
     out.append("# テストケース 検証契約カタログ（TC contracts）v" + data["version"] + "\n\n")
     out.append(status_line(data, "JSON 内容正本の生成ビュー（全層再降下 §5）"))
     out.append("> 全 AC 検証契約と双方向接続（G-TRACE-BIDIR）。状態・DB 差分・証跡・禁止副作用・外部呼出回数を検証。\n")
-    out.append("> 既存 TC-01〜59（verification.json）は履歴として保持。\n\n")
+    out.append("> 旧体系のテストケースは historical 記録のみ（現行分母は本カタログ）。\n\n")
     out.append("| TC | kind | AC | 検証する状態 | DB 差分 | 証跡 | 禁止副作用の不在 | 外部呼出 | slice |\n")
     out.append("|---|---|---|---|---|---|---|---|---|\n")
     for it in data["items"]:
@@ -183,13 +186,13 @@ def render_tc_catalog() -> tuple[Path, str]:
                    f"{it['verifies_db_delta']} | {it['verifies_evidence']} | {it['verifies_forbidden']} | "
                    f"{it['external_calls']} | {it['slice']} |\n")
     out.append("\n検証手段（method）の全文は JSON 正本を参照。\n")
-    return REQ / "tc-catalog_v0.1.md", "".join(out)
+    return L3 / "views" / "tc-catalog_v0.1.md", "".join(out)
 
 
 def render_cmp_contracts() -> tuple[Path, str]:
-    src = ROOT / "docs" / "design" / "json" / "cmp-contracts.json"
+    src = L4 / "canonical" / "components" / "cmp-contracts.json"
     data = json.loads(src.read_text())
-    out = [GENERATED_HEADER.format(src="docs/design/json/cmp-contracts.json")]
+    out = [GENERATED_HEADER.format(src="docs/L4-basic-design/canonical/components/cmp-contracts.json")]
     out.append("# コンポーネント設計契約（CMP/SCM contracts）v" + data["version"] + "\n\n")
     out.append(status_line(data, "JSON 内容正本の生成ビュー（全層再降下 §6）"))
     out.append("> 各 CMP/SCM に 11 観点の設計契約を必須化（G-CMP-INTERFACE）。独立設計書とペアで読む。\n\n")
@@ -208,13 +211,13 @@ def render_cmp_contracts() -> tuple[Path, str]:
         tr = it["trace"]
         dd = "、".join(tr.get("design_doc", [])) or "—"
         out.append(f"- **trace**: FN = {' '.join(tr['fn']) or '—'} ／ DU = {' '.join(tr['du']) or '—'} ／ 独立設計書 = {dd}\n\n")
-    return ROOT / "docs" / "design" / "cmp-contracts_v0.1.md", "".join(out)
+    return L4 / "views" / "cmp-contracts_v0.1.md", "".join(out)
 
 
 def render_du_contracts() -> tuple[Path, str]:
-    src = ROOT / "docs" / "design" / "json" / "du-contracts.json"
+    src = L5 / "canonical" / "apis" / "du-contracts.json"
     data = json.loads(src.read_text())
-    out = [GENERATED_HEADER.format(src="docs/design/json/du-contracts.json")]
+    out = [GENERATED_HEADER.format(src="docs/L5-detailed-design/canonical/apis/du-contracts.json")]
     out.append("# 詳細設計 実装契約（DU contracts）v" + data["version"] + "\n\n")
     out.append(status_line(data, "JSON 内容正本の生成ビュー（全層再降下 §7）"))
     out.append("> 各 DU に公開 API 署名・DbC・例外・tx 境界・冪等性・競合制御・AC/TC/UT 対応を必須化\n")
@@ -240,7 +243,7 @@ def render_du_contracts() -> tuple[Path, str]:
         fd = "、".join(tr.get("feature_design", [])) or "—"
         out.append(f"- **trace**: AC = {' '.join(tr['ac']) or '—'} ／ TC = {' '.join(tr['tc']) or '—'} ／ "
                    f"UT = {' '.join(tr['ut']) or '—'} ／ 機能別設計 = {fd}\n\n")
-    return ROOT / "docs" / "design" / "du-contracts_v0.1.md", "".join(out)
+    return L5 / "views" / "du-contracts_v0.1.md", "".join(out)
 
 
 RENDERERS = [
@@ -248,10 +251,10 @@ RENDERERS = [
     render_tc_catalog,
     render_cmp_contracts,
     render_du_contracts,
-    _make_contract_renderer("json/fr/fr-contracts.json", "fr-contracts_v0.1.md",
+    _make_contract_renderer("docs/L3-system-requirements/canonical/functional/fr-contracts.json", "fr-contracts_v0.1.md",
                             "機能要件 実行契約（FR contracts）",
                             "各 FR に 18 観点の実行・検証・拒否・復旧契約を必須化（G-REQ-CONTRACT／G-INVARIANT-TRACE）。"),
-    _make_contract_renderer("json/strategy/sr-contracts.json", "sr-contracts_v0.1.md",
+    _make_contract_renderer("docs/L3-system-requirements/canonical/strategy/sr-contracts.json", "sr-contracts_v0.1.md",
                             "戦略要件 実行契約（SR contracts）",
                             "各 SR に 18 観点の実行契約を必須化。brief／TLP／revision の正準は strategy-learning-contract。"),
     render_nfr_contracts,

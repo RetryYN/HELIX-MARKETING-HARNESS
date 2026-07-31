@@ -1,0 +1,36 @@
+{
+  "doc": "s0/migration-rules",
+  "version": "0.1",
+  "source": "docs/L3-system-requirements/canonical/s0-contract_v0.1.md",
+  "generated": "2026-07-30",
+  "rules": [
+    {
+      "name": "基本規律",
+      "text": "移行は連番・不変の SQL ファイルとして管理し、適用済みの内容を編集しない。ファイル名は `NNNN_description.sql` とし、内容 SHA-256 を `schema_version` に記録する。"
+    },
+    {
+      "name": "expand",
+      "text": "新テーブル、新列（NULL 許容又は既定値付き）、新 index、新しい enum 値の受容、新旧形式を読むコードを先に追加する。既存の列・値・意味を破壊しない。"
+    },
+    {
+      "name": "backfill",
+      "text": "必要時は明示的な task/WF として再開可能・冪等に実行し、件数・hash・失敗を evidence に残す。巨大更新を暗黙の DDL に混ぜない。"
+    },
+    {
+      "name": "contract",
+      "text": "全 reader が新形式へ移行し、バックフィルと復元試験が PASS した次の昇格でのみ、不要な reader を除去する。SQLite の列削除等が必要でも、新テーブル作成→コピー→検証→名前切替は別 migration とする。"
+    },
+    {
+      "name": "rename禁止",
+      "text": "テーブル・列・enum・evidence kind の rename は禁止する。新しい名前を expand で追加し、旧名は deprecated として read 互換を保つ。意味変更も rename と同じ破壊的変更として扱う。"
+    }
+  ],
+  "promotion_steps": [
+    "変更を expand / backfill / contract のいずれかとして設計し、対象 version、前提 version、rollback 方針、検証 SQL をレビュー可能にする。",
+    "空の SQLite に全 migration を適用し、§2 の DDL 相当性、FK 有効性、初期 workflow seed を検証する。",
+    "旧版 DB のコピーへ transaction 内で昇格を適用する。適用前に SQLite backup を作成し、適用後に `PRAGMA foreign_key_check`、`PRAGMA integrity_check`、行数・hash 比較を実行する。",
+    "`schema_version` へ version、migration 名、checksum、適用者、時刻を INSERT する。同 version が存在する、又は checksum 不一致なら停止する。",
+    "state machine、証跡完備、config 履歴、S0 WF の回帰テストを実行する。失敗時は backup から復元し、失敗した migration は同じ version を書換えず次 version で修正する。",
+    "本番昇格は人が結果を確認して実施する。credential を migration、backup、evidence に含めない。"
+  ]
+}

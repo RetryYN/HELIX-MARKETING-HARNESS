@@ -24,7 +24,7 @@ packages = ["src/helix"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q --strict-markers"
-pythonpath = ["src"]
+pythonpath = ["src", "."]
 
 [tool.coverage.run]
 source = ["src/helix"]
@@ -40,6 +40,9 @@ ignore = ["S101"]  # pytest の assert
 [tool.ruff.lint.per-file-ignores]
 # validator/hooks は独立のゲートスクリプト（長い日本語メッセージ・遅延 import・awk 呼出しを許容）
 "scripts/*" = ["E402", "E501", "F401", "B007", "S603", "S607"]
+# ゲート実装は長い日本語メッセージを持つ（1 ゲート 1 行の可読性を優先）
+"tools/*" = ["E402", "E501"]
+"tests/gates/*" = ["E501", "S603", "S607"]
 
 [tool.mypy]
 python_version = "3.14"

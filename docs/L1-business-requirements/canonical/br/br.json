@@ -1,0 +1,364 @@
+{
+  "doc": "業務要求（BR）背骨",
+  "version": "0.1",
+  "source": "docs/L1-business-requirements/canonical/br-backbone_v0.1.md",
+  "generated": "2026-07-30",
+  "items": [
+    {
+      "id": "BR-A1",
+      "text": "三重ループ（上位=ブランド成長 / 下位=媒体スプリント / タスク内検証マイクロループ）を状態機械として駆動できること。回転の開始・進行・完了はすべて SQLite 上の状態遷移で表現され、prose の申し送りを持たない",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      },
+      "fill_route": null
+    },
+    {
+      "id": "BR-A2",
+      "text": "下位ループは媒体ごとに独立したサイクル長で並走できること（同期強制なし）。サイクル長は行動計画が定める（充填: R+C）",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      },
+      "fill_route": "R+C"
+    },
+    {
+      "id": "BR-A3",
+      "text": "ブランド計画（1 年地平）を上位ループの北極星として保持し、全行動計画がこれに trace できること",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      },
+      "fill_route": null
+    },
+    {
+      "id": "BR-A4",
+      "text": "タスクはループステップが発行し、ワークフロー 1 本を割り当てられ、検証マイクロループの PASS でのみ完了すること。リトライ上限（充填: C）で上位へエスカレーション",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      },
+      "fill_route": "C"
+    },
+    {
+      "id": "BR-B1",
+      "text": "企画↔品質ペア: 企画情報（訴求・ターゲット・狙い）と審査 PASS が対で SQLite に揃うまで、コンテンツは公開可能にならないこと（片肺禁止）",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      },
+      "fill_route": null
+    },
+    {
+      "id": "BR-B2",
+      "text": "計画↔計測ペア: KPI 目標と計測スナップショットが対で揃うまでスプリントレビューが成立せず、上位還流も発生しないこと",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      },
+      "fill_route": null
+    },
+    {
+      "id": "BR-B3",
+      "text": "すべての完了判定は証跡（公開 URL・計測値・審査記録・commit hash・スクショ/ファイルハッシュ）の DB 収束を要件とすること。宣言のみの完了は構造的に不可能であること",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      },
+      "fill_route": null
+    },
+    {
+      "id": "BR-B4",
+      "text": "検証は作成者と別のエージェントが行うこと（自己審査禁止・P4）",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      },
+      "fill_route": null
+    },
+    {
+      "id": "BR-C1",
+      "text": "ゼロ広告費ゲート: 広告出稿・課金経路への遷移、および CAC/ROAS 等の有料指標の KPI 登録を機械的に遮断すること（fail-close）",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      },
+      "fill_route": null
+    },
+    {
+      "id": "BR-C2",
+      "text": "PR 表記ゲート: アフィリエイト・PR コンテンツに広告表記が自動挿入され、表記なしでは公開ゲートを通過しないこと（ステマ規制遵守）",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      },
+      "fill_route": null
+    },
+    {
+      "id": "BR-C3",
+      "text": "倫理ゲート: 恐怖訴求・偽の希少性・不安増幅の心理術は審査で却下されること（P5）",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      },
+      "fill_route": null
+    },
+    {
+      "id": "BR-C4",
+      "text": "金銭操作（価格変更・返金・決済設定変更）はオートモード移行後も人間の束縛承認を要すること（escalation 境界）",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      },
+      "fill_route": null
+    },
+    {
+      "id": "BR-D1",
+      "text": "ヒアリングエンジン: 事業前提・受入基準スキーマの不足スロットを検出し、構造化問診を生成して人に照会し、回答で充填できること",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      },
+      "fill_route": null
+    },
+    {
+      "id": "BR-D2",
+      "text": "リサーチエンジン: KPI ツリー初期形・業種/媒体標準指標・運用詳細を Web 検索で取得し起草できること。外部照合で幻覚を抑止すること",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      },
+      "fill_route": null
+    },
+    {
+      "id": "BR-D3",
+      "text": "設定管理: 安全側数値（支出上限・レート・リトライ上限・オート移行基準）を config として SQLite に保持し、変更を証跡化すること",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      },
+      "fill_route": null
+    },
+    {
+      "id": "BR-D4",
+      "text": "ハーネスは事業非依存であること。別ブランド・別事業の追加が型の再充填のみで可能なこと",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      },
+      "fill_route": null
+    },
+    {
+      "id": "BR-E1",
+      "text": "KPI ツリーは露出→マイクロ CV→転換→関係→収益の階層を持ち、全媒体の実測がノードに紐づくこと。媒体横断集計（将来のオーガニック版 MMM）を見越したスキーマであること",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      },
+      "fill_route": null
+    },
+    {
+      "id": "BR-E2",
+      "text": "計測取り込みはブラウザエクスポート（GA4・Search Console・各 SNS・ASP・KDP・Stripe/note）→ パース → SQLite 時系列投入で行い、取得証跡（ファイルハッシュ・スクショ）を残すこと",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      },
+      "fill_route": null
+    },
+    {
+      "id": "BR-E3",
+      "text": "ダッシュボードは SQLite から HTML を自動生成すること（主）。xlsx エクスポート（従）を提供すること",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      },
+      "fill_route": null
+    },
+    {
+      "id": "BR-F1",
+      "text": "外部接続は MCP → ブラウザ自動化 → 有償 API（明示的例外のみ、現状 Seedance）の優先順で選定されること。例外の支出は台帳化されること",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      },
+      "fill_route": null
+    },
+    {
+      "id": "BR-F2",
+      "text": "ブラウザ自動化は攻略地図（サイト構造・手順）を DB に蓄積し、破損検知時は自己修復を試み、失敗時はエスカレーションすること",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      },
+      "fill_route": null
+    },
+    {
+      "id": "BR-F3",
+      "text": "媒体・能力の追加は外殻に触れずワークフロー追加で行えること",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      },
+      "fill_route": null
+    },
+    {
+      "id": "BR-F4",
+      "text": "認証情報（ログインセッション・アプリケーションパスワード）はリポジトリに置かず、安全に保管・更新されること（HELIX 同様の鍵分離）",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      },
+      "fill_route": null
+    },
+    {
+      "id": "BR-F5",
+      "text": "扱うすべての媒体において、外部サイトへの書き込み・公開系操作は人間相当のランダム化された 操作間隔とレート上限（充填: C・媒体別に調整可）を守ること。アカウント保全を媒体運用の前提とし、 検知・警告の兆候があれば当該媒体の操作条件を安全側へ自動調整または停止すること",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      },
+      "fill_route": "C"
+    },
+    {
+      "id": "BR-G1",
+      "text": "制作はコード×ブラウザレンダリングを主軸とし、成果物のソースを git ワークスペースで版管理し、審査 PASS 版を commit hash で特定できること",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      },
+      "fill_route": null
+    },
+    {
+      "id": "BR-G2",
+      "text": "コンテンツ実体（テキスト・画像・動画・音声）は WordPress に資産として収束し、SQLite からは参照のみとすること。資産のリパーパス（記事→SNS/スライド/音声/動画/EPUB）が追跡できること",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      },
+      "fill_route": null
+    },
+    {
+      "id": "BR-G3",
+      "text": "ブランドデザインシステム（Claude Design 正本）のトークンが全制作物に適用されること",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      },
+      "fill_route": null
+    },
+    {
+      "id": "BR-G4",
+      "text": "WP 開発は既存テーマ解析＋子テーマ/プラグイン拡張で行い、解析結果を攻略地図として残すこと",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      },
+      "fill_route": null
+    },
+    {
+      "id": "BR-H1",
+      "text": "企画確定以降はヒューマンアウトオブループであること。人への照会はヒアリングエンジン経由と束縛承認のみ",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      },
+      "fill_route": null
+    },
+    {
+      "id": "BR-H2",
+      "text": "外部公開は経過措置としてスマホ（Claude Code アプリ通知）束縛承認を要し、安定稼働基準（充填: C）の証跡が揃い次第オートモードへ移行できること",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      },
+      "fill_route": "C"
+    },
+    {
+      "id": "BR-H3",
+      "text": "ループ・タスクの異常（ゲート赤・予算超過・攻略地図破損）は検知され、安全に停止または人へ通知されること",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      },
+      "fill_route": null
+    },
+    {
+      "id": "BR-I1",
+      "text": "複数ブランド・事業のデータ・資産・認証・学習を相互隔離し、越境参照・越境書込みを構造的に不可能にする（1 ブランドの事故が他ブランドへ波及しない）",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "REQ-046"
+        ]
+      },
+      "fill_route": "H"
+    },
+    {
+      "id": "BR-I2",
+      "text": "上流（市場・価値・選択基準の学習）と下流（媒体・表現・運用の学習）を分離し、接続を strategic_brief（発注）と TLP（還流）の 2 契約のみに限定する",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "REQ-047"
+        ]
+      },
+      "fill_route": null
+    },
+    {
+      "id": "BR-I3",
+      "text": "戦略の更新は反証可能な仮説の評価（strategy_revision — 根拠・反証・信頼度・対象版）と append-only 版管理でのみ行う",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "REQ-048"
+        ]
+      },
+      "fill_route": null
+    },
+    {
+      "id": "BR-I4",
+      "text": "全終端下流 run はちょうど 1 件の学習/失敗 packet を還流する（learning は因果解釈つき、failure は事実のみで因果解釈の捏造禁止）",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "REQ-049"
+        ]
+      },
+      "fill_route": null
+    },
+    {
+      "id": "BR-I5",
+      "text": "複数媒体を役割分担させた期間キャンペーンを計画・実行・評価の単位として扱える（媒体役割は台帳語彙で宣言）",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "REQ-050"
+        ]
+      },
+      "fill_route": "R"
+    },
+    {
+      "id": "BR-I6",
+      "text": "主要コンテンツ企画は 5 宣言（問題・認識・比較軸・価値・対象仮説）を必須とし、認識変化を起こさない物量投稿を主要企画として承認しない",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "REQ-051"
+        ]
+      },
+      "fill_route": null
+    },
+    {
+      "id": "BR-I7",
+      "text": "全工程が証跡を残し、強制終了後に SQLite 状態のみから再開でき、同一操作の再実行が副作用を二重化しない（冪等）ことを横断契約として保証する",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "REQ-052"
+        ]
+      },
+      "fill_route": null
+    }
+  ]
+}

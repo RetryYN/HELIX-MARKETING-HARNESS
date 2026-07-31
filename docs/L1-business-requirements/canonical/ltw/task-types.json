@@ -1,0 +1,159 @@
+{
+  "doc": "ltw/task_types",
+  "version": "0.1",
+  "source": "docs/L1-business-requirements/canonical/loop-task-workflow_v0.1.md",
+  "generated": "2026-07-30",
+  "items": [
+    {
+      "id": "T-PLAN",
+      "title": "企画",
+      "author": "strategist",
+      "verifier": "critic",
+      "required_evidence": "企画レコード（訴求・ターゲット・狙い）",
+      "gate": "倫理",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      }
+    },
+    {
+      "id": "T-PROD",
+      "title": "制作",
+      "author": "writer/producer",
+      "verifier": "critic",
+      "required_evidence": "commit_hash",
+      "gate": "企画↔品質（審査 PASS で成立）",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      }
+    },
+    {
+      "id": "T-REVIEW",
+      "title": "審査",
+      "author": "critic",
+      "verifier": "gate-engine（critic と別 principal の機械検証 — チェックリスト完全性・review_pass 証跡の型検証）",
+      "required_evidence": "review_pass",
+      "gate": "倫理・PR 表記・design-evidence（媒体による）",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      }
+    },
+    {
+      "id": "T-PUB",
+      "title": "公開",
+      "author": "connector",
+      "verifier": "gate-engine",
+      "required_evidence": "published_url ＋ screenshot",
+      "gate": "公開ゲート（成立ペア ID 必須）・束縛承認",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      }
+    },
+    {
+      "id": "T-ENGAGE",
+      "title": "応答",
+      "author": "responder",
+      "verifier": "critic（事後サンプル審査）",
+      "required_evidence": "応答ログ",
+      "gate": "倫理・レート",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      }
+    },
+    {
+      "id": "T-MEAS",
+      "title": "計測取込",
+      "author": "collector",
+      "verifier": "parser（型検証）",
+      "required_evidence": "file_hash ＋ screenshot",
+      "gate": "なし（読取専用）",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      }
+    },
+    {
+      "id": "T-SYNC",
+      "title": "登録・同期",
+      "author": "connector",
+      "verifier": "gate-engine",
+      "required_evidence": "API レスポンス/同期ログ",
+      "gate": "種別による（金銭系は束縛承認）",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      }
+    },
+    {
+      "id": "T-FILL",
+      "title": "充填（ヒアリング/リサーチ/config）",
+      "author": "filler-engine",
+      "verifier": "型検証（スキーマ）",
+      "required_evidence": "充填記録＋出典 URL（リサーチ時）",
+      "gate": "出典なし値の拒否（FR-32）",
+      "trace": {
+        "upstream": [
+          "FR-32"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "T-OPS",
+      "title": "基盤運用（構築・接続・地図・復旧）",
+      "author": "operator",
+      "verifier": "ヘルスチェック（機械検証）",
+      "required_evidence": "実行ログ＋検証結果",
+      "gate": "種別による（credential 操作は attended）",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      }
+    },
+    {
+      "id": "T-R1",
+      "text": "タスク型ごとの必須証跡 kind 集合はワークフロー定義が宣言し、FR-28 が `done` 遷移時に検証する",
+      "trace": {
+        "upstream": [
+          "FR-28"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "T-R2",
+      "text": "T-PUB は T-PROD の審査 PASS（ペア成立）なしに生成されない（エンジンがタスク発行段階で拒否）",
+      "trace": {
+        "upstream": [
+          "T-PUB",
+          "T-PROD"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "T-R3",
+      "text": "T-ENGAGE は事前審査なしで送出できるが、倫理ゲートのルールベース検査（禁止表現）を 送出前に必ず通す。事後サンプル審査で FAIL が出た場合、当該媒体の T-ENGAGE を停止",
+      "trace": {
+        "upstream": [
+          "T-ENGAGE"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "T-R4",
+      "text": "金銭属性を持つタスク（価格設定・返金等）は型に関わらず束縛承認を要求（FR-26）",
+      "trace": {
+        "upstream": [
+          "FR-26"
+        ],
+        "downstream": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "doc": "strategy/content-plan-contract",
+  "version": "0.1",
+  "source": "docs/L3-system-requirements/canonical/strategy/strategy-learning-contract_v0.1.md §4",
+  "note": "コンテンツ = 市場の問題認識・カテゴリー・比較軸・選択基準・価値認識を定義・変化させるマーケティング資産。主要コンテンツ企画（T-PLAN の plan_record payload）は以下 5 キーを必須で宣言する（G-CONTENT-VALUE-DEFINITION）。",
+  "required_keys": [
+    {
+      "key": "defined_problem",
+      "text": "定義する問題"
+    },
+    {
+      "key": "recognition_change",
+      "text": "変化させる認識"
+    },
+    {
+      "key": "comparison_axes",
+      "text": "提示する比較軸"
+    },
+    {
+      "key": "defined_value",
+      "text": "定義する価値"
+    },
+    {
+      "key": "target_hypothesis_ids",
+      "text": "対象となる戦略仮説（VH-* / CA-*）"
+    }
+  ]
+}
