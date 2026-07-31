@@ -7,6 +7,9 @@
 > [function-list_v0.1.md](../requirements/function-list_v0.1.md)（FN 61・スライス配分）
 > JSON 正本: [json/components.json](json/components.json)（コンポーネント台帳。本文と同期、実装入力は JSON）
 > 位置づけ: S0（25 機能）の実装構造を確定する。要求内容は定義しない — 上位文書と矛盾したら上位を優先し本書を改訂する。
+> 上流戦略層（2026-08-01 追補）: 戦略コンポーネント（SCM）は
+> [strategy-loop-design_v0.1.md](strategy-loop-design_v0.1.md) が正本。S0 分は CMP-05（テーブル・トリガ）・
+> CMP-01（start ガード）・CMP-02（brief シード・TLP 生成）への最小拡張で、CMP 13・S0 25 FN は不変（SR-15）。
 
 ---
 

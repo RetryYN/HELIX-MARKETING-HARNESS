@@ -251,6 +251,16 @@ fixture と外部環境の前提は [s0-contract_v0.1.md](s0-contract_v0.1.md) �
 | BR-H2 | FR-46 |
 | BR-H3 | FR-16, FR-43 |
 
+## 5bis. 上流戦略層（2026-08-01 追補）
+
+上流戦略ループの意味モデル（market_observation〜strategy_revision の 12 モデル）・
+strategic_brief／tactical_learning_packet／strategy_revision の 3 契約・S0 境界は
+[strategy-loop-requirements_v0.1.md](strategy-loop-requirements_v0.1.md)（SR-01〜16）と
+[strategy-learning-contract_v0.1.md](strategy-learning-contract_v0.1.md) を正本とする。
+S0 への影響は s0-contract §2 の DDL 追加（strategic_briefs／tactical_learning_packets）と
+loop_runs 開始ガードのみで、本書の FR/NFR/AC の分母・S0 スコープは不変（SR-15）。
+FR-15 の learnings・FR-22 のレビュー成立は、上流へは TLP の構成要素として還流する。
+
 ## 6. 未決・スライス送り
 
 > 優先度と slice の関係: REQ の Must はリリースまでに必須の意（priority）であり、slice（実装順）とは

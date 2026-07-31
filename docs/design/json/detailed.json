@@ -12,7 +12,7 @@
         "FN-101",
         "FN-704"
       ],
-      "summary": "遷移表照合・guard 登録制・単一 transaction 遷移・rejected 記録"
+      "summary": "遷移表照合・guard 登録制・単一 transaction 遷移・rejected 記録。戦略層: start ガードに strategic_brief 検証（active・digest 一致・期間内）を追加（SCM-03／STC-I-03）"
     },
     {
       "id": "DU-02",
@@ -22,7 +22,7 @@
         "FN-102",
         "FN-103"
       ],
-      "summary": "決定的 idempotency_key のタスク発行・マイクロループ・§3.3 全再開規則"
+      "summary": "決定的 idempotency_key のタスク発行・マイクロループ・§3.3 全再開規則。戦略層: brief シード発行（digest・supersedes）と下流終端時の TLP 生成（SCM-02/04／STC-I-04/05）"
     },
     {
       "id": "DU-03",
@@ -94,7 +94,7 @@
       "fn_ids": [
         "FN-701"
       ],
-      "summary": "唯一の接続入口・PRAGMA/トリガ保証"
+      "summary": "唯一の接続入口・PRAGMA/トリガ保証。戦略層: strategic_briefs／tactical_learning_packets の DDL・保護トリガ（SCM-01／STC-I-01/02）"
     },
     {
       "id": "DU-11",

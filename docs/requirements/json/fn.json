@@ -8,7 +8,7 @@
       "id": "FN-101",
       "module": "engine",
       "title": "状態遷移エンジン",
-      "summary": "宣言的遷移表で loop_runs/tasks を進める",
+      "summary": "宣言的遷移表で loop_runs/tasks を進める。下位 loop_run の start ガードで有効 strategic_brief（active・digest 一致・期間内）を検証（SCM-03／SR-07）",
       "related": [
         "FR-11"
       ],
@@ -24,7 +24,7 @@
       "id": "FN-102",
       "module": "engine",
       "title": "タスク発行器",
-      "summary": "ループステップ到達時に tasks 行を生成・割当",
+      "summary": "ループステップ到達時に tasks 行を生成・割当。strategic_brief のシード発行（digest 計算・supersedes 版管理）と下流終端時の tactical_learning_packet 生成を含む（SCM-02/04／SR-06/08）",
       "related": [
         "FR-12"
       ],
@@ -906,7 +906,7 @@
       "id": "FN-701",
       "module": "db",
       "title": "スキーマ定義",
-      "summary": "業務 21＋インフラ 2 テーブルの DDL（正準は s0-contract §2）",
+      "summary": "業務 23＋インフラ 2 テーブルの DDL（正準は s0-contract §2）",
       "related": [
         "FR-71"
       ],
@@ -916,7 +916,8 @@
           "FR-71"
         ],
         "downstream": []
-      }
+      },
+      "text": ""
     },
     {
       "id": "FN-702",

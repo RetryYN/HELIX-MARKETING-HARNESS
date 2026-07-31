@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://helix-marketing-harness/strategy/market-observation.schema.json",
+  "title": "market_observation — リサーチ工程の出力（観測事実のみ。AI 解釈の混在禁止）",
+  "type": "object",
+  "required": [
+    "id",
+    "observed_at",
+    "source_type",
+    "source_refs",
+    "fact",
+    "context",
+    "reliability"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^OBS-"
+    },
+    "observed_at": {
+      "type": "string",
+      "description": "観測日時（ISO 8601）",
+      "minLength": 8
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "primary",
+        "official",
+        "measurement",
+        "interview",
+        "behavior",
+        "secondary"
+      ]
+    },
+    "source_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "出典参照（URL・evidence ID 等）",
+      "minItems": 1
+    },
+    "fact": {
+      "type": "string",
+      "description": "観測された事実。解釈・因果推論・推奨は書かない（それらは tactical_learning_packet / strategy_revision の別フィールド）",
+      "minLength": 8
+    },
+    "context": {
+      "type": "object",
+      "required": [
+        "time",
+        "space",
+        "constraints"
+      ],
+      "properties": {
+        "time": {
+          "type": "string",
+          "description": "時間文脈（いつ・どの局面で）",
+          "minLength": 1
+        },
+        "space": {
+          "type": "string",
+          "description": "空間文脈（どこで・どのチャネルで）",
+          "minLength": 1
+        },
+        "constraints": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "観測時の制約"
+        }
+      }
+    },
+    "reliability": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "信頼度（0.0〜1.0）。複数観測・反証の評価で更新する"
+    },
+    "expires_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "観測の失効日時（鮮度管理）"
+    }
+  },
+  "additionalProperties": false,
+  "description": "観測事実と AI 解釈を同一フィールドへ混在させない。interpretation 等の解釈フィールドは本 schema に存在しない（G-OBS-INTERPRETATION）。"
+}

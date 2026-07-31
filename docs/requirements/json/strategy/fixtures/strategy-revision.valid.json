@@ -1,0 +1,21 @@
+{
+  "id": "SREV-FIX-1",
+  "target_type": "value_hypothesis",
+  "target_id": "VH-FIX-1",
+  "target_version": 1,
+  "revision_type": "refine",
+  "reason": "2 周期の TLP で支持されたが対象範囲が狭い可能性",
+  "supporting_evidence_ids": [
+    "TLP-FIX-1",
+    "EV-301"
+  ],
+  "counter_evidence_ids": [
+    "EV-302"
+  ],
+  "confidence": 0.6,
+  "affected_brief_ids": [
+    "SB-FIX-1"
+  ],
+  "new_version_id": null,
+  "status": "accepted"
+}

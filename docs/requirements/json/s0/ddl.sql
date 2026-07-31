@@ -114,11 +114,36 @@ CREATE TABLE workflows (
   UNIQUE (workflow_key, version)
 );
 
+CREATE TABLE strategic_briefs (
+  id INTEGER PRIMARY KEY,
+  brief_key TEXT NOT NULL,
+  version INTEGER NOT NULL CHECK (version >= 1),
+  strategic_choice_id TEXT NOT NULL,
+  segment_context_id TEXT NOT NULL,
+  value_hypothesis_id TEXT NOT NULL,
+  desired_recognition_change TEXT NOT NULL,
+  tactical_objective TEXT NOT NULL,
+  media_role TEXT NOT NULL,
+  message_hypothesis TEXT NOT NULL,
+  prohibited_patterns_json TEXT NOT NULL DEFAULT '[]' CHECK (json_valid(prohibited_patterns_json)),
+  measurement_plan_json TEXT NOT NULL CHECK (json_valid(measurement_plan_json)),
+  valid_from TEXT NOT NULL,
+  valid_until TEXT,
+  digest TEXT NOT NULL CHECK (length(digest) = 64),
+  status TEXT NOT NULL CHECK (status IN ('draft', 'active', 'superseded', 'retired')),
+  supersedes_id INTEGER,
+  created_at TEXT NOT NULL,
+  FOREIGN KEY (supersedes_id) REFERENCES strategic_briefs(id) ON DELETE RESTRICT,
+  UNIQUE (brief_key, version)
+);
+
 CREATE TABLE loop_runs (
   id INTEGER PRIMARY KEY,
   parent_loop_run_id INTEGER,
   sprint_id INTEGER,
   workflow_id INTEGER,
+  strategic_brief_id INTEGER,
+  strategic_brief_digest TEXT CHECK (strategic_brief_digest IS NULL OR length(strategic_brief_digest) = 64),
   loop_kind TEXT NOT NULL CHECK (loop_kind IN ('upper', 'lower', 'micro')),
   loop_type TEXT NOT NULL,
   state TEXT NOT NULL CHECK (state IN ('pending', 'running', 'waiting', 'completed', 'failed', 'escalated', 'cancelled')),
@@ -131,8 +156,35 @@ CREATE TABLE loop_runs (
   FOREIGN KEY (parent_loop_run_id) REFERENCES loop_runs(id) ON DELETE RESTRICT,
   FOREIGN KEY (sprint_id) REFERENCES sprints(id) ON DELETE RESTRICT,
   FOREIGN KEY (workflow_id) REFERENCES workflows(id) ON DELETE RESTRICT,
+  FOREIGN KEY (strategic_brief_id) REFERENCES strategic_briefs(id) ON DELETE RESTRICT,
   CHECK ((loop_kind = 'upper' AND parent_loop_run_id IS NULL)
-      OR (loop_kind IN ('lower', 'micro') AND parent_loop_run_id IS NOT NULL))
+      OR (loop_kind IN ('lower', 'micro') AND parent_loop_run_id IS NOT NULL)),
+  CHECK (loop_kind != 'lower'
+      OR (strategic_brief_id IS NOT NULL AND strategic_brief_digest IS NOT NULL))
+);
+
+CREATE TABLE tactical_learning_packets (
+  id INTEGER PRIMARY KEY,
+  packet_key TEXT NOT NULL UNIQUE,
+  loop_run_id INTEGER NOT NULL,
+  strategic_brief_id INTEGER NOT NULL,
+  strategic_brief_digest TEXT NOT NULL CHECK (length(strategic_brief_digest) = 64),
+  observations_json TEXT NOT NULL CHECK (json_valid(observations_json)),
+  metrics_json TEXT NOT NULL DEFAULT '[]' CHECK (json_valid(metrics_json)),
+  qualitative_signals_json TEXT NOT NULL DEFAULT '[]' CHECK (json_valid(qualitative_signals_json)),
+  anomalies_json TEXT NOT NULL DEFAULT '[]' CHECK (json_valid(anomalies_json)),
+  hypothesis_result TEXT NOT NULL CHECK (hypothesis_result IN ('supported', 'weakened', 'rejected', 'inconclusive')),
+  target_hypothesis_ids_json TEXT NOT NULL CHECK (json_valid(target_hypothesis_ids_json)),
+  assessment_reason TEXT NOT NULL,
+  causal_interpretation TEXT NOT NULL,
+  alternative_explanations_json TEXT NOT NULL DEFAULT '[]' CHECK (json_valid(alternative_explanations_json)),
+  confidence REAL NOT NULL CHECK (confidence >= 0.0 AND confidence <= 1.0),
+  evidence_ids_json TEXT NOT NULL CHECK (json_valid(evidence_ids_json)),
+  proposed_revision_targets_json TEXT NOT NULL DEFAULT '[]' CHECK (json_valid(proposed_revision_targets_json)),
+  recommended_next_action TEXT NOT NULL CHECK (recommended_next_action IN ('continue', 'modify_tactic', 'request_strategy_review', 'stop')),
+  created_at TEXT NOT NULL,
+  FOREIGN KEY (loop_run_id) REFERENCES loop_runs(id) ON DELETE RESTRICT,
+  FOREIGN KEY (strategic_brief_id) REFERENCES strategic_briefs(id) ON DELETE RESTRICT
 );
 
 CREATE TABLE tasks (
@@ -379,3 +431,25 @@ CREATE TRIGGER state_transitions_no_update BEFORE UPDATE ON state_transitions
 BEGIN SELECT RAISE(ABORT, 'state_transitions is append-only'); END;
 CREATE TRIGGER state_transitions_no_delete BEFORE DELETE ON state_transitions
 BEGIN SELECT RAISE(ABORT, 'state_transitions is append-only'); END;
+CREATE TRIGGER strategic_briefs_no_update BEFORE UPDATE ON strategic_briefs
+WHEN OLD.brief_key != NEW.brief_key OR OLD.version != NEW.version
+  OR OLD.strategic_choice_id != NEW.strategic_choice_id
+  OR OLD.segment_context_id != NEW.segment_context_id
+  OR OLD.value_hypothesis_id != NEW.value_hypothesis_id
+  OR OLD.desired_recognition_change != NEW.desired_recognition_change
+  OR OLD.tactical_objective != NEW.tactical_objective
+  OR OLD.media_role != NEW.media_role
+  OR OLD.message_hypothesis != NEW.message_hypothesis
+  OR OLD.prohibited_patterns_json != NEW.prohibited_patterns_json
+  OR OLD.measurement_plan_json != NEW.measurement_plan_json
+  OR OLD.valid_from != NEW.valid_from
+  OR OLD.digest != NEW.digest
+  OR OLD.supersedes_id IS NOT NEW.supersedes_id
+  OR OLD.created_at != NEW.created_at
+BEGIN SELECT RAISE(ABORT, 'strategic_briefs content is append-only (status/valid_until のみ遷移可。変更は supersedes_id で新版)'); END;
+CREATE TRIGGER strategic_briefs_no_delete BEFORE DELETE ON strategic_briefs
+BEGIN SELECT RAISE(ABORT, 'strategic_briefs is append-only'); END;
+CREATE TRIGGER tactical_learning_packets_no_update BEFORE UPDATE ON tactical_learning_packets
+BEGIN SELECT RAISE(ABORT, 'tactical_learning_packets is append-only'); END;
+CREATE TRIGGER tactical_learning_packets_no_delete BEFORE DELETE ON tactical_learning_packets
+BEGIN SELECT RAISE(ABORT, 'tactical_learning_packets is append-only'); END;

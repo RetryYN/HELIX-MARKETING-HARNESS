@@ -1,0 +1,17 @@
+{
+  "id": "OBS-FIX-BAD",
+  "observed_at": "2026-08-01T00:00:00+09:00",
+  "source_type": "measurement",
+  "source_refs": [
+    "EV-123"
+  ],
+  "fact": "検索流入の 7 割が比較系クエリだった（GA4 実測）",
+  "context": {
+    "time": "2026-07 月次",
+    "space": "オーガニック検索",
+    "constraints": []
+  },
+  "reliability": 0.8,
+  "expires_at": null,
+  "interpretation": "比較軸の教育が効いていると考えられる（解釈の混在）"
+}

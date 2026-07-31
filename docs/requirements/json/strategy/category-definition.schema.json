@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://helix-marketing-harness/strategy/category-definition.schema.json",
+  "title": "category_definition — カテゴリー定義と比較軸",
+  "type": "object",
+  "required": [
+    "id",
+    "version",
+    "name",
+    "definition",
+    "comparison_axes",
+    "evidence_ids",
+    "confidence",
+    "status"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^CAT-"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "版。上書きせず新版を作る（append-only）"
+    },
+    "name": {
+      "type": "string",
+      "description": "カテゴリー名",
+      "minLength": 1
+    },
+    "definition": {
+      "type": "string",
+      "description": "カテゴリーの定義（何と比較される土俵か）",
+      "minLength": 8
+    },
+    "comparison_axes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "定着させたい比較軸",
+      "minItems": 1
+    },
+    "evidence_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "根拠 ID",
+      "minItems": 1
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "信頼度（0.0〜1.0）。複数観測・反証の評価で更新する"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "active",
+        "retired"
+      ]
+    },
+    "supersedes_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "置換した旧版の ID。上流正本の変更は supersedes_id による append-only 新バージョンのみ"
+    }
+  }
+}

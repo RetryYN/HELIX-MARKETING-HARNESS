@@ -17,13 +17,16 @@
 - `*_id` は `INTEGER` の不透明な主キーであり、外部サービス ID・credential・secret を格納しない。外部操作の識別子は `evidence.external_operation_id` のみへ、秘匿情報を除いて記録する。
 - 外部書込みは操作単位の idempotency key を必須とし、`external_operations` 行を **prepared → sent → confirmed / rejected / unknown** の順で遷移させる。送信前に prepared・sent を各々コミットし（送信直後クラッシュの検出窓）、結果確定後に confirmed/rejected とし `operation_log` 証跡を派生させる。状態遷移はその後に行う（NFR-3）。1 外部操作 = 1 行であり、下書き作成と公開は別 idempotency key の別行とする。
 - `tasks.verifier_agent_id` は全タスクで必須とする。T-REVIEW の verifier は critic 以外の `gate-engine` 等を割り当てる。これにより自己審査禁止を NULL の三値論理に委ねない。
+- 上流戦略正本（`strategic_briefs`。S1 以降に追加する上流モデル群も同様）は **上流ループの改善工程のみが新版 INSERT で更新できる**。下流ループ・媒体コネクタ・計測処理は上流戦略正本へ書き込めず、下流からの還流は `tactical_learning_packets`（append-only）の提出のみとする。上流正本の変更は上書きではなく `supersedes_id` を持つ新版行の作成とし、内容列の UPDATE と DELETE は保護トリガが常時拒否する。下流 loop_run（`loop_kind = 'lower'`）は有効な strategic_brief の id と digest を保持しない限り開始できない（[strategy-learning-contract_v0.1.md](strategy-learning-contract_v0.1.md) が契約正本）。
 - 自己審査禁止の判定単位は **principal**（`agents.principal` = 実体となるモデル・人・サービス）である。author と verifier は agent 行の差だけでなく principal が異なることを kernel が claim ガードで検査する。実行の系譜は `agent_executions`（execution = セッション/run、親子関係）に記録し、`agent_executions.principal` は複合 FK `(agent_id, principal)` で `agents` と一致を強制する。lease は execution 単位で保持し、**task を claim できる execution は当該 task の `author_agent_id` に属するものに限る**（lease 失効後の再 claim も author agent の新 execution のみ。kernel がガードで拒否）。
 
 ## 2. 正準 DDL（FR-71）
 
 以下の順序で適用する。`schema_version`（FR-72 の移行管理）と `state_transitions`（NFR-5 の状態遷移ログ）は
-FR-71 の 21 業務テーブル（当初 19 ＋レビュー是正で追加した `agent_executions`・`external_operations`）とは
-別のインフラテーブルである。append-only テーブル（`config`・`evidence`・`state_transitions`）は
+FR-71 の 23 業務テーブル（当初 19 ＋レビュー是正で追加した `agent_executions`・`external_operations`
+＋上流戦略再強化で追加した `strategic_briefs`・`tactical_learning_packets`）とは
+別のインフラテーブルである。append-only テーブル（`config`・`evidence`・`state_transitions`・
+`strategic_briefs`（内容列）・`tactical_learning_packets`）は
 保護トリガで UPDATE/DELETE を拒否し、migration 0001 はトリガ込みで本 DDL と等価とする。
 一部の FK は後続テーブルへの前方参照を含む（SQLite は DML 時に検証するため適用は成功する）。
 適用後の `PRAGMA foreign_key_check` 成功を契約検証（§8）で必須とする。
@@ -145,11 +148,36 @@ CREATE TABLE workflows (
   UNIQUE (workflow_key, version)
 );
 
+CREATE TABLE strategic_briefs (
+  id INTEGER PRIMARY KEY,
+  brief_key TEXT NOT NULL,
+  version INTEGER NOT NULL CHECK (version >= 1),
+  strategic_choice_id TEXT NOT NULL,
+  segment_context_id TEXT NOT NULL,
+  value_hypothesis_id TEXT NOT NULL,
+  desired_recognition_change TEXT NOT NULL,
+  tactical_objective TEXT NOT NULL,
+  media_role TEXT NOT NULL,
+  message_hypothesis TEXT NOT NULL,
+  prohibited_patterns_json TEXT NOT NULL DEFAULT '[]' CHECK (json_valid(prohibited_patterns_json)),
+  measurement_plan_json TEXT NOT NULL CHECK (json_valid(measurement_plan_json)),
+  valid_from TEXT NOT NULL,
+  valid_until TEXT,
+  digest TEXT NOT NULL CHECK (length(digest) = 64),
+  status TEXT NOT NULL CHECK (status IN ('draft', 'active', 'superseded', 'retired')),
+  supersedes_id INTEGER,
+  created_at TEXT NOT NULL,
+  FOREIGN KEY (supersedes_id) REFERENCES strategic_briefs(id) ON DELETE RESTRICT,
+  UNIQUE (brief_key, version)
+);
+
 CREATE TABLE loop_runs (
   id INTEGER PRIMARY KEY,
   parent_loop_run_id INTEGER,
   sprint_id INTEGER,
   workflow_id INTEGER,
+  strategic_brief_id INTEGER,
+  strategic_brief_digest TEXT CHECK (strategic_brief_digest IS NULL OR length(strategic_brief_digest) = 64),
   loop_kind TEXT NOT NULL CHECK (loop_kind IN ('upper', 'lower', 'micro')),
   loop_type TEXT NOT NULL,
   state TEXT NOT NULL CHECK (state IN ('pending', 'running', 'waiting', 'completed', 'failed', 'escalated', 'cancelled')),
@@ -162,8 +190,35 @@ CREATE TABLE loop_runs (
   FOREIGN KEY (parent_loop_run_id) REFERENCES loop_runs(id) ON DELETE RESTRICT,
   FOREIGN KEY (sprint_id) REFERENCES sprints(id) ON DELETE RESTRICT,
   FOREIGN KEY (workflow_id) REFERENCES workflows(id) ON DELETE RESTRICT,
+  FOREIGN KEY (strategic_brief_id) REFERENCES strategic_briefs(id) ON DELETE RESTRICT,
   CHECK ((loop_kind = 'upper' AND parent_loop_run_id IS NULL)
-      OR (loop_kind IN ('lower', 'micro') AND parent_loop_run_id IS NOT NULL))
+      OR (loop_kind IN ('lower', 'micro') AND parent_loop_run_id IS NOT NULL)),
+  CHECK (loop_kind != 'lower'
+      OR (strategic_brief_id IS NOT NULL AND strategic_brief_digest IS NOT NULL))
+);
+
+CREATE TABLE tactical_learning_packets (
+  id INTEGER PRIMARY KEY,
+  packet_key TEXT NOT NULL UNIQUE,
+  loop_run_id INTEGER NOT NULL,
+  strategic_brief_id INTEGER NOT NULL,
+  strategic_brief_digest TEXT NOT NULL CHECK (length(strategic_brief_digest) = 64),
+  observations_json TEXT NOT NULL CHECK (json_valid(observations_json)),
+  metrics_json TEXT NOT NULL DEFAULT '[]' CHECK (json_valid(metrics_json)),
+  qualitative_signals_json TEXT NOT NULL DEFAULT '[]' CHECK (json_valid(qualitative_signals_json)),
+  anomalies_json TEXT NOT NULL DEFAULT '[]' CHECK (json_valid(anomalies_json)),
+  hypothesis_result TEXT NOT NULL CHECK (hypothesis_result IN ('supported', 'weakened', 'rejected', 'inconclusive')),
+  target_hypothesis_ids_json TEXT NOT NULL CHECK (json_valid(target_hypothesis_ids_json)),
+  assessment_reason TEXT NOT NULL,
+  causal_interpretation TEXT NOT NULL,
+  alternative_explanations_json TEXT NOT NULL DEFAULT '[]' CHECK (json_valid(alternative_explanations_json)),
+  confidence REAL NOT NULL CHECK (confidence >= 0.0 AND confidence <= 1.0),
+  evidence_ids_json TEXT NOT NULL CHECK (json_valid(evidence_ids_json)),
+  proposed_revision_targets_json TEXT NOT NULL DEFAULT '[]' CHECK (json_valid(proposed_revision_targets_json)),
+  recommended_next_action TEXT NOT NULL CHECK (recommended_next_action IN ('continue', 'modify_tactic', 'request_strategy_review', 'stop')),
+  created_at TEXT NOT NULL,
+  FOREIGN KEY (loop_run_id) REFERENCES loop_runs(id) ON DELETE RESTRICT,
+  FOREIGN KEY (strategic_brief_id) REFERENCES strategic_briefs(id) ON DELETE RESTRICT
 );
 
 CREATE TABLE tasks (
@@ -410,6 +465,28 @@ CREATE TRIGGER state_transitions_no_update BEFORE UPDATE ON state_transitions
 BEGIN SELECT RAISE(ABORT, 'state_transitions is append-only'); END;
 CREATE TRIGGER state_transitions_no_delete BEFORE DELETE ON state_transitions
 BEGIN SELECT RAISE(ABORT, 'state_transitions is append-only'); END;
+CREATE TRIGGER strategic_briefs_no_update BEFORE UPDATE ON strategic_briefs
+WHEN OLD.brief_key != NEW.brief_key OR OLD.version != NEW.version
+  OR OLD.strategic_choice_id != NEW.strategic_choice_id
+  OR OLD.segment_context_id != NEW.segment_context_id
+  OR OLD.value_hypothesis_id != NEW.value_hypothesis_id
+  OR OLD.desired_recognition_change != NEW.desired_recognition_change
+  OR OLD.tactical_objective != NEW.tactical_objective
+  OR OLD.media_role != NEW.media_role
+  OR OLD.message_hypothesis != NEW.message_hypothesis
+  OR OLD.prohibited_patterns_json != NEW.prohibited_patterns_json
+  OR OLD.measurement_plan_json != NEW.measurement_plan_json
+  OR OLD.valid_from != NEW.valid_from
+  OR OLD.digest != NEW.digest
+  OR OLD.supersedes_id IS NOT NEW.supersedes_id
+  OR OLD.created_at != NEW.created_at
+BEGIN SELECT RAISE(ABORT, 'strategic_briefs content is append-only (status/valid_until のみ遷移可。変更は supersedes_id で新版)'); END;
+CREATE TRIGGER strategic_briefs_no_delete BEFORE DELETE ON strategic_briefs
+BEGIN SELECT RAISE(ABORT, 'strategic_briefs is append-only'); END;
+CREATE TRIGGER tactical_learning_packets_no_update BEFORE UPDATE ON tactical_learning_packets
+BEGIN SELECT RAISE(ABORT, 'tactical_learning_packets is append-only'); END;
+CREATE TRIGGER tactical_learning_packets_no_delete BEFORE DELETE ON tactical_learning_packets
+BEGIN SELECT RAISE(ABORT, 'tactical_learning_packets is append-only'); END;
 ```
 
 ### 2.1 evidence の型契約（FR-28）
@@ -449,7 +526,7 @@ BEGIN SELECT RAISE(ABORT, 'state_transitions is append-only'); END;
 
 | 現状態 | イベント | ガード | 次状態 |
 |---|---|---|---|
-| pending | start | 上位: brand plan が存在／下位: parent が running かつ sprint の KPI target が存在／マイクロ: 親 task が in_progress | running |
+| pending | start | 上位: brand plan が存在／下位: parent が running かつ sprint の KPI target が存在かつ有効な strategic_brief（status = active・digest 一致・有効期間内）を保持／マイクロ: 親 task が in_progress | running |
 | running | wait | 外部応答・承認・子 task 完了待ち | waiting |
 | waiting | resume | 待機対象の証跡又は承認が充足 | running |
 | running | complete | 全子 task が done、必須ゲート PASS、必須証跡完備 | completed |
@@ -577,7 +654,7 @@ S0 のスコープと 25 機能を維持したまま、依存順に 3 更新へ�
 
 | 更新 | 目的・完了境界 | FN ID（件数） | 受入の要点 |
 |---|---|---|---|
-| S0.1 | DB、状態機械、ゲート、証跡の基盤を実働化 | FN-101, FN-102, FN-103, FN-104, FN-105, FN-201, FN-202, FN-204, FN-208, FN-305, FN-701, FN-702, FN-703, FN-704（14） | 21 業務テーブル＋インフラ 2 テーブル＋append-only トリガの生成、未定義遷移拒否、principal の異なる author/verifier、pair 未成立公開拒否、必須証跡欠落時の done 拒否、config INSERT 履歴 |
+| S0.1 | DB、状態機械、ゲート、証跡の基盤を実働化 | FN-101, FN-102, FN-103, FN-104, FN-105, FN-201, FN-202, FN-204, FN-208, FN-305, FN-701, FN-702, FN-703, FN-704（14） | 23 業務テーブル＋インフラ 2 テーブル＋append-only トリガの生成、未定義遷移拒否、principal の異なる author/verifier、pair 未成立公開拒否、必須証跡欠落時の done 拒否、config INSERT 履歴、versioned strategic_brief のシードと digest 保持、有効 brief なしの下位 loop_run 開始拒否、tactical_learning_packet の生成、上流戦略正本への UPDATE/DELETE 拒否（下流からの直接変更不可） |
 | S0.2 | 記事制作、審査、束縛承認、ローカル WP 公開を一気通貫化 | FN-401, FN-402, FN-404, FN-406, FN-409, FN-411, FN-501, FN-511（8） | WF-WP-1/2 により commit hash と review PASS を pair 化し、Claude Code アプリ承認後に Docker WP へ公開。URL・スクショ・approval を evidence に収束 |
 | S0.3 | GA4 計測、接続レジストリ、攻略地図、最小ダッシュボード用データ面を成立 | FN-601, FN-602, FN-603（3） | WF-MEAS-1 で PV を取得証跡付きで measurements に投入し、registry/playbooks を使う。S0 の DB クエリを最小ダッシュボードのデータソースとして固定（HTML 生成 FN-605 自体は S1） |
 

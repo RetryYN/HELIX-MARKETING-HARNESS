@@ -3,6 +3,9 @@
 > status: **confirmed**（2026-07-31 PO 承認 — 要件定義完遂指示。AI 起草）
 > 対象設計: [requirements_v0.1.md](requirements_v0.1.md)／[s0-contract_v0.1.md](s0-contract_v0.1.md)／[br-media_v0.1.md](br-media_v0.1.md)／[loop-task-workflow_v0.1.md](loop-task-workflow_v0.1.md)／[media-requirements_v0.1.md](media-requirements_v0.1.md)
 > 機械可読台帳: [json/verification.json](json/verification.json)。AC の正本は [json/ac.json](json/ac.json)。
+> 上流戦略層（2026-08-01 追補）: 戦略層要件（SR）の検証は
+> [strategy-loop-test-design_v0.1.md](../design/strategy-loop-test-design_v0.1.md)（STC）が対を成す。
+> 本書の TC 59 の分母・対象は不変。
 > 位置づけ: HELIX 流 pair gate における「要件定義 ↔ 検証設計」の検証側正本。各設計変更は本書と JSON 台帳の該当 TC を同時に更新し、pair が成立しない限り公開系を通さない。
 
 ---

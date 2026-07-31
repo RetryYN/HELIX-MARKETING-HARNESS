@@ -6,6 +6,8 @@
 > 上位文書: [verification-design_v0.1.md](../requirements/verification-design_v0.1.md)（検証設計③ — TC 59 は
 > ユニット/コンポーネント粒度、本書 ITC はコンポーネント結合〜E2E 粒度で階層を分担する）
 > JSON 正本: [json/itest.json](json/itest.json)（ITC 台帳。本文と同期、実装入力は JSON）
+> 上流戦略層（2026-08-01 追補）: 戦略層の検証は [strategy-loop-test-design_v0.1.md](strategy-loop-test-design_v0.1.md)
+>（STC）が持つ。ITC 16 の分母は不変。S1 の上流戦略スライス着手時に結合 ITC を追補する。
 
 ---
 

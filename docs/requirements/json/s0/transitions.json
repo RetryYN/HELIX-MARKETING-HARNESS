@@ -9,7 +9,7 @@
       "entity": "loop_runs",
       "from": "pending",
       "event": "start",
-      "guard": "上位: brand plan が存在／下位: parent が running かつ sprint の KPI target が存在／マイクロ: 親 task が in_progress",
+      "guard": "上位: brand plan が存在／下位: parent が running かつ sprint の KPI target が存在かつ有効な strategic_brief（status = active・digest 一致・有効期間内）を保持／マイクロ: 親 task が in_progress",
       "to": "running"
     },
     {

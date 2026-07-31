@@ -19,8 +19,8 @@
 
 | # | 指摘 | 方針・出口条件 |
 |---|---|---|
-| P1-1 | 戦略層の型不足（plan_json 等が自由 JSON） | S2 のスキーマ部分（segment_context / hypothesis / experiment / metric_definition 等）を S1 学習ループより前へ移す。**出口: S1 着手前に schema 定義を s1-contract として confirmed** |
-| P1-2 | 上位ループの月次固定がチャーター思想と矛盾 | LP-U を「月次観測＋イベントトリガー（成長状態・仮説棄却・環境変化・証拠閾値）の戦略更新」へ改訂。**出口: charter v0.4 改版時に LP-U 要件を同時改訂** |
+| P1-1 | 戦略層の型不足（plan_json 等が自由 JSON） | S2 のスキーマ部分（segment_context / hypothesis / experiment / metric_definition 等）を S1 学習ループより前へ移す。**クローズ（2026-08-01 上流戦略再強化）**: 意味モデル 12 schema（json/strategy/）＋SR 16 を confirmed 済み。metric_definition 等の残余は S1 着手時 |
+| P1-2 | 上位ループの月次固定がチャーター思想と矛盾 | LP-U を「月次観測＋イベントトリガー（成長状態・仮説棄却・環境変化・証拠閾値）の戦略更新」へ改訂。**一部クローズ（2026-08-01）**: charter v0.4 で上流の一周判定を「意味モデルの revision 更新」に変更、LP-U 還流を TLP／revision へ再定義。サイクルのイベントトリガー化は S1 の revision-engine 実装時 |
 | P1-3 | X ブラウザ自動化の PoC 前提 | **本コミットで前倒し是正済み**: X ブラウザ書込みは事前 prohibited（BR-M-X-4・POC-01 rejected/discard・RSK-01・MR-X-3 改訂）。公式 API 採用時のみ自動化を再検討 |
 | P1-4 | 媒体調査に出典正本なし（source URL・digest・claim 構造） | br-media JSON を claim/sources/expires_at 構造へ拡張し、実行直前再検証を接続レジストリの契約に含める。**出口: S0.3（接続レジストリ実装）開始前** |
 | P1-5 | CI が実装開始には不足（pytest・ruff・型・migration・secret scan 等） | **出口: S0.1 最初の実装コミットより前に** pytest+coverage・ruff・pyright・import-linter・migration 試験・secret scan・shellcheck/actionlint を CI へ追加（⑥ §5・CLAUDE.md の既存約束と統合） |

@@ -120,7 +120,7 @@ norm = lambda s: [ln.rstrip() for ln in s.splitlines() if ln.rstrip() and not ln
 ddl = (J / "s0/ddl.sql").read_text(encoding="utf-8")
 gate("G-DDL-SYNC", norm(md_sql) == norm(ddl), "ddl.sql == MD DDL ブロック")
 
-# G-DDL-APPLY: DDL が空 DB へ適用でき、FK/integrity が通り、テーブル 23・append-only トリガ 6
+# G-DDL-APPLY: DDL が空 DB へ適用でき、FK/integrity が通り、テーブル 25・append-only トリガ 10
 con = sqlite3.connect(":memory:")
 try:
     con.executescript(ddl)
@@ -128,7 +128,7 @@ try:
     integ = con.execute("PRAGMA integrity_check").fetchone()[0]
     ntab = con.execute("SELECT count(*) FROM sqlite_master WHERE type='table'").fetchone()[0]
     ntrg = con.execute("SELECT count(*) FROM sqlite_master WHERE type='trigger'").fetchone()[0]
-    gate("G-DDL-APPLY", not fk and integ == "ok" and ntab == 23 and ntrg == 6,
+    gate("G-DDL-APPLY", not fk and integ == "ok" and ntab == 25 and ntrg == 10,
          f"DDL 適用 (fk={fk}, integrity={integ}, tables={ntab}, triggers={ntrg})")
 except sqlite3.Error as e:
     gate("G-DDL-APPLY", False, f"DDL 適用失敗: {e}")
@@ -411,6 +411,283 @@ if du_path.exists() and ut_path.exists():
          "⑤↔⑥ 対称 pair 参照＋ペア台帳文書実在")
 else:
     gate("G-PAIR3-EXIST", False, "detailed.json / utest.json（⑤↔⑥ ペア正本）が存在しない")
+
+# ---- 上流戦略ループゲート（2026-08-01 上流戦略インフィニティループ再強化） ----
+# 検査は 3 層: schema 構造（required/型/enum）、fixtures/ の valid 受理・invalid 拒否（negative test 常設）、
+# DDL・契約文書との突合。schema 検証は自前の最小 JSON Schema 検証器で行う（外部依存なし）。
+ST = J / "strategy"
+STFX = ST / "fixtures"
+TMAP = {"string": str, "integer": int, "number": (int, float), "array": list,
+        "object": dict, "null": type(None), "boolean": bool}
+
+
+def schema_check(schema: dict, doc, path: str = "$") -> list[str]:
+    errs: list[str] = []
+    if schema.get("type") == "object" or "properties" in schema or "required" in schema:
+        if not isinstance(doc, dict):
+            return [f"{path}: object でない"]
+        errs += [f"{path}.{k}: 必須欠落" for k in schema.get("required", []) if k not in doc]
+        if schema.get("additionalProperties") is False:
+            errs += [f"{path}.{k}: 未定義フィールド" for k in doc if k not in schema.get("properties", {})]
+        for k, sub in schema.get("properties", {}).items():
+            if k in doc:
+                errs += schema_check(sub, doc[k], f"{path}.{k}")
+        return errs
+    t = schema.get("type")
+    types = t if isinstance(t, list) else ([t] if t else [])
+    if types and not any(isinstance(doc, TMAP[x]) for x in types):
+        errs.append(f"{path}: 型不一致 {types}")
+    if "enum" in schema and doc not in schema["enum"]:
+        errs.append(f"{path}: enum 外 ({doc})")
+    if isinstance(doc, str):
+        if len(doc) < schema.get("minLength", 0):
+            errs.append(f"{path}: minLength")
+        if "pattern" in schema and not re.search(schema["pattern"], doc):
+            errs.append(f"{path}: pattern")
+    if isinstance(doc, list):
+        if len(doc) < schema.get("minItems", 0):
+            errs.append(f"{path}: minItems")
+        if "items" in schema:
+            for i2, item in enumerate(doc):
+                errs += schema_check(schema["items"], item, f"{path}[{i2}]")
+    if isinstance(doc, (int, float)) and not isinstance(doc, bool):
+        if "minimum" in schema and doc < schema["minimum"]:
+            errs.append(f"{path}: minimum")
+        if "maximum" in schema and doc > schema["maximum"]:
+            errs.append(f"{path}: maximum")
+    return errs
+
+
+STRATEGY_SCHEMAS = [
+    "market-observation", "market-model", "segment-context", "problem-model",
+    "value-hypothesis", "category-definition", "positioning-hypothesis", "causal-assumption",
+    "strategic-choice", "strategic-brief", "tactical-learning-packet", "strategy-revision",
+]
+missing_sch = [n for n in STRATEGY_SCHEMAS if not (ST / f"{n}.schema.json").exists()]
+if missing_sch:
+    gate("G-STRAT-BRIEF", False, f"戦略 schema 欠落: {missing_sch}")
+else:
+    sch = {n: load(ST / f"{n}.schema.json") for n in STRATEGY_SCHEMAS}
+
+    def fx_errs(schema_name: str, fixture: str) -> list[str]:
+        return schema_check(sch[schema_name], load(STFX / fixture))
+
+    s0md = (MD / "s0-contract_v0.1.md").read_text(encoding="utf-8")
+    slc = (MD / "strategy-learning-contract_v0.1.md").read_text(encoding="utf-8") \
+        if (MD / "strategy-learning-contract_v0.1.md").exists() else ""
+
+    # G-STRAT-BRIEF: brief 契約が完全（必須フィールド）＋DDL の保持列・lower CHECK＋開始ガードが brief を要求
+    breq = set(sch["strategic-brief"]["required"])
+    need_b = {"id", "version", "strategic_choice_id", "segment_context_id", "value_hypothesis_id",
+              "desired_recognition_change", "tactical_objective", "media_role", "message_hypothesis",
+              "prohibited_patterns", "measurement_plan", "valid_from", "digest"}
+    tguard = next((t.get("guard", "") for t in titems
+                   if t["entity"] == "loop_runs" and t["from"] == "pending" and t["event"] == "start"), "")
+    gate("G-STRAT-BRIEF",
+         need_b <= breq and not fx_errs("strategic-brief", "strategic-brief.valid.json")
+         and "strategic_brief_id" in ddl and "strategic_brief_digest" in ddl
+         and "loop_kind != 'lower'" in ddl and "strategic_brief" in tguard,
+         f"brief 契約完全＋DDL 保持列＋下位開始ガードが brief を要求 (必須欠落={sorted(need_b - breq)})")
+
+    # G-STRAT-TRACE: 下流run→brief→choice→VH→SEG→evidence の必須 trace 連鎖＋trace 欠落 fixture の拒否
+    chain_ok = (
+        {"strategic_choice_id", "segment_context_id", "value_hypothesis_id"} <= breq
+        and {"selected_segment_ids", "value_hypothesis_ids", "decision_basis"} <= set(sch["strategic-choice"]["required"])
+        and {"segment_context_id", "problem_model_id", "evidence_ids"} <= set(sch["value-hypothesis"]["required"])
+        and {"market_model_id", "evidence_ids"} <= set(sch["segment-context"]["required"])
+        and {"loop_run_id", "strategic_brief_id"} <= set(sch["tactical-learning-packet"]["required"])
+    )
+    # 変異自己検査: brief required から value_hypothesis_id を落とした schema では連鎖判定が FAIL すること
+    import copy
+
+    def chain_check(schset: dict) -> bool:
+        return (
+            {"strategic_choice_id", "segment_context_id", "value_hypothesis_id"} <= set(schset["strategic-brief"]["required"])
+            and {"selected_segment_ids", "value_hypothesis_ids", "decision_basis"} <= set(schset["strategic-choice"]["required"])
+            and {"segment_context_id", "problem_model_id", "evidence_ids"} <= set(schset["value-hypothesis"]["required"])
+            and {"market_model_id", "evidence_ids"} <= set(schset["segment-context"]["required"])
+            and {"loop_run_id", "strategic_brief_id"} <= set(schset["tactical-learning-packet"]["required"])
+        )
+
+    mut = copy.deepcopy(sch)
+    mut["strategic-brief"]["required"].remove("value_hypothesis_id")
+    gate("G-STRAT-TRACE",
+         chain_check(sch) and not chain_check(mut)
+         and bool(fx_errs("strategic-brief", "strategic-brief.no-trace.invalid.json")),
+         "run→brief→choice→VH→SEG→evidence の trace 必須＋trace 欠落 fixture 拒否＋変異 schema の検出自己検査")
+
+    # G-SEGMENT-CONTEXT: 時間・空間・制約・進行状態・代替行動が必須（minItems/minLength）。
+    # 人口統計のみの fixture が拒否され、demographic は required に含まれない（補助変数のみ）
+    sreq = set(sch["segment-context"]["required"])
+    sprops = sch["segment-context"]["properties"]
+    ctx_ok = ({"time_context", "space_context", "constraints", "progress_state",
+               "alternative_behaviors", "decision_conditions"} <= sreq
+              and all(sprops[k].get("minItems", 0) >= 1
+                      for k in ("time_context", "space_context", "constraints", "alternative_behaviors"))
+              and sprops["progress_state"].get("minLength", 0) >= 1
+              and "demographic_attributes" not in sreq)
+    gate("G-SEGMENT-CONTEXT",
+         ctx_ok and not fx_errs("segment-context", "segment-context.valid.json")
+         and bool(fx_errs("segment-context", "segment-context.demographic-only.invalid.json")),
+         "状況ベースセグメント必須＋人口統計のみ fixture を拒否")
+
+    # G-OBS-INTERPRETATION: 観測事実と解釈は別フィールド・別レコード。observation は解釈フィールドを持てず
+    # （additionalProperties: false）、解釈は TLP の分離フィールドのみ
+    oprops = sch["market-observation"]["properties"]
+    treq = set(sch["tactical-learning-packet"]["required"])
+    gate("G-OBS-INTERPRETATION",
+         sch["market-observation"].get("additionalProperties") is False
+         and "fact" in sch["market-observation"]["required"]
+         and not any("interpret" in k for k in oprops)
+         and {"observations", "causal_interpretation", "hypothesis_assessment",
+              "alternative_explanations", "recommended_next_action"} <= treq
+         and not fx_errs("market-observation", "market-observation.valid.json")
+         and bool(fx_errs("market-observation", "market-observation.mixed-interpretation.invalid.json")),
+         "観測/解釈の分離（observation に解釈フィールド不可・TLP は分離フィールド）＋混在 fixture を拒否")
+
+    # G-LEARNING-TRACE: 全 TLP が loop run・brief digest・evidence へ接続
+    gate("G-LEARNING-TRACE",
+         {"loop_run_id", "strategic_brief_id", "strategic_brief_digest", "evidence_ids"} <= treq
+         and sch["tactical-learning-packet"]["properties"]["evidence_ids"].get("minItems", 0) >= 1
+         and not fx_errs("tactical-learning-packet", "tactical-learning-packet.valid.json")
+         and bool(fx_errs("tactical-learning-packet", "tactical-learning-packet.unlinked.invalid.json")),
+         "TLP の run/brief digest/evidence 接続必須＋未接続 fixture を拒否")
+
+    # G-NO-DIRECT-STRATEGY-MUTATION: 上流正本の保護トリガが DDL に実在し、s0-contract §1 が
+    # 下流・コネクタ・計測からの直接更新禁止（還流 = TLP のみ）を宣言する
+    # 実 DML で拒否を実証する（トリガ名の文字列検査ではなく、UPDATE/DELETE を実行して ABORT を確認）
+    def mutation_rejected() -> tuple[bool, str]:
+        c2 = sqlite3.connect(":memory:")
+        try:
+            c2.executescript(ddl)
+            c2.execute(
+                "INSERT INTO strategic_briefs (brief_key, version, strategic_choice_id, segment_context_id,"
+                " value_hypothesis_id, desired_recognition_change, tactical_objective, media_role,"
+                " message_hypothesis, measurement_plan_json, valid_from, digest, status, created_at)"
+                " VALUES ('SB-G', 1, 'SC-1', 'SEG-1', 'VH-1', 'x', 'y', 'proof', 'm', '[]',"
+                " '2026-08-01', ?, 'active', 't')", ("a" * 64,))
+            c2.execute("INSERT INTO loop_runs (loop_kind, loop_type, state, idempotency_key, created_at)"
+                       " VALUES ('upper', 'LP-U', 'pending', 'kg', 't')")
+            c2.execute(
+                "INSERT INTO tactical_learning_packets (packet_key, loop_run_id, strategic_brief_id,"
+                " strategic_brief_digest, observations_json, hypothesis_result, target_hypothesis_ids_json,"
+                " assessment_reason, causal_interpretation, confidence, evidence_ids_json,"
+                " recommended_next_action, created_at)"
+                " VALUES ('TLP-G', 1, 1, ?, '[]', 'supported', '[]', 'r', 'c', 0.5, '[]', 'continue', 't')",
+                ("a" * 64,))
+            # DELETE 検査は FK 参照のない brief（id=2）で行う — FK 拒否がトリガ欠落を偽装しないため
+            c2.execute(
+                "INSERT INTO strategic_briefs (brief_key, version, strategic_choice_id, segment_context_id,"
+                " value_hypothesis_id, desired_recognition_change, tactical_objective, media_role,"
+                " message_hypothesis, measurement_plan_json, valid_from, digest, status, created_at)"
+                " VALUES ('SB-G2', 1, 'SC-1', 'SEG-1', 'VH-1', 'x', 'y', 'proof', 'm', '[]',"
+                " '2026-08-01', ?, 'draft', 't')", ("c" * 64,))
+            for stmt in ("UPDATE strategic_briefs SET digest = ? WHERE id = 1",
+                         "DELETE FROM strategic_briefs WHERE id = 2",
+                         "UPDATE tactical_learning_packets SET confidence = 0.9 WHERE id = 1",
+                         "DELETE FROM tactical_learning_packets WHERE id = 1"):
+                try:
+                    c2.execute(stmt, ("b" * 64,)) if "?" in stmt else c2.execute(stmt)
+                    return False, f"変異が通過: {stmt}"
+                except sqlite3.IntegrityError as ie:
+                    if "append-only" not in str(ie):
+                        return False, f"トリガ以外の理由で拒否（トリガ欠落を偽装）: {stmt} → {ie}"
+            return True, "UPDATE/DELETE 4 系すべて append-only トリガで ABORT"
+        except sqlite3.Error as e2:
+            return False, f"検査不能: {e2}"
+        finally:
+            c2.close()
+
+    mrej, mmsg = mutation_rejected()
+    gate("G-NO-DIRECT-STRATEGY-MUTATION",
+         mrej and "上流戦略正本" in s0md
+         and "下流ループ・媒体コネクタ・計測処理は上流戦略正本へ書き込めず" in s0md,
+         f"上流正本への UPDATE/DELETE を実 DML で拒否実証（{mmsg}）＋直接更新禁止宣言")
+
+    # G-REVISION-EVIDENCE: revision は根拠・反証・信頼度・対象版必須。
+    # 単一計測値だけの自動 accept（支持根拠 <2 の accepted）を拒否する
+    rreq = set(sch["strategy-revision"]["required"])
+
+    def rev_rule(doc: dict) -> bool:
+        return doc.get("status") != "accepted" or len(doc.get("supporting_evidence_ids", [])) >= 2
+
+    vr = load(STFX / "strategy-revision.valid.json")
+    ir = load(STFX / "strategy-revision.single-metric-accept.invalid.json")
+    gate("G-REVISION-EVIDENCE",
+         {"supporting_evidence_ids", "counter_evidence_ids", "confidence", "target_version"} <= rreq
+         and not schema_check(sch["strategy-revision"], vr) and rev_rule(vr)
+         and not rev_rule(ir),
+         "revision の根拠/反証/信頼度/対象版必須＋単一根拠 accept fixture を拒否")
+
+    # G-STRATEGY-VERSION: 上流正本は上書き・削除禁止、supersedes_id の append-only 版管理
+    VERSIONED = ["market-model", "segment-context", "problem-model", "value-hypothesis",
+                 "category-definition", "positioning-hypothesis", "causal-assumption",
+                 "strategic-choice", "strategic-brief"]
+    def unversioned(schset: dict) -> list[str]:
+        return [n for n in VERSIONED
+                if "version" not in schset[n]["required"] or "supersedes_id" not in schset[n]["properties"]]
+
+    mut2 = copy.deepcopy(sch)
+    mut2["value-hypothesis"]["required"].remove("version")
+    gate("G-STRATEGY-VERSION",
+         not unversioned(sch) and bool(unversioned(mut2)) and mrej
+         and "supersedes_id INTEGER" in ddl,
+         f"全上流モデルが version 必須＋supersedes_id 定義（変異検出自己検査込み）"
+         f"＋DDL append-only を実 DML で実証 (欠落={unversioned(sch)})")
+
+    # G-MEDIA-ROLE: 媒体役割は設定可能な台帳語彙。brief は役割と認識変化を必須で持ち、
+    # 台帳外の役割（媒体名など）を使う fixture は拒否
+    roles_doc = load(ST / "media-roles.json") if (ST / "media-roles.json").exists() else {"roles": []}
+    roles = {r["role"] for r in roles_doc.get("roles", [])}
+    vb = load(STFX / "strategic-brief.valid.json")
+    bb = load(STFX / "strategic-brief.bad-media-role.invalid.json")
+    gate("G-MEDIA-ROLE",
+         len(roles) >= 12 and {"media_role", "desired_recognition_change"} <= breq
+         and vb["media_role"] in roles and bb["media_role"] not in roles,
+         f"役割台帳 >=12 語彙＋brief の役割/認識変化必須＋台帳外役割 fixture を拒否 (roles={len(roles)})")
+
+    # G-CONTENT-VALUE-DEFINITION: 主要コンテンツ企画は 5 宣言（問題・認識・比較軸・価値・対象仮説）必須
+    cpc = load(ST / "content-plan-contract.json") if (ST / "content-plan-contract.json").exists() else {}
+    ckeys = {k["key"] for k in cpc.get("required_keys", [])}
+    need_c = {"defined_problem", "recognition_change", "comparison_axes", "defined_value", "target_hypothesis_ids"}
+    vp = load(STFX / "content-plan.valid.json")
+    ip = load(STFX / "content-plan.missing-recognition.invalid.json")
+    gate("G-CONTENT-VALUE-DEFINITION",
+         ckeys == need_c and need_c <= set(vp) and not (need_c <= set(ip)),
+         f"コンテンツ企画 5 宣言契約＋宣言欠落 fixture を拒否 (契約差分={sorted(ckeys ^ need_c)})")
+
+    # G-STRAT-PAIR: 戦略層 4 文書の相互 pair 参照＋SR/SCM/STC の双方向カバー＋全戦略ゲートに拒否系 STC
+    sr_json = load(ST / "sr.json")["items"] if (ST / "sr.json").exists() else []
+    sr_md = md_count(MD / "strategy-loop-requirements_v0.1.md", r"\*\*(SR-\d{2})")
+    stc = load(D / "strategy-tests.json") if (D / "strategy-tests.json").exists() else {"items": []}
+    scm = load(D / "strategy-components.json")["items"] if (D / "strategy-components.json").exists() else []
+    sr_ids = {i["id"] for i in sr_json}
+    cov_sr = {s for it in stc["items"] for s in it.get("sr", [])}
+    cov_scm = {c for it in stc["items"] for c in it.get("scm", [])}
+    STRAT_GATES = ["G-STRAT-BRIEF", "G-STRAT-TRACE", "G-SEGMENT-CONTEXT", "G-OBS-INTERPRETATION",
+                   "G-LEARNING-TRACE", "G-NO-DIRECT-STRATEGY-MUTATION", "G-REVISION-EVIDENCE",
+                   "G-STRATEGY-VERSION", "G-MEDIA-ROLE", "G-CONTENT-VALUE-DEFINITION"]
+    neg = {it.get("gate") for it in stc["items"] if it.get("kind") == "gate" and it.get("polarity") == "reject"}
+    heads = {n: (p.read_text(encoding="utf-8")[:900] if (p := ROOT / n).exists() else "")
+             for n in ["docs/requirements/strategy-loop-requirements_v0.1.md",
+                       "docs/requirements/strategy-learning-contract_v0.1.md",
+                       "docs/design/strategy-loop-design_v0.1.md",
+                       "docs/design/strategy-loop-test-design_v0.1.md"]}
+    pair_ok = (all("pair:" in h for h in heads.values())
+               and all("strategy-loop-test-design" in heads[n] for n in list(heads)[:3])
+               and "strategy-loop-design" in heads["docs/design/strategy-loop-test-design_v0.1.md"])
+    missing_fx = [it["fixture"] for it in stc["items"]
+                  if it.get("fixture") and not (ROOT / it["fixture"]).exists()]
+    # カバレッジ検出の変異自己検査: SR カバレッジを 1 件落とした台帳では検出が働くこと
+    stc_mut = [dict(it, sr=[s for s in it.get("sr", []) if s != "SR-04"]) for it in stc["items"]]
+    mut_detects = sr_ids != {s for it in stc_mut for s in it.get("sr", [])}
+    gate("G-STRAT-PAIR",
+         mut_detects and
+         len(sr_json) == 16 == sr_md and len(scm) == 10 and pair_ok
+         and sr_ids == cov_sr and {c["id"] for c in scm} == cov_scm
+         and all(g2 in neg for g2 in STRAT_GATES) and not missing_fx,
+         f"SR16/SCM10 双方向カバー＋4 文書相互 pair＋全戦略ゲートに拒否系 STC "
+         f"(SR差={sorted(sr_ids ^ cov_sr)}, negative欠={sorted(set(STRAT_GATES) - neg)}, fixture欠={missing_fx})")
 
 # G-BASE: デグレ検出（HELIX 日付 ratchet 相当のベースライン方式）
 # confirmed 文書のサイレント改変・分母縮小・ゲート削減を停止する。

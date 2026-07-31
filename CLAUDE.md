@@ -4,9 +4,11 @@
 
 ## 正本と現在地
 
-- 北極星: docs/L0-charter/marketing-harness-charter_v0.3.md（confirmed）。進行はスライス駆動。
+- 北極星: docs/L0-charter/marketing-harness-charter_v0.4.md（confirmed）。進行はスライス駆動。
 - 文書ペア（HELIX 式・片肺禁止）3 層: ①要件定義↔③検証設計（TC 59）、②基本設計↔④総合テスト設計
   （ITC 16）、⑤詳細設計↔⑥単体テスト設計（DU 23／TC 全割当＋UT 10）。
+  戦略層は strategy-loop-requirements／strategy-learning-contract ↔ strategy-loop-design／
+  strategy-loop-test-design のペア（SR 16／SCM 10／STC。JSON 正本 = json/strategy/）。
   DDL・状態遷移・evidence 型・WF 契約の正準は docs/requirements/s0-contract_v0.1.md。
 - 現在地: 要件定義＋基本設計＋詳細設計 完遂（全文書 confirmed）。次 = **S0.1 実装**
   （CMP-01〜06 = DU-01〜12、⑥の割当テストを test-first で赤→実装 — 基本設計 §2・詳細設計 §3）。

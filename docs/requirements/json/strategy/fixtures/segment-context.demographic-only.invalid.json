@@ -1,0 +1,23 @@
+{
+  "id": "SEG-FIX-BAD",
+  "version": 1,
+  "market_model_id": "MKT-FIX-1",
+  "time_context": [],
+  "space_context": [],
+  "progress_state": "",
+  "trigger_events": [],
+  "constraints": [],
+  "alternative_behaviors": [],
+  "decision_conditions": [],
+  "demographic_attributes": [
+    "30代",
+    "男性",
+    "会社員",
+    "趣味は筋トレ"
+  ],
+  "evidence_ids": [
+    "OBS-FIX-1"
+  ],
+  "confidence": 0.5,
+  "status": "draft"
+}

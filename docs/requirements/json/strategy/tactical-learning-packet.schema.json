@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://helix-marketing-harness/strategy/tactical-learning-packet.schema.json",
+  "title": "tactical_learning_packet — 下流→上流への唯一の還流契約。観測事実・解釈・因果・反証可能仮説・推奨判断を分離する",
+  "type": "object",
+  "required": [
+    "id",
+    "loop_run_id",
+    "strategic_brief_id",
+    "strategic_brief_digest",
+    "observations",
+    "metrics",
+    "hypothesis_assessment",
+    "causal_interpretation",
+    "alternative_explanations",
+    "confidence",
+    "evidence_ids",
+    "recommended_next_action"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^TLP-"
+    },
+    "loop_run_id": {
+      "type": "string",
+      "description": "下流 loop run ID",
+      "minLength": 1
+    },
+    "strategic_brief_id": {
+      "type": "string",
+      "pattern": "^SB-"
+    },
+    "strategic_brief_digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "observations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "観測された事実（market_observation ID または事実文。解釈を混ぜない）",
+      "minItems": 1
+    },
+    "metrics": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "計測値（KPI ツリー参照）。単一 KPI 変動だけで上流モデルを自動変更しない"
+    },
+    "qualitative_signals": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "anomalies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "hypothesis_assessment": {
+      "type": "object",
+      "required": [
+        "result",
+        "target_hypothesis_ids",
+        "reason"
+      ],
+      "properties": {
+        "result": {
+          "type": "string",
+          "enum": [
+            "supported",
+            "weakened",
+            "rejected",
+            "inconclusive"
+          ]
+        },
+        "target_hypothesis_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "判定対象の仮説 ID（VH-* / CA-* 等）",
+          "minItems": 1
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 8
+        }
+      },
+      "description": "反証可能仮説の判定（観測・解釈とは別フィールド）"
+    },
+    "causal_interpretation": {
+      "type": "string",
+      "description": "AI による因果解釈（観測事実とは分離）",
+      "minLength": 8
+    },
+    "alternative_explanations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "対立説明（単一解釈への固着を防ぐ）",
+      "minItems": 1
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "信頼度（0.0〜1.0）。複数観測・反証の評価で更新する"
+    },
+    "evidence_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "evidence への接続（G-LEARNING-TRACE）",
+      "minItems": 1
+    },
+    "proposed_revision_targets": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "revision 提案対象（上流が評価する。下流は上流正本を直接更新できない）"
+    },
+    "recommended_next_action": {
+      "type": "string",
+      "enum": [
+        "continue",
+        "modify_tactic",
+        "request_strategy_review",
+        "stop"
+      ]
+    }
+  }
+}

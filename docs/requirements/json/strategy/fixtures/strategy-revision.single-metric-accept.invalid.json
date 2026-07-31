@@ -1,0 +1,14 @@
+{
+  "id": "SREV-FIX-BAD",
+  "target_type": "value_hypothesis",
+  "target_id": "VH-FIX-1",
+  "target_version": 1,
+  "revision_type": "pivot",
+  "reason": "今週の PV が下がったため（単一計測値のみ）",
+  "supporting_evidence_ids": [
+    "EV-303"
+  ],
+  "counter_evidence_ids": [],
+  "confidence": 0.9,
+  "status": "accepted"
+}

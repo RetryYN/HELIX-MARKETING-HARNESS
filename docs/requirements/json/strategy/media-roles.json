@@ -1,0 +1,56 @@
+{
+  "doc": "strategy/media-roles",
+  "version": "0.1",
+  "source": "docs/requirements/strategy-loop-requirements_v0.1.md §5",
+  "note": "媒体の戦略上の役割語彙（設定可能な管理台帳）。strategic_brief.media_role はこの語彙から選ぶ。媒体名そのものは役割ではない。",
+  "roles": [
+    {
+      "role": "research",
+      "text": "市場観測・一次情報の取得面"
+    },
+    {
+      "role": "discovery",
+      "text": "未認知層との最初の接触面"
+    },
+    {
+      "role": "problem-framing",
+      "text": "問題認識の定義・顕在化"
+    },
+    {
+      "role": "category-education",
+      "text": "カテゴリーと土俵の教育"
+    },
+    {
+      "role": "value-definition",
+      "text": "価値定義・選択基準の形成"
+    },
+    {
+      "role": "proof",
+      "text": "価値の証明（事例・実演・データ）"
+    },
+    {
+      "role": "comparison",
+      "text": "比較軸の提示・優位の主張"
+    },
+    {
+      "role": "conversion",
+      "text": "行動転換（登録・購入）の獲得"
+    },
+    {
+      "role": "relationship",
+      "text": "関係維持・信頼の深化"
+    },
+    {
+      "role": "retention",
+      "text": "継続利用・再訪の維持"
+    },
+    {
+      "role": "community",
+      "text": "コミュニティ形成・相互作用"
+    },
+    {
+      "role": "revenue",
+      "text": "収益化・取引の実行"
+    }
+  ]
+}

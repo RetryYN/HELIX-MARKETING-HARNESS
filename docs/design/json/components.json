@@ -13,7 +13,7 @@
       ],
       "update": "S0.1",
       "path": "kernel/state.py",
-      "summary": "遷移表照合・guard・state_transitions 単一 transaction 記録・構造化ログ"
+      "summary": "遷移表照合・guard・state_transitions 単一 transaction 記録・構造化ログ。戦略層: 下位 loop_run start ガードの strategic_brief 検証（SCM-03）"
     },
     {
       "id": "CMP-02",
@@ -26,7 +26,7 @@
       ],
       "update": "S0.1",
       "path": "kernel/orchestrator.py ほか",
-      "summary": "タスク発行・マイクロループ・WF 実行器・author/verifier 別体割当"
+      "summary": "タスク発行・マイクロループ・WF 実行器・author/verifier 別体割当。戦略層: brief シード発行と TLP 生成（SCM-02/04）"
     },
     {
       "id": "CMP-03",
@@ -60,7 +60,7 @@
       ],
       "update": "S0.1",
       "path": "db/",
-      "summary": "正準 DDL migration・checksum 記録・PRAGMA foreign_keys 接続入口"
+      "summary": "正準 DDL migration・checksum 記録・PRAGMA foreign_keys 接続入口。戦略層: strategic_briefs／tactical_learning_packets テーブルと保護トリガ（SCM-01）"
     },
     {
       "id": "CMP-06",
