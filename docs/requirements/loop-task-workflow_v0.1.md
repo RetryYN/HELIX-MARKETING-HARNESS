@@ -208,7 +208,8 @@ credential・ログイン、(3) 束縛承認 — の 3 種のみ（BR-H1 の全�
 
 | 業務領域 | ループ | タスク型 | ワークフロー |
 |---|---|---|---|
-| 戦略・計画立案 | LP-U | T-PLAN | WF-PLAN-1..6 |
+| 戦略・計画立案（行動計画） | LP-U | T-PLAN | WF-PLAN-1..6（WF-PLAN-2 は WF-STRAT 経路の入口） |
+| 上流戦略（意味モデル更新） | LP-U | T-PLAN | WF-STRAT-OBSERVE/ANALYZE/COMPOSE/REVISE/BRIEF（§3.3bis） |
 | 事業前提・設定の充填 | LP-E（スロット欠損駆動） | T-FILL | WF-FILL-1..4 |
 | コンテンツ制作 | 各媒体ループ内 | T-PROD | WF-PROD-\*（9 本） |
 | 審査・品質 | 各媒体ループ内 | T-REVIEW | 各 WF 内の審査ステップ＋ゲート |
@@ -223,8 +224,8 @@ credential・ログイン、(3) 束縛承認 — の 3 種のみ（BR-H1 の全�
 
 | スライス | 確定実装 | PoC 実施 |
 |---|---|---|
-| S0 | WF-OPS-1/2（WP・GA4 分）, WF-WP-1/2（= WF-PROD-TEXT の WP 具象）, WF-MEAS-1, WF-PLAN-6（手動投入の代替可）, LP-W(WP), T-PLAN/PROD/REVIEW/PUB/MEAS | POC-03（GA4 API 疎通）を S0 内で先行 |
-| S1 | WF-PLAN-2/4/5（還流・スプリント）, WF-DASH-1, WF-NOTION-1, WF-PROD-IMG, WF-OPS-5/7, LP-U 最小形, LP-MEAS, LP-OPS | POC-08（音声/動画パイプ）着手 |
+| S0 | WF-OPS-1/2（WP・GA4 分）, WF-WP-1/2（= WF-PROD-TEXT の WP 具象）, WF-MEAS-1, WF-PLAN-6（手動投入の代替可）, WF-STRAT-BRIEF（シード形 — SR-15）, LP-W(WP), T-PLAN/PROD/REVIEW/PUB/MEAS | POC-03（GA4 API 疎通）を S0 内で先行 |
+| S1 | WF-PLAN-2/4/5（還流・スプリント）, WF-STRAT-OBSERVE/ANALYZE/COMPOSE/REVISE（上流戦略スライス）, WF-DASH-1, WF-NOTION-1, WF-PROD-IMG, WF-OPS-5/7, LP-U 最小形, LP-MEAS, LP-OPS | POC-08（音声/動画パイプ）着手 |
 | S2 | WF-FILL-1..4（三エンジン）, WF-PLAN-1/3, LP の複数媒体化, WF-OPS-3（媒体追加の型） | POC-05, 10（POC-01 は rejected — X は人手投稿支援で PoC 非依存） |
 | S3+ | 各媒体 WF・WF-PROD-AUDIO/VIDEO/SHORT/EPUB/APP の本実装（PoC PASS 済みのみ）, WF-OPS-4 本格化 | POC-02, 09, 11, 12, 13 |
 

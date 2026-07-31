@@ -57,7 +57,7 @@
 | 2026-08-01 | strategy-loop-design | v0.1 | confirmed | PO | 08ca4a664d86 | 戦略ループ最終統合是正指示（/goal）による内容束縛承認（G-CONFIRM-DIGEST receipt） |
 | 2026-08-01 | strategy-loop-test-design | v0.1 | confirmed | PO | ada6fcadc224 | 戦略ループ最終統合是正指示（/goal）による内容束縛承認（G-CONFIRM-DIGEST receipt） |
 | 2026-08-01 | s0-contract | v0.1 | confirmed | PO | a3e5ea255f02 | 戦略ループ最終統合是正指示（/goal）による内容束縛承認（G-CONFIRM-DIGEST receipt） |
-| 2026-08-01 | loop-task-workflow | v0.1 | confirmed | PO | 98cc3f0cef1f | 戦略ループ最終統合是正指示（/goal）による内容束縛承認（G-CONFIRM-DIGEST receipt） |
+| 2026-08-01 | loop-task-workflow | v0.1 | confirmed | PO | c0b3b97c5ce3 | 戦略ループ最終統合是正指示（/goal）による内容束縛承認（G-CONFIRM-DIGEST receipt） |
 | 2026-08-01 | requirements | v0.1 | confirmed | PO | 00fb9f7aa1eb | 戦略ループ最終統合是正指示（/goal）による内容束縛承認（G-CONFIRM-DIGEST receipt） |
 | 2026-08-01 | function-list | v0.1 | confirmed | PO | 6a15bffa7b23 | 戦略ループ最終統合是正指示（/goal）による内容束縛承認（G-CONFIRM-DIGEST receipt） |
 | 2026-08-01 | glossary | v0.1 | confirmed | PO | afcf91baf759 | 戦略ループ最終統合是正指示（/goal）による内容束縛承認（G-CONFIRM-DIGEST receipt） |
