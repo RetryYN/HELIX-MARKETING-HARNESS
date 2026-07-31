@@ -13,8 +13,7 @@ fi
 if ! printf '%s' "$cmd" | grep -Eq '(^|[;&|[:space:]])git([[:space:]]+-[-[:alnum:]]+([[:space:]]+[^-[:space:]][^[:space:]]*)?)*[[:space:]]+(commit|push)([[:space:]]|$)'; then
   exit 0
 fi
-out=$(python3 "$(dirname "$0")/../validate_requirements.py" 2>&1)
-if [ $? -ne 0 ]; then
+if ! out=$(python3 "$(dirname "$0")/../validate_requirements.py" 2>&1); then
   echo "要件整合ゲート FAIL — commit/push をブロックしました。" >&2
   echo "$out" | grep '^FAIL' >&2
   exit 2
