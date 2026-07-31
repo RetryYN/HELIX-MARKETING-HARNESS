@@ -117,3 +117,5 @@
 | 2026-08-01 | s0-contract | v0.1 | confirmed | PO | ddc3780ddf60 | クロージャー改訂（DDL トリガ追加・実装正本パス） |
 | 2026-08-01 | du-contracts.json | v0.1 | confirmed | PO | 4d1ef4b6c613 | クロージャー確定版（semantic_refs 導入後の内容束縛 receipt） |
 | 2026-08-01 | du-contracts | v0.1 | confirmed | PO | 58d5dfd18042 | 生成ビュー（クロージャー確定版 — トリガ 14 本・semantic_refs 反映） |
+| 2026-08-01 | nfr-contracts.json | v0.1 | confirmed | PO | 943b990d788e | クロージャー是正版（src/helix 統一の反映） |
+| 2026-08-01 | nfr-contracts | v0.1 | confirmed | PO | f77f7f3fd715 | 生成ビュー（src/helix 統一の反映） |

@@ -15,7 +15,7 @@
     "DU": 23,
     "UTC": 69
   },
-  "gate_count": 111,
+  "gate_count": 113,
   "max_skipped": 194,
   "contract_counts": {
     "AC_CONTRACT": 211,
@@ -48,7 +48,7 @@
     "docs/requirements/glossary_v0.1.md": "afcf91baf759ec358532e6a421dfea32f56458aadcbff943cac7fc849246a6c2",
     "docs/requirements/loop-task-workflow_v0.1.md": "c0b3b97c5ce3aa87d2c581ef091e4151cacfe54c324e6c1a615e79c3479aef5f",
     "docs/requirements/media-requirements_v0.1.md": "26387bcbdd075692c6b87a51db6e72723692bca8750037470feba93bf88203d9",
-    "docs/requirements/nfr-contracts_v0.1.md": "42f8015d02dab99fb44f9af6e093aef50faa34e33e9b65061a01491f9745b510",
+    "docs/requirements/nfr-contracts_v0.1.md": "f77f7f3fd715cb64bb7f7774e0e46aeeb93b4d4e2444536e6360264ad2d85132",
     "docs/requirements/requirement-list_v0.1.md": "e096adc2a76fda9e99a39b37fed8071588faaef4cdc1644a49bc069dbc83514b",
     "docs/requirements/requirements_v0.1.md": "812e44db8158571d810139a5f41c9d99f3c22c796387b5c668667ea70e9bcc5c",
     "docs/requirements/s0-contract_v0.1.md": "ddc3780ddf6050a51a1f3f1c1e7f8e952aa6ad764bdd291260a340b1e4cb6b99",
@@ -132,7 +132,7 @@
     "docs/requirements/json/mr/x.json": "16d7cff30cfd58b6c09212661c0cd131018a88d7448f54b558684c16388e55c2",
     "docs/requirements/json/mr/yt.json": "7ce1cbbf22e32ab92d6193344f0f2073b287dab31a350f52454b58a72d016264",
     "docs/requirements/json/nfr/nfr-contract.schema.json": "be639bf63c8b0c3368c52a0b863eb1faf13a94572e13a79ffee087883f7b54f3",
-    "docs/requirements/json/nfr/nfr-contracts.json": "87d66081f191dc219fb5ad981e54404f60cdc790f7473bae84fbdd3f8b6e9005",
+    "docs/requirements/json/nfr/nfr-contracts.json": "239d965c26beba9d59fabfe4bba7266529d5a067c616e60d7599afa0bff6c337",
     "docs/requirements/json/req.json": "1b66b2292d11efa9ee2a989827b2257efc33ccdb465562aa38596191227fd70b",
     "docs/requirements/json/requirements.json": "4080a62fa3fcd71fb60d093a46207c4dbbcbb33062c0e084cedbe877ac088b08",
     "docs/requirements/json/s0/ddl.sql": "ad296400fa31850807f9f5f945465d95d5c918512d5a8f4420ef9c0276edc0a3",
@@ -181,7 +181,7 @@
     "docs/requirements/json/verification/tc-contracts.json": "a023c6335ecb5008cfe20fb50346a2c2bbe2bcc74f2044be6f75d93e4c0d4e7e",
     "pyproject.toml": "b2ae825431fff457af2e9f9813c51768bdb83e769c3ebb13168292da498a2c66",
     "scripts/hooks/pre-git-gate.sh": "c479c573bdb491a57716c47c2cf54cda2a094e7cde8103ac2f6952fbb230e080",
-    "scripts/validate_requirements.py": "dd4295bafce050adfc8496ea5541613f23e7ae9b3977c9edd86d3b8a810de746",
+    "scripts/validate_requirements.py": "688a27951e1fbc21e31fb43423816d021e9eb8dab2d43afdcac1b18191c92e7c",
     "uv.lock": "b57a054ee0cba1c418d500563695ee3007e82557bd5f540558f811c5c578836f"
   }
 }

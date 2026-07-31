@@ -2,13 +2,13 @@
 
 # 非機能要件 計測契約（NFR contracts）v0.1
 
-> status: **confirmed**（2026-08-01 PO 承認 — receipt 7083bc33f87e）。JSON 内容正本の生成ビュー（全層再降下 §3）
+> status: **confirmed**（2026-08-01 PO 承認 — receipt 943b990d788e）。JSON 内容正本の生成ビュー（全層再降下 §3）
 > 各 NFR に測定対象・測定方法・閾値・測定環境・違反時動作・証跡を必須化（G-NFR-MEASURABLE）。
 
 ## NFR-1 fail-close（判定不能は通さない）
 
 - **測定対象**: 全ゲート（要件 CI ゲート＋実行時ゲート層）の判定不能時挙動と、ゲート無効化フラグの非存在
-- **測定方法**: ①`python3 scripts/validate_requirements.py`が json/strategy/fixtures/ 等の invalid fixture を全ゲートで拒否すること（negative test 常設 — 毎 push）。② pytest（tests/unit/ のゲート拒否系 — python-ci ジョブ）で allowlist 空・schema 破損・リスト破損等の判定不能入力が全て拒否になることを検証。③`grep -rn 'gate.*disable\|bypass' harness/ config`でゲート無効化フラグ・バイパス経路の不在を検査。
+- **測定方法**: ①`python3 scripts/validate_requirements.py`が json/strategy/fixtures/ 等の invalid fixture を全ゲートで拒否すること（negative test 常設 — 毎 push）。② pytest（tests/unit/ のゲート拒否系 — python-ci ジョブ）で allowlist 空・schema 破損・リスト破損等の判定不能入力が全て拒否になることを検証。③`grep -rn 'gate.*disable\|bypass' src/helix/ config`でゲート無効化フラグ・バイパス経路の不在を検査。
 - **閾値**: invalid fixture の拒否率 100%（1 件でも通過で fail）・ゲート無効化フラグ検出 0 件・判定不能入力の通過 0 件
 - **測定環境**: CI（GitHub Actions: python-ci／requirements-gates 相当ジョブ）＋ローカル pytest
 - **違反時の動作**: CI 赤で merge を遮断（fail-close）。実行時は該当操作を拒否し operation_log へ記録、ゲート自体の破損検知は fatal_failure で escalated。
@@ -78,7 +78,7 @@
 ## NFR-8 保守性（媒体追加 = データ行追加のみ）
 
 - **測定対象**: 新媒体追加時に必要な変更の種別（workflows・playbooks・接続レジストリの行追加のみか、外殻コードの変更を要するか）
-- **測定方法**: pytest（python-ci）: テスト媒体 fixture を workflows INSERT（新 workflow_key）＋playbooks INSERT（service/operation/route_type）＋接続レジストリ行の追加**のみ**で登録し、ループ状態機械〜ゲート〜コネクタの dry-run E2E が既存コード無変更で通ることを検証。検証補助:`git diff --stat -- harness/`が fixture・データ以外で 0 行であることをテスト内で確認（外殻コード変更ゼロの機械判定）。
+- **測定方法**: pytest（python-ci）: テスト媒体 fixture を workflows INSERT（新 workflow_key）＋playbooks INSERT（service/operation/route_type）＋接続レジストリ行の追加**のみ**で登録し、ループ状態機械〜ゲート〜コネクタの dry-run E2E が既存コード無変更で通ることを検証。検証補助:`git diff --stat -- src/helix/`が fixture・データ以外で 0 行であることをテスト内で確認（外殻コード変更ゼロの機械判定）。
 - **閾値**: 媒体追加時の外殻コード（engine/gates/connectors 本体）diff = 0 行・追加は workflows／playbooks／レジストリ行のみ・dry-run E2E green
 - **測定環境**: CI（python-ci — pytest＋dry-run mock）
 - **違反時の動作**: コード変更を要した媒体追加は設計違反としてテスト red・差戻し（外殻の拡張が必要な場合は要件・設計改訂を先行させる）。

@@ -1419,6 +1419,43 @@ except (FileNotFoundError, KeyError) as e:
     for gid in ("G-CANON-CONFIRMED", "G-LEGACY-SUPERSEDED", "G-S0-TEST-REALITY"):
         gate(gid, False, f"正本が読めない: {e}")
 
+# G-REVIEW-BINDING: レビュー成果物が対象コミットと成果物 digest に束縛される（クロージャー §8）
+try:
+    rev_dir = ROOT / "docs/governance/reviews"
+    rev_schema = load(rev_dir / "review.schema.json")
+    revs = sorted(p for p in rev_dir.glob("*.json") if p.name != "review.schema.json")
+    rev_bad: list[str] = []
+    if not revs:
+        rev_bad.append("レビュー成果物が 1 件もない（Go をコミットメッセージだけで記録しない）")
+    for p in revs:
+        r = load(p)
+        rev_bad += [f"{p.name}: {e}" for e in schema_check(rev_schema, r)]
+        if r.get("verdict") != "Go":
+            continue
+        # Go のレビューは、対象コミットが実在し、成果物が「レビュー後に変わっていない」ことを要する
+        ok = subprocess.run(  # noqa: S603
+            ["git", "cat-file", "-e", f"{r['target_commit']}^{{commit}}"],  # noqa: S607
+            capture_output=True, text=True, check=False, cwd=ROOT).returncode == 0
+        if not ok:
+            rev_bad.append(f"{p.name}: target_commit がリポジトリに存在しない")
+            continue
+        for art, dg in r["reviewed_artifact_digests"].items():
+            fp = ROOT / art
+            if not fp.exists():
+                rev_bad.append(f"{p.name}: {art} 不在")
+                continue
+            now = hashlib.sha256(fp.read_bytes()).hexdigest()[:16]
+            if now != dg:
+                # レビュー後の変更は、その差分を解決した後続レビュー（より新しい Go）がない限り違反
+                newer = [load(q) for q in revs if load(q).get("verdict") == "Go"
+                         and load(q).get("completed_at", "") > r.get("completed_at", "")]
+                if not any(now == n.get("reviewed_artifact_digests", {}).get(art) for n in newer):
+                    rev_bad.append(f"{p.name}: {art} がレビュー後に改変（{dg}→{now}）")
+    gate("G-REVIEW-BINDING", not rev_bad,
+         f"レビュー成果物が対象コミット・成果物 digest に束縛 (欠陥={rev_bad[:4]})")
+except FileNotFoundError as e:
+    gate("G-REVIEW-BINDING", False, f"レビュー成果物の枠組みがない: {e}")
+
 # G-DESIGN-SUBSTANCE: 独立設計書・機能別設計の実体（行数＋trace 表＋章立て）— 参照実在だけの穴を塞ぐ
 try:
     thin_docs: list[str] = []

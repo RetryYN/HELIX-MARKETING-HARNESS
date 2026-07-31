@@ -94,5 +94,11 @@ brief／TLP／revision の 3 契約、strategic_briefs・TLP テーブル（DDL 
 SR→AC-SR→STC-I→DU の一本線トレース、TLP の learning/failure 二分と DDL 整合トリガ、revision 原子性、
 全戦略 schema 閉鎖（additionalProperties: false・正準化 digest 規則）、python-ci 実働化
 （pytest/ruff/mypy/import-linter/shellcheck/actionlint/gitleaks — charter は v0.4 が唯一の北極星、v0.3 superseded）。
-次: **全層再降下（粒度是正）** → 完了後にのみ S0.1 実装を再開（DB・状態機械・ゲート・証跡 —
-s0-contract §7 の更新分割、CMP-01〜06 が対象）。
+（以上は 2026-08-01 クロージャー以前の履歴。**現在地は本節冒頭の「完了しているもの／完了していないもの」が正**。）
+
+## 次の一手
+
+**S0.1 実装**（DB・状態機械・ゲート・証跡 — s0-contract §7 の更新分割、CMP-01〜06＝DU-01〜12 が対象）。
+着手時に `tests/skip-budget.json` の `s0_impl_started` を true にし、以降は
+[G-S0-TEST-REALITY](docs/governance/requirements-gates.md) が S0.1 対象 UT の skip を CI で落とす。
+進行は **HELIX-HARNESS の工程・Gate・PR 経路**に従う（本リポジトリ内の独自手動進行はしない）。
