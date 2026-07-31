@@ -238,7 +238,7 @@
       ],
       "assertions": [
         "binding subject/operation/at いずれか不一致の承認は無効で公開拒否",
-        "rejected/expired で task が failed",
+        "rejected は non_retryable_failure で task failed、expired は承認再要求で待機継続し approval_retry_limit 到達で escalated",
         "pending 中は親 loop_run が waiting、task 状態が進行しない"
       ]
     },

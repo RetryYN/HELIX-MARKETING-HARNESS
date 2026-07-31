@@ -39,7 +39,7 @@
 | G-STRAT-TRACE | 下流 run→brief→strategic_choice→value_hypothesis→segment_context→evidence の trace が schema 必須フィールドで双方向追跡可能。trace 欠落 fixture を拒否 | 宙に浮いた戦術（戦略仮説へ還元できない実行） |
 | G-SEGMENT-CONTEXT | segment_context に時間・空間・制約・進行状態・代替行動が必須（非空）。人口統計のみの fixture を拒否 | ペルソナ型セグメントの正本化（SR-04 違反） |
 | G-OBS-INTERPRETATION | market_observation は解釈フィールドを持てず（additionalProperties: false）、解釈は TLP の分離フィールドのみ。learning/failure の packet_kind 二分で failure への因果解釈捏造も拒否 | 観測事実と AI 解釈の混濁（反証不能化） |
-| G-LEARNING-TRACE | 全 TLP が loop run・brief digest・evidence へ接続し、UNIQUE(loop_run_id)＋整合トリガ（lower・終端・digest 三者一致）を DDL が強制。未接続 fixture を拒否 | 接続のない学習（存在しない扱いにすべき還流） |
+| G-LEARNING-TRACE | 全 TLP が loop run・brief digest・evidence へ接続し、UNIQUE(loop_run_id)＋整合トリガ（lower・終端・digest 三者一致）を DDL が強制。最低 1 件は「終端遷移と TLP INSERT の同一 transaction」kernel 契約＋孤児検査（packet なし終端 lower run = 0 件）の宣言を s0-contract に要求。未接続 fixture を拒否 | 接続のない学習（存在しない扱いにすべき還流） |
 | G-NO-DIRECT-STRATEGY-MUTATION | 上流正本の保護トリガ（strategic_briefs/TLP の no_update/no_delete）が DDL に実在し、s0-contract が下流・コネクタ・計測からの直接更新禁止を宣言 | 下流からの戦略正本の直接書換え |
 | G-REVISION-EVIDENCE | strategy_revision に根拠・反証・信頼度・対象版が必須。単一計測値・重複根拠の accepted を拒否し、accepted（maintain 以外）には new_version_id（原子的新版生成）を要求 | KPI 値の直接戦略変換（意味モデルを迂回した自動変更） |
 | G-STRATEGY-VERSION | 全上流モデル schema が version 必須＋supersedes_id を定義し、DDL が上書き・削除を拒否（append-only 版管理） | 上流正本の上書き（履歴・棄却理由の喪失） |
