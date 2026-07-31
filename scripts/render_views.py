@@ -156,8 +156,53 @@ def render_ac_catalog() -> tuple[Path, str]:
     return REQ / "ac-catalog_v0.1.md", "".join(out)
 
 
+def render_tc_catalog() -> tuple[Path, str]:
+    src = REQ / "json" / "verification" / "tc-contracts.json"
+    data = json.loads(src.read_text())
+    out = [GENERATED_HEADER.format(src="docs/requirements/json/verification/tc-contracts.json")]
+    out.append("# テストケース 検証契約カタログ（TC contracts）v" + data["version"] + "\n\n")
+    out.append("> status: **draft（再降下中）**（2026-08-01 全層再降下 §5 — JSON 内容正本の生成ビュー）\n")
+    out.append("> 全 AC 検証契約と双方向接続（G-TRACE-BIDIR）。状態・DB 差分・証跡・禁止副作用・外部呼出回数を検証。\n")
+    out.append("> 既存 TC-01〜59（verification.json）は履歴として保持。\n\n")
+    out.append("| TC | kind | AC | 検証する状態 | DB 差分 | 証跡 | 禁止副作用の不在 | 外部呼出 | slice |\n")
+    out.append("|---|---|---|---|---|---|---|---|---|\n")
+    for it in data["items"]:
+        out.append(f"| {it['id']} | {it['kind']} | {' '.join(it['ac'])} | {it['verifies_state']} | "
+                   f"{it['verifies_db_delta']} | {it['verifies_evidence']} | {it['verifies_forbidden']} | "
+                   f"{it['external_calls']} | {it['slice']} |\n")
+    out.append("\n検証手段（method）の全文は JSON 正本を参照。\n")
+    return REQ / "tc-catalog_v0.1.md", "".join(out)
+
+
+def render_cmp_contracts() -> tuple[Path, str]:
+    src = ROOT / "docs" / "design" / "json" / "cmp-contracts.json"
+    data = json.loads(src.read_text())
+    out = [GENERATED_HEADER.format(src="docs/design/json/cmp-contracts.json")]
+    out.append("# コンポーネント設計契約（CMP/SCM contracts）v" + data["version"] + "\n\n")
+    out.append("> status: **draft（再降下中）**（2026-08-01 全層再降下 §6 — JSON 内容正本の生成ビュー）\n")
+    out.append("> 各 CMP/SCM に 11 観点の設計契約を必須化（G-CMP-INTERFACE）。独立設計書とペアで読む。\n\n")
+    for it in data["items"]:
+        out.append(f"## {it['id']} {it['title']}\n\n")
+        out.append(f"- **提供 interface**: {'／'.join(it['provided_interfaces'])}\n")
+        out.append(f"- **要求 interface**: {'／'.join(it['required_interfaces']) or 'なし'}\n")
+        out.append(f"- **責務境界**: {it['responsibility_boundary']}\n")
+        out.append(f"- **依存方向**: {it['dependency_direction']}\n")
+        out.append(f"- **データフロー**: {it['data_flow']}\n")
+        out.append(f"- **状態所有者**: {it['state_owner']} ／ **transaction 所有者**: {it['transaction_owner']}\n")
+        out.append(f"- **エラー分類**: {'／'.join(it['error_classes'])}\n")
+        out.append(f"- **degradation／復旧**: {it['degradation_recovery']}\n")
+        out.append(f"- **セキュリティ境界**: {it['security_boundary']}\n")
+        out.append(f"- **人間判断点**: {it['human_judgement']}\n")
+        tr = it["trace"]
+        dd = "、".join(tr.get("design_doc", [])) or "—"
+        out.append(f"- **trace**: FN = {' '.join(tr['fn']) or '—'} ／ DU = {' '.join(tr['du']) or '—'} ／ 独立設計書 = {dd}\n\n")
+    return ROOT / "docs" / "design" / "cmp-contracts_v0.1.md", "".join(out)
+
+
 RENDERERS = [
     render_br_contracts,
+    render_tc_catalog,
+    render_cmp_contracts,
     _make_contract_renderer("json/fr/fr-contracts.json", "fr-contracts_v0.1.md",
                             "機能要件 実行契約（FR contracts）",
                             "各 FR に 18 観点の実行・検証・拒否・復旧契約を必須化（G-REQ-CONTRACT／G-INVARIANT-TRACE）。"),

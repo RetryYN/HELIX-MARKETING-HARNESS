@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "cmp-contract",
+  "description": "コンポーネント（CMP/SCM）の設計契約。提供/要求 interface・責務境界・依存方向・データフロー・状態/transaction 所有者・エラー分類・degradation・セキュリティ境界・人間判断点を必須化する（全層再降下 §6）。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "title", "provided_interfaces", "required_interfaces", "responsibility_boundary", "dependency_direction", "data_flow", "state_owner", "transaction_owner", "error_classes", "degradation_recovery", "security_boundary", "human_judgement", "trace"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^(CMP|SCM)-[0-9]{2}$"},
+    "title": {"type": "string", "minLength": 4},
+    "provided_interfaces": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 8}, "description": "提供 interface（関数/API 名と 1 行契約）"},
+    "required_interfaces": {"type": "array", "items": {"type": "string", "minLength": 6}, "description": "要求 interface（依存先の何を使うか。なし = 空配列）"},
+    "responsibility_boundary": {"type": "string", "minLength": 20, "description": "責務境界（やること／やらないことの線）"},
+    "dependency_direction": {"type": "string", "minLength": 10, "description": "依存方向（cli→kernel→gates→基盤 のどこに位置し、何に依存し何から依存されるか）"},
+    "data_flow": {"type": "string", "minLength": 15, "description": "データフロー（入→処理→出の 1 行経路）"},
+    "state_owner": {"type": "string", "minLength": 4, "description": "状態所有者（このコンポーネントが所有する状態。なし = 『なし（stateless）』）"},
+    "transaction_owner": {"type": "string", "minLength": 4, "description": "transaction 所有者（誰が BEGIN/COMMIT するか。なし = 『なし』）"},
+    "error_classes": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 6}, "description": "エラー分類（型名: 意味・fail-close 先）"},
+    "degradation_recovery": {"type": "string", "minLength": 15, "description": "degradation／復旧方針（依存不在・部分故障時の縮退と復帰）"},
+    "security_boundary": {"type": "string", "minLength": 10, "description": "セキュリティ境界（秘密・外部書込み・隔離の関与）"},
+    "human_judgement": {"type": "string", "minLength": 6, "description": "人間判断点（なし = 『なし（全自動）』）"},
+    "trace": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fn", "du"],
+      "properties": {
+        "fn": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^FN-[0-9]+$"}},
+        "du": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^DU-[0-9]{2}$"}},
+        "design_doc": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 4}, "description": "独立設計書への参照（該当時）"}
+      }
+    }
+  }
+}

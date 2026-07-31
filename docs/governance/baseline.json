@@ -15,10 +15,10 @@
     "DU": 23,
     "UTC": 69
   },
-  "gate_count": 89,
+  "gate_count": 93,
   "confirmed_docs": {
     "docs/L0-charter/marketing-harness-charter_v0.4.md": "9a904549de13648b813535b0b7e5b81c2a05062557e5d1143cb50232a178a73d",
-    "docs/design/basic-design_v0.1.md": "4dd6ad7a0d58922895b3ecc092af9783f6f1ae73845428829fb0ed58736bbe5f",
+    "docs/design/basic-design_v0.1.md": "71080830c131da3a71eb6cb2867febecfafc185526ea5e3ff4dc5b0a25b39d5e",
     "docs/design/detailed-design_v0.1.md": "cb06e217cb04ccfe0622e38f3eae755377c306fc1ef0a87329cdb27ff661ee62",
     "docs/design/integration-test-design_v0.1.md": "91a172e61c2b87e970402786d301b717de9ee11591f528f7a8d127121d37d672",
     "docs/design/strategy-loop-design_v0.1.md": "08ca4a664d8672ce1aa72b0f743a4a05d371addbf1e27c80efe3914a55a2770b",
@@ -36,22 +36,25 @@
     "docs/requirements/strategy-learning-contract_v0.1.md": "2b26d15b896d7666c12f16bb00e1daf7750e90449e3a0c464215793700e0eaea",
     "docs/requirements/strategy-loop-requirements_v0.1.md": "7acdd0d3730c44ee1eb8bfc011b24b480252525fe85c727e782e46ba6f455a5e",
     "docs/requirements/tech-stack_v0.1.md": "5242964ea598286a575d1781eb46b3043cae748de87c2eb8a152a2d43d732144",
-    "docs/requirements/verification-design_v0.1.md": "9195ed77af4e88c636300e715e56b06c3d68b34e599c38d8b20220c850f61c68"
+    "docs/requirements/verification-design_v0.1.md": "35d2d3edd229fd94e566d534d730b787f82ac655019baccbfc33f8e17184e92c"
   },
   "artifacts": {
     ".github/workflows/docs-ci.yml": "d7772899814719583ec45f380e79d99f500b38f8c9e99eacaae5edb48dfced5c",
     ".github/workflows/python-ci.yml": "62b6dfb01fabe826c758641435e68776a9aa111c4e4da9cb47c777530cf61d24",
     "AGENTS.md": "49e65b4b8afe029bbd2b738a0900b9a7eadc67effd494fb0ac2ae19b60b427a9",
     "CLAUDE.md": "ed25edec068e53f2cf78039493dec5cfd276a54a5baa172cb5ab97ead0da721e",
+    "docs/design/json/cmp-contract.schema.json": "043daeb891ac8522475f63c710bf490d8a3cc04211f60e7451f4a380b66f0810",
+    "docs/design/json/cmp-contracts.json": "41346f013d862109a7c44a27905055e58773ff38887ce4829976e59fbed7c946",
     "docs/design/json/components.json": "dceba8ad2f3f75b896527b045a7af44f2fbf5065cb0f0c5160baba34a4b880cc",
     "docs/design/json/detailed.json": "997a911beb2e97d89b855c0570064d307c993cd8a5e07d84068e50988851a46d",
+    "docs/design/json/du-contract.schema.json": "a9d8e6eedfe50bc593216372cd91c26817945bfa05be301a25e9d855abdc1b55",
     "docs/design/json/itest.json": "33204874253a81d0b82c601b77653456e181800d87a5d6b84b72176706f9546b",
     "docs/design/json/strategy-components.json": "436ed4c2180c8337518109e2bc5651cdb2b89a7d4eaf6cf547ace745e04f6cc8",
     "docs/design/json/strategy-tests.json": "2f4ce95f8ef7abaeee81997e5e4ccbdf89e70b7ca5e25e328d5494e74150f465",
     "docs/design/json/utest.json": "cebcc1a60b11616b99a6999f8722b638ca8e2ad27719923fbbdd389800bfa2d4",
     "docs/requirements/json/ac.json": "2dad8ff8cda6a251040d52f110314e1674545038684a542067454aa61fc9f20b",
-    "docs/requirements/json/ac/ac-contract.schema.json": "d813343b8889b14f713bc0a1f2961b061bd98bb97fa4bb570af1da01a0c20d84",
-    "docs/requirements/json/ac/ac-contracts.json": "dc4609c0733f4ce834e1863b18b07af50bf168953ce19eb64a3e7976be33d85c",
+    "docs/requirements/json/ac/ac-contract.schema.json": "7670ccc014f7dea0c03561a531c6b88eef0c27404102abe243c8a63dfe985fdf",
+    "docs/requirements/json/ac/ac-contracts.json": "3f60e6b59208a50e8e1b8e8b4921745ab6a9a2f18a2ae9e2c207ea593635cc92",
     "docs/requirements/json/br-media/aff.json": "b66eb345b521b95e519a00b6ad5b2eff439776c07398cd1a46d19fd00e9f3412",
     "docs/requirements/json/br-media/canva.json": "90eb5b6fb0b510f2fffff54051388d4c799b388d52a0a2b6a3e147fe331c8796",
     "docs/requirements/json/br-media/dc.json": "25888f36f527f27e8a1eee4cacdb1e8cac9024c6c954571eaca7e7fab733beaf",
@@ -152,9 +155,11 @@
     "docs/requirements/json/strategy/tactical-learning-packet.schema.json": "f6330df70299fa41e9d367ab8624acfe666955c8d487e61c2a3733bcb09dce14",
     "docs/requirements/json/strategy/value-hypothesis.schema.json": "8f503e72a96abdfa2ba5b3d5f7b738fe4bee97757cf629378e0690e8eb162112",
     "docs/requirements/json/verification.json": "d34c3579d0209964090ae9e7b723ba99ca9944fd396060820e3713d455e13c09",
+    "docs/requirements/json/verification/tc-contract.schema.json": "92972c51aa16cafdba4657e3efee17ff18931ba15cad9aed2eae80a3f8c81baf",
+    "docs/requirements/json/verification/tc-contracts.json": "6838c414c466c91e062dffef7050f25af302ec8cd8a6baf1732ea0d57b28298f",
     "pyproject.toml": "e14a32bc5450457200c910351417df7d2c8651aa5a8d3f7c847e4a5364820969",
     "scripts/hooks/pre-git-gate.sh": "c479c573bdb491a57716c47c2cf54cda2a094e7cde8103ac2f6952fbb230e080",
-    "scripts/validate_requirements.py": "ca568f7621b6481fb267474ceb985a7b12417f4860ecf3f075dacb495c3fd9e8",
+    "scripts/validate_requirements.py": "ed2308d419f1638c5308b5e546dc207b925a08ba07ead05d7854a3eccaedd182",
     "uv.lock": "b57a054ee0cba1c418d500563695ee3007e82557bd5f540558f811c5c578836f"
   }
 }

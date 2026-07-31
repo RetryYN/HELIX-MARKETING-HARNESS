@@ -928,6 +928,55 @@ except FileNotFoundError as e:
                 "G-HUMAN-JUDGE", "G-INVARIANT-TRACE"):
         gate(gid, False, f"契約正本が存在しない: {e}")
 
+# G-TRACE-BIDIR: AC ↔ TC 検証契約の双方向接続（全層再降下 §5）
+try:
+    tcc_schema = load(J / "verification" / "tc-contract.schema.json")
+    tcc = load(J / "verification" / "tc-contracts.json")["items"]
+    acc2 = load(J / "ac" / "ac-contracts.json")["items"]
+    t_errs: list[str] = []
+    for it in tcc:
+        t_errs += [f"{it.get('id', '?')}: {e}" for e in schema_check(tcc_schema, it)]
+    acc_ids = {a["id"] for a in acc2}
+    tcc_ids = {t["id"] for t in tcc}
+    dangling_tc = [f"{t['id']}→{a}" for t in tcc for a in t["ac"] if a not in acc_ids]
+    tcc_by_ac: dict[str, set] = {}
+    for t in tcc:
+        for a in t["ac"]:
+            tcc_by_ac.setdefault(a, set()).add(t["id"])
+    ac_no_tc = [a["id"] for a in acc2 if not a["tc"]]
+    bidir_bad = []
+    for a in acc2:
+        listed_tcc = {r for r in a["tc"] if r.startswith("TCC-")}
+        actual = tcc_by_ac.get(a["id"], set())
+        if listed_tcc != actual:
+            bidir_bad.append(f"{a['id']}:{sorted(listed_tcc ^ actual)}")
+    dangling_ref = [f"{a['id']}→{r}" for a in acc2 for r in a["tc"]
+                    if r.startswith("TCC-") and r not in tcc_ids]
+    gate("G-TRACE-BIDIR", not t_errs and not dangling_tc and not ac_no_tc and not bidir_bad and not dangling_ref,
+         f"AC↔TC 双方向接続 (schema={t_errs[:3]}, TC→AC欠={dangling_tc[:3]}, "
+         f"AC無TC={ac_no_tc[:3]}, 非対称={bidir_bad[:3]}, AC→TC欠={dangling_ref[:3]})")
+except FileNotFoundError as e:
+    gate("G-TRACE-BIDIR", False, f"TC 契約正本が存在しない: {e}")
+
+# G-CMP-INTERFACE: CMP/SCM の 11 観点設計契約＋独立設計書の実在（全層再降下 §6）
+try:
+    cmpc_schema = load(D / "cmp-contract.schema.json")
+    cmpc = load(D / "cmp-contracts.json")["items"]
+    m_errs: list[str] = []
+    for it in cmpc:
+        m_errs += [f"{it.get('id', '?')}: {e}" for e in schema_check(cmpc_schema, it)]
+    cmp_ids = {i["id"] for i in load(D / "components.json")["items"]}
+    scm_ids = {i["id"] for i in load(D / "strategy-components.json")["items"]}
+    cmpc_ids = {i["id"] for i in cmpc}
+    missing_dd = sorted({dd for it in cmpc for dd in it["trace"].get("design_doc", [])
+                         if not (ROOT / "docs" / "design" / dd).exists()})
+    gate("G-CMP-INTERFACE",
+         not m_errs and cmpc_ids == (cmp_ids | scm_ids) and not missing_dd,
+         f"CMP/SCM 設計契約: schema 適合＋23 件完全被覆＋独立設計書実在 "
+         f"(err={m_errs[:3]}, 差={sorted(cmpc_ids ^ (cmp_ids | scm_ids))}, 設計書欠={missing_dd})")
+except FileNotFoundError as e:
+    gate("G-CMP-INTERFACE", False, f"CMP 設計契約が存在しない: {e}")
+
 # G-COUNT-SYNC: 手書きのゲート件数表記が実数と一致（意味整合レビュー対応 — 散在数値のドリフト検出）
 count_files = [ROOT / "README.md", ROOT / "CLAUDE.md", ROOT / "AGENTS.md",
                ROOT / "docs/governance/requirements-gates.md"] + \

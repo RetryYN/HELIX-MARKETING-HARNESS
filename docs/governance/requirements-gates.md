@@ -53,6 +53,8 @@
 | G-AC-POLARITY | S0 の各 FR/SR が正常／拒否／境界復旧の 3 極性を AC または理由付き N/A（ac_na）で被覆（AC と N/A の重複宣言は矛盾として拒否） | 正常系だけの受入（拒否・境界の空白 — 全層再降下 §4） |
 | G-HUMAN-JUDGE | 全 FR/SR 契約に人間判断点の明示（「なし（全自動）」宣言 or 主体特定 — PO/人間/運用者/承認） | 人間判断点の暗黙化（HELIX 人間判断点列必須 相当） |
 | G-INVARIANT-TRACE | S0 の各 FR/SR（reject N/A を除く）に、具体エラー型つきの拒否系 AC が ≥1 — 不変条件が負方向に検証される | 破られても検出されない不変条件（全層再降下 §3/§9） |
+| G-TRACE-BIDIR | TC 検証契約（tc-contracts.json）が schema 適合（状態・DB 差分・証跡・禁止副作用・外部呼出回数を検証、kill/conflict/resume 種別を含む）で、全 AC と TC が双方向に接続（AC 無 TC・宙吊り参照・非対称参照 = 0） | 検証の届かない AC・「行が存在する」だけの TC（全層再降下 §5） |
+| G-CMP-INTERFACE | 全 CMP（13）／SCM（10）に 11 観点の設計契約（cmp-contracts.json — 提供/要求 interface・責務境界・依存方向・データフロー・状態/tx 所有者・エラー分類・degradation・セキュリティ境界・人間判断点）が schema 適合で存在し、参照する独立設計書がディスク上に実在 | interface なきコンポーネント・宙に浮いた独立設計書参照（全層再降下 §6） |
 | G-WIRING | スクリプトの全ゲート ID が本台帳に掲載され、CI がスクリプトを呼ぶ | ルールの配線漏れ・死蔵（HELIX lint-wiring 相当） |
 
 ## 運用

@@ -17,7 +17,9 @@
       "forbidden_side_effects": "他 loop_run の状態変更・operation_log への追加（状態遷移の記録に operation_log は使わない — §3）",
       "error_type": "なし",
       "target_update": "S0.1（CMP-01 kernel/state.py）／loop_runs start 遷移",
-      "tc": []
+      "tc": [
+        "TCC-11-1"
+      ]
     },
     {
       "id": "AC-11-2",
@@ -34,7 +36,9 @@
       "forbidden_side_effects": "loop_runs の状態・retry_count の変更、遷移の部分適用",
       "error_type": "TransitionRejected",
       "target_update": "S0.1（CMP-01）／未定義遷移の fail-close",
-      "tc": []
+      "tc": [
+        "TCC-11-2"
+      ]
     },
     {
       "id": "AC-11-3",
@@ -51,7 +55,11 @@
       "forbidden_side_effects": "終端からの状態変更・state_transitions の部分行（ログだけ残る／状態だけ変わる）",
       "error_type": "TransitionRejected",
       "target_update": "S0.1（CMP-01）／終端保護と §3.3 再開規則",
-      "tc": []
+      "tc": [
+        "TCC-11-3",
+        "TCC-CONFLICT-1",
+        "TCC-KILL-1"
+      ]
     },
     {
       "id": "AC-12-1",
@@ -68,7 +76,9 @@
       "forbidden_side_effects": "author_agent_id == verifier_agent_id の行・同一 (loop_run_id, step_key, attempt) の重複行の生成",
       "error_type": "なし",
       "target_update": "S0.1（CMP-02 kernel/orchestrator.py・assigner.py）／タスク発行",
-      "tc": []
+      "tc": [
+        "TCC-12-1"
+      ]
     },
     {
       "id": "AC-12-2",
@@ -85,7 +95,9 @@
       "forbidden_side_effects": "tasks への T-PUB 行 INSERT・WP コネクタの呼出し",
       "error_type": "TaskIssuanceRejected",
       "target_update": "S0.1（CMP-02）＋S0.2 の公開系回帰／T-R2 ガード",
-      "tc": []
+      "tc": [
+        "TCC-12-2"
+      ]
     },
     {
       "id": "AC-12-3",
@@ -102,7 +114,9 @@
       "forbidden_side_effects": "tasks への 2 行目 INSERT・attempt の暗黙増加・UNIQUE 制約例外の呼出し側への素通し",
       "error_type": "なし",
       "target_update": "S0.1（CMP-02）／発行の冪等性・クラッシュ再開",
-      "tc": []
+      "tc": [
+        "TCC-12-3"
+      ]
     },
     {
       "id": "AC-13-1",
@@ -119,7 +133,9 @@
       "forbidden_side_effects": "retry_count の変化・author 自身の principal による PASS 判定",
       "error_type": "なし",
       "target_update": "S0.1（CMP-02 マイクロループ＋CMP-01 状態機械）／verify_pass",
-      "tc": []
+      "tc": [
+        "TCC-13-1"
+      ]
     },
     {
       "id": "AC-13-2",
@@ -136,7 +152,9 @@
       "forbidden_side_effects": "in_progress への差戻し・retry_count の増加",
       "error_type": "TransitionRejected",
       "target_update": "S0.1（CMP-02＋CMP-01）／verify_fail ガード",
-      "tc": []
+      "tc": [
+        "TCC-13-2"
+      ]
     },
     {
       "id": "AC-13-3",
@@ -153,7 +171,9 @@
       "forbidden_side_effects": "in_progress への 4 回目の差戻し・retry_count の 2 加算・failed への誤分類",
       "error_type": "なし",
       "target_update": "S0.1（CMP-02）／retry_limit 境界（AC-13 の正本条件）",
-      "tc": []
+      "tc": [
+        "TCC-13-3"
+      ]
     },
     {
       "id": "AC-14-1",
@@ -170,7 +190,9 @@
       "forbidden_side_effects": "X sprint 行の変更・他媒体待ち合わせによる開始保留（同期強制）",
       "error_type": "なし",
       "target_update": "S1（FN-106 スプリント制御）／開始条件と媒体独立性",
-      "tc": []
+      "tc": [
+        "TCC-14-1"
+      ]
     },
     {
       "id": "AC-14-2",
@@ -187,7 +209,9 @@
       "forbidden_side_effects": "sprint の active 化・下位 loop_run の running 化・タスク発行",
       "error_type": "SprintStartRejected（下位 run 側は TransitionRejected）",
       "target_update": "S1（FN-106）＋S0.1 start ガードの回帰／LP-R2",
-      "tc": []
+      "tc": [
+        "TCC-14-2"
+      ]
     },
     {
       "id": "AC-14-3",
@@ -204,7 +228,9 @@
       "forbidden_side_effects": "reviewing 移行後の A への新規タスク発行・B の状態不定",
       "error_type": "なし",
       "target_update": "S1（FN-106）／期限境界と再開（無状態判定の再実行）",
-      "tc": []
+      "tc": [
+        "TCC-14-3"
+      ]
     },
     {
       "id": "AC-15-1",
@@ -221,7 +247,9 @@
       "forbidden_side_effects": "strategic_briefs への書込み（下流からの上流正本直接変更 — SR-07 違反）",
       "error_type": "なし",
       "target_update": "S1（FN-107 還流処理）／レビュー成立→learnings 生成",
-      "tc": []
+      "tc": [
+        "TCC-15-1"
+      ]
     },
     {
       "id": "AC-15-2",
@@ -238,7 +266,9 @@
       "forbidden_side_effects": "learnings INSERT・上位キューへの登録・strategic_briefs への書込み",
       "error_type": "PairNotEstablished",
       "target_update": "S1（FN-107)／片肺禁止ガード",
-      "tc": []
+      "tc": [
+        "TCC-15-2"
+      ]
     },
     {
       "id": "AC-15-3",
@@ -255,7 +285,9 @@
       "forbidden_side_effects": "同一 source_pair_id の 2 行目 INSERT・summary/learning_json の上書き",
       "error_type": "なし",
       "target_update": "S1（FN-107）／還流の冪等性・クラッシュ再開",
-      "tc": []
+      "tc": [
+        "TCC-15-3"
+      ]
     },
     {
       "id": "AC-16-1",
@@ -272,7 +304,9 @@
       "forbidden_side_effects": "通知 transport 失敗による遷移の巻き戻し・failed への誤分類・破損 playbook での外部操作継続",
       "error_type": "なし",
       "target_update": "S0.1（CMP-01 状態機械）＋S0.2（CMP-11 通知）／escalate・fatal_failure",
-      "tc": []
+      "tc": [
+        "TCC-16-1"
+      ]
     },
     {
       "id": "AC-16-2",
@@ -289,7 +323,9 @@
       "forbidden_side_effects": "A の状態変更・B の escalated への遷移（rejected の escalate 誤分類）・公開の実行",
       "error_type": "TransitionRejected（A 側。B 側は例外なしの failed 遷移）",
       "target_update": "S0.1（CMP-01）＋S0.2 承認分類の回帰／終端保護と正準分類",
-      "tc": []
+      "tc": [
+        "TCC-16-2"
+      ]
     },
     {
       "id": "AC-16-3",
@@ -306,7 +342,9 @@
       "forbidden_side_effects": "1 回目 expired での即時 escalate・expired の failed への誤分類（rejected と混同）・承認なしの公開実行",
       "error_type": "なし",
       "target_update": "S0.2（CMP-11 承認通知＋CMP-01）／approval_retry_limit 境界",
-      "tc": []
+      "tc": [
+        "TCC-16-3"
+      ]
     },
     {
       "id": "AC-21-1",
@@ -323,7 +361,9 @@
       "forbidden_side_effects": "pair 行の変更・operation_log への拒否行追加",
       "error_type": "なし",
       "target_update": "S0.2（ゲート層）／pair_plan.check_established・公開前検証",
-      "tc": []
+      "tc": [
+        "TCC-21-1"
+      ]
     },
     {
       "id": "AC-21-2",
@@ -340,7 +380,9 @@
       "forbidden_side_effects": "WP API 呼出し（external_operations への行追加）・pair_plan_quality への行追加",
       "error_type": "PairNotEstablished",
       "target_update": "S0.2（ゲート層）／公開ゲート FN-202",
-      "tc": []
+      "tc": [
+        "TCC-21-2"
+      ]
     },
     {
       "id": "AC-21-3",
@@ -357,7 +399,9 @@
       "forbidden_side_effects": "revoked 行の passed への書き戻し・revoked ペアでの外部書込み",
       "error_type": "PairNotEstablished（1 回目）／なし（2 回目）",
       "target_update": "S0.2（ゲート層）／pair 失効と再成立",
-      "tc": []
+      "tc": [
+        "TCC-21-3"
+      ]
     },
     {
       "id": "AC-22-1",
@@ -374,7 +418,9 @@
       "forbidden_side_effects": "measurement のない状態でのレビュー成立・上位還流",
       "error_type": "なし",
       "target_update": "S1（ゲート層）／pair_kpi.check_established・レビュー成立イベント",
-      "tc": []
+      "tc": [
+        "TCC-22-1"
+      ]
     },
     {
       "id": "AC-22-2",
@@ -391,7 +437,9 @@
       "forbidden_side_effects": "レビュー成立イベント発火・learnings への行追加・上位ループへの還流",
       "error_type": "ReviewNotEstablished",
       "target_update": "S1（ゲート層）／pair_kpi 片肺検出",
-      "tc": []
+      "tc": [
+        "TCC-22-2"
+      ]
     },
     {
       "id": "AC-22-3",
@@ -408,7 +456,9 @@
       "forbidden_side_effects": "空目標での成立（fail-open）・1 回目でのレビュー成立イベント発火",
       "error_type": "ReviewNotEstablished（1 回目）／なし（2 回目）",
       "target_update": "S1（ゲート層）／目標空の判定不能処理と後着計測での再判定",
-      "tc": []
+      "tc": [
+        "TCC-22-3"
+      ]
     },
     {
       "id": "AC-23-1",
@@ -425,7 +475,9 @@
       "forbidden_side_effects": "operation_log への拒否行の追加",
       "error_type": "なし",
       "target_update": "S0.2（ゲート層）／zero_ad.check_metric・check_url",
-      "tc": []
+      "tc": [
+        "TCC-23-1"
+      ]
     },
     {
       "id": "AC-23-2",
@@ -442,7 +494,9 @@
       "forbidden_side_effects": "kpi_nodes への行追加・外部への実遷移",
       "error_type": "PaidMetricRejected／UrlDenied",
       "target_update": "S0.2（ゲート層）",
-      "tc": []
+      "tc": [
+        "TCC-23-2"
+      ]
     },
     {
       "id": "AC-23-3",
@@ -459,7 +513,9 @@
       "forbidden_side_effects": "URL 許可（fail-open）",
       "error_type": "UrlDenied",
       "target_update": "S0.2（ゲート層）",
-      "tc": []
+      "tc": [
+        "TCC-23-3"
+      ]
     },
     {
       "id": "AC-24-1",
@@ -476,7 +532,9 @@
       "forbidden_side_effects": "operation_log への拒否行追加・表記なしでの通過",
       "error_type": "なし",
       "target_update": "S1（ゲート層）／pr_label.check",
-      "tc": []
+      "tc": [
+        "TCC-24-1"
+      ]
     },
     {
       "id": "AC-24-2",
@@ -493,7 +551,9 @@
       "forbidden_side_effects": "WP API 呼出し・表記なし成果物の公開ゲート通過",
       "error_type": "PrLabelMissing",
       "target_update": "S1（ゲート層）／pr_label.check",
-      "tc": []
+      "tc": [
+        "TCC-24-2"
+      ]
     },
     {
       "id": "AC-24-3",
@@ -510,7 +570,9 @@
       "forbidden_side_effects": "リスト未設定での通過（fail-open）・展開前 URL のみでの非該当判定",
       "error_type": "PrLabelMissing（判定不能時も拒否種別を統一）",
       "target_update": "S1（ゲート層）／domainlist 未設定の fail-close とリダイレクト展開判定",
-      "tc": []
+      "tc": [
+        "TCC-24-3"
+      ]
     },
     {
       "id": "AC-25-1",
@@ -527,7 +589,9 @@
       "forbidden_side_effects": "P5 チェックを省略した PASS（checked_items 欠落）の記録",
       "error_type": "なし",
       "target_update": "S1（審査 WF）／ethics.check（S0 は fail-close ルールセット）",
-      "tc": []
+      "tc": [
+        "TCC-25-1"
+      ]
     },
     {
       "id": "AC-25-2",
@@ -544,7 +608,9 @@
       "forbidden_side_effects": "review_pass 証跡の生成・done への遷移・pair_plan_quality の成立",
       "error_type": "EthicsViolation（verify_fail 分類）",
       "target_update": "S1（審査 WF）／ethics.check FAIL 経路",
-      "tc": []
+      "tc": [
+        "TCC-25-2"
+      ]
     },
     {
       "id": "AC-25-3",
@@ -561,7 +627,9 @@
       "forbidden_side_effects": "escalated 後の自動遷移・上限超過後の verify_fail 継続（in_progress への差戻し）",
       "error_type": "EthicsViolation（verify_fail_exhausted 分類）",
       "target_update": "S1（審査 WF）／retry 上限と escalation 境界",
-      "tc": []
+      "tc": [
+        "TCC-25-3"
+      ]
     },
     {
       "id": "AC-26-1",
@@ -578,7 +646,9 @@
       "forbidden_side_effects": "承認要求前・approved 確認前の外部書込み（オートモードによるバイパス）",
       "error_type": "なし",
       "target_update": "S1（ゲート層＋承認チャネル）／money_escalation.require_approval",
-      "tc": []
+      "tc": [
+        "TCC-26-1"
+      ]
     },
     {
       "id": "AC-26-2",
@@ -595,7 +665,9 @@
       "forbidden_side_effects": "外部書込みの実行・escalated への遷移（rejected は escalate に含まない — s0-contract §3.2）",
       "error_type": "ApprovalRejected（non_retryable_failure 分類）",
       "target_update": "S1（ゲート層＋承認チャネル）／rejected の failed 化",
-      "tc": []
+      "tc": [
+        "TCC-26-2"
+      ]
     },
     {
       "id": "AC-26-3",
@@ -612,7 +684,9 @@
       "forbidden_side_effects": "expired での即 failed 化・上限到達後の再要求継続・未承認での外部書込み",
       "error_type": "ApprovalExpired（escalate 分類 — 上限到達時）",
       "target_update": "S1（ゲート層＋承認チャネル）／expired 再要求と approval_retry_limit",
-      "tc": []
+      "tc": [
+        "TCC-26-3"
+      ]
     },
     {
       "id": "AC-27-1",
@@ -629,7 +703,9 @@
       "forbidden_side_effects": "verifier execution による lease 取得",
       "error_type": "なし",
       "target_update": "S0.1（kernel＋DB 基盤）／assigner.assign・kernel.claim",
-      "tc": []
+      "tc": [
+        "TCC-27-1"
+      ]
     },
     {
       "id": "AC-27-2",
@@ -646,7 +722,9 @@
       "forbidden_side_effects": "同一 agent／同一 principal での in_progress 遷移・lease 取得",
       "error_type": "IntegrityError（DB 層）／SelfReviewRejected（エンジン層）",
       "target_update": "S0.1（kernel＋DB 基盤）／CHECK 制約と claim ガードの二重拒否",
-      "tc": []
+      "tc": [
+        "TCC-27-2"
+      ]
     },
     {
       "id": "AC-27-3",
@@ -663,7 +741,9 @@
       "forbidden_side_effects": "verifier execution への lease 移譲・row_version を経ない lease 上書き",
       "error_type": "SelfReviewRejected（verifier execution の再 claim）",
       "target_update": "S0.1（kernel）／lease 失効後の再 claim ガード（s0-contract §1・§3.3）",
-      "tc": []
+      "tc": [
+        "TCC-27-3"
+      ]
     },
     {
       "id": "AC-28-1",
@@ -680,7 +760,9 @@
       "forbidden_side_effects": "証跡未検証での done 化・evidence 行の変更（append-only）",
       "error_type": "なし",
       "target_update": "S0.1（ゲート層＋証跡ストア）／evidence_complete.check",
-      "tc": []
+      "tc": [
+        "TCC-28-1"
+      ]
     },
     {
       "id": "AC-28-2",
@@ -697,7 +779,9 @@
       "forbidden_side_effects": "done への遷移・retry_count の変更・既存 evidence の変更",
       "error_type": "EvidenceIncomplete",
       "target_update": "S0.1（ゲート層）／done 遷移ガードの証跡完備検証",
-      "tc": []
+      "tc": [
+        "TCC-28-2"
+      ]
     },
     {
       "id": "AC-28-3",
@@ -714,7 +798,9 @@
       "forbidden_side_effects": "未定義 kind の素通し（fail-open）・既存 workflow 行の required_evidence_json の書換え（rename/意味変更禁止 — 新 version で対応）",
       "error_type": "EvidenceIncomplete（判定不能時も拒否種別を統一）",
       "target_update": "S0.1（ゲート層）／宣言不正の fail-close と証跡追記による復旧",
-      "tc": []
+      "tc": [
+        "TCC-28-3"
+      ]
     },
     {
       "id": "AC-31-1",
@@ -731,7 +817,9 @@
       "forbidden_side_effects": "未照会スロットへの値の書込み（推測充填）・他プロファイル行の変更",
       "error_type": "なし",
       "target_update": "S1（ヒアリングエンジン）／fillers.detect_gaps・fill_from_answer",
-      "tc": []
+      "tc": [
+        "TCC-31-1"
+      ]
     },
     {
       "id": "AC-31-2",
@@ -748,7 +836,9 @@
       "forbidden_side_effects": "タスクの in_progress 遷移・スロットへの推測値の自動充填",
       "error_type": "SlotUnfilledRejected",
       "target_update": "S1（ヒアリングエンジン）／開始前提ガード",
-      "tc": []
+      "tc": [
+        "TCC-31-2"
+      ]
     },
     {
       "id": "AC-31-3",
@@ -765,7 +855,9 @@
       "forbidden_side_effects": "充填済みスロットの再照会・充填済み値の消去や上書き",
       "error_type": "なし",
       "target_update": "S1（ヒアリングエンジン）／空き検出の再開性",
-      "tc": []
+      "tc": [
+        "TCC-31-3"
+      ]
     },
     {
       "id": "AC-32-1",
@@ -782,7 +874,9 @@
       "forbidden_side_effects": "draft の正本への自動昇格・外部への書込み",
       "error_type": "なし",
       "target_update": "S1（リサーチエンジン）／fillers.draft_research",
-      "tc": []
+      "tc": [
+        "TCC-32-1"
+      ]
     },
     {
       "id": "AC-32-2",
@@ -799,7 +893,9 @@
       "forbidden_side_effects": "出典なし値の draft・正本への混入",
       "error_type": "UnsourcedValueRejected",
       "target_update": "S1（リサーチエンジン）／fillers.validate_source",
-      "tc": []
+      "tc": [
+        "TCC-32-2"
+      ]
     },
     {
       "id": "AC-32-3",
@@ -816,7 +912,9 @@
       "forbidden_side_effects": "空値・鮮度切れ値による draft の充填（fail-open）",
       "error_type": "StaleSourceRejected",
       "target_update": "S1（リサーチエンジン）／鮮度境界判定",
-      "tc": []
+      "tc": [
+        "TCC-32-3"
+      ]
     },
     {
       "id": "AC-33-1",
@@ -833,7 +931,9 @@
       "forbidden_side_effects": "既存 config 行の UPDATE/DELETE",
       "error_type": "なし",
       "target_update": "S0.1（config 管理）／config.set・config.get",
-      "tc": []
+      "tc": [
+        "TCC-33-1"
+      ]
     },
     {
       "id": "AC-33-2",
@@ -850,7 +950,9 @@
       "forbidden_side_effects": "config 行の値変更・reason なし行の混入",
       "error_type": "ConfigAppendOnlyViolation／ConfigReasonMissing",
       "target_update": "S0.1（config 管理）／append-only トリガ＋事前検証",
-      "tc": []
+      "tc": [
+        "TCC-33-2"
+      ]
     },
     {
       "id": "AC-33-3",
@@ -867,7 +969,9 @@
       "forbidden_side_effects": "未定義 key への暗黙値（0・None 等）の返却",
       "error_type": "ConfigKeyUnresolved（unknown_key 側のみ）",
       "target_update": "S0.1（config 管理）／既定値フォールバック",
-      "tc": []
+      "tc": [
+        "TCC-33-3"
+      ]
     },
     {
       "id": "AC-34-1",
@@ -884,7 +988,9 @@
       "forbidden_side_effects": "A の行・A 所属データの変更・コードやワークフロー定義の修正の必要",
       "error_type": "なし",
       "target_update": "S1（プロファイル管理）／profiles.register・ストア層スコープ解決",
-      "tc": []
+      "tc": [
+        "TCC-34-1"
+      ]
     },
     {
       "id": "AC-34-2",
@@ -901,7 +1007,9 @@
       "forbidden_side_effects": "他プロファイル行の返却・変更（越境参照・越境書込み）",
       "error_type": "CrossProfileAccessDenied",
       "target_update": "S1（プロファイル管理）／ストア層スコープ強制（BR-I1）",
-      "tc": []
+      "tc": [
+        "TCC-34-2"
+      ]
     },
     {
       "id": "AC-34-3",
@@ -918,7 +1026,9 @@
       "forbidden_side_effects": "archived プロファイルへの新規業務行の追加・既存行の上書き登録",
       "error_type": "ProfileKeyConflict（重複側）／ArchivedProfileWriteDenied（書込み側）",
       "target_update": "S1（プロファイル管理）／status 境界・UNIQUE 制約",
-      "tc": []
+      "tc": [
+        "TCC-34-3"
+      ]
     },
     {
       "id": "AC-41-1",
@@ -935,7 +1045,9 @@
       "forbidden_side_effects": "コード側分岐による経路決定・operation_log への拒否行追加・外部 HTTP 呼出（0 回）",
       "error_type": "なし",
       "target_update": "S0.2（CMP-07 接続レジストリ）／registry.resolve_route",
-      "tc": []
+      "tc": [
+        "TCC-41-1"
+      ]
     },
     {
       "id": "AC-41-2",
@@ -952,7 +1064,9 @@
       "forbidden_side_effects": "有償 API への接続試行（外部 HTTP 呼出 0 回）・spend_ledger への行追加",
       "error_type": "RouteNotRegistered／PaidRouteDenied",
       "target_update": "S0.2（CMP-07 接続レジストリ）",
-      "tc": []
+      "tc": [
+        "TCC-41-2"
+      ]
     },
     {
       "id": "AC-41-3",
@@ -969,7 +1083,9 @@
       "forbidden_side_effects": "破損行からの部分的な経路返却（fail-open）・外部 HTTP 呼出（0 回）",
       "error_type": "RouteNotRegistered",
       "target_update": "S0.2（CMP-07 接続レジストリ）",
-      "tc": []
+      "tc": [
+        "TCC-41-3"
+      ]
     },
     {
       "id": "AC-42-1",
@@ -986,7 +1102,9 @@
       "forbidden_side_effects": "固定間隔での連続送信（3 間隔が全一致）・範囲外（1 秒未満/5 秒超）の間隔・idempotency key の重複",
       "error_type": "なし",
       "target_update": "S1（CMP-08 ブラウザ基盤）／browser.execute_playbook",
-      "tc": []
+      "tc": [
+        "TCC-42-1"
+      ]
     },
     {
       "id": "AC-42-2",
@@ -1003,7 +1121,9 @@
       "forbidden_side_effects": "外部サイトへのブラウザ書込み送信（0 回）・playbooks.last_success_at の更新",
       "error_type": "ProhibitedMediaWrite／RateLimitExceeded",
       "target_update": "S1（CMP-08 ブラウザ基盤）",
-      "tc": []
+      "tc": [
+        "TCC-42-2"
+      ]
     },
     {
       "id": "AC-42-3",
@@ -1020,7 +1140,10 @@
       "forbidden_side_effects": "同一 idempotency key の再送（mock 受信カウンタ増加 0）・unknown の confirmed 化",
       "error_type": "なし（k2 側は escalate 遷移 — OperationUnverifiable 記録）",
       "target_update": "S1（CMP-08）／recovery.reconcile_sent",
-      "tc": []
+      "tc": [
+        "TCC-42-3",
+        "TCC-RESUME-1"
+      ]
     },
     {
       "id": "AC-43-1",
@@ -1037,7 +1160,9 @@
       "forbidden_side_effects": "再解析中の外部サイトへの書込み（mock 書込み受信 0 回）・2 回目の再生成試行",
       "error_type": "なし",
       "target_update": "S2（地図自己修復 FN-405）／playbook.self_heal",
-      "tc": []
+      "tc": [
+        "TCC-43-1"
+      ]
     },
     {
       "id": "AC-43-2",
@@ -1054,7 +1179,9 @@
       "forbidden_side_effects": "2 回目以降の自動再生成試行・broken 地図での書込み操作続行・地図の推測書換え",
       "error_type": "PlaybookRepairFailed（escalate 事由として記録）",
       "target_update": "S2（地図自己修復 FN-405）",
-      "tc": []
+      "tc": [
+        "TCC-43-2"
+      ]
     },
     {
       "id": "AC-43-3",
@@ -1071,7 +1198,9 @@
       "forbidden_side_effects": "中間状態の地図（部分更新）での操作再開・retired 行の自動復活・外部書込み",
       "error_type": "PlaybookRepairFailed（retired 側）",
       "target_update": "S2（地図自己修復 FN-405）／recovery 経路",
-      "tc": []
+      "tc": [
+        "TCC-43-3"
+      ]
     },
     {
       "id": "AC-44-1",
@@ -1088,7 +1217,9 @@
       "forbidden_side_effects": "下書きと公開の idempotency key 共有・Docker 以外の endpoint への送信・credential の平文ログ出力",
       "error_type": "なし",
       "target_update": "S0.2（CMP-10 WP REST コネクタ）／WF-WP-2 手順 2・4",
-      "tc": []
+      "tc": [
+        "TCC-44-1"
+      ]
     },
     {
       "id": "AC-44-2",
@@ -1105,7 +1236,9 @@
       "forbidden_side_effects": "外部 HTTP 呼出（受信カウンタ 0 のまま）・本番 WP への一切の書込み",
       "error_type": "PairRequired／ProductionWriteDenied",
       "target_update": "S0.2（CMP-10 WP REST コネクタ）",
-      "tc": []
+      "tc": [
+        "TCC-44-2"
+      ]
     },
     {
       "id": "AC-44-3",
@@ -1122,7 +1255,9 @@
       "forbidden_side_effects": "公開 API の再送（mock 受信回数増加 0）・external_operations の重複行・二重公開",
       "error_type": "なし",
       "target_update": "S0.2（CMP-10）／recovery.reconcile_sent（WF-WP-2 手順 4）",
-      "tc": []
+      "tc": [
+        "TCC-44-3"
+      ]
     },
     {
       "id": "AC-45-1",
@@ -1139,7 +1274,9 @@
       "forbidden_side_effects": "2,000 字超の単一ブロック送信・3 req/秒超過・ループ判定への Notion 値の混入",
       "error_type": "なし",
       "target_update": "S1（Notion 同期 FN-408）／notion.sync_read・sync_writeback",
-      "tc": []
+      "tc": [
+        "TCC-45-1"
+      ]
     },
     {
       "id": "AC-45-2",
@@ -1156,7 +1293,9 @@
       "forbidden_side_effects": "ループ本体の停止・待機（Notion 障害の波及）・障害中の書戻し再送連打",
       "error_type": "NotionUnavailable",
       "target_update": "S1（Notion 同期 FN-408）",
-      "tc": []
+      "tc": [
+        "TCC-45-2"
+      ]
     },
     {
       "id": "AC-45-3",
@@ -1173,7 +1312,9 @@
       "forbidden_side_effects": "境界更新の取りこぼし・draft の重複行・書戻しの再送（mock 受信増加 0）",
       "error_type": "なし",
       "target_update": "S1（Notion 同期 FN-408）／cursor・recovery 経路",
-      "tc": []
+      "tc": [
+        "TCC-45-3"
+      ]
     },
     {
       "id": "AC-46-1",
@@ -1190,7 +1331,9 @@
       "forbidden_side_effects": "応答受領前の公開実行・approvals 行の書換えによる decision 変更",
       "error_type": "なし",
       "target_update": "S0.2（CMP-11 承認通知）／WF-WP-2 手順 3",
-      "tc": []
+      "tc": [
+        "TCC-46-1"
+      ]
     },
     {
       "id": "AC-46-2",
@@ -1207,7 +1350,9 @@
       "forbidden_side_effects": "不一致のままの公開（外部書込み 0 回）・rejected タスクの自動リトライ・escalated への迂回",
       "error_type": "ApprovalBindingMismatch／NonRetryableFailure",
       "target_update": "S0.2（CMP-11 承認通知）",
-      "tc": []
+      "tc": [
+        "TCC-46-2"
+      ]
     },
     {
       "id": "AC-46-3",
@@ -1224,7 +1369,9 @@
       "forbidden_side_effects": "上限超過後の再要求継続（無限待機）・同一 binding の重複 approvals 行・expired の failed 化（rejected と混同）",
       "error_type": "ApprovalRetryExhausted（escalate 事由として記録）",
       "target_update": "S0.2（CMP-11 承認通知）／expired 再要求経路",
-      "tc": []
+      "tc": [
+        "TCC-46-3"
+      ]
     },
     {
       "id": "AC-47-1",
@@ -1241,7 +1388,9 @@
       "forbidden_side_effects": "SQLite・repo・ログ・evidence への平文 credential 書込み（検索ヒット 1 件でも fail）",
       "error_type": "なし",
       "target_update": "S0.2（CMP-07 秘匿ストア）／secrets.get・masking 層",
-      "tc": []
+      "tc": [
+        "TCC-47-1"
+      ]
     },
     {
       "id": "AC-47-2",
@@ -1258,7 +1407,9 @@
       "forbidden_side_effects": "平文のままのログ永続化・秘匿値なしでの外部接続試行（外部 HTTP 呼出 0 回）",
       "error_type": "SecretUnavailable／CredentialLeakDetected",
       "target_update": "S0.2（CMP-07 秘匿ストア）",
-      "tc": []
+      "tc": [
+        "TCC-47-2"
+      ]
     },
     {
       "id": "AC-47-3",
@@ -1275,7 +1426,9 @@
       "forbidden_side_effects": "期限切れセッションでの外部送信・テスト credential の本番 endpoint 使用（fail-open）・再投入値の SQLite 保存",
       "error_type": "SecretUnavailable（期限切れ）／CredentialEndpointMismatch",
       "target_update": "S0.2（CMP-07 秘匿ストア）／再投入・再開経路",
-      "tc": []
+      "tc": [
+        "TCC-47-3"
+      ]
     },
     {
       "id": "AC-51-1",
@@ -1292,7 +1445,9 @@
       "forbidden_side_effects": "2 回目実行での assets/evidence の行増加・出力 hash の変動・本番 WP への書込み",
       "error_type": "なし",
       "target_update": "S0.2（制作層）／content/renderer.render",
-      "tc": []
+      "tc": [
+        "TCC-51-1"
+      ]
     },
     {
       "id": "AC-51-2",
@@ -1309,7 +1464,9 @@
       "forbidden_side_effects": "assets/evidence への行追加・WP（モック含む）への書込み呼出",
       "error_type": "UnversionedSourceRejected／WpTargetDenied",
       "target_update": "S0.2（制作層）／content/renderer 入口検査",
-      "tc": []
+      "tc": [
+        "TCC-51-2"
+      ]
     },
     {
       "id": "AC-51-3",
@@ -1326,7 +1483,9 @@
       "forbidden_side_effects": "同一実体の二重アップロード・assets の重複行",
       "error_type": "なし",
       "target_update": "S0.2（制作層）／renderer の再開経路",
-      "tc": []
+      "tc": [
+        "TCC-51-3"
+      ]
     },
     {
       "id": "AC-52-1",
@@ -1343,7 +1502,9 @@
       "forbidden_side_effects": "トークン外の恣意的スタイル値の混入・キャッシュの破壊的更新（temp→rename 以外）",
       "error_type": "なし",
       "target_update": "S1（制作層）／content/design_tokens.fetch_and_inject",
-      "tc": []
+      "tc": [
+        "TCC-52-1"
+      ]
     },
     {
       "id": "AC-52-2",
@@ -1360,7 +1521,9 @@
       "forbidden_side_effects": "トークン未適用出力の生成・assets/evidence への登録",
       "error_type": "DesignTokenUnavailable",
       "target_update": "S1（制作層）／design_tokens の fail-close 経路",
-      "tc": []
+      "tc": [
+        "TCC-52-2"
+      ]
     },
     {
       "id": "AC-52-3",
@@ -1377,7 +1540,9 @@
       "forbidden_side_effects": "破損キャッシュの使用（hash 不一致時の続行）・再試行回数の超過呼出",
       "error_type": "なし",
       "target_update": "S1（制作層）／design_tokens のキャッシュフォールバック",
-      "tc": []
+      "tc": [
+        "TCC-52-3"
+      ]
     },
     {
       "id": "AC-53-1",
@@ -1394,7 +1559,9 @@
       "forbidden_side_effects": "localhost 以外への TTS 送信・2 回目実行での行増加・SQLite への mp3 実体格納",
       "error_type": "なし",
       "target_update": "S3+（制作層）／content/pipelines.voice",
-      "tc": []
+      "tc": [
+        "TCC-53-1"
+      ]
     },
     {
       "id": "AC-53-2",
@@ -1411,7 +1578,9 @@
       "forbidden_side_effects": "部分出力（中間 mp4）の assets 登録・WP アップロード",
       "error_type": "UnversionedSourceRejected／PipelineExecutionFailed",
       "target_update": "S3+（制作層）／pipelines の fail-close 経路",
-      "tc": []
+      "tc": [
+        "TCC-53-2"
+      ]
     },
     {
       "id": "AC-53-3",
@@ -1428,7 +1597,9 @@
       "forbidden_side_effects": "前回断片の成果物採用・二重登録",
       "error_type": "なし",
       "target_update": "S3+（制作層）／pipelines の temp 破棄・再実行復旧",
-      "tc": []
+      "tc": [
+        "TCC-53-3"
+      ]
     },
     {
       "id": "AC-54-1",
@@ -1445,7 +1616,9 @@
       "forbidden_side_effects": "既存証跡行の UPDATE/DELETE（append-only トリガ違反）",
       "error_type": "なし",
       "target_update": "S0.2（制作層）／content/versioning.record_commit・bind_pass",
-      "tc": []
+      "tc": [
+        "TCC-54-1"
+      ]
     },
     {
       "id": "AC-54-2",
@@ -1462,7 +1635,9 @@
       "forbidden_side_effects": "H2 での review_pass 記録・既存 commit_hash 証跡の書換え",
       "error_type": "CommitHashMismatch",
       "target_update": "S0.2（制作層）／versioning の束縛検査",
-      "tc": []
+      "tc": [
+        "TCC-54-2"
+      ]
     },
     {
       "id": "AC-54-3",
@@ -1479,7 +1654,9 @@
       "forbidden_side_effects": "同一 (task, kind, value) の重複行・不正桁数 hash の記録",
       "error_type": "InvalidCommitHash（不正桁のみ。重複再実行は正常収束）",
       "target_update": "S0.2（制作層）／versioning の冪等・桁検査",
-      "tc": []
+      "tc": [
+        "TCC-54-3"
+      ]
     },
     {
       "id": "AC-55-1",
@@ -1496,7 +1673,9 @@
       "forbidden_side_effects": "SQLite への画像バイナリ・本文テキストの格納",
       "error_type": "なし",
       "target_update": "S0.2（制作層）／content/assets.register_derived",
-      "tc": []
+      "tc": [
+        "TCC-55-1"
+      ]
     },
     {
       "id": "AC-55-2",
@@ -1513,7 +1692,9 @@
       "forbidden_side_effects": "本文実体を含む行の INSERT・出自なし派生行の作成",
       "error_type": "ContentBodyRejected／AssetReferenceInvalid",
       "target_update": "S0.2（制作層）／assets 登録の入口検査",
-      "tc": []
+      "tc": [
+        "TCC-55-2"
+      ]
     },
     {
       "id": "AC-55-3",
@@ -1530,7 +1711,9 @@
       "forbidden_side_effects": "canonical_url 重複行の作成・循環系譜の成立",
       "error_type": "AssetReferenceInvalid（循環のみ。再登録は正常冪等）",
       "target_update": "S0.2（制作層）／assets の冪等・系譜検査",
-      "tc": []
+      "tc": [
+        "TCC-55-3"
+      ]
     },
     {
       "id": "AC-61-1",
@@ -1547,7 +1730,9 @@
       "forbidden_side_effects": "戦略正本（brand_plans 等）への書込み・有料指標型の混入",
       "error_type": "なし",
       "target_update": "S0.3（計測層）／measure/kpi_tree.register_node・cross_query",
-      "tc": []
+      "tc": [
+        "TCC-61-1"
+      ]
     },
     {
       "id": "AC-61-2",
@@ -1564,7 +1749,9 @@
       "forbidden_side_effects": "cac/roas/ad_spend 型ノードの成立（アプリ層を迂回した直接 INSERT も DDL CHECK で拒否されること）",
       "error_type": "PaidMetricRejected／KpiNodeInvalid",
       "target_update": "S0.3（計測層）／kpi_tree の登録検査＋DDL CHECK",
-      "tc": []
+      "tc": [
+        "TCC-61-2"
+      ]
     },
     {
       "id": "AC-61-3",
@@ -1581,7 +1768,9 @@
       "forbidden_side_effects": "参照中ノードの物理削除・measurements の孤児化",
       "error_type": "IntegrityError（DELETE 試行のみ。archived 化・集計は正常）",
       "target_update": "S0.3（計測層）／kpi_tree の退役・FK 保護",
-      "tc": []
+      "tc": [
+        "TCC-61-3"
+      ]
     },
     {
       "id": "AC-62-1",
@@ -1598,7 +1787,9 @@
       "forbidden_side_effects": "2 回目実行での行重複・証跡なし行の投入・有料指標ノードへの投入",
       "error_type": "なし",
       "target_update": "S0.3（計測層）／measure/importer.import_export",
-      "tc": []
+      "tc": [
+        "TCC-62-1"
+      ]
     },
     {
       "id": "AC-62-2",
@@ -1615,7 +1806,9 @@
       "forbidden_side_effects": "破損行の measurements 混入・全破損ファイルからの部分コミット",
       "error_type": "ImportSourceInvalid（全破損のみ。部分破損は正常終了＋隔離）",
       "target_update": "S0.3（計測層）／importer のエラー隔離・fail-close",
-      "tc": []
+      "tc": [
+        "TCC-62-2"
+      ]
     },
     {
       "id": "AC-62-3",
@@ -1632,7 +1825,9 @@
       "forbidden_side_effects": "5 行だけの部分コミット残留・再実行での 15 行化",
       "error_type": "なし（注入クラッシュは transaction rollback で吸収）",
       "target_update": "S0.3（計測層）／importer の transaction・空境界",
-      "tc": []
+      "tc": [
+        "TCC-62-3"
+      ]
     },
     {
       "id": "AC-63-1",
@@ -1649,7 +1844,9 @@
       "forbidden_side_effects": "外部 CDN・外部 URL 参照の混入・業務テーブルへの書込み",
       "error_type": "なし",
       "target_update": "S1（計測層）／measure/dashboard.generate_html",
-      "tc": []
+      "tc": [
+        "TCC-63-1"
+      ]
     },
     {
       "id": "AC-63-2",
@@ -1666,7 +1863,9 @@
       "forbidden_side_effects": "汚染 HTML の出力先残留・汚染成果物の証跡化",
       "error_type": "ExternalReferenceDetected",
       "target_update": "S1（計測層）／dashboard の自己検査・fail-close",
-      "tc": []
+      "tc": [
+        "TCC-63-2"
+      ]
     },
     {
       "id": "AC-63-3",
@@ -1683,7 +1882,9 @@
       "forbidden_side_effects": "temp 断片の出力先残留・生成失敗分の証跡化",
       "error_type": "なし（クラッシュは temp→rename 方式で吸収）",
       "target_update": "S1（計測層）／dashboard の空境界・アトミック書出し",
-      "tc": []
+      "tc": [
+        "TCC-63-3"
+      ]
     },
     {
       "id": "AC-71-1",
@@ -1700,7 +1901,9 @@
       "forbidden_side_effects": "DDL 正本にないテーブル・トリガの生成、FK OFF での使用開始",
       "error_type": "なし",
       "target_update": "S0.1（DB 基盤）／db.migrate・db.verify",
-      "tc": []
+      "tc": [
+        "TCC-71-1"
+      ]
     },
     {
       "id": "AC-71-2",
@@ -1717,7 +1920,9 @@
       "forbidden_side_effects": "不完全スキーマへの業務行 INSERT・欠落の黙認（fail-open）",
       "error_type": "SchemaVerificationFailed",
       "target_update": "S0.1（DB 基盤）／db.verify の fail-close",
-      "tc": []
+      "tc": [
+        "TCC-71-2"
+      ]
     },
     {
       "id": "AC-71-3",
@@ -1734,7 +1939,9 @@
       "forbidden_side_effects": "migration の二重適用・append-only 行の改変",
       "error_type": "AppendOnlyViolation（UPDATE 側のみ）",
       "target_update": "S0.1（DB 基盤）／冪等適用＋保護トリガ",
-      "tc": []
+      "tc": [
+        "TCC-71-3"
+      ]
     },
     {
       "id": "AC-72-1",
@@ -1751,7 +1958,9 @@
       "forbidden_side_effects": "既存の列・値・意味の変更（破壊的変更）・rename",
       "error_type": "なし",
       "target_update": "S0.1（DB 基盤）／db.migrate の expand 昇格",
-      "tc": []
+      "tc": [
+        "TCC-72-1"
+      ]
     },
     {
       "id": "AC-72-2",
@@ -1768,7 +1977,9 @@
       "forbidden_side_effects": "checksum 不一致のままの適用続行・schema_version の書換え",
       "error_type": "MigrationChecksumMismatch",
       "target_update": "S0.1（DB 基盤）／checksum 照合ゲート",
-      "tc": []
+      "tc": [
+        "TCC-72-2"
+      ]
     },
     {
       "id": "AC-72-3",
@@ -1785,7 +1996,10 @@
       "forbidden_side_effects": "verify() fail のままの運転継続・失敗した同一 version の書換え修正",
       "error_type": "MigrationVerifyFailed",
       "target_update": "S0.1（DB 基盤）／backup 復元経路",
-      "tc": []
+      "tc": [
+        "TCC-72-3",
+        "TCC-RESUME-2"
+      ]
     },
     {
       "id": "AC-73-1",
@@ -1802,7 +2016,9 @@
       "forbidden_side_effects": "既存台帳行の変更・二重計上",
       "error_type": "なし",
       "target_update": "S1（支出台帳）／spend.record・spend.monthly_total",
-      "tc": []
+      "tc": [
+        "TCC-73-1"
+      ]
     },
     {
       "id": "AC-73-2",
@@ -1819,7 +2035,9 @@
       "forbidden_side_effects": "用途不明の支出行の混入・同一操作の二重計上",
       "error_type": "SpendRecordIncomplete／DuplicateSpendEntry",
       "target_update": "S1（支出台帳）／NOT NULL・UNIQUE 制約＋事前検証",
-      "tc": []
+      "tc": [
+        "TCC-73-2"
+      ]
     },
     {
       "id": "AC-73-3",
@@ -1836,7 +2054,9 @@
       "forbidden_side_effects": "0 円利用の記録省略・復旧再送での二重計上",
       "error_type": "なし",
       "target_update": "S1（支出台帳）／0 円境界＋クラッシュ復旧の冪等記録",
-      "tc": []
+      "tc": [
+        "TCC-73-3"
+      ]
     },
     {
       "id": "AC-SR-01-1",
@@ -1853,7 +2073,9 @@
       "forbidden_side_effects": "upper run への TLP 追加・lower からの意味モデル追加",
       "error_type": "なし",
       "target_update": "S1（上流戦略スライス — SCM-06/07/08）",
-      "tc": []
+      "tc": [
+        "TCC-SR-01-1"
+      ]
     },
     {
       "id": "AC-SR-01-2",
@@ -1870,7 +2092,9 @@
       "forbidden_side_effects": "越境成果物の永続化・単一ループへの統合的書込み",
       "error_type": "LoopScopeViolation／IntegrityError",
       "target_update": "S1（上流戦略スライス）",
-      "tc": []
+      "tc": [
+        "TCC-SR-01-2"
+      ]
     },
     {
       "id": "AC-SR-02-1",
@@ -1887,7 +2111,9 @@
       "forbidden_side_effects": "解釈フィールドの自動付加・operation_log への拒否行",
       "error_type": "なし",
       "target_update": "S1（上流戦略スライス — SCM-05）",
-      "tc": []
+      "tc": [
+        "TCC-SR-02-1"
+      ]
     },
     {
       "id": "AC-SR-02-2",
@@ -1904,7 +2130,9 @@
       "forbidden_side_effects": "混在 payload の部分受理・fact の自動書換え",
       "error_type": "ObservationInterpretationMixRejected",
       "target_update": "S1（上流戦略スライス — G-OBS-INTERPRETATION）",
-      "tc": []
+      "tc": [
+        "TCC-SR-02-2"
+      ]
     },
     {
       "id": "AC-SR-02-3",
@@ -1921,7 +2149,9 @@
       "forbidden_side_effects": "判定不能時の受理（fail-open）",
       "error_type": "ObservationInterpretationMixRejected（判定不能時）",
       "target_update": "S1（上流戦略スライス）",
-      "tc": []
+      "tc": [
+        "TCC-SR-02-3"
+      ]
     },
     {
       "id": "AC-SR-03-1",
@@ -1938,7 +2168,9 @@
       "forbidden_side_effects": "自由 JSON としての受理・trace なし受理",
       "error_type": "なし",
       "target_update": "S1（上流戦略スライス — SCM-06）",
-      "tc": []
+      "tc": [
+        "TCC-SR-03-1"
+      ]
     },
     {
       "id": "AC-SR-03-2",
@@ -1955,7 +2187,9 @@
       "forbidden_side_effects": "部分受理・自由 JSON の正本混入",
       "error_type": "ModelSchemaRejected",
       "target_update": "S1（上流戦略スライス）",
-      "tc": []
+      "tc": [
+        "TCC-SR-03-2"
+      ]
     },
     {
       "id": "AC-SR-03-3",
@@ -1972,7 +2206,9 @@
       "forbidden_side_effects": "未知フィールドの黙認（fail-open）",
       "error_type": "ModelSchemaRejected",
       "target_update": "S1（上流戦略スライス）",
-      "tc": []
+      "tc": [
+        "TCC-SR-03-3"
+      ]
     },
     {
       "id": "AC-SR-04-1",
@@ -1989,7 +2225,9 @@
       "forbidden_side_effects": "operation_log への拒否行",
       "error_type": "なし",
       "target_update": "S1（上流戦略スライス — G-SEGMENT-CONTEXT）",
-      "tc": []
+      "tc": [
+        "TCC-SR-04-1"
+      ]
     },
     {
       "id": "AC-SR-04-2",
@@ -2006,7 +2244,9 @@
       "forbidden_side_effects": "ペルソナ型 segment の正本混入",
       "error_type": "PersonaSegmentRejected",
       "target_update": "S1（上流戦略スライス）",
-      "tc": []
+      "tc": [
+        "TCC-SR-04-2"
+      ]
     },
     {
       "id": "AC-SR-04-3",
@@ -2023,7 +2263,9 @@
       "forbidden_side_effects": "空フィールドの記入扱い（fail-open）",
       "error_type": "PersonaSegmentRejected（空フィールド時）",
       "target_update": "S1（上流戦略スライス）",
-      "tc": []
+      "tc": [
+        "TCC-SR-04-3"
+      ]
     },
     {
       "id": "AC-SR-05-1",
@@ -2040,7 +2282,9 @@
       "forbidden_side_effects": "棄却案・反証条件の欠落したままの受理",
       "error_type": "なし",
       "target_update": "S1（上流戦略スライス — SCM-07）",
-      "tc": []
+      "tc": [
+        "TCC-SR-05-1"
+      ]
     },
     {
       "id": "AC-SR-05-2",
@@ -2057,7 +2301,9 @@
       "forbidden_side_effects": "反証不能な仮説の正本混入",
       "error_type": "IncompleteStrategyRejected",
       "target_update": "S1（上流戦略スライス）",
-      "tc": []
+      "tc": [
+        "TCC-SR-05-2"
+      ]
     },
     {
       "id": "AC-SR-05-3",
@@ -2074,7 +2320,9 @@
       "forbidden_side_effects": "空文字理由の記入扱い",
       "error_type": "IncompleteStrategyRejected（空文字時）",
       "target_update": "S1（上流戦略スライス）",
-      "tc": []
+      "tc": [
+        "TCC-SR-05-3"
+      ]
     },
     {
       "id": "AC-SR-01",
@@ -2092,7 +2340,8 @@
       "error_type": "なし",
       "target_update": "S0.1（戦略ストア）／canonical_digest",
       "tc": [
-        "STC-I-01"
+        "STC-I-01",
+        "TCC-SR-01"
       ]
     },
     {
@@ -2110,7 +2359,9 @@
       "forbidden_side_effects": "無効 brief の INSERT・digest の発番",
       "error_type": "BriefSchemaRejected",
       "target_update": "S0.1（DU-02 — issue_strategic_brief）",
-      "tc": []
+      "tc": [
+        "TCC-SR-06-1"
+      ]
     },
     {
       "id": "AC-SR-06-2",
@@ -2127,7 +2378,9 @@
       "forbidden_side_effects": "v1 内容列の変更・既存 run の digest 差替え・新規 run の v1 参照",
       "error_type": "なし",
       "target_update": "S0.1（DU-02 — supersede 連鎖）",
-      "tc": []
+      "tc": [
+        "TCC-SR-06-2"
+      ]
     },
     {
       "id": "AC-SR-02",
@@ -2145,7 +2398,8 @@
       "error_type": "GateRejected",
       "target_update": "S0.1（開始ガード）",
       "tc": [
-        "STC-I-02"
+        "STC-I-02",
+        "TCC-SR-02"
       ]
     },
     {
@@ -2163,7 +2417,9 @@
       "forbidden_side_effects": "digest の書換え・brief 行の変更",
       "error_type": "なし",
       "target_update": "S0.1（DU-01 — start ガード）",
-      "tc": []
+      "tc": [
+        "TCC-SR-07-1"
+      ]
     },
     {
       "id": "AC-SR-07-2",
@@ -2180,7 +2436,9 @@
       "forbidden_side_effects": "境界時刻の拒否側誤判定・実行中 run の digest 差替え・強制中断",
       "error_type": "なし",
       "target_update": "S0.1（DU-01/02 — 有効期間境界）",
-      "tc": []
+      "tc": [
+        "TCC-SR-07-2"
+      ]
     },
     {
       "id": "AC-SR-03",
@@ -2198,7 +2456,9 @@
       "error_type": "なし",
       "target_update": "S0.1（TLP 生成）",
       "tc": [
-        "STC-I-05"
+        "STC-I-05",
+        "TCC-KILL-2",
+        "TCC-SR-03"
       ]
     },
     {
@@ -2217,7 +2477,9 @@
       "error_type": "IntegrityError",
       "target_update": "S0.1（TLP 整合トリガ）",
       "tc": [
-        "STC-I-06"
+        "STC-I-06",
+        "TCC-CONFLICT-2",
+        "TCC-SR-06"
       ]
     },
     {
@@ -2235,7 +2497,9 @@
       "forbidden_side_effects": "因果解釈つき failure packet の永続化・遷移だけの先行成立",
       "error_type": "IntegrityError",
       "target_update": "S0.1（DU-10 — packet_kind CHECK）",
-      "tc": []
+      "tc": [
+        "TCC-SR-08-1"
+      ]
     },
     {
       "id": "AC-SR-08-2",
@@ -2252,7 +2516,9 @@
       "forbidden_side_effects": "遷移のみ成立した孤児終端 run・TLP 二重生成",
       "error_type": "なし（復旧正常系）",
       "target_update": "S0.1（DU-02 — 同一 transaction 契約）",
-      "tc": []
+      "tc": [
+        "TCC-SR-08-2"
+      ]
     },
     {
       "id": "AC-SR-04",
@@ -2270,7 +2536,8 @@
       "error_type": "IntegrityError（append-only）",
       "target_update": "S0.1（保護トリガ）",
       "tc": [
-        "STC-I-04"
+        "STC-I-04",
+        "TCC-SR-04"
       ]
     },
     {
@@ -2288,7 +2555,9 @@
       "forbidden_side_effects": "strategic_briefs のいかなる列の変更",
       "error_type": "なし",
       "target_update": "S0.1（DU-02 — 還流経路）",
-      "tc": []
+      "tc": [
+        "TCC-SR-09-1"
+      ]
     },
     {
       "id": "AC-SR-09-2",
@@ -2305,7 +2574,9 @@
       "forbidden_side_effects": "推奨の蓄積による brief の自動 supersede・status 自動遷移",
       "error_type": "なし",
       "target_update": "S0.1（DU-02/10 — 推奨≠決定の境界）",
-      "tc": []
+      "tc": [
+        "TCC-SR-09-2"
+      ]
     },
     {
       "id": "AC-SR-10-1",
@@ -2322,7 +2593,9 @@
       "forbidden_side_effects": "旧版内容列の変更・transaction 分割による中間状態",
       "error_type": "なし",
       "target_update": "S1（上流戦略スライス — SCM-08）",
-      "tc": []
+      "tc": [
+        "TCC-SR-10-1"
+      ]
     },
     {
       "id": "AC-SR-10-2",
@@ -2339,7 +2612,9 @@
       "forbidden_side_effects": "単一計測値による自動 accept・新版の先行生成",
       "error_type": "RevisionEvidenceRejected",
       "target_update": "S1（上流戦略スライス）",
-      "tc": []
+      "tc": [
+        "TCC-SR-10-2"
+      ]
     },
     {
       "id": "AC-SR-10-3",
@@ -2356,7 +2631,9 @@
       "forbidden_side_effects": "重複 ID の 2 件扱い・maintain での版生成",
       "error_type": "RevisionEvidenceRejected（重複時）",
       "target_update": "S1（上流戦略スライス）",
-      "tc": []
+      "tc": [
+        "TCC-SR-10-3"
+      ]
     },
     {
       "id": "AC-SR-05",
@@ -2374,7 +2651,8 @@
       "error_type": "IntegrityError（append-only）",
       "target_update": "S0.1（append-only 版管理）",
       "tc": [
-        "STC-I-06"
+        "STC-I-06",
+        "TCC-SR-05"
       ]
     },
     {
@@ -2392,7 +2670,9 @@
       "forbidden_side_effects": "v1 内容列の変更・v1 の削除",
       "error_type": "なし",
       "target_update": "S0.1（DU-10 — 版連鎖）",
-      "tc": []
+      "tc": [
+        "TCC-SR-11-1"
+      ]
     },
     {
       "id": "AC-SR-11-2",
@@ -2409,7 +2689,9 @@
       "forbidden_side_effects": "内容列の部分更新・拒否時の行破損",
       "error_type": "IntegrityError（内容列 UPDATE 時）",
       "target_update": "S0.1（DU-10 — トリガ WHEN 境界）",
-      "tc": []
+      "tc": [
+        "TCC-SR-11-2"
+      ]
     },
     {
       "id": "AC-SR-12-1",
@@ -2426,7 +2708,9 @@
       "forbidden_side_effects": "計測投入による意味モデル・brief の変更",
       "error_type": "なし",
       "target_update": "S1（上流戦略スライス — KPI/意味正本の分離）",
-      "tc": []
+      "tc": [
+        "TCC-SR-12-1"
+      ]
     },
     {
       "id": "AC-SR-12-2",
@@ -2443,7 +2727,9 @@
       "forbidden_side_effects": "KPI 変動による戦略正本の自動更新",
       "error_type": "RevisionEvidenceRejected",
       "target_update": "S1（上流戦略スライス — SCM-08）",
-      "tc": []
+      "tc": [
+        "TCC-SR-12-2"
+      ]
     },
     {
       "id": "AC-SR-12-3",
@@ -2460,7 +2746,9 @@
       "forbidden_side_effects": "急変を契機とした brief の自動 supersede・意味モデル自動更新",
       "error_type": "なし",
       "target_update": "S1（上流戦略スライス）",
-      "tc": []
+      "tc": [
+        "TCC-SR-12-3"
+      ]
     },
     {
       "id": "AC-SR-13-1",
@@ -2477,7 +2765,9 @@
       "forbidden_side_effects": "operation_log への拒否行",
       "error_type": "なし",
       "target_update": "S1（SCM-10 — 実行時強制。S1 前半は docs ゲート）",
-      "tc": []
+      "tc": [
+        "TCC-SR-13-1"
+      ]
     },
     {
       "id": "AC-SR-13-2",
@@ -2494,7 +2784,9 @@
       "forbidden_side_effects": "宣言なし企画の主要企画としての承認",
       "error_type": "ContentValueDeclarationRejected",
       "target_update": "S1（SCM-10）",
-      "tc": []
+      "tc": [
+        "TCC-SR-13-2"
+      ]
     },
     {
       "id": "AC-SR-13-3",
@@ -2511,7 +2803,9 @@
       "forbidden_side_effects": "空値の宣言扱い（fail-open）",
       "error_type": "ContentValueDeclarationRejected",
       "target_update": "S1（SCM-10）",
-      "tc": []
+      "tc": [
+        "TCC-SR-13-3"
+      ]
     },
     {
       "id": "AC-SR-14-1",
@@ -2528,7 +2822,9 @@
       "forbidden_side_effects": "operation_log への拒否行",
       "error_type": "なし",
       "target_update": "S1（SCM-09 — G-MEDIA-ROLE）",
-      "tc": []
+      "tc": [
+        "TCC-SR-14-1"
+      ]
     },
     {
       "id": "AC-SR-14-2",
@@ -2545,7 +2841,9 @@
       "forbidden_side_effects": "媒体名の media_role としての保存・揺れの自動正規化",
       "error_type": "MediaRoleRejected",
       "target_update": "S1（SCM-09）",
-      "tc": []
+      "tc": [
+        "TCC-SR-14-2"
+      ]
     },
     {
       "id": "AC-SR-14-3",
@@ -2562,7 +2860,9 @@
       "forbidden_side_effects": "台帳欠損時の全許可（fail-open）",
       "error_type": "MediaRoleRejected（台帳欠損時）",
       "target_update": "S1（SCM-09）",
-      "tc": []
+      "tc": [
+        "TCC-SR-14-3"
+      ]
     },
     {
       "id": "AC-SR-15-1",
@@ -2579,7 +2879,9 @@
       "forbidden_side_effects": "S0 スコープ外機能（上流生成系）の実装混入",
       "error_type": "なし",
       "target_update": "S0.1（完了ゲート — STC-I-01〜06）",
-      "tc": []
+      "tc": [
+        "TCC-SR-15-1"
+      ]
     },
     {
       "id": "AC-SR-15-2",
@@ -2596,7 +2898,9 @@
       "forbidden_side_effects": "分母縮小・スコープ拡大の黙認（fail-open）",
       "error_type": "GateFailure（CI exit 非 0）",
       "target_update": "S0.1（G-BASELINE／ratchet）",
-      "tc": []
+      "tc": [
+        "TCC-SR-15-2"
+      ]
     },
     {
       "id": "AC-SR-16-1",
@@ -2613,7 +2917,9 @@
       "forbidden_side_effects": "同一回転の重複計上",
       "error_type": "なし",
       "target_update": "S1（上流戦略スライス — SCM-08）",
-      "tc": []
+      "tc": [
+        "TCC-SR-16-1"
+      ]
     },
     {
       "id": "AC-SR-16-2",
@@ -2630,7 +2936,9 @@
       "forbidden_side_effects": "微修正回転の一周計上（管理ループへの縮退）",
       "error_type": "なし（判定 False — 例外ではない）",
       "target_update": "S1（上流戦略スライス）",
-      "tc": []
+      "tc": [
+        "TCC-SR-16-2"
+      ]
     },
     {
       "id": "AC-SR-16-3",
@@ -2647,7 +2955,9 @@
       "forbidden_side_effects": "複数更新の多重計上・判定不能時の一周扱い（fail-open）",
       "error_type": "なし（判定 False — 例外ではない）",
       "target_update": "S1（上流戦略スライス）",
-      "tc": []
+      "tc": [
+        "TCC-SR-16-3"
+      ]
     }
   ]
 }

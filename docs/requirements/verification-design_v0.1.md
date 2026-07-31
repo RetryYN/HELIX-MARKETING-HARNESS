@@ -3,6 +3,11 @@
 > status: **confirmed**（2026-07-31 PO 承認 — 要件定義完遂指示。AI 起草）
 > 対象設計: [requirements_v0.1.md](requirements_v0.1.md)／[s0-contract_v0.1.md](s0-contract_v0.1.md)／[br-media_v0.1.md](br-media_v0.1.md)／[loop-task-workflow_v0.1.md](loop-task-workflow_v0.1.md)／[media-requirements_v0.1.md](media-requirements_v0.1.md)
 > 機械可読台帳: [json/verification.json](json/verification.json)。AC の正本は [json/ac.json](json/ac.json)。
+> **検証契約正本（2026-08-01 全層再降下 §4-§5）**: AC 検証契約 =
+> [json/ac/ac-contracts.json](json/ac/ac-contracts.json)（ビュー [ac-catalog_v0.1.md](ac-catalog_v0.1.md)）、
+> TC 検証契約 = [json/verification/tc-contracts.json](json/verification/tc-contracts.json)
+> （ビュー [tc-catalog_v0.1.md](tc-catalog_v0.1.md)）。既存 TC-01〜59 は履歴として保持し、
+> AC↔TC の双方向接続は G-TRACE-BIDIR が fail-close 検査する。
 > 上流戦略層（2026-08-01 追補）: 戦略層要件（SR）の検証は
 > [strategy-loop-test-design_v0.1.md](../design/strategy-loop-test-design_v0.1.md)（STC）が対を成す。
 > 本書の TC 59 の分母・対象は不変。

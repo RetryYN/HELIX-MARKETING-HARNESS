@@ -1,0 +1,2260 @@
+{
+  "version": "0.1",
+  "note": "TC 検証契約 — 内容正本。AC 検証契約（ac-contracts.json）と 1:1+追加（kill/conflict/resume）で双方向接続（G-TRACE-BIDIR）。既存 TC-01〜59（verification.json）は履歴保持。ビュー = tc-catalog_v0.1.md（render_views.py 生成）",
+  "items": [
+    {
+      "id": "TCC-11-1",
+      "ac": [
+        "AC-11-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "loop_runs.state = 'running'（started_at 記録）",
+      "verifies_db_delta": "loop_runs 1 行 UPDATE（pending→running）、state_transitions +1 行（entity_type='loop_run', event='start', guard_result='passed'）",
+      "verifies_evidence": "state_transitions 行（遷移証跡 — 同一 transaction でコミット）",
+      "verifies_forbidden": "他 loop_run の状態変更・operation_log への追加（状態遷移の記録に operation_log は使わない — §3）",
+      "external_calls": "0 回",
+      "method": "pytest: seed: strategic_briefs 1 行（status='active', digest=D）、sprints 1 行（kpi_target_json={\"pv_weekly\":500}）、親 loop_runs（loop_kind='upper', state='running'）、対象 loop_runs（loop_kind='lower', state='pending', strategic_brief_digest=D） を seed し、遷移 API 戻り値／loop_runs.state SELECT／state_transitions SELECT を assert（start イベントを適用する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-11-2",
+      "ac": [
+        "AC-11-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "loop_runs.state = 'running' のまま（retry_count=0 不変）",
+      "verifies_db_delta": "state_transitions +1 行（from_state='running', event='start', guard_result='rejected'）のみ。loop_runs 差分なし",
+      "verifies_evidence": "state_transitions 拒否行（rejected — 拒否も証跡化 §3）",
+      "verifies_forbidden": "loop_runs の状態・retry_count の変更、遷移の部分適用",
+      "external_calls": "0 回",
+      "method": "pytest: seed: loop_runs 1 行（state='running', retry_count=0）、適用イベント='start' を seed し、raise される例外型／loop_runs SELECT／state_transitions SELECT を assert（遷移表に合致しないイベントを適用する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-11-3",
+      "ac": [
+        "AC-11-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "A='completed' 不変、B='running'（未コミット遷移は transaction ごと消滅）",
+      "verifies_db_delta": "A: state_transitions +1 行（guard_result='rejected'）。B: 差分なし（部分行が存在しない）",
+      "verifies_evidence": "A の拒否行。B は証跡なし（原子性 — 状態と遷移ログの片方だけ残らない）",
+      "verifies_forbidden": "終端からの状態変更・state_transitions の部分行（ログだけ残る／状態だけ変わる）",
+      "external_calls": "0 回",
+      "method": "pytest: seed: loop_runs A（state='completed'）、loop_runs B（state='running'）— B への wait 遷移をコミット前 kill で中断 を seed し、raise される例外型／再起動後の loop_runs.state・state_transitions 行数 を assert（A へ cancel イベントを適用し、B は再起動後に状態を読み直して続行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-12-1",
+      "ac": [
+        "AC-12-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "tasks.state = 'pending'（未 claim・idempotency_key 付与済み）",
+      "verifies_db_delta": "tasks +1 行（4 列すべて非 NULL、UNIQUE(loop_run_id, step_key, attempt) 充足）",
+      "verifies_evidence": "tasks 行そのもの（発行記録の正本）",
+      "verifies_forbidden": "author_agent_id == verifier_agent_id の行・同一 (loop_run_id, step_key, attempt) の重複行の生成",
+      "external_calls": "0 回",
+      "method": "pytest: seed: workflows 1 行（workflow_key='WF-WP-1', task_type='T-PLAN', status='active'）、agents 2 行（strategist/critic — principal 相違・active）、loop_runs 1 行（state='running'） を seed し、発行 API 戻り値／tasks SELECT（workflow_id・author_agent_id・verifier_agent_id・expected_output_kind） を assert（タスク発行を実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-12-2",
+      "ac": [
+        "AC-12-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "T-PUB の tasks 行が存在しない",
+      "verifies_db_delta": "差分なし（tasks 0 行増）",
+      "verifies_evidence": "なし（発行前拒否 — 外部操作ではないため operation_log 対象外）",
+      "verifies_forbidden": "tasks への T-PUB 行 INSERT・WP コネクタの呼出し",
+      "external_calls": "0 回",
+      "method": "pytest: seed: action_plans 1 行、pair_plan_quality 0 行、workflows に WF-WP-2（status='active'）、loop_runs 1 行（state='running'） を seed し、raise される例外型／tasks SELECT 件数 を assert（T-PUB タスクの発行を実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-12-3",
+      "ac": [
+        "AC-12-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "tasks 1 行のまま（state='pending' 不変）",
+      "verifies_db_delta": "差分なし",
+      "verifies_evidence": "なし（無副作用の冪等再実行）",
+      "verifies_forbidden": "tasks への 2 行目 INSERT・attempt の暗黙増加・UNIQUE 制約例外の呼出し側への素通し",
+      "external_calls": "0 回",
+      "method": "pytest: seed: tasks 1 行（loop_run_id=1, step_key='plan', attempt=1, idempotency_key='K1'）を先行 INSERT 済み、同一パラメータで再発行 を seed し、発行 API 戻り値（既存行の id）／tasks SELECT count を assert（同じタスク発行を再実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-13-1",
+      "ac": [
+        "AC-13-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "tasks.state = 'done'（completed_at 記録・retry_count=0 のまま）",
+      "verifies_db_delta": "tasks 1 行 UPDATE（verifying→done）、state_transitions +1 行（event='verify_pass', guard_result='passed'）",
+      "verifies_evidence": "evidence: review_pass（result=PASS・reviewer は author と別 agent）",
+      "verifies_forbidden": "retry_count の変化・author 自身の principal による PASS 判定",
+      "external_calls": "0 回",
+      "method": "pytest: seed: agents 2 行（principal 相違）、tasks 1 行（state='verifying', retry_count=0, output_json 保存済み）、evidence に workflow の必須 kind（review_pass 含む）を投入済み を seed し、tasks.state SELECT／state_transitions SELECT／evidence SELECT を assert（verify_pass イベントを適用する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-13-2",
+      "ac": [
+        "AC-13-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "tasks.state = 'verifying' のまま（retry_count=1 不変）",
+      "verifies_db_delta": "state_transitions +1 行（event='verify_fail', guard_result='rejected'）のみ。tasks 差分なし",
+      "verifies_evidence": "state_transitions 拒否行（差戻し理由欠如による rejected）",
+      "verifies_forbidden": "in_progress への差戻し・retry_count の増加",
+      "external_calls": "0 回",
+      "method": "pytest: seed: tasks 1 行（state='verifying', retry_count=1）、FAIL 入力 = 差戻し理由 None・verifier 証跡なし を seed し、raise される例外型／tasks SELECT／state_transitions SELECT を assert（verify_fail イベントを適用する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-13-3",
+      "ac": [
+        "AC-13-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "tasks.state = 'escalated'（終端）、retry_count=3",
+      "verifies_db_delta": "tasks 1 行 UPDATE（verifying→escalated, retry_count 2→3）、state_transitions +1 行（event='verify_fail_exhausted', guard_result='passed'）",
+      "verifies_evidence": "state_transitions 行＋tasks.failure_detail（最終差戻し理由）",
+      "verifies_forbidden": "in_progress への 4 回目の差戻し・retry_count の 2 加算・failed への誤分類",
+      "external_calls": "0 回",
+      "method": "pytest: seed: config 1 行（key='retry_limit', value_json='3', value_type='integer'）、tasks 1 行（state='verifying', retry_count=2）、差戻し理由・verifier 証跡を投入済み を seed し、tasks.state・retry_count SELECT／state_transitions SELECT を assert（FAIL の遷移イベントを適用する（retry_count + 1 >= retry_limit の境界））",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-14-1",
+      "ac": [
+        "AC-14-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "WP sprint = 'active'、X sprint = 'blocked' のまま",
+      "verifies_db_delta": "sprints 1 行 UPDATE（WP のみ planned→active）",
+      "verifies_evidence": "sprints 行の status 変化（列更新が正本 — 遷移ログ対象外）",
+      "verifies_forbidden": "X sprint 行の変更・他媒体待ち合わせによる開始保留（同期強制）",
+      "external_calls": "0 回",
+      "method": "pytest: seed: action_plans 1 行（status='active'）、sprints 2 行（WP: status='planned', kpi_target_json={\"pv_weekly\":500} ／ X: status='blocked'）、config 1 行（key='loop.wp.cycle', value_json='\"P7D\"'） を seed し、sprints.status SELECT（WP・X 両行） を assert（WP sprint の開始判定を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-14-2",
+      "ac": [
+        "AC-14-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "sprint = 'planned'、loop_run = 'pending'（いずれも不変）",
+      "verifies_db_delta": "sprints 差分なし。state_transitions +1 行（loop_run start の guard_result='rejected'）",
+      "verifies_evidence": "state_transitions 拒否行（KPI target 欠如）",
+      "verifies_forbidden": "sprint の active 化・下位 loop_run の running 化・タスク発行",
+      "external_calls": "0 回",
+      "method": "pytest: seed: sprints 1 行（status='planned', kpi_target_json='{}'）、kpi_nodes 1 行（target_json=NULL）、下位 loop_runs 1 行（state='pending', 当該 sprint 参照・active brief 保持） を seed し、raise される例外型／sprints.status SELECT／loop_runs.state SELECT／state_transitions SELECT を assert（sprint 開始判定と下位 loop_run の start を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-14-3",
+      "ac": [
+        "AC-14-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "A = 'reviewing'、B = 再実行後 'active'（planned/active 以外の中間値なし）",
+      "verifies_db_delta": "A: 1 行 UPDATE（active→reviewing）。B: kill 分は差分なし → 再実行で 1 行 UPDATE（planned→active）",
+      "verifies_evidence": "sprints 行の status 遷移（正本）",
+      "verifies_forbidden": "reviewing 移行後の A への新規タスク発行・B の状態不定",
+      "external_calls": "0 回",
+      "method": "pytest: seed: sprints A（status='active', ends_at=過去時刻）、sprints B（status='planned', kpi_target_json={\"pv_weekly\":300}）— B の開始 UPDATE をコミット前 kill で中断 を seed し、sprints.status SELECT（再起動前後）／A 配下での新規 tasks 発行の可否 を assert（A の期限到達処理を実行し、再起動後に B の開始判定を再実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-15-1",
+      "ac": [
+        "AC-15-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "learnings.status = 'draft'（採否は上位ループ側の判断待ち）",
+      "verifies_db_delta": "learnings +1 行（sprint_id・source_pair_id の FK 接続・learning_json 有効）",
+      "verifies_evidence": "learnings 行（source_pair_id つき — 還流の正本）",
+      "verifies_forbidden": "strategic_briefs への書込み（下流からの上流正本直接変更 — SR-07 違反）",
+      "external_calls": "0 回",
+      "method": "pytest: seed: sprints 1 行（status='reviewing'）、kpi_nodes→measurements→evidence の連鎖 1 組、pair_kpi_measure 1 行（status='passed'）、上位 loop_runs 1 行（loop_kind='upper'） を seed し、learnings SELECT（sprint_id・source_pair_id・status）／上位ループ入力キューの参照 API を assert（還流処理を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-15-2",
+      "ac": [
+        "AC-15-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "learnings 0 行のまま",
+      "verifies_db_delta": "差分なし",
+      "verifies_evidence": "なし（生成前拒否）",
+      "verifies_forbidden": "learnings INSERT・上位キューへの登録・strategic_briefs への書込み",
+      "external_calls": "0 回",
+      "method": "pytest: seed: sprints 1 行（status='reviewing'）、measurements 1 行（evidence 接続あり）、pair_kpi_measure 0 行 を seed し、raise される例外型／learnings SELECT count を assert（還流処理を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-15-3",
+      "ac": [
+        "AC-15-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "learnings 1 行のまま（status='draft' 不変）",
+      "verifies_db_delta": "差分なし",
+      "verifies_evidence": "既存 learnings 行（重複なし）",
+      "verifies_forbidden": "同一 source_pair_id の 2 行目 INSERT・summary/learning_json の上書き",
+      "external_calls": "0 回",
+      "method": "pytest: seed: pair_kpi_measure 1 行（status='passed'）、learnings 1 行（source_pair_id=当該 pair, status='draft'）を先行投入して再実行 を seed し、learnings SELECT count（source_pair_id で絞込み）／再実行 API 戻り値（既存行 id） を assert（同じレビュー成立イベントで還流処理を再実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-16-1",
+      "ac": [
+        "AC-16-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "tasks = 'escalated'、loop_runs = 'escalated'（終端・人の対処待ち）",
+      "verifies_db_delta": "tasks 1 行 UPDATE（state='escalated', failure_code='playbook_broken'）、loop_runs 1 行 UPDATE、state_transitions +2 行（escalate／fatal_failure、guard_result='passed'）",
+      "verifies_evidence": "state_transitions 2 行＋tasks.failure_code（事由コード）",
+      "verifies_forbidden": "通知 transport 失敗による遷移の巻き戻し・failed への誤分類・破損 playbook での外部操作継続",
+      "external_calls": "0 回",
+      "method": "pytest: seed: playbooks 1 行（status='broken', consecutive_failures=2）、tasks 1 行（state='in_progress'）、loop_runs 1 行（state='running'）、通知 transport = mock を seed し、tasks.state・failure_code SELECT／loop_runs.state SELECT／state_transitions SELECT／mock 通知の呼出回数 を assert（エスカレーション制御が task へ escalate、親 loop_run へ fatal_failure を発火する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-16-2",
+      "ac": [
+        "AC-16-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "A = 'done' 不変、B = 'failed'（escalated ではない）",
+      "verifies_db_delta": "A: state_transitions +1 行（guard_result='rejected'）。B: tasks 1 行 UPDATE（→failed, failure_code='approval_rejected'）＋state_transitions +1 行（event='non_retryable_failure', passed）",
+      "verifies_evidence": "A の拒否行＋B の failure_code・state_transitions 行",
+      "verifies_forbidden": "A の状態変更・B の escalated への遷移（rejected の escalate 誤分類）・公開の実行",
+      "external_calls": "0 回",
+      "method": "pytest: seed: tasks A（state='done'）、tasks B（state='in_progress'）＋approvals 1 行（decision='rejected', binding 3 項目つき） を seed し、raise される例外型／tasks.state SELECT（A・B）／state_transitions.guard_result SELECT を assert（A へ escalate を適用し、B の承認 rejected を分類・遷移させる）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-16-3",
+      "ac": [
+        "AC-16-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "1 回目後 = 待機継続（escalated でない・承認再要求済み）、2 回目後 = tasks = 'escalated'",
+      "verifies_db_delta": "approvals +2 行（decision='expired'）、tasks 1 行 UPDATE（→escalated）、state_transitions +1 行（event='escalate', guard_result='passed'）",
+      "verifies_evidence": "approvals の expired 2 行＋state_transitions 行（再要求系列の証跡）",
+      "verifies_forbidden": "1 回目 expired での即時 escalate・expired の failed への誤分類（rejected と混同）・承認なしの公開実行",
+      "external_calls": "0 回",
+      "method": "pytest: seed: config 1 行（key='approval_retry_limit', value_json='2', value_type='integer'）、tasks 1 行（T-PUB 相当・親 loop_run waiting）、承認 mock が decision='expired' を 2 連続返却 を seed し、1 回目 expired 後の task/loop 状態／2 回目後の tasks.state SELECT／approvals SELECT 件数 を assert（承認を再要求し、2 回目も expired となる（上限到達））",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-21-1",
+      "ac": [
+        "AC-21-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "T-PUB が公開ステップへ進行可能（pair 検証 PASS）",
+      "verifies_db_delta": "pair_plan_quality 差分なし（既存行を根拠に通過）、operation_log 拒否行なし",
+      "verifies_evidence": "なし（正常通過は既存 pair 行が根拠）",
+      "verifies_forbidden": "pair 行の変更・operation_log への拒否行追加",
+      "external_calls": "0 回",
+      "method": "pytest: seed: action_plans 1 行、T-REVIEW done ＋ evidence(review_pass, commit_hash=制作 hash)、pair_plan_quality(plan_id, review_evidence_id, status='passed') を seed し、公開前検証 API の戻り値／external_operations SELECT／operation_log 件数 を assert（公開系コネクタが成立ペア ID つきで公開前検証を実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-21-2",
+      "ac": [
+        "AC-21-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "T-PUB = failed（failure_code = pair 不成立）",
+      "verifies_db_delta": "state_transitions +1 行（failed 遷移）、operation_log +1 行（拒否）、external_operations 差分なし",
+      "verifies_evidence": "operation_log 拒否行（plan_id・理由 = pair 不成立）",
+      "verifies_forbidden": "WP API 呼出し（external_operations への行追加）・pair_plan_quality への行追加",
+      "external_calls": "0 回",
+      "method": "pytest: seed: action_plans 1 行のみ（tasks/evidence/pair なし）、T-PUB task を verifying 前の公開検証に投入 を seed し、raise される例外型／external_operations SELECT（0 行）／state_transitions・operation_log SELECT を assert（公開系コネクタがペア ID なしで公開呼び出しを実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-21-3",
+      "ac": [
+        "AC-21-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "1 回目拒否・2 回目通過。revoked 行は revoked のまま保持（履歴保持）",
+      "verifies_db_delta": "pair_plan_quality +1 行（新 passed）、operation_log +1 行（1 回目拒否）",
+      "verifies_evidence": "operation_log 拒否行（理由 = pair revoked）＋新 review_pass 証跡",
+      "verifies_forbidden": "revoked 行の passed への書き戻し・revoked ペアでの外部書込み",
+      "external_calls": "0 回",
+      "method": "pytest: seed: pair_plan_quality(status='revoked') 1 行 → 再審査 T-REVIEW done ＋新 review_pass ＋新 pair(passed) を追加投入 を seed し、1 回目の例外型／2 回目の検証戻り値／pair_plan_quality SELECT を assert（旧ペア ID を根拠に公開前検証を実行し、その後、再審査 PASS で新 pair を成立させて再実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-22-1",
+      "ac": [
+        "AC-22-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "sprint = completed、pair = passed",
+      "verifies_db_delta": "pair_kpi_measure +1 行（passed）、sprints 1 行 UPDATE（completed）",
+      "verifies_evidence": "pair_kpi_measure 行（成立根拠 = measurement＋evidence FK）",
+      "verifies_forbidden": "measurement のない状態でのレビュー成立・上位還流",
+      "external_calls": "0 回",
+      "method": "pytest: seed: sprints(status='reviewing', kpi_target_json に PV 目標)、kpi_nodes 1 行、measurements 1 行（evidence_id FK あり・期間整合） を seed し、pair_kpi_measure SELECT／sprints.status／learnings 生成キューの呼出し記録 を assert（スプリントレビュー成立判定を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-22-2",
+      "ac": [
+        "AC-22-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "sprint = reviewing のまま（遷移なし）",
+      "verifies_db_delta": "差分なし（pair_kpi_measure・learnings とも 0 行のまま）",
+      "verifies_evidence": "なし（不成立は状態不変で表現。state_transitions への rejected 記録は sprint 遷移要求時のみ）",
+      "verifies_forbidden": "レビュー成立イベント発火・learnings への行追加・上位ループへの還流",
+      "external_calls": "0 回",
+      "method": "pytest: seed: sprints(status='reviewing', kpi_target_json あり)、kpi_nodes 1 行、measurements 空 を seed し、raise される例外型（又は不成立戻り値）／sprints.status／pair_kpi_measure・learnings SELECT を assert（スプリントレビュー成立判定を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-22-3",
+      "ac": [
+        "AC-22-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "1 回目 = reviewing のまま、2 回目 = completed",
+      "verifies_db_delta": "2 回目のみ pair_kpi_measure +1 行・sprints UPDATE",
+      "verifies_evidence": "2 回目の pair_kpi_measure 行（passed）",
+      "verifies_forbidden": "空目標での成立（fail-open）・1 回目でのレビュー成立イベント発火",
+      "external_calls": "0 回",
+      "method": "pytest: seed: sprints(kpi_target_json='{}') → 再判定前に kpi_target_json 設定済み新 sprint 状態＋measurements 1 行（evidence FK あり）を投入 を seed し、1 回目の不成立判定／2 回目の pair_kpi_measure SELECT と sprints.status を assert（空目標のままレビュー判定 → KPI 目標を設定し measurement 取り込み完了後に再判定する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-23-1",
+      "ac": [
+        "AC-23-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "kpi_nodes に 1 行（非有料型）",
+      "verifies_db_delta": "kpi_nodes +1 行、operation_log 差分なし",
+      "verifies_evidence": "なし（正常通過は証跡不要）",
+      "verifies_forbidden": "operation_log への拒否行の追加",
+      "external_calls": "0 回",
+      "method": "pytest: seed: config.url_allowlist=['blog.example.test']、kpi_nodes 空 を seed し、登録 API 戻り値／kpi_nodes SELECT／operation_log 件数 を assert（KPI 登録とブラウザ遷移判定を実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-23-2",
+      "ac": [
+        "AC-23-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "kpi_nodes 空のまま",
+      "verifies_db_delta": "operation_log +2 行（指標拒否・URL 拒否）",
+      "verifies_evidence": "operation_log 拒否行（指標名・URL・理由）",
+      "verifies_forbidden": "kpi_nodes への行追加・外部への実遷移",
+      "external_calls": "0 回",
+      "method": "pytest: seed: config.url_allowlist=['blog.example.test']、登録要求 = {type:'ROAS'}、URL='`https://ads.example.com`' を seed し、raise される例外型／operation_log SELECT を assert（KPI 登録とブラウザ遷移判定を実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-23-3",
+      "ac": [
+        "AC-23-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "遷移 0 件許可",
+      "verifies_db_delta": "operation_log +1 行（拒否）",
+      "verifies_evidence": "operation_log 拒否行（理由 = allowlist 未設定）",
+      "verifies_forbidden": "URL 許可（fail-open）",
+      "external_calls": "0 回",
+      "method": "pytest: seed: config から url_allowlist 行を削除 を seed し、raise される例外型／operation_log SELECT を assert（任意の URL への遷移判定を実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-24-1",
+      "ac": [
+        "AC-24-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "T-PUB が公開ステップへ進行可能（表記検証 PASS）",
+      "verifies_db_delta": "operation_log 差分なし",
+      "verifies_evidence": "なし（正常通過。審査側 review_pass の checked_items に表記検証結果）",
+      "verifies_forbidden": "operation_log への拒否行追加・表記なしでの通過",
+      "external_calls": "0 回",
+      "method": "pytest: seed: config.affiliate_domainlist=['asp.example.test']、記事 HTML に <a href='`https://asp.example.test/...`'> と PR 表記ブロック（必須文言）を含む fixture ファイル を seed し、検証 API の戻り値／operation_log 件数 を assert（公開前の PR 表記検証を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-24-2",
+      "ac": [
+        "AC-24-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "T-PUB = failed（non_retryable_failure）",
+      "verifies_db_delta": "operation_log +1 行（拒否）、external_operations 差分なし",
+      "verifies_evidence": "operation_log 拒否行（commit hash・検出リンク・欠落規則）",
+      "verifies_forbidden": "WP API 呼出し・表記なし成果物の公開ゲート通過",
+      "external_calls": "0 回",
+      "method": "pytest: seed: config.affiliate_domainlist=['asp.example.test']、記事 HTML にリンクのみ・表記ブロックなし を seed し、raise される例外型／operation_log SELECT／external_operations SELECT（0 行） を assert（公開前の PR 表記検証を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-24-3",
+      "ac": [
+        "AC-24-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "1 回目 = 拒否（判定不能）、2 回目 = 表記有無に応じた通常判定",
+      "verifies_db_delta": "operation_log +1 行（1 回目拒否）、config +1 行（リスト設定 — INSERT 履歴）",
+      "verifies_evidence": "operation_log 拒否行（理由 = domainlist 未設定）",
+      "verifies_forbidden": "リスト未設定での通過（fail-open）・展開前 URL のみでの非該当判定",
+      "external_calls": "0 回",
+      "method": "pytest: seed: config から affiliate_domainlist 行を削除 → 再実行前に config INSERT（履歴追加）で設定、短縮 URL fixture（リダイレクト mock） を seed し、1 回目の例外型／2 回目の判定結果（最終 URL での ASP 該当）／operation_log SELECT を assert（公開前の PR 表記検証を実行し、その後リストを設定して再実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-25-1",
+      "ac": [
+        "AC-25-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "T-REVIEW = done",
+      "verifies_db_delta": "evidence +1 行（review_pass）、state_transitions +1 行（verify_pass, passed）",
+      "verifies_evidence": "review_pass 証跡（result=PASS、checked_items に P5 全 4 項目）",
+      "verifies_forbidden": "P5 チェックを省略した PASS（checked_items 欠落）の記録",
+      "external_calls": "0 回",
+      "method": "pytest: seed: WF-WP-1 の T-REVIEW（verifying）、非該当記事 fixture、workflows.definition_json に P5 必須項目 を seed し、tasks.state／evidence SELECT（kind='review_pass' の payload_json.checked_items） を assert（T-REVIEW の審査を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-25-2",
+      "ac": [
+        "AC-25-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "対象 task = in_progress（retry_count=1）",
+      "verifies_db_delta": "tasks UPDATE（retry_count+1）、state_transitions +1 行（verify_fail）、verifier の FAIL 理由証跡 +1 行",
+      "verifies_evidence": "差戻し理由（P5 該当項目名）を含む verifier 証跡",
+      "verifies_forbidden": "review_pass 証跡の生成・done への遷移・pair_plan_quality の成立",
+      "external_calls": "0 回",
+      "method": "pytest: seed: T-REVIEW(verifying, retry_count=0)、恐怖訴求文言を含む記事 fixture、config.retry_limit=3 を seed し、tasks.state・retry_count／evidence SELECT（review_pass 0 行・FAIL 理由証跡）／state_transitions SELECT を assert（T-REVIEW の審査を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-25-3",
+      "ac": [
+        "AC-25-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "対象 task = escalated（retry_count=3、終端）",
+      "verifies_db_delta": "tasks UPDATE（escalated）、state_transitions +1 行（verify_fail_exhausted）",
+      "verifies_evidence": "差戻し理由証跡＋state_transitions 行（escalated 遷移）",
+      "verifies_forbidden": "escalated 後の自動遷移・上限超過後の verify_fail 継続（in_progress への差戻し）",
+      "external_calls": "0 回",
+      "method": "pytest: seed: T-REVIEW(verifying, retry_count=2)、config.retry_limit=3、P5 該当記事 fixture を seed し、tasks.state・retry_count／state_transitions SELECT／escalated 後の遷移試行の拒否 を assert（上限到達となる審査 FAIL を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-26-1",
+      "ac": [
+        "AC-26-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "承認後に外部操作実行、task は verifying へ進行可能",
+      "verifies_db_delta": "approvals +1 行（approved）、evidence +1 行（approval）、external_operations +1 行",
+      "verifies_evidence": "evidence.kind = approval（decision=approved、binding_subject/operation/at）",
+      "verifies_forbidden": "承認要求前・approved 確認前の外部書込み（オートモードによるバイパス）",
+      "external_calls": "0 回",
+      "method": "pytest: seed: config.auto_mode_criteria 充足の実績証跡、金銭操作型 task(in_progress)、承認応答 mock = approved（binding 一致） を seed し、approvals SELECT（pending→approved）／evidence SELECT（kind='approval'）／external_operations の遷移順 を assert（外部操作を要求し、束縛承認に approved（binding 3 項目完全一致）で応答する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-26-2",
+      "ac": [
+        "AC-26-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "対象 task = failed（failure_code = 承認却下）",
+      "verifies_db_delta": "approvals +1 行（rejected）、tasks UPDATE（failed）、state_transitions +1 行、external_operations 差分なし",
+      "verifies_evidence": "approvals 行（decision=rejected・responder_ref）＋state_transitions 行",
+      "verifies_forbidden": "外部書込みの実行・escalated への遷移（rejected は escalate に含まない — s0-contract §3.2）",
+      "external_calls": "0 回",
+      "method": "pytest: seed: 金銭操作型 task(in_progress)、承認応答 mock = rejected を seed し、tasks.state・failure_code／approvals.decision／external_operations SELECT（0 行） を assert（外部操作を要求し、承認が rejected となる）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-26-3",
+      "ac": [
+        "AC-26-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "上限到達前 = waiting 継続、到達後 = escalated（終端）",
+      "verifies_db_delta": "approvals +3 行（初回＋再要求 2 回、各 expired/pending 履歴）、state_transitions +1 行（escalate）",
+      "verifies_evidence": "approvals の全要求履歴＋state_transitions 行（escalate、guard に再要求回数）",
+      "verifies_forbidden": "expired での即 failed 化・上限到達後の再要求継続・未承認での外部書込み",
+      "external_calls": "0 回",
+      "method": "pytest: seed: 金銭操作型 task、承認応答 mock = expired を連続返答、config.approval_retry_limit=2 を seed し、approvals SELECT（expired 行＋再要求 pending 行の履歴）／loop_runs/tasks の状態列／state_transitions SELECT を assert（expired ごとに承認を再要求し、再要求回数が上限に到達する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-27-1",
+      "ac": [
+        "AC-27-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "task = in_progress（lease_owner_execution_id = author の execution）",
+      "verifies_db_delta": "tasks +1 行、state_transitions +1 行（claim, passed）",
+      "verifies_evidence": "state_transitions 行（guard_result=passed）＋tasks 行の割当そのもの",
+      "verifies_forbidden": "verifier execution による lease 取得",
+      "external_calls": "0 回",
+      "method": "pytest: seed: agents 2 行（principal='claude-model'／'gate-engine'）、agent_executions 1 行（author 帰属）、workflow・loop_run(running) を seed し、tasks INSERT の成否／tasks.state／state_transitions SELECT（claim, passed） を assert（task を発行し、author agent に属する execution が claim する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-27-2",
+      "ac": [
+        "AC-27-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "(a) 行は作られず、(b) task は pending のまま",
+      "verifies_db_delta": "(a) 差分なし（rollback）、(b) state_transitions +1 行（claim, rejected）",
+      "verifies_evidence": "state_transitions の rejected 行（(b) の claim 拒否）",
+      "verifies_forbidden": "同一 agent／同一 principal での in_progress 遷移・lease 取得",
+      "external_calls": "0 回",
+      "method": "pytest: seed: agents 3 行（うち 2 行は agent_key 相違・principal 同一）。(a) 同一 id 割当 SQL、(b) 同一 principal ペアの task＋claim 要求 を seed し、(a) sqlite3.IntegrityError の捕捉／(b) raise される例外型と state_transitions SELECT（rejected） を assert（(a) を tasks に直接 INSERT し、(b) をエンジン経由で claim する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-27-3",
+      "ac": [
+        "AC-27-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "lease_owner_execution_id = author の新 execution、task = in_progress で再開",
+      "verifies_db_delta": "tasks UPDATE（lease 列・row_version）、state_transitions +1 行（拒否 rejected）",
+      "verifies_evidence": "state_transitions の rejected 行（verifier execution の claim 拒否）",
+      "verifies_forbidden": "verifier execution への lease 移譲・row_version を経ない lease 上書き",
+      "external_calls": "0 回",
+      "method": "pytest: seed: task(in_progress, lease_expires_at=過去時刻)、verifier の execution 1 行、author の新 execution 1 行 を seed し、再 claim の例外型／tasks.lease_owner_execution_id・heartbeat_at／state_transitions SELECT を assert（verifier agent の execution が再 claim を試み、続いて author agent の新 execution が再 claim する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-28-1",
+      "ac": [
+        "AC-28-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "T-PLAN = done（終端）",
+      "verifies_db_delta": "tasks UPDATE（done）、state_transitions +1 行（passed）",
+      "verifies_evidence": "既存 plan_record 証跡（完備集合）＋state_transitions 行",
+      "verifies_forbidden": "証跡未検証での done 化・evidence 行の変更（append-only）",
+      "external_calls": "0 回",
+      "method": "pytest: seed: workflows(required_evidence_json='[\"plan_record\"]')、T-PLAN(verifying)、evidence(kind='plan_record', payload に plan_id/appeal/target/intent) を seed し、tasks.state／state_transitions SELECT（verify_pass, passed） を assert（verify_pass を要求する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-28-2",
+      "ac": [
+        "AC-28-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "T-PUB = verifying のまま（状態・retry_count・証跡すべて不変）",
+      "verifies_db_delta": "state_transitions +1 行（rejected）のみ",
+      "verifies_evidence": "state_transitions の rejected 行（details_json に欠落 kind='approval'）",
+      "verifies_forbidden": "done への遷移・retry_count の変更・既存 evidence の変更",
+      "external_calls": "0 回",
+      "method": "pytest: seed: T-PUB(verifying)、evidence に published_url・screenshot の 2 行のみ（approval なし） を seed し、raise される例外型／tasks.state（不変）／state_transitions SELECT（rejected, details に欠落 kind） を assert（verify_pass を要求する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-28-3",
+      "ac": [
+        "AC-28-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "1 回目 = verifying のまま、2 回目 = done",
+      "verifies_db_delta": "state_transitions +2 行（rejected → passed）、workflows +1 行（新 version）、evidence +1 行（追記）",
+      "verifies_evidence": "state_transitions の rejected 行（理由 = 未定義 kind）＋追記された適合証跡",
+      "verifies_forbidden": "未定義 kind の素通し（fail-open）・既存 workflow 行の required_evidence_json の書換え（rename/意味変更禁止 — 新 version で対応）",
+      "external_calls": "0 回",
+      "method": "pytest: seed: workflows(required_evidence_json='[\"unknown_kind\"]', version=1) → 修正版 workflows(version=2, 正しい kind)＋適合 evidence を追記して再検証 を seed し、1 回目の例外型と state_transitions（rejected）／2 回目の tasks.state（done） を assert（verify_pass を要求し、その後 workflow を正しい kind 宣言の新 version に修正し欠落証跡を追記して再要求する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-31-1",
+      "ac": [
+        "AC-31-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "全必須スロット充足（空き検出 0 件）",
+      "verifies_db_delta": "business_profiles 1 行 UPDATE（price_range 充填）、evidence +1 行（問診・回答・型検証結果）",
+      "verifies_evidence": "問診レコードと回答の紐付け行＋型検証 PASS の記録",
+      "verifies_forbidden": "未照会スロットへの値の書込み（推測充填）・他プロファイル行の変更",
+      "external_calls": "0 回",
+      "method": "pytest: seed: business_profiles 1 行（profile_json = 価格帯スロットのみ null）、回答 = {price_range: '3000-5000'} を seed し、問診生成 API の質問リスト／business_profiles SELECT（profile_json）／evidence SELECT（問診・回答紐付け） を assert（空き検出→問診生成→回答の型検証→充填を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-31-2",
+      "ac": [
+        "AC-31-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "tasks.state = 'pending'（遷移なし）",
+      "verifies_db_delta": "tasks・business_profiles 差分なし、構造化ログ +1 行（拒否）",
+      "verifies_evidence": "開始拒否ログ（未充足スロット名 = target_customer を含む）",
+      "verifies_forbidden": "タスクの in_progress 遷移・スロットへの推測値の自動充填",
+      "external_calls": "0 回",
+      "method": "pytest: seed: business_profiles 1 行（target_customer = null）、tasks 1 行（state='pending'、当該スロット依存） を seed し、raise される例外型／tasks SELECT（state）／構造化ログの拒否行 を assert（依存タスクの開始前提判定を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-31-3",
+      "ac": [
+        "AC-31-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "質問リスト = 未充足 1 件のみ",
+      "verifies_db_delta": "差分なし（再照会前の空き検出時点）",
+      "verifies_evidence": "なし（空き検出は読み取りのみ）",
+      "verifies_forbidden": "充填済みスロットの再照会・充填済み値の消去や上書き",
+      "external_calls": "0 回",
+      "method": "pytest: seed: business_profiles 1 行（3 スロット中 2 件充填済み — クラッシュ前の確定分を再現） を seed し、再実行時の質問リスト内容／business_profiles SELECT（充填済み値の不変性） を assert（プロセス再起動後にヒアリングエンジンを再実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-32-1",
+      "ac": [
+        "AC-32-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "draft 1 件（全値出典つき・未昇格の draft 状態）",
+      "verifies_db_delta": "draft +1 件、evidence +1 行（operation_log — Web 取得）",
+      "verifies_evidence": "draft の出典 URL 列＋取得の operation_log 証跡",
+      "verifies_forbidden": "draft の正本への自動昇格・外部への書込み",
+      "external_calls": "0 回",
+      "method": "pytest: seed: config.source_freshness_days=90、検索結果 mock = [{value:'CTR 中央値 1.5%', url:'`https://source.example.test/report`', fetched_at:今日}] を seed し、draft の出典 URL 列／structure_checked 日付／構造化ログ件数 を assert（リサーチ起草を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-32-2",
+      "ac": [
+        "AC-32-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "draft に出典あり 1 値のみ（出典なし値 0 件）",
+      "verifies_db_delta": "draft +1 件（1 値のみ）、構造化ログ +1 行（拒否）",
+      "verifies_evidence": "出典なし値の拒否ログ（値と拒否理由）",
+      "verifies_forbidden": "出典なし値の draft・正本への混入",
+      "external_calls": "0 回",
+      "method": "pytest: seed: 検索結果 mock = [{value:'投稿上限 100 件/日', url:null}, {value:'CTR 1.5%', url:'`https://source.example.test`'}] を seed し、raise される例外型（値単位の拒否）／draft の内容／構造化ログ を assert（draft への書込みを実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-32-3",
+      "ac": [
+        "AC-32-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "スロット A 未充足維持、スロット B は境界内出典のみで draft 化",
+      "verifies_db_delta": "draft +1 件（スロット B のみ）、構造化ログ +1 行（鮮度拒否）",
+      "verifies_evidence": "鮮度切れ出典の拒否ログ（G-SRC-FRESH）",
+      "verifies_forbidden": "空値・鮮度切れ値による draft の充填（fail-open）",
+      "external_calls": "0 回",
+      "method": "pytest: seed: config.source_freshness_days=90、スロット A = 検索 0 件、スロット B = fetched_at 90 日前と 91 日前の 2 出典 を seed し、draft の内容（スロット A 不在・スロット B は 90 日出典のみ）／構造化ログ を assert（リサーチ起草を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-33-1",
+      "ac": [
+        "AC-33-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "有効値 = 5、履歴 2 行（supersedes_config_id が旧行を参照）",
+      "verifies_db_delta": "config +1 行（INSERT のみ — 旧行の UPDATE なし）",
+      "verifies_evidence": "config 履歴行（旧値 3・新値 5・reason）",
+      "verifies_forbidden": "既存 config 行の UPDATE/DELETE",
+      "external_calls": "0 回",
+      "method": "pytest: seed: config 1 行（key='retry_limit', value_json='3'）、変更要求 = {value:'5', reason:'S1 移行に伴う緩和', changed_by_agent_id:1} を seed し、config SELECT（key='retry_limit' の全行）／有効値解決 API の戻り値 を assert（設定変更（INSERT）と変更後の参照を実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-33-2",
+      "ac": [
+        "AC-33-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "config 1 行のまま（値 5000 不変）",
+      "verifies_db_delta": "差分なし",
+      "verifies_evidence": "構造化ログの拒否行（append-only 違反・reason 欠落）",
+      "verifies_forbidden": "config 行の値変更・reason なし行の混入",
+      "external_calls": "0 回",
+      "method": "pytest: seed: config 1 行（key='spend_cap_monthly', value_json='5000'）、UPDATE 文 = SET value_json='99999'、INSERT 要求 = {reason:''} を seed し、raise される例外型／config SELECT（行数・値の不変性） を assert（UPDATE 実行と reason なし INSERT を試みる）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-33-3",
+      "ac": [
+        "AC-33-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "spend_cap_monthly = 5000（保守的既定値）、unknown_key = 解決拒否",
+      "verifies_db_delta": "差分なし（参照は読み取りのみ）",
+      "verifies_evidence": "なし（正常参照）／拒否ログ（unknown_key）",
+      "verifies_forbidden": "未定義 key への暗黙値（0・None 等）の返却",
+      "external_calls": "0 回",
+      "method": "pytest: seed: config 空、既定値表 = {spend_cap_monthly: 5000}、参照 key = 'spend_cap_monthly' と 'unknown_key' を seed し、参照 API の戻り値／raise される例外型 を assert（有効値の解決を実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-34-1",
+      "ac": [
+        "AC-34-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "business_profiles 2 行、B スコープの brand_plans = 0 件・A スコープ = 1 件",
+      "verifies_db_delta": "business_profiles +1 行、他テーブル差分なし",
+      "verifies_evidence": "business_profiles の複数行共存（SELECT で確認）",
+      "verifies_forbidden": "A の行・A 所属データの変更・コードやワークフロー定義の修正の必要",
+      "external_calls": "0 回",
+      "method": "pytest: seed: business_profiles 1 行（profile_key='brand-a', status='active'）＋brand_plans 1 行（A 所属）、登録要求 = {profile_key:'brand-b', name:'事業B', profile_json:{...}} を seed し、business_profiles SELECT（2 行共存）／スコープ付き brand_plans SELECT の結果件数 を assert（プロファイル B を登録し、各プロファイルのスコープ付きクエリを実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-34-2",
+      "ac": [
+        "AC-34-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "B の brand_plans 行が不変・A へのデータ流出 0 件",
+      "verifies_db_delta": "差分なし、構造化ログ +1 行（越境拒否）",
+      "verifies_evidence": "越境アクセスの拒否ログ（要求スコープ・対象行・理由）",
+      "verifies_forbidden": "他プロファイル行の返却・変更（越境参照・越境書込み）",
+      "external_calls": "0 回",
+      "method": "pytest: seed: business_profiles 2 行（A/B）、brand_plans 1 行（B 所属）、アクセス要求 = scope=A で B の brand_plan id を指定 を seed し、raise される例外型／brand_plans SELECT（B 行の不変性）／構造化ログ を assert（越境の SELECT と UPDATE をストア層経由で実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-34-3",
+      "ac": [
+        "AC-34-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "business_profiles 1 行のまま（archived・不変）",
+      "verifies_db_delta": "差分なし",
+      "verifies_evidence": "書込み拒否・重複拒否のログ",
+      "verifies_forbidden": "archived プロファイルへの新規業務行の追加・既存行の上書き登録",
+      "external_calls": "0 回",
+      "method": "pytest: seed: business_profiles 1 行（profile_key='brand-a', status='archived'）、登録要求 = {profile_key:'brand-a'} を seed し、読取 API の戻り値／raise される例外型／business_profiles SELECT を assert（archived プロファイルへの新規書込み・読取と、重複 key の登録を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-41-1",
+      "ac": [
+        "AC-41-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "最新 config 行の宣言どおりの経路が返る",
+      "verifies_db_delta": "config +1 行（経路変更 INSERT）。operation_log 差分なし",
+      "verifies_evidence": "なし（正常解決は証跡不要）",
+      "verifies_forbidden": "コード側分岐による経路決定・operation_log への拒否行追加・外部 HTTP 呼出（0 回）",
+      "external_calls": "0 回",
+      "method": "pytest: seed: config('registry.notion', {\"primary\":\"mcp\",\"fallback\":\"browser\",\"auth\":\"mcp_oauth\"})、変更は同 key の config INSERT（履歴保持） を seed し、resolve_route の戻り値（route_type）／config SELECT（2 行の履歴）／operation_log 件数 を assert（notion の経路解決を実行し、その後 config INSERT で優先経路を browser に変更して再解決する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-41-2",
+      "ac": [
+        "AC-41-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "経路は 1 件も返却されない",
+      "verifies_db_delta": "operation_log +2 行（未登録拒否・有償経路拒否）",
+      "verifies_evidence": "operation_log 拒否行（service・要求経路・理由）",
+      "verifies_forbidden": "有償 API への接続試行（外部 HTTP 呼出 0 回）・spend_ledger への行追加",
+      "external_calls": "0 回",
+      "method": "pytest: seed: config('registry.note', {\"primary\":\"browser\"})（paid_exception なし）、unknown_svc の registry 行なし を seed し、raise される例外型／operation_log SELECT（service・理由） を assert（unknown_svc の経路解決と、note の route_type=api（有償）強制解決を要求する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-41-3",
+      "ac": [
+        "AC-41-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "両要求とも経路返却 0 件",
+      "verifies_db_delta": "operation_log +2 行（破損拒否・経路なし）",
+      "verifies_evidence": "operation_log 拒否行（理由 = registry 行破損／fallback なし）",
+      "verifies_forbidden": "破損行からの部分的な経路返却（fail-open）・外部 HTTP 呼出（0 回）",
+      "external_calls": "0 回",
+      "method": "pytest: seed: config('registry.gtm', \"broken-not-json\")、config('registry.instagram', {\"primary\":\"api\",\"paid_exception\":false}) ＋ instagram 第一経路の失敗通知 を seed し、raise される例外型／operation_log SELECT を assert（gtm と instagram の経路解決を実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-42-1",
+      "ac": [
+        "AC-42-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "external_operations 3 行すべて confirmed、playbook は active のまま",
+      "verifies_db_delta": "external_operations +3 行、operation_log +3 行、playbooks.last_success_at UPDATE",
+      "verifies_evidence": "operation_log 行（external_operation_id つき）＋構造化ログの seed=42 と間隔 3 値",
+      "verifies_forbidden": "固定間隔での連続送信（3 間隔が全一致）・範囲外（1 秒未満/5 秒超）の間隔・idempotency key の重複",
+      "external_calls": "0 回",
+      "method": "pytest: seed: playbooks(service='note', operation='post', route_type='browser', status='active')、config.rate.note.daily_write_cap=10、Rng(seed=42) 注入、mock ブラウザ を seed し、playbooks.last_success_at SELECT／構造化ログ（seed・間隔値）／external_operations.status を assert（mock 媒体への書込み系ブラウザ操作を 3 連続で実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-42-2",
+      "ac": [
+        "AC-42-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "external_operations に新規 sent/confirmed 行なし",
+      "verifies_db_delta": "operation_log +2 行（X 拒否・上限拒否）。external_operations 差分なし",
+      "verifies_evidence": "operation_log 拒否行（media・理由 = prohibited／daily_cap）",
+      "verifies_forbidden": "外部サイトへのブラウザ書込み送信（0 回）・playbooks.last_success_at の更新",
+      "external_calls": "0 回",
+      "method": "pytest: seed: 当日分 external_operations に note 書込み confirmed 10 行、X 用 playbook は書込み系を投入しない、config.rate.note.daily_write_cap=10 を seed し、raise される例外型／operation_log SELECT／external_operations 件数 を assert（両方の書込み系ブラウザ操作を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-42-3",
+      "ac": [
+        "AC-42-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "k1 = confirmed、k2 = unknown で対象タスク escalated",
+      "verifies_db_delta": "external_operations 2 行 UPDATE（confirmed/unknown）、operation_log +2 行（照合結果）、state_transitions +1 行（escalate）",
+      "verifies_evidence": "operation_log 行（照合結果・external_operation_id 補完）",
+      "verifies_forbidden": "同一 idempotency key の再送（mock 受信カウンタ増加 0）・unknown の confirmed 化",
+      "external_calls": "0 回",
+      "method": "pytest: seed: external_operations(status='sent', idempotency_key='k1') 1 行＋mock 媒体に k1 成功応答、照合不能ケース用に mock が k2 を未知と応答する sent 行 1 行 を seed し、external_operations.status SELECT／mock 媒体の受信回数カウンタ／tasks.status を assert（再起動後に §3.3 の再開規則で当該操作を照合・再開する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-43-1",
+      "ac": [
+        "AC-43-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "playbook = active（新地図）",
+      "verifies_db_delta": "playbooks 1 行 UPDATE、operation_log +2 行（検知・再生成成功）",
+      "verifies_evidence": "operation_log 行（不一致セレクタ・再生成結果）＋再解析時 screenshot evidence",
+      "verifies_forbidden": "再解析中の外部サイトへの書込み（mock 書込み受信 0 回）・2 回目の再生成試行",
+      "external_calls": "0 回",
+      "method": "pytest: seed: playbooks(service='note', status='active', consecutive_failures=2, selector_json=旧セレクタ)、mock ページ DOM に新セレクタ を seed し、playbooks SELECT（status・selector_json・consecutive_failures）／operation_log SELECT を assert（破損検知から自己修復（再解析→地図再生成→検証）を実行する）",
+      "slice": "S2"
+    },
+    {
+      "id": "TCC-43-2",
+      "ac": [
+        "AC-43-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "playbook = broken、task = escalated",
+      "verifies_db_delta": "playbooks.status UPDATE（broken）、state_transitions +1 行（escalate）、operation_log +2 行（検知・再生成失敗）",
+      "verifies_evidence": "operation_log 行（再生成失敗理由）＋escalate 遷移行",
+      "verifies_forbidden": "2 回目以降の自動再生成試行・broken 地図での書込み操作続行・地図の推測書換え",
+      "external_calls": "0 回",
+      "method": "pytest: seed: playbooks(status='active', consecutive_failures=3)、mock ページから対象要素を削除、対象 task = in_progress を seed し、playbooks.status／tasks.status／state_transitions SELECT／通知 mock の送出記録 を assert（自己修復を実行し 1 回目の再生成が失敗する）",
+      "slice": "S2"
+    },
+    {
+      "id": "TCC-43-3",
+      "ac": [
+        "AC-43-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "note 行 = active、kdp 行 = retired のまま対象タスク escalated",
+      "verifies_db_delta": "playbooks 1 行 UPDATE（active）、state_transitions +1 行（retired 側 escalate）、operation_log +2 行以上",
+      "verifies_evidence": "operation_log 行（再開後の再生成試行・retired 拒否）",
+      "verifies_forbidden": "中間状態の地図（部分更新）での操作再開・retired 行の自動復活・外部書込み",
+      "external_calls": "0 回",
+      "method": "pytest: seed: playbooks 2 行（status='broken' の note 行／status='retired' の kdp 行）、mock ページは note の正セレクタを提供 を seed し、playbooks SELECT（再実行後の status）／operation_log SELECT／tasks.status（retired 側） を assert（再起動後に破損中 playbook を検出して自己修復を再実行する）",
+      "slice": "S2"
+    },
+    {
+      "id": "TCC-44-1",
+      "ac": [
+        "AC-44-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "下書き行・公開行とも confirmed、WP 上で記事 published",
+      "verifies_db_delta": "external_operations +2 行、operation_log +2 行、evidence +1 行（published_url）、assets +1 行（canonical_url・wp_post_id）",
+      "verifies_evidence": "published_url evidence（url・wp_post_id・external_operation_id・asset_id）＋operation_log 2 行",
+      "verifies_forbidden": "下書きと公開の idempotency key 共有・Docker 以外の endpoint への送信・credential の平文ログ出力",
+      "external_calls": "0 回",
+      "method": "pytest: seed: pair_plan_quality(passed) 1 行、approvals(approved・binding 一致) 1 行、Docker WP（または WP mock）稼働、idempotency key を操作別に付与 を seed し、external_operations SELECT（2 行の status 遷移）／WP 側 post status／evidence・assets SELECT を assert（下書き作成（key=k-draft）→公開（key=k-pub）を順に実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-44-2",
+      "ac": [
+        "AC-44-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "external_operations に prepared 行すら作られない（検証は送信前）",
+      "verifies_db_delta": "operation_log +2 行（ペアなし拒否・本番書込み拒否）。external_operations 差分なし",
+      "verifies_evidence": "operation_log 拒否行（理由 = pair 未成立／非 Docker endpoint）",
+      "verifies_forbidden": "外部 HTTP 呼出（受信カウンタ 0 のまま）・本番 WP への一切の書込み",
+      "external_calls": "0 回",
+      "method": "pytest: seed: pair_plan_quality 空、config の WP endpoint を '`https://real-site.example.com`' に設定したケースを用意、WP mock の受信カウンタ 0 初期化 を seed し、raise される例外型／operation_log SELECT／WP mock 受信カウンタ を assert（両方の WP REST 書込みを実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-44-3",
+      "ac": [
+        "AC-44-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "k-pub 行 = confirmed、WP 上の公開記事は 1 件のまま",
+      "verifies_db_delta": "external_operations 1 行 UPDATE（confirmed・response 補完）、evidence +1 行（published_url 補完）、operation_log +1 行",
+      "verifies_evidence": "operation_log 照合行＋published_url evidence（external_operation_id 整合）",
+      "verifies_forbidden": "公開 API の再送（mock 受信回数増加 0）・external_operations の重複行・二重公開",
+      "external_calls": "0 回",
+      "method": "pytest: seed: external_operations(status='sent', idempotency_key='k-pub') 1 行＋WP mock に k-pub の公開成功状態、再要求も key='k-pub' を seed し、external_operations.status／WP mock の公開 API 受信回数／evidence SELECT を assert（再起動後の §3.3 再開と、同一 key の公開再要求を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-45-1",
+      "ac": [
+        "AC-45-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "読取り draft 保存済み、書戻し操作 confirmed",
+      "verifies_db_delta": "external_operations +1 行（confirmed）、operation_log +1 行、draft 保存 +1 行",
+      "verifies_evidence": "operation_log 行（service=notion・external_operation_id・request_fingerprint）",
+      "verifies_forbidden": "2,000 字超の単一ブロック送信・3 req/秒超過・ループ判定への Notion 値の混入",
+      "external_calls": "0 回",
+      "method": "pytest: seed: Notion mock（計画ページ 1 件・書込み受付）、learnings/sprints に書戻し元データ、config.rate.notion.req_per_sec=3、書戻し本文 2,500 字 を seed し、SQLite の draft 保存行／Notion mock の受信ブロック（2 分割・レート）／external_operations.status を assert（スプリント開始時の読取りと、レビュー成立時の書戻し（2,500 字 — 分割必要）を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-45-2",
+      "ac": [
+        "AC-45-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "同期 task = failed、loop_run は継続進行",
+      "verifies_db_delta": "operation_log +1 行（NotionUnavailable）、state_transitions に同期 task の failed 遷移＋他 task の正常遷移",
+      "verifies_evidence": "operation_log 行（service=notion・理由 = unavailable）",
+      "verifies_forbidden": "ループ本体の停止・待機（Notion 障害の波及）・障害中の書戻し再送連打",
+      "external_calls": "0 回",
+      "method": "pytest: seed: Notion mock を全断（connection error）、loop_runs 1 行進行中＋依存しない task 1 件 を seed し、同期 task の status／loop_runs・他 task の遷移可否／operation_log SELECT を assert（スプリント開始の読取り同期を実行し、その後ループ本体のタスク遷移を継続実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-45-3",
+      "ac": [
+        "AC-45-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "境界更新 1 件が draft に反映、k-nt = confirmed",
+      "verifies_db_delta": "draft 1 行 upsert（重複行なし）、external_operations 1 行 UPDATE、operation_log +1 行",
+      "verifies_evidence": "operation_log 照合行（external_operation_id 補完）",
+      "verifies_forbidden": "境界更新の取りこぼし・draft の重複行・書戻しの再送（mock 受信増加 0）",
+      "external_calls": "0 回",
+      "method": "pytest: seed: sync カーソル=T、Notion mock に last_edited_time=T（同一分）の更新、external_operations(status='sent', idempotency_key='k-nt') ＋ mock に k-nt 成功応答、config.sync.notion.cursor_margin_min=2 を seed し、draft 保存行数（重複なし）／external_operations.status／Notion mock 書込み受信回数 を assert（再起動後にポーリング読取りと書戻し再開（§3.3 照合）を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-46-1",
+      "ac": [
+        "AC-46-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "approvals = approved・evidence 相互整合、task = 進行再開",
+      "verifies_db_delta": "approvals +1 行（pending→approved UPDATE）、evidence +1 行（kind=approval）、state_transitions +2 行（waiting→in_progress 系）",
+      "verifies_evidence": "approval evidence（decision=approved・binding 3 項目・approvals.evidence_id 整合）",
+      "verifies_forbidden": "応答受領前の公開実行・approvals 行の書換えによる decision 変更",
+      "external_calls": "0 回",
+      "method": "pytest: seed: task(pending) 1 件、mock transport（approved・responder_ref='po'）、binding = (post:123, publish, 2026-08-01T10:00) を seed し、approvals SELECT（decision・binding・evidence_id）／応答前後の tasks.status／公開ゲートの通過可否 を assert（承認要求を送出し、応答受領後に binding 3 項目一致の公開を実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-46-2",
+      "ac": [
+        "AC-46-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "公開 0 件、rejected 側 task = failed（retry_count 増加なし）",
+      "verifies_db_delta": "operation_log +1 行（binding 不一致）、approvals 1 行 UPDATE（rejected）、state_transitions +1 行（failed）",
+      "verifies_evidence": "operation_log 拒否行（不一致項目の明示）＋approvals rejected 行",
+      "verifies_forbidden": "不一致のままの公開（外部書込み 0 回）・rejected タスクの自動リトライ・escalated への迂回",
+      "external_calls": "0 回",
+      "method": "pytest: seed: approvals(approved, binding_at='2026-08-01T10:00') に対し公開時点 '2026-08-01T11:00' を提示、別 task に mock transport が rejected 応答 を seed し、raise される例外型／operation_log SELECT／tasks.status・state_transitions を assert（binding 不一致のままの公開と、rejected 後のタスク進行を試みる）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-46-3",
+      "ac": [
+        "AC-46-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "expired 側 task = escalated、pending 側 = waiting 継続（要求は 1 件のまま）",
+      "verifies_db_delta": "approvals は再要求分のみ増加（上限到達で停止）、state_transitions +1 行（escalate）。pending 側 approvals 差分なし",
+      "verifies_evidence": "approvals の expired 履歴＋escalate 遷移行（事由 = approval_retry_limit 到達）",
+      "verifies_forbidden": "上限超過後の再要求継続（無限待機）・同一 binding の重複 approvals 行・expired の failed 化（rejected と混同）",
+      "external_calls": "0 回",
+      "method": "pytest: seed: config('approval_retry_limit', 2)、mock transport（常時 expired）、pending 行 1 件（UNIQUE binding）を残して再起動 を seed し、approvals 行数と decision 履歴／tasks.status／state_transitions SELECT を assert（expired の再要求ループを上限まで進め、pending 側は再起動後に待機再開する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-47-1",
+      "ac": [
+        "AC-47-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "接続成功・平文検出 0 件",
+      "verifies_db_delta": "external_operations/operation_log は操作分のみ（credential 列・平文なし）",
+      "verifies_evidence": "operation_log 行（external_operation_id — 秘匿値を含まない）",
+      "verifies_forbidden": "SQLite・repo・ログ・evidence への平文 credential 書込み（検索ヒット 1 件でも fail）",
+      "external_calls": "0 回",
+      "method": "pytest: seed: mock キーチェーンに secret='wp-app-pass-XYZ'、操作後に repo/DB/ログへ 'wp-app-pass-XYZ' の全文検索を実行 を seed し、接続結果／全文検索ヒット件数（repo grep・SQLite LIKE・ログ grep） を assert（秘匿値を実行時注入して外部操作（mock WP 接続）を 1 件実行し、リポジトリ・SQLite・ログ・evidence を全文検索する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-47-2",
+      "ac": [
+        "AC-47-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "接続 0 件、ログには伏字（token=***）のみ、書出し元 task = escalated 誘導",
+      "verifies_db_delta": "operation_log +2 行（SecretUnavailable・CredentialLeakDetected — いずれも平文なし）",
+      "verifies_evidence": "operation_log 検知行（マスク済み — 秘匿値そのものを含まない）",
+      "verifies_forbidden": "平文のままのログ永続化・秘匿値なしでの外部接続試行（外部 HTTP 呼出 0 回）",
+      "external_calls": "0 回",
+      "method": "pytest: seed: mock キーチェーン（notion キーなし）、書出し文字列 = 'auth failed: token=wp-app-pass-XYZ'（既知 secret 混入） を seed し、raise される例外型／operation_log SELECT（マスク後文字列）／tasks.status を assert（notion 接続と、混入文字列のログ書出しを実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-47-3",
+      "ac": [
+        "AC-47-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "再投入前 = escalated・接続 0 件、再投入後 = 同一タスクが接続成功",
+      "verifies_db_delta": "operation_log +2 行（期限切れ・組合せ拒否）、state_transitions に escalate と再開の遷移",
+      "verifies_evidence": "operation_log 行（理由 = session expired／credential-endpoint mismatch — 平文なし）",
+      "verifies_forbidden": "期限切れセッションでの外部送信・テスト credential の本番 endpoint 使用（fail-open）・再投入値の SQLite 保存",
+      "external_calls": "0 回",
+      "method": "pytest: seed: mock キーチェーンに expired セッション、test credential ＋ production endpoint の組合せ設定、再投入手順で有効値に上書き を seed し、raise される例外型／tasks.status（escalated→再開）／operation_log SELECT を assert（期限切れセッションでの接続と、不一致組合せでの接続を実行し、その後 credential 再投入からタスクを再開する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-51-1",
+      "ac": [
+        "AC-51-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "assets 1 行（content_hash = 出力 hash、wp_media_id あり）",
+      "verifies_db_delta": "assets +1 行、evidence +1 行（file_hash）、operation_log +1 行（WP アップ操作）— 2 回目は差分なし",
+      "verifies_evidence": "evidence 行（kind=file_hash、value=出力 SHA-256、payload に file_path・algorithm=SHA-256）",
+      "verifies_forbidden": "2 回目実行での assets/evidence の行増加・出力 hash の変動・本番 WP への書込み",
+      "external_calls": "0 回",
+      "method": "pytest: seed: tasks に T-PROD 1 行（実行中）、fixture リポジトリ commit abc…（記事 HTML 1 件）、config.wp_target=docker、WP コネクタは mock（決定的応答） を seed し、1 回目と 2 回目の出力ファイル SHA-256 比較／assets SELECT／evidence SELECT (kind='file_hash') を assert（同一 commit・同一プロファイル（manuscript）でレンダリングを 2 回実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-51-2",
+      "ac": [
+        "AC-51-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "assets 空のまま、WP モックへの書込み呼出 0 回",
+      "verifies_db_delta": "operation_log +2 行（未 commit 拒否・接続先拒否）のみ",
+      "verifies_evidence": "operation_log 拒否行（理由 = uncommitted source／wp target denied）",
+      "verifies_forbidden": "assets/evidence への行追加・WP（モック含む）への書込み呼出",
+      "external_calls": "0 回",
+      "method": "pytest: seed: fixture リポジトリに未 commit 変更を作る／config.wp_target を docker 以外（prod 想定値）に seed を seed し、raise される例外型／assets・evidence 件数／operation_log SELECT を assert（レンダリングと WP アップロードを要求する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-51-3",
+      "ac": [
+        "AC-51-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "assets 1 行（既存 wp_media_id を参照）、evidence 1 行",
+      "verifies_db_delta": "assets +1 行、evidence +1 行（file_hash）— WP への新規アップロード 0 回",
+      "verifies_evidence": "evidence 行（kind=file_hash、value=出力 SHA-256）",
+      "verifies_forbidden": "同一実体の二重アップロード・assets の重複行",
+      "external_calls": "0 回",
+      "method": "pytest: seed: WP モックに hash 一致のメディアを事前配置、assets/evidence は空（クラッシュ直後を再現） を seed し、WP モックのアップロード呼出回数／assets・evidence SELECT を assert（同一 task で レンダリングを再実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-52-1",
+      "ac": [
+        "AC-52-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "キャッシュ = v3（hash T3）、出力に #123456 が展開",
+      "verifies_db_delta": "operation_log +1 行（取得成功）。業務テーブル差分なし",
+      "verifies_evidence": "レンダリング証跡 payload の token_version='v3'・token_hash=T3・stale=false",
+      "verifies_forbidden": "トークン外の恣意的スタイル値の混入・キャッシュの破壊的更新（temp→rename 以外）",
+      "external_calls": "0 回",
+      "method": "pytest: seed: config.designsync_source=mock、DesignSync モック応答 = {version:'v3', tokens:{color.primary:'#123456'}}、キャッシュは v2 を事前配置 を seed し、出力ファイル内のトークン展開値／キャッシュファイル内容／レンダリング証跡 payload を assert（トークン取得→注入つきレンダリングを実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-52-2",
+      "ac": [
+        "AC-52-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "レンダリング出力 0 件",
+      "verifies_db_delta": "operation_log +1 行（取得失敗・キャッシュなし拒否）のみ",
+      "verifies_evidence": "operation_log 拒否行（理由 = token unavailable, no cache）",
+      "verifies_forbidden": "トークン未適用出力の生成・assets/evidence への登録",
+      "external_calls": "0 回",
+      "method": "pytest: seed: DesignSync モックを接続エラー応答に設定、config.designsync_cache_path 先を空にする を seed し、raise される例外型／出力ディレクトリの内容／operation_log SELECT を assert（トークン注入つきレンダリングを実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-52-3",
+      "ac": [
+        "AC-52-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "レンダリング成功（v2 トークン適用）、キャッシュは v2 のまま",
+      "verifies_db_delta": "operation_log +1 行（フォールバック記録）",
+      "verifies_evidence": "証跡 payload の token_version='v2'・stale=true",
+      "verifies_forbidden": "破損キャッシュの使用（hash 不一致時の続行）・再試行回数の超過呼出",
+      "external_calls": "0 回",
+      "method": "pytest: seed: DesignSync モック = タイムアウト応答、config.designsync_fetch_retry_max=2、キャッシュ v2 を hash 整合状態で配置 を seed し、取得試行回数（モック呼出カウント）／出力のトークン展開値／証跡 payload を assert（規定回数の再試行後にトークン注入つきレンダリングを実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-53-1",
+      "ac": [
+        "AC-53-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "assets +1 行（asset_type=audio、parent_asset_id=1）",
+      "verifies_db_delta": "assets +1 行、evidence +1 行（file_hash＋実行記録 payload）— 2 回目は差分なし",
+      "verifies_evidence": "evidence payload に入力参照（台本 commit・素材 asset_id）・ツール版数・出力 hash",
+      "verifies_forbidden": "localhost 以外への TTS 送信・2 回目実行での行増加・SQLite への mp3 実体格納",
+      "external_calls": "0 回",
+      "method": "pytest: seed: assets に元記事資産 1 行、fixture 台本 commit、VOICEVOX/WP モック（決定的応答）、config.voicevox_endpoint=localhost モック を seed し、出力 mp3 の SHA-256（2 回比較）／assets SELECT（parent_asset_id）／evidence payload を assert（voice パイプラインを同一入力で 2 回実行する）",
+      "slice": "S3+"
+    },
+    {
+      "id": "TCC-53-2",
+      "ac": [
+        "AC-53-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "assets 差分なし、WP への登録 0 件",
+      "verifies_db_delta": "operation_log +2 行（参照拒否・実行失敗）のみ",
+      "verifies_evidence": "operation_log 拒否行（理由 = missing asset ref／pipeline failed at encode）",
+      "verifies_forbidden": "部分出力（中間 mp4）の assets 登録・WP アップロード",
+      "external_calls": "0 回",
+      "method": "pytest: seed: 台本の素材参照 = asset_id 999（不在）／別ケース: ffmpeg モックを exit 1 に設定し中間 mp4 断片を temp に生成させる を seed し、raise される例外型／assets・evidence 件数／temp 領域と WP モックの状態 を assert（video パイプラインを実行する）",
+      "slice": "S3+"
+    },
+    {
+      "id": "TCC-53-3",
+      "ac": [
+        "AC-53-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "assets 1 行・evidence 1 行（再実行分のみ）",
+      "verifies_db_delta": "assets +1 行、evidence +1 行 — 断片由来の行は 0",
+      "verifies_evidence": "evidence 行（kind=file_hash、value=再実行出力の SHA-256）",
+      "verifies_forbidden": "前回断片の成果物採用・二重登録",
+      "external_calls": "0 回",
+      "method": "pytest: seed: temp 領域に前回断片ファイルを配置、assets/evidence は空、pandoc/WP モックは決定的応答 を seed し、temp 領域の掃除結果／出力 hash／assets・evidence 件数 を assert（同一 task で epub パイプラインを再実行する）",
+      "slice": "S3+"
+    },
+    {
+      "id": "TCC-54-1",
+      "ac": [
+        "AC-54-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "review_pass 証跡の commit_hash 列 = H1、復元ソースの内容 hash = 証跡化時と一致",
+      "verifies_db_delta": "evidence +2 行（commit_hash・review_pass）",
+      "verifies_evidence": "evidence（kind=commit_hash、value=H1、payload に repository・paths）／evidence（kind=review_pass、payload に result=PASS・commit_hash=H1・reviewer）",
+      "verifies_forbidden": "既存証跡行の UPDATE/DELETE（append-only トリガ違反）",
+      "external_calls": "0 回",
+      "method": "pytest: seed: fixture リポジトリ commit H1（記事ソース）、tasks に T-PROD/T-REVIEW 各 1 行、reviewer は author と別 agent を seed し、evidence SELECT（kind IN ('commit_hash','review_pass') の commit_hash 列）／checkout 後のファイル hash 比較 を assert（commit_hash 証跡化→review_pass 記録（commit_hash=H1）→hash からのソース復元を順に実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-54-2",
+      "ac": [
+        "AC-54-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "review_pass 証跡 0 件のまま",
+      "verifies_db_delta": "operation_log +1 行（hash 不一致拒否）のみ",
+      "verifies_evidence": "operation_log 拒否行（理由 = commit hash mismatch H1≠H2）",
+      "verifies_forbidden": "H2 での review_pass 記録・既存 commit_hash 証跡の書換え",
+      "external_calls": "0 回",
+      "method": "pytest: seed: evidence に (task, commit_hash, H1) を事前投入、PASS 要求 = {commit_hash: H2, result: 'PASS'} を seed し、raise される例外型／evidence SELECT (kind='review_pass')／operation_log SELECT を assert（review_pass 記録を要求する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-54-3",
+      "ac": [
+        "AC-54-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "commit_hash 証跡 = 2 行（40 桁 1・64 桁 1）",
+      "verifies_db_delta": "evidence +2 行（重複分・不正桁は増えない）",
+      "verifies_evidence": "operation_log 行（39 桁の拒否）",
+      "verifies_forbidden": "同一 (task, kind, value) の重複行・不正桁数 hash の記録",
+      "external_calls": "0 回",
+      "method": "pytest: seed: 同一 (task, H1[40桁]) を 2 回投入／64 桁 hash を 1 回投入／39 桁文字列を 1 回投入 を seed し、evidence SELECT（kind='commit_hash' の件数・value）／raise される例外型 を assert（commit_hash 証跡化をそれぞれ実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-55-1",
+      "ac": [
+        "AC-55-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "assets 2 行（A1 と派生行）、系譜クエリ結果 = [派生, A1]",
+      "verifies_db_delta": "assets +1 行（本文実体列なし・参照のみ）",
+      "verifies_evidence": "なし（登録行自体が系譜の正本。公開時の published_url は別 FR）",
+      "verifies_forbidden": "SQLite への画像バイナリ・本文テキストの格納",
+      "external_calls": "0 回",
+      "method": "pytest: seed: assets に A1（記事、canonical_url='`http://wp.test/post/1`'）、登録要求 = {asset_type:'image', wp_media_id:'m-77', content_hash:…, parent_asset_id:A1} を seed し、assets SELECT（新行の列値）／再帰 CTE による系譜クエリ結果 を assert（派生資産を parent_asset_id=A1 で登録し、系譜クエリで根まで辿る）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-55-2",
+      "ac": [
+        "AC-55-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "assets 差分なし",
+      "verifies_db_delta": "operation_log +2 行（実体混入拒否・参照不正拒否）のみ",
+      "verifies_evidence": "operation_log 拒否行（理由 = content body in metadata／parent not found）",
+      "verifies_forbidden": "本文実体を含む行の INSERT・出自なし派生行の作成",
+      "external_calls": "0 回",
+      "method": "pytest: seed: config.asset_metadata_max_bytes=4096、要求 1 = metadata_json に 50KB 本文、要求 2 = {parent_asset_id:999} を seed し、raise される例外型／assets 件数／operation_log SELECT を assert（それぞれ assets 登録を実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-55-3",
+      "ac": [
+        "AC-55-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "assets 1 行のまま（A1）、循環系譜 0 件",
+      "verifies_db_delta": "assets 差分なし、operation_log +1 行（循環拒否）",
+      "verifies_evidence": "operation_log 拒否行（理由 = circular lineage）",
+      "verifies_forbidden": "canonical_url 重複行の作成・循環系譜の成立",
+      "external_calls": "0 回",
+      "method": "pytest: seed: assets に A1（canonical_url='`http://wp.test/post/1`'）、要求 1 = 同一 URL 再登録、要求 2 = A1 の parent を A1 自身へ更新する派生登録 を seed し、assets 件数・戻り値（既存 ID）／raise される例外型 を assert（それぞれ assets 登録を実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-61-1",
+      "ac": [
+        "AC-61-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "kpi_nodes に 5 階層のノードが存在し、全 measurements がノードへ FK 接続",
+      "verifies_db_delta": "kpi_nodes +5 行、operation_log 差分なし",
+      "verifies_evidence": "なし（正常登録は証跡不要 — 拒否時のみ operation_log）",
+      "verifies_forbidden": "戦略正本（brand_plans 等）への書込み・有料指標型の混入",
+      "external_calls": "0 回",
+      "method": "pytest: seed: business_profiles 1 行、kpi_nodes に exposure 親 1 行、measurements にノード紐付き値 2 行（媒体 blog/x） を seed し、kpi_nodes SELECT（layer・node_key・UNIQUE）／横断集計クエリの結果セット を assert（5 階層それぞれに非有料指標ノード（例: micro_cv 層の 'newsletter_signup'、metric_type='count'）を登録し、layer×medium の横断集計クエリを実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-61-2",
+      "ac": [
+        "AC-61-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "kpi_nodes は seed の行のみ",
+      "verifies_db_delta": "operation_log +3 行（有料拒否・重複拒否・越境拒否）のみ",
+      "verifies_evidence": "operation_log 拒否行（指標型・node_key・理由）",
+      "verifies_forbidden": "cac/roas/ad_spend 型ノードの成立（アプリ層を迂回した直接 INSERT も DDL CHECK で拒否されること）",
+      "external_calls": "0 回",
+      "method": "pytest: seed: business_profiles 2 行、profile1 に node_key='exposure.blog' 登録済み、要求 = {metric_type:'roas'}／{node_key:'exposure.blog'}／{parent: profile2 のノード} を seed し、raise される例外型／kpi_nodes 件数／operation_log SELECT を assert（それぞれ kpi_nodes 登録を実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-61-3",
+      "ac": [
+        "AC-61-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "N1 は status='archived' で存続、measurements の FK は不変",
+      "verifies_db_delta": "kpi_nodes 1 行 UPDATE（status）のみ、行数不変",
+      "verifies_evidence": "なし（構造保護は DDL の領分）",
+      "verifies_forbidden": "参照中ノードの物理削除・measurements の孤児化",
+      "external_calls": "0 回",
+      "method": "pytest: seed: kpi_nodes に根 N1、measurements に N1 参照 1 行 を seed し、DELETE の失敗（sqlite3.IntegrityError）／kpi_nodes.status／集計クエリ結果 を assert（N1 の DELETE を試み、次に N1 を archived 化し、根ノードのみで横断集計を実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-62-1",
+      "ac": [
+        "AC-62-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "measurements 10 行（全行 evidence_id が S1 証跡へ FK 接続）",
+      "verifies_db_delta": "1 回目: evidence +1 行・measurements +10 行。2 回目: 差分なし",
+      "verifies_evidence": "evidence（kind=measurement、value=S1、payload に source・file_hash・period・row_count=10）",
+      "verifies_forbidden": "2 回目実行での行重複・証跡なし行の投入・有料指標ノードへの投入",
+      "external_calls": "0 回",
+      "method": "pytest: seed: kpi_nodes 1 行（exposure/pv）、tasks に T-MEAS 1 行、fixture ファイル ga4_export.csv（10 行、SHA-256=S1） を seed し、measurements 件数（1 回目 +10・2 回目 ±0）／evidence SELECT（kind='measurement'）の created_at と measurements.imported_at の順序 を assert（同一エクスポートで取り込みを 2 回実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-62-2",
+      "ac": [
+        "AC-62-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "部分破損: measurements 7 行＋隔離 3 行。全破損: measurements 差分なし",
+      "verifies_db_delta": "部分: evidence +1・measurements +7・operation_log +1（隔離記録）。全破損: operation_log +1 のみ",
+      "verifies_evidence": "operation_log 行（隔離件数・理由）／取得証跡（部分破損側は投入前に記録済み）",
+      "verifies_forbidden": "破損行の measurements 混入・全破損ファイルからの部分コミット",
+      "external_calls": "0 回",
+      "method": "pytest: seed: fixture broken_partial.csv（破損 3/10）・broken_all.csv（全行破損）、config.import_quarantine_dir=scratch 隔離先 を seed し、measurements 件数／隔離ファイルの行数・件数記録／raise される例外型 を assert（それぞれ取り込みを実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-62-3",
+      "ac": [
+        "AC-62-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "measurements 10 行（再実行分のみ）、空取込は行 0・証跡 1",
+      "verifies_db_delta": "再実行: measurements +10。空取込: evidence +1（value=S2、row_count=0）のみ",
+      "verifies_evidence": "evidence（kind=measurement、value=S2、payload.row_count=0）",
+      "verifies_forbidden": "5 行だけの部分コミット残留・再実行での 15 行化",
+      "external_calls": "0 回",
+      "method": "pytest: seed: AC-62-1 と同じ fixture＋5 行目 INSERT 後に例外を注入するフック／empty.csv（ヘッダのみ、hash S2） を seed し、クラッシュ直後の measurements 件数（0 件）／再実行後の件数（10 件）／空取込後の evidence を assert（クラッシュ後に同一エクスポートを再実行し、続けて空エクスポートを取り込む）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-63-1",
+      "ac": [
+        "AC-63-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "自己完結 HTML 1 ファイル（CSS/JS インライン）",
+      "verifies_db_delta": "evidence +1 行（dashboard）— 2 回目は差分なし。業務テーブル不変",
+      "verifies_evidence": "evidence（kind=dashboard、value=出力 hash、payload に file_path・file_hash・period_end）",
+      "verifies_forbidden": "外部 CDN・外部 URL 参照の混入・業務テーブルへの書込み",
+      "external_calls": "0 回",
+      "method": "pytest: seed: kpi_nodes 3 行（exposure/micro_cv/conversion）・measurements 6 行、Clock 注入で生成時刻を固定 を seed し、出力 HTML の SHA-256（2 回比較）／HTML 内の src/href 走査（外部 URL 0 件）／evidence SELECT（kind='dashboard'） を assert（同一 DB 状態で HTML ダッシュボード生成を 2 回実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-63-2",
+      "ac": [
+        "AC-63-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "出力ファイル 0 件、dashboard 証跡 0 件",
+      "verifies_db_delta": "operation_log +1 行（検出・破棄）のみ",
+      "verifies_evidence": "operation_log 拒否行（理由 = external reference detected／secret pattern）",
+      "verifies_forbidden": "汚染 HTML の出力先残留・汚染成果物の証跡化",
+      "external_calls": "0 回",
+      "method": "pytest: seed: 汚染テンプレート fixture／集計対象に 'password=…' 様文字列を含む seed 行 を seed し、raise される例外型／出力ディレクトリ（成果物なし）／evidence 件数／operation_log SELECT を assert（HTML ダッシュボード生成を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-63-3",
+      "ac": [
+        "AC-63-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "自己完結 HTML 1 ファイル（空データ表示）、断片 0 件",
+      "verifies_db_delta": "evidence +1 行（dashboard）— クラッシュ試行分の証跡は 0",
+      "verifies_evidence": "evidence（kind=dashboard — 成功分のみ）",
+      "verifies_forbidden": "temp 断片の出力先残留・生成失敗分の証跡化",
+      "external_calls": "0 回",
+      "method": "pytest: seed: measurements 空・Clock 固定／temp 書込み中に例外を注入するフック、出力先には rename 前の断片なしを検証 を seed し、空生成の出力 hash（再実行と一致）／出力ディレクトリの断片有無／evidence 件数 を assert（空状態で生成を実行し、クラッシュ後に再度生成を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-71-1",
+      "ac": [
+        "AC-71-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "25 テーブル＋保護トリガ 6 件（config/evidence/state_transitions × update/delete）存在、verify() = pass",
+      "verifies_db_delta": "全 25 テーブル CREATE、schema_version +N 行（migration ごと）",
+      "verifies_evidence": "schema_version 行（version・migration 名・checksum・適用者・時刻）",
+      "verifies_forbidden": "DDL 正本にないテーブル・トリガの生成、FK OFF での使用開始",
+      "external_calls": "0 回",
+      "method": "pytest: seed: 空 DB（0 バイト新規ファイル）、migrations/ 配下の全 NNNN_*.sql を seed し、sqlite_master SELECT（テーブル・トリガ数）／verify() 戻り値／PRAGMA foreign_key_check・integrity_check を assert（スキーマ生成と DU-11 verify() を実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-71-2",
+      "ac": [
+        "AC-71-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "使用開始拒否（kernel 起動せず）",
+      "verifies_db_delta": "差分なし（拒否後の業務書込み 0 件）",
+      "verifies_evidence": "verify() の検証結果ログ（欠落テーブル名 = spend_ledger）",
+      "verifies_forbidden": "不完全スキーマへの業務行 INSERT・欠落の黙認（fail-open）",
+      "external_calls": "0 回",
+      "method": "pytest: seed: 全 migration 適用後に DROP TABLE spend_ledger を直接実行した DB を seed し、verify() 戻り値／raise される例外型／業務書込み API の拒否 を assert（DU-11 verify() と使用開始判定を実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-71-3",
+      "ac": [
+        "AC-71-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "schema_version 行数不変・evidence 値不変",
+      "verifies_db_delta": "差分なし",
+      "verifies_evidence": "なし（no-op と拒否のみ）",
+      "verifies_forbidden": "migration の二重適用・append-only 行の改変",
+      "external_calls": "0 回",
+      "method": "pytest: seed: 全 migration 適用済み DB＋evidence 1 行、UPDATE 文 = SET value='tampered' を seed し、schema_version SELECT（行数不変）／UPDATE の例外／evidence SELECT（値の不変性） を assert（migration を再実行し、evidence 行の UPDATE を試みる）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-72-1",
+      "ac": [
+        "AC-72-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "version=2、既存行の行数・hash 一致（破壊なし）",
+      "verifies_db_delta": "schema_version +1 行、新テーブル CREATE（既存行の変更なし）",
+      "verifies_evidence": "schema_version 行（version=2・migration 名・checksum_sha256・applied_by・applied_at）",
+      "verifies_forbidden": "既存の列・値・意味の変更（破壊的変更）・rename",
+      "external_calls": "0 回",
+      "method": "pytest: seed: version=1 の DB（業務データ数行入り）、0002 = CREATE TABLE（NULL 許容列のみ） を seed し、schema_version SELECT／PRAGMA foreign_key_check・integrity_check／既存データの行数・hash 比較 を assert（backup 作成→昇格適用→verify()→schema_version 記録を実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-72-2",
+      "ac": [
+        "AC-72-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "昇格停止・DB 不変",
+      "verifies_db_delta": "差分なし",
+      "verifies_evidence": "構造化ログ（checksum 不一致 — 期待値と実測値）",
+      "verifies_forbidden": "checksum 不一致のままの適用続行・schema_version の書換え",
+      "external_calls": "0 回",
+      "method": "pytest: seed: version=1 適用済み DB、0001_init.sql の内容を 1 文字改変（checksum 不一致を再現） を seed し、raise される例外型／schema_version SELECT（行数不変）／DB ファイルの hash 比較 を assert（昇格の前提検証（checksum 照合）を実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-72-3",
+      "ac": [
+        "AC-72-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "version=1 に復元済み・integrity_check ok",
+      "verifies_db_delta": "最終的に差分なし（適用→復元で相殺）",
+      "verifies_evidence": "verify() の失敗結果ログ＋復元実施の記録",
+      "verifies_forbidden": "verify() fail のままの運転継続・失敗した同一 version の書換え修正",
+      "external_calls": "0 回",
+      "method": "pytest: seed: version=1 の DB＋適用前 backup、0002 = FK 整合を壊す不正 DDL（verify() fail を再現） を seed し、raise される例外型／復元後の schema_version SELECT（version=1）／PRAGMA integrity_check を assert（昇格適用→verify() 失敗→backup 復元の復旧経路を実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-73-1",
+      "ac": [
+        "AC-73-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "台帳 1 行・当月累計 300 円",
+      "verifies_db_delta": "spend_ledger +1 行",
+      "verifies_evidence": "spend_ledger 行（external_operation_id で operation_log 証跡と紐付く）",
+      "verifies_forbidden": "既存台帳行の変更・二重計上",
+      "external_calls": "0 回",
+      "method": "pytest: seed: tasks 1 行、approvals 1 行（approved）、external_operations 1 行（confirmed, external_operation_id='seed-001'）、記録要求 = {service:'seedance', amount_minor:300, currency:'JPY', purpose:'動画生成', occurred_at:今日} を seed し、spend_ledger SELECT／月間累計クエリの戻り値 を assert（支出記録と当月累計の照会を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-73-2",
+      "ac": [
+        "AC-73-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "spend_ledger 1 行のまま（不完全行・重複行なし）",
+      "verifies_db_delta": "差分なし",
+      "verifies_evidence": "構造化ログの拒否行（欠落フィールド名・重複キー）",
+      "verifies_forbidden": "用途不明の支出行の混入・同一操作の二重計上",
+      "external_calls": "0 回",
+      "method": "pytest: seed: spend_ledger 1 行（service='seedance', external_operation_id='seed-001'）、要求 1 = {purpose:null}、要求 2 = seed と同一 (service, external_operation_id) を seed し、raise される例外型／spend_ledger SELECT（行数） を assert（2 件の INSERT を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-73-3",
+      "ac": [
+        "AC-73-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "台帳 +2 行（0 円行・復旧行が各 1 行）",
+      "verifies_db_delta": "spend_ledger +2 行、external_operations 1 行 UPDATE（sent→confirmed）",
+      "verifies_evidence": "spend_ledger 行＋照合復旧の operation_log 証跡",
+      "verifies_forbidden": "0 円利用の記録省略・復旧再送での二重計上",
+      "external_calls": "0 回",
+      "method": "pytest: seed: 記録要求 = {amount_minor:0}、external_operations 1 行（status='sent', external_operation_id='seed-002'）＋リモート照合 mock = 成功 を seed し、spend_ledger SELECT（0 円行の存在・seed-002 の行数 = 1）／external_operations SELECT（confirmed 化） を assert（0 円利用の記録と、再起動後の §3.3 照合→記録再開を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-SR-01-1",
+      "ac": [
+        "AC-SR-01-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "upper に TLP 0 件、lower に TLP 1 件、意味モデルは upper 由来のみ",
+      "verifies_db_delta": "tactical_learning_packets +1 行（lower 分のみ）",
+      "verifies_evidence": "TLP 行（lower run 起点）",
+      "verifies_forbidden": "upper run への TLP 追加・lower からの意味モデル追加",
+      "external_calls": "0 回",
+      "method": "pytest: seed: upper run（brand plan 有）＋ lower run（有効 brief 保持）、提出 payload = 各正規型 を seed し、提出 API 戻り値／tactical_learning_packets SELECT（loop_run の loop_kind 別件数） を assert（両 run の成果物提出を型 × loop_kind 対応表で検証しながら完了させる）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-SR-01-2",
+      "ac": [
+        "AC-SR-01-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "両 run の状態・学習正本とも提出前のまま",
+      "verifies_db_delta": "operation_log +2 行（越境拒否 ×2）のみ",
+      "verifies_evidence": "operation_log 拒否行（loop_kind・提出型・理由）",
+      "verifies_forbidden": "越境成果物の永続化・単一ループへの統合的書込み",
+      "external_calls": "0 回",
+      "method": "pytest: seed: AC-SR-01-1 と同じ run 構成、提出 payload = 越境型 を seed し、raise される例外型／operation_log SELECT／対象テーブル行数 を assert（両提出を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-SR-02-1",
+      "ac": [
+        "AC-SR-02-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "observation 1 件受理（fact のみ）",
+      "verifies_db_delta": "observation レコード +1（S1 ストア）",
+      "verifies_evidence": "schema 検証 PASS の記録",
+      "verifies_forbidden": "解釈フィールドの自動付加・operation_log への拒否行",
+      "external_calls": "0 回",
+      "method": "pytest: fixture: json/strategy/fixtures/ の valid market_observation（fact のみ） を seed し、投入 API 戻り値／受理レコードの schema 検証結果 を assert（リサーチ工程の観測投入を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-SR-02-2",
+      "ac": [
+        "AC-SR-02-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "observation 未受理",
+      "verifies_db_delta": "operation_log +1 行（拒否）のみ",
+      "verifies_evidence": "operation_log 拒否行（違反フィールド・理由）",
+      "verifies_forbidden": "混在 payload の部分受理・fact の自動書換え",
+      "external_calls": "0 回",
+      "method": "pytest: fixture: json/strategy/fixtures/ の invalid market_observation（解釈混在） を seed し、raise される例外型／operation_log SELECT を assert（観測投入を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-SR-02-3",
+      "ac": [
+        "AC-SR-02-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "観測 0 件受理、TLP は正規経路で受理",
+      "verifies_db_delta": "operation_log +1 行（判定不能拒否）、tactical_learning_packets +1 行",
+      "verifies_evidence": "operation_log 拒否行（理由 = schema 判定不能）",
+      "verifies_forbidden": "判定不能時の受理（fail-open）",
+      "external_calls": "0 回",
+      "method": "pytest: seed: schema ファイルを破損させた環境＋正規 TLP payload（causal_interpretation に同一文） を seed し、raise される例外型／tactical_learning_packets SELECT を assert（観測投入と TLP 提出をそれぞれ実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-SR-03-1",
+      "ac": [
+        "AC-SR-03-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "3 モデル各 1 版受理",
+      "verifies_db_delta": "モデルレコード +3（S1 ストア）",
+      "verifies_evidence": "schema 検証 PASS と観測 trace の記録",
+      "verifies_forbidden": "自由 JSON としての受理・trace なし受理",
+      "external_calls": "0 回",
+      "method": "pytest: fixture: json/strategy/fixtures/ の valid 3 モデル＋観測 ID 参照 を seed し、投入 API 戻り値／受理レコードの schema 検証結果と trace を assert（市場分析の成果物投入を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-SR-03-2",
+      "ac": [
+        "AC-SR-03-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "モデル 0 件受理",
+      "verifies_db_delta": "operation_log +2 行（拒否）のみ",
+      "verifies_evidence": "operation_log 拒否行（欠落フィールド一覧）",
+      "verifies_forbidden": "部分受理・自由 JSON の正本混入",
+      "external_calls": "0 回",
+      "method": "pytest: fixture: json/strategy/fixtures/ の invalid market_model（必須欠落）＋自由 JSON を seed し、raise される例外型／operation_log SELECT を assert（市場分析の成果物投入を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-SR-03-3",
+      "ac": [
+        "AC-SR-03-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "初回 0 件受理→再投入で 1 版受理",
+      "verifies_db_delta": "operation_log +2 行（拒否）、その後モデルレコード +1",
+      "verifies_evidence": "operation_log 拒否行（additionalProperties／根拠欠落）",
+      "verifies_forbidden": "未知フィールドの黙認（fail-open）",
+      "external_calls": "0 回",
+      "method": "pytest: fixture: 未知フィールド付き segment_context＋観測参照空の problem_model、その後 valid 版 を seed し、raise される例外型／再投入後のモデルレコード SELECT を assert（成果物投入を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-SR-04-1",
+      "ac": [
+        "AC-SR-04-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "segment 1 件受理",
+      "verifies_db_delta": "segment レコード +1（S1 ストア）",
+      "verifies_evidence": "schema 検証 PASS の記録",
+      "verifies_forbidden": "operation_log への拒否行",
+      "external_calls": "0 回",
+      "method": "pytest: fixture: json/strategy/fixtures/ の valid segment_context（状況ベース） を seed し、投入 API 戻り値／受理レコード を assert（セグメント投入を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-SR-04-2",
+      "ac": [
+        "AC-SR-04-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "segment 0 件受理",
+      "verifies_db_delta": "operation_log +1 行（拒否）のみ",
+      "verifies_evidence": "operation_log 拒否行（欠落状況フィールド一覧）",
+      "verifies_forbidden": "ペルソナ型 segment の正本混入",
+      "external_calls": "0 回",
+      "method": "pytest: fixture: json/strategy/fixtures/ の invalid segment_context（人口統計のみ） を seed し、raise される例外型／operation_log SELECT を assert（セグメント投入を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-SR-04-3",
+      "ac": [
+        "AC-SR-04-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "前者 0 件・後者 1 件受理",
+      "verifies_db_delta": "operation_log +1 行（拒否）、segment レコード +1",
+      "verifies_evidence": "operation_log 拒否行（理由 = 状況フィールド実質未記入）",
+      "verifies_forbidden": "空フィールドの記入扱い（fail-open）",
+      "external_calls": "0 回",
+      "method": "pytest: fixture: 状況空の segment＋状況実記入・人口統計併記の segment を seed し、raise される例外型／受理レコード SELECT を assert（両者のセグメント投入を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-SR-05-1",
+      "ac": [
+        "AC-SR-05-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "2 モデル各 1 版受理",
+      "verifies_db_delta": "戦略モデルレコード +2（S1 ストア）",
+      "verifies_evidence": "schema 検証 PASS の記録",
+      "verifies_forbidden": "棄却案・反証条件の欠落したままの受理",
+      "external_calls": "0 回",
+      "method": "pytest: fixture: json/strategy/fixtures/ の valid strategic_choice＋value_hypothesis を seed し、投入 API 戻り値／受理レコードの rejected_options・disconfirming_conditions を assert（マーケティング戦略の成果物投入を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-SR-05-2",
+      "ac": [
+        "AC-SR-05-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "0 件受理",
+      "verifies_db_delta": "operation_log +2 行（拒否）のみ",
+      "verifies_evidence": "operation_log 拒否行（欠落要素一覧）",
+      "verifies_forbidden": "反証不能な仮説の正本混入",
+      "external_calls": "0 回",
+      "method": "pytest: fixture: json/strategy/fixtures/ の invalid strategic_choice（棄却案空）＋invalid value_hypothesis（反証なし） を seed し、raise される例外型／operation_log SELECT を assert（成果物投入を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-SR-05-3",
+      "ac": [
+        "AC-SR-05-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "前者 1 版受理・後者 0 件",
+      "verifies_db_delta": "戦略モデルレコード +1、operation_log +1 行（拒否）",
+      "verifies_evidence": "operation_log 拒否行（理由 = 棄却理由空）",
+      "verifies_forbidden": "空文字理由の記入扱い",
+      "external_calls": "0 回",
+      "method": "pytest: fixture: rejected_options 1 件 valid＋理由空文字 invalid を seed し、raise される例外型／受理レコード SELECT を assert（両者の成果物投入を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-SR-01",
+      "ac": [
+        "AC-SR-01"
+      ],
+      "kind": "normal",
+      "verifies_state": "digest 一致（決定性）",
+      "verifies_db_delta": "差分なし（算出は pure）",
+      "verifies_evidence": "なし（拒否・算出は証跡対象外）",
+      "verifies_forbidden": "DB への書込み・brief 行の変更",
+      "external_calls": "0 回",
+      "method": "pytest: fixtures/strategic-brief.valid.json とキー順を入替えた同内容 JSON を seed し、digest 算出関数の戻り値比較 を assert（digest（正準化 JSON SHA-256）を両方に対して算出する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-SR-06-1",
+      "ac": [
+        "AC-SR-06-1"
+      ],
+      "kind": "reject",
+      "verifies_state": "strategic_briefs 空のまま",
+      "verifies_db_delta": "operation_log +2 行（拒否）のみ",
+      "verifies_evidence": "operation_log 拒否行（欠落・無効理由）",
+      "verifies_forbidden": "無効 brief の INSERT・digest の発番",
+      "external_calls": "0 回",
+      "method": "pytest: seed: strategic_choice_id 空の draft＋measurement_plan_json = KPI 目標値のみの draft を seed し、raise される例外型／strategic_briefs SELECT／operation_log SELECT を assert（issue_strategic_brief（S0 シードコマンド）を実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-SR-06-2",
+      "ac": [
+        "AC-SR-06-2"
+      ],
+      "kind": "boundary",
+      "verifies_state": "v1 = superseded・v2 = active、既存 run = completed（v1 digest 保持）、新規 run = v2 参照",
+      "verifies_db_delta": "strategic_briefs +1 行（v2）、v1 の status UPDATE のみ",
+      "verifies_evidence": "v2 行（supersedes_id = v1）・既存 run の TLP（v1 digest 三者一致）",
+      "verifies_forbidden": "v1 内容列の変更・既存 run の digest 差替え・新規 run の v1 参照",
+      "external_calls": "0 回",
+      "method": "pytest: seed: brief v1（active）＋v1 参照の running lower run、v2 draft を seed し、strategic_briefs SELECT（status・supersedes_id）／loop_runs の digest 列／新規 start の参照先 を assert（supersede_strategic_brief で v2（supersedes_id = v1）を発行し、その後に新規 lower run の start と既存 run の完走を行う）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-SR-02",
+      "ac": [
+        "AC-SR-02"
+      ],
+      "kind": "reject",
+      "verifies_state": "run 未作成",
+      "verifies_db_delta": "差分なし",
+      "verifies_evidence": "拒否の構造化ログ",
+      "verifies_forbidden": "loop_runs への INSERT",
+      "external_calls": "0 回",
+      "method": "pytest: fixtures/strategic-brief.*.invalid 系 seed 4 種 を seed し、raise される GateRejected／loop_runs SELECT COUNT を assert（lower loop_run の開始を要求する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-SR-07-1",
+      "ac": [
+        "AC-SR-07-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "run = running（brief id・digest 保持）",
+      "verifies_db_delta": "loop_runs UPDATE 1 行、state_transitions +1 行（passed）",
+      "verifies_evidence": "state_transitions 行（guard_result = passed）",
+      "verifies_forbidden": "digest の書換え・brief 行の変更",
+      "external_calls": "0 回",
+      "method": "pytest: seed: valid_from ≤ now ≤ valid_until の active brief＋brief 参照の pending lower run（親 upper running） を seed し、loop_runs SELECT（state・strategic_brief_id・strategic_brief_digest）／state_transitions SELECT を assert（start イベントを発火する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-SR-07-2",
+      "ac": [
+        "AC-SR-07-2"
+      ],
+      "kind": "boundary",
+      "verifies_state": "2 run 開始成立・1 run 完走（旧 digest 保持）",
+      "verifies_db_delta": "loop_runs UPDATE ×3、state_transitions +3 行（passed）",
+      "verifies_evidence": "state_transitions の passed 行と完走 run の TLP（旧 digest 三者一致）",
+      "verifies_forbidden": "境界時刻の拒否側誤判定・実行中 run の digest 差替え・強制中断",
+      "external_calls": "0 回",
+      "method": "pytest: seed: valid_until = now の brief／valid_until NULL の brief／start 後に supersede した brief＋running run を seed し、loop_runs SELECT（state・digest）／state_transitions SELECT を assert（前 2 者で start を、後者で run の完走を実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-SR-03",
+      "ac": [
+        "AC-SR-03"
+      ],
+      "kind": "normal",
+      "verifies_state": "run 終端＋TLP 1 件",
+      "verifies_db_delta": "loop_runs UPDATE 1 行＋tactical_learning_packets INSERT 1 行（同一 tx）",
+      "verifies_evidence": "state_transitions 行＋TLP 行",
+      "verifies_forbidden": "packet なし終端・二重 packet",
+      "external_calls": "0 回",
+      "method": "pytest: conftest の seed_brief＋seed_lower_run を seed し、tactical_learning_packets SELECT（loop_run_id・packet_kind） を assert（終端遷移を実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-SR-06",
+      "ac": [
+        "AC-SR-06"
+      ],
+      "kind": "reject",
+      "verifies_state": "TLP 未挿入",
+      "verifies_db_delta": "差分なし",
+      "verifies_evidence": "なし（拒否・算出は証跡対象外）",
+      "verifies_forbidden": "不正 packet の INSERT 成功",
+      "external_calls": "0 回",
+      "method": "pytest: conftest insert_tlp の不正系 seed 4 種 を seed し、IntegrityError の発生とメッセージ を assert（tactical_learning_packets へ INSERT する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-SR-08-1",
+      "ac": [
+        "AC-SR-08-1"
+      ],
+      "kind": "reject",
+      "verifies_state": "run = running のまま（遷移未成立）、TLP 0 件",
+      "verifies_db_delta": "差分なし（全 rollback）",
+      "verifies_evidence": "なし（transaction 不成立のため証跡も残らない）",
+      "verifies_forbidden": "因果解釈つき failure packet の永続化・遷移だけの先行成立",
+      "external_calls": "0 回",
+      "method": "pytest: seed: running lower run＋failure payload（failure_fact あり・causal_interpretation あり） を seed し、raise される例外型／loop_runs.state／tactical_learning_packets 件数 を assert（終端遷移＋TLP INSERT を実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-SR-08-2",
+      "ac": [
+        "AC-SR-08-2"
+      ],
+      "kind": "boundary",
+      "verifies_state": "1 回目クラッシュ後 = running・TLP 0 件、再実行後 = completed・TLP 1 件",
+      "verifies_db_delta": "最終: loop_runs UPDATE 1 行、tactical_learning_packets +1 行、state_transitions +1 行",
+      "verifies_evidence": "TLP 行（digest 三者一致）と終端の state_transitions 行",
+      "verifies_forbidden": "遷移のみ成立した孤児終端 run・TLP 二重生成",
+      "external_calls": "0 回",
+      "method": "pytest: seed: running lower run（brief digest 保持）＋commit 直前で kill する pytest フック を seed し、再起動後の loop_runs.state／tactical_learning_packets 件数／state_transitions を assert（プロセスを再起動し、終端処理を再実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-SR-04",
+      "ac": [
+        "AC-SR-04"
+      ],
+      "kind": "reject",
+      "verifies_state": "正本無変更",
+      "verifies_db_delta": "差分なし",
+      "verifies_evidence": "なし（拒否はトリガ層）",
+      "verifies_forbidden": "上流正本の行変更",
+      "external_calls": "0 回",
+      "method": "pytest: seed 済み brief（id=1 参照つき・id=2 未参照）への直接 DML 4 種 を seed し、sqlite3.IntegrityError のメッセージ（'append-only'） を assert（strategic_briefs／TLP の内容列を直接 UPDATE/DELETE しようとする）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-SR-09-1",
+      "ac": [
+        "AC-SR-09-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "TLP 1 件・brief 完全不変",
+      "verifies_db_delta": "tactical_learning_packets +1 行のみ（brief 差分なし）",
+      "verifies_evidence": "TLP 行（evidence_ids で run の証跡へ接続）",
+      "verifies_forbidden": "strategic_briefs のいかなる列の変更",
+      "external_calls": "0 回",
+      "method": "pytest: seed: active brief＋終端遷移直前の lower run＋learning payload を seed し、tactical_learning_packets SELECT／strategic_briefs 全行の前後比較（digest 含む） を assert（kernel 経由で TLP を提出する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-SR-09-2",
+      "ac": [
+        "AC-SR-09-2"
+      ],
+      "kind": "boundary",
+      "verifies_state": "TLP 3 件・brief 完全不変（status も active のまま）",
+      "verifies_db_delta": "tactical_learning_packets +3 行のみ",
+      "verifies_evidence": "3 件の TLP 行（recommended_next_action = request_strategy_review）",
+      "verifies_forbidden": "推奨の蓄積による brief の自動 supersede・status 自動遷移",
+      "external_calls": "0 回",
+      "method": "pytest: seed: active brief＋終端 lower run 3 件（各 request_strategy_review の TLP） を seed し、strategic_briefs 全行の前後比較／tactical_learning_packets 件数 を assert（全 TLP 提出後に strategic_briefs を検査する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-SR-10-1",
+      "ac": [
+        "AC-SR-10-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "v2 = active・v1 = superseded・revision = accepted",
+      "verifies_db_delta": "新版 +1 行、旧版 status UPDATE、revision 記録 +1",
+      "verifies_evidence": "strategy_revision 行（根拠 2 件・反証空配列明示・信頼度・対象版）",
+      "verifies_forbidden": "旧版内容列の変更・transaction 分割による中間状態",
+      "external_calls": "0 回",
+      "method": "pytest: seed: 意味モデル v1（active）＋TLP 由来の根拠 2 件＋refine 提案 payload を seed し、revision 記録／新版・旧版の SELECT（supersedes_id・status） を assert（revision を accepted として適用する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-SR-10-2",
+      "ac": [
+        "AC-SR-10-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "v1 = active のまま・revision accepted 0 件",
+      "verifies_db_delta": "operation_log +2 行（拒否）のみ",
+      "verifies_evidence": "operation_log 拒否行（根拠不足／反証未明示）",
+      "verifies_forbidden": "単一計測値による自動 accept・新版の先行生成",
+      "external_calls": "0 回",
+      "method": "pytest: seed: 意味モデル v1＋根拠 1 件（KPI 計測のみ）の提案＋反証フィールド欠落の提案 を seed し、raise される例外型／意味モデル行数・status／operation_log SELECT を assert（revision の accepted 適用を試行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-SR-10-3",
+      "ac": [
+        "AC-SR-10-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "重複 = 拒否、2 件 = v2 生成、maintain = 版不変・記録 1 件",
+      "verifies_db_delta": "新版 +1（2 件ケースのみ）、revision 記録 +2（accept・maintain）、operation_log +1（拒否）",
+      "verifies_evidence": "maintain の revision 記録（版遷移なし）",
+      "verifies_forbidden": "重複 ID の 2 件扱い・maintain での版生成",
+      "external_calls": "0 回",
+      "method": "pytest: seed: 根拠 [E1, E1] の提案＋[E1, E2] の提案＋maintain 提案 を seed し、raise される例外型／revision 記録／版の増減 を assert（各 revision の適用を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-SR-05",
+      "ac": [
+        "AC-SR-05"
+      ],
+      "kind": "reject",
+      "verifies_state": "全行が実行前と同一",
+      "verifies_db_delta": "差分なし",
+      "verifies_evidence": "なし（拒否・算出は証跡対象外）",
+      "verifies_forbidden": "1 本でも成功する DML",
+      "external_calls": "0 回",
+      "method": "pytest: 未参照 brief id=2 への DELETE を含む DML 4 本 を seed し、各 DML の例外型とメッセージ を assert（UPDATE・DELETE（上書き・削除）を実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-SR-11-1",
+      "ac": [
+        "AC-SR-11-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "v1 = superseded（内容不変）・v2 = active",
+      "verifies_db_delta": "strategic_briefs +1 行、v1 の status UPDATE のみ",
+      "verifies_evidence": "版連鎖そのもの（v2.supersedes_id = v1.id）",
+      "verifies_forbidden": "v1 内容列の変更・v1 の削除",
+      "external_calls": "0 回",
+      "method": "pytest: seed: brief v1（active）＋v2 payload（supersedes_id = v1） を seed し、strategic_briefs SELECT（全列前後比較・supersedes_id 連鎖） を assert（supersedes_id = v1 を持つ v2 を INSERT し、v1 の status を superseded へ遷移させる）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-SR-11-2",
+      "ac": [
+        "AC-SR-11-2"
+      ],
+      "kind": "boundary",
+      "verifies_state": "status・valid_until のみ更新済み、内容列は初期値のまま",
+      "verifies_db_delta": "許可 2 列の UPDATE のみ（内容差分なし）",
+      "verifies_evidence": "IntegrityError の pytest 捕捉記録（トリガ主体の拒否 — FK 等の別要因でない）",
+      "verifies_forbidden": "内容列の部分更新・拒否時の行破損",
+      "external_calls": "0 回",
+      "method": "pytest: seed: active brief 1 行、UPDATE 文 3 種 を seed し、raise される例外型（メッセージに 'append-only' を含む）／行の前後比較 を assert（status のみの UPDATE、valid_until のみの UPDATE、内容 1 列（media_role）だけの UPDATE をそれぞれ実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-SR-12-1",
+      "ac": [
+        "AC-SR-12-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "計測・TLP 受理、意味正本不変",
+      "verifies_db_delta": "measurements +N 行、tactical_learning_packets +1 行（brief 差分なし）",
+      "verifies_evidence": "measurements 行（evidence_id 接続）と TLP の metrics 参照",
+      "verifies_forbidden": "計測投入による意味モデル・brief の変更",
+      "external_calls": "0 回",
+      "method": "pytest: seed: kpi_nodes（PV node）＋measurement fixture＋learning TLP（metrics = node 参照） を seed し、measurements SELECT／strategic_briefs 全行の前後比較 を assert（計測投入と TLP 提出を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-SR-12-2",
+      "ac": [
+        "AC-SR-12-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "意味モデル不変（v1 = active）",
+      "verifies_db_delta": "operation_log +1 行（拒否）のみ",
+      "verifies_evidence": "operation_log 拒否行（理由 = 単一計測値根拠）",
+      "verifies_forbidden": "KPI 変動による戦略正本の自動更新",
+      "external_calls": "0 回",
+      "method": "pytest: seed: 意味モデル v1＋根拠 = 計測 1 件のみの accept 提案 を seed し、raise される例外型／意味モデルの版・status を assert（revision 適用を試行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-SR-12-3",
+      "ac": [
+        "AC-SR-12-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "TLP 1 件（異常記録つき）・意味正本不変",
+      "verifies_db_delta": "tactical_learning_packets +1 行のみ",
+      "verifies_evidence": "TLP 行（anomalies・request_strategy_review）",
+      "verifies_forbidden": "急変を契機とした brief の自動 supersede・意味モデル自動更新",
+      "external_calls": "0 回",
+      "method": "pytest: seed: 異常値 measurement fixture＋終端 lower run を seed し、TLP の anomalies_json・recommended_next_action／strategic_briefs の前後比較 を assert（run を終端させ TLP を生成する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-SR-13-1",
+      "ac": [
+        "AC-SR-13-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "企画承認済み・plan_record 証跡 1 件",
+      "verifies_db_delta": "evidence +1 行（plan_record）",
+      "verifies_evidence": "evidence 行（payload_json に 5 宣言）",
+      "verifies_forbidden": "operation_log への拒否行",
+      "external_calls": "0 回",
+      "method": "pytest: fixture: json/strategy/fixtures/ の valid content plan（5 キー完備） を seed し、承認 API 戻り値／evidence SELECT（kind = plan_record） を assert（T-PLAN の plan_record 承認を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-SR-13-2",
+      "ac": [
+        "AC-SR-13-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "企画未承認・plan_record 0 件",
+      "verifies_db_delta": "operation_log +1 行（拒否）のみ",
+      "verifies_evidence": "operation_log 拒否行（欠落キー = recognition_change）",
+      "verifies_forbidden": "宣言なし企画の主要企画としての承認",
+      "external_calls": "0 回",
+      "method": "pytest: fixture: json/strategy/fixtures/ の invalid content plan（recognition_change 欠落） を seed し、raise される例外型／evidence 件数／operation_log SELECT を assert（T-PLAN の plan_record 承認を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-SR-13-3",
+      "ac": [
+        "AC-SR-13-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "初回 2 件拒否→補完後 1 件承認",
+      "verifies_db_delta": "operation_log +2 行（拒否）、その後 evidence +1 行",
+      "verifies_evidence": "operation_log 拒否行（空値／参照不整合）",
+      "verifies_forbidden": "空値の宣言扱い（fail-open）",
+      "external_calls": "0 回",
+      "method": "pytest: fixture: 空値 5 キー企画＋架空 ID 参照企画、その後の補完版 を seed し、raise される例外型／再提出後の evidence SELECT を assert（両企画の承認を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-SR-14-1",
+      "ac": [
+        "AC-SR-14-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "brief 1 行発行（media_role = problem-framing）",
+      "verifies_db_delta": "strategic_briefs +1 行",
+      "verifies_evidence": "brief 行そのもの（役割語彙保存）",
+      "verifies_forbidden": "operation_log への拒否行",
+      "external_calls": "0 回",
+      "method": "pytest: seed: media-roles.json（12 語彙）＋valid brief draft（problem-framing） を seed し、strategic_briefs SELECT（media_role 列） を assert（issue_strategic_brief を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-SR-14-2",
+      "ac": [
+        "AC-SR-14-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "brief 0 件発行",
+      "verifies_db_delta": "operation_log +2 行（拒否）のみ",
+      "verifies_evidence": "operation_log 拒否行（宣言値・台帳版）",
+      "verifies_forbidden": "媒体名の media_role としての保存・揺れの自動正規化",
+      "external_calls": "0 回",
+      "method": "pytest: seed: media-roles.json＋invalid draft 2 件（媒体名・大小文字揺れ） を seed し、raise される例外型／strategic_briefs 件数／operation_log SELECT を assert（issue_strategic_brief を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-SR-14-3",
+      "ac": [
+        "AC-SR-14-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "欠損時 0 件・復旧後 1 件発行",
+      "verifies_db_delta": "operation_log +1 行（拒否）、復旧後 strategic_briefs +1 行",
+      "verifies_evidence": "operation_log 拒否行（理由 = 台帳ロード不能）",
+      "verifies_forbidden": "台帳欠損時の全許可（fail-open）",
+      "external_calls": "0 回",
+      "method": "pytest: seed: media-roles.json を削除した環境→復旧した環境、valid draft を seed し、raise される例外型／復旧後の strategic_briefs SELECT を assert（任意の media_role で brief 発行を試行し、その後台帳を復旧して再発行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-SR-15-1",
+      "ac": [
+        "AC-SR-15-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "STC-I-01〜06 全 green・全ゲート PASS",
+      "verifies_db_delta": "差分なし（検証のみ — テスト DB は使い捨て）",
+      "verifies_evidence": "CI ログ（pytest green・ゲート PASS）",
+      "verifies_forbidden": "S0 スコープ外機能（上流生成系）の実装混入",
+      "external_calls": "0 回",
+      "method": "pytest: fixture: 空 SQLite＋migration 0001＋json/strategy/ の 12 schema・fixtures を seed し、python-ci の pytest レポート（STC-I-01〜06）／validate_requirements.py 終了コード を assert（python-ci で STC-I-01〜06 の pytest と validate_requirements.py を実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-SR-15-2",
+      "ac": [
+        "AC-SR-15-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "CI 赤・コミット差戻し",
+      "verifies_db_delta": "差分なし（検証のみ）",
+      "verifies_evidence": "CI ログ（baseline 違反・ゲート名つき）",
+      "verifies_forbidden": "分母縮小・スコープ拡大の黙認（fail-open）",
+      "external_calls": "0 回",
+      "method": "pytest: fixture: baseline.json の分母と矛盾する要件 JSON／スコープ外実装を含むブランチ を seed し、validate_requirements.py の終了コードとエラーメッセージ／CI ジョブ結果 を assert（validate_requirements.py（baseline 照合）と python-ci を実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-SR-16-1",
+      "ac": [
+        "AC-SR-16-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "一周判定 = True・計数 +1",
+      "verifies_db_delta": "ループ計数記録 +1（upper run メタデータ）",
+      "verifies_evidence": "accepted revision 行と新版行（supersedes_id 連鎖 — 一周の根拠）",
+      "verifies_forbidden": "同一回転の重複計上",
+      "external_calls": "0 回",
+      "method": "pytest: seed: upper run＋accepted revision（target_type = segment、new_version_id あり） を seed し、一周判定 API 戻り値／ループ計数記録 を assert（上流ループの一周判定を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-SR-16-2",
+      "ac": [
+        "AC-SR-16-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "一周判定 = False・計数不変",
+      "verifies_db_delta": "ループ計数の差分なし",
+      "verifies_evidence": "なし（計上されないことが期待 — revision 記録の不在を確認）",
+      "verifies_forbidden": "微修正回転の一周計上（管理ループへの縮退）",
+      "external_calls": "0 回",
+      "method": "pytest: seed: upper run＋brief v2 発行のみ（意味モデル revision なし） を seed し、一周判定 API 戻り値／ループ計数記録 を assert（一周判定を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-SR-16-3",
+      "ac": [
+        "AC-SR-16-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "False・True（計数 +1）・False",
+      "verifies_db_delta": "ループ計数 +1（複数更新ケースのみ）",
+      "verifies_evidence": "maintain の revision 記録（「見て維持」— 計上されない根拠）",
+      "verifies_forbidden": "複数更新の多重計上・判定不能時の一周扱い（fail-open）",
+      "external_calls": "0 回",
+      "method": "pytest: seed: maintain のみの run／2 モデル accepted の run／revision 記録を欠いた run を seed し、一周判定 API 戻り値／ループ計数記録 を assert（各回転の一周判定を実行する）",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-KILL-1",
+      "ac": [
+        "AC-11-3"
+      ],
+      "kind": "kill",
+      "verifies_state": "強制終了時点の遷移が transaction ごと消え、loop_runs は直前の確定状態",
+      "verifies_db_delta": "未コミット遷移の行が存在しない（state_transitions に中間行なし）",
+      "verifies_evidence": "なし（中断は証跡を残さない — 再開後の遷移が証跡を残す）",
+      "verifies_forbidden": "中間状態の残留・二重遷移",
+      "external_calls": "0 回",
+      "method": "pytest: 遷移 transaction 中に例外で強制中断 → 別 connection で状態を assert → 再実行が成功することを assert",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-KILL-2",
+      "ac": [
+        "AC-SR-03"
+      ],
+      "kind": "kill",
+      "verifies_state": "終端遷移と TLP INSERT が同一 transaction — 中断時は両方とも未適用",
+      "verifies_db_delta": "loop_runs 非終端のまま＋TLP 0 件（部分適用なし）",
+      "verifies_evidence": "なし",
+      "verifies_forbidden": "packet なし終端 run の出現（孤児）",
+      "external_calls": "0 回",
+      "method": "pytest: TLP INSERT 直前で例外を注入し rollback 後の両テーブルを assert",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-CONFLICT-1",
+      "ac": [
+        "AC-11-3"
+      ],
+      "kind": "conflict",
+      "verifies_state": "同一 run への同時イベントは 1 件のみ成立し、他方は現状態不一致で拒否",
+      "verifies_db_delta": "state_transitions は 1 行のみ増加",
+      "verifies_evidence": "拒否側の構造化ログ",
+      "verifies_forbidden": "二重遷移・二重証跡",
+      "external_calls": "0 回",
+      "method": "pytest: 2 connection から同一 (run, event) を直列化実行し、成立 1・拒否 1 を assert",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-CONFLICT-2",
+      "ac": [
+        "AC-SR-06"
+      ],
+      "kind": "conflict",
+      "verifies_state": "同一 loop_run への 2 件目 TLP INSERT が UNIQUE(loop_run_id) で拒否",
+      "verifies_db_delta": "tactical_learning_packets は 1 行のまま",
+      "verifies_evidence": "なし",
+      "verifies_forbidden": "二重 packet",
+      "external_calls": "0 回",
+      "method": "pytest: insert_tlp を 2 回実行し 2 回目の IntegrityError を assert",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-RESUME-1",
+      "ac": [
+        "AC-42-3"
+      ],
+      "kind": "resume",
+      "verifies_state": "プロセス再起動後、in-flight の external_operations（sent 未確定）が照合され、確定 or 補償に収束",
+      "verifies_db_delta": "external_operations の status が pending のまま残らない",
+      "verifies_evidence": "operation_log の照合結果行",
+      "verifies_forbidden": "同一操作の二重送信（冪等キー衝突）",
+      "external_calls": "照合 1 回（送信の再実行 0 回）",
+      "method": "pytest: sent 記録後に強制中断 → 再開処理を実行し、冪等キーで二重送信が抑止されることを assert",
+      "slice": "S1"
+    },
+    {
+      "id": "TCC-RESUME-2",
+      "ac": [
+        "AC-72-3"
+      ],
+      "kind": "resume",
+      "verifies_state": "migration が途中失敗しても schema_version は前版のまま（1 版 = 1 transaction）",
+      "verifies_db_delta": "部分適用されたテーブル・列が存在しない",
+      "verifies_evidence": "migration 失敗の構造化ログ",
+      "verifies_forbidden": "半適用スキーマでの起動継続",
+      "external_calls": "0 回",
+      "method": "pytest: 途中版で例外を注入し、rollback 後の schema_version と DDL を assert、再実行での完走を assert",
+      "slice": "S0"
+    }
+  ]
+}

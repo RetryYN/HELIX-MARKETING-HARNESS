@@ -15,7 +15,7 @@
 - **観測点**: 遷移 API 戻り値／loop_runs.state SELECT／state_transitions SELECT ／ **期待状態**: loop_runs.state = 'running'（started_at 記録）
 - **期待 DB 差分**: loop_runs 1 行 UPDATE（pending→running）、state_transitions +1 行（entity_type='loop_run', event='start', guard_result='passed'） ／ **期待証跡**: state_transitions 行（遷移証跡 — 同一 transaction でコミット）
 - **禁止副作用**: 他 loop_run の状態変更・operation_log への追加（状態遷移の記録に operation_log は使わない — §3） ／ **エラー型**: なし
-- **対象更新**: S0.1（CMP-01 kernel/state.py）／loop_runs start 遷移 ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（CMP-01 kernel/state.py）／loop_runs start 遷移 ／ **TC**: TCC-11-1
 
 ### AC-11-2（拒否）
 
@@ -24,7 +24,7 @@
 - **観測点**: raise される例外型／loop_runs SELECT／state_transitions SELECT ／ **期待状態**: loop_runs.state = 'running' のまま（retry_count=0 不変）
 - **期待 DB 差分**: state_transitions +1 行（from_state='running', event='start', guard_result='rejected'）のみ。loop_runs 差分なし ／ **期待証跡**: state_transitions 拒否行（rejected — 拒否も証跡化 §3）
 - **禁止副作用**: loop_runs の状態・retry_count の変更、遷移の部分適用 ／ **エラー型**: TransitionRejected
-- **対象更新**: S0.1（CMP-01）／未定義遷移の fail-close ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（CMP-01）／未定義遷移の fail-close ／ **TC**: TCC-11-2
 
 ### AC-11-3（境界・復旧）
 
@@ -33,7 +33,7 @@
 - **観測点**: raise される例外型／再起動後の loop_runs.state・state_transitions 行数 ／ **期待状態**: A='completed' 不変、B='running'（未コミット遷移は transaction ごと消滅）
 - **期待 DB 差分**: A: state_transitions +1 行（guard_result='rejected'）。B: 差分なし（部分行が存在しない） ／ **期待証跡**: A の拒否行。B は証跡なし（原子性 — 状態と遷移ログの片方だけ残らない）
 - **禁止副作用**: 終端からの状態変更・state_transitions の部分行（ログだけ残る／状態だけ変わる） ／ **エラー型**: TransitionRejected
-- **対象更新**: S0.1（CMP-01）／終端保護と §3.3 再開規則 ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（CMP-01）／終端保護と §3.3 再開規則 ／ **TC**: TCC-11-3 TCC-CONFLICT-1 TCC-KILL-1
 
 ## FR-12
 
@@ -44,7 +44,7 @@
 - **観測点**: 発行 API 戻り値／tasks SELECT（workflow_id・author_agent_id・verifier_agent_id・expected_output_kind） ／ **期待状態**: tasks.state = 'pending'（未 claim・idempotency_key 付与済み）
 - **期待 DB 差分**: tasks +1 行（4 列すべて非 NULL、UNIQUE(loop_run_id, step_key, attempt) 充足） ／ **期待証跡**: tasks 行そのもの（発行記録の正本）
 - **禁止副作用**: author_agent_id == verifier_agent_id の行・同一 (loop_run_id, step_key, attempt) の重複行の生成 ／ **エラー型**: なし
-- **対象更新**: S0.1（CMP-02 kernel/orchestrator.py・assigner.py）／タスク発行 ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（CMP-02 kernel/orchestrator.py・assigner.py）／タスク発行 ／ **TC**: TCC-12-1
 
 ### AC-12-2（拒否）
 
@@ -53,7 +53,7 @@
 - **観測点**: raise される例外型／tasks SELECT 件数 ／ **期待状態**: T-PUB の tasks 行が存在しない
 - **期待 DB 差分**: 差分なし（tasks 0 行増） ／ **期待証跡**: なし（発行前拒否 — 外部操作ではないため operation_log 対象外）
 - **禁止副作用**: tasks への T-PUB 行 INSERT・WP コネクタの呼出し ／ **エラー型**: TaskIssuanceRejected
-- **対象更新**: S0.1（CMP-02）＋S0.2 の公開系回帰／T-R2 ガード ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（CMP-02）＋S0.2 の公開系回帰／T-R2 ガード ／ **TC**: TCC-12-2
 
 ### AC-12-3（境界・復旧）
 
@@ -62,7 +62,7 @@
 - **観測点**: 発行 API 戻り値（既存行の id）／tasks SELECT count ／ **期待状態**: tasks 1 行のまま（state='pending' 不変）
 - **期待 DB 差分**: 差分なし ／ **期待証跡**: なし（無副作用の冪等再実行）
 - **禁止副作用**: tasks への 2 行目 INSERT・attempt の暗黙増加・UNIQUE 制約例外の呼出し側への素通し ／ **エラー型**: なし
-- **対象更新**: S0.1（CMP-02）／発行の冪等性・クラッシュ再開 ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（CMP-02）／発行の冪等性・クラッシュ再開 ／ **TC**: TCC-12-3
 
 ## FR-13
 
@@ -73,7 +73,7 @@
 - **観測点**: tasks.state SELECT／state_transitions SELECT／evidence SELECT ／ **期待状態**: tasks.state = 'done'（completed_at 記録・retry_count=0 のまま）
 - **期待 DB 差分**: tasks 1 行 UPDATE（verifying→done）、state_transitions +1 行（event='verify_pass', guard_result='passed'） ／ **期待証跡**: evidence: review_pass（result=PASS・reviewer は author と別 agent）
 - **禁止副作用**: retry_count の変化・author 自身の principal による PASS 判定 ／ **エラー型**: なし
-- **対象更新**: S0.1（CMP-02 マイクロループ＋CMP-01 状態機械）／verify_pass ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（CMP-02 マイクロループ＋CMP-01 状態機械）／verify_pass ／ **TC**: TCC-13-1
 
 ### AC-13-2（拒否）
 
@@ -82,7 +82,7 @@
 - **観測点**: raise される例外型／tasks SELECT／state_transitions SELECT ／ **期待状態**: tasks.state = 'verifying' のまま（retry_count=1 不変）
 - **期待 DB 差分**: state_transitions +1 行（event='verify_fail', guard_result='rejected'）のみ。tasks 差分なし ／ **期待証跡**: state_transitions 拒否行（差戻し理由欠如による rejected）
 - **禁止副作用**: in_progress への差戻し・retry_count の増加 ／ **エラー型**: TransitionRejected
-- **対象更新**: S0.1（CMP-02＋CMP-01）／verify_fail ガード ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（CMP-02＋CMP-01）／verify_fail ガード ／ **TC**: TCC-13-2
 
 ### AC-13-3（境界・復旧）
 
@@ -91,7 +91,7 @@
 - **観測点**: tasks.state・retry_count SELECT／state_transitions SELECT ／ **期待状態**: tasks.state = 'escalated'（終端）、retry_count=3
 - **期待 DB 差分**: tasks 1 行 UPDATE（verifying→escalated, retry_count 2→3）、state_transitions +1 行（event='verify_fail_exhausted', guard_result='passed'） ／ **期待証跡**: state_transitions 行＋tasks.failure_detail（最終差戻し理由）
 - **禁止副作用**: in_progress への 4 回目の差戻し・retry_count の 2 加算・failed への誤分類 ／ **エラー型**: なし
-- **対象更新**: S0.1（CMP-02）／retry_limit 境界（AC-13 の正本条件） ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（CMP-02）／retry_limit 境界（AC-13 の正本条件） ／ **TC**: TCC-13-3
 
 ## FR-14
 
@@ -102,7 +102,7 @@
 - **観測点**: sprints.status SELECT（WP・X 両行） ／ **期待状態**: WP sprint = 'active'、X sprint = 'blocked' のまま
 - **期待 DB 差分**: sprints 1 行 UPDATE（WP のみ planned→active） ／ **期待証跡**: sprints 行の status 変化（列更新が正本 — 遷移ログ対象外）
 - **禁止副作用**: X sprint 行の変更・他媒体待ち合わせによる開始保留（同期強制） ／ **エラー型**: なし
-- **対象更新**: S1（FN-106 スプリント制御）／開始条件と媒体独立性 ／ **TC**: （割当待ち）
+- **対象更新**: S1（FN-106 スプリント制御）／開始条件と媒体独立性 ／ **TC**: TCC-14-1
 
 ### AC-14-2（拒否）
 
@@ -111,7 +111,7 @@
 - **観測点**: raise される例外型／sprints.status SELECT／loop_runs.state SELECT／state_transitions SELECT ／ **期待状態**: sprint = 'planned'、loop_run = 'pending'（いずれも不変）
 - **期待 DB 差分**: sprints 差分なし。state_transitions +1 行（loop_run start の guard_result='rejected'） ／ **期待証跡**: state_transitions 拒否行（KPI target 欠如）
 - **禁止副作用**: sprint の active 化・下位 loop_run の running 化・タスク発行 ／ **エラー型**: SprintStartRejected（下位 run 側は TransitionRejected）
-- **対象更新**: S1（FN-106）＋S0.1 start ガードの回帰／LP-R2 ／ **TC**: （割当待ち）
+- **対象更新**: S1（FN-106）＋S0.1 start ガードの回帰／LP-R2 ／ **TC**: TCC-14-2
 
 ### AC-14-3（境界・復旧）
 
@@ -120,7 +120,7 @@
 - **観測点**: sprints.status SELECT（再起動前後）／A 配下での新規 tasks 発行の可否 ／ **期待状態**: A = 'reviewing'、B = 再実行後 'active'（planned/active 以外の中間値なし）
 - **期待 DB 差分**: A: 1 行 UPDATE（active→reviewing）。B: kill 分は差分なし → 再実行で 1 行 UPDATE（planned→active） ／ **期待証跡**: sprints 行の status 遷移（正本）
 - **禁止副作用**: reviewing 移行後の A への新規タスク発行・B の状態不定 ／ **エラー型**: なし
-- **対象更新**: S1（FN-106）／期限境界と再開（無状態判定の再実行） ／ **TC**: （割当待ち）
+- **対象更新**: S1（FN-106）／期限境界と再開（無状態判定の再実行） ／ **TC**: TCC-14-3
 
 ## FR-15
 
@@ -131,7 +131,7 @@
 - **観測点**: learnings SELECT（sprint_id・source_pair_id・status）／上位ループ入力キューの参照 API ／ **期待状態**: learnings.status = 'draft'（採否は上位ループ側の判断待ち）
 - **期待 DB 差分**: learnings +1 行（sprint_id・source_pair_id の FK 接続・learning_json 有効） ／ **期待証跡**: learnings 行（source_pair_id つき — 還流の正本）
 - **禁止副作用**: strategic_briefs への書込み（下流からの上流正本直接変更 — SR-07 違反） ／ **エラー型**: なし
-- **対象更新**: S1（FN-107 還流処理）／レビュー成立→learnings 生成 ／ **TC**: （割当待ち）
+- **対象更新**: S1（FN-107 還流処理）／レビュー成立→learnings 生成 ／ **TC**: TCC-15-1
 
 ### AC-15-2（拒否）
 
@@ -140,7 +140,7 @@
 - **観測点**: raise される例外型／learnings SELECT count ／ **期待状態**: learnings 0 行のまま
 - **期待 DB 差分**: 差分なし ／ **期待証跡**: なし（生成前拒否）
 - **禁止副作用**: learnings INSERT・上位キューへの登録・strategic_briefs への書込み ／ **エラー型**: PairNotEstablished
-- **対象更新**: S1（FN-107)／片肺禁止ガード ／ **TC**: （割当待ち）
+- **対象更新**: S1（FN-107)／片肺禁止ガード ／ **TC**: TCC-15-2
 
 ### AC-15-3（境界・復旧）
 
@@ -149,7 +149,7 @@
 - **観測点**: learnings SELECT count（source_pair_id で絞込み）／再実行 API 戻り値（既存行 id） ／ **期待状態**: learnings 1 行のまま（status='draft' 不変）
 - **期待 DB 差分**: 差分なし ／ **期待証跡**: 既存 learnings 行（重複なし）
 - **禁止副作用**: 同一 source_pair_id の 2 行目 INSERT・summary/learning_json の上書き ／ **エラー型**: なし
-- **対象更新**: S1（FN-107）／還流の冪等性・クラッシュ再開 ／ **TC**: （割当待ち）
+- **対象更新**: S1（FN-107）／還流の冪等性・クラッシュ再開 ／ **TC**: TCC-15-3
 
 ## FR-16
 
@@ -160,7 +160,7 @@
 - **観測点**: tasks.state・failure_code SELECT／loop_runs.state SELECT／state_transitions SELECT／mock 通知の呼出回数 ／ **期待状態**: tasks = 'escalated'、loop_runs = 'escalated'（終端・人の対処待ち）
 - **期待 DB 差分**: tasks 1 行 UPDATE（state='escalated', failure_code='playbook_broken'）、loop_runs 1 行 UPDATE、state_transitions +2 行（escalate／fatal_failure、guard_result='passed'） ／ **期待証跡**: state_transitions 2 行＋tasks.failure_code（事由コード）
 - **禁止副作用**: 通知 transport 失敗による遷移の巻き戻し・failed への誤分類・破損 playbook での外部操作継続 ／ **エラー型**: なし
-- **対象更新**: S0.1（CMP-01 状態機械）＋S0.2（CMP-11 通知）／escalate・fatal_failure ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（CMP-01 状態機械）＋S0.2（CMP-11 通知）／escalate・fatal_failure ／ **TC**: TCC-16-1
 
 ### AC-16-2（拒否）
 
@@ -169,7 +169,7 @@
 - **観測点**: raise される例外型／tasks.state SELECT（A・B）／state_transitions.guard_result SELECT ／ **期待状態**: A = 'done' 不変、B = 'failed'（escalated ではない）
 - **期待 DB 差分**: A: state_transitions +1 行（guard_result='rejected'）。B: tasks 1 行 UPDATE（→failed, failure_code='approval_rejected'）＋state_transitions +1 行（event='non_retryable_failure', passed） ／ **期待証跡**: A の拒否行＋B の failure_code・state_transitions 行
 - **禁止副作用**: A の状態変更・B の escalated への遷移（rejected の escalate 誤分類）・公開の実行 ／ **エラー型**: TransitionRejected（A 側。B 側は例外なしの failed 遷移）
-- **対象更新**: S0.1（CMP-01）＋S0.2 承認分類の回帰／終端保護と正準分類 ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（CMP-01）＋S0.2 承認分類の回帰／終端保護と正準分類 ／ **TC**: TCC-16-2
 
 ### AC-16-3（境界・復旧）
 
@@ -178,7 +178,7 @@
 - **観測点**: 1 回目 expired 後の task/loop 状態／2 回目後の tasks.state SELECT／approvals SELECT 件数 ／ **期待状態**: 1 回目後 = 待機継続（escalated でない・承認再要求済み）、2 回目後 = tasks = 'escalated'
 - **期待 DB 差分**: approvals +2 行（decision='expired'）、tasks 1 行 UPDATE（→escalated）、state_transitions +1 行（event='escalate', guard_result='passed'） ／ **期待証跡**: approvals の expired 2 行＋state_transitions 行（再要求系列の証跡）
 - **禁止副作用**: 1 回目 expired での即時 escalate・expired の failed への誤分類（rejected と混同）・承認なしの公開実行 ／ **エラー型**: なし
-- **対象更新**: S0.2（CMP-11 承認通知＋CMP-01）／approval_retry_limit 境界 ／ **TC**: （割当待ち）
+- **対象更新**: S0.2（CMP-11 承認通知＋CMP-01）／approval_retry_limit 境界 ／ **TC**: TCC-16-3
 
 ## FR-21
 
@@ -189,7 +189,7 @@
 - **観測点**: 公開前検証 API の戻り値／external_operations SELECT／operation_log 件数 ／ **期待状態**: T-PUB が公開ステップへ進行可能（pair 検証 PASS）
 - **期待 DB 差分**: pair_plan_quality 差分なし（既存行を根拠に通過）、operation_log 拒否行なし ／ **期待証跡**: なし（正常通過は既存 pair 行が根拠）
 - **禁止副作用**: pair 行の変更・operation_log への拒否行追加 ／ **エラー型**: なし
-- **対象更新**: S0.2（ゲート層）／pair_plan.check_established・公開前検証 ／ **TC**: （割当待ち）
+- **対象更新**: S0.2（ゲート層）／pair_plan.check_established・公開前検証 ／ **TC**: TCC-21-1
 
 ### AC-21-2（拒否）
 
@@ -198,7 +198,7 @@
 - **観測点**: raise される例外型／external_operations SELECT（0 行）／state_transitions・operation_log SELECT ／ **期待状態**: T-PUB = failed（failure_code = pair 不成立）
 - **期待 DB 差分**: state_transitions +1 行（failed 遷移）、operation_log +1 行（拒否）、external_operations 差分なし ／ **期待証跡**: operation_log 拒否行（plan_id・理由 = pair 不成立）
 - **禁止副作用**: WP API 呼出し（external_operations への行追加）・pair_plan_quality への行追加 ／ **エラー型**: PairNotEstablished
-- **対象更新**: S0.2（ゲート層）／公開ゲート FN-202 ／ **TC**: （割当待ち）
+- **対象更新**: S0.2（ゲート層）／公開ゲート FN-202 ／ **TC**: TCC-21-2
 
 ### AC-21-3（境界・復旧）
 
@@ -207,7 +207,7 @@
 - **観測点**: 1 回目の例外型／2 回目の検証戻り値／pair_plan_quality SELECT ／ **期待状態**: 1 回目拒否・2 回目通過。revoked 行は revoked のまま保持（履歴保持）
 - **期待 DB 差分**: pair_plan_quality +1 行（新 passed）、operation_log +1 行（1 回目拒否） ／ **期待証跡**: operation_log 拒否行（理由 = pair revoked）＋新 review_pass 証跡
 - **禁止副作用**: revoked 行の passed への書き戻し・revoked ペアでの外部書込み ／ **エラー型**: PairNotEstablished（1 回目）／なし（2 回目）
-- **対象更新**: S0.2（ゲート層）／pair 失効と再成立 ／ **TC**: （割当待ち）
+- **対象更新**: S0.2（ゲート層）／pair 失効と再成立 ／ **TC**: TCC-21-3
 
 ## FR-22
 
@@ -218,7 +218,7 @@
 - **観測点**: pair_kpi_measure SELECT／sprints.status／learnings 生成キューの呼出し記録 ／ **期待状態**: sprint = completed、pair = passed
 - **期待 DB 差分**: pair_kpi_measure +1 行（passed）、sprints 1 行 UPDATE（completed） ／ **期待証跡**: pair_kpi_measure 行（成立根拠 = measurement＋evidence FK）
 - **禁止副作用**: measurement のない状態でのレビュー成立・上位還流 ／ **エラー型**: なし
-- **対象更新**: S1（ゲート層）／pair_kpi.check_established・レビュー成立イベント ／ **TC**: （割当待ち）
+- **対象更新**: S1（ゲート層）／pair_kpi.check_established・レビュー成立イベント ／ **TC**: TCC-22-1
 
 ### AC-22-2（拒否）
 
@@ -227,7 +227,7 @@
 - **観測点**: raise される例外型（又は不成立戻り値）／sprints.status／pair_kpi_measure・learnings SELECT ／ **期待状態**: sprint = reviewing のまま（遷移なし）
 - **期待 DB 差分**: 差分なし（pair_kpi_measure・learnings とも 0 行のまま） ／ **期待証跡**: なし（不成立は状態不変で表現。state_transitions への rejected 記録は sprint 遷移要求時のみ）
 - **禁止副作用**: レビュー成立イベント発火・learnings への行追加・上位ループへの還流 ／ **エラー型**: ReviewNotEstablished
-- **対象更新**: S1（ゲート層）／pair_kpi 片肺検出 ／ **TC**: （割当待ち）
+- **対象更新**: S1（ゲート層）／pair_kpi 片肺検出 ／ **TC**: TCC-22-2
 
 ### AC-22-3（境界・復旧）
 
@@ -236,7 +236,7 @@
 - **観測点**: 1 回目の不成立判定／2 回目の pair_kpi_measure SELECT と sprints.status ／ **期待状態**: 1 回目 = reviewing のまま、2 回目 = completed
 - **期待 DB 差分**: 2 回目のみ pair_kpi_measure +1 行・sprints UPDATE ／ **期待証跡**: 2 回目の pair_kpi_measure 行（passed）
 - **禁止副作用**: 空目標での成立（fail-open）・1 回目でのレビュー成立イベント発火 ／ **エラー型**: ReviewNotEstablished（1 回目）／なし（2 回目）
-- **対象更新**: S1（ゲート層）／目標空の判定不能処理と後着計測での再判定 ／ **TC**: （割当待ち）
+- **対象更新**: S1（ゲート層）／目標空の判定不能処理と後着計測での再判定 ／ **TC**: TCC-22-3
 
 ## FR-23
 
@@ -247,7 +247,7 @@
 - **観測点**: 登録 API 戻り値／kpi_nodes SELECT／operation_log 件数 ／ **期待状態**: kpi_nodes に 1 行（非有料型）
 - **期待 DB 差分**: kpi_nodes +1 行、operation_log 差分なし ／ **期待証跡**: なし（正常通過は証跡不要）
 - **禁止副作用**: operation_log への拒否行の追加 ／ **エラー型**: なし
-- **対象更新**: S0.2（ゲート層）／zero_ad.check_metric・check_url ／ **TC**: （割当待ち）
+- **対象更新**: S0.2（ゲート層）／zero_ad.check_metric・check_url ／ **TC**: TCC-23-1
 
 ### AC-23-2（拒否）
 
@@ -256,7 +256,7 @@
 - **観測点**: raise される例外型／operation_log SELECT ／ **期待状態**: kpi_nodes 空のまま
 - **期待 DB 差分**: operation_log +2 行（指標拒否・URL 拒否） ／ **期待証跡**: operation_log 拒否行（指標名・URL・理由）
 - **禁止副作用**: kpi_nodes への行追加・外部への実遷移 ／ **エラー型**: PaidMetricRejected／UrlDenied
-- **対象更新**: S0.2（ゲート層） ／ **TC**: （割当待ち）
+- **対象更新**: S0.2（ゲート層） ／ **TC**: TCC-23-2
 
 ### AC-23-3（境界・復旧）
 
@@ -265,7 +265,7 @@
 - **観測点**: raise される例外型／operation_log SELECT ／ **期待状態**: 遷移 0 件許可
 - **期待 DB 差分**: operation_log +1 行（拒否） ／ **期待証跡**: operation_log 拒否行（理由 = allowlist 未設定）
 - **禁止副作用**: URL 許可（fail-open） ／ **エラー型**: UrlDenied
-- **対象更新**: S0.2（ゲート層） ／ **TC**: （割当待ち）
+- **対象更新**: S0.2（ゲート層） ／ **TC**: TCC-23-3
 
 ## FR-24
 
@@ -276,7 +276,7 @@
 - **観測点**: 検証 API の戻り値／operation_log 件数 ／ **期待状態**: T-PUB が公開ステップへ進行可能（表記検証 PASS）
 - **期待 DB 差分**: operation_log 差分なし ／ **期待証跡**: なし（正常通過。審査側 review_pass の checked_items に表記検証結果）
 - **禁止副作用**: operation_log への拒否行追加・表記なしでの通過 ／ **エラー型**: なし
-- **対象更新**: S1（ゲート層）／pr_label.check ／ **TC**: （割当待ち）
+- **対象更新**: S1（ゲート層）／pr_label.check ／ **TC**: TCC-24-1
 
 ### AC-24-2（拒否）
 
@@ -285,7 +285,7 @@
 - **観測点**: raise される例外型／operation_log SELECT／external_operations SELECT（0 行） ／ **期待状態**: T-PUB = failed（non_retryable_failure）
 - **期待 DB 差分**: operation_log +1 行（拒否）、external_operations 差分なし ／ **期待証跡**: operation_log 拒否行（commit hash・検出リンク・欠落規則）
 - **禁止副作用**: WP API 呼出し・表記なし成果物の公開ゲート通過 ／ **エラー型**: PrLabelMissing
-- **対象更新**: S1（ゲート層）／pr_label.check ／ **TC**: （割当待ち）
+- **対象更新**: S1（ゲート層）／pr_label.check ／ **TC**: TCC-24-2
 
 ### AC-24-3（境界・復旧）
 
@@ -294,7 +294,7 @@
 - **観測点**: 1 回目の例外型／2 回目の判定結果（最終 URL での ASP 該当）／operation_log SELECT ／ **期待状態**: 1 回目 = 拒否（判定不能）、2 回目 = 表記有無に応じた通常判定
 - **期待 DB 差分**: operation_log +1 行（1 回目拒否）、config +1 行（リスト設定 — INSERT 履歴） ／ **期待証跡**: operation_log 拒否行（理由 = domainlist 未設定）
 - **禁止副作用**: リスト未設定での通過（fail-open）・展開前 URL のみでの非該当判定 ／ **エラー型**: PrLabelMissing（判定不能時も拒否種別を統一）
-- **対象更新**: S1（ゲート層）／domainlist 未設定の fail-close とリダイレクト展開判定 ／ **TC**: （割当待ち）
+- **対象更新**: S1（ゲート層）／domainlist 未設定の fail-close とリダイレクト展開判定 ／ **TC**: TCC-24-3
 
 ## FR-25
 
@@ -305,7 +305,7 @@
 - **観測点**: tasks.state／evidence SELECT（kind='review_pass' の payload_json.checked_items） ／ **期待状態**: T-REVIEW = done
 - **期待 DB 差分**: evidence +1 行（review_pass）、state_transitions +1 行（verify_pass, passed） ／ **期待証跡**: review_pass 証跡（result=PASS、checked_items に P5 全 4 項目）
 - **禁止副作用**: P5 チェックを省略した PASS（checked_items 欠落）の記録 ／ **エラー型**: なし
-- **対象更新**: S1（審査 WF）／ethics.check（S0 は fail-close ルールセット） ／ **TC**: （割当待ち）
+- **対象更新**: S1（審査 WF）／ethics.check（S0 は fail-close ルールセット） ／ **TC**: TCC-25-1
 
 ### AC-25-2（拒否）
 
@@ -314,7 +314,7 @@
 - **観測点**: tasks.state・retry_count／evidence SELECT（review_pass 0 行・FAIL 理由証跡）／state_transitions SELECT ／ **期待状態**: 対象 task = in_progress（retry_count=1）
 - **期待 DB 差分**: tasks UPDATE（retry_count+1）、state_transitions +1 行（verify_fail）、verifier の FAIL 理由証跡 +1 行 ／ **期待証跡**: 差戻し理由（P5 該当項目名）を含む verifier 証跡
 - **禁止副作用**: review_pass 証跡の生成・done への遷移・pair_plan_quality の成立 ／ **エラー型**: EthicsViolation（verify_fail 分類）
-- **対象更新**: S1（審査 WF）／ethics.check FAIL 経路 ／ **TC**: （割当待ち）
+- **対象更新**: S1（審査 WF）／ethics.check FAIL 経路 ／ **TC**: TCC-25-2
 
 ### AC-25-3（境界・復旧）
 
@@ -323,7 +323,7 @@
 - **観測点**: tasks.state・retry_count／state_transitions SELECT／escalated 後の遷移試行の拒否 ／ **期待状態**: 対象 task = escalated（retry_count=3、終端）
 - **期待 DB 差分**: tasks UPDATE（escalated）、state_transitions +1 行（verify_fail_exhausted） ／ **期待証跡**: 差戻し理由証跡＋state_transitions 行（escalated 遷移）
 - **禁止副作用**: escalated 後の自動遷移・上限超過後の verify_fail 継続（in_progress への差戻し） ／ **エラー型**: EthicsViolation（verify_fail_exhausted 分類）
-- **対象更新**: S1（審査 WF）／retry 上限と escalation 境界 ／ **TC**: （割当待ち）
+- **対象更新**: S1（審査 WF）／retry 上限と escalation 境界 ／ **TC**: TCC-25-3
 
 ## FR-26
 
@@ -334,7 +334,7 @@
 - **観測点**: approvals SELECT（pending→approved）／evidence SELECT（kind='approval'）／external_operations の遷移順 ／ **期待状態**: 承認後に外部操作実行、task は verifying へ進行可能
 - **期待 DB 差分**: approvals +1 行（approved）、evidence +1 行（approval）、external_operations +1 行 ／ **期待証跡**: evidence.kind = approval（decision=approved、binding_subject/operation/at）
 - **禁止副作用**: 承認要求前・approved 確認前の外部書込み（オートモードによるバイパス） ／ **エラー型**: なし
-- **対象更新**: S1（ゲート層＋承認チャネル）／money_escalation.require_approval ／ **TC**: （割当待ち）
+- **対象更新**: S1（ゲート層＋承認チャネル）／money_escalation.require_approval ／ **TC**: TCC-26-1
 
 ### AC-26-2（拒否）
 
@@ -343,7 +343,7 @@
 - **観測点**: tasks.state・failure_code／approvals.decision／external_operations SELECT（0 行） ／ **期待状態**: 対象 task = failed（failure_code = 承認却下）
 - **期待 DB 差分**: approvals +1 行（rejected）、tasks UPDATE（failed）、state_transitions +1 行、external_operations 差分なし ／ **期待証跡**: approvals 行（decision=rejected・responder_ref）＋state_transitions 行
 - **禁止副作用**: 外部書込みの実行・escalated への遷移（rejected は escalate に含まない — s0-contract §3.2） ／ **エラー型**: ApprovalRejected（non_retryable_failure 分類）
-- **対象更新**: S1（ゲート層＋承認チャネル）／rejected の failed 化 ／ **TC**: （割当待ち）
+- **対象更新**: S1（ゲート層＋承認チャネル）／rejected の failed 化 ／ **TC**: TCC-26-2
 
 ### AC-26-3（境界・復旧）
 
@@ -352,7 +352,7 @@
 - **観測点**: approvals SELECT（expired 行＋再要求 pending 行の履歴）／loop_runs/tasks の状態列／state_transitions SELECT ／ **期待状態**: 上限到達前 = waiting 継続、到達後 = escalated（終端）
 - **期待 DB 差分**: approvals +3 行（初回＋再要求 2 回、各 expired/pending 履歴）、state_transitions +1 行（escalate） ／ **期待証跡**: approvals の全要求履歴＋state_transitions 行（escalate、guard に再要求回数）
 - **禁止副作用**: expired での即 failed 化・上限到達後の再要求継続・未承認での外部書込み ／ **エラー型**: ApprovalExpired（escalate 分類 — 上限到達時）
-- **対象更新**: S1（ゲート層＋承認チャネル）／expired 再要求と approval_retry_limit ／ **TC**: （割当待ち）
+- **対象更新**: S1（ゲート層＋承認チャネル）／expired 再要求と approval_retry_limit ／ **TC**: TCC-26-3
 
 ## FR-27
 
@@ -363,7 +363,7 @@
 - **観測点**: tasks INSERT の成否／tasks.state／state_transitions SELECT（claim, passed） ／ **期待状態**: task = in_progress（lease_owner_execution_id = author の execution）
 - **期待 DB 差分**: tasks +1 行、state_transitions +1 行（claim, passed） ／ **期待証跡**: state_transitions 行（guard_result=passed）＋tasks 行の割当そのもの
 - **禁止副作用**: verifier execution による lease 取得 ／ **エラー型**: なし
-- **対象更新**: S0.1（kernel＋DB 基盤）／assigner.assign・kernel.claim ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（kernel＋DB 基盤）／assigner.assign・kernel.claim ／ **TC**: TCC-27-1
 
 ### AC-27-2（拒否）
 
@@ -372,7 +372,7 @@
 - **観測点**: (a) sqlite3.IntegrityError の捕捉／(b) raise される例外型と state_transitions SELECT（rejected） ／ **期待状態**: (a) 行は作られず、(b) task は pending のまま
 - **期待 DB 差分**: (a) 差分なし（rollback）、(b) state_transitions +1 行（claim, rejected） ／ **期待証跡**: state_transitions の rejected 行（(b) の claim 拒否）
 - **禁止副作用**: 同一 agent／同一 principal での in_progress 遷移・lease 取得 ／ **エラー型**: IntegrityError（DB 層）／SelfReviewRejected（エンジン層）
-- **対象更新**: S0.1（kernel＋DB 基盤）／CHECK 制約と claim ガードの二重拒否 ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（kernel＋DB 基盤）／CHECK 制約と claim ガードの二重拒否 ／ **TC**: TCC-27-2
 
 ### AC-27-3（境界・復旧）
 
@@ -381,7 +381,7 @@
 - **観測点**: 再 claim の例外型／tasks.lease_owner_execution_id・heartbeat_at／state_transitions SELECT ／ **期待状態**: lease_owner_execution_id = author の新 execution、task = in_progress で再開
 - **期待 DB 差分**: tasks UPDATE（lease 列・row_version）、state_transitions +1 行（拒否 rejected） ／ **期待証跡**: state_transitions の rejected 行（verifier execution の claim 拒否）
 - **禁止副作用**: verifier execution への lease 移譲・row_version を経ない lease 上書き ／ **エラー型**: SelfReviewRejected（verifier execution の再 claim）
-- **対象更新**: S0.1（kernel）／lease 失効後の再 claim ガード（s0-contract §1・§3.3） ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（kernel）／lease 失効後の再 claim ガード（s0-contract §1・§3.3） ／ **TC**: TCC-27-3
 
 ## FR-28
 
@@ -392,7 +392,7 @@
 - **観測点**: tasks.state／state_transitions SELECT（verify_pass, passed） ／ **期待状態**: T-PLAN = done（終端）
 - **期待 DB 差分**: tasks UPDATE（done）、state_transitions +1 行（passed） ／ **期待証跡**: 既存 plan_record 証跡（完備集合）＋state_transitions 行
 - **禁止副作用**: 証跡未検証での done 化・evidence 行の変更（append-only） ／ **エラー型**: なし
-- **対象更新**: S0.1（ゲート層＋証跡ストア）／evidence_complete.check ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（ゲート層＋証跡ストア）／evidence_complete.check ／ **TC**: TCC-28-1
 
 ### AC-28-2（拒否）
 
@@ -401,7 +401,7 @@
 - **観測点**: raise される例外型／tasks.state（不変）／state_transitions SELECT（rejected, details に欠落 kind） ／ **期待状態**: T-PUB = verifying のまま（状態・retry_count・証跡すべて不変）
 - **期待 DB 差分**: state_transitions +1 行（rejected）のみ ／ **期待証跡**: state_transitions の rejected 行（details_json に欠落 kind='approval'）
 - **禁止副作用**: done への遷移・retry_count の変更・既存 evidence の変更 ／ **エラー型**: EvidenceIncomplete
-- **対象更新**: S0.1（ゲート層）／done 遷移ガードの証跡完備検証 ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（ゲート層）／done 遷移ガードの証跡完備検証 ／ **TC**: TCC-28-2
 
 ### AC-28-3（境界・復旧）
 
@@ -410,7 +410,7 @@
 - **観測点**: 1 回目の例外型と state_transitions（rejected）／2 回目の tasks.state（done） ／ **期待状態**: 1 回目 = verifying のまま、2 回目 = done
 - **期待 DB 差分**: state_transitions +2 行（rejected → passed）、workflows +1 行（新 version）、evidence +1 行（追記） ／ **期待証跡**: state_transitions の rejected 行（理由 = 未定義 kind）＋追記された適合証跡
 - **禁止副作用**: 未定義 kind の素通し（fail-open）・既存 workflow 行の required_evidence_json の書換え（rename/意味変更禁止 — 新 version で対応） ／ **エラー型**: EvidenceIncomplete（判定不能時も拒否種別を統一）
-- **対象更新**: S0.1（ゲート層）／宣言不正の fail-close と証跡追記による復旧 ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（ゲート層）／宣言不正の fail-close と証跡追記による復旧 ／ **TC**: TCC-28-3
 
 ## FR-31
 
@@ -421,7 +421,7 @@
 - **観測点**: 問診生成 API の質問リスト／business_profiles SELECT（profile_json）／evidence SELECT（問診・回答紐付け） ／ **期待状態**: 全必須スロット充足（空き検出 0 件）
 - **期待 DB 差分**: business_profiles 1 行 UPDATE（price_range 充填）、evidence +1 行（問診・回答・型検証結果） ／ **期待証跡**: 問診レコードと回答の紐付け行＋型検証 PASS の記録
 - **禁止副作用**: 未照会スロットへの値の書込み（推測充填）・他プロファイル行の変更 ／ **エラー型**: なし
-- **対象更新**: S1（ヒアリングエンジン）／fillers.detect_gaps・fill_from_answer ／ **TC**: （割当待ち）
+- **対象更新**: S1（ヒアリングエンジン）／fillers.detect_gaps・fill_from_answer ／ **TC**: TCC-31-1
 
 ### AC-31-2（拒否）
 
@@ -430,7 +430,7 @@
 - **観測点**: raise される例外型／tasks SELECT（state）／構造化ログの拒否行 ／ **期待状態**: tasks.state = 'pending'（遷移なし）
 - **期待 DB 差分**: tasks・business_profiles 差分なし、構造化ログ +1 行（拒否） ／ **期待証跡**: 開始拒否ログ（未充足スロット名 = target_customer を含む）
 - **禁止副作用**: タスクの in_progress 遷移・スロットへの推測値の自動充填 ／ **エラー型**: SlotUnfilledRejected
-- **対象更新**: S1（ヒアリングエンジン）／開始前提ガード ／ **TC**: （割当待ち）
+- **対象更新**: S1（ヒアリングエンジン）／開始前提ガード ／ **TC**: TCC-31-2
 
 ### AC-31-3（境界・復旧）
 
@@ -439,7 +439,7 @@
 - **観測点**: 再実行時の質問リスト内容／business_profiles SELECT（充填済み値の不変性） ／ **期待状態**: 質問リスト = 未充足 1 件のみ
 - **期待 DB 差分**: 差分なし（再照会前の空き検出時点） ／ **期待証跡**: なし（空き検出は読み取りのみ）
 - **禁止副作用**: 充填済みスロットの再照会・充填済み値の消去や上書き ／ **エラー型**: なし
-- **対象更新**: S1（ヒアリングエンジン）／空き検出の再開性 ／ **TC**: （割当待ち）
+- **対象更新**: S1（ヒアリングエンジン）／空き検出の再開性 ／ **TC**: TCC-31-3
 
 ## FR-32
 
@@ -450,7 +450,7 @@
 - **観測点**: draft の出典 URL 列／structure_checked 日付／構造化ログ件数 ／ **期待状態**: draft 1 件（全値出典つき・未昇格の draft 状態）
 - **期待 DB 差分**: draft +1 件、evidence +1 行（operation_log — Web 取得） ／ **期待証跡**: draft の出典 URL 列＋取得の operation_log 証跡
 - **禁止副作用**: draft の正本への自動昇格・外部への書込み ／ **エラー型**: なし
-- **対象更新**: S1（リサーチエンジン）／fillers.draft_research ／ **TC**: （割当待ち）
+- **対象更新**: S1（リサーチエンジン）／fillers.draft_research ／ **TC**: TCC-32-1
 
 ### AC-32-2（拒否）
 
@@ -459,7 +459,7 @@
 - **観測点**: raise される例外型（値単位の拒否）／draft の内容／構造化ログ ／ **期待状態**: draft に出典あり 1 値のみ（出典なし値 0 件）
 - **期待 DB 差分**: draft +1 件（1 値のみ）、構造化ログ +1 行（拒否） ／ **期待証跡**: 出典なし値の拒否ログ（値と拒否理由）
 - **禁止副作用**: 出典なし値の draft・正本への混入 ／ **エラー型**: UnsourcedValueRejected
-- **対象更新**: S1（リサーチエンジン）／fillers.validate_source ／ **TC**: （割当待ち）
+- **対象更新**: S1（リサーチエンジン）／fillers.validate_source ／ **TC**: TCC-32-2
 
 ### AC-32-3（境界・復旧）
 
@@ -468,7 +468,7 @@
 - **観測点**: draft の内容（スロット A 不在・スロット B は 90 日出典のみ）／構造化ログ ／ **期待状態**: スロット A 未充足維持、スロット B は境界内出典のみで draft 化
 - **期待 DB 差分**: draft +1 件（スロット B のみ）、構造化ログ +1 行（鮮度拒否） ／ **期待証跡**: 鮮度切れ出典の拒否ログ（G-SRC-FRESH）
 - **禁止副作用**: 空値・鮮度切れ値による draft の充填（fail-open） ／ **エラー型**: StaleSourceRejected
-- **対象更新**: S1（リサーチエンジン）／鮮度境界判定 ／ **TC**: （割当待ち）
+- **対象更新**: S1（リサーチエンジン）／鮮度境界判定 ／ **TC**: TCC-32-3
 
 ## FR-33
 
@@ -479,7 +479,7 @@
 - **観測点**: config SELECT（key='retry_limit' の全行）／有効値解決 API の戻り値 ／ **期待状態**: 有効値 = 5、履歴 2 行（supersedes_config_id が旧行を参照）
 - **期待 DB 差分**: config +1 行（INSERT のみ — 旧行の UPDATE なし） ／ **期待証跡**: config 履歴行（旧値 3・新値 5・reason）
 - **禁止副作用**: 既存 config 行の UPDATE/DELETE ／ **エラー型**: なし
-- **対象更新**: S0.1（config 管理）／config.set・config.get ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（config 管理）／config.set・config.get ／ **TC**: TCC-33-1
 
 ### AC-33-2（拒否）
 
@@ -488,7 +488,7 @@
 - **観測点**: raise される例外型／config SELECT（行数・値の不変性） ／ **期待状態**: config 1 行のまま（値 5000 不変）
 - **期待 DB 差分**: 差分なし ／ **期待証跡**: 構造化ログの拒否行（append-only 違反・reason 欠落）
 - **禁止副作用**: config 行の値変更・reason なし行の混入 ／ **エラー型**: ConfigAppendOnlyViolation／ConfigReasonMissing
-- **対象更新**: S0.1（config 管理）／append-only トリガ＋事前検証 ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（config 管理）／append-only トリガ＋事前検証 ／ **TC**: TCC-33-2
 
 ### AC-33-3（境界・復旧）
 
@@ -497,7 +497,7 @@
 - **観測点**: 参照 API の戻り値／raise される例外型 ／ **期待状態**: spend_cap_monthly = 5000（保守的既定値）、unknown_key = 解決拒否
 - **期待 DB 差分**: 差分なし（参照は読み取りのみ） ／ **期待証跡**: なし（正常参照）／拒否ログ（unknown_key）
 - **禁止副作用**: 未定義 key への暗黙値（0・None 等）の返却 ／ **エラー型**: ConfigKeyUnresolved（unknown_key 側のみ）
-- **対象更新**: S0.1（config 管理）／既定値フォールバック ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（config 管理）／既定値フォールバック ／ **TC**: TCC-33-3
 
 ## FR-34
 
@@ -508,7 +508,7 @@
 - **観測点**: business_profiles SELECT（2 行共存）／スコープ付き brand_plans SELECT の結果件数 ／ **期待状態**: business_profiles 2 行、B スコープの brand_plans = 0 件・A スコープ = 1 件
 - **期待 DB 差分**: business_profiles +1 行、他テーブル差分なし ／ **期待証跡**: business_profiles の複数行共存（SELECT で確認）
 - **禁止副作用**: A の行・A 所属データの変更・コードやワークフロー定義の修正の必要 ／ **エラー型**: なし
-- **対象更新**: S1（プロファイル管理）／profiles.register・ストア層スコープ解決 ／ **TC**: （割当待ち）
+- **対象更新**: S1（プロファイル管理）／profiles.register・ストア層スコープ解決 ／ **TC**: TCC-34-1
 
 ### AC-34-2（拒否）
 
@@ -517,7 +517,7 @@
 - **観測点**: raise される例外型／brand_plans SELECT（B 行の不変性）／構造化ログ ／ **期待状態**: B の brand_plans 行が不変・A へのデータ流出 0 件
 - **期待 DB 差分**: 差分なし、構造化ログ +1 行（越境拒否） ／ **期待証跡**: 越境アクセスの拒否ログ（要求スコープ・対象行・理由）
 - **禁止副作用**: 他プロファイル行の返却・変更（越境参照・越境書込み） ／ **エラー型**: CrossProfileAccessDenied
-- **対象更新**: S1（プロファイル管理）／ストア層スコープ強制（BR-I1） ／ **TC**: （割当待ち）
+- **対象更新**: S1（プロファイル管理）／ストア層スコープ強制（BR-I1） ／ **TC**: TCC-34-2
 
 ### AC-34-3（境界・復旧）
 
@@ -526,7 +526,7 @@
 - **観測点**: 読取 API の戻り値／raise される例外型／business_profiles SELECT ／ **期待状態**: business_profiles 1 行のまま（archived・不変）
 - **期待 DB 差分**: 差分なし ／ **期待証跡**: 書込み拒否・重複拒否のログ
 - **禁止副作用**: archived プロファイルへの新規業務行の追加・既存行の上書き登録 ／ **エラー型**: ProfileKeyConflict（重複側）／ArchivedProfileWriteDenied（書込み側）
-- **対象更新**: S1（プロファイル管理）／status 境界・UNIQUE 制約 ／ **TC**: （割当待ち）
+- **対象更新**: S1（プロファイル管理）／status 境界・UNIQUE 制約 ／ **TC**: TCC-34-3
 
 ## FR-41
 
@@ -537,7 +537,7 @@
 - **観測点**: resolve_route の戻り値（route_type）／config SELECT（2 行の履歴）／operation_log 件数 ／ **期待状態**: 最新 config 行の宣言どおりの経路が返る
 - **期待 DB 差分**: config +1 行（経路変更 INSERT）。operation_log 差分なし ／ **期待証跡**: なし（正常解決は証跡不要）
 - **禁止副作用**: コード側分岐による経路決定・operation_log への拒否行追加・外部 HTTP 呼出（0 回） ／ **エラー型**: なし
-- **対象更新**: S0.2（CMP-07 接続レジストリ）／registry.resolve_route ／ **TC**: （割当待ち）
+- **対象更新**: S0.2（CMP-07 接続レジストリ）／registry.resolve_route ／ **TC**: TCC-41-1
 
 ### AC-41-2（拒否）
 
@@ -546,7 +546,7 @@
 - **観測点**: raise される例外型／operation_log SELECT（service・理由） ／ **期待状態**: 経路は 1 件も返却されない
 - **期待 DB 差分**: operation_log +2 行（未登録拒否・有償経路拒否） ／ **期待証跡**: operation_log 拒否行（service・要求経路・理由）
 - **禁止副作用**: 有償 API への接続試行（外部 HTTP 呼出 0 回）・spend_ledger への行追加 ／ **エラー型**: RouteNotRegistered／PaidRouteDenied
-- **対象更新**: S0.2（CMP-07 接続レジストリ） ／ **TC**: （割当待ち）
+- **対象更新**: S0.2（CMP-07 接続レジストリ） ／ **TC**: TCC-41-2
 
 ### AC-41-3（境界・復旧）
 
@@ -555,7 +555,7 @@
 - **観測点**: raise される例外型／operation_log SELECT ／ **期待状態**: 両要求とも経路返却 0 件
 - **期待 DB 差分**: operation_log +2 行（破損拒否・経路なし） ／ **期待証跡**: operation_log 拒否行（理由 = registry 行破損／fallback なし）
 - **禁止副作用**: 破損行からの部分的な経路返却（fail-open）・外部 HTTP 呼出（0 回） ／ **エラー型**: RouteNotRegistered
-- **対象更新**: S0.2（CMP-07 接続レジストリ） ／ **TC**: （割当待ち）
+- **対象更新**: S0.2（CMP-07 接続レジストリ） ／ **TC**: TCC-41-3
 
 ## FR-42
 
@@ -566,7 +566,7 @@
 - **観測点**: playbooks.last_success_at SELECT／構造化ログ（seed・間隔値）／external_operations.status ／ **期待状態**: external_operations 3 行すべて confirmed、playbook は active のまま
 - **期待 DB 差分**: external_operations +3 行、operation_log +3 行、playbooks.last_success_at UPDATE ／ **期待証跡**: operation_log 行（external_operation_id つき）＋構造化ログの seed=42 と間隔 3 値
 - **禁止副作用**: 固定間隔での連続送信（3 間隔が全一致）・範囲外（1 秒未満/5 秒超）の間隔・idempotency key の重複 ／ **エラー型**: なし
-- **対象更新**: S1（CMP-08 ブラウザ基盤）／browser.execute_playbook ／ **TC**: （割当待ち）
+- **対象更新**: S1（CMP-08 ブラウザ基盤）／browser.execute_playbook ／ **TC**: TCC-42-1
 
 ### AC-42-2（拒否）
 
@@ -575,7 +575,7 @@
 - **観測点**: raise される例外型／operation_log SELECT／external_operations 件数 ／ **期待状態**: external_operations に新規 sent/confirmed 行なし
 - **期待 DB 差分**: operation_log +2 行（X 拒否・上限拒否）。external_operations 差分なし ／ **期待証跡**: operation_log 拒否行（media・理由 = prohibited／daily_cap）
 - **禁止副作用**: 外部サイトへのブラウザ書込み送信（0 回）・playbooks.last_success_at の更新 ／ **エラー型**: ProhibitedMediaWrite／RateLimitExceeded
-- **対象更新**: S1（CMP-08 ブラウザ基盤） ／ **TC**: （割当待ち）
+- **対象更新**: S1（CMP-08 ブラウザ基盤） ／ **TC**: TCC-42-2
 
 ### AC-42-3（境界・復旧）
 
@@ -584,7 +584,7 @@
 - **観測点**: external_operations.status SELECT／mock 媒体の受信回数カウンタ／tasks.status ／ **期待状態**: k1 = confirmed、k2 = unknown で対象タスク escalated
 - **期待 DB 差分**: external_operations 2 行 UPDATE（confirmed/unknown）、operation_log +2 行（照合結果）、state_transitions +1 行（escalate） ／ **期待証跡**: operation_log 行（照合結果・external_operation_id 補完）
 - **禁止副作用**: 同一 idempotency key の再送（mock 受信カウンタ増加 0）・unknown の confirmed 化 ／ **エラー型**: なし（k2 側は escalate 遷移 — OperationUnverifiable 記録）
-- **対象更新**: S1（CMP-08）／recovery.reconcile_sent ／ **TC**: （割当待ち）
+- **対象更新**: S1（CMP-08）／recovery.reconcile_sent ／ **TC**: TCC-42-3 TCC-RESUME-1
 
 ## FR-43
 
@@ -595,7 +595,7 @@
 - **観測点**: playbooks SELECT（status・selector_json・consecutive_failures）／operation_log SELECT ／ **期待状態**: playbook = active（新地図）
 - **期待 DB 差分**: playbooks 1 行 UPDATE、operation_log +2 行（検知・再生成成功） ／ **期待証跡**: operation_log 行（不一致セレクタ・再生成結果）＋再解析時 screenshot evidence
 - **禁止副作用**: 再解析中の外部サイトへの書込み（mock 書込み受信 0 回）・2 回目の再生成試行 ／ **エラー型**: なし
-- **対象更新**: S2（地図自己修復 FN-405）／playbook.self_heal ／ **TC**: （割当待ち）
+- **対象更新**: S2（地図自己修復 FN-405）／playbook.self_heal ／ **TC**: TCC-43-1
 
 ### AC-43-2（拒否）
 
@@ -604,7 +604,7 @@
 - **観測点**: playbooks.status／tasks.status／state_transitions SELECT／通知 mock の送出記録 ／ **期待状態**: playbook = broken、task = escalated
 - **期待 DB 差分**: playbooks.status UPDATE（broken）、state_transitions +1 行（escalate）、operation_log +2 行（検知・再生成失敗） ／ **期待証跡**: operation_log 行（再生成失敗理由）＋escalate 遷移行
 - **禁止副作用**: 2 回目以降の自動再生成試行・broken 地図での書込み操作続行・地図の推測書換え ／ **エラー型**: PlaybookRepairFailed（escalate 事由として記録）
-- **対象更新**: S2（地図自己修復 FN-405） ／ **TC**: （割当待ち）
+- **対象更新**: S2（地図自己修復 FN-405） ／ **TC**: TCC-43-2
 
 ### AC-43-3（境界・復旧）
 
@@ -613,7 +613,7 @@
 - **観測点**: playbooks SELECT（再実行後の status）／operation_log SELECT／tasks.status（retired 側） ／ **期待状態**: note 行 = active、kdp 行 = retired のまま対象タスク escalated
 - **期待 DB 差分**: playbooks 1 行 UPDATE（active）、state_transitions +1 行（retired 側 escalate）、operation_log +2 行以上 ／ **期待証跡**: operation_log 行（再開後の再生成試行・retired 拒否）
 - **禁止副作用**: 中間状態の地図（部分更新）での操作再開・retired 行の自動復活・外部書込み ／ **エラー型**: PlaybookRepairFailed（retired 側）
-- **対象更新**: S2（地図自己修復 FN-405）／recovery 経路 ／ **TC**: （割当待ち）
+- **対象更新**: S2（地図自己修復 FN-405）／recovery 経路 ／ **TC**: TCC-43-3
 
 ## FR-44
 
@@ -624,7 +624,7 @@
 - **観測点**: external_operations SELECT（2 行の status 遷移）／WP 側 post status／evidence・assets SELECT ／ **期待状態**: 下書き行・公開行とも confirmed、WP 上で記事 published
 - **期待 DB 差分**: external_operations +2 行、operation_log +2 行、evidence +1 行（published_url）、assets +1 行（canonical_url・wp_post_id） ／ **期待証跡**: published_url evidence（url・wp_post_id・external_operation_id・asset_id）＋operation_log 2 行
 - **禁止副作用**: 下書きと公開の idempotency key 共有・Docker 以外の endpoint への送信・credential の平文ログ出力 ／ **エラー型**: なし
-- **対象更新**: S0.2（CMP-10 WP REST コネクタ）／WF-WP-2 手順 2・4 ／ **TC**: （割当待ち）
+- **対象更新**: S0.2（CMP-10 WP REST コネクタ）／WF-WP-2 手順 2・4 ／ **TC**: TCC-44-1
 
 ### AC-44-2（拒否）
 
@@ -633,7 +633,7 @@
 - **観測点**: raise される例外型／operation_log SELECT／WP mock 受信カウンタ ／ **期待状態**: external_operations に prepared 行すら作られない（検証は送信前）
 - **期待 DB 差分**: operation_log +2 行（ペアなし拒否・本番書込み拒否）。external_operations 差分なし ／ **期待証跡**: operation_log 拒否行（理由 = pair 未成立／非 Docker endpoint）
 - **禁止副作用**: 外部 HTTP 呼出（受信カウンタ 0 のまま）・本番 WP への一切の書込み ／ **エラー型**: PairRequired／ProductionWriteDenied
-- **対象更新**: S0.2（CMP-10 WP REST コネクタ） ／ **TC**: （割当待ち）
+- **対象更新**: S0.2（CMP-10 WP REST コネクタ） ／ **TC**: TCC-44-2
 
 ### AC-44-3（境界・復旧）
 
@@ -642,7 +642,7 @@
 - **観測点**: external_operations.status／WP mock の公開 API 受信回数／evidence SELECT ／ **期待状態**: k-pub 行 = confirmed、WP 上の公開記事は 1 件のまま
 - **期待 DB 差分**: external_operations 1 行 UPDATE（confirmed・response 補完）、evidence +1 行（published_url 補完）、operation_log +1 行 ／ **期待証跡**: operation_log 照合行＋published_url evidence（external_operation_id 整合）
 - **禁止副作用**: 公開 API の再送（mock 受信回数増加 0）・external_operations の重複行・二重公開 ／ **エラー型**: なし
-- **対象更新**: S0.2（CMP-10）／recovery.reconcile_sent（WF-WP-2 手順 4） ／ **TC**: （割当待ち）
+- **対象更新**: S0.2（CMP-10）／recovery.reconcile_sent（WF-WP-2 手順 4） ／ **TC**: TCC-44-3
 
 ## FR-45
 
@@ -653,7 +653,7 @@
 - **観測点**: SQLite の draft 保存行／Notion mock の受信ブロック（2 分割・レート）／external_operations.status ／ **期待状態**: 読取り draft 保存済み、書戻し操作 confirmed
 - **期待 DB 差分**: external_operations +1 行（confirmed）、operation_log +1 行、draft 保存 +1 行 ／ **期待証跡**: operation_log 行（service=notion・external_operation_id・request_fingerprint）
 - **禁止副作用**: 2,000 字超の単一ブロック送信・3 req/秒超過・ループ判定への Notion 値の混入 ／ **エラー型**: なし
-- **対象更新**: S1（Notion 同期 FN-408）／notion.sync_read・sync_writeback ／ **TC**: （割当待ち）
+- **対象更新**: S1（Notion 同期 FN-408）／notion.sync_read・sync_writeback ／ **TC**: TCC-45-1
 
 ### AC-45-2（拒否）
 
@@ -662,7 +662,7 @@
 - **観測点**: 同期 task の status／loop_runs・他 task の遷移可否／operation_log SELECT ／ **期待状態**: 同期 task = failed、loop_run は継続進行
 - **期待 DB 差分**: operation_log +1 行（NotionUnavailable）、state_transitions に同期 task の failed 遷移＋他 task の正常遷移 ／ **期待証跡**: operation_log 行（service=notion・理由 = unavailable）
 - **禁止副作用**: ループ本体の停止・待機（Notion 障害の波及）・障害中の書戻し再送連打 ／ **エラー型**: NotionUnavailable
-- **対象更新**: S1（Notion 同期 FN-408） ／ **TC**: （割当待ち）
+- **対象更新**: S1（Notion 同期 FN-408） ／ **TC**: TCC-45-2
 
 ### AC-45-3（境界・復旧）
 
@@ -671,7 +671,7 @@
 - **観測点**: draft 保存行数（重複なし）／external_operations.status／Notion mock 書込み受信回数 ／ **期待状態**: 境界更新 1 件が draft に反映、k-nt = confirmed
 - **期待 DB 差分**: draft 1 行 upsert（重複行なし）、external_operations 1 行 UPDATE、operation_log +1 行 ／ **期待証跡**: operation_log 照合行（external_operation_id 補完）
 - **禁止副作用**: 境界更新の取りこぼし・draft の重複行・書戻しの再送（mock 受信増加 0） ／ **エラー型**: なし
-- **対象更新**: S1（Notion 同期 FN-408）／cursor・recovery 経路 ／ **TC**: （割当待ち）
+- **対象更新**: S1（Notion 同期 FN-408）／cursor・recovery 経路 ／ **TC**: TCC-45-3
 
 ## FR-46
 
@@ -682,7 +682,7 @@
 - **観測点**: approvals SELECT（decision・binding・evidence_id）／応答前後の tasks.status／公開ゲートの通過可否 ／ **期待状態**: approvals = approved・evidence 相互整合、task = 進行再開
 - **期待 DB 差分**: approvals +1 行（pending→approved UPDATE）、evidence +1 行（kind=approval）、state_transitions +2 行（waiting→in_progress 系） ／ **期待証跡**: approval evidence（decision=approved・binding 3 項目・approvals.evidence_id 整合）
 - **禁止副作用**: 応答受領前の公開実行・approvals 行の書換えによる decision 変更 ／ **エラー型**: なし
-- **対象更新**: S0.2（CMP-11 承認通知）／WF-WP-2 手順 3 ／ **TC**: （割当待ち）
+- **対象更新**: S0.2（CMP-11 承認通知）／WF-WP-2 手順 3 ／ **TC**: TCC-46-1
 
 ### AC-46-2（拒否）
 
@@ -691,7 +691,7 @@
 - **観測点**: raise される例外型／operation_log SELECT／tasks.status・state_transitions ／ **期待状態**: 公開 0 件、rejected 側 task = failed（retry_count 増加なし）
 - **期待 DB 差分**: operation_log +1 行（binding 不一致）、approvals 1 行 UPDATE（rejected）、state_transitions +1 行（failed） ／ **期待証跡**: operation_log 拒否行（不一致項目の明示）＋approvals rejected 行
 - **禁止副作用**: 不一致のままの公開（外部書込み 0 回）・rejected タスクの自動リトライ・escalated への迂回 ／ **エラー型**: ApprovalBindingMismatch／NonRetryableFailure
-- **対象更新**: S0.2（CMP-11 承認通知） ／ **TC**: （割当待ち）
+- **対象更新**: S0.2（CMP-11 承認通知） ／ **TC**: TCC-46-2
 
 ### AC-46-3（境界・復旧）
 
@@ -700,7 +700,7 @@
 - **観測点**: approvals 行数と decision 履歴／tasks.status／state_transitions SELECT ／ **期待状態**: expired 側 task = escalated、pending 側 = waiting 継続（要求は 1 件のまま）
 - **期待 DB 差分**: approvals は再要求分のみ増加（上限到達で停止）、state_transitions +1 行（escalate）。pending 側 approvals 差分なし ／ **期待証跡**: approvals の expired 履歴＋escalate 遷移行（事由 = approval_retry_limit 到達）
 - **禁止副作用**: 上限超過後の再要求継続（無限待機）・同一 binding の重複 approvals 行・expired の failed 化（rejected と混同） ／ **エラー型**: ApprovalRetryExhausted（escalate 事由として記録）
-- **対象更新**: S0.2（CMP-11 承認通知）／expired 再要求経路 ／ **TC**: （割当待ち）
+- **対象更新**: S0.2（CMP-11 承認通知）／expired 再要求経路 ／ **TC**: TCC-46-3
 
 ## FR-47
 
@@ -711,7 +711,7 @@
 - **観測点**: 接続結果／全文検索ヒット件数（repo grep・SQLite LIKE・ログ grep） ／ **期待状態**: 接続成功・平文検出 0 件
 - **期待 DB 差分**: external_operations/operation_log は操作分のみ（credential 列・平文なし） ／ **期待証跡**: operation_log 行（external_operation_id — 秘匿値を含まない）
 - **禁止副作用**: SQLite・repo・ログ・evidence への平文 credential 書込み（検索ヒット 1 件でも fail） ／ **エラー型**: なし
-- **対象更新**: S0.2（CMP-07 秘匿ストア）／secrets.get・masking 層 ／ **TC**: （割当待ち）
+- **対象更新**: S0.2（CMP-07 秘匿ストア）／secrets.get・masking 層 ／ **TC**: TCC-47-1
 
 ### AC-47-2（拒否）
 
@@ -720,7 +720,7 @@
 - **観測点**: raise される例外型／operation_log SELECT（マスク後文字列）／tasks.status ／ **期待状態**: 接続 0 件、ログには伏字（token=***）のみ、書出し元 task = escalated 誘導
 - **期待 DB 差分**: operation_log +2 行（SecretUnavailable・CredentialLeakDetected — いずれも平文なし） ／ **期待証跡**: operation_log 検知行（マスク済み — 秘匿値そのものを含まない）
 - **禁止副作用**: 平文のままのログ永続化・秘匿値なしでの外部接続試行（外部 HTTP 呼出 0 回） ／ **エラー型**: SecretUnavailable／CredentialLeakDetected
-- **対象更新**: S0.2（CMP-07 秘匿ストア） ／ **TC**: （割当待ち）
+- **対象更新**: S0.2（CMP-07 秘匿ストア） ／ **TC**: TCC-47-2
 
 ### AC-47-3（境界・復旧）
 
@@ -729,7 +729,7 @@
 - **観測点**: raise される例外型／tasks.status（escalated→再開）／operation_log SELECT ／ **期待状態**: 再投入前 = escalated・接続 0 件、再投入後 = 同一タスクが接続成功
 - **期待 DB 差分**: operation_log +2 行（期限切れ・組合せ拒否）、state_transitions に escalate と再開の遷移 ／ **期待証跡**: operation_log 行（理由 = session expired／credential-endpoint mismatch — 平文なし）
 - **禁止副作用**: 期限切れセッションでの外部送信・テスト credential の本番 endpoint 使用（fail-open）・再投入値の SQLite 保存 ／ **エラー型**: SecretUnavailable（期限切れ）／CredentialEndpointMismatch
-- **対象更新**: S0.2（CMP-07 秘匿ストア）／再投入・再開経路 ／ **TC**: （割当待ち）
+- **対象更新**: S0.2（CMP-07 秘匿ストア）／再投入・再開経路 ／ **TC**: TCC-47-3
 
 ## FR-51
 
@@ -740,7 +740,7 @@
 - **観測点**: 1 回目と 2 回目の出力ファイル SHA-256 比較／assets SELECT／evidence SELECT (kind='file_hash') ／ **期待状態**: assets 1 行（content_hash = 出力 hash、wp_media_id あり）
 - **期待 DB 差分**: assets +1 行、evidence +1 行（file_hash）、operation_log +1 行（WP アップ操作）— 2 回目は差分なし ／ **期待証跡**: evidence 行（kind=file_hash、value=出力 SHA-256、payload に file_path・algorithm=SHA-256）
 - **禁止副作用**: 2 回目実行での assets/evidence の行増加・出力 hash の変動・本番 WP への書込み ／ **エラー型**: なし
-- **対象更新**: S0.2（制作層）／content/renderer.render ／ **TC**: （割当待ち）
+- **対象更新**: S0.2（制作層）／content/renderer.render ／ **TC**: TCC-51-1
 
 ### AC-51-2（拒否）
 
@@ -749,7 +749,7 @@
 - **観測点**: raise される例外型／assets・evidence 件数／operation_log SELECT ／ **期待状態**: assets 空のまま、WP モックへの書込み呼出 0 回
 - **期待 DB 差分**: operation_log +2 行（未 commit 拒否・接続先拒否）のみ ／ **期待証跡**: operation_log 拒否行（理由 = uncommitted source／wp target denied）
 - **禁止副作用**: assets/evidence への行追加・WP（モック含む）への書込み呼出 ／ **エラー型**: UnversionedSourceRejected／WpTargetDenied
-- **対象更新**: S0.2（制作層）／content/renderer 入口検査 ／ **TC**: （割当待ち）
+- **対象更新**: S0.2（制作層）／content/renderer 入口検査 ／ **TC**: TCC-51-2
 
 ### AC-51-3（境界・復旧）
 
@@ -758,7 +758,7 @@
 - **観測点**: WP モックのアップロード呼出回数／assets・evidence SELECT ／ **期待状態**: assets 1 行（既存 wp_media_id を参照）、evidence 1 行
 - **期待 DB 差分**: assets +1 行、evidence +1 行（file_hash）— WP への新規アップロード 0 回 ／ **期待証跡**: evidence 行（kind=file_hash、value=出力 SHA-256）
 - **禁止副作用**: 同一実体の二重アップロード・assets の重複行 ／ **エラー型**: なし
-- **対象更新**: S0.2（制作層）／renderer の再開経路 ／ **TC**: （割当待ち）
+- **対象更新**: S0.2（制作層）／renderer の再開経路 ／ **TC**: TCC-51-3
 
 ## FR-52
 
@@ -769,7 +769,7 @@
 - **観測点**: 出力ファイル内のトークン展開値／キャッシュファイル内容／レンダリング証跡 payload ／ **期待状態**: キャッシュ = v3（hash T3）、出力に #123456 が展開
 - **期待 DB 差分**: operation_log +1 行（取得成功）。業務テーブル差分なし ／ **期待証跡**: レンダリング証跡 payload の token_version='v3'・token_hash=T3・stale=false
 - **禁止副作用**: トークン外の恣意的スタイル値の混入・キャッシュの破壊的更新（temp→rename 以外） ／ **エラー型**: なし
-- **対象更新**: S1（制作層）／content/design_tokens.fetch_and_inject ／ **TC**: （割当待ち）
+- **対象更新**: S1（制作層）／content/design_tokens.fetch_and_inject ／ **TC**: TCC-52-1
 
 ### AC-52-2（拒否）
 
@@ -778,7 +778,7 @@
 - **観測点**: raise される例外型／出力ディレクトリの内容／operation_log SELECT ／ **期待状態**: レンダリング出力 0 件
 - **期待 DB 差分**: operation_log +1 行（取得失敗・キャッシュなし拒否）のみ ／ **期待証跡**: operation_log 拒否行（理由 = token unavailable, no cache）
 - **禁止副作用**: トークン未適用出力の生成・assets/evidence への登録 ／ **エラー型**: DesignTokenUnavailable
-- **対象更新**: S1（制作層）／design_tokens の fail-close 経路 ／ **TC**: （割当待ち）
+- **対象更新**: S1（制作層）／design_tokens の fail-close 経路 ／ **TC**: TCC-52-2
 
 ### AC-52-3（境界・復旧）
 
@@ -787,7 +787,7 @@
 - **観測点**: 取得試行回数（モック呼出カウント）／出力のトークン展開値／証跡 payload ／ **期待状態**: レンダリング成功（v2 トークン適用）、キャッシュは v2 のまま
 - **期待 DB 差分**: operation_log +1 行（フォールバック記録） ／ **期待証跡**: 証跡 payload の token_version='v2'・stale=true
 - **禁止副作用**: 破損キャッシュの使用（hash 不一致時の続行）・再試行回数の超過呼出 ／ **エラー型**: なし
-- **対象更新**: S1（制作層）／design_tokens のキャッシュフォールバック ／ **TC**: （割当待ち）
+- **対象更新**: S1（制作層）／design_tokens のキャッシュフォールバック ／ **TC**: TCC-52-3
 
 ## FR-53
 
@@ -798,7 +798,7 @@
 - **観測点**: 出力 mp3 の SHA-256（2 回比較）／assets SELECT（parent_asset_id）／evidence payload ／ **期待状態**: assets +1 行（asset_type=audio、parent_asset_id=1）
 - **期待 DB 差分**: assets +1 行、evidence +1 行（file_hash＋実行記録 payload）— 2 回目は差分なし ／ **期待証跡**: evidence payload に入力参照（台本 commit・素材 asset_id）・ツール版数・出力 hash
 - **禁止副作用**: localhost 以外への TTS 送信・2 回目実行での行増加・SQLite への mp3 実体格納 ／ **エラー型**: なし
-- **対象更新**: S3+（制作層）／content/pipelines.voice ／ **TC**: （割当待ち）
+- **対象更新**: S3+（制作層）／content/pipelines.voice ／ **TC**: TCC-53-1
 
 ### AC-53-2（拒否）
 
@@ -807,7 +807,7 @@
 - **観測点**: raise される例外型／assets・evidence 件数／temp 領域と WP モックの状態 ／ **期待状態**: assets 差分なし、WP への登録 0 件
 - **期待 DB 差分**: operation_log +2 行（参照拒否・実行失敗）のみ ／ **期待証跡**: operation_log 拒否行（理由 = missing asset ref／pipeline failed at encode）
 - **禁止副作用**: 部分出力（中間 mp4）の assets 登録・WP アップロード ／ **エラー型**: UnversionedSourceRejected／PipelineExecutionFailed
-- **対象更新**: S3+（制作層）／pipelines の fail-close 経路 ／ **TC**: （割当待ち）
+- **対象更新**: S3+（制作層）／pipelines の fail-close 経路 ／ **TC**: TCC-53-2
 
 ### AC-53-3（境界・復旧）
 
@@ -816,7 +816,7 @@
 - **観測点**: temp 領域の掃除結果／出力 hash／assets・evidence 件数 ／ **期待状態**: assets 1 行・evidence 1 行（再実行分のみ）
 - **期待 DB 差分**: assets +1 行、evidence +1 行 — 断片由来の行は 0 ／ **期待証跡**: evidence 行（kind=file_hash、value=再実行出力の SHA-256）
 - **禁止副作用**: 前回断片の成果物採用・二重登録 ／ **エラー型**: なし
-- **対象更新**: S3+（制作層）／pipelines の temp 破棄・再実行復旧 ／ **TC**: （割当待ち）
+- **対象更新**: S3+（制作層）／pipelines の temp 破棄・再実行復旧 ／ **TC**: TCC-53-3
 
 ## FR-54
 
@@ -827,7 +827,7 @@
 - **観測点**: evidence SELECT（kind IN ('commit_hash','review_pass') の commit_hash 列）／checkout 後のファイル hash 比較 ／ **期待状態**: review_pass 証跡の commit_hash 列 = H1、復元ソースの内容 hash = 証跡化時と一致
 - **期待 DB 差分**: evidence +2 行（commit_hash・review_pass） ／ **期待証跡**: evidence（kind=commit_hash、value=H1、payload に repository・paths）／evidence（kind=review_pass、payload に result=PASS・commit_hash=H1・reviewer）
 - **禁止副作用**: 既存証跡行の UPDATE/DELETE（append-only トリガ違反） ／ **エラー型**: なし
-- **対象更新**: S0.2（制作層）／content/versioning.record_commit・bind_pass ／ **TC**: （割当待ち）
+- **対象更新**: S0.2（制作層）／content/versioning.record_commit・bind_pass ／ **TC**: TCC-54-1
 
 ### AC-54-2（拒否）
 
@@ -836,7 +836,7 @@
 - **観測点**: raise される例外型／evidence SELECT (kind='review_pass')／operation_log SELECT ／ **期待状態**: review_pass 証跡 0 件のまま
 - **期待 DB 差分**: operation_log +1 行（hash 不一致拒否）のみ ／ **期待証跡**: operation_log 拒否行（理由 = commit hash mismatch H1≠H2）
 - **禁止副作用**: H2 での review_pass 記録・既存 commit_hash 証跡の書換え ／ **エラー型**: CommitHashMismatch
-- **対象更新**: S0.2（制作層）／versioning の束縛検査 ／ **TC**: （割当待ち）
+- **対象更新**: S0.2（制作層）／versioning の束縛検査 ／ **TC**: TCC-54-2
 
 ### AC-54-3（境界・復旧）
 
@@ -845,7 +845,7 @@
 - **観測点**: evidence SELECT（kind='commit_hash' の件数・value）／raise される例外型 ／ **期待状態**: commit_hash 証跡 = 2 行（40 桁 1・64 桁 1）
 - **期待 DB 差分**: evidence +2 行（重複分・不正桁は増えない） ／ **期待証跡**: operation_log 行（39 桁の拒否）
 - **禁止副作用**: 同一 (task, kind, value) の重複行・不正桁数 hash の記録 ／ **エラー型**: InvalidCommitHash（不正桁のみ。重複再実行は正常収束）
-- **対象更新**: S0.2（制作層）／versioning の冪等・桁検査 ／ **TC**: （割当待ち）
+- **対象更新**: S0.2（制作層）／versioning の冪等・桁検査 ／ **TC**: TCC-54-3
 
 ## FR-55
 
@@ -856,7 +856,7 @@
 - **観測点**: assets SELECT（新行の列値）／再帰 CTE による系譜クエリ結果 ／ **期待状態**: assets 2 行（A1 と派生行）、系譜クエリ結果 = [派生, A1]
 - **期待 DB 差分**: assets +1 行（本文実体列なし・参照のみ） ／ **期待証跡**: なし（登録行自体が系譜の正本。公開時の published_url は別 FR）
 - **禁止副作用**: SQLite への画像バイナリ・本文テキストの格納 ／ **エラー型**: なし
-- **対象更新**: S0.2（制作層）／content/assets.register_derived ／ **TC**: （割当待ち）
+- **対象更新**: S0.2（制作層）／content/assets.register_derived ／ **TC**: TCC-55-1
 
 ### AC-55-2（拒否）
 
@@ -865,7 +865,7 @@
 - **観測点**: raise される例外型／assets 件数／operation_log SELECT ／ **期待状態**: assets 差分なし
 - **期待 DB 差分**: operation_log +2 行（実体混入拒否・参照不正拒否）のみ ／ **期待証跡**: operation_log 拒否行（理由 = content body in metadata／parent not found）
 - **禁止副作用**: 本文実体を含む行の INSERT・出自なし派生行の作成 ／ **エラー型**: ContentBodyRejected／AssetReferenceInvalid
-- **対象更新**: S0.2（制作層）／assets 登録の入口検査 ／ **TC**: （割当待ち）
+- **対象更新**: S0.2（制作層）／assets 登録の入口検査 ／ **TC**: TCC-55-2
 
 ### AC-55-3（境界・復旧）
 
@@ -874,7 +874,7 @@
 - **観測点**: assets 件数・戻り値（既存 ID）／raise される例外型 ／ **期待状態**: assets 1 行のまま（A1）、循環系譜 0 件
 - **期待 DB 差分**: assets 差分なし、operation_log +1 行（循環拒否） ／ **期待証跡**: operation_log 拒否行（理由 = circular lineage）
 - **禁止副作用**: canonical_url 重複行の作成・循環系譜の成立 ／ **エラー型**: AssetReferenceInvalid（循環のみ。再登録は正常冪等）
-- **対象更新**: S0.2（制作層）／assets の冪等・系譜検査 ／ **TC**: （割当待ち）
+- **対象更新**: S0.2（制作層）／assets の冪等・系譜検査 ／ **TC**: TCC-55-3
 
 ## FR-61
 
@@ -885,7 +885,7 @@
 - **観測点**: kpi_nodes SELECT（layer・node_key・UNIQUE）／横断集計クエリの結果セット ／ **期待状態**: kpi_nodes に 5 階層のノードが存在し、全 measurements がノードへ FK 接続
 - **期待 DB 差分**: kpi_nodes +5 行、operation_log 差分なし ／ **期待証跡**: なし（正常登録は証跡不要 — 拒否時のみ operation_log）
 - **禁止副作用**: 戦略正本（brand_plans 等）への書込み・有料指標型の混入 ／ **エラー型**: なし
-- **対象更新**: S0.3（計測層）／measure/kpi_tree.register_node・cross_query ／ **TC**: （割当待ち）
+- **対象更新**: S0.3（計測層）／measure/kpi_tree.register_node・cross_query ／ **TC**: TCC-61-1
 
 ### AC-61-2（拒否）
 
@@ -894,7 +894,7 @@
 - **観測点**: raise される例外型／kpi_nodes 件数／operation_log SELECT ／ **期待状態**: kpi_nodes は seed の行のみ
 - **期待 DB 差分**: operation_log +3 行（有料拒否・重複拒否・越境拒否）のみ ／ **期待証跡**: operation_log 拒否行（指標型・node_key・理由）
 - **禁止副作用**: cac/roas/ad_spend 型ノードの成立（アプリ層を迂回した直接 INSERT も DDL CHECK で拒否されること） ／ **エラー型**: PaidMetricRejected／KpiNodeInvalid
-- **対象更新**: S0.3（計測層）／kpi_tree の登録検査＋DDL CHECK ／ **TC**: （割当待ち）
+- **対象更新**: S0.3（計測層）／kpi_tree の登録検査＋DDL CHECK ／ **TC**: TCC-61-2
 
 ### AC-61-3（境界・復旧）
 
@@ -903,7 +903,7 @@
 - **観測点**: DELETE の失敗（sqlite3.IntegrityError）／kpi_nodes.status／集計クエリ結果 ／ **期待状態**: N1 は status='archived' で存続、measurements の FK は不変
 - **期待 DB 差分**: kpi_nodes 1 行 UPDATE（status）のみ、行数不変 ／ **期待証跡**: なし（構造保護は DDL の領分）
 - **禁止副作用**: 参照中ノードの物理削除・measurements の孤児化 ／ **エラー型**: IntegrityError（DELETE 試行のみ。archived 化・集計は正常）
-- **対象更新**: S0.3（計測層）／kpi_tree の退役・FK 保護 ／ **TC**: （割当待ち）
+- **対象更新**: S0.3（計測層）／kpi_tree の退役・FK 保護 ／ **TC**: TCC-61-3
 
 ## FR-62
 
@@ -914,7 +914,7 @@
 - **観測点**: measurements 件数（1 回目 +10・2 回目 ±0）／evidence SELECT（kind='measurement'）の created_at と measurements.imported_at の順序 ／ **期待状態**: measurements 10 行（全行 evidence_id が S1 証跡へ FK 接続）
 - **期待 DB 差分**: 1 回目: evidence +1 行・measurements +10 行。2 回目: 差分なし ／ **期待証跡**: evidence（kind=measurement、value=S1、payload に source・file_hash・period・row_count=10）
 - **禁止副作用**: 2 回目実行での行重複・証跡なし行の投入・有料指標ノードへの投入 ／ **エラー型**: なし
-- **対象更新**: S0.3（計測層）／measure/importer.import_export ／ **TC**: （割当待ち）
+- **対象更新**: S0.3（計測層）／measure/importer.import_export ／ **TC**: TCC-62-1
 
 ### AC-62-2（拒否）
 
@@ -923,7 +923,7 @@
 - **観測点**: measurements 件数／隔離ファイルの行数・件数記録／raise される例外型 ／ **期待状態**: 部分破損: measurements 7 行＋隔離 3 行。全破損: measurements 差分なし
 - **期待 DB 差分**: 部分: evidence +1・measurements +7・operation_log +1（隔離記録）。全破損: operation_log +1 のみ ／ **期待証跡**: operation_log 行（隔離件数・理由）／取得証跡（部分破損側は投入前に記録済み）
 - **禁止副作用**: 破損行の measurements 混入・全破損ファイルからの部分コミット ／ **エラー型**: ImportSourceInvalid（全破損のみ。部分破損は正常終了＋隔離）
-- **対象更新**: S0.3（計測層）／importer のエラー隔離・fail-close ／ **TC**: （割当待ち）
+- **対象更新**: S0.3（計測層）／importer のエラー隔離・fail-close ／ **TC**: TCC-62-2
 
 ### AC-62-3（境界・復旧）
 
@@ -932,7 +932,7 @@
 - **観測点**: クラッシュ直後の measurements 件数（0 件）／再実行後の件数（10 件）／空取込後の evidence ／ **期待状態**: measurements 10 行（再実行分のみ）、空取込は行 0・証跡 1
 - **期待 DB 差分**: 再実行: measurements +10。空取込: evidence +1（value=S2、row_count=0）のみ ／ **期待証跡**: evidence（kind=measurement、value=S2、payload.row_count=0）
 - **禁止副作用**: 5 行だけの部分コミット残留・再実行での 15 行化 ／ **エラー型**: なし（注入クラッシュは transaction rollback で吸収）
-- **対象更新**: S0.3（計測層）／importer の transaction・空境界 ／ **TC**: （割当待ち）
+- **対象更新**: S0.3（計測層）／importer の transaction・空境界 ／ **TC**: TCC-62-3
 
 ## FR-63
 
@@ -943,7 +943,7 @@
 - **観測点**: 出力 HTML の SHA-256（2 回比較）／HTML 内の src/href 走査（外部 URL 0 件）／evidence SELECT（kind='dashboard'） ／ **期待状態**: 自己完結 HTML 1 ファイル（CSS/JS インライン）
 - **期待 DB 差分**: evidence +1 行（dashboard）— 2 回目は差分なし。業務テーブル不変 ／ **期待証跡**: evidence（kind=dashboard、value=出力 hash、payload に file_path・file_hash・period_end）
 - **禁止副作用**: 外部 CDN・外部 URL 参照の混入・業務テーブルへの書込み ／ **エラー型**: なし
-- **対象更新**: S1（計測層）／measure/dashboard.generate_html ／ **TC**: （割当待ち）
+- **対象更新**: S1（計測層）／measure/dashboard.generate_html ／ **TC**: TCC-63-1
 
 ### AC-63-2（拒否）
 
@@ -952,7 +952,7 @@
 - **観測点**: raise される例外型／出力ディレクトリ（成果物なし）／evidence 件数／operation_log SELECT ／ **期待状態**: 出力ファイル 0 件、dashboard 証跡 0 件
 - **期待 DB 差分**: operation_log +1 行（検出・破棄）のみ ／ **期待証跡**: operation_log 拒否行（理由 = external reference detected／secret pattern）
 - **禁止副作用**: 汚染 HTML の出力先残留・汚染成果物の証跡化 ／ **エラー型**: ExternalReferenceDetected
-- **対象更新**: S1（計測層）／dashboard の自己検査・fail-close ／ **TC**: （割当待ち）
+- **対象更新**: S1（計測層）／dashboard の自己検査・fail-close ／ **TC**: TCC-63-2
 
 ### AC-63-3（境界・復旧）
 
@@ -961,7 +961,7 @@
 - **観測点**: 空生成の出力 hash（再実行と一致）／出力ディレクトリの断片有無／evidence 件数 ／ **期待状態**: 自己完結 HTML 1 ファイル（空データ表示）、断片 0 件
 - **期待 DB 差分**: evidence +1 行（dashboard）— クラッシュ試行分の証跡は 0 ／ **期待証跡**: evidence（kind=dashboard — 成功分のみ）
 - **禁止副作用**: temp 断片の出力先残留・生成失敗分の証跡化 ／ **エラー型**: なし（クラッシュは temp→rename 方式で吸収）
-- **対象更新**: S1（計測層）／dashboard の空境界・アトミック書出し ／ **TC**: （割当待ち）
+- **対象更新**: S1（計測層）／dashboard の空境界・アトミック書出し ／ **TC**: TCC-63-3
 
 ## FR-71
 
@@ -972,7 +972,7 @@
 - **観測点**: sqlite_master SELECT（テーブル・トリガ数）／verify() 戻り値／PRAGMA foreign_key_check・integrity_check ／ **期待状態**: 25 テーブル＋保護トリガ 6 件（config/evidence/state_transitions × update/delete）存在、verify() = pass
 - **期待 DB 差分**: 全 25 テーブル CREATE、schema_version +N 行（migration ごと） ／ **期待証跡**: schema_version 行（version・migration 名・checksum・適用者・時刻）
 - **禁止副作用**: DDL 正本にないテーブル・トリガの生成、FK OFF での使用開始 ／ **エラー型**: なし
-- **対象更新**: S0.1（DB 基盤）／db.migrate・db.verify ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（DB 基盤）／db.migrate・db.verify ／ **TC**: TCC-71-1
 
 ### AC-71-2（拒否）
 
@@ -981,7 +981,7 @@
 - **観測点**: verify() 戻り値／raise される例外型／業務書込み API の拒否 ／ **期待状態**: 使用開始拒否（kernel 起動せず）
 - **期待 DB 差分**: 差分なし（拒否後の業務書込み 0 件） ／ **期待証跡**: verify() の検証結果ログ（欠落テーブル名 = spend_ledger）
 - **禁止副作用**: 不完全スキーマへの業務行 INSERT・欠落の黙認（fail-open） ／ **エラー型**: SchemaVerificationFailed
-- **対象更新**: S0.1（DB 基盤）／db.verify の fail-close ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（DB 基盤）／db.verify の fail-close ／ **TC**: TCC-71-2
 
 ### AC-71-3（境界・復旧）
 
@@ -990,7 +990,7 @@
 - **観測点**: schema_version SELECT（行数不変）／UPDATE の例外／evidence SELECT（値の不変性） ／ **期待状態**: schema_version 行数不変・evidence 値不変
 - **期待 DB 差分**: 差分なし ／ **期待証跡**: なし（no-op と拒否のみ）
 - **禁止副作用**: migration の二重適用・append-only 行の改変 ／ **エラー型**: AppendOnlyViolation（UPDATE 側のみ）
-- **対象更新**: S0.1（DB 基盤）／冪等適用＋保護トリガ ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（DB 基盤）／冪等適用＋保護トリガ ／ **TC**: TCC-71-3
 
 ## FR-72
 
@@ -1001,7 +1001,7 @@
 - **観測点**: schema_version SELECT／PRAGMA foreign_key_check・integrity_check／既存データの行数・hash 比較 ／ **期待状態**: version=2、既存行の行数・hash 一致（破壊なし）
 - **期待 DB 差分**: schema_version +1 行、新テーブル CREATE（既存行の変更なし） ／ **期待証跡**: schema_version 行（version=2・migration 名・checksum_sha256・applied_by・applied_at）
 - **禁止副作用**: 既存の列・値・意味の変更（破壊的変更）・rename ／ **エラー型**: なし
-- **対象更新**: S0.1（DB 基盤）／db.migrate の expand 昇格 ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（DB 基盤）／db.migrate の expand 昇格 ／ **TC**: TCC-72-1
 
 ### AC-72-2（拒否）
 
@@ -1010,7 +1010,7 @@
 - **観測点**: raise される例外型／schema_version SELECT（行数不変）／DB ファイルの hash 比較 ／ **期待状態**: 昇格停止・DB 不変
 - **期待 DB 差分**: 差分なし ／ **期待証跡**: 構造化ログ（checksum 不一致 — 期待値と実測値）
 - **禁止副作用**: checksum 不一致のままの適用続行・schema_version の書換え ／ **エラー型**: MigrationChecksumMismatch
-- **対象更新**: S0.1（DB 基盤）／checksum 照合ゲート ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（DB 基盤）／checksum 照合ゲート ／ **TC**: TCC-72-2
 
 ### AC-72-3（境界・復旧）
 
@@ -1019,7 +1019,7 @@
 - **観測点**: raise される例外型／復元後の schema_version SELECT（version=1）／PRAGMA integrity_check ／ **期待状態**: version=1 に復元済み・integrity_check ok
 - **期待 DB 差分**: 最終的に差分なし（適用→復元で相殺） ／ **期待証跡**: verify() の失敗結果ログ＋復元実施の記録
 - **禁止副作用**: verify() fail のままの運転継続・失敗した同一 version の書換え修正 ／ **エラー型**: MigrationVerifyFailed
-- **対象更新**: S0.1（DB 基盤）／backup 復元経路 ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（DB 基盤）／backup 復元経路 ／ **TC**: TCC-72-3 TCC-RESUME-2
 
 ## FR-73
 
@@ -1030,7 +1030,7 @@
 - **観測点**: spend_ledger SELECT／月間累計クエリの戻り値 ／ **期待状態**: 台帳 1 行・当月累計 300 円
 - **期待 DB 差分**: spend_ledger +1 行 ／ **期待証跡**: spend_ledger 行（external_operation_id で operation_log 証跡と紐付く）
 - **禁止副作用**: 既存台帳行の変更・二重計上 ／ **エラー型**: なし
-- **対象更新**: S1（支出台帳）／spend.record・spend.monthly_total ／ **TC**: （割当待ち）
+- **対象更新**: S1（支出台帳）／spend.record・spend.monthly_total ／ **TC**: TCC-73-1
 
 ### AC-73-2（拒否）
 
@@ -1039,7 +1039,7 @@
 - **観測点**: raise される例外型／spend_ledger SELECT（行数） ／ **期待状態**: spend_ledger 1 行のまま（不完全行・重複行なし）
 - **期待 DB 差分**: 差分なし ／ **期待証跡**: 構造化ログの拒否行（欠落フィールド名・重複キー）
 - **禁止副作用**: 用途不明の支出行の混入・同一操作の二重計上 ／ **エラー型**: SpendRecordIncomplete／DuplicateSpendEntry
-- **対象更新**: S1（支出台帳）／NOT NULL・UNIQUE 制約＋事前検証 ／ **TC**: （割当待ち）
+- **対象更新**: S1（支出台帳）／NOT NULL・UNIQUE 制約＋事前検証 ／ **TC**: TCC-73-2
 
 ### AC-73-3（境界・復旧）
 
@@ -1048,7 +1048,7 @@
 - **観測点**: spend_ledger SELECT（0 円行の存在・seed-002 の行数 = 1）／external_operations SELECT（confirmed 化） ／ **期待状態**: 台帳 +2 行（0 円行・復旧行が各 1 行）
 - **期待 DB 差分**: spend_ledger +2 行、external_operations 1 行 UPDATE（sent→confirmed） ／ **期待証跡**: spend_ledger 行＋照合復旧の operation_log 証跡
 - **禁止副作用**: 0 円利用の記録省略・復旧再送での二重計上 ／ **エラー型**: なし
-- **対象更新**: S1（支出台帳）／0 円境界＋クラッシュ復旧の冪等記録 ／ **TC**: （割当待ち）
+- **対象更新**: S1（支出台帳）／0 円境界＋クラッシュ復旧の冪等記録 ／ **TC**: TCC-73-3
 
 ## SR-01
 
@@ -1059,7 +1059,7 @@
 - **観測点**: 提出 API 戻り値／tactical_learning_packets SELECT（loop_run の loop_kind 別件数） ／ **期待状態**: upper に TLP 0 件、lower に TLP 1 件、意味モデルは upper 由来のみ
 - **期待 DB 差分**: tactical_learning_packets +1 行（lower 分のみ） ／ **期待証跡**: TLP 行（lower run 起点）
 - **禁止副作用**: upper run への TLP 追加・lower からの意味モデル追加 ／ **エラー型**: なし
-- **対象更新**: S1（上流戦略スライス — SCM-06/07/08） ／ **TC**: （割当待ち）
+- **対象更新**: S1（上流戦略スライス — SCM-06/07/08） ／ **TC**: TCC-SR-01-1
 
 ### AC-SR-01-2（拒否）
 
@@ -1068,7 +1068,7 @@
 - **観測点**: raise される例外型／operation_log SELECT／対象テーブル行数 ／ **期待状態**: 両 run の状態・学習正本とも提出前のまま
 - **期待 DB 差分**: operation_log +2 行（越境拒否 ×2）のみ ／ **期待証跡**: operation_log 拒否行（loop_kind・提出型・理由）
 - **禁止副作用**: 越境成果物の永続化・単一ループへの統合的書込み ／ **エラー型**: LoopScopeViolation／IntegrityError
-- **対象更新**: S1（上流戦略スライス） ／ **TC**: （割当待ち）
+- **対象更新**: S1（上流戦略スライス） ／ **TC**: TCC-SR-01-2
 
 ## SR-02
 
@@ -1079,7 +1079,7 @@
 - **観測点**: 投入 API 戻り値／受理レコードの schema 検証結果 ／ **期待状態**: observation 1 件受理（fact のみ）
 - **期待 DB 差分**: observation レコード +1（S1 ストア） ／ **期待証跡**: schema 検証 PASS の記録
 - **禁止副作用**: 解釈フィールドの自動付加・operation_log への拒否行 ／ **エラー型**: なし
-- **対象更新**: S1（上流戦略スライス — SCM-05） ／ **TC**: （割当待ち）
+- **対象更新**: S1（上流戦略スライス — SCM-05） ／ **TC**: TCC-SR-02-1
 
 ### AC-SR-02-2（拒否）
 
@@ -1088,7 +1088,7 @@
 - **観測点**: raise される例外型／operation_log SELECT ／ **期待状態**: observation 未受理
 - **期待 DB 差分**: operation_log +1 行（拒否）のみ ／ **期待証跡**: operation_log 拒否行（違反フィールド・理由）
 - **禁止副作用**: 混在 payload の部分受理・fact の自動書換え ／ **エラー型**: ObservationInterpretationMixRejected
-- **対象更新**: S1（上流戦略スライス — G-OBS-INTERPRETATION） ／ **TC**: （割当待ち）
+- **対象更新**: S1（上流戦略スライス — G-OBS-INTERPRETATION） ／ **TC**: TCC-SR-02-2
 
 ### AC-SR-02-3（境界・復旧）
 
@@ -1097,7 +1097,7 @@
 - **観測点**: raise される例外型／tactical_learning_packets SELECT ／ **期待状態**: 観測 0 件受理、TLP は正規経路で受理
 - **期待 DB 差分**: operation_log +1 行（判定不能拒否）、tactical_learning_packets +1 行 ／ **期待証跡**: operation_log 拒否行（理由 = schema 判定不能）
 - **禁止副作用**: 判定不能時の受理（fail-open） ／ **エラー型**: ObservationInterpretationMixRejected（判定不能時）
-- **対象更新**: S1（上流戦略スライス） ／ **TC**: （割当待ち）
+- **対象更新**: S1（上流戦略スライス） ／ **TC**: TCC-SR-02-3
 
 ## SR-03
 
@@ -1108,7 +1108,7 @@
 - **観測点**: 投入 API 戻り値／受理レコードの schema 検証結果と trace ／ **期待状態**: 3 モデル各 1 版受理
 - **期待 DB 差分**: モデルレコード +3（S1 ストア） ／ **期待証跡**: schema 検証 PASS と観測 trace の記録
 - **禁止副作用**: 自由 JSON としての受理・trace なし受理 ／ **エラー型**: なし
-- **対象更新**: S1（上流戦略スライス — SCM-06） ／ **TC**: （割当待ち）
+- **対象更新**: S1（上流戦略スライス — SCM-06） ／ **TC**: TCC-SR-03-1
 
 ### AC-SR-03-2（拒否）
 
@@ -1117,7 +1117,7 @@
 - **観測点**: raise される例外型／operation_log SELECT ／ **期待状態**: モデル 0 件受理
 - **期待 DB 差分**: operation_log +2 行（拒否）のみ ／ **期待証跡**: operation_log 拒否行（欠落フィールド一覧）
 - **禁止副作用**: 部分受理・自由 JSON の正本混入 ／ **エラー型**: ModelSchemaRejected
-- **対象更新**: S1（上流戦略スライス） ／ **TC**: （割当待ち）
+- **対象更新**: S1（上流戦略スライス） ／ **TC**: TCC-SR-03-2
 
 ### AC-SR-03-3（境界・復旧）
 
@@ -1126,7 +1126,7 @@
 - **観測点**: raise される例外型／再投入後のモデルレコード SELECT ／ **期待状態**: 初回 0 件受理→再投入で 1 版受理
 - **期待 DB 差分**: operation_log +2 行（拒否）、その後モデルレコード +1 ／ **期待証跡**: operation_log 拒否行（additionalProperties／根拠欠落）
 - **禁止副作用**: 未知フィールドの黙認（fail-open） ／ **エラー型**: ModelSchemaRejected
-- **対象更新**: S1（上流戦略スライス） ／ **TC**: （割当待ち）
+- **対象更新**: S1（上流戦略スライス） ／ **TC**: TCC-SR-03-3
 
 ## SR-04
 
@@ -1137,7 +1137,7 @@
 - **観測点**: 投入 API 戻り値／受理レコード ／ **期待状態**: segment 1 件受理
 - **期待 DB 差分**: segment レコード +1（S1 ストア） ／ **期待証跡**: schema 検証 PASS の記録
 - **禁止副作用**: operation_log への拒否行 ／ **エラー型**: なし
-- **対象更新**: S1（上流戦略スライス — G-SEGMENT-CONTEXT） ／ **TC**: （割当待ち）
+- **対象更新**: S1（上流戦略スライス — G-SEGMENT-CONTEXT） ／ **TC**: TCC-SR-04-1
 
 ### AC-SR-04-2（拒否）
 
@@ -1146,7 +1146,7 @@
 - **観測点**: raise される例外型／operation_log SELECT ／ **期待状態**: segment 0 件受理
 - **期待 DB 差分**: operation_log +1 行（拒否）のみ ／ **期待証跡**: operation_log 拒否行（欠落状況フィールド一覧）
 - **禁止副作用**: ペルソナ型 segment の正本混入 ／ **エラー型**: PersonaSegmentRejected
-- **対象更新**: S1（上流戦略スライス） ／ **TC**: （割当待ち）
+- **対象更新**: S1（上流戦略スライス） ／ **TC**: TCC-SR-04-2
 
 ### AC-SR-04-3（境界・復旧）
 
@@ -1155,7 +1155,7 @@
 - **観測点**: raise される例外型／受理レコード SELECT ／ **期待状態**: 前者 0 件・後者 1 件受理
 - **期待 DB 差分**: operation_log +1 行（拒否）、segment レコード +1 ／ **期待証跡**: operation_log 拒否行（理由 = 状況フィールド実質未記入）
 - **禁止副作用**: 空フィールドの記入扱い（fail-open） ／ **エラー型**: PersonaSegmentRejected（空フィールド時）
-- **対象更新**: S1（上流戦略スライス） ／ **TC**: （割当待ち）
+- **対象更新**: S1（上流戦略スライス） ／ **TC**: TCC-SR-04-3
 
 ## SR-05
 
@@ -1166,7 +1166,7 @@
 - **観測点**: 投入 API 戻り値／受理レコードの rejected_options・disconfirming_conditions ／ **期待状態**: 2 モデル各 1 版受理
 - **期待 DB 差分**: 戦略モデルレコード +2（S1 ストア） ／ **期待証跡**: schema 検証 PASS の記録
 - **禁止副作用**: 棄却案・反証条件の欠落したままの受理 ／ **エラー型**: なし
-- **対象更新**: S1（上流戦略スライス — SCM-07） ／ **TC**: （割当待ち）
+- **対象更新**: S1（上流戦略スライス — SCM-07） ／ **TC**: TCC-SR-05-1
 
 ### AC-SR-05-2（拒否）
 
@@ -1175,7 +1175,7 @@
 - **観測点**: raise される例外型／operation_log SELECT ／ **期待状態**: 0 件受理
 - **期待 DB 差分**: operation_log +2 行（拒否）のみ ／ **期待証跡**: operation_log 拒否行（欠落要素一覧）
 - **禁止副作用**: 反証不能な仮説の正本混入 ／ **エラー型**: IncompleteStrategyRejected
-- **対象更新**: S1（上流戦略スライス） ／ **TC**: （割当待ち）
+- **対象更新**: S1（上流戦略スライス） ／ **TC**: TCC-SR-05-2
 
 ### AC-SR-05-3（境界・復旧）
 
@@ -1184,7 +1184,7 @@
 - **観測点**: raise される例外型／受理レコード SELECT ／ **期待状態**: 前者 1 版受理・後者 0 件
 - **期待 DB 差分**: 戦略モデルレコード +1、operation_log +1 行（拒否） ／ **期待証跡**: operation_log 拒否行（理由 = 棄却理由空）
 - **禁止副作用**: 空文字理由の記入扱い ／ **エラー型**: IncompleteStrategyRejected（空文字時）
-- **対象更新**: S1（上流戦略スライス） ／ **TC**: （割当待ち）
+- **対象更新**: S1（上流戦略スライス） ／ **TC**: TCC-SR-05-3
 
 ## SR-06
 
@@ -1195,7 +1195,7 @@
 - **観測点**: digest 算出関数の戻り値比較 ／ **期待状態**: digest 一致（決定性）
 - **期待 DB 差分**: 差分なし（算出は pure） ／ **期待証跡**: なし（拒否・算出は証跡対象外）
 - **禁止副作用**: DB への書込み・brief 行の変更 ／ **エラー型**: なし
-- **対象更新**: S0.1（戦略ストア）／canonical_digest ／ **TC**: STC-I-01
+- **対象更新**: S0.1（戦略ストア）／canonical_digest ／ **TC**: STC-I-01 TCC-SR-01
 
 ### AC-SR-06-1（拒否）
 
@@ -1204,7 +1204,7 @@
 - **観測点**: raise される例外型／strategic_briefs SELECT／operation_log SELECT ／ **期待状態**: strategic_briefs 空のまま
 - **期待 DB 差分**: operation_log +2 行（拒否）のみ ／ **期待証跡**: operation_log 拒否行（欠落・無効理由）
 - **禁止副作用**: 無効 brief の INSERT・digest の発番 ／ **エラー型**: BriefSchemaRejected
-- **対象更新**: S0.1（DU-02 — issue_strategic_brief） ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（DU-02 — issue_strategic_brief） ／ **TC**: TCC-SR-06-1
 
 ### AC-SR-06-2（境界・復旧）
 
@@ -1213,7 +1213,7 @@
 - **観測点**: strategic_briefs SELECT（status・supersedes_id）／loop_runs の digest 列／新規 start の参照先 ／ **期待状態**: v1 = superseded・v2 = active、既存 run = completed（v1 digest 保持）、新規 run = v2 参照
 - **期待 DB 差分**: strategic_briefs +1 行（v2）、v1 の status UPDATE のみ ／ **期待証跡**: v2 行（supersedes_id = v1）・既存 run の TLP（v1 digest 三者一致）
 - **禁止副作用**: v1 内容列の変更・既存 run の digest 差替え・新規 run の v1 参照 ／ **エラー型**: なし
-- **対象更新**: S0.1（DU-02 — supersede 連鎖） ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（DU-02 — supersede 連鎖） ／ **TC**: TCC-SR-06-2
 
 ## SR-07
 
@@ -1224,7 +1224,7 @@
 - **観測点**: raise される GateRejected／loop_runs SELECT COUNT ／ **期待状態**: run 未作成
 - **期待 DB 差分**: 差分なし ／ **期待証跡**: 拒否の構造化ログ
 - **禁止副作用**: loop_runs への INSERT ／ **エラー型**: GateRejected
-- **対象更新**: S0.1（開始ガード） ／ **TC**: STC-I-02
+- **対象更新**: S0.1（開始ガード） ／ **TC**: STC-I-02 TCC-SR-02
 
 ### AC-SR-07-1（正常）
 
@@ -1233,7 +1233,7 @@
 - **観測点**: loop_runs SELECT（state・strategic_brief_id・strategic_brief_digest）／state_transitions SELECT ／ **期待状態**: run = running（brief id・digest 保持）
 - **期待 DB 差分**: loop_runs UPDATE 1 行、state_transitions +1 行（passed） ／ **期待証跡**: state_transitions 行（guard_result = passed）
 - **禁止副作用**: digest の書換え・brief 行の変更 ／ **エラー型**: なし
-- **対象更新**: S0.1（DU-01 — start ガード） ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（DU-01 — start ガード） ／ **TC**: TCC-SR-07-1
 
 ### AC-SR-07-2（境界・復旧）
 
@@ -1242,7 +1242,7 @@
 - **観測点**: loop_runs SELECT（state・digest）／state_transitions SELECT ／ **期待状態**: 2 run 開始成立・1 run 完走（旧 digest 保持）
 - **期待 DB 差分**: loop_runs UPDATE ×3、state_transitions +3 行（passed） ／ **期待証跡**: state_transitions の passed 行と完走 run の TLP（旧 digest 三者一致）
 - **禁止副作用**: 境界時刻の拒否側誤判定・実行中 run の digest 差替え・強制中断 ／ **エラー型**: なし
-- **対象更新**: S0.1（DU-01/02 — 有効期間境界） ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（DU-01/02 — 有効期間境界） ／ **TC**: TCC-SR-07-2
 
 ## SR-08
 
@@ -1253,7 +1253,7 @@
 - **観測点**: tactical_learning_packets SELECT（loop_run_id・packet_kind） ／ **期待状態**: run 終端＋TLP 1 件
 - **期待 DB 差分**: loop_runs UPDATE 1 行＋tactical_learning_packets INSERT 1 行（同一 tx） ／ **期待証跡**: state_transitions 行＋TLP 行
 - **禁止副作用**: packet なし終端・二重 packet ／ **エラー型**: なし
-- **対象更新**: S0.1（TLP 生成） ／ **TC**: STC-I-05
+- **対象更新**: S0.1（TLP 生成） ／ **TC**: STC-I-05 TCC-KILL-2 TCC-SR-03
 
 ### AC-SR-06（拒否）
 
@@ -1262,7 +1262,7 @@
 - **観測点**: IntegrityError の発生とメッセージ ／ **期待状態**: TLP 未挿入
 - **期待 DB 差分**: 差分なし ／ **期待証跡**: なし（拒否・算出は証跡対象外）
 - **禁止副作用**: 不正 packet の INSERT 成功 ／ **エラー型**: IntegrityError
-- **対象更新**: S0.1（TLP 整合トリガ） ／ **TC**: STC-I-06
+- **対象更新**: S0.1（TLP 整合トリガ） ／ **TC**: STC-I-06 TCC-CONFLICT-2 TCC-SR-06
 
 ### AC-SR-08-1（拒否）
 
@@ -1271,7 +1271,7 @@
 - **観測点**: raise される例外型／loop_runs.state／tactical_learning_packets 件数 ／ **期待状態**: run = running のまま（遷移未成立）、TLP 0 件
 - **期待 DB 差分**: 差分なし（全 rollback） ／ **期待証跡**: なし（transaction 不成立のため証跡も残らない）
 - **禁止副作用**: 因果解釈つき failure packet の永続化・遷移だけの先行成立 ／ **エラー型**: IntegrityError
-- **対象更新**: S0.1（DU-10 — packet_kind CHECK） ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（DU-10 — packet_kind CHECK） ／ **TC**: TCC-SR-08-1
 
 ### AC-SR-08-2（境界・復旧）
 
@@ -1280,7 +1280,7 @@
 - **観測点**: 再起動後の loop_runs.state／tactical_learning_packets 件数／state_transitions ／ **期待状態**: 1 回目クラッシュ後 = running・TLP 0 件、再実行後 = completed・TLP 1 件
 - **期待 DB 差分**: 最終: loop_runs UPDATE 1 行、tactical_learning_packets +1 行、state_transitions +1 行 ／ **期待証跡**: TLP 行（digest 三者一致）と終端の state_transitions 行
 - **禁止副作用**: 遷移のみ成立した孤児終端 run・TLP 二重生成 ／ **エラー型**: なし（復旧正常系）
-- **対象更新**: S0.1（DU-02 — 同一 transaction 契約） ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（DU-02 — 同一 transaction 契約） ／ **TC**: TCC-SR-08-2
 
 ## SR-09
 
@@ -1291,7 +1291,7 @@
 - **観測点**: sqlite3.IntegrityError のメッセージ（'append-only'） ／ **期待状態**: 正本無変更
 - **期待 DB 差分**: 差分なし ／ **期待証跡**: なし（拒否はトリガ層）
 - **禁止副作用**: 上流正本の行変更 ／ **エラー型**: IntegrityError（append-only）
-- **対象更新**: S0.1（保護トリガ） ／ **TC**: STC-I-04
+- **対象更新**: S0.1（保護トリガ） ／ **TC**: STC-I-04 TCC-SR-04
 
 ### AC-SR-09-1（正常）
 
@@ -1300,7 +1300,7 @@
 - **観測点**: tactical_learning_packets SELECT／strategic_briefs 全行の前後比較（digest 含む） ／ **期待状態**: TLP 1 件・brief 完全不変
 - **期待 DB 差分**: tactical_learning_packets +1 行のみ（brief 差分なし） ／ **期待証跡**: TLP 行（evidence_ids で run の証跡へ接続）
 - **禁止副作用**: strategic_briefs のいかなる列の変更 ／ **エラー型**: なし
-- **対象更新**: S0.1（DU-02 — 還流経路） ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（DU-02 — 還流経路） ／ **TC**: TCC-SR-09-1
 
 ### AC-SR-09-2（境界・復旧）
 
@@ -1309,7 +1309,7 @@
 - **観測点**: strategic_briefs 全行の前後比較／tactical_learning_packets 件数 ／ **期待状態**: TLP 3 件・brief 完全不変（status も active のまま）
 - **期待 DB 差分**: tactical_learning_packets +3 行のみ ／ **期待証跡**: 3 件の TLP 行（recommended_next_action = request_strategy_review）
 - **禁止副作用**: 推奨の蓄積による brief の自動 supersede・status 自動遷移 ／ **エラー型**: なし
-- **対象更新**: S0.1（DU-02/10 — 推奨≠決定の境界） ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（DU-02/10 — 推奨≠決定の境界） ／ **TC**: TCC-SR-09-2
 
 ## SR-10
 
@@ -1320,7 +1320,7 @@
 - **観測点**: revision 記録／新版・旧版の SELECT（supersedes_id・status） ／ **期待状態**: v2 = active・v1 = superseded・revision = accepted
 - **期待 DB 差分**: 新版 +1 行、旧版 status UPDATE、revision 記録 +1 ／ **期待証跡**: strategy_revision 行（根拠 2 件・反証空配列明示・信頼度・対象版）
 - **禁止副作用**: 旧版内容列の変更・transaction 分割による中間状態 ／ **エラー型**: なし
-- **対象更新**: S1（上流戦略スライス — SCM-08） ／ **TC**: （割当待ち）
+- **対象更新**: S1（上流戦略スライス — SCM-08） ／ **TC**: TCC-SR-10-1
 
 ### AC-SR-10-2（拒否）
 
@@ -1329,7 +1329,7 @@
 - **観測点**: raise される例外型／意味モデル行数・status／operation_log SELECT ／ **期待状態**: v1 = active のまま・revision accepted 0 件
 - **期待 DB 差分**: operation_log +2 行（拒否）のみ ／ **期待証跡**: operation_log 拒否行（根拠不足／反証未明示）
 - **禁止副作用**: 単一計測値による自動 accept・新版の先行生成 ／ **エラー型**: RevisionEvidenceRejected
-- **対象更新**: S1（上流戦略スライス） ／ **TC**: （割当待ち）
+- **対象更新**: S1（上流戦略スライス） ／ **TC**: TCC-SR-10-2
 
 ### AC-SR-10-3（境界・復旧）
 
@@ -1338,7 +1338,7 @@
 - **観測点**: raise される例外型／revision 記録／版の増減 ／ **期待状態**: 重複 = 拒否、2 件 = v2 生成、maintain = 版不変・記録 1 件
 - **期待 DB 差分**: 新版 +1（2 件ケースのみ）、revision 記録 +2（accept・maintain）、operation_log +1（拒否） ／ **期待証跡**: maintain の revision 記録（版遷移なし）
 - **禁止副作用**: 重複 ID の 2 件扱い・maintain での版生成 ／ **エラー型**: RevisionEvidenceRejected（重複時）
-- **対象更新**: S1（上流戦略スライス） ／ **TC**: （割当待ち）
+- **対象更新**: S1（上流戦略スライス） ／ **TC**: TCC-SR-10-3
 
 ## SR-11
 
@@ -1349,7 +1349,7 @@
 - **観測点**: 各 DML の例外型とメッセージ ／ **期待状態**: 全行が実行前と同一
 - **期待 DB 差分**: 差分なし ／ **期待証跡**: なし（拒否・算出は証跡対象外）
 - **禁止副作用**: 1 本でも成功する DML ／ **エラー型**: IntegrityError（append-only）
-- **対象更新**: S0.1（append-only 版管理） ／ **TC**: STC-I-06
+- **対象更新**: S0.1（append-only 版管理） ／ **TC**: STC-I-06 TCC-SR-05
 
 ### AC-SR-11-1（正常）
 
@@ -1358,7 +1358,7 @@
 - **観測点**: strategic_briefs SELECT（全列前後比較・supersedes_id 連鎖） ／ **期待状態**: v1 = superseded（内容不変）・v2 = active
 - **期待 DB 差分**: strategic_briefs +1 行、v1 の status UPDATE のみ ／ **期待証跡**: 版連鎖そのもの（v2.supersedes_id = v1.id）
 - **禁止副作用**: v1 内容列の変更・v1 の削除 ／ **エラー型**: なし
-- **対象更新**: S0.1（DU-10 — 版連鎖） ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（DU-10 — 版連鎖） ／ **TC**: TCC-SR-11-1
 
 ### AC-SR-11-2（境界・復旧）
 
@@ -1367,7 +1367,7 @@
 - **観測点**: raise される例外型（メッセージに 'append-only' を含む）／行の前後比較 ／ **期待状態**: status・valid_until のみ更新済み、内容列は初期値のまま
 - **期待 DB 差分**: 許可 2 列の UPDATE のみ（内容差分なし） ／ **期待証跡**: IntegrityError の pytest 捕捉記録（トリガ主体の拒否 — FK 等の別要因でない）
 - **禁止副作用**: 内容列の部分更新・拒否時の行破損 ／ **エラー型**: IntegrityError（内容列 UPDATE 時）
-- **対象更新**: S0.1（DU-10 — トリガ WHEN 境界） ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（DU-10 — トリガ WHEN 境界） ／ **TC**: TCC-SR-11-2
 
 ## SR-12
 
@@ -1378,7 +1378,7 @@
 - **観測点**: measurements SELECT／strategic_briefs 全行の前後比較 ／ **期待状態**: 計測・TLP 受理、意味正本不変
 - **期待 DB 差分**: measurements +N 行、tactical_learning_packets +1 行（brief 差分なし） ／ **期待証跡**: measurements 行（evidence_id 接続）と TLP の metrics 参照
 - **禁止副作用**: 計測投入による意味モデル・brief の変更 ／ **エラー型**: なし
-- **対象更新**: S1（上流戦略スライス — KPI/意味正本の分離） ／ **TC**: （割当待ち）
+- **対象更新**: S1（上流戦略スライス — KPI/意味正本の分離） ／ **TC**: TCC-SR-12-1
 
 ### AC-SR-12-2（拒否）
 
@@ -1387,7 +1387,7 @@
 - **観測点**: raise される例外型／意味モデルの版・status ／ **期待状態**: 意味モデル不変（v1 = active）
 - **期待 DB 差分**: operation_log +1 行（拒否）のみ ／ **期待証跡**: operation_log 拒否行（理由 = 単一計測値根拠）
 - **禁止副作用**: KPI 変動による戦略正本の自動更新 ／ **エラー型**: RevisionEvidenceRejected
-- **対象更新**: S1（上流戦略スライス — SCM-08） ／ **TC**: （割当待ち）
+- **対象更新**: S1（上流戦略スライス — SCM-08） ／ **TC**: TCC-SR-12-2
 
 ### AC-SR-12-3（境界・復旧）
 
@@ -1396,7 +1396,7 @@
 - **観測点**: TLP の anomalies_json・recommended_next_action／strategic_briefs の前後比較 ／ **期待状態**: TLP 1 件（異常記録つき）・意味正本不変
 - **期待 DB 差分**: tactical_learning_packets +1 行のみ ／ **期待証跡**: TLP 行（anomalies・request_strategy_review）
 - **禁止副作用**: 急変を契機とした brief の自動 supersede・意味モデル自動更新 ／ **エラー型**: なし
-- **対象更新**: S1（上流戦略スライス） ／ **TC**: （割当待ち）
+- **対象更新**: S1（上流戦略スライス） ／ **TC**: TCC-SR-12-3
 
 ## SR-13
 
@@ -1407,7 +1407,7 @@
 - **観測点**: 承認 API 戻り値／evidence SELECT（kind = plan_record） ／ **期待状態**: 企画承認済み・plan_record 証跡 1 件
 - **期待 DB 差分**: evidence +1 行（plan_record） ／ **期待証跡**: evidence 行（payload_json に 5 宣言）
 - **禁止副作用**: operation_log への拒否行 ／ **エラー型**: なし
-- **対象更新**: S1（SCM-10 — 実行時強制。S1 前半は docs ゲート） ／ **TC**: （割当待ち）
+- **対象更新**: S1（SCM-10 — 実行時強制。S1 前半は docs ゲート） ／ **TC**: TCC-SR-13-1
 
 ### AC-SR-13-2（拒否）
 
@@ -1416,7 +1416,7 @@
 - **観測点**: raise される例外型／evidence 件数／operation_log SELECT ／ **期待状態**: 企画未承認・plan_record 0 件
 - **期待 DB 差分**: operation_log +1 行（拒否）のみ ／ **期待証跡**: operation_log 拒否行（欠落キー = recognition_change）
 - **禁止副作用**: 宣言なし企画の主要企画としての承認 ／ **エラー型**: ContentValueDeclarationRejected
-- **対象更新**: S1（SCM-10） ／ **TC**: （割当待ち）
+- **対象更新**: S1（SCM-10） ／ **TC**: TCC-SR-13-2
 
 ### AC-SR-13-3（境界・復旧）
 
@@ -1425,7 +1425,7 @@
 - **観測点**: raise される例外型／再提出後の evidence SELECT ／ **期待状態**: 初回 2 件拒否→補完後 1 件承認
 - **期待 DB 差分**: operation_log +2 行（拒否）、その後 evidence +1 行 ／ **期待証跡**: operation_log 拒否行（空値／参照不整合）
 - **禁止副作用**: 空値の宣言扱い（fail-open） ／ **エラー型**: ContentValueDeclarationRejected
-- **対象更新**: S1（SCM-10） ／ **TC**: （割当待ち）
+- **対象更新**: S1（SCM-10） ／ **TC**: TCC-SR-13-3
 
 ## SR-14
 
@@ -1436,7 +1436,7 @@
 - **観測点**: strategic_briefs SELECT（media_role 列） ／ **期待状態**: brief 1 行発行（media_role = problem-framing）
 - **期待 DB 差分**: strategic_briefs +1 行 ／ **期待証跡**: brief 行そのもの（役割語彙保存）
 - **禁止副作用**: operation_log への拒否行 ／ **エラー型**: なし
-- **対象更新**: S1（SCM-09 — G-MEDIA-ROLE） ／ **TC**: （割当待ち）
+- **対象更新**: S1（SCM-09 — G-MEDIA-ROLE） ／ **TC**: TCC-SR-14-1
 
 ### AC-SR-14-2（拒否）
 
@@ -1445,7 +1445,7 @@
 - **観測点**: raise される例外型／strategic_briefs 件数／operation_log SELECT ／ **期待状態**: brief 0 件発行
 - **期待 DB 差分**: operation_log +2 行（拒否）のみ ／ **期待証跡**: operation_log 拒否行（宣言値・台帳版）
 - **禁止副作用**: 媒体名の media_role としての保存・揺れの自動正規化 ／ **エラー型**: MediaRoleRejected
-- **対象更新**: S1（SCM-09） ／ **TC**: （割当待ち）
+- **対象更新**: S1（SCM-09） ／ **TC**: TCC-SR-14-2
 
 ### AC-SR-14-3（境界・復旧）
 
@@ -1454,7 +1454,7 @@
 - **観測点**: raise される例外型／復旧後の strategic_briefs SELECT ／ **期待状態**: 欠損時 0 件・復旧後 1 件発行
 - **期待 DB 差分**: operation_log +1 行（拒否）、復旧後 strategic_briefs +1 行 ／ **期待証跡**: operation_log 拒否行（理由 = 台帳ロード不能）
 - **禁止副作用**: 台帳欠損時の全許可（fail-open） ／ **エラー型**: MediaRoleRejected（台帳欠損時）
-- **対象更新**: S1（SCM-09） ／ **TC**: （割当待ち）
+- **対象更新**: S1（SCM-09） ／ **TC**: TCC-SR-14-3
 
 ## SR-15
 
@@ -1465,7 +1465,7 @@
 - **観測点**: python-ci の pytest レポート（STC-I-01〜06）／validate_requirements.py 終了コード ／ **期待状態**: STC-I-01〜06 全 green・全ゲート PASS
 - **期待 DB 差分**: 差分なし（検証のみ — テスト DB は使い捨て） ／ **期待証跡**: CI ログ（pytest green・ゲート PASS）
 - **禁止副作用**: S0 スコープ外機能（上流生成系）の実装混入 ／ **エラー型**: なし
-- **対象更新**: S0.1（完了ゲート — STC-I-01〜06） ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（完了ゲート — STC-I-01〜06） ／ **TC**: TCC-SR-15-1
 
 ### AC-SR-15-2（拒否）
 
@@ -1474,7 +1474,7 @@
 - **観測点**: validate_requirements.py の終了コードとエラーメッセージ／CI ジョブ結果 ／ **期待状態**: CI 赤・コミット差戻し
 - **期待 DB 差分**: 差分なし（検証のみ） ／ **期待証跡**: CI ログ（baseline 違反・ゲート名つき）
 - **禁止副作用**: 分母縮小・スコープ拡大の黙認（fail-open） ／ **エラー型**: GateFailure（CI exit 非 0）
-- **対象更新**: S0.1（G-BASELINE／ratchet） ／ **TC**: （割当待ち）
+- **対象更新**: S0.1（G-BASELINE／ratchet） ／ **TC**: TCC-SR-15-2
 
 ## SR-16
 
@@ -1485,7 +1485,7 @@
 - **観測点**: 一周判定 API 戻り値／ループ計数記録 ／ **期待状態**: 一周判定 = True・計数 +1
 - **期待 DB 差分**: ループ計数記録 +1（upper run メタデータ） ／ **期待証跡**: accepted revision 行と新版行（supersedes_id 連鎖 — 一周の根拠）
 - **禁止副作用**: 同一回転の重複計上 ／ **エラー型**: なし
-- **対象更新**: S1（上流戦略スライス — SCM-08） ／ **TC**: （割当待ち）
+- **対象更新**: S1（上流戦略スライス — SCM-08） ／ **TC**: TCC-SR-16-1
 
 ### AC-SR-16-2（拒否）
 
@@ -1494,7 +1494,7 @@
 - **観測点**: 一周判定 API 戻り値／ループ計数記録 ／ **期待状態**: 一周判定 = False・計数不変
 - **期待 DB 差分**: ループ計数の差分なし ／ **期待証跡**: なし（計上されないことが期待 — revision 記録の不在を確認）
 - **禁止副作用**: 微修正回転の一周計上（管理ループへの縮退） ／ **エラー型**: なし（判定 False — 例外ではない）
-- **対象更新**: S1（上流戦略スライス） ／ **TC**: （割当待ち）
+- **対象更新**: S1（上流戦略スライス） ／ **TC**: TCC-SR-16-2
 
 ### AC-SR-16-3（境界・復旧）
 
@@ -1503,4 +1503,4 @@
 - **観測点**: 一周判定 API 戻り値／ループ計数記録 ／ **期待状態**: False・True（計数 +1）・False
 - **期待 DB 差分**: ループ計数 +1（複数更新ケースのみ） ／ **期待証跡**: maintain の revision 記録（「見て維持」— 計上されない根拠）
 - **禁止副作用**: 複数更新の多重計上・判定不能時の一周扱い（fail-open） ／ **エラー型**: なし（判定 False — 例外ではない）
-- **対象更新**: S1（上流戦略スライス） ／ **TC**: （割当待ち）
+- **対象更新**: S1（上流戦略スライス） ／ **TC**: TCC-SR-16-3

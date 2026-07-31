@@ -5,6 +5,12 @@
 > 上位文書: [s0-contract_v0.1.md](../requirements/s0-contract_v0.1.md)（DDL・状態遷移・WF 契約の正準）／
 > [requirements_v0.1.md](../requirements/requirements_v0.1.md)（FR/NFR/AC）／
 > [function-list_v0.1.md](../requirements/function-list_v0.1.md)（FN 61・スライス配分）
+> **設計契約正本（2026-08-01 全層再降下 §6）**: 各 CMP/SCM の 11 観点設計契約 =
+> [json/cmp-contracts.json](json/cmp-contracts.json)（ビュー [cmp-contracts_v0.1.md](cmp-contracts_v0.1.md)）。
+> 独立設計書: [外部 IF](external-if-design_v0.1.md)／[DB](db-design_v0.1.md)／
+> [状態機械](state-machine-design_v0.1.md)／[エラー分類](error-taxonomy_v0.1.md)／
+> [承認](approval-design_v0.1.md)／[ブランド隔離](brand-isolation-design_v0.1.md)
+> （G-CMP-INTERFACE が fail-close 検査）。
 > JSON 正本: [json/components.json](json/components.json)（コンポーネント台帳。本文と同期、実装入力は JSON）
 > 位置づけ: S0（25 機能）の実装構造を確定する。要求内容は定義しない — 上位文書と矛盾したら上位を優先し本書を改訂する。
 > 上流戦略層（2026-08-01 追補）: 戦略コンポーネント（SCM）は
