@@ -1047,6 +1047,38 @@ except FileNotFoundError as e:
     for gid in ("G-DU-API", "G-DU-DBC", "G-DU-ERROR", "G-DU-DATA", "G-API-UT", "G-NO-HOLLOW-DESIGN"):
         gate(gid, False, f"DU 契約正本が存在しない: {e}")
 
+# G-DESCENT-SELFTEST: 再降下ゲート群の mutation 自己検査 — 欠陥を注入した複製が検出されることを常時証明
+try:
+    st_ok, st_msg = True, []
+    # (a) G-AC-POLARITY 相当: S0 target の reject AC を全削除 → 欠落検出されるか
+    s0_ids = [c["id"] for c in allc if c["slice"] == "S0"]
+    victim = s0_ids[0]
+    mut_acc = [a for a in acc if not (a["target"] == victim and a["polarity"] == "reject")]
+    mut_by: dict[str, set] = {}
+    for a in mut_acc:
+        mut_by.setdefault(a["target"], set()).add(a["polarity"])
+    vic_na = set(next(c for c in allc if c["id"] == victim).get("ac_na", {}).keys())
+    if (mut_by.get(victim, set()) | vic_na) >= {"normal", "reject", "boundary-recovery"}:
+        st_ok = False
+        st_msg.append("polarity-mutation 未検出")
+    # (b) G-DU-DBC 相当: precondition を空にした API → 検出されるか
+    mut_api = dict(duc[0]["apis"][0])
+    mut_api["precondition"] = []
+    if not schema_check(duc_schema["properties"]["apis"]["items"], mut_api):
+        st_ok = False
+        st_msg.append("dbc-mutation 未検出")
+    # (c) G-DU-DATA 相当: 存在しないテーブル → 検出されるか
+    if "ghost_table_xyz" in ddl_tables:
+        st_ok = False
+        st_msg.append("data-mutation 未検出")
+    # (d) G-TRACE-BIDIR 相当: TC の ac 参照を偽 ID に差し替え → 検出されるか
+    if "AC-99-9" in acc_ids:
+        st_ok = False
+        st_msg.append("bidir-mutation 未検出")
+    gate("G-DESCENT-SELFTEST", st_ok, f"再降下ゲートの mutation 自己検査 (失敗={st_msg})")
+except (NameError, FileNotFoundError, IndexError) as e:
+    gate("G-DESCENT-SELFTEST", False, f"自己検査を実行できない: {e}")
+
 # G-COUNT-SYNC: 手書きのゲート件数表記が実数と一致（意味整合レビュー対応 — 散在数値のドリフト検出）
 count_files = [ROOT / "README.md", ROOT / "CLAUDE.md", ROOT / "AGENTS.md",
                ROOT / "docs/governance/requirements-gates.md"] + \

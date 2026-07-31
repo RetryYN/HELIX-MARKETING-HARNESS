@@ -15,7 +15,7 @@
     "DU": 23,
     "UTC": 69
   },
-  "gate_count": 99,
+  "gate_count": 101,
   "confirmed_docs": {
     "docs/L0-charter/marketing-harness-charter_v0.4.md": "9a904549de13648b813535b0b7e5b81c2a05062557e5d1143cb50232a178a73d",
     "docs/design/basic-design_v0.1.md": "71080830c131da3a71eb6cb2867febecfafc185526ea5e3ff4dc5b0a25b39d5e",
@@ -160,7 +160,7 @@
     "docs/requirements/json/verification/tc-contracts.json": "6838c414c466c91e062dffef7050f25af302ec8cd8a6baf1732ea0d57b28298f",
     "pyproject.toml": "e14a32bc5450457200c910351417df7d2c8651aa5a8d3f7c847e4a5364820969",
     "scripts/hooks/pre-git-gate.sh": "c479c573bdb491a57716c47c2cf54cda2a094e7cde8103ac2f6952fbb230e080",
-    "scripts/validate_requirements.py": "5ea69e83423de1eef8e5200763646828701aae781a65715295efed7c34a196c3",
+    "scripts/validate_requirements.py": "2d361f634ccc81e697da2fc08c9cb210047535344849d8e3cbfb8fcf79e1443d",
     "uv.lock": "b57a054ee0cba1c418d500563695ee3007e82557bd5f540558f811c5c578836f"
   }
 }
