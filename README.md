@@ -102,3 +102,5 @@ SR→AC-SR→STC-I→DU の一本線トレース、TLP の learning/failure 二�
 着手時に `tests/skip-budget.json` の `s0_impl_started` を true にし、以降は
 [G-S0-TEST-REALITY](docs/governance/requirements-gates.md) が S0.1 対象 UT の skip を CI で落とす。
 進行は **HELIX-HARNESS の工程・Gate・PR 経路**に従う（本リポジトリ内の独自手動進行はしない）。
+取込証跡: [helix-intake-2026-08-01.md](docs/governance/helix-intake-2026-08-01.md)
+（PLAN-REVERSE-459・`intake/marketing-harness` ブランチ・コミット ff835a21）。

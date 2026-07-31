@@ -19,7 +19,8 @@
   次 = **S0.1 実装**（DU-01〜12 の API 29 本を test-first。各 API の UT は du-contracts の apis[].ut が正本）。
   着手時は `tests/skip-budget.json` の `s0_impl_started` を true にする（以後 G-S0-TEST-REALITY が
   S0.1 対象 UT の skip を CI で落とす — 実 red→green を強制）。実装パッケージは **`src/helix/`**。
-  進行は HELIX-HARNESS の工程・Gate・PR 経路に従う（本リポジトリ内の独自手動進行はしない）。
+  進行は HELIX-HARNESS の工程・Gate・PR 経路に従う（本リポジトリ内の独自手動進行はしない —
+  取込証跡 docs/governance/helix-intake-2026-08-01.md / PLAN-REVERSE-459 / ff835a21）。
   S0.1 の完了条件 = 割当 UT の red→green ＋ **STC-I-01〜06**（AC-SR-01〜06）green ＋ skip 上限の引き下げ
   （tests/skip-budget.json — 引き上げには approvals.md の構造化 PO 承認行が必要）。
 
