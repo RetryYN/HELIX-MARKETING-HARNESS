@@ -909,6 +909,154 @@
           "FN-413"
         ]
       }
+    },
+    {
+      "id": "REQ-046",
+      "text": "ブランド・事業間でデータ・資産・認証・学習が相互隔離され越境できないこと",
+      "source_refs": [
+        "BR-I1"
+      ],
+      "related": [
+        "FR-34"
+      ],
+      "fill_route": "H",
+      "priority": "S",
+      "trace": {
+        "upstream": [
+          "BR-I1"
+        ],
+        "downstream": [
+          "FR-34"
+        ]
+      }
+    },
+    {
+      "id": "REQ-047",
+      "text": "下流が有効 brief なしに開始できず、上流正本を直接更新できないこと",
+      "source_refs": [
+        "BR-I2"
+      ],
+      "related": [
+        "SR-07",
+        "SR-09"
+      ],
+      "fill_route": "—",
+      "priority": "M",
+      "trace": {
+        "upstream": [
+          "BR-I2"
+        ],
+        "downstream": [
+          "SR-07",
+          "SR-09"
+        ]
+      }
+    },
+    {
+      "id": "REQ-048",
+      "text": "戦略更新が根拠・反証つき revision と append-only 版管理でのみ行われること",
+      "source_refs": [
+        "BR-I3"
+      ],
+      "related": [
+        "SR-10",
+        "SR-11"
+      ],
+      "fill_route": "—",
+      "priority": "M",
+      "trace": {
+        "upstream": [
+          "BR-I3"
+        ],
+        "downstream": [
+          "SR-10",
+          "SR-11"
+        ]
+      }
+    },
+    {
+      "id": "REQ-049",
+      "text": "全終端下流 run が learning/failure packet をちょうど 1 件還流すること",
+      "source_refs": [
+        "BR-I4"
+      ],
+      "related": [
+        "SR-08"
+      ],
+      "fill_route": "—",
+      "priority": "M",
+      "trace": {
+        "upstream": [
+          "BR-I4"
+        ],
+        "downstream": [
+          "SR-08"
+        ]
+      }
+    },
+    {
+      "id": "REQ-050",
+      "text": "複数媒体の役割分担キャンペーンを計画・評価単位として扱えること",
+      "source_refs": [
+        "BR-I5"
+      ],
+      "related": [
+        "SR-06",
+        "SR-14"
+      ],
+      "fill_route": "R",
+      "priority": "C",
+      "trace": {
+        "upstream": [
+          "BR-I5"
+        ],
+        "downstream": [
+          "SR-06",
+          "SR-14"
+        ]
+      }
+    },
+    {
+      "id": "REQ-051",
+      "text": "主要コンテンツ企画が 5 宣言なしに承認されないこと",
+      "source_refs": [
+        "BR-I6"
+      ],
+      "related": [
+        "SR-13"
+      ],
+      "fill_route": "—",
+      "priority": "S",
+      "trace": {
+        "upstream": [
+          "BR-I6"
+        ],
+        "downstream": [
+          "SR-13"
+        ]
+      }
+    },
+    {
+      "id": "REQ-052",
+      "text": "全工程が証跡・再開・冪等性の横断契約を満たすこと",
+      "source_refs": [
+        "BR-I7"
+      ],
+      "related": [
+        "NFR-3",
+        "FR-28"
+      ],
+      "fill_route": "—",
+      "priority": "M",
+      "trace": {
+        "upstream": [
+          "BR-I7"
+        ],
+        "downstream": [
+          "NFR-3",
+          "FR-28"
+        ]
+      }
     }
   ]
 }

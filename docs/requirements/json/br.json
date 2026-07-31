@@ -282,6 +282,83 @@
         "downstream": []
       },
       "fill_route": null
+    },
+    {
+      "id": "BR-I1",
+      "text": "複数ブランド・事業のデータ・資産・認証・学習を相互隔離し、越境参照・越境書込みを構造的に不可能にする（1 ブランドの事故が他ブランドへ波及しない）",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "REQ-046"
+        ]
+      },
+      "fill_route": "H"
+    },
+    {
+      "id": "BR-I2",
+      "text": "上流（市場・価値・選択基準の学習）と下流（媒体・表現・運用の学習）を分離し、接続を strategic_brief（発注）と TLP（還流）の 2 契約のみに限定する",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "REQ-047"
+        ]
+      },
+      "fill_route": null
+    },
+    {
+      "id": "BR-I3",
+      "text": "戦略の更新は反証可能な仮説の評価（strategy_revision — 根拠・反証・信頼度・対象版）と append-only 版管理でのみ行う",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "REQ-048"
+        ]
+      },
+      "fill_route": null
+    },
+    {
+      "id": "BR-I4",
+      "text": "全終端下流 run はちょうど 1 件の学習/失敗 packet を還流する（learning は因果解釈つき、failure は事実のみで因果解釈の捏造禁止）",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "REQ-049"
+        ]
+      },
+      "fill_route": null
+    },
+    {
+      "id": "BR-I5",
+      "text": "複数媒体を役割分担させた期間キャンペーンを計画・実行・評価の単位として扱える（媒体役割は台帳語彙で宣言）",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "REQ-050"
+        ]
+      },
+      "fill_route": "R"
+    },
+    {
+      "id": "BR-I6",
+      "text": "主要コンテンツ企画は 5 宣言（問題・認識・比較軸・価値・対象仮説）を必須とし、認識変化を起こさない物量投稿を主要企画として承認しない",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "REQ-051"
+        ]
+      },
+      "fill_route": null
+    },
+    {
+      "id": "BR-I7",
+      "text": "全工程が証跡を残し、強制終了後に SQLite 状態のみから再開でき、同一操作の再実行が副作用を二重化しない（冪等）ことを横断契約として保証する",
+      "trace": {
+        "upstream": [],
+        "downstream": [
+          "REQ-052"
+        ]
+      },
+      "fill_route": null
     }
   ]
 }

@@ -7,7 +7,8 @@
 | ゲート | 検証内容 | 違反の意味 |
 |---|---|---|
 | G-JSON | json/ 配下の全ファイルが構文的に妥当 | 壊れた正本 |
-| G-CNT-BR/REQ/FR/NFR/AC/ACDEF/FN/BRM/MR/WF | JSON 件数 = MD の分母（BR31・REQ45・FR36・NFR10・AC19+deferred17・FN61・BR-M70・MR54・WF49） | MD↔JSON の同期漏れ、分母のサイレント変更 |
+| G-CNT-BR/REQ/FR/NFR/AC/ACDEF/FN/BRM/MR/WF | JSON 件数 = MD の分母（BR38・REQ52・FR36・NFR10・AC19+deferred17・FN61・BR-M70・MR54・WF49） | MD↔JSON の同期漏れ、分母のサイレント変更 |
+| G-REQ-CONTRACT | BR 構造化契約（br-contracts.json）が schema 適合（12 観点必須・additionalProperties: false）で全 38 BR を被覆し、12 独立要求群がすべて担当 BR を持ち、REQ 参照が実在し、生成ビュー（br-contracts_v0.1.md）が正本と同期 | 1 行要求の温存・要求群の宙吊り・手編集ビューの乖離（全層再降下 §2） |
 | G-UNIQ-* | BR/REQ/FR・NFR/AC/FN の ID 重複ゼロ | ID 衝突 |
 | G-TRC-BR | s0/trace.json が全 31 BR をカバー | トレース断絶（BR が要件へ降りていない） |
 | G-TRC-AC | AC の target が実在する FR | 宙に浮いた受入条件 |

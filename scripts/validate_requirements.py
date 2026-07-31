@@ -50,10 +50,10 @@ gate("G-JSON", not bad, f"全 JSON 構文妥当 {bad or ''}")
 
 # G-CNT: JSON 件数 = MD 分母
 br = load(J / "br.json")["items"]
-gate("G-CNT-BR", len(br) == 31 == md_count(MD / "br-backbone_v0.1.md", r"\*\*(BR-[A-H]\d)\*\*"), "BR=31 (MD/JSON)")
+gate("G-CNT-BR", len(br) == 38 == md_count(MD / "br-backbone_v0.1.md", r"\*\*(BR-[A-I]\d)\*\*"), "BR=38 (MD/JSON)")
 
 req = load(J / "req.json")["items"]
-gate("G-CNT-REQ", len(req) == 45 == md_count(MD / "requirement-list_v0.1.md", r"(REQ-\d{3})"), "REQ=45 (MD/JSON)")
+gate("G-CNT-REQ", len(req) == 52 == md_count(MD / "requirement-list_v0.1.md", r"(REQ-\d{3})"), "REQ=52 (MD/JSON)")
 
 r = load(J / "requirements.json")["items"]
 fr = [i for i in r if i["kind"] == "FR"]
@@ -92,7 +92,7 @@ tr = load(J / "s0/trace.json")
 rows = tr.get("items") or tr.get("rows")
 allbr = {i["id"] for i in br}
 trbr = {x.get("br") or x.get("BR") for x in rows}
-gate("G-TRC-BR", trbr == allbr, f"trace 31 行が全 BR をカバー (欠落={sorted(allbr - trbr)})")
+gate("G-TRC-BR", trbr == allbr, f"trace 38 行が全 BR をカバー (欠落={sorted(allbr - trbr)})")
 
 # G-TRC-AC: AC target が実在 FR
 frids = {i["id"] for i in fr}
@@ -816,6 +816,37 @@ if BASELINE.exists():
          f"実装入力 artifact の無断改変/未登録なし (差分={adrift or '[]'}; 意図的なら --update-baseline)")
 else:
     gate("G-BASE-EXIST", False, "baseline.json が存在しない（--update-baseline で生成）")
+
+# G-REQ-CONTRACT: BR 構造化契約（全層再降下 §2 — 1 行要求の禁止・12 要求群の被覆・生成ビュー同期）
+MANDATED_GROUPS = {
+    "brand-isolation", "upstream-downstream-separation", "hypothesis-refutation-revision",
+    "kpi-crossover", "multi-media-campaign", "content-value-definition", "zero-ad-spend",
+    "ethics-line", "human-ai-boundary", "evidence-resume-idempotency", "external-ops-approval",
+    "learning-failure-packet",
+}
+try:
+    brc_schema = load(J / "br" / "br-contract.schema.json")
+    brc = load(J / "br" / "br-contracts.json")["items"]
+    brc_errs: list[str] = []
+    for it in brc:
+        brc_errs += [f"{it.get('id', '?')}: {e}" for e in schema_check(brc_schema, it)]
+    brc_ids = {it["id"] for it in brc}
+    br_ids = {i["id"] for i in br}
+    req_ids = {i["id"] for i in req}
+    covered_groups = {g for it in brc for g in it["mandated_groups"]}
+    bad_req_refs = [f"{it['id']}→{r}" for it in brc for r in it["trace_down"]["req"] if r not in req_ids]
+    view_sync = subprocess.run(  # noqa: S603
+        [sys.executable, str(ROOT / "scripts/render_views.py"), "--check"],
+        capture_output=True, text=True, check=False,
+    ).returncode == 0
+    gate("G-REQ-CONTRACT",
+         not brc_errs and brc_ids == br_ids and covered_groups == MANDATED_GROUPS
+         and not bad_req_refs and view_sync,
+         "BR 契約: schema 適合＋全 BR 被覆＋12 要求群被覆＋REQ 参照実在＋ビュー同期 "
+         f"(schema={brc_errs[:3]}, BR差={sorted(brc_ids ^ br_ids)}, "
+         f"群欠落={sorted(MANDATED_GROUPS - covered_groups)}, REQ参照={bad_req_refs[:3]}, view={view_sync})")
+except FileNotFoundError as e:
+    gate("G-REQ-CONTRACT", False, f"BR 契約正本が存在しない: {e}")
 
 # G-COUNT-SYNC: 手書きのゲート件数表記が実数と一致（意味整合レビュー対応 — 散在数値のドリフト検出）
 count_files = [ROOT / "README.md", ROOT / "CLAUDE.md", ROOT / "AGENTS.md",
