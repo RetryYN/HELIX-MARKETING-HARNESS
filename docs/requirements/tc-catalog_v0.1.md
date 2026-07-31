@@ -169,5 +169,16 @@
 | TCC-CONFLICT-2 | conflict | AC-SR-06 | 同一 loop_run への 2 件目 TLP INSERT が UNIQUE(loop_run_id) で拒否 | tactical_learning_packets は 1 行のまま | なし | 二重 packet | 0 回 | S0 |
 | TCC-RESUME-1 | resume | AC-42-3 | プロセス再起動後、in-flight の external_operations（sent 未確定）が照合され、確定 or 補償に収束 | external_operations の status が pending のまま残らない | operation_log の照合結果行 | 同一操作の二重送信（冪等キー衝突） | 照合 1 回（送信の再実行 0 回） | S1 |
 | TCC-RESUME-2 | resume | AC-72-3 | migration が途中失敗しても schema_version は前版のまま（1 版 = 1 transaction） | 部分適用されたテーブル・列が存在しない | migration 失敗の構造化ログ | 半適用スキーマでの起動継続 | 0 回 | S0 |
+| TCC-11-4 | reject | AC-11-4 | loop_run は running のまま、brief_id=B1・digest=D1 不変 | 差分なし | 構造化ログの拒否行（run 保持 brief 参照の変更拒否） | loop_runs 行の brief_id/digest 変更・状態遷移の発生 | 0 回 | S0 |
+| TCC-12-4 | reject | AC-12-4 | tasks 行なし（発行不成立） | 差分なし | 構造化ログの拒否行（verifier 未割当） | verifier_agent_id NULL の tasks 行の混入 | 0 回 | S0 |
+| TCC-13-4 | reject | AC-13-4 | task は verifying のまま（done へ遷移しない） | state_transitions に guard_result = rejected 1 行 | operation_log の拒否行（自己審査 PASS 拒否） | done への遷移・review_pass 証跡の生成 | 0 回 | S0 |
+| TCC-27-4 | reject | AC-27-4 | tasks 行なし | 差分なし | なし（DB 層拒否） | verifier NULL 行の混入・CHECK 制約の三値すり抜け | 0 回 | S0 |
+| TCC-33-4 | reject | AC-33-4 | config 1 行のまま不変 | 差分なし | なし（DB 層拒否） | 同一 (key, changed_at) の重複行の混入 | 0 回 | S0 |
+| TCC-41-4 | reject | AC-41-4 | registry 不変（x の browser 書込み行なし） | operation_log に拒否 1 行 | operation_log の拒否行（BR-M-X-4 理由つき） | x の browser 書込み経路行の混入・後続経路解決での採用 | 0 回 | S0 |
+| TCC-46-4 | reject | AC-46-4 | approvals 1 行のまま decision='approved' 不変 | 差分なし | なし（DB 層拒否） | approvals 行の decision 変更・行削除 | 0 回 | S0 |
+| TCC-61-4 | reject | AC-61-4 | strategic_briefs 全行不変 | 差分なし | なし（DB 層拒否） | strategic_briefs の変更・KPI 起点の自動 revision 行の生成 | 0 回 | S0 |
+| TCC-71-4 | reject | AC-71-4 | loop_runs・tasks とも行数不変 | 差分なし | なし（DB 層拒否） | 参照行の連鎖削除・孤児行の発生 | 0 回 | S0 |
+| TCC-SR-08-3 | reject | AC-SR-08-3 | TLP 1 行のまま全列不変 | 差分なし | なし（DB 層拒否） | TLP 行の変更・削除 | 0 回 | S0 |
+| TCC-SR-06-3 | boundary | AC-SR-06-3 | 2 digest が相異なり、不一致 digest の run が未作成 | loop_runs 差分なし | 拒否の構造化ログ（digest 不一致） | 異内容への同一 digest 付与・不一致 digest での run 作成 | 0 回 | S0 |
 
 検証手段（method）の全文は JSON 正本を参照。

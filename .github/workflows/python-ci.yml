@@ -27,6 +27,8 @@ jobs:
         run: uv run lint-imports
       - name: pytest + coverage (STC-I / DDL / migration 試験)
         run: uv run pytest --cov=harness --cov-report=term
+      - name: skip 件数ラチェット (green の誤読防止 — tests/skip-budget.json)
+        run: python3 scripts/check_skip_budget.py
 
   shellcheck:
     name: shellcheck (hooks)

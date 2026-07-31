@@ -251,10 +251,8 @@ def main() -> int:
     check = "--check" in sys.argv
     dirty = []
     for fn in RENDERERS:
-        try:
-            path, content = fn()
-        except FileNotFoundError:
-            continue  # 正本未作成のビューはスキップ（段階移行中）
+        # 正本の欠落は fail-close（黙殺 skip は同期成功と区別できないため禁止 — Sol major 対応）
+        path, content = fn()
         current = path.read_text() if path.exists() else None
         content = content.rstrip("\n") + "\n"
         if current != content:

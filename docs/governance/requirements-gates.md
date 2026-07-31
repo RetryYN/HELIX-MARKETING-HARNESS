@@ -61,7 +61,9 @@
 | G-DU-DATA | 全 DU の DB read/write が DDL の実在テーブルのみ | 存在しないテーブルへの設計参照（全層再降下 §7） |
 | G-API-UT | S0 実装対象 DU（DU-01〜12）の全公開 API に UT ≥1 が割当てられ、参照テスト関数（test_file::test_name）がディスク上に def として実在 | UT なき API・宣言だけのテスト参照（全層再降下 §8） |
 | G-NO-HOLLOW-DESIGN | 全契約正本（BR/FR/SR/AC/NFR/TC/CMP/DU）に TBD・TODO・仮置き等のプレースホルダが存在しない | 空洞設計の温存（全層再降下 §9） |
-| G-DESCENT-SELFTEST | 再降下ゲート群（polarity／DbC／DATA／BIDIR）へ欠陥を注入した複製が検出されることを毎回証明する mutation 自己検査 | 名目だけの粒度ゲート（検出能力の喪失に気づけない） |
+| G-CHAIN-BIDIR | BR→REQ→FR/SR→AC→CMP→DU の隣接エッジをすべて**双方向**で突合（片方向参照・宙吊り参照ゼロ）し、S0 対象の全 AC が最低 1 DU に割当てられている | 鎖の片方向化（trace があるように見えて逆から辿れない — 全層再降下 完了条件 4） |
+| G-DESIGN-SUBSTANCE | 独立設計書 6 本と機能別設計 11 本が実体を持つ（各 ≥50 行・≥3 節、機能別は trace 表つき） | 参照だけ存在する空設計書（存在検査のすり抜け） |
+| G-DESCENT-SELFTEST | 再降下ゲート群（polarity／DbC／DATA／BIDIR／CHAIN）へ欠陥を注入した**変異データを実際の検出ロジックへ投入**し、検出されることを毎回証明する mutation 自己検査 | 名目だけの粒度ゲート（検出能力の喪失に気づけない） |
 | G-WIRING | スクリプトの全ゲート ID が本台帳に掲載され、CI がスクリプトを呼ぶ | ルールの配線漏れ・死蔵（HELIX lint-wiring 相当） |
 
 ## 運用

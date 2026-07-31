@@ -24,4 +24,5 @@ def test_lower_run_without_brief_rejected_by_ddl(conn: sqlite3.Connection) -> No
 
 @pytest.mark.skip(reason="S0.1 test-first: validate_strategic_brief 実装と同時に赤→緑")
 def test_stale_or_mismatched_brief_rejected_by_kernel() -> None:
+    # 設計リンク: du-contracts DU-02（S0.1 test-first で red 化）
     raise NotImplementedError

@@ -49,10 +49,10 @@
         "operation_log 行（拒否ごと）"
       ],
       "tables": [
-        "r: transitions（表定義は JSON 正本）",
+        "参照: 遷移表 JSON 正本（json/s0/transitions.json — DB テーブルではない）",
         "rw: loop_runs",
         "w: state_transitions",
-        "w: operation_log",
+        "w: evidence（operation_log 系拒否・操作証跡）",
         "r: strategic_briefs（lower 開始ガード）"
       ],
       "external_deps": [],
@@ -62,6 +62,7 @@
       ],
       "trace_up": [
         "BR-A1",
+        "REQ-001",
         "REQ-002",
         "REQ-006"
       ],
@@ -69,7 +70,8 @@
         "ac": [
           "AC-11-1",
           "AC-11-2",
-          "AC-11-3"
+          "AC-11-3",
+          "AC-11-4"
         ],
         "fn": [
           "FN-101"
@@ -78,7 +80,18 @@
           "CMP-01"
         ]
       },
-      "slice": "S0"
+      "slice": "S0",
+      "invariant_ac_map": [
+        [
+          "AC-11-3"
+        ],
+        [
+          "AC-11-2"
+        ],
+        [
+          "AC-11-4"
+        ]
+      ]
     },
     {
       "id": "FR-12",
@@ -144,7 +157,8 @@
         "ac": [
           "AC-12-1",
           "AC-12-2",
-          "AC-12-3"
+          "AC-12-3",
+          "AC-12-4"
         ],
         "fn": [
           "FN-102",
@@ -154,7 +168,18 @@
           "CMP-02"
         ]
       },
-      "slice": "S0"
+      "slice": "S0",
+      "invariant_ac_map": [
+        [
+          "AC-12-2"
+        ],
+        [
+          "AC-12-4"
+        ],
+        [
+          "AC-12-3"
+        ]
+      ]
     },
     {
       "id": "FR-13",
@@ -225,7 +250,8 @@
         "ac": [
           "AC-13-1",
           "AC-13-2",
-          "AC-13-3"
+          "AC-13-3",
+          "AC-13-4"
         ],
         "fn": [
           "FN-103"
@@ -234,7 +260,19 @@
           "CMP-02"
         ]
       },
-      "slice": "S0"
+      "slice": "S0",
+      "invariant_ac_map": [
+        [
+          "AC-13-2",
+          "AC-13-3"
+        ],
+        [
+          "AC-13-4"
+        ],
+        [
+          "AC-13-2"
+        ]
+      ]
     },
     {
       "id": "FR-14",
@@ -475,7 +513,19 @@
           "CMP-01"
         ]
       },
-      "slice": "S0"
+      "slice": "S0",
+      "invariant_ac_map": [
+        [
+          "AC-16-2"
+        ],
+        [
+          "AC-16-2"
+        ],
+        [
+          "AC-16-2",
+          "AC-16-3"
+        ]
+      ]
     },
     {
       "id": "FR-21",
@@ -529,7 +579,7 @@
         "r: action_plans",
         "r: tasks（review_task 参照）",
         "r: evidence（review_pass・plan_record）",
-        "w: operation_log（拒否時）"
+        "w: evidence（operation_log 系拒否・操作証跡）（拒否時）"
       ],
       "external_deps": [],
       "config_values": [],
@@ -554,7 +604,18 @@
           "CMP-03"
         ]
       },
-      "slice": "S0"
+      "slice": "S0",
+      "invariant_ac_map": [
+        [
+          "AC-21-2"
+        ],
+        [
+          "AC-21-3"
+        ],
+        [
+          "AC-21-2"
+        ]
+      ]
     },
     {
       "id": "FR-22",
@@ -673,7 +734,7 @@
       "tables": [
         "r: config（URL 許可リスト）",
         "r: kpi_nodes（重複検査）",
-        "w: operation_log"
+        "w: evidence（operation_log 系拒否・操作証跡）"
       ],
       "external_deps": [],
       "config_values": [
@@ -699,7 +760,16 @@
           "CMP-03"
         ]
       },
-      "slice": "S0"
+      "slice": "S0",
+      "invariant_ac_map": [
+        [
+          "AC-23-3",
+          "AC-23-2"
+        ],
+        [
+          "AC-23-2"
+        ]
+      ]
     },
     {
       "id": "FR-24",
@@ -746,7 +816,7 @@
       "tables": [
         "r: config（ASP ドメインリスト）",
         "r: assets（成果物参照）",
-        "w: operation_log（拒否時）"
+        "w: evidence（operation_log 系拒否・操作証跡）（拒否時）"
       ],
       "external_deps": [],
       "config_values": [
@@ -881,9 +951,9 @@
         "承認なしの金銭系外部書込みが operation_log 上に 0 件"
       ],
       "state_transitions": [
-        "tasks: running 相当の in_progress→waiting は loop 側で表現（承認待ち = loop_runs running→waiting/wait）",
-        "tasks: pending/in_progress/verifying→failed（non_retryable_failure — decision = rejected）",
-        "tasks: pending/in_progress/verifying→escalated（escalate — expired が approval_retry_limit 到達）"
+        "tasks: in_progress→failed（non_retryable_failure — 承認 decision = rejected）",
+        "tasks: in_progress→escalated（escalate — expired が config.approval_retry_limit 到達）",
+        "approvals（テーブル列 decision — 状態機械外）: pending / approved / rejected / expired"
       ],
       "normal_behavior": "task の操作型を金銭操作型定義と照合し、該当時はオートモード判定より先に束縛承認を要求: approvals へ pending 行を INSERT しアプリ通知（対象・操作・時点を明記）→ ループを waiting 化 → decision = approved かつ binding 3 項目完全一致を確認 → evidence.kind = approval を記録してから外部操作（prepared→sent→confirmed）へ進む。",
       "rejection_behavior": "approved な approval なしの金銭系外部書込み要求は ApprovalRequired で拒否し WP/決済系 API を呼ばない。decision = rejected は non_retryable_failure イベントで task を failed に倒す（代替 task の発行は可）。操作型が金銭該当か判定不能な場合は金銭型として扱い承認を要求する（fail-close）。",
@@ -1006,7 +1076,8 @@
         "ac": [
           "AC-27-1",
           "AC-27-2",
-          "AC-27-3"
+          "AC-27-3",
+          "AC-27-4"
         ],
         "fn": [
           "FN-105"
@@ -1016,7 +1087,19 @@
           "CMP-05"
         ]
       },
-      "slice": "S0"
+      "slice": "S0",
+      "invariant_ac_map": [
+        [
+          "AC-27-2"
+        ],
+        [
+          "AC-27-2",
+          "AC-27-3"
+        ],
+        [
+          "AC-27-4"
+        ]
+      ]
     },
     {
       "id": "FR-28",
@@ -1093,7 +1176,19 @@
           "CMP-04"
         ]
       },
-      "slice": "S0"
+      "slice": "S0",
+      "invariant_ac_map": [
+        [
+          "AC-28-2"
+        ],
+        [
+          "AC-28-2",
+          "AC-28-3"
+        ],
+        [
+          "AC-28-2"
+        ]
+      ]
     },
     {
       "id": "FR-31",
@@ -1309,7 +1404,8 @@
         "ac": [
           "AC-33-1",
           "AC-33-2",
-          "AC-33-3"
+          "AC-33-3",
+          "AC-33-4"
         ],
         "fn": [
           "FN-305"
@@ -1318,7 +1414,21 @@
           "CMP-06"
         ]
       },
-      "slice": "S0"
+      "slice": "S0",
+      "invariant_ac_map": [
+        [
+          "AC-33-2"
+        ],
+        [
+          "AC-33-2"
+        ],
+        [
+          "AC-33-3"
+        ],
+        [
+          "AC-33-4"
+        ]
+      ]
     },
     {
       "id": "FR-34",
@@ -1435,7 +1545,7 @@
       ],
       "tables": [
         "r: config（registry.* 行）",
-        "w: operation_log",
+        "w: evidence（operation_log 系拒否・操作証跡）",
         "r: spend_ledger（有償経路の台帳配線検査）"
       ],
       "external_deps": [],
@@ -1458,7 +1568,8 @@
         "ac": [
           "AC-41-1",
           "AC-41-2",
-          "AC-41-3"
+          "AC-41-3",
+          "AC-41-4"
         ],
         "fn": [
           "FN-401",
@@ -1468,7 +1579,18 @@
           "CMP-07"
         ]
       },
-      "slice": "S0"
+      "slice": "S0",
+      "invariant_ac_map": [
+        [
+          "AC-41-2"
+        ],
+        [
+          "AC-41-4"
+        ],
+        [
+          "AC-41-2"
+        ]
+      ]
     },
     {
       "id": "FR-42",
@@ -1526,7 +1648,7 @@
       "tables": [
         "rw: playbooks",
         "rw: external_operations",
-        "w: operation_log（evidence kind）",
+        "w: evidence（operation_log 系拒否・操作証跡）（evidence kind）",
         "r: config（browser.headed・rate.*・url_allowlist）",
         "w: evidence（screenshot）"
       ],
@@ -1620,7 +1742,7 @@
       ],
       "tables": [
         "rw: playbooks",
-        "w: operation_log（evidence kind）",
+        "w: evidence（operation_log 系拒否・操作証跡）（evidence kind）",
         "rw: tasks（escalated 遷移は状態機械 FR-11 経由）",
         "w: evidence（screenshot）"
       ],
@@ -1704,7 +1826,7 @@
       ],
       "tables": [
         "rw: external_operations",
-        "w: operation_log / published_url（evidence）",
+        "w: evidence（operation_log 系拒否・操作証跡） / published_url（evidence）",
         "w: assets",
         "r: pair_plan_quality（ペア成立検証）",
         "r: approvals（公開時）",
@@ -1796,7 +1918,7 @@
       ],
       "tables": [
         "rw: external_operations",
-        "w: operation_log（evidence）",
+        "w: evidence（operation_log 系拒否・操作証跡）（evidence）",
         "r: sprints / learnings（書戻し元）",
         "w: action_plans / sprints への draft 参照材料",
         "r: config（registry.notion・rate.notion.*）"
@@ -1858,8 +1980,9 @@
         "承認応答の書換え・削除は不可（approvals は証跡 — decision 変更は新規要求で行う）"
       ],
       "state_transitions": [
-        "tasks: pending→waiting（承認要求送出）・waiting→in_progress（approved）・waiting→failed（rejected = non_retryable_failure）・waiting→escalated（expired が approval_retry_limit 到達）",
-        "approvals.decision: pending→approved/rejected/expired"
+        "tasks: in_progress→failed（non_retryable_failure — rejected）／in_progress→escalated（escalate — expired 上限到達）",
+        "tasks: verifying→done（verify_pass — 承認証跡完備が前提）",
+        "approvals（テーブル列 decision — 状態機械外）: pending / approved / rejected / expired"
       ],
       "normal_behavior": "公開系タスクが承認要求を出すと binding 3 項目を明記した通知を Claude Code アプリへ送り、approvals に decision=pending で INSERT。応答受領で decision を更新し、approved なら approval evidence を登録して binding 3 項目の完全一致を条件に後続公開を許可する。オートモード移行は config.auto_mode_criteria と実績証跡から機械判定する（人手の主観判定を挟まない — BR-H2）。",
       "rejection_behavior": "rejected は non_retryable_failure として task を failed へ（再試行しない — 承認拒否は自動リトライ対象外）。公開時の binding 3 項目不一致は ApprovalBindingMismatch で公開拒否し operation_log に記録。承認なしの公開呼出しは ApprovalRequired で拒否（fail-close）。",
@@ -1882,7 +2005,7 @@
       "tables": [
         "rw: approvals",
         "w: evidence（approval）",
-        "w: operation_log",
+        "w: evidence（operation_log 系拒否・操作証跡）",
         "rw: tasks（遷移は FR-11 経由）",
         "r: config（approval_retry_limit・auto_mode_criteria）"
       ],
@@ -1906,7 +2029,8 @@
         "ac": [
           "AC-46-1",
           "AC-46-2",
-          "AC-46-3"
+          "AC-46-3",
+          "AC-46-4"
         ],
         "fn": [
           "FN-409",
@@ -1916,7 +2040,18 @@
           "CMP-11"
         ]
       },
-      "slice": "S0"
+      "slice": "S0",
+      "invariant_ac_map": [
+        [
+          "AC-46-3"
+        ],
+        [
+          "AC-46-2"
+        ],
+        [
+          "AC-46-4"
+        ]
+      ]
     },
     {
       "id": "FR-47",
@@ -1963,7 +2098,7 @@
         "全文検索 0 件の検査結果（AC-47 の検証観測）"
       ],
       "tables": [
-        "w: operation_log（evidence kind — 検知時のみ）",
+        "w: evidence（operation_log 系拒否・操作証跡）（evidence kind — 検知時のみ）",
         "r: config（マスキング規則の非秘匿設定）"
       ],
       "external_deps": [
@@ -1993,7 +2128,19 @@
           "CMP-07"
         ]
       },
-      "slice": "S0"
+      "slice": "S0",
+      "invariant_ac_map": [
+        [
+          "AC-47-2"
+        ],
+        [
+          "AC-47-2"
+        ],
+        [
+          "AC-47-2",
+          "AC-47-3"
+        ]
+      ]
     },
     {
       "id": "FR-51",
@@ -2047,7 +2194,7 @@
         "r: workflows（出力プロファイル）",
         "w: assets",
         "w: evidence",
-        "w: operation_log",
+        "w: evidence（operation_log 系拒否・操作証跡）",
         "r: config（サイズ上限・WP 接続参照）"
       ],
       "external_deps": [
@@ -2084,7 +2231,18 @@
           "CMP-12"
         ]
       },
-      "slice": "S0"
+      "slice": "S0",
+      "invariant_ac_map": [
+        [
+          "AC-51-2"
+        ],
+        [
+          "AC-51-3"
+        ],
+        [
+          "AC-51-2"
+        ]
+      ]
     },
     {
       "id": "FR-52",
@@ -2128,7 +2286,7 @@
         "operation_log 行（取得失敗・フォールバック）"
       ],
       "tables": [
-        "w: operation_log",
+        "w: evidence（operation_log 系拒否・操作証跡）",
         "r: config（DesignSync 接続参照・再試行回数）"
       ],
       "external_deps": [
@@ -2213,7 +2371,7 @@
         "r: assets（素材参照・parent 解決）",
         "w: assets",
         "w: evidence",
-        "w: operation_log",
+        "w: evidence（operation_log 系拒否・操作証跡）",
         "r: config"
       ],
       "external_deps": [
@@ -2301,7 +2459,7 @@
       "tables": [
         "r: tasks",
         "w: evidence",
-        "w: operation_log",
+        "w: evidence（operation_log 系拒否・操作証跡）",
         "r: pair_plan_quality（審査経路整合の参照）"
       ],
       "external_deps": [
@@ -2330,7 +2488,16 @@
           "CMP-12"
         ]
       },
-      "slice": "S0"
+      "slice": "S0",
+      "invariant_ac_map": [
+        [
+          "AC-54-2",
+          "AC-54-3"
+        ],
+        [
+          "AC-54-2"
+        ]
+      ]
     },
     {
       "id": "FR-55",
@@ -2376,7 +2543,7 @@
       "tables": [
         "rw: assets",
         "r: tasks（source_task_id 整合）",
-        "w: operation_log"
+        "w: evidence（operation_log 系拒否・操作証跡）"
       ],
       "external_deps": [
         "Docker WP（実体の置き場 — 本 FR 自体は参照登録のみ）"
@@ -2405,7 +2572,16 @@
           "CMP-12"
         ]
       },
-      "slice": "S0"
+      "slice": "S0",
+      "invariant_ac_map": [
+        [
+          "AC-55-2"
+        ],
+        [
+          "AC-55-2",
+          "AC-55-3"
+        ]
+      ]
     },
     {
       "id": "FR-61",
@@ -2456,7 +2632,7 @@
         "rw: kpi_nodes",
         "r: business_profiles",
         "r: measurements（集計）",
-        "w: operation_log"
+        "w: evidence（operation_log 系拒否・操作証跡）"
       ],
       "external_deps": [],
       "config_values": [],
@@ -2473,7 +2649,8 @@
         "ac": [
           "AC-61-1",
           "AC-61-2",
-          "AC-61-3"
+          "AC-61-3",
+          "AC-61-4"
         ],
         "fn": [
           "FN-601",
@@ -2483,7 +2660,18 @@
           "CMP-13"
         ]
       },
-      "slice": "S0"
+      "slice": "S0",
+      "invariant_ac_map": [
+        [
+          "AC-61-2"
+        ],
+        [
+          "AC-61-2"
+        ],
+        [
+          "AC-61-4"
+        ]
+      ]
     },
     {
       "id": "FR-62",
@@ -2539,7 +2727,7 @@
         "r: kpi_nodes",
         "r: tasks",
         "w: evidence",
-        "w: operation_log",
+        "w: evidence（operation_log 系拒否・操作証跡）",
         "r: playbooks（ブラウザ経路手順）",
         "r: config"
       ],
@@ -2574,7 +2762,19 @@
           "CMP-13"
         ]
       },
-      "slice": "S0"
+      "slice": "S0",
+      "invariant_ac_map": [
+        [
+          "AC-62-2",
+          "AC-62-3"
+        ],
+        [
+          "AC-62-3"
+        ],
+        [
+          "AC-62-2"
+        ]
+      ]
     },
     {
       "id": "FR-63",
@@ -2626,7 +2826,7 @@
         "r: pair_kpi_measure",
         "r: sprints",
         "w: evidence",
-        "w: operation_log",
+        "w: evidence（operation_log 系拒否・操作証跡）",
         "r: config"
       ],
       "external_deps": [],
@@ -2724,7 +2924,8 @@
         "ac": [
           "AC-71-1",
           "AC-71-2",
-          "AC-71-3"
+          "AC-71-3",
+          "AC-71-4"
         ],
         "fn": [
           "FN-701",
@@ -2735,7 +2936,18 @@
           "CMP-05"
         ]
       },
-      "slice": "S0"
+      "slice": "S0",
+      "invariant_ac_map": [
+        [
+          "AC-71-3"
+        ],
+        [
+          "AC-71-4"
+        ],
+        [
+          "AC-71-2"
+        ]
+      ]
     },
     {
       "id": "FR-72",
@@ -2811,7 +3023,18 @@
           "CMP-05"
         ]
       },
-      "slice": "S0"
+      "slice": "S0",
+      "invariant_ac_map": [
+        [
+          "AC-72-3"
+        ],
+        [
+          "AC-72-2"
+        ],
+        [
+          "AC-72-3"
+        ]
+      ]
     },
     {
       "id": "FR-73",

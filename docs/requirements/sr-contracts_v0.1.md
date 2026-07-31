@@ -127,10 +127,10 @@
 - **副作用**: strategic_briefs INSERT／旧版 status UPDATE（superseded — 新版発行時のみ）／operation_log INSERT（拒否時）
 - **冪等性**: digest 決定性により同一内容の再発行は同一 digest。UNIQUE(brief_key, version) が二重発行を検出。
 - **証跡**: strategic_briefs 行そのもの（digest・版が証跡）／operation_log の拒否行
-- **使用テーブル・正本**: w: strategic_briefs／w: operation_log（拒否時）／r: config（シード投入時の検証設定）
+- **使用テーブル・正本**: w: strategic_briefs／w: evidence（operation_log 系拒否・操作証跡）（拒否時）／r: config（シード投入時の検証設定）
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: digest 正準化規則（キー昇順・(",",":")・UTF-8/NFC・digest/status/created_at 除外 — strategy-learning-contract §1 2bis）／media-roles.json 台帳（S0 は JSON 正本）
-- **trace**: 上流 = BR-A2 ／ 下流 = AC-SR-01 AC-SR-06-1 AC-SR-06-2 SCM-02 ／ スライス = S0
+- **trace**: 上流 = BR-A2 REQ-050 ／ 下流 = AC-SR-01 AC-SR-06-1 AC-SR-06-2 AC-SR-06-3 SCM-02 ／ スライス = S0
 
 ## SR-07 brief なし下流開始不可（開始ガード）
 
@@ -151,7 +151,7 @@
 - **使用テーブル・正本**: r: strategic_briefs（有効性検証）／rw: loop_runs／w: state_transitions
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: 有効 brief の判定式（status = active ∧ digest 一致 ∧ valid_from ≤ now ≤ valid_until — s0-contract §3.1）
-- **trace**: 上流 = BR-A2 ／ 下流 = AC-SR-02 AC-SR-06 AC-SR-07-1 AC-SR-07-2 SCM-03 ／ スライス = S0
+- **trace**: 上流 = BR-A2 REQ-047 ／ 下流 = AC-SR-02 AC-SR-07-1 AC-SR-07-2 SCM-03 ／ スライス = S0
 
 ## SR-08 TLP 生成（下流完了時・分離フィールド）
 
@@ -172,7 +172,7 @@
 - **使用テーブル・正本**: w: tactical_learning_packets／rw: loop_runs（終端遷移）／w: state_transitions／r: strategic_briefs（digest 三者一致検証）／r: evidence（evidence_ids 参照整合）
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: packet_kind 二分規則（completed = learning／failed・escalated・cancelled = failure）／recommended_next_action 語彙（continue/modify_tactic/request_strategy_review/stop — DDL CHECK）
-- **trace**: 上流 = BR-B2 BR-B3 ／ 下流 = AC-SR-03 AC-SR-06 AC-SR-08-1 AC-SR-08-2 SCM-04 ／ スライス = S0
+- **trace**: 上流 = BR-B2 BR-B3 REQ-049 ／ 下流 = AC-SR-03 AC-SR-06 AC-SR-08-1 AC-SR-08-2 AC-SR-08-3 SCM-04 ／ スライス = S0
 
 ## SR-09 上流正本の直接変更禁止（還流 = TLP 提出のみ）
 
@@ -190,10 +190,10 @@
 - **副作用**: operation_log INSERT（拒否時）／tactical_learning_packets INSERT（正規還流時 — SR-08）
 - **冪等性**: 拒否は pure（同一要求→同一拒否）。TLP 提出の冪等性は SR-08 の UNIQUE(loop_run_id) が担う。
 - **証跡**: operation_log の拒否行（要求元・対象・操作）／静的検査結果（書込み経路 2 API 限定 — STC-I-06）
-- **使用テーブル・正本**: r: strategic_briefs（保護対象）／w: tactical_learning_packets（唯一の還流経路）／w: operation_log（拒否時）
+- **使用テーブル・正本**: r: strategic_briefs（保護対象）／w: tactical_learning_packets（唯一の還流経路）／w: evidence（operation_log 系拒否・操作証跡）（拒否時）
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: 書込み許可 API 一覧（issue_strategic_brief／supersede_strategic_brief の 2 本 — 変更は要件改訂）
-- **trace**: 上流 = BR-B2 BR-B3 ／ 下流 = AC-SR-04 AC-SR-09-1 AC-SR-09-2 SCM-01 SCM-04 ／ スライス = S0
+- **trace**: 上流 = BR-B2 BR-B3 REQ-047 ／ 下流 = AC-SR-04 AC-SR-09-1 AC-SR-09-2 SCM-01 SCM-04 ／ スライス = S0
 
 ## SR-10 strategy_revision の根拠規律
 
@@ -214,7 +214,7 @@
 - **使用テーブル・正本**: r: tactical_learning_packets（根拠参照）／r: evidence（根拠実在検証）／w: strategic_briefs（affected brief の新版発行 — accepted 後続）
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: accepted の最低支持根拠数 = 2（重複不可 — strategy-learning-contract §3。変更は要件改訂）／revision_type 語彙（maintain/refine/pivot/reject/retire）
-- **trace**: 上流 = BR-B2 BR-B3 ／ 下流 = AC-SR-10-1 AC-SR-10-2 AC-SR-10-3 SCM-08 ／ スライス = S1
+- **trace**: 上流 = BR-B2 BR-B3 REQ-048 ／ 下流 = AC-SR-10-1 AC-SR-10-2 AC-SR-10-3 SCM-08 ／ スライス = S1
 
 ## SR-11 上流正本の append-only 版管理
 
@@ -235,7 +235,7 @@
 - **使用テーブル・正本**: rw: strategic_briefs（append-only — 内容列不変）／w: tactical_learning_packets（append-only）
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: 保護トリガ定義（s0-contract §2 — migration 0001 と等価）
-- **trace**: 上流 = NFR-2 NFR-3 ／ 下流 = AC-SR-05 AC-SR-11-1 AC-SR-11-2 SCM-01 ／ スライス = S0
+- **trace**: 上流 = NFR-2 NFR-3 REQ-048 ／ 下流 = AC-SR-05 AC-SR-11-1 AC-SR-11-2 SCM-01 ／ スライス = S0
 
 ## SR-12 KPI ツリーの位置づけ（観測背骨・戦略正本にしない）
 
@@ -274,10 +274,10 @@
 - **副作用**: evidence INSERT（kind = plan_record — 承認時）／operation_log INSERT（拒否時）
 - **冪等性**: 検証は pure。plan_record は UNIQUE(task_id, kind, value) で重複投入を検出。
 - **証跡**: evidence 行（kind = plan_record — 5 宣言を payload_json に保持）／operation_log の拒否行（欠落キー一覧）
-- **使用テーブル・正本**: w: evidence（plan_record）／w: operation_log（拒否時）／r: tasks（T-PLAN 対象判定）
+- **使用テーブル・正本**: w: evidence（plan_record）／w: evidence（operation_log 系拒否・操作証跡）（拒否時）／r: tasks（T-PLAN 対象判定）
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: content-plan-contract.json の 5 必須キー（変更は要件改訂）
-- **trace**: 上流 = BR-G1 BR-G2 ／ 下流 = AC-SR-13-1 AC-SR-13-2 AC-SR-13-3 SCM-10 ／ スライス = S1
+- **trace**: 上流 = BR-G1 BR-G2 REQ-051 ／ 下流 = AC-SR-13-1 AC-SR-13-2 AC-SR-13-3 SCM-10 ／ スライス = S1
 
 ## SR-14 媒体役割語彙（media_role 台帳）
 
@@ -295,10 +295,10 @@
 - **副作用**: operation_log INSERT（拒否時のみ）
 - **冪等性**: 照合は pure（同一宣言 × 同一台帳→同一判定）。
 - **証跡**: operation_log の拒否行（宣言値・台帳版）／strategic_briefs.media_role 列（受理証跡）
-- **使用テーブル・正本**: r: strategic_briefs（media_role 列）／w: operation_log（拒否時）／r: config（S1 — 台帳変更履歴）
+- **使用テーブル・正本**: r: strategic_briefs（media_role 列）／w: evidence（operation_log 系拒否・操作証跡）（拒否時）／r: config（S1 — 台帳変更履歴）
 - **外部依存**: なし
 - **設定値**: config.media_roles_ledger（S1 — 台帳の DB 化後。S0 は json/strategy/media-roles.json） ／ **固定値**: 初期 12 役割語彙（media-roles.json v0.1）
-- **trace**: 上流 = BR-A2 ／ 下流 = AC-SR-14-1 AC-SR-14-2 AC-SR-14-3 SCM-09 ／ スライス = S1
+- **trace**: 上流 = BR-A2 REQ-050 ／ 下流 = AC-SR-14-1 AC-SR-14-2 AC-SR-14-3 SCM-09 ／ スライス = S1
 
 ## SR-15 S0 最小集合（スコープ拡大禁止）
 

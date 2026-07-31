@@ -35,7 +35,19 @@
               "when": "SQLITE_BUSY が busy_timeout（config.sqlite_busy_timeout_ms）を超過（retryable_failure へ正規化）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_kernel_state.py::test_transition_allowed_commits_state_and_passed_log",
+            "test_kernel_state.py::test_transition_undefined_combination_rejected_db_unchanged",
+            "test_kernel_state.py::test_transition_terminal_state_request_rejected",
+            "test_kernel_state.py::test_transition_rejected_records_rejected_row_only",
+            "test_kernel_state.py::test_transition_crash_mid_tx_leaves_no_partial_state",
+            "test_kernel_state.py::test_transition_verify_fail_retry_boundary_switches_to_exhausted",
+            "test_kernel_state.py::test_transition_double_fire_rejected_by_stale_from_state",
+            "test_kernel_state.py::test_transition_begin_immediate_serializes_concurrent_write",
+            "test_kernel_state.py::test_lower_start_without_valid_brief_rejected",
+            "test_kernel_state.py::test_lower_terminal_transition_includes_tlp_same_tx"
+          ]
         },
         {
           "signature": "def register_guard(event: str, fn: Callable[[Connection, Row], GuardResult]) -> None",
@@ -53,7 +65,11 @@
               "when": "同一 event への矛盾する二重登録・遷移表語彙外 event の登録（配線異常）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_kernel_state.py::test_register_guard_wires_event_guard",
+            "test_kernel_state.py::test_register_guard_unregistered_event_allowed_transition_fatal"
+          ]
         }
       ],
       "dtos": [
@@ -100,9 +116,11 @@
           "AC-11-1",
           "AC-11-2",
           "AC-11-3",
+          "AC-11-4",
           "AC-13-1",
           "AC-13-2",
           "AC-13-3",
+          "AC-13-4",
           "AC-16-1",
           "AC-16-2",
           "AC-16-3",
@@ -175,7 +193,14 @@
               "when": "principal 同一の author/verifier 組しか構成できない（DB CHECK と二重防御）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_kernel_orchestrator.py::test_issue_task_inserts_with_deterministic_idempotency_key",
+            "test_kernel_orchestrator.py::test_issue_task_reuses_nonterminal_existing_task",
+            "test_kernel_orchestrator.py::test_issue_task_unique_collision_rereads_existing",
+            "test_kernel_orchestrator.py::test_issue_task_attempt_increments_after_terminal_rows",
+            "test_kernel_orchestrator.py::test_issue_task_pair_not_established_tpub_rejected"
+          ]
         },
         {
           "signature": "def claim(conn: Connection, task_id: int, execution_id: int, clock: Clock) -> None",
@@ -193,7 +218,15 @@
               "when": "execution が task の author_agent_id に属さない（verifier・無関係 agent）・lease 失効前の他 execution からの claim・row_version 不一致（0 行更新）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_kernel_orchestrator.py::test_claim_by_author_execution_acquires_lease",
+            "test_kernel_orchestrator.py::test_claim_by_verifier_execution_rejected",
+            "test_kernel_orchestrator.py::test_claim_by_unrelated_agent_execution_rejected",
+            "test_kernel_orchestrator.py::test_claim_before_lease_expiry_by_other_execution_rejected",
+            "test_kernel_orchestrator.py::test_claim_after_lease_expiry_author_new_execution_only",
+            "test_kernel_orchestrator.py::test_claim_row_version_mismatch_rejected"
+          ]
         },
         {
           "signature": "def run_microloop(conn: Connection, task_id: int, executor: Executor, verifier: Verifier, retry_limit_key: str = \"retry_limit\") -> MicroloopResult",
@@ -215,7 +248,10 @@
               "when": "executor 実行の一時失敗（retryable_failure へ還元）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_kernel_orchestrator.py::test_run_microloop_verify_fail_consumes_retry_until_escalated"
+          ]
         },
         {
           "signature": "def resume(conn: Connection, entity_type: str, entity_id: int, clock: Clock) -> ResumeAction",
@@ -233,7 +269,15 @@
               "when": "sent のままリモート照合不能（OperationUnverifiable — unknown 化し escalate。再送しない）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_kernel_orchestrator.py::test_resume_pending_reclaimable",
+            "test_kernel_orchestrator.py::test_resume_in_progress_before_external_reloads_state",
+            "test_kernel_orchestrator.py::test_resume_sent_remote_match_confirms_without_resend",
+            "test_kernel_orchestrator.py::test_resume_sent_unverifiable_unknown_escalates",
+            "test_kernel_orchestrator.py::test_resume_verifying_reuses_existing_verdict_no_double_count",
+            "test_kernel_orchestrator.py::test_resume_waiting_rechecks_satisfaction"
+          ]
         },
         {
           "signature": "def issue_strategic_brief(conn: Connection, brief: StrategicBriefDraft, clock: Clock) -> int",
@@ -251,7 +295,12 @@
               "when": "brief draft の schema 不適合（brief を発行しない）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_kernel_orchestrator.py::test_issue_strategic_brief_digest_deterministic_for_equivalent_json",
+            "test_kernel_orchestrator.py::test_issue_strategic_brief_schema_violation_rejected",
+            "test_kernel_orchestrator.py::test_downstream_paths_cannot_write_strategic_briefs"
+          ]
         },
         {
           "signature": "def supersede_strategic_brief(conn: Connection, old_brief_id: int, new_draft: StrategicBriefDraft, clock: Clock) -> int",
@@ -272,7 +321,11 @@
               "when": "new_draft の schema 不適合"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_kernel_orchestrator.py::test_supersede_strategic_brief_single_tx_new_active_old_superseded",
+            "test_kernel_orchestrator.py::test_downstream_paths_cannot_write_strategic_briefs"
+          ]
         },
         {
           "signature": "def validate_strategic_brief(conn: Connection, brief_id: int, held_digest: str, clock: Clock) -> ValidBrief",
@@ -289,7 +342,11 @@
               "when": "brief 不在・status 非 active・digest 不一致・有効期間外（下位 loop_run は開始されない — fail-close）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_kernel_orchestrator.py::test_validate_strategic_brief_active_digest_period_passes",
+            "test_kernel_orchestrator.py::test_validate_strategic_brief_invalid_status_digest_period_rejected"
+          ]
         },
         {
           "signature": "def generate_tactical_learning_packet(conn: Connection, loop_run_id: int, packet: TlpDraft, clock: Clock) -> int",
@@ -311,7 +368,13 @@
               "when": "TlpDraft の schema 不適合・kind 別必須フィールド欠落"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_kernel_orchestrator.py::test_generate_tlp_kind_branches_learning_and_failure",
+            "test_kernel_orchestrator.py::test_generate_tlp_non_lower_or_nonterminal_rejected",
+            "test_kernel_orchestrator.py::test_generate_tlp_brief_digest_mismatch_rejected",
+            "test_kernel_orchestrator.py::test_generate_tlp_atomic_with_terminal_transition"
+          ]
         },
         {
           "signature": "def get_tactical_learning_packet(conn: Connection, loop_run_id: int) -> TlpRecord | None",
@@ -322,7 +385,10 @@
             "該当行があれば TlpRecord、なければ None（read-only・DB 不変）"
           ],
           "raises": [],
-          "pure": true
+          "pure": true,
+          "ut": [
+            "test_kernel_orchestrator.py::test_get_tactical_learning_packet_returns_record_or_none"
+          ]
         }
       ],
       "dtos": [
@@ -379,18 +445,24 @@
           "AC-12-1",
           "AC-12-2",
           "AC-12-3",
+          "AC-12-4",
           "AC-27-3",
+          "AC-27-4",
           "AC-SR-01",
-          "AC-SR-06-1",
-          "AC-SR-06-2",
           "AC-SR-02",
           "AC-SR-03",
+          "AC-SR-04",
+          "AC-SR-06",
+          "AC-SR-06-1",
+          "AC-SR-06-2",
+          "AC-SR-06-3",
           "AC-SR-08-1",
           "AC-SR-08-2",
-          "AC-SR-06",
-          "AC-SR-04",
+          "AC-SR-08-3",
           "AC-SR-09-1",
-          "AC-SR-09-2"
+          "AC-SR-09-2",
+          "AC-SR-15-1",
+          "AC-SR-15-2"
         ],
         "tc": [
           "TCC-12-1",
@@ -480,7 +552,14 @@
               "when": "役割該当の active agent が不足し組を構成できない"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_kernel_assigner.py::test_assign_active_different_principal_pair",
+            "test_kernel_assigner.py::test_assign_same_agent_pair_rejected",
+            "test_kernel_assigner.py::test_assign_distinct_agents_same_principal_rejected",
+            "test_kernel_assigner.py::test_assign_review_verifier_excludes_critic",
+            "test_kernel_assigner.py::test_assign_inactive_agents_excluded"
+          ]
         }
       ],
       "dtos": [
@@ -503,7 +582,8 @@
       "trace": {
         "ac": [
           "AC-27-1",
-          "AC-27-2"
+          "AC-27-2",
+          "AC-27-4"
         ],
         "tc": [
           "TCC-27-1",
@@ -541,7 +621,12 @@
               "when": "定義行不在・definition_json/required_evidence_json の schema 破損（壊れた定義で実行を開始しない — fail-close）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_kernel_workflow.py::test_load_active_definition_schema_validated",
+            "test_kernel_workflow.py::test_load_broken_definition_raises_fatal",
+            "test_kernel_workflow.py::test_load_version_pinned_lookup"
+          ]
         },
         {
           "signature": "def run_step(conn: Connection, task_id: int, step: WorkflowStep, ctx: StepContext) -> StepOutcome",
@@ -568,7 +653,16 @@
               "when": "ゲート不通過のステップ前提違反（状態・DB 不変で拒否）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_kernel_workflow.py::test_run_step_output_saved_via_evidence_api",
+            "test_kernel_workflow.py::test_run_step_failure_normalized_to_three_kinds",
+            "test_kernel_workflow.py::test_run_step_never_transitions_task_to_done",
+            "test_kernel_workflow.py::test_external_operation_prepared_sent_confirmed_each_committed",
+            "test_kernel_workflow.py::test_external_operation_sent_crash_resume_no_resend",
+            "test_kernel_workflow.py::test_external_operation_unverifiable_marked_unknown_escalates",
+            "test_kernel_workflow.py::test_draft_and_publish_use_distinct_idempotency_keys"
+          ]
         }
       ],
       "dtos": [
@@ -603,6 +697,7 @@
       "trace": {
         "ac": [
           "AC-12-1",
+          "AC-12-4",
           "AC-42-3"
         ],
         "tc": [
@@ -654,7 +749,12 @@
               "when": "review_pass 証跡不在・result 非 PASS・重複成立要求（UNIQUE(plan_id, review_evidence_id)）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_gates_pair.py::test_establish_hash_match_creates_passed_pair_and_pairpass",
+            "test_gates_pair.py::test_establish_hash_mismatch_rejected_no_row",
+            "test_gates_pair.py::test_establish_duplicate_pair_rejected"
+          ]
         },
         {
           "signature": "def revoke_if_changed(conn: Connection, plan_id: int, current_commit_hash: str) -> bool",
@@ -666,7 +766,10 @@
             "revoked 後の公開系要求は require_pair が拒否（再審査を要求）"
           ],
           "raises": [],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_gates_pair.py::test_revoke_if_changed_revokes_on_commit_change"
+          ]
         },
         {
           "signature": "def require_pair(conn: Connection, plan_id: int) -> PairPass",
@@ -682,7 +785,12 @@
               "when": "passed 行が存在しない・revoked のみ（GateRejected 系 — 公開系はコネクタに到達しない）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_gates_pair.py::test_require_pair_missing_or_revoked_rejected",
+            "test_gates_pair.py::test_require_pair_passed_returns_pairpass",
+            "test_gates_pair.py::test_pairpass_forgery_without_sentinel_raises_fatal"
+          ]
         }
       ],
       "dtos": [
@@ -765,7 +873,14 @@
               "when": "公開前必須証跡（review_pass/commit_hash）の欠落・kind 規則違反"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_gates_publish.py::test_check_publishable_all_conditions_returns_pairpass",
+            "test_gates_publish.py::test_check_publishable_without_pair_rejected",
+            "test_gates_publish.py::test_check_publishable_hash_mismatch_rejected",
+            "test_gates_publish.py::test_check_publishable_missing_evidence_rejected",
+            "test_gates_publish.py::test_check_publishable_rejection_precedes_connector_call"
+          ]
         }
       ],
       "dtos": [],
@@ -828,7 +943,12 @@
               "when": "有料指標型（cac/roas/ad_spend 及びその表記揺れ）の登録要求（GateRejected 系 — 登録拒否）"
             }
           ],
-          "pure": true
+          "pure": true,
+          "ut": [
+            "test_gates_zero_ad.py::test_check_metric_type_free_metric_passes",
+            "test_gates_zero_ad.py::test_check_metric_type_deny_types_rejected",
+            "test_gates_zero_ad.py::test_check_metric_type_case_variant_rejected"
+          ]
         },
         {
           "signature": "def check_domain(url_or_domain: str, denylist: list[str]) -> None",
@@ -845,7 +965,12 @@
               "when": "広告ドメイン denylist 該当・allowlist 未設定状態での遷移要求・判定不能 URL（fail-close）"
             }
           ],
-          "pure": true
+          "pure": true,
+          "ut": [
+            "test_gates_zero_ad.py::test_check_domain_denylist_hit_rejected",
+            "test_gates_zero_ad.py::test_check_domain_clean_domain_passes",
+            "test_gates_zero_ad.py::test_check_domain_empty_allowlist_fail_close"
+          ]
         }
       ],
       "dtos": [],
@@ -908,7 +1033,13 @@
               "when": "required_evidence_json に evidence.kind enum 外の値が宣言されている（判定不能は拒否側へ — fail-close）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_gates_evidence_check.py::test_check_complete_all_required_kinds_pass",
+            "test_gates_evidence_check.py::test_check_complete_missing_kind_rejected",
+            "test_gates_evidence_check.py::test_check_complete_kind_rule_violation_rejected",
+            "test_gates_evidence_check.py::test_check_complete_unknown_required_kind_fail_close"
+          ]
         }
       ],
       "dtos": [],
@@ -983,7 +1114,20 @@
               "when": "payload・value への credential/secret パターン混入（記録拒否・マスクの上 escalate 誘導）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_evidence_store.py::test_record_valid_kind_payload_inserts_and_returns_id",
+            "test_evidence_store.py::test_record_missing_required_key_rejected_per_kind",
+            "test_evidence_store.py::test_record_column_consistency_violation_rejected",
+            "test_evidence_store.py::test_record_review_pass_result_not_pass_rejected",
+            "test_evidence_store.py::test_record_review_pass_reviewer_equals_author_rejected",
+            "test_evidence_store.py::test_record_commit_hash_length_boundary_40_64",
+            "test_evidence_store.py::test_record_file_hash_length_boundary_64",
+            "test_evidence_store.py::test_record_approval_mutual_consistency_enforced",
+            "test_evidence_store.py::test_record_credential_pattern_in_payload_rejected",
+            "test_evidence_store.py::test_record_duplicate_task_kind_value_rejected_idempotent",
+            "test_evidence_store.py::test_no_update_delete_api_and_trigger_blocks_mutation"
+          ]
         },
         {
           "signature": "def for_task(conn: Connection, task_id: int, kind: str | None = None) -> list[Evidence]",
@@ -994,7 +1138,10 @@
             "該当 task の証跡行（kind 指定時は絞込み）を返す（read-only・DB 不変）"
           ],
           "raises": [],
-          "pure": true
+          "pure": true,
+          "ut": [
+            "test_evidence_store.py::test_for_task_filters_by_kind_read_only"
+          ]
         },
         {
           "signature": "def exists(conn: Connection, task_id: int, kind: str, value: str) -> bool",
@@ -1005,7 +1152,10 @@
             "UNIQUE(task_id, kind, value) キーでの存在照会結果を返す（read-only）"
           ],
           "raises": [],
-          "pure": true
+          "pure": true,
+          "ut": [
+            "test_evidence_store.py::test_exists_reflects_unique_key_presence"
+          ]
         }
       ],
       "dtos": [
@@ -1085,7 +1235,15 @@
               "when": "保護トリガ未適用・PRAGMA 設定不能・スキーマ未適用 DB（不正な実行環境として接続を返さない — fail-close）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_db_connect.py::test_connect_sets_foreign_keys_on",
+            "test_db_connect.py::test_connect_sets_wal_and_busy_timeout",
+            "test_db_connect.py::test_connect_configures_row_factory",
+            "test_db_connect.py::test_connect_missing_protection_trigger_fatal",
+            "test_db_connect.py::test_connect_unmigrated_db_fatal",
+            "test_db_connect.py::test_connected_db_append_only_trigger_blocks_update_delete"
+          ]
         }
       ],
       "dtos": [],
@@ -1103,7 +1261,8 @@
       "depends_on_apis": [],
       "trace": {
         "ac": [
-          "AC-71-3"
+          "AC-71-3",
+          "AC-71-4"
         ],
         "tc": [
           "TCC-71-3"
@@ -1147,7 +1306,18 @@
               "when": "適用済み migration ファイルの事後編集による checksum 不一致（適用前に停止）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_db_migrate.py::test_apply_all_empty_db_creates_25_tables_and_11_triggers",
+            "test_db_migrate.py::test_apply_all_records_version_checksum_applied_at_by",
+            "test_db_migrate.py::test_apply_all_skips_applied_versions_idempotent",
+            "test_db_migrate.py::test_apply_all_duplicate_version_stops_fatal",
+            "test_db_migrate.py::test_apply_all_checksum_mismatch_stops_before_apply",
+            "test_db_migrate.py::test_apply_all_crash_mid_migration_rolls_back_whole_version",
+            "test_db_migrate.py::test_append_only_triggers_reject_update_and_delete",
+            "test_db_migrate.py::test_strategic_briefs_content_update_rejected_status_transition_allowed",
+            "test_db_migrate.py::test_tlp_integrity_trigger_rejects_mismatched_insert"
+          ]
         },
         {
           "signature": "def verify(conn: Connection) -> None",
@@ -1168,7 +1338,13 @@
               "when": "TLP 孤児検出（packet なし終端 lower run > 0 件 → escalate。自動修復しない — fail-close）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_db_migrate.py::test_verify_complete_schema_passes",
+            "test_db_migrate.py::test_verify_missing_table_or_trigger_fails",
+            "test_db_migrate.py::test_verify_foreign_key_violation_fails",
+            "test_db_migrate.py::test_verify_tlp_orphan_detected_fatal"
+          ]
         }
       ],
       "dtos": [
@@ -1201,6 +1377,7 @@
         "ac": [
           "AC-71-1",
           "AC-71-2",
+          "AC-71-4",
           "AC-72-1",
           "AC-72-2",
           "AC-72-3",
@@ -1269,7 +1446,13 @@
               "when": "同一 key 同一 changed_at の INSERT（UNIQUE(key, changed_at) と二重防御）・value_type 不整合な value"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_config_store.py::test_set_inserts_new_row_with_supersedes_chain",
+            "test_config_store.py::test_set_without_reason_rejected",
+            "test_config_store.py::test_set_same_key_same_changed_at_rejected",
+            "test_config_store.py::test_direct_update_delete_blocked_by_trigger"
+          ]
         },
         {
           "signature": "def get(conn: Connection, key: str, default: object | None = None) -> object",
@@ -1286,7 +1469,12 @@
               "when": "未定義 key の参照で default 未指定（安全側既定値表にない key — fail-close）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_config_store.py::test_get_returns_latest_row_type_converted",
+            "test_config_store.py::test_get_missing_key_returns_default_when_given",
+            "test_config_store.py::test_get_missing_key_without_default_fail_close"
+          ]
         }
       ],
       "dtos": [],
@@ -1310,7 +1498,8 @@
         "ac": [
           "AC-33-1",
           "AC-33-2",
-          "AC-33-3"
+          "AC-33-3",
+          "AC-33-4"
         ],
         "tc": [
           "TCC-33-1",
@@ -1363,7 +1552,14 @@
               "when": "X へのブラウザ書込み経路の解決要求（kind=blocked — バイパスなし）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_registry_resolver.py::test_resolve_priority_order_mcp_first",
+            "test_registry_resolver.py::test_resolve_switch_by_config_insert_only",
+            "test_registry_resolver.py::test_unregistered_service_route_not_registered",
+            "test_registry_resolver.py::test_paid_route_denied_without_exception",
+            "test_registry_resolver.py::test_x_browser_write_route_prohibited"
+          ]
         },
         {
           "signature": "def list_declared(conn: Connection, service: str | None = None) -> list[RegistryRow]",
@@ -1376,7 +1572,10 @@
             "宣言 JSON が schema 不適合の行は結果に含めず不正行として報告する（fail-close）"
           ],
           "raises": [],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_registry_resolver.py::test_list_declared_readonly_and_schema_failclose"
+          ]
         }
       ],
       "dtos": [
@@ -1402,7 +1601,8 @@
         "ac": [
           "AC-41-1",
           "AC-41-2",
-          "AC-41-3"
+          "AC-41-3",
+          "AC-41-4"
         ],
         "tc": [
           "TC-041",
@@ -1446,7 +1646,10 @@
               "when": "未投入・復号失敗・失効（kind=auth）。外部操作を開始せず credential 再投入（人の関与）へ escalate 誘導"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_registry_secrets.py::test_get_credential_unavailable_fail_close"
+          ]
         },
         {
           "signature": "def check_endpoint(secret: Secret, endpoint_url: str) -> None",
@@ -1464,7 +1667,10 @@
               "when": "test credential→本番 endpoint、又は prod credential→Docker/mock の組合せ（kind=auth — 接続前拒否）"
             }
           ],
-          "pure": true
+          "pure": true,
+          "ut": [
+            "test_registry_secrets.py::test_endpoint_mismatch_rejected_before_connect"
+          ]
         },
         {
           "signature": "def scan(targets: list[Path], conn: Connection) -> list[Finding]",
@@ -1478,7 +1684,11 @@
             "Finding は位置・パターン名のみを持ち、マッチした平文値そのものを含めない"
           ],
           "raises": [],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_registry_secrets.py::test_scan_repo_sqlite_logs_zero_plaintext",
+            "test_registry_secrets.py::test_scan_finding_contains_no_plaintext"
+          ]
         },
         {
           "signature": "def mask(text: str) -> str",
@@ -1490,7 +1700,11 @@
             "入力を変更しない（新文字列を返す純関数）"
           ],
           "raises": [],
-          "pure": true
+          "pure": true,
+          "ut": [
+            "test_registry_secrets.py::test_secret_repr_and_exception_masked",
+            "test_registry_secrets.py::test_mask_patterns_from_config"
+          ]
         }
       ],
       "dtos": [
@@ -1572,7 +1786,11 @@
               "when": "scope と異なるプロファイルの storage_state_path を指定（ログイン混線の遮断 — fail-close）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_connectors_browser.py::test_launch_failure_retryable",
+            "test_connectors_browser.py::test_storage_state_profile_scoped_cross_denied"
+          ]
         },
         {
           "signature": "def screenshot(session: BrowserSession, url: str, out_path: Path) -> Path",
@@ -1594,7 +1812,10 @@
               "when": "到達 timeout・描画失敗（読取り系 — 再試行可。上限到達で escalated は呼出元の遷移判断）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_connectors_browser.py::test_screenshot_url_reachability_and_mismatch_denied"
+          ]
         },
         {
           "signature": "def run_playbook(conn: Connection, session: BrowserSession, playbook: Playbook, intent: ConnectorIntent, rng: Rng, clock: Clock) -> BrowserResult",
@@ -1628,7 +1849,14 @@
               "when": "sent 後の結果照合不能（kind=unknown — external_operations を unknown 化し再送せず escalate）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_connectors_browser.py::test_run_playbook_write_interval_uniform_and_seed_logged",
+            "test_connectors_browser.py::test_x_write_rejected_zero_send",
+            "test_connectors_browser.py::test_daily_cap_rejected_before_send",
+            "test_connectors_browser.py::test_sent_reconcile_confirms_without_resend",
+            "test_connectors_browser.py::test_sent_unverifiable_marked_unknown_no_resend"
+          ]
         }
       ],
       "dtos": [
@@ -1721,7 +1949,13 @@
               "when": "procedure_json/selector_json の schema 不適合（壊れた地図定義の fail-close）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_connectors_playbooks.py::test_get_active_playbook_validated",
+            "test_connectors_playbooks.py::test_get_missing_rejected",
+            "test_connectors_playbooks.py::test_get_broken_and_retired_rejected",
+            "test_connectors_playbooks.py::test_broken_schema_json_fatal"
+          ]
         },
         {
           "signature": "def record_success(conn: Connection, playbook_id: int, agent_id: int, clock: Clock) -> None",
@@ -1734,7 +1968,10 @@
             "永続化はストア副層 `_store` 経由のみ（生 SQL はここだけ — 基本設計 §1 規約 3）"
           ],
           "raises": [],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_connectors_playbooks.py::test_record_success_resets_failures_and_verifier"
+          ]
         },
         {
           "signature": "def record_failure(conn: Connection, playbook_id: int, clock: Clock) -> None",
@@ -1748,7 +1985,10 @@
             "降格の事実を構造化ログへ記録する（escalate 誘導は呼出元）"
           ],
           "raises": [],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_connectors_playbooks.py::test_record_failure_increments_and_demotes_at_threshold"
+          ]
         }
       ],
       "dtos": [
@@ -1839,7 +2079,12 @@
               "when": "sent のままリモート照合不能（kind=unknown — unknown 化し FatalError → escalated。再送 0 回）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_connectors_wp.py::test_draft_and_publish_separate_keys_separate_rows",
+            "test_connectors_wp.py::test_create_draft_prepared_sent_confirmed_each_commit",
+            "test_connectors_wp.py::test_production_endpoint_denied_before_connect"
+          ]
         },
         {
           "signature": "def publish(conn: Connection, task_id: int, pair_pass: PairPass, approval_pass: ApprovalPass, draft_ref: DraftRef, idempotency_key: str, clock: Clock) -> PublishedRef",
@@ -1875,7 +2120,15 @@
               "when": "公開状態が sent のまま照合不能（unknown → escalated。再送しない）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_connectors_wp.py::test_draft_and_publish_separate_keys_separate_rows",
+            "test_connectors_wp.py::test_pair_required_rejected_zero_http",
+            "test_connectors_wp.py::test_publish_without_approval_pass_rejected",
+            "test_connectors_wp.py::test_production_endpoint_denied_before_connect",
+            "test_connectors_wp.py::test_sent_reconcile_confirms_without_resend",
+            "test_connectors_wp.py::test_sent_unverifiable_unknown_escalates"
+          ]
         },
         {
           "signature": "def upload_media(conn: Connection, task_id: int, pair_pass: PairPass, media_path: Path, idempotency_key: str, clock: Clock) -> MediaRef",
@@ -1905,7 +2158,10 @@
               "when": "sent 照合不能（unknown・再送なし）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_connectors_wp.py::test_upload_media_content_hash_idempotent"
+          ]
         },
         {
           "signature": "def register_asset(conn: Connection, task_id: int, published: PublishedRef, clock: Clock) -> int",
@@ -1923,7 +2179,10 @@
               "when": "confirmed でない external_operations に紐づく登録要求・FK 不整合（IntegrityError の境界正規化）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_connectors_wp.py::test_register_asset_before_published_url_evidence"
+          ]
         }
       ],
       "dtos": [
@@ -2018,7 +2277,11 @@
               "when": "binding 3 項目の欠落・空文字（承認要求として不成立 — fail-close）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_connectors_approval.py::test_request_inserts_pending_and_notifies_binding",
+            "test_connectors_approval.py::test_duplicate_request_unique_idempotent"
+          ]
         },
         {
           "signature": "def poll(conn: Connection, approval_id: int, transport: ApprovalTransport, clock: Clock) -> Decision",
@@ -2033,7 +2296,12 @@
             "decision の書換え・削除は行わない（approvals は証跡 — 変更は新規要求の別行）"
           ],
           "raises": [],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_connectors_approval.py::test_poll_approved_records_evidence_atomically",
+            "test_connectors_approval.py::test_binding_mismatch_response_invalid_keeps_waiting",
+            "test_connectors_approval.py::test_rejected_classified_non_retryable_failure"
+          ]
         },
         {
           "signature": "def rerequest_on_expired(conn: Connection, approval_id: int, transport: ApprovalTransport, clock: Clock) -> int",
@@ -2051,7 +2319,11 @@
               "when": "expired 再要求が config.approval_retry_limit 到達（escalate → escalated — 呼出元が DU-01 経由で発火。AC-46-3）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_connectors_approval.py::test_rerequest_on_expired_new_row_series",
+            "test_connectors_approval.py::test_rerequest_limit_reached_escalates"
+          ]
         }
       ],
       "dtos": [
@@ -2087,7 +2359,8 @@
         "ac": [
           "AC-46-1",
           "AC-46-2",
-          "AC-46-3"
+          "AC-46-3",
+          "AC-46-4"
         ],
         "tc": [
           "TC-046",
@@ -2141,7 +2414,14 @@
               "when": "テンプレート欠落・plan 入力の型不整合（自動回復不可 — 局所失敗として代替発行可）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_content_generate.py::test_same_input_same_seed_same_sha256",
+            "test_content_generate.py::test_different_seed_different_output",
+            "test_content_generate.py::test_unversioned_source_rejected_no_output",
+            "test_content_generate.py::test_no_external_io_and_no_db_touch",
+            "test_content_generate.py::test_crash_leaves_no_partial_output"
+          ]
         }
       ],
       "dtos": [
@@ -2206,7 +2486,10 @@
               "when": "git 実行失敗・repo 不整合（commit 不可は failed — WF-WP-1 ステップ 3）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_content_versioning.py::test_commit_returns_valid_40_or_64_hex_hash"
+          ]
         },
         {
           "signature": "def link(conn: Connection, task_id: int, repository: str, commit_hash: str, paths: list[str], clock: Clock) -> int",
@@ -2228,7 +2511,12 @@
               "when": "payload 必須キー欠落・kind 規則違反（DU-09 の検証で拒否 — 状態・DB 不変）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_content_versioning.py::test_link_records_commit_hash_evidence",
+            "test_content_versioning.py::test_link_39_digit_hash_rejected",
+            "test_content_versioning.py::test_link_rerun_converges_to_single_row"
+          ]
         },
         {
           "signature": "def restore(repo: Path, commit_hash: str, dest: Path) -> Path",
@@ -2250,7 +2538,10 @@
               "when": "hash が repo に存在しない・抽出失敗（復元不能の fail-close）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_content_versioning.py::test_restore_reproduces_reviewed_source"
+          ]
         }
       ],
       "dtos": [],
@@ -2275,7 +2566,10 @@
         "ac": [
           "AC-54-1",
           "AC-54-2",
-          "AC-54-3"
+          "AC-54-3",
+          "AC-55-1",
+          "AC-55-2",
+          "AC-55-3"
         ],
         "tc": [
           "TC-054",
@@ -2323,7 +2617,13 @@
               "when": "重複 node_key・越境親・未知 layer・集計式不整合（登録拒否 — 行を作らない）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_measure_kpi.py::test_create_node_all_five_layers_grounded",
+            "test_measure_kpi.py::test_paid_metric_type_rejected",
+            "test_measure_kpi.py::test_duplicate_node_key_invalid",
+            "test_measure_kpi.py::test_cross_profile_parent_rejected"
+          ]
         },
         {
           "signature": "def tree(conn: Connection, business_profile_id: int) -> list[KpiNode]",
@@ -2335,7 +2635,10 @@
             "最小ツリー（根ノードのみ）でも決定的に返る（AC-61-3）。他プロファイルのノードは含まれない"
           ],
           "raises": [],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_measure_kpi.py::test_tree_resolves_hierarchy_per_profile"
+          ]
         },
         {
           "signature": "def archive_node(conn: Connection, node_id: int) -> None",
@@ -2351,7 +2654,10 @@
               "when": "node_id 不在（IntegrityError の境界正規化 — 業務層で IntegrityError 名は使わない）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_measure_kpi.py::test_archive_keeps_reference_integrity"
+          ]
         }
       ],
       "dtos": [
@@ -2381,7 +2687,8 @@
         "ac": [
           "AC-61-1",
           "AC-61-2",
-          "AC-61-3"
+          "AC-61-3",
+          "AC-61-4"
         ],
         "tc": [
           "TC-023",
@@ -2445,7 +2752,15 @@
               "when": "本番取得不能の確定（公開を巻き戻さず当該 T-MEAS を failed — WF-MEAS-1 ステップ 1）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_measure_fetch.py::test_api_first_route_selected",
+            "test_measure_fetch.py::test_browser_fallback_converges_same_evidence_contract",
+            "test_measure_fetch.py::test_write_operation_assembly_rejected",
+            "test_measure_fetch.py::test_property_mismatch_rejected_before_call",
+            "test_measure_fetch.py::test_hash_fixed_and_operation_log_before_ingest",
+            "test_measure_fetch.py::test_dry_run_records_fingerprint_only"
+          ]
         }
       ],
       "dtos": [
@@ -2519,7 +2834,12 @@
               "when": "取得物の全行破損・schema 全不適合（全体拒否 — non_retryable_failure → failed。部分破損は隔離＋正常継続で raise しない）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_measure_parse.py::test_partial_corruption_quarantined_normal_rows_continue",
+            "test_measure_parse.py::test_all_rows_corrupt_import_source_invalid",
+            "test_measure_parse.py::test_empty_export_zero_rows_evidence_only"
+          ]
         },
         {
           "signature": "def ingest(conn: Connection, rows: list[MeasurementRow], raw: Path, expected_hash: str, kpi_node_id: int, task_id: int, evidence_id: int, clock: Clock) -> int",
@@ -2545,7 +2865,14 @@
               "when": "FK 不能（kpi_node/task/evidence 不在）・有料指標ノードへの投入要求（投入前拒否 — DB 不変）"
             }
           ],
-          "pure": false
+          "pure": false,
+          "ut": [
+            "test_measure_parse.py::test_ingest_hash_mismatch_rejected_no_insert",
+            "test_measure_parse.py::test_ingest_single_transaction_full_rollback",
+            "test_measure_parse.py::test_ingest_rerun_idempotent_zero_delta",
+            "test_measure_parse.py::test_fk_missing_rejected_before_insert",
+            "test_measure_parse.py::test_imported_at_supplied_by_clock"
+          ]
         }
       ],
       "dtos": [

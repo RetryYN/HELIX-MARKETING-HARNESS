@@ -2255,6 +2255,160 @@
       "external_calls": "0 回",
       "method": "pytest: 途中版で例外を注入し、rollback 後の schema_version と DDL を assert、再実行での完走を assert",
       "slice": "S0"
+    },
+    {
+      "id": "TCC-11-4",
+      "ac": [
+        "AC-11-4"
+      ],
+      "kind": "reject",
+      "verifies_state": "loop_run は running のまま、brief_id=B1・digest=D1 不変",
+      "verifies_db_delta": "差分なし",
+      "verifies_evidence": "構造化ログの拒否行（run 保持 brief 参照の変更拒否）",
+      "verifies_forbidden": "loop_runs 行の brief_id/digest 変更・状態遷移の発生",
+      "external_calls": "0 回",
+      "method": "pytest: seed: active brief B1（digest D1）、B1 で開始した running の lower loop_run、UPDATE 文 = SET strategic_brief_digest='f'*64 を seed し、raise される例外型／loop_runs SELECT（brief_id・digest・status の不変性） を assert（loop_runs.strategic_brief_id／strategic_brief_digest の UPDATE を実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-12-4",
+      "ac": [
+        "AC-12-4"
+      ],
+      "kind": "reject",
+      "verifies_state": "tasks 行なし（発行不成立）",
+      "verifies_db_delta": "差分なし",
+      "verifies_evidence": "構造化ログの拒否行（verifier 未割当）",
+      "verifies_forbidden": "verifier_agent_id NULL の tasks 行の混入",
+      "external_calls": "0 回",
+      "method": "pytest: seed: workflow 定義 1 件・author agent 1 件のみ（verifier 未割当）、INSERT 文 = verifier_agent_id NULL を seed し、raise される例外型／tasks SELECT（行数 0 の確認） を assert（エンジン経由の発行と直接 INSERT をそれぞれ実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-13-4",
+      "ac": [
+        "AC-13-4"
+      ],
+      "kind": "reject",
+      "verifies_state": "task は verifying のまま（done へ遷移しない）",
+      "verifies_db_delta": "state_transitions に guard_result = rejected 1 行",
+      "verifies_evidence": "operation_log の拒否行（自己審査 PASS 拒否）",
+      "verifies_forbidden": "done への遷移・review_pass 証跡の生成",
+      "external_calls": "0 回",
+      "method": "pytest: seed: author agent A1（principal P1）と同一 P1 の agent A2、A1 作成の verifying task、A2 execution からの PASS 要求 を seed し、raise される例外型／tasks SELECT（status・retry_count）／state_transitions を assert（verify_pass イベントを適用する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-27-4",
+      "ac": [
+        "AC-27-4"
+      ],
+      "kind": "reject",
+      "verifies_state": "tasks 行なし",
+      "verifies_db_delta": "差分なし",
+      "verifies_evidence": "なし（DB 層拒否）",
+      "verifies_forbidden": "verifier NULL 行の混入・CHECK 制約の三値すり抜け",
+      "external_calls": "0 回",
+      "method": "pytest: seed: agent 1 件・workflow 1 件、INSERT 文 = tasks(author_agent_id=A1, verifier_agent_id=NULL, ...) を seed し、raise される例外型／tasks SELECT（行数 0 の確認） を assert（INSERT を実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-33-4",
+      "ac": [
+        "AC-33-4"
+      ],
+      "kind": "reject",
+      "verifies_state": "config 1 行のまま不変",
+      "verifies_db_delta": "差分なし",
+      "verifies_evidence": "なし（DB 層拒否）",
+      "verifies_forbidden": "同一 (key, changed_at) の重複行の混入",
+      "external_calls": "0 回",
+      "method": "pytest: seed: config 1 行（key='spend_cap_monthly', changed_at='2026-08-01T00:00:00Z'）、同一 (key, changed_at) の INSERT 文 を seed し、raise される例外型／config SELECT（行数・値の不変性） を assert（同一 (key, changed_at) の INSERT を実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-41-4",
+      "ac": [
+        "AC-41-4"
+      ],
+      "kind": "reject",
+      "verifies_state": "registry 不変（x の browser 書込み行なし）",
+      "verifies_db_delta": "operation_log に拒否 1 行",
+      "verifies_evidence": "operation_log の拒否行（BR-M-X-4 理由つき）",
+      "verifies_forbidden": "x の browser 書込み経路行の混入・後続経路解決での採用",
+      "external_calls": "0 回",
+      "method": "pytest: seed: 空の x 経路レジストリ、登録要求 = {service:'x', route_type:'browser', operation:'write'} を seed し、raise される例外型／registry SELECT（x の browser 書込み行 0 件）／operation_log を assert（レジストリ行の登録を実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-46-4",
+      "ac": [
+        "AC-46-4"
+      ],
+      "kind": "reject",
+      "verifies_state": "approvals 1 行のまま decision='approved' 不変",
+      "verifies_db_delta": "差分なし",
+      "verifies_evidence": "なし（DB 層拒否）",
+      "verifies_forbidden": "approvals 行の decision 変更・行削除",
+      "external_calls": "0 回",
+      "method": "pytest: seed: approved の approvals 1 行（binding 3 項目つき）、UPDATE 文 = SET decision='rejected'、DELETE 文 を seed し、raise される例外型／approvals SELECT（行数・decision の不変性） を assert（approvals 行の UPDATE と DELETE をそれぞれ実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-61-4",
+      "ac": [
+        "AC-61-4"
+      ],
+      "kind": "reject",
+      "verifies_state": "strategic_briefs 全行不変",
+      "verifies_db_delta": "差分なし",
+      "verifies_evidence": "なし（DB 層拒否）",
+      "verifies_forbidden": "strategic_briefs の変更・KPI 起点の自動 revision 行の生成",
+      "external_calls": "0 回",
+      "method": "pytest: seed: active brief 1 行・kpi_nodes/measurements の悪化データ、計測処理相当の UPDATE 文 = strategic_briefs SET media_role='pivot' を seed し、raise される例外型／strategic_briefs SELECT（全列の不変性） を assert（計測処理経路から strategic_briefs の UPDATE を実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-71-4",
+      "ac": [
+        "AC-71-4"
+      ],
+      "kind": "reject",
+      "verifies_state": "loop_runs・tasks とも行数不変",
+      "verifies_db_delta": "差分なし",
+      "verifies_evidence": "なし（DB 層拒否）",
+      "verifies_forbidden": "参照行の連鎖削除・孤児行の発生",
+      "external_calls": "0 回",
+      "method": "pytest: seed: loop_runs 1 行とそれを参照する tasks 1 行、DELETE 文 = DELETE FROM loop_runs WHERE id=R1 を seed し、raise される例外型／loop_runs・tasks SELECT（行数の不変性） を assert（親行の DELETE を実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-SR-08-3",
+      "ac": [
+        "AC-SR-08-3"
+      ],
+      "kind": "reject",
+      "verifies_state": "TLP 1 行のまま全列不変",
+      "verifies_db_delta": "差分なし",
+      "verifies_evidence": "なし（DB 層拒否）",
+      "verifies_forbidden": "TLP 行の変更・削除",
+      "external_calls": "0 回",
+      "method": "pytest: seed: completed lower run 1 件と learning packet 1 行、UPDATE 文 = SET hypothesis_result='flipped'、DELETE 文 を seed し、raise される例外型／tactical_learning_packets SELECT（行数・全列の不変性） を assert（TLP 行の UPDATE と DELETE をそれぞれ実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-SR-06-3",
+      "ac": [
+        "AC-SR-06-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "2 digest が相異なり、不一致 digest の run が未作成",
+      "verifies_db_delta": "loop_runs 差分なし",
+      "verifies_evidence": "拒否の構造化ログ（digest 不一致）",
+      "verifies_forbidden": "異内容への同一 digest 付与・不一致 digest での run 作成",
+      "external_calls": "0 回",
+      "method": "pytest: 1 フィールド差の brief 2 通で digest 相違を assert し、他方 digest での開始が GateRejected になることを assert",
+      "slice": "S0"
     }
   ]
 }

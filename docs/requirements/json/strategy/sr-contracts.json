@@ -359,7 +359,7 @@
       ],
       "tables": [
         "w: strategic_briefs",
-        "w: operation_log（拒否時）",
+        "w: evidence（operation_log 系拒否・操作証跡）（拒否時）",
         "r: config（シード投入時の検証設定）"
       ],
       "external_deps": [],
@@ -369,19 +369,33 @@
         "media-roles.json 台帳（S0 は JSON 正本）"
       ],
       "trace_up": [
-        "BR-A2"
+        "BR-A2",
+        "REQ-050"
       ],
       "trace_down": {
         "ac": [
           "AC-SR-01",
           "AC-SR-06-1",
-          "AC-SR-06-2"
+          "AC-SR-06-2",
+          "AC-SR-06-3"
         ],
         "cmp": [
           "SCM-02"
         ]
       },
-      "slice": "S0"
+      "slice": "S0",
+      "invariant_ac_map": [
+        [
+          "AC-SR-06-3",
+          "AC-SR-01"
+        ],
+        [
+          "AC-SR-06-2"
+        ],
+        [
+          "AC-SR-06-2"
+        ]
+      ]
     },
     {
       "id": "SR-07",
@@ -436,12 +450,12 @@
         "有効 brief の判定式（status = active ∧ digest 一致 ∧ valid_from ≤ now ≤ valid_until — s0-contract §3.1）"
       ],
       "trace_up": [
-        "BR-A2"
+        "BR-A2",
+        "REQ-047"
       ],
       "trace_down": {
         "ac": [
           "AC-SR-02",
-          "AC-SR-06",
           "AC-SR-07-1",
           "AC-SR-07-2"
         ],
@@ -449,7 +463,15 @@
           "SCM-03"
         ]
       },
-      "slice": "S0"
+      "slice": "S0",
+      "invariant_ac_map": [
+        [
+          "AC-SR-02"
+        ],
+        [
+          "AC-SR-07-2"
+        ]
+      ]
     },
     {
       "id": "SR-08",
@@ -511,20 +533,34 @@
       ],
       "trace_up": [
         "BR-B2",
-        "BR-B3"
+        "BR-B3",
+        "REQ-049"
       ],
       "trace_down": {
         "ac": [
           "AC-SR-03",
           "AC-SR-06",
           "AC-SR-08-1",
-          "AC-SR-08-2"
+          "AC-SR-08-2",
+          "AC-SR-08-3"
         ],
         "cmp": [
           "SCM-04"
         ]
       },
-      "slice": "S0"
+      "slice": "S0",
+      "invariant_ac_map": [
+        [
+          "AC-SR-08-1"
+        ],
+        [
+          "AC-SR-08-3"
+        ],
+        [
+          "AC-SR-08-2",
+          "AC-SR-06"
+        ]
+      ]
     },
     {
       "id": "SR-09",
@@ -568,7 +604,7 @@
       "tables": [
         "r: strategic_briefs（保護対象）",
         "w: tactical_learning_packets（唯一の還流経路）",
-        "w: operation_log（拒否時）"
+        "w: evidence（operation_log 系拒否・操作証跡）（拒否時）"
       ],
       "external_deps": [],
       "config_values": [],
@@ -577,7 +613,8 @@
       ],
       "trace_up": [
         "BR-B2",
-        "BR-B3"
+        "BR-B3",
+        "REQ-047"
       ],
       "trace_down": {
         "ac": [
@@ -590,7 +627,18 @@
           "SCM-04"
         ]
       },
-      "slice": "S0"
+      "slice": "S0",
+      "invariant_ac_map": [
+        [
+          "AC-SR-04"
+        ],
+        [
+          "AC-SR-09-2"
+        ],
+        [
+          "AC-SR-04"
+        ]
+      ]
     },
     {
       "id": "SR-10",
@@ -648,7 +696,8 @@
       ],
       "trace_up": [
         "BR-B2",
-        "BR-B3"
+        "BR-B3",
+        "REQ-048"
       ],
       "trace_down": {
         "ac": [
@@ -715,7 +764,8 @@
       ],
       "trace_up": [
         "NFR-2",
-        "NFR-3"
+        "NFR-3",
+        "REQ-048"
       ],
       "trace_down": {
         "ac": [
@@ -727,7 +777,19 @@
           "SCM-01"
         ]
       },
-      "slice": "S0"
+      "slice": "S0",
+      "invariant_ac_map": [
+        [
+          "AC-SR-05",
+          "AC-SR-11-2"
+        ],
+        [
+          "AC-SR-11-2"
+        ],
+        [
+          "AC-SR-05"
+        ]
+      ]
     },
     {
       "id": "SR-12",
@@ -834,7 +896,7 @@
       ],
       "tables": [
         "w: evidence（plan_record）",
-        "w: operation_log（拒否時）",
+        "w: evidence（operation_log 系拒否・操作証跡）（拒否時）",
         "r: tasks（T-PLAN 対象判定）"
       ],
       "external_deps": [],
@@ -844,7 +906,8 @@
       ],
       "trace_up": [
         "BR-G1",
-        "BR-G2"
+        "BR-G2",
+        "REQ-051"
       ],
       "trace_down": {
         "ac": [
@@ -897,7 +960,7 @@
       ],
       "tables": [
         "r: strategic_briefs（media_role 列）",
-        "w: operation_log（拒否時）",
+        "w: evidence（operation_log 系拒否・操作証跡）（拒否時）",
         "r: config（S1 — 台帳変更履歴）"
       ],
       "external_deps": [],
@@ -908,7 +971,8 @@
         "初期 12 役割語彙（media-roles.json v0.1）"
       ],
       "trace_up": [
-        "BR-A2"
+        "BR-A2",
+        "REQ-050"
       ],
       "trace_down": {
         "ac": [
@@ -990,7 +1054,18 @@
       "slice": "S0",
       "ac_na": {
         "boundary-recovery": "S0 スコープ宣言（5 点の集合定義）であり、実行時の数量境界・クラッシュ復旧シナリオが存在しない。復旧系は構成要素の SR-06〜09/11 側 AC が担う。"
-      }
+      },
+      "invariant_ac_map": [
+        [
+          "AC-SR-15-2"
+        ],
+        [
+          "AC-SR-15-2"
+        ],
+        [
+          "AC-SR-15-2"
+        ]
+      ]
     },
     {
       "id": "SR-16",

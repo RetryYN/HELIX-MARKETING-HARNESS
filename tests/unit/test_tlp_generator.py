@@ -39,4 +39,5 @@ def test_failure_packet_cannot_carry_causal_interpretation(conn: sqlite3.Connect
 
 @pytest.mark.skip(reason="S0.1 test-first: 終端遷移と同一 transaction の TLP 生成の実装と同時に赤→緑")
 def test_kernel_generates_packet_at_terminal() -> None:
+    # 設計リンク: du-contracts DU-02（S0.1 test-first で red 化）
     raise NotImplementedError

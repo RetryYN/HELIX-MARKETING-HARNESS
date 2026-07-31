@@ -62,6 +62,25 @@
       ]
     },
     {
+      "id": "AC-11-4",
+      "target": "FR-11",
+      "polarity": "reject",
+      "given": "running の lower loop_run（strategic_brief_id・digest 保持済み）と、run 行の brief_id/digest を別値へ書き換える UPDATE 要求",
+      "when": "loop_runs.strategic_brief_id／strategic_brief_digest の UPDATE を実行する",
+      "then": "保護トリガ／エンジン検証が拒否し、run は開始時の brief id・digest（64 桁）を保持し続け、状態も不変である（SR-07 保持不変条件の負方向）",
+      "fixture": "seed: active brief B1（digest D1）、B1 で開始した running の lower loop_run、UPDATE 文 = SET strategic_brief_digest='f'*64",
+      "observation_point": "raise される例外型／loop_runs SELECT（brief_id・digest・status の不変性）",
+      "expected_state": "loop_run は running のまま、brief_id=B1・digest=D1 不変",
+      "expected_db_delta": "差分なし",
+      "expected_evidence": "構造化ログの拒否行（run 保持 brief 参照の変更拒否）",
+      "forbidden_side_effects": "loop_runs 行の brief_id/digest 変更・状態遷移の発生",
+      "error_type": "IntegrityError（保持列変更拒否）／TransitionRejected",
+      "target_update": "S0.1（状態機械・run 保持列保護）／loop_runs 更新経路",
+      "tc": [
+        "TCC-11-4"
+      ]
+    },
+    {
       "id": "AC-12-1",
       "target": "FR-12",
       "polarity": "normal",
@@ -119,6 +138,25 @@
       ]
     },
     {
+      "id": "AC-12-4",
+      "target": "FR-12",
+      "polarity": "reject",
+      "given": "verifier（審査担当）が未割当（NULL）のままのタスク発行要求と、tasks への verifier_agent_id NULL 直接 INSERT",
+      "when": "エンジン経由の発行と直接 INSERT をそれぞれ実行する",
+      "then": "エンジンは TaskIssuanceRejected で発行を拒否し、直接 INSERT は NOT NULL 制約の IntegrityError で拒否され、tasks に行が作られない（三値論理に委ねない）",
+      "fixture": "seed: workflow 定義 1 件・author agent 1 件のみ（verifier 未割当）、INSERT 文 = verifier_agent_id NULL",
+      "observation_point": "raise される例外型／tasks SELECT（行数 0 の確認）",
+      "expected_state": "tasks 行なし（発行不成立）",
+      "expected_db_delta": "差分なし",
+      "expected_evidence": "構造化ログの拒否行（verifier 未割当）",
+      "forbidden_side_effects": "verifier_agent_id NULL の tasks 行の混入",
+      "error_type": "TaskIssuanceRejected／IntegrityError（NOT NULL）",
+      "target_update": "S0.1（タスク発行）／tasks INSERT 経路",
+      "tc": [
+        "TCC-12-4"
+      ]
+    },
+    {
       "id": "AC-13-1",
       "target": "FR-13",
       "polarity": "normal",
@@ -173,6 +211,25 @@
       "target_update": "S0.1（CMP-02）／retry_limit 境界（AC-13 の正本条件）",
       "tc": [
         "TCC-13-3"
+      ]
+    },
+    {
+      "id": "AC-13-4",
+      "target": "FR-13",
+      "polarity": "reject",
+      "given": "verifying の task に対し、author と同一 principal に属する execution からの verify_pass（PASS 判定）要求",
+      "when": "verify_pass イベントを適用する",
+      "then": "SelfReviewRejected で PASS が拒否され、task は verifying のまま state・retry_count は不変で、拒否が記録される（PASS 判定者は常に author と別 principal — FR-27）",
+      "fixture": "seed: author agent A1（principal P1）と同一 P1 の agent A2、A1 作成の verifying task、A2 execution からの PASS 要求",
+      "observation_point": "raise される例外型／tasks SELECT（status・retry_count）／state_transitions",
+      "expected_state": "task は verifying のまま（done へ遷移しない）",
+      "expected_db_delta": "state_transitions に guard_result = rejected 1 行",
+      "expected_evidence": "operation_log の拒否行（自己審査 PASS 拒否）",
+      "forbidden_side_effects": "done への遷移・review_pass 証跡の生成",
+      "error_type": "SelfReviewRejected",
+      "target_update": "S0.1（審査ゲート）／verify_pass ガード",
+      "tc": [
+        "TCC-13-4"
       ]
     },
     {
@@ -746,6 +803,25 @@
       ]
     },
     {
+      "id": "AC-27-4",
+      "target": "FR-27",
+      "polarity": "reject",
+      "given": "verifier_agent_id を NULL とした tasks への直接 INSERT 文",
+      "when": "INSERT を実行する",
+      "then": "NOT NULL 制約が IntegrityError で拒否し、tasks に行が作られない（NULL の三値論理で自己審査 CHECK をすり抜けさせない）",
+      "fixture": "seed: agent 1 件・workflow 1 件、INSERT 文 = tasks(author_agent_id=A1, verifier_agent_id=NULL, ...)",
+      "observation_point": "raise される例外型／tasks SELECT（行数 0 の確認）",
+      "expected_state": "tasks 行なし",
+      "expected_db_delta": "差分なし",
+      "expected_evidence": "なし（DB 層拒否）",
+      "forbidden_side_effects": "verifier NULL 行の混入・CHECK 制約の三値すり抜け",
+      "error_type": "IntegrityError（NOT NULL constraint failed: tasks.verifier_agent_id）",
+      "target_update": "S0.1（DDL 制約）／tasks INSERT",
+      "tc": [
+        "TCC-27-4"
+      ]
+    },
+    {
       "id": "AC-28-1",
       "target": "FR-28",
       "polarity": "normal",
@@ -974,6 +1050,25 @@
       ]
     },
     {
+      "id": "AC-33-4",
+      "target": "FR-33",
+      "polarity": "reject",
+      "given": "config に既存の (key='spend_cap_monthly', changed_at=T1) 行と、同一 key・同一 changed_at の追加 INSERT 要求",
+      "when": "同一 (key, changed_at) の INSERT を実行する",
+      "then": "UNIQUE 制約が IntegrityError で拒否し、config の行数・値は変化しない（同一 key・同一 changed_at の行は存在しない）",
+      "fixture": "seed: config 1 行（key='spend_cap_monthly', changed_at='2026-08-01T00:00:00Z'）、同一 (key, changed_at) の INSERT 文",
+      "observation_point": "raise される例外型／config SELECT（行数・値の不変性）",
+      "expected_state": "config 1 行のまま不変",
+      "expected_db_delta": "差分なし",
+      "expected_evidence": "なし（DB 層拒否）",
+      "forbidden_side_effects": "同一 (key, changed_at) の重複行の混入",
+      "error_type": "IntegrityError（UNIQUE constraint failed: config.key, config.changed_at）",
+      "target_update": "S0.1（config 管理）／UNIQUE 制約",
+      "tc": [
+        "TCC-33-4"
+      ]
+    },
+    {
       "id": "AC-34-1",
       "target": "FR-34",
       "polarity": "normal",
@@ -1085,6 +1180,25 @@
       "target_update": "S0.2（CMP-07 接続レジストリ）",
       "tc": [
         "TCC-41-3"
+      ]
+    },
+    {
+      "id": "AC-41-4",
+      "target": "FR-41",
+      "polarity": "reject",
+      "given": "X（旧 Twitter）のブラウザ書込み経路（service='x', route_type='browser', write=true）をレジストリへ登録する要求",
+      "when": "レジストリ行の登録を実行する",
+      "then": "登録要求自体が XBrowserRouteDenied で拒否され、registry に行が作られない（BR-M-X-4 — X のブラウザ書込み経路は登録できない）",
+      "fixture": "seed: 空の x 経路レジストリ、登録要求 = {service:'x', route_type:'browser', operation:'write'}",
+      "observation_point": "raise される例外型／registry SELECT（x の browser 書込み行 0 件）／operation_log",
+      "expected_state": "registry 不変（x の browser 書込み行なし）",
+      "expected_db_delta": "operation_log に拒否 1 行",
+      "expected_evidence": "operation_log の拒否行（BR-M-X-4 理由つき）",
+      "forbidden_side_effects": "x の browser 書込み経路行の混入・後続経路解決での採用",
+      "error_type": "XBrowserRouteDenied",
+      "target_update": "S0.1（経路レジストリ）／登録検証",
+      "tc": [
+        "TCC-41-4"
       ]
     },
     {
@@ -1371,6 +1485,25 @@
       "target_update": "S0.2（CMP-11 承認通知）／expired 再要求経路",
       "tc": [
         "TCC-46-3"
+      ]
+    },
+    {
+      "id": "AC-46-4",
+      "target": "FR-46",
+      "polarity": "reject",
+      "given": "decision='approved' で記録済みの approvals 行と、その decision を 'rejected' へ書き換える UPDATE／行を消す DELETE",
+      "when": "approvals 行の UPDATE と DELETE をそれぞれ実行する",
+      "then": "保護トリガが RAISE(ABORT) で拒否し、approvals 行は decision・binding とも不変で残る（承認応答の書換え・削除は不可 — decision 変更は新規要求のみ）",
+      "fixture": "seed: approved の approvals 1 行（binding 3 項目つき）、UPDATE 文 = SET decision='rejected'、DELETE 文",
+      "observation_point": "raise される例外型／approvals SELECT（行数・decision の不変性）",
+      "expected_state": "approvals 1 行のまま decision='approved' 不変",
+      "expected_db_delta": "差分なし",
+      "expected_evidence": "なし（DB 層拒否）",
+      "forbidden_side_effects": "approvals 行の decision 変更・行削除",
+      "error_type": "IntegrityError（append-only）",
+      "target_update": "S0.1（承認証跡）／append-only トリガ",
+      "tc": [
+        "TCC-46-4"
       ]
     },
     {
@@ -1773,6 +1906,25 @@
       ]
     },
     {
+      "id": "AC-61-4",
+      "target": "FR-61",
+      "polarity": "reject",
+      "given": "measurements の数値悪化を検知した処理が strategic_briefs の内容列を直接 UPDATE しようとする呼出（KPI→戦略正本の自動書込み相当）",
+      "when": "計測処理経路から strategic_briefs の UPDATE を実行する",
+      "then": "保護トリガが IntegrityError（'append-only' を含む）で拒否し、strategic_briefs は 1 バイトも変化しない（KPI ツリーは観測背骨 — BR-E1 禁止事項の負方向）",
+      "fixture": "seed: active brief 1 行・kpi_nodes/measurements の悪化データ、計測処理相当の UPDATE 文 = strategic_briefs SET media_role='pivot'",
+      "observation_point": "raise される例外型／strategic_briefs SELECT（全列の不変性）",
+      "expected_state": "strategic_briefs 全行不変",
+      "expected_db_delta": "差分なし",
+      "expected_evidence": "なし（DB 層拒否）",
+      "forbidden_side_effects": "strategic_briefs の変更・KPI 起点の自動 revision 行の生成",
+      "error_type": "IntegrityError（append-only）",
+      "target_update": "S0.1（KPI ツリー）／戦略正本保護トリガ",
+      "tc": [
+        "TCC-61-4"
+      ]
+    },
+    {
       "id": "AC-62-1",
       "target": "FR-62",
       "polarity": "normal",
@@ -1941,6 +2093,25 @@
       "target_update": "S0.1（DB 基盤）／冪等適用＋保護トリガ",
       "tc": [
         "TCC-71-3"
+      ]
+    },
+    {
+      "id": "AC-71-4",
+      "target": "FR-71",
+      "polarity": "reject",
+      "given": "tasks から FK 参照されている loop_runs の親行に対する DELETE 文",
+      "when": "親行の DELETE を実行する",
+      "then": "ON DELETE RESTRICT の FK が IntegrityError で拒否し、親子とも行は不変で残る（暗黙のカスケード削除は存在しない）",
+      "fixture": "seed: loop_runs 1 行とそれを参照する tasks 1 行、DELETE 文 = DELETE FROM loop_runs WHERE id=R1",
+      "observation_point": "raise される例外型／loop_runs・tasks SELECT（行数の不変性）",
+      "expected_state": "loop_runs・tasks とも行数不変",
+      "expected_db_delta": "差分なし",
+      "expected_evidence": "なし（DB 層拒否）",
+      "forbidden_side_effects": "参照行の連鎖削除・孤児行の発生",
+      "error_type": "IntegrityError（FOREIGN KEY constraint failed）",
+      "target_update": "S0.1（スキーマ基盤）／FK RESTRICT",
+      "tc": [
+        "TCC-71-4"
       ]
     },
     {
@@ -2383,6 +2554,26 @@
       ]
     },
     {
+      "id": "AC-SR-06-3",
+      "target": "SR-06",
+      "polarity": "boundary-recovery",
+      "given": "内容が 1 フィールドだけ異なる 2 通の strategic_brief（他は同一）",
+      "when": "それぞれの正準化 digest を算出し、片方の digest で他方の run 開始を試みる",
+      "then": "2 つの digest は一致せず、digest 不一致の run 開始は GateRejected で拒否される（決定性は同値類を広げない）",
+      "fixture": "fixtures/strategic-brief.valid.json と、expected_recognition_change を 1 文字変えた複製",
+      "observation_point": "digest 算出関数の戻り値比較／開始 API の例外",
+      "expected_state": "digest 相違・run 未作成",
+      "expected_db_delta": "loop_runs 差分なし",
+      "expected_evidence": "拒否の構造化ログ（digest 不一致）",
+      "forbidden_side_effects": "異なる内容への同一 digest 付与・不一致 digest での run 作成",
+      "error_type": "GateRejected",
+      "target_update": "S0.1（戦略ストア）／canonical_digest・開始ガード",
+      "tc": [
+        "STC-I-04",
+        "TCC-SR-06-3"
+      ]
+    },
+    {
       "id": "AC-SR-02",
       "target": "SR-07",
       "polarity": "reject",
@@ -2518,6 +2709,25 @@
       "target_update": "S0.1（DU-02 — 同一 transaction 契約）",
       "tc": [
         "TCC-SR-08-2"
+      ]
+    },
+    {
+      "id": "AC-SR-08-3",
+      "target": "SR-08",
+      "polarity": "reject",
+      "given": "生成済みの tactical_learning_packets 行と、その列を書き換える UPDATE／行を消す DELETE",
+      "when": "TLP 行の UPDATE と DELETE をそれぞれ実行する",
+      "then": "append-only 保護トリガが IntegrityError（'append-only' を含む）で拒否し、TLP 行は全列不変で残る（TLP は append-only）",
+      "fixture": "seed: completed lower run 1 件と learning packet 1 行、UPDATE 文 = SET hypothesis_result='flipped'、DELETE 文",
+      "observation_point": "raise される例外型／tactical_learning_packets SELECT（行数・全列の不変性）",
+      "expected_state": "TLP 1 行のまま全列不変",
+      "expected_db_delta": "差分なし",
+      "expected_evidence": "なし（DB 層拒否）",
+      "forbidden_side_effects": "TLP 行の変更・削除",
+      "error_type": "IntegrityError（append-only）",
+      "target_update": "S0.1（戦略層 TLP）／append-only トリガ",
+      "tc": [
+        "TCC-SR-08-3"
       ]
     },
     {

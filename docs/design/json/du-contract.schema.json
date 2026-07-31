@@ -4,47 +4,223 @@
   "description": "詳細設計単位（DU）の実装契約。公開 API 署名・DbC・例外・状態遷移・DB read/write・transaction 境界・pure/副作用・冪等性・retry/resume・競合制御・ログ証跡・依存 API・AC/TC/UT 対応を必須化する（全層再降下 §7）。",
   "type": "object",
   "additionalProperties": false,
-  "required": ["id", "module", "cmp", "apis", "dtos", "state_transitions", "db_read", "db_write", "transaction_boundary", "purity", "idempotency", "retry_resume", "concurrency", "logging_evidence", "depends_on_apis", "trace"],
+  "required": [
+    "id",
+    "module",
+    "cmp",
+    "apis",
+    "dtos",
+    "state_transitions",
+    "db_read",
+    "db_write",
+    "transaction_boundary",
+    "purity",
+    "idempotency",
+    "retry_resume",
+    "concurrency",
+    "logging_evidence",
+    "depends_on_apis",
+    "trace"
+  ],
   "properties": {
-    "id": {"type": "string", "pattern": "^DU-[0-9]{2}$"},
-    "module": {"type": "string", "pattern": "^[a-z_/]+\\.py$"},
-    "cmp": {"type": "string", "pattern": "^(CMP|SCM)-[0-9]{2}$"},
+    "id": {
+      "type": "string",
+      "pattern": "^DU-[0-9]{2}$"
+    },
+    "module": {
+      "type": "string",
+      "pattern": "^[a-z_/]+\\.py$"
+    },
+    "cmp": {
+      "type": "string",
+      "pattern": "^(CMP|SCM)-[0-9]{2}$"
+    },
     "apis": {
       "type": "array",
       "minItems": 1,
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["signature", "precondition", "postcondition", "raises", "pure"],
+        "required": [
+          "signature",
+          "precondition",
+          "postcondition",
+          "raises",
+          "pure",
+          "ut"
+        ],
         "properties": {
-          "signature": {"type": "string", "minLength": 10, "pattern": "^def .+\\(.*\\) -> .+$", "description": "Python 署名（def name(args: 型) -> 戻り型）"},
-          "precondition": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 6}},
-          "postcondition": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 6}},
-          "raises": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["type", "when"], "properties": {"type": {"type": "string", "minLength": 3}, "when": {"type": "string", "minLength": 6}}}, "description": "raise する例外と条件（なし = 空配列）"},
-          "pure": {"type": "boolean", "description": "true = 副作用なし（テスト注入可能）"}
+          "signature": {
+            "type": "string",
+            "minLength": 10,
+            "pattern": "^def .+\\(.*\\) -> .+$",
+            "description": "Python 署名（def name(args: 型) -> 戻り型）"
+          },
+          "precondition": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 6
+            }
+          },
+          "postcondition": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 6
+            }
+          },
+          "raises": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "when"
+              ],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "minLength": 3
+                },
+                "when": {
+                  "type": "string",
+                  "minLength": 6
+                }
+              }
+            },
+            "description": "raise する例外と条件（なし = 空配列）"
+          },
+          "pure": {
+            "type": "boolean",
+            "description": "true = 副作用なし（テスト注入可能）"
+          },
+          "ut": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 8,
+              "pattern": "^test_[a-z0-9_]+\\.py::test_[a-z0-9_]+$"
+            },
+            "description": "この API を検証する UT（各 API ≥1 — G-API-UT）"
+          }
         }
       }
     },
-    "dtos": {"type": "array", "items": {"type": "string", "minLength": 6}, "description": "DTO・値オブジェクトの型定義（例: 'PairPass(pair_id: int, verified_at: str) — 検証済みペア通過の型強制'。なし = 空配列)"},
-    "state_transitions": {"type": "array", "items": {"type": "string", "minLength": 6}, "description": "この DU が実行する状態遷移（なし = 空配列）"},
-    "db_read": {"type": "array", "items": {"type": "string", "minLength": 2}},
-    "db_write": {"type": "array", "items": {"type": "string", "minLength": 2}},
-    "transaction_boundary": {"type": "string", "minLength": 8, "description": "BEGIN/COMMIT の位置（なし = 『なし（読み取りのみ/pure）』）"},
-    "purity": {"type": "string", "minLength": 8, "description": "pure 部と副作用端点の区分"},
-    "idempotency": {"type": "string", "minLength": 8},
-    "retry_resume": {"type": "string", "minLength": 8},
-    "concurrency": {"type": "string", "minLength": 8, "description": "競合制御（直列化・ロック・楽観検査）"},
-    "logging_evidence": {"type": "string", "minLength": 8, "description": "構造化ログと証跡（何をどこへ）"},
-    "depends_on_apis": {"type": "array", "items": {"type": "string", "minLength": 4}, "description": "依存する他 DU の API（'DU-10: connect()' 形式。なし = 空配列）"},
+    "dtos": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 6
+      },
+      "description": "DTO・値オブジェクトの型定義（例: 'PairPass(pair_id: int, verified_at: str) — 検証済みペア通過の型強制'。なし = 空配列)"
+    },
+    "state_transitions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 6
+      },
+      "description": "この DU が実行する状態遷移（なし = 空配列）"
+    },
+    "db_read": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 2
+      }
+    },
+    "db_write": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 2
+      }
+    },
+    "transaction_boundary": {
+      "type": "string",
+      "minLength": 8,
+      "description": "BEGIN/COMMIT の位置（なし = 『なし（読み取りのみ/pure）』）"
+    },
+    "purity": {
+      "type": "string",
+      "minLength": 8,
+      "description": "pure 部と副作用端点の区分"
+    },
+    "idempotency": {
+      "type": "string",
+      "minLength": 8
+    },
+    "retry_resume": {
+      "type": "string",
+      "minLength": 8
+    },
+    "concurrency": {
+      "type": "string",
+      "minLength": 8,
+      "description": "競合制御（直列化・ロック・楽観検査）"
+    },
+    "logging_evidence": {
+      "type": "string",
+      "minLength": 8,
+      "description": "構造化ログと証跡（何をどこへ）"
+    },
+    "depends_on_apis": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 4
+      },
+      "description": "依存する他 DU の API（'DU-10: connect()' 形式。なし = 空配列）"
+    },
     "trace": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["ac", "tc", "ut"],
+      "required": [
+        "ac",
+        "tc",
+        "ut"
+      ],
       "properties": {
-        "ac": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^AC(-SR)?-[0-9]+(-[0-9]+)?$"}},
-        "tc": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^(TC|TCC|ITC|STC-[GI])-[A-Z0-9-]+$"}},
-        "ut": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 4}, "description": "テスト関数名（tests/unit/test_<module>.py::test_*。S0 実装対象は非空必須 — G-API-UT）"},
-        "feature_design": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 4}, "description": "機能別詳細設計書への参照（該当時）"}
+        "ac": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^AC(-SR)?-[0-9]+(-[0-9]+)?$"
+          }
+        },
+        "tc": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^(TC|TCC|ITC|STC-[GI])-[A-Z0-9-]+$"
+          }
+        },
+        "ut": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 4
+          },
+          "description": "テスト関数名（tests/unit/test_<module>.py::test_*。S0 実装対象は非空必須 — G-API-UT）"
+        },
+        "feature_design": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 4
+          },
+          "description": "機能別詳細設計書への参照（該当時）"
+        }
       }
     }
   }

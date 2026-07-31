@@ -35,6 +35,15 @@
 - **禁止副作用**: 終端からの状態変更・state_transitions の部分行（ログだけ残る／状態だけ変わる） ／ **エラー型**: TransitionRejected
 - **対象更新**: S0.1（CMP-01）／終端保護と §3.3 再開規則 ／ **TC**: TCC-11-3 TCC-CONFLICT-1 TCC-KILL-1
 
+### AC-11-4（拒否）
+
+- **Given**: running の lower loop_run（strategic_brief_id・digest 保持済み）と、run 行の brief_id/digest を別値へ書き換える UPDATE 要求 ／ **When**: loop_runs.strategic_brief_id／strategic_brief_digest の UPDATE を実行する ／ **Then**: 保護トリガ／エンジン検証が拒否し、run は開始時の brief id・digest（64 桁）を保持し続け、状態も不変である（SR-07 保持不変条件の負方向）
+- **fixture**: seed: active brief B1（digest D1）、B1 で開始した running の lower loop_run、UPDATE 文 = SET strategic_brief_digest='f'*64
+- **観測点**: raise される例外型／loop_runs SELECT（brief_id・digest・status の不変性） ／ **期待状態**: loop_run は running のまま、brief_id=B1・digest=D1 不変
+- **期待 DB 差分**: 差分なし ／ **期待証跡**: 構造化ログの拒否行（run 保持 brief 参照の変更拒否）
+- **禁止副作用**: loop_runs 行の brief_id/digest 変更・状態遷移の発生 ／ **エラー型**: IntegrityError（保持列変更拒否）／TransitionRejected
+- **対象更新**: S0.1（状態機械・run 保持列保護）／loop_runs 更新経路 ／ **TC**: TCC-11-4
+
 ## FR-12
 
 ### AC-12-1（正常）
@@ -64,6 +73,15 @@
 - **禁止副作用**: tasks への 2 行目 INSERT・attempt の暗黙増加・UNIQUE 制約例外の呼出し側への素通し ／ **エラー型**: なし
 - **対象更新**: S0.1（CMP-02）／発行の冪等性・クラッシュ再開 ／ **TC**: TCC-12-3
 
+### AC-12-4（拒否）
+
+- **Given**: verifier（審査担当）が未割当（NULL）のままのタスク発行要求と、tasks への verifier_agent_id NULL 直接 INSERT ／ **When**: エンジン経由の発行と直接 INSERT をそれぞれ実行する ／ **Then**: エンジンは TaskIssuanceRejected で発行を拒否し、直接 INSERT は NOT NULL 制約の IntegrityError で拒否され、tasks に行が作られない（三値論理に委ねない）
+- **fixture**: seed: workflow 定義 1 件・author agent 1 件のみ（verifier 未割当）、INSERT 文 = verifier_agent_id NULL
+- **観測点**: raise される例外型／tasks SELECT（行数 0 の確認） ／ **期待状態**: tasks 行なし（発行不成立）
+- **期待 DB 差分**: 差分なし ／ **期待証跡**: 構造化ログの拒否行（verifier 未割当）
+- **禁止副作用**: verifier_agent_id NULL の tasks 行の混入 ／ **エラー型**: TaskIssuanceRejected／IntegrityError（NOT NULL）
+- **対象更新**: S0.1（タスク発行）／tasks INSERT 経路 ／ **TC**: TCC-12-4
+
 ## FR-13
 
 ### AC-13-1（正常）
@@ -92,6 +110,15 @@
 - **期待 DB 差分**: tasks 1 行 UPDATE（verifying→escalated, retry_count 2→3）、state_transitions +1 行（event='verify_fail_exhausted', guard_result='passed'） ／ **期待証跡**: state_transitions 行＋tasks.failure_detail（最終差戻し理由）
 - **禁止副作用**: in_progress への 4 回目の差戻し・retry_count の 2 加算・failed への誤分類 ／ **エラー型**: なし
 - **対象更新**: S0.1（CMP-02）／retry_limit 境界（AC-13 の正本条件） ／ **TC**: TCC-13-3
+
+### AC-13-4（拒否）
+
+- **Given**: verifying の task に対し、author と同一 principal に属する execution からの verify_pass（PASS 判定）要求 ／ **When**: verify_pass イベントを適用する ／ **Then**: SelfReviewRejected で PASS が拒否され、task は verifying のまま state・retry_count は不変で、拒否が記録される（PASS 判定者は常に author と別 principal — FR-27）
+- **fixture**: seed: author agent A1（principal P1）と同一 P1 の agent A2、A1 作成の verifying task、A2 execution からの PASS 要求
+- **観測点**: raise される例外型／tasks SELECT（status・retry_count）／state_transitions ／ **期待状態**: task は verifying のまま（done へ遷移しない）
+- **期待 DB 差分**: state_transitions に guard_result = rejected 1 行 ／ **期待証跡**: operation_log の拒否行（自己審査 PASS 拒否）
+- **禁止副作用**: done への遷移・review_pass 証跡の生成 ／ **エラー型**: SelfReviewRejected
+- **対象更新**: S0.1（審査ゲート）／verify_pass ガード ／ **TC**: TCC-13-4
 
 ## FR-14
 
@@ -383,6 +410,15 @@
 - **禁止副作用**: verifier execution への lease 移譲・row_version を経ない lease 上書き ／ **エラー型**: SelfReviewRejected（verifier execution の再 claim）
 - **対象更新**: S0.1（kernel）／lease 失効後の再 claim ガード（s0-contract §1・§3.3） ／ **TC**: TCC-27-3
 
+### AC-27-4（拒否）
+
+- **Given**: verifier_agent_id を NULL とした tasks への直接 INSERT 文 ／ **When**: INSERT を実行する ／ **Then**: NOT NULL 制約が IntegrityError で拒否し、tasks に行が作られない（NULL の三値論理で自己審査 CHECK をすり抜けさせない）
+- **fixture**: seed: agent 1 件・workflow 1 件、INSERT 文 = tasks(author_agent_id=A1, verifier_agent_id=NULL, ...)
+- **観測点**: raise される例外型／tasks SELECT（行数 0 の確認） ／ **期待状態**: tasks 行なし
+- **期待 DB 差分**: 差分なし ／ **期待証跡**: なし（DB 層拒否）
+- **禁止副作用**: verifier NULL 行の混入・CHECK 制約の三値すり抜け ／ **エラー型**: IntegrityError（NOT NULL constraint failed: tasks.verifier_agent_id）
+- **対象更新**: S0.1（DDL 制約）／tasks INSERT ／ **TC**: TCC-27-4
+
 ## FR-28
 
 ### AC-28-1（正常）
@@ -499,6 +535,15 @@
 - **禁止副作用**: 未定義 key への暗黙値（0・None 等）の返却 ／ **エラー型**: ConfigKeyUnresolved（unknown_key 側のみ）
 - **対象更新**: S0.1（config 管理）／既定値フォールバック ／ **TC**: TCC-33-3
 
+### AC-33-4（拒否）
+
+- **Given**: config に既存の (key='spend_cap_monthly', changed_at=T1) 行と、同一 key・同一 changed_at の追加 INSERT 要求 ／ **When**: 同一 (key, changed_at) の INSERT を実行する ／ **Then**: UNIQUE 制約が IntegrityError で拒否し、config の行数・値は変化しない（同一 key・同一 changed_at の行は存在しない）
+- **fixture**: seed: config 1 行（key='spend_cap_monthly', changed_at='2026-08-01T00:00:00Z'）、同一 (key, changed_at) の INSERT 文
+- **観測点**: raise される例外型／config SELECT（行数・値の不変性） ／ **期待状態**: config 1 行のまま不変
+- **期待 DB 差分**: 差分なし ／ **期待証跡**: なし（DB 層拒否）
+- **禁止副作用**: 同一 (key, changed_at) の重複行の混入 ／ **エラー型**: IntegrityError（UNIQUE constraint failed: config.key, config.changed_at）
+- **対象更新**: S0.1（config 管理）／UNIQUE 制約 ／ **TC**: TCC-33-4
+
 ## FR-34
 
 ### AC-34-1（正常）
@@ -556,6 +601,15 @@
 - **期待 DB 差分**: operation_log +2 行（破損拒否・経路なし） ／ **期待証跡**: operation_log 拒否行（理由 = registry 行破損／fallback なし）
 - **禁止副作用**: 破損行からの部分的な経路返却（fail-open）・外部 HTTP 呼出（0 回） ／ **エラー型**: RouteNotRegistered
 - **対象更新**: S0.2（CMP-07 接続レジストリ） ／ **TC**: TCC-41-3
+
+### AC-41-4（拒否）
+
+- **Given**: X（旧 Twitter）のブラウザ書込み経路（service='x', route_type='browser', write=true）をレジストリへ登録する要求 ／ **When**: レジストリ行の登録を実行する ／ **Then**: 登録要求自体が XBrowserRouteDenied で拒否され、registry に行が作られない（BR-M-X-4 — X のブラウザ書込み経路は登録できない）
+- **fixture**: seed: 空の x 経路レジストリ、登録要求 = {service:'x', route_type:'browser', operation:'write'}
+- **観測点**: raise される例外型／registry SELECT（x の browser 書込み行 0 件）／operation_log ／ **期待状態**: registry 不変（x の browser 書込み行なし）
+- **期待 DB 差分**: operation_log に拒否 1 行 ／ **期待証跡**: operation_log の拒否行（BR-M-X-4 理由つき）
+- **禁止副作用**: x の browser 書込み経路行の混入・後続経路解決での採用 ／ **エラー型**: XBrowserRouteDenied
+- **対象更新**: S0.1（経路レジストリ）／登録検証 ／ **TC**: TCC-41-4
 
 ## FR-42
 
@@ -701,6 +755,15 @@
 - **期待 DB 差分**: approvals は再要求分のみ増加（上限到達で停止）、state_transitions +1 行（escalate）。pending 側 approvals 差分なし ／ **期待証跡**: approvals の expired 履歴＋escalate 遷移行（事由 = approval_retry_limit 到達）
 - **禁止副作用**: 上限超過後の再要求継続（無限待機）・同一 binding の重複 approvals 行・expired の failed 化（rejected と混同） ／ **エラー型**: ApprovalRetryExhausted（escalate 事由として記録）
 - **対象更新**: S0.2（CMP-11 承認通知）／expired 再要求経路 ／ **TC**: TCC-46-3
+
+### AC-46-4（拒否）
+
+- **Given**: decision='approved' で記録済みの approvals 行と、その decision を 'rejected' へ書き換える UPDATE／行を消す DELETE ／ **When**: approvals 行の UPDATE と DELETE をそれぞれ実行する ／ **Then**: 保護トリガが RAISE(ABORT) で拒否し、approvals 行は decision・binding とも不変で残る（承認応答の書換え・削除は不可 — decision 変更は新規要求のみ）
+- **fixture**: seed: approved の approvals 1 行（binding 3 項目つき）、UPDATE 文 = SET decision='rejected'、DELETE 文
+- **観測点**: raise される例外型／approvals SELECT（行数・decision の不変性） ／ **期待状態**: approvals 1 行のまま decision='approved' 不変
+- **期待 DB 差分**: 差分なし ／ **期待証跡**: なし（DB 層拒否）
+- **禁止副作用**: approvals 行の decision 変更・行削除 ／ **エラー型**: IntegrityError（append-only）
+- **対象更新**: S0.1（承認証跡）／append-only トリガ ／ **TC**: TCC-46-4
 
 ## FR-47
 
@@ -905,6 +968,15 @@
 - **禁止副作用**: 参照中ノードの物理削除・measurements の孤児化 ／ **エラー型**: IntegrityError（DELETE 試行のみ。archived 化・集計は正常）
 - **対象更新**: S0.3（計測層）／kpi_tree の退役・FK 保護 ／ **TC**: TCC-61-3
 
+### AC-61-4（拒否）
+
+- **Given**: measurements の数値悪化を検知した処理が strategic_briefs の内容列を直接 UPDATE しようとする呼出（KPI→戦略正本の自動書込み相当） ／ **When**: 計測処理経路から strategic_briefs の UPDATE を実行する ／ **Then**: 保護トリガが IntegrityError（'append-only' を含む）で拒否し、strategic_briefs は 1 バイトも変化しない（KPI ツリーは観測背骨 — BR-E1 禁止事項の負方向）
+- **fixture**: seed: active brief 1 行・kpi_nodes/measurements の悪化データ、計測処理相当の UPDATE 文 = strategic_briefs SET media_role='pivot'
+- **観測点**: raise される例外型／strategic_briefs SELECT（全列の不変性） ／ **期待状態**: strategic_briefs 全行不変
+- **期待 DB 差分**: 差分なし ／ **期待証跡**: なし（DB 層拒否）
+- **禁止副作用**: strategic_briefs の変更・KPI 起点の自動 revision 行の生成 ／ **エラー型**: IntegrityError（append-only）
+- **対象更新**: S0.1（KPI ツリー）／戦略正本保護トリガ ／ **TC**: TCC-61-4
+
 ## FR-62
 
 ### AC-62-1（正常）
@@ -991,6 +1063,15 @@
 - **期待 DB 差分**: 差分なし ／ **期待証跡**: なし（no-op と拒否のみ）
 - **禁止副作用**: migration の二重適用・append-only 行の改変 ／ **エラー型**: AppendOnlyViolation（UPDATE 側のみ）
 - **対象更新**: S0.1（DB 基盤）／冪等適用＋保護トリガ ／ **TC**: TCC-71-3
+
+### AC-71-4（拒否）
+
+- **Given**: tasks から FK 参照されている loop_runs の親行に対する DELETE 文 ／ **When**: 親行の DELETE を実行する ／ **Then**: ON DELETE RESTRICT の FK が IntegrityError で拒否し、親子とも行は不変で残る（暗黙のカスケード削除は存在しない）
+- **fixture**: seed: loop_runs 1 行とそれを参照する tasks 1 行、DELETE 文 = DELETE FROM loop_runs WHERE id=R1
+- **観測点**: raise される例外型／loop_runs・tasks SELECT（行数の不変性） ／ **期待状態**: loop_runs・tasks とも行数不変
+- **期待 DB 差分**: 差分なし ／ **期待証跡**: なし（DB 層拒否）
+- **禁止副作用**: 参照行の連鎖削除・孤児行の発生 ／ **エラー型**: IntegrityError（FOREIGN KEY constraint failed）
+- **対象更新**: S0.1（スキーマ基盤）／FK RESTRICT ／ **TC**: TCC-71-4
 
 ## FR-72
 
@@ -1215,6 +1296,15 @@
 - **禁止副作用**: v1 内容列の変更・既存 run の digest 差替え・新規 run の v1 参照 ／ **エラー型**: なし
 - **対象更新**: S0.1（DU-02 — supersede 連鎖） ／ **TC**: TCC-SR-06-2
 
+### AC-SR-06-3（境界・復旧）
+
+- **Given**: 内容が 1 フィールドだけ異なる 2 通の strategic_brief（他は同一） ／ **When**: それぞれの正準化 digest を算出し、片方の digest で他方の run 開始を試みる ／ **Then**: 2 つの digest は一致せず、digest 不一致の run 開始は GateRejected で拒否される（決定性は同値類を広げない）
+- **fixture**: fixtures/strategic-brief.valid.json と、expected_recognition_change を 1 文字変えた複製
+- **観測点**: digest 算出関数の戻り値比較／開始 API の例外 ／ **期待状態**: digest 相違・run 未作成
+- **期待 DB 差分**: loop_runs 差分なし ／ **期待証跡**: 拒否の構造化ログ（digest 不一致）
+- **禁止副作用**: 異なる内容への同一 digest 付与・不一致 digest での run 作成 ／ **エラー型**: GateRejected
+- **対象更新**: S0.1（戦略ストア）／canonical_digest・開始ガード ／ **TC**: STC-I-04 TCC-SR-06-3
+
 ## SR-07
 
 ### AC-SR-02（拒否）
@@ -1281,6 +1371,15 @@
 - **期待 DB 差分**: 最終: loop_runs UPDATE 1 行、tactical_learning_packets +1 行、state_transitions +1 行 ／ **期待証跡**: TLP 行（digest 三者一致）と終端の state_transitions 行
 - **禁止副作用**: 遷移のみ成立した孤児終端 run・TLP 二重生成 ／ **エラー型**: なし（復旧正常系）
 - **対象更新**: S0.1（DU-02 — 同一 transaction 契約） ／ **TC**: TCC-SR-08-2
+
+### AC-SR-08-3（拒否）
+
+- **Given**: 生成済みの tactical_learning_packets 行と、その列を書き換える UPDATE／行を消す DELETE ／ **When**: TLP 行の UPDATE と DELETE をそれぞれ実行する ／ **Then**: append-only 保護トリガが IntegrityError（'append-only' を含む）で拒否し、TLP 行は全列不変で残る（TLP は append-only）
+- **fixture**: seed: completed lower run 1 件と learning packet 1 行、UPDATE 文 = SET hypothesis_result='flipped'、DELETE 文
+- **観測点**: raise される例外型／tactical_learning_packets SELECT（行数・全列の不変性） ／ **期待状態**: TLP 1 行のまま全列不変
+- **期待 DB 差分**: 差分なし ／ **期待証跡**: なし（DB 層拒否）
+- **禁止副作用**: TLP 行の変更・削除 ／ **エラー型**: IntegrityError（append-only）
+- **対象更新**: S0.1（戦略層 TLP）／append-only トリガ ／ **TC**: TCC-SR-08-3
 
 ## SR-09
 
