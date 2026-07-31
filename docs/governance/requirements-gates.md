@@ -70,7 +70,7 @@
 | G-CANON-CONFIRMED | 契約 JSON 正本 8 本（br/fr/sr/nfr/ac/tc/cmp/du-contracts）が `status: confirmed`＋`approved_at`／`authority`／`approval_digest` を持ち、digest が内容（approval_digest 列を除く正準化 JSON の sha256[:12]）と一致し、approvals.md に同 digest の承認行が実在 | 内容に束縛されない正本確定・status 僭称（クロージャー §2） |
 | G-LEGACY-SUPERSEDED | 旧正本（ac.json／verification.json／utest.json）が `status: superseded`（または historical）で、実装入力から除外されている | 旧 AC19／TC59／UTC69 体系の二重正本化（クロージャー §3） |
 | G-S0-TEST-REALITY | `tests/skip-budget.json` の `s0_impl_started` が true のとき、DU-01〜12 の全 API に対応する UT が skip されていない（実 red→green を要求）。着手前は false で猶予され、着手時に true へ切替える | skip を「red」と称する test-first の形骸化（クロージャー §7） |
-| G-REVIEW-BINDING | レビュー成果物（docs/governance/reviews/*.json）が schema 適合し、Go 判定は実在する target_commit と成果物 digest に束縛される。レビュー後に対象成果物が改変された場合、その改変を含む後続の Go レビューがなければ違反 | コミットメッセージだけの Go 記録・レビュー後のすり替え（クロージャー §8） |
+| G-REVIEW-BINDING | レビュー成果物（docs/governance/reviews/*.json）が schema 適合し、Go 判定は (a) target_commit が実在し (b) 記録された digest が **target_commit の内容**と一致し（作業ツリー値の写し込みによる Go 偽装を排除）(c) 現内容がレビュー後に改変されていない（改変時は rounds のより大きい後続 Go を要する）ことを満たす | コミットメッセージだけの Go 記録・レビュー後のすり替え（クロージャー §8） |
 | G-WIRING | スクリプトの全ゲート ID が本台帳に掲載され、CI がスクリプトを呼ぶ | ルールの配線漏れ・死蔵（HELIX lint-wiring 相当） |
 
 ## 運用

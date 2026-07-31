@@ -1440,15 +1440,30 @@ try:
             rev_bad.append(f"{p.name}: target_commit がリポジトリに存在しない")
             continue
         for art, dg in r["reviewed_artifact_digests"].items():
+            # (a) 記録された digest が **target_commit の内容** と一致すること
+            #     （後から作業ツリーの値を書き写して Go を偽装できないようにする）
+            blob = subprocess.run(  # noqa: S603
+                ["git", "show", f"{r['target_commit']}:{art}"],  # noqa: S607
+                capture_output=True, check=False, cwd=ROOT)
+            if blob.returncode != 0:
+                rev_bad.append(f"{p.name}: {art} が target_commit に存在しない")
+                continue
+            at_commit = hashlib.sha256(blob.stdout).hexdigest()[:16]
+            if at_commit != dg:
+                rev_bad.append(f"{p.name}: {art} の digest が target_commit の内容と不一致"
+                               f"（記録 {dg} / 実 {at_commit}）")
+                continue
+            # (b) 現在の内容がレビュー時点から変わっていないこと
             fp = ROOT / art
             if not fp.exists():
                 rev_bad.append(f"{p.name}: {art} 不在")
                 continue
             now = hashlib.sha256(fp.read_bytes()).hexdigest()[:16]
             if now != dg:
-                # レビュー後の変更は、その差分を解決した後続レビュー（より新しい Go）がない限り違反
+                # レビュー後の変更は、その差分を含む後続 Go（rounds が大きい）がない限り違反
                 newer = [load(q) for q in revs if load(q).get("verdict") == "Go"
-                         and load(q).get("completed_at", "") > r.get("completed_at", "")]
+                         and (load(q).get("rounds", 0), load(q).get("completed_at", ""))
+                         > (r.get("rounds", 0), r.get("completed_at", ""))]
                 if not any(now == n.get("reviewed_artifact_digests", {}).get(art) for n in newer):
                     rev_bad.append(f"{p.name}: {art} がレビュー後に改変（{dg}→{now}）")
     gate("G-REVIEW-BINDING", not rev_bad,

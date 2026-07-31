@@ -76,7 +76,7 @@ BR 38（12 観点の構造化契約）／FR 36・SR 16（18 観点の実行契�
 AC 211・TCC 217（fixture・DB 差分・証跡・禁止副作用・エラー型つき）／CMP・SCM 23（11 観点の設計契約）／
 DU 23（API 58 本の署名・DbC・例外・tx・冪等性）＋独立設計書 6 本＋機能別設計 11 本。
 ゲートは 105 本（BR→REQ→FR/SR→AC→TC→CMP→DU→API→UT の全区間双方向突合、mutation 自己検査つき）。
-Sol ブラインドレビュー（HELIX 基準）で **Go**（[レビュー成果物](docs/governance/reviews/)）。
+Sol ブラインドレビュー（HELIX 基準）で Go — 判定の正本は [レビュー成果物](docs/governance/reviews/)（対象コミット・成果物 digest に束縛。G-REVIEW-BINDING が検証）。
 
 **2026-08-01 クロージャー完了** — 契約正本の confirmed 化・旧正本（ac.json/verification.json/utest.json）の
 superseded 化・実装パッケージの `src/helix/` 統一・意味整合ゲート（構造化参照）・DDL トリガ 14 本
