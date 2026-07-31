@@ -47,8 +47,9 @@ def main() -> int:
             recorded = json.loads(proc.stdout).get("max_skipped")
             break
     approvals = (ROOT / "docs/governance/approvals.md").read_text()
-    pat = re.compile(rf"^\|[^|]*\|\s*skip-budget\s*\|[^|]*{recorded}→{limit}[^|]*\|[^|]*\|\s*PO\s*\|",
-                     re.MULTILINE)
+    pat = re.compile(
+        rf"^\|[^|]*\|\s*skip-budget\s*\|[^|]*{recorded}→{limit}[^|]*\|\s*approved\s*\|\s*PO\s*\|",
+        re.MULTILINE)
     approved = recorded is not None and bool(pat.search(approvals))
     if recorded is not None and limit > recorded and not approved:
         print(f"FAIL [SKIP-BUDGET] 上限を {recorded} → {limit} へ引き上げている（ラチェット違反）。"

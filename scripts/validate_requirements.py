@@ -56,8 +56,9 @@ def committed_max_skipped():
 def skip_raise_approved(prev, new) -> bool:
     """skip 上限の引き上げに対する **PO 承認行**（構造化テーブル行）が approvals.md にあるか。"""
     appr = (ROOT / "docs/governance/approvals.md").read_text(encoding="utf-8")
-    pat = re.compile(rf"^\|[^|]*\|\s*skip-budget\s*\|[^|]*{prev}→{new}[^|]*\|[^|]*\|\s*PO\s*\|",
-                     re.MULTILINE)
+    pat = re.compile(
+        rf"^\|[^|]*\|\s*skip-budget\s*\|[^|]*{prev}→{new}[^|]*\|\s*approved\s*\|\s*PO\s*\|",
+        re.MULTILINE)
     return bool(pat.search(appr))
 
 
@@ -816,13 +817,11 @@ if "--update-baseline" in sys.argv:
         sys.exit(1)
     skip_budget = json.loads((ROOT / "tests" / "skip-budget.json").read_text(encoding="utf-8"))
     prev_skip = committed_max_skipped()
-    if prev_skip is not None and skip_budget["max_skipped"] > prev_skip:
-        appr = (ROOT / "docs/governance/approvals.md").read_text(encoding="utf-8")
-        token = f"skip-budget {prev_skip}→{skip_budget['max_skipped']}"
-        if token not in appr:
-            print(f"REFUSED: skip 上限の引き上げ（{prev_skip}→{skip_budget['max_skipped']}）には "
-                  f"approvals.md への PO 承認行（『{token}』を含む）が必要")
-            sys.exit(1)
+    if prev_skip is not None and skip_budget["max_skipped"] > prev_skip \
+            and not skip_raise_approved(prev_skip, skip_budget["max_skipped"]):
+        print(f"REFUSED: skip 上限の引き上げ（{prev_skip}→{skip_budget['max_skipped']}）には "
+              "approvals.md の構造化 PO 承認行（skip-budget 列・approved 判定・承認者 PO）が必要")
+        sys.exit(1)
     BASELINE.write_text(json.dumps({
         "updated": "see git log", "counts": current_counts,
         "gate_count": gate_count_now, "max_skipped": skip_budget["max_skipped"],
@@ -1294,6 +1293,8 @@ def detect_chain_asymmetry(brc_, req_, allc_, acc_, cmpc_, duc_, tcc_=None) -> l
     # (5) FR/SR → CMP: 参照先 CMP が実在し、FR の FN を当該 CMP が被覆する
     cmp_by_id = {c["id"]: c for c in cmpc_}
     for c in allc_:
+        if not c["trace_down"].get("cmp"):
+            bad.append(f"FRSR→CMP:{c['id']}:CMP未接続")
         for cid in c["trace_down"].get("cmp", []):
             if cid not in cmp_by_id:
                 bad.append(f"FRSR→CMP:{c['id']}→{cid}:不在")

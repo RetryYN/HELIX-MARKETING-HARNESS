@@ -161,7 +161,7 @@
     "docs/requirements/json/verification/tc-contracts.json": "5ca8b044ef37e97e4c1ef729c03a40a8617410c4beecf214e7950defbb2310be",
     "pyproject.toml": "e14a32bc5450457200c910351417df7d2c8651aa5a8d3f7c847e4a5364820969",
     "scripts/hooks/pre-git-gate.sh": "c479c573bdb491a57716c47c2cf54cda2a094e7cde8103ac2f6952fbb230e080",
-    "scripts/validate_requirements.py": "c5f912eb9b3c3605ff67a219847d4d3c66d4f150429c86e863d611fc1c29c8f7",
+    "scripts/validate_requirements.py": "6dc712781d5f319d4707e08bd0d3310f6361a61854c4d644139055ff7e77947b",
     "uv.lock": "b57a054ee0cba1c418d500563695ee3007e82557bd5f540558f811c5c578836f"
   }
 }
