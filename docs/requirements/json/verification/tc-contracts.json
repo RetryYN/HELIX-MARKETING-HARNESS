@@ -2689,6 +2689,356 @@
       "external_calls": "0 回",
       "method": "pytest: seed: baseline.json 比で件数を減らした一時複製 を seed し、ゲートの終了コードと FAIL 行 を assert（整合ゲート（validate_requirements.py）を実行する）",
       "slice": "S0"
+    },
+    {
+      "id": "TCC-13-6",
+      "ac": [
+        "AC-13-6"
+      ],
+      "kind": "reject",
+      "verifies_state": "不変条件が維持された状態（操作前と同一）",
+      "verifies_db_delta": "差分なし（拒否は副作用を持たない）",
+      "verifies_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "verifies_forbidden": "不変条件を破った状態での永続化・部分適用",
+      "external_calls": "0 回",
+      "method": "pytest: FR-13 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件 を seed し、raise される例外型／対象テーブルの前後スナップショット比較 を assert",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-16-5",
+      "ac": [
+        "AC-16-5"
+      ],
+      "kind": "reject",
+      "verifies_state": "不変条件が維持された状態（操作前と同一）",
+      "verifies_db_delta": "差分なし（拒否は副作用を持たない）",
+      "verifies_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "verifies_forbidden": "不変条件を破った状態での永続化・部分適用",
+      "external_calls": "0 回",
+      "method": "pytest: FR-16 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件 を seed し、raise される例外型／対象テーブルの前後スナップショット比較 を assert",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-16-6",
+      "ac": [
+        "AC-16-6"
+      ],
+      "kind": "reject",
+      "verifies_state": "不変条件が維持された状態（操作前と同一）",
+      "verifies_db_delta": "差分なし（拒否は副作用を持たない）",
+      "verifies_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "verifies_forbidden": "不変条件を破った状態での永続化・部分適用",
+      "external_calls": "0 回",
+      "method": "pytest: FR-16 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件 を seed し、raise される例外型／対象テーブルの前後スナップショット比較 を assert",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-21-5",
+      "ac": [
+        "AC-21-5"
+      ],
+      "kind": "reject",
+      "verifies_state": "不変条件が維持された状態（操作前と同一）",
+      "verifies_db_delta": "差分なし（拒否は副作用を持たない）",
+      "verifies_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "verifies_forbidden": "不変条件を破った状態での永続化・部分適用",
+      "external_calls": "0 回",
+      "method": "pytest: FR-21 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件 を seed し、raise される例外型／対象テーブルの前後スナップショット比較 を assert",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-23-5",
+      "ac": [
+        "AC-23-5"
+      ],
+      "kind": "reject",
+      "verifies_state": "不変条件が維持された状態（操作前と同一）",
+      "verifies_db_delta": "差分なし（拒否は副作用を持たない）",
+      "verifies_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "verifies_forbidden": "不変条件を破った状態での永続化・部分適用",
+      "external_calls": "0 回",
+      "method": "pytest: FR-23 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件 を seed し、raise される例外型／対象テーブルの前後スナップショット比較 を assert",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-27-5",
+      "ac": [
+        "AC-27-5"
+      ],
+      "kind": "reject",
+      "verifies_state": "不変条件が維持された状態（操作前と同一）",
+      "verifies_db_delta": "差分なし（拒否は副作用を持たない）",
+      "verifies_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "verifies_forbidden": "不変条件を破った状態での永続化・部分適用",
+      "external_calls": "0 回",
+      "method": "pytest: FR-27 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件 を seed し、raise される例外型／対象テーブルの前後スナップショット比較 を assert",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-28-5",
+      "ac": [
+        "AC-28-5"
+      ],
+      "kind": "reject",
+      "verifies_state": "不変条件が維持された状態（操作前と同一）",
+      "verifies_db_delta": "差分なし（拒否は副作用を持たない）",
+      "verifies_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "verifies_forbidden": "不変条件を破った状態での永続化・部分適用",
+      "external_calls": "0 回",
+      "method": "pytest: FR-28 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件 を seed し、raise される例外型／対象テーブルの前後スナップショット比較 を assert",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-28-6",
+      "ac": [
+        "AC-28-6"
+      ],
+      "kind": "reject",
+      "verifies_state": "不変条件が維持された状態（操作前と同一）",
+      "verifies_db_delta": "差分なし（拒否は副作用を持たない）",
+      "verifies_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "verifies_forbidden": "不変条件を破った状態での永続化・部分適用",
+      "external_calls": "0 回",
+      "method": "pytest: FR-28 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件 を seed し、raise される例外型／対象テーブルの前後スナップショット比較 を assert",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-33-6",
+      "ac": [
+        "AC-33-6"
+      ],
+      "kind": "reject",
+      "verifies_state": "不変条件が維持された状態（操作前と同一）",
+      "verifies_db_delta": "差分なし（拒否は副作用を持たない）",
+      "verifies_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "verifies_forbidden": "不変条件を破った状態での永続化・部分適用",
+      "external_calls": "0 回",
+      "method": "pytest: FR-33 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件 を seed し、raise される例外型／対象テーブルの前後スナップショット比較 を assert",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-41-6",
+      "ac": [
+        "AC-41-6"
+      ],
+      "kind": "reject",
+      "verifies_state": "不変条件が維持された状態（操作前と同一）",
+      "verifies_db_delta": "差分なし（拒否は副作用を持たない）",
+      "verifies_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "verifies_forbidden": "不変条件を破った状態での永続化・部分適用",
+      "external_calls": "0 回",
+      "method": "pytest: FR-41 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件 を seed し、raise される例外型／対象テーブルの前後スナップショット比較 を assert",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-47-5",
+      "ac": [
+        "AC-47-5"
+      ],
+      "kind": "reject",
+      "verifies_state": "不変条件が維持された状態（操作前と同一）",
+      "verifies_db_delta": "差分なし（拒否は副作用を持たない）",
+      "verifies_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "verifies_forbidden": "不変条件を破った状態での永続化・部分適用",
+      "external_calls": "0 回",
+      "method": "pytest: FR-47 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件 を seed し、raise される例外型／対象テーブルの前後スナップショット比較 を assert",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-47-6",
+      "ac": [
+        "AC-47-6"
+      ],
+      "kind": "reject",
+      "verifies_state": "不変条件が維持された状態（操作前と同一）",
+      "verifies_db_delta": "差分なし（拒否は副作用を持たない）",
+      "verifies_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "verifies_forbidden": "不変条件を破った状態での永続化・部分適用",
+      "external_calls": "0 回",
+      "method": "pytest: FR-47 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件 を seed し、raise される例外型／対象テーブルの前後スナップショット比較 を assert",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-51-5",
+      "ac": [
+        "AC-51-5"
+      ],
+      "kind": "reject",
+      "verifies_state": "不変条件が維持された状態（操作前と同一）",
+      "verifies_db_delta": "差分なし（拒否は副作用を持たない）",
+      "verifies_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "verifies_forbidden": "不変条件を破った状態での永続化・部分適用",
+      "external_calls": "0 回",
+      "method": "pytest: FR-51 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件 を seed し、raise される例外型／対象テーブルの前後スナップショット比較 を assert",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-54-5",
+      "ac": [
+        "AC-54-5"
+      ],
+      "kind": "reject",
+      "verifies_state": "不変条件が維持された状態（操作前と同一）",
+      "verifies_db_delta": "差分なし（拒否は副作用を持たない）",
+      "verifies_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "verifies_forbidden": "不変条件を破った状態での永続化・部分適用",
+      "external_calls": "0 回",
+      "method": "pytest: FR-54 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件 を seed し、raise される例外型／対象テーブルの前後スナップショット比較 を assert",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-55-4",
+      "ac": [
+        "AC-55-4"
+      ],
+      "kind": "reject",
+      "verifies_state": "不変条件が維持された状態（操作前と同一）",
+      "verifies_db_delta": "差分なし（拒否は副作用を持たない）",
+      "verifies_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "verifies_forbidden": "不変条件を破った状態での永続化・部分適用",
+      "external_calls": "0 回",
+      "method": "pytest: FR-55 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件 を seed し、raise される例外型／対象テーブルの前後スナップショット比較 を assert",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-61-6",
+      "ac": [
+        "AC-61-6"
+      ],
+      "kind": "reject",
+      "verifies_state": "不変条件が維持された状態（操作前と同一）",
+      "verifies_db_delta": "差分なし（拒否は副作用を持たない）",
+      "verifies_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "verifies_forbidden": "不変条件を破った状態での永続化・部分適用",
+      "external_calls": "0 回",
+      "method": "pytest: FR-61 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件 を seed し、raise される例外型／対象テーブルの前後スナップショット比較 を assert",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-62-6",
+      "ac": [
+        "AC-62-6"
+      ],
+      "kind": "reject",
+      "verifies_state": "不変条件が維持された状態（操作前と同一）",
+      "verifies_db_delta": "差分なし（拒否は副作用を持たない）",
+      "verifies_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "verifies_forbidden": "不変条件を破った状態での永続化・部分適用",
+      "external_calls": "0 回",
+      "method": "pytest: FR-62 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件 を seed し、raise される例外型／対象テーブルの前後スナップショット比較 を assert",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-62-7",
+      "ac": [
+        "AC-62-7"
+      ],
+      "kind": "reject",
+      "verifies_state": "不変条件が維持された状態（操作前と同一）",
+      "verifies_db_delta": "差分なし（拒否は副作用を持たない）",
+      "verifies_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "verifies_forbidden": "不変条件を破った状態での永続化・部分適用",
+      "external_calls": "0 回",
+      "method": "pytest: FR-62 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件 を seed し、raise される例外型／対象テーブルの前後スナップショット比較 を assert",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-72-5",
+      "ac": [
+        "AC-72-5"
+      ],
+      "kind": "reject",
+      "verifies_state": "不変条件が維持された状態（操作前と同一）",
+      "verifies_db_delta": "差分なし（拒否は副作用を持たない）",
+      "verifies_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "verifies_forbidden": "不変条件を破った状態での永続化・部分適用",
+      "external_calls": "0 回",
+      "method": "pytest: FR-72 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件 を seed し、raise される例外型／対象テーブルの前後スナップショット比較 を assert",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-SR-06-5",
+      "ac": [
+        "AC-SR-06-5"
+      ],
+      "kind": "reject",
+      "verifies_state": "不変条件が維持された状態（操作前と同一）",
+      "verifies_db_delta": "差分なし（拒否は副作用を持たない）",
+      "verifies_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "verifies_forbidden": "不変条件を破った状態での永続化・部分適用",
+      "external_calls": "0 回",
+      "method": "pytest: SR-06 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件 を seed し、raise される例外型／対象テーブルの前後スナップショット比較 を assert",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-SR-09-4",
+      "ac": [
+        "AC-SR-09-4"
+      ],
+      "kind": "reject",
+      "verifies_state": "不変条件が維持された状態（操作前と同一）",
+      "verifies_db_delta": "差分なし（拒否は副作用を持たない）",
+      "verifies_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "verifies_forbidden": "不変条件を破った状態での永続化・部分適用",
+      "external_calls": "0 回",
+      "method": "pytest: SR-09 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件 を seed し、raise される例外型／対象テーブルの前後スナップショット比較 を assert",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-SR-11-5",
+      "ac": [
+        "AC-SR-11-5"
+      ],
+      "kind": "reject",
+      "verifies_state": "不変条件が維持された状態（操作前と同一）",
+      "verifies_db_delta": "差分なし（拒否は副作用を持たない）",
+      "verifies_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "verifies_forbidden": "不変条件を破った状態での永続化・部分適用",
+      "external_calls": "0 回",
+      "method": "pytest: SR-11 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件 を seed し、raise される例外型／対象テーブルの前後スナップショット比較 を assert",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-SR-11-6",
+      "ac": [
+        "AC-SR-11-6"
+      ],
+      "kind": "reject",
+      "verifies_state": "不変条件が維持された状態（操作前と同一）",
+      "verifies_db_delta": "差分なし（拒否は副作用を持たない）",
+      "verifies_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "verifies_forbidden": "不変条件を破った状態での永続化・部分適用",
+      "external_calls": "0 回",
+      "method": "pytest: SR-11 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件 を seed し、raise される例外型／対象テーブルの前後スナップショット比較 を assert",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-SR-15-5",
+      "ac": [
+        "AC-SR-15-5"
+      ],
+      "kind": "reject",
+      "verifies_state": "不変条件が維持された状態（操作前と同一）",
+      "verifies_db_delta": "差分なし（拒否は副作用を持たない）",
+      "verifies_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "verifies_forbidden": "不変条件を破った状態での永続化・部分適用",
+      "external_calls": "0 回",
+      "method": "pytest: SR-15 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件 を seed し、raise される例外型／対象テーブルの前後スナップショット比較 を assert",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-SR-15-6",
+      "ac": [
+        "AC-SR-15-6"
+      ],
+      "kind": "reject",
+      "verifies_state": "不変条件が維持された状態（操作前と同一）",
+      "verifies_db_delta": "差分なし（拒否は副作用を持たない）",
+      "verifies_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "verifies_forbidden": "不変条件を破った状態での永続化・部分適用",
+      "external_calls": "0 回",
+      "method": "pytest: SR-15 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件 を seed し、raise される例外型／対象テーブルの前後スナップショット比較 を assert",
+      "slice": "S0"
     }
   ]
 }

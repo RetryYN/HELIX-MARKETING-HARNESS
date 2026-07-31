@@ -786,6 +786,14 @@ if "--update-baseline" in sys.argv:
         print(f"REFUSED: 承認 receipt（digest 行）のない confirmed 文書があるため baseline を更新しない: {no_receipt}")
         sys.exit(1)
     skip_budget = json.loads((ROOT / "tests" / "skip-budget.json").read_text(encoding="utf-8"))
+    prev_skip = load(BASELINE).get("max_skipped") if BASELINE.exists() else None
+    if prev_skip is not None and skip_budget["max_skipped"] > prev_skip:
+        appr = (ROOT / "docs/governance/approvals.md").read_text(encoding="utf-8")
+        token = f"skip-budget {prev_skip}→{skip_budget['max_skipped']}"
+        if token not in appr:
+            print(f"REFUSED: skip 上限の引き上げ（{prev_skip}→{skip_budget['max_skipped']}）には "
+                  f"approvals.md への PO 承認行（『{token}』を含む）が必要")
+            sys.exit(1)
     BASELINE.write_text(json.dumps({
         "updated": "see git log", "counts": current_counts,
         "gate_count": gate_count_now, "max_skipped": skip_budget["max_skipped"],
@@ -902,8 +910,8 @@ def detect_invariant_gaps(contracts, acs) -> list[str]:
                    or r["polarity"] == "boundary-recovery"}
             if not neg:
                 bad.append(f"{c['id']}[{i}]:負方向AC欠落")
-            elif not neg - used_neg:
-                bad.append(f"{c['id']}[{i}]:負方向AC使い回し{sorted(neg)}")
+            elif neg & used_neg:
+                bad.append(f"{c['id']}[{i}]:負方向AC使い回し{sorted(neg & used_neg)}")
             else:
                 used_neg |= neg
     return bad
@@ -975,8 +983,12 @@ def detect_api_ut_faults(dus, tests_dir) -> list[str]:
                 bad.append(f"{d['id']}:{a['signature'][:28]}:trace外UT")
         if uts - api_uts:
             bad.append(f"{d['id']}:宙吊りUT{sorted(uts - api_uts)[:2]}")
-        api_names = {re.match(r"def (\w+)", a["signature"]).group(1) for a in d["apis"]
-                     if re.match(r"def (\w+)", a["signature"])}
+        owner_apis: dict[str, set] = {}
+        for a in d["apis"]:
+            m0 = re.match(r"def (\w+)", a["signature"])
+            if m0:
+                for u in a.get("ut", []):
+                    owner_apis.setdefault(u, set()).add(m0.group(1))
         for ref in sorted(uts):
             if "::" not in ref:
                 bad.append(f"{d['id']}:{ref}:形式")
@@ -996,8 +1008,9 @@ def detect_api_ut_faults(dus, tests_dir) -> list[str]:
             decos = head[head.rfind("\n\n"):]
             body = txt[m.start():][:600]
             if "skip" in decos or "NotImplementedError" in body:
-                # スタブは「DU-xx」と対象 API 名を skip 理由に宣言すること（匿名スタブの禁止）
-                if d["id"] not in decos or not any(n in decos for n in api_names):
+                # スタブは「DU-xx」と**この UT を所有する API 名**を skip 理由に宣言すること
+                owners = owner_apis.get(ref, set())
+                if d["id"] not in decos or not (owners and any(n in decos for n in owners)):
                     bad.append(f"{d['id']}:{ref}:設計リンク不備")
     return bad
 
@@ -1205,8 +1218,8 @@ except FileNotFoundError as e:
 # G-CHAIN-BIDIR: BR→REQ→FR/SR→AC→CMP→DU→API→UT の隣接エッジを双方向で突合（全層再降下 完了条件 4）
 #   検出ロジックは detect_chain_asymmetry() に一元化し、G-DESCENT-SELFTEST が**同じ関数**へ変異データを
 #   投入して検出能力を証明する（本体だけ変更されて自己検査が取り残される drift を防ぐ）。
-def detect_chain_asymmetry(brc_, req_, allc_, acc_, cmpc_, duc_) -> list[str]:
-    """全層 trace の非対称エッジを列挙する（空 = 双方向成立）。"""
+def detect_chain_asymmetry(brc_, req_, allc_, acc_, cmpc_, duc_, tcc_=None) -> list[str]:
+    """BR→REQ→FR/SR→AC→TC→CMP→DU→API→UT の全区間で非対称エッジを列挙する（空 = 双方向成立）。"""
     bad: list[str] = []
     up = {r["id"]: set(r["trace"]["upstream"]) for r in req_}
     down = {r["id"]: set(r["trace"]["downstream"]) | set(r.get("related", [])) for r in req_}
@@ -1247,6 +1260,34 @@ def detect_chain_asymmetry(brc_, req_, allc_, acc_, cmpc_, duc_) -> list[str]:
         if cmp_du_.get(cid, set()) != du_cmp_.get(cid, set()):
             diff = sorted(cmp_du_.get(cid, set()) ^ du_cmp_.get(cid, set()))
             bad.append(f"CMP↔DU:{cid}:{diff}")
+    # (5) FR/SR → CMP: 参照先 CMP が実在し、FR の FN を当該 CMP が被覆する
+    cmp_by_id = {c["id"]: c for c in cmpc_}
+    for c in allc_:
+        for cid in c["trace_down"].get("cmp", []):
+            if cid not in cmp_by_id:
+                bad.append(f"FRSR→CMP:{c['id']}→{cid}:不在")
+            else:
+                fns = set(c["trace_down"].get("fn", []))
+                if fns and not fns <= set(cmp_by_id[cid]["trace"]["fn"]):
+                    bad.append(f"FRSR→CMP:{c['id']}→{cid}:FN未被覆{sorted(fns - set(cmp_by_id[cid]['trace']['fn']))}")
+    # (6) AC → TC → DU: TC 参照の実在と、S0 TC の DU 割当（TC↔CMP/DU 区間の到達性）
+    if tcc_ is not None:
+        tc_ids = {t["id"] for t in tcc_}
+        du_tcs = {t for d_ in duc_ for t in d_["trace"]["tc"]}
+        for d_ in duc_:
+            for t in d_["trace"]["tc"]:
+                if t.startswith("TCC-") and t not in tc_ids:
+                    bad.append(f"DU→TC:{d_['id']}→{t}:不在")
+        s0_t = {c["id"] for c in allc_ if c["slice"] == "S0"}
+        s0_ac = {a["id"] for a in acc_ if a["target"] in s0_t}
+        for t in tcc_:
+            if t["slice"] == "S0" and set(t["ac"]) & s0_ac and t["id"] not in du_tcs:
+                bad.append(f"TC→DU:{t['id']}:未割当")
+    # (7) DU → API → UT: DU.trace.ut が API 側 ut の合併と一致（鎖の末端）
+    for d_ in duc_:
+        api_ut = {u for a in d_["apis"] for u in a.get("ut", [])}
+        if api_ut != set(d_["trace"]["ut"]):
+            bad.append(f"DU↔API-UT:{d_['id']}:{sorted(api_ut ^ set(d_['trace']['ut']))[:2]}")
     return bad
 
 
@@ -1258,7 +1299,7 @@ def detect_orphan_s0_ac(allc_, acc_, duc_) -> list[str]:
 
 
 try:
-    chain_bad = detect_chain_asymmetry(brc, req, allc, acc, cmpc, duc)
+    chain_bad = detect_chain_asymmetry(brc, req, allc, acc, cmpc, duc, tcc)
     orphan_ac = detect_orphan_s0_ac(allc, acc, duc)
     gate("G-CHAIN-BIDIR", not chain_bad and not orphan_ac,
          f"全層 trace の双方向突合 (非対称={sorted(set(chain_bad))[:6]}, DU未割当S0AC={orphan_ac[:5]})")
@@ -1291,11 +1332,11 @@ try:
     # (e) 全層 chain: BR→REQ 片方向参照を注入 → detect_chain_asymmetry が検出するか
     mut_br = [{**brc[0], "trace_down": {**brc[0]["trace_down"],
                                         "req": [*brc[0]["trace_down"]["req"], "REQ-052"]}}, *brc[1:]]
-    if not detect_chain_asymmetry(mut_br, req, allc, acc, cmpc, duc):
+    if not detect_chain_asymmetry(mut_br, req, allc, acc, cmpc, duc, tcc):
         st_ok, _ = False, st_msg.append("chain-mutation 未検出")
     # (f) 全層 chain: CMP↔DU を片方向化（DU の also_implements を剥がす）→ 等号検査が検出するか
     mut_duc = [{k: v for k, v in d_.items() if k != "also_implements"} for d_ in duc]
-    if not detect_chain_asymmetry(brc, req, allc, acc, cmpc, mut_duc):
+    if not detect_chain_asymmetry(brc, req, allc, acc, cmpc, mut_duc, tcc):
         st_ok, _ = False, st_msg.append("cmp-du-mutation 未検出")
     # (g) invariant 個別対応: 対応表の 1 行を normal AC のみへ差し替え → 検出するか
     inv_victim = next((c for c in allc if c["slice"] == "S0" and c.get("invariant_ac_map")), None)

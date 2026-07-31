@@ -130,7 +130,7 @@
 - **使用テーブル・正本**: w: strategic_briefs／w: evidence（operation_log 系拒否・操作証跡）（拒否時）／r: config（シード投入時の検証設定）
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: digest 正準化規則（キー昇順・(",",":")・UTF-8/NFC・digest/status/created_at 除外 — strategy-learning-contract §1 2bis）／media-roles.json 台帳（S0 は JSON 正本）
-- **trace**: 上流 = BR-A2 REQ-050 ／ 下流 = AC-SR-01 AC-SR-06-1 AC-SR-06-2 AC-SR-06-3 AC-SR-06-4 SCM-02 ／ スライス = S0
+- **trace**: 上流 = BR-A2 REQ-050 ／ 下流 = AC-SR-01 AC-SR-06-1 AC-SR-06-2 AC-SR-06-3 AC-SR-06-4 AC-SR-06-5 SCM-02 ／ スライス = S0
 
 ## SR-07 brief なし下流開始不可（開始ガード）
 
@@ -193,7 +193,7 @@
 - **使用テーブル・正本**: r: strategic_briefs（保護対象）／w: tactical_learning_packets（唯一の還流経路）／w: evidence（operation_log 系拒否・操作証跡）（拒否時）
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: 書込み許可 API 一覧（issue_strategic_brief／supersede_strategic_brief の 2 本 — 変更は要件改訂）
-- **trace**: 上流 = BR-B2 BR-B3 REQ-047 ／ 下流 = AC-SR-04 AC-SR-09-1 AC-SR-09-2 AC-SR-09-3 SCM-01 SCM-04 ／ スライス = S0
+- **trace**: 上流 = BR-B2 BR-B3 REQ-047 ／ 下流 = AC-SR-04 AC-SR-09-1 AC-SR-09-2 AC-SR-09-3 AC-SR-09-4 SCM-01 SCM-04 ／ スライス = S0
 
 ## SR-10 strategy_revision の根拠規律
 
@@ -235,7 +235,7 @@
 - **使用テーブル・正本**: rw: strategic_briefs（append-only — 内容列不変）／w: tactical_learning_packets（append-only）
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: 保護トリガ定義（s0-contract §2 — migration 0001 と等価）
-- **trace**: 上流 = NFR-2 NFR-3 REQ-048 ／ 下流 = AC-SR-05 AC-SR-11-1 AC-SR-11-2 AC-SR-11-3 AC-SR-11-4 SCM-01 ／ スライス = S0
+- **trace**: 上流 = NFR-2 NFR-3 REQ-048 ／ 下流 = AC-SR-05 AC-SR-11-1 AC-SR-11-2 AC-SR-11-3 AC-SR-11-4 AC-SR-11-5 AC-SR-11-6 SCM-01 ／ スライス = S0
 
 ## SR-12 KPI ツリーの位置づけ（観測背骨・戦略正本にしない）
 
@@ -319,7 +319,7 @@
 - **使用テーブル・正本**: r: strategic_briefs（先行配置の存在検証）／r: tactical_learning_packets（同上）
 - **外部依存**: python-ci（GitHub Actions — pytest 実行）
 - **設定値**: なし ／ **固定値**: S0 必須 5 点の一覧（strategy-loop-requirements §6 — 変更は要件改訂）
-- **trace**: 上流 = charter v0.4 §7 ／ 下流 = AC-SR-15-1 AC-SR-15-2 AC-SR-15-3 AC-SR-15-4 SCM-01 SCM-02 SCM-03 SCM-04 ／ スライス = S0
+- **trace**: 上流 = charter v0.4 §7 ／ 下流 = AC-SR-15-1 AC-SR-15-2 AC-SR-15-3 AC-SR-15-4 AC-SR-15-5 AC-SR-15-6 SCM-01 SCM-02 SCM-03 SCM-04 ／ スライス = S0
 
 ## SR-16 上流ループ一周の判定
 

@@ -122,27 +122,37 @@
           "AC-13-3",
           "AC-13-4",
           "AC-13-5",
+          "AC-13-6",
           "AC-16-1",
           "AC-16-2",
           "AC-16-3",
           "AC-16-4",
+          "AC-16-5",
+          "AC-16-6",
           "AC-SR-02",
           "AC-SR-07-1",
           "AC-SR-07-2"
         ],
         "tc": [
+          "STC-I-03",
           "TCC-11-1",
           "TCC-11-2",
           "TCC-11-3",
-          "TCC-CONFLICT-1",
-          "TCC-KILL-1",
+          "TCC-11-4",
           "TCC-13-1",
           "TCC-13-2",
           "TCC-13-3",
+          "TCC-13-4",
+          "TCC-13-5",
+          "TCC-13-6",
           "TCC-16-1",
           "TCC-16-2",
           "TCC-16-3",
-          "STC-I-03",
+          "TCC-16-4",
+          "TCC-16-5",
+          "TCC-16-6",
+          "TCC-CONFLICT-1",
+          "TCC-KILL-1",
           "TCC-SR-02",
           "TCC-SR-07-1",
           "TCC-SR-07-2"
@@ -455,6 +465,7 @@
           "AC-27-2",
           "AC-27-3",
           "AC-27-4",
+          "AC-27-5",
           "AC-SR-01",
           "AC-SR-02",
           "AC-SR-03",
@@ -464,6 +475,7 @@
           "AC-SR-06-2",
           "AC-SR-06-3",
           "AC-SR-06-4",
+          "AC-SR-06-5",
           "AC-SR-07-1",
           "AC-SR-07-2",
           "AC-SR-08-1",
@@ -472,33 +484,55 @@
           "AC-SR-09-1",
           "AC-SR-09-2",
           "AC-SR-09-3",
+          "AC-SR-09-4",
           "AC-SR-15-1",
           "AC-SR-15-2",
           "AC-SR-15-3",
-          "AC-SR-15-4"
+          "AC-SR-15-4",
+          "AC-SR-15-5",
+          "AC-SR-15-6"
         ],
         "tc": [
+          "STC-I-03",
+          "STC-I-04",
+          "STC-I-05",
+          "STC-I-06",
           "TCC-12-1",
           "TCC-12-2",
           "TCC-12-3",
+          "TCC-12-4",
+          "TCC-27-1",
+          "TCC-27-2",
           "TCC-27-3",
-          "STC-I-04",
+          "TCC-27-4",
+          "TCC-27-5",
+          "TCC-CONFLICT-2",
+          "TCC-KILL-2",
           "TCC-SR-01",
+          "TCC-SR-02",
+          "TCC-SR-03",
+          "TCC-SR-04",
+          "TCC-SR-06",
           "TCC-SR-06-1",
           "TCC-SR-06-2",
-          "STC-I-03",
-          "TCC-SR-02",
-          "STC-I-05",
-          "TCC-KILL-2",
-          "TCC-SR-03",
+          "TCC-SR-06-3",
+          "TCC-SR-06-4",
+          "TCC-SR-06-5",
+          "TCC-SR-07-1",
+          "TCC-SR-07-2",
           "TCC-SR-08-1",
           "TCC-SR-08-2",
-          "TCC-CONFLICT-2",
-          "TCC-SR-06",
-          "STC-I-06",
-          "TCC-SR-04",
+          "TCC-SR-08-3",
           "TCC-SR-09-1",
-          "TCC-SR-09-2"
+          "TCC-SR-09-2",
+          "TCC-SR-09-3",
+          "TCC-SR-09-4",
+          "TCC-SR-15-1",
+          "TCC-SR-15-2",
+          "TCC-SR-15-3",
+          "TCC-SR-15-4",
+          "TCC-SR-15-5",
+          "TCC-SR-15-6"
         ],
         "ut": [
           "test_kernel_orchestrator.py::test_issue_task_inserts_with_deterministic_idempotency_key",
@@ -601,11 +635,15 @@
           "AC-27-1",
           "AC-27-2",
           "AC-27-3",
-          "AC-27-4"
+          "AC-27-4",
+          "AC-27-5"
         ],
         "tc": [
           "TCC-27-1",
-          "TCC-27-2"
+          "TCC-27-2",
+          "TCC-27-3",
+          "TCC-27-4",
+          "TCC-27-5"
         ],
         "ut": [
           "test_kernel_assigner.py::test_assign_active_different_principal_pair",
@@ -724,6 +762,11 @@
         ],
         "tc": [
           "TCC-12-1",
+          "TCC-12-2",
+          "TCC-12-3",
+          "TCC-12-4",
+          "TCC-42-1",
+          "TCC-42-2",
           "TCC-42-3",
           "TCC-RESUME-1"
         ],
@@ -845,12 +888,15 @@
           "AC-21-1",
           "AC-21-2",
           "AC-21-3",
-          "AC-21-4"
+          "AC-21-4",
+          "AC-21-5"
         ],
         "tc": [
           "TCC-21-1",
           "TCC-21-2",
-          "TCC-21-3"
+          "TCC-21-3",
+          "TCC-21-4",
+          "TCC-21-5"
         ],
         "ut": [
           "test_gates_pair.py::test_establish_hash_match_creates_passed_pair_and_pairpass",
@@ -931,13 +977,20 @@
           "AC-21-2",
           "AC-21-3",
           "AC-21-4",
+          "AC-21-5",
           "AC-44-1",
           "AC-44-2",
           "AC-44-3"
         ],
         "tc": [
+          "TCC-21-1",
           "TCC-21-2",
-          "TCC-44-2"
+          "TCC-21-3",
+          "TCC-21-4",
+          "TCC-21-5",
+          "TCC-44-1",
+          "TCC-44-2",
+          "TCC-44-3"
         ],
         "ut": [
           "test_gates_publish.py::test_check_publishable_all_conditions_returns_pairpass",
@@ -1017,12 +1070,15 @@
           "AC-23-1",
           "AC-23-2",
           "AC-23-3",
-          "AC-23-4"
+          "AC-23-4",
+          "AC-23-5"
         ],
         "tc": [
           "TCC-23-1",
           "TCC-23-2",
-          "TCC-23-3"
+          "TCC-23-3",
+          "TCC-23-4",
+          "TCC-23-5"
         ],
         "ut": [
           "test_gates_zero_ad.py::test_check_metric_type_free_metric_passes",
@@ -1095,12 +1151,17 @@
           "AC-28-1",
           "AC-28-2",
           "AC-28-3",
-          "AC-28-4"
+          "AC-28-4",
+          "AC-28-5",
+          "AC-28-6"
         ],
         "tc": [
           "TCC-28-1",
           "TCC-28-2",
-          "TCC-28-3"
+          "TCC-28-3",
+          "TCC-28-4",
+          "TCC-28-5",
+          "TCC-28-6"
         ],
         "ut": [
           "test_gates_evidence_check.py::test_check_complete_all_required_kinds_pass",
@@ -1220,19 +1281,38 @@
           "AC-28-2",
           "AC-28-3",
           "AC-28-4",
+          "AC-28-5",
+          "AC-28-6",
           "AC-47-1",
           "AC-47-2",
           "AC-47-3",
           "AC-47-4",
+          "AC-47-5",
+          "AC-47-6",
           "AC-54-1",
           "AC-54-2",
           "AC-54-3",
-          "AC-54-4"
+          "AC-54-4",
+          "AC-54-5"
         ],
         "tc": [
+          "TCC-28-1",
           "TCC-28-2",
+          "TCC-28-3",
+          "TCC-28-4",
+          "TCC-28-5",
+          "TCC-28-6",
+          "TCC-47-1",
           "TCC-47-2",
-          "TCC-54-3"
+          "TCC-47-3",
+          "TCC-47-4",
+          "TCC-47-5",
+          "TCC-47-6",
+          "TCC-54-1",
+          "TCC-54-2",
+          "TCC-54-3",
+          "TCC-54-4",
+          "TCC-54-5"
         ],
         "ut": [
           "test_evidence_store.py::test_record_valid_kind_payload_inserts_and_returns_id",
@@ -1306,7 +1386,10 @@
           "AC-71-4"
         ],
         "tc": [
-          "TCC-71-3"
+          "TCC-71-1",
+          "TCC-71-2",
+          "TCC-71-3",
+          "TCC-71-4"
         ],
         "ut": [
           "test_db_connect.py::test_connect_sets_foreign_keys_on",
@@ -1427,24 +1510,35 @@
           "AC-72-2",
           "AC-72-3",
           "AC-72-4",
+          "AC-72-5",
           "AC-SR-05",
           "AC-SR-11-1",
           "AC-SR-11-2",
           "AC-SR-11-3",
-          "AC-SR-11-4"
+          "AC-SR-11-4",
+          "AC-SR-11-5",
+          "AC-SR-11-6"
         ],
         "tc": [
+          "STC-I-01",
+          "STC-I-02",
           "TCC-71-1",
           "TCC-71-2",
+          "TCC-71-3",
+          "TCC-71-4",
           "TCC-72-1",
           "TCC-72-2",
           "TCC-72-3",
+          "TCC-72-4",
+          "TCC-72-5",
           "TCC-RESUME-2",
-          "STC-I-01",
-          "STC-I-02",
           "TCC-SR-05",
           "TCC-SR-11-1",
-          "TCC-SR-11-2"
+          "TCC-SR-11-2",
+          "TCC-SR-11-3",
+          "TCC-SR-11-4",
+          "TCC-SR-11-5",
+          "TCC-SR-11-6"
         ],
         "ut": [
           "test_db_migrate.py::test_apply_all_empty_db_creates_25_tables_and_11_triggers",
@@ -1551,12 +1645,16 @@
           "AC-33-2",
           "AC-33-3",
           "AC-33-4",
-          "AC-33-5"
+          "AC-33-5",
+          "AC-33-6"
         ],
         "tc": [
           "TCC-33-1",
           "TCC-33-2",
-          "TCC-33-3"
+          "TCC-33-3",
+          "TCC-33-4",
+          "TCC-33-5",
+          "TCC-33-6"
         ],
         "ut": [
           "test_config_store.py::test_set_inserts_new_row_with_supersedes_chain",
@@ -1655,13 +1753,17 @@
           "AC-41-2",
           "AC-41-3",
           "AC-41-4",
-          "AC-41-5"
+          "AC-41-5",
+          "AC-41-6"
         ],
         "tc": [
           "TC-041",
           "TCC-41-1",
           "TCC-41-2",
-          "TCC-41-3"
+          "TCC-41-3",
+          "TCC-41-4",
+          "TCC-41-5",
+          "TCC-41-6"
         ],
         "ut": [
           "test_registry_resolver.py::test_resolve_priority_order_mcp_first",
@@ -1793,13 +1895,18 @@
           "AC-47-1",
           "AC-47-2",
           "AC-47-3",
-          "AC-47-4"
+          "AC-47-4",
+          "AC-47-5",
+          "AC-47-6"
         ],
         "tc": [
           "TC-047",
           "TCC-47-1",
           "TCC-47-2",
-          "TCC-47-3"
+          "TCC-47-3",
+          "TCC-47-4",
+          "TCC-47-5",
+          "TCC-47-6"
         ],
         "ut": [
           "test_registry_secrets.py::test_secret_repr_and_exception_masked",
@@ -2077,10 +2184,13 @@
         ],
         "tc": [
           "TC-042",
+          "TCC-42-1",
           "TCC-42-2",
+          "TCC-42-3",
           "TCC-43-1",
           "TCC-43-2",
-          "TCC-43-3"
+          "TCC-43-3",
+          "TCC-RESUME-1"
         ],
         "ut": [
           "test_connectors_playbooks.py::test_get_active_playbook_validated",
@@ -2283,16 +2393,21 @@
           "AC-51-1",
           "AC-51-2",
           "AC-51-3",
-          "AC-51-4"
+          "AC-51-4",
+          "AC-51-5"
         ],
         "tc": [
-          "TC-044-R",
           "TC-044-A",
+          "TC-044-R",
           "TC-GATE-07",
           "TCC-44-1",
           "TCC-44-2",
           "TCC-44-3",
-          "TCC-51-3"
+          "TCC-51-1",
+          "TCC-51-2",
+          "TCC-51-3",
+          "TCC-51-4",
+          "TCC-51-5"
         ],
         "ut": [
           "test_connectors_wp.py::test_draft_and_publish_separate_keys_separate_rows",
@@ -2425,7 +2540,8 @@
           "TC-GATE-06",
           "TCC-46-1",
           "TCC-46-2",
-          "TCC-46-3"
+          "TCC-46-3",
+          "TCC-46-4"
         ],
         "ut": [
           "test_connectors_approval.py::test_request_inserts_pending_and_notifies_binding",
@@ -2501,13 +2617,17 @@
           "AC-51-1",
           "AC-51-2",
           "AC-51-3",
-          "AC-51-4"
+          "AC-51-4",
+          "AC-51-5"
         ],
         "tc": [
           "TC-051",
           "TC-NFR-02",
           "TCC-51-1",
-          "TCC-51-2"
+          "TCC-51-2",
+          "TCC-51-3",
+          "TCC-51-4",
+          "TCC-51-5"
         ],
         "ut": [
           "test_content_generate.py::test_same_input_same_seed_same_sha256",
@@ -2628,15 +2748,23 @@
           "AC-54-2",
           "AC-54-3",
           "AC-54-4",
+          "AC-54-5",
           "AC-55-1",
           "AC-55-2",
-          "AC-55-3"
+          "AC-55-3",
+          "AC-55-4"
         ],
         "tc": [
           "TC-054",
           "TCC-54-1",
           "TCC-54-2",
-          "TCC-54-3"
+          "TCC-54-3",
+          "TCC-54-4",
+          "TCC-54-5",
+          "TCC-55-1",
+          "TCC-55-2",
+          "TCC-55-3",
+          "TCC-55-4"
         ],
         "ut": [
           "test_content_versioning.py::test_commit_returns_valid_40_or_64_hex_hash",
@@ -2750,13 +2878,17 @@
           "AC-61-2",
           "AC-61-3",
           "AC-61-4",
-          "AC-61-5"
+          "AC-61-5",
+          "AC-61-6"
         ],
         "tc": [
           "TC-023",
           "TCC-61-1",
           "TCC-61-2",
-          "TCC-61-3"
+          "TCC-61-3",
+          "TCC-61-4",
+          "TCC-61-5",
+          "TCC-61-6"
         ],
         "ut": [
           "test_measure_kpi.py::test_create_node_all_five_layers_grounded",
@@ -2859,10 +2991,18 @@
           "AC-62-2",
           "AC-62-3",
           "AC-62-4",
-          "AC-62-5"
+          "AC-62-5",
+          "AC-62-6",
+          "AC-62-7"
         ],
         "tc": [
-          "TCC-62-1"
+          "TCC-62-1",
+          "TCC-62-2",
+          "TCC-62-3",
+          "TCC-62-4",
+          "TCC-62-5",
+          "TCC-62-6",
+          "TCC-62-7"
         ],
         "ut": [
           "test_measure_fetch.py::test_api_first_route_selected",
@@ -2972,14 +3112,20 @@
           "AC-62-2",
           "AC-62-3",
           "AC-62-4",
-          "AC-62-5"
+          "AC-62-5",
+          "AC-62-6",
+          "AC-62-7"
         ],
         "tc": [
           "TC-061",
           "TC-062",
           "TCC-62-1",
           "TCC-62-2",
-          "TCC-62-3"
+          "TCC-62-3",
+          "TCC-62-4",
+          "TCC-62-5",
+          "TCC-62-6",
+          "TCC-62-7"
         ],
         "ut": [
           "test_measure_parse.py::test_partial_corruption_quarantined_normal_rows_continue",

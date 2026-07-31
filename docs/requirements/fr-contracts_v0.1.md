@@ -66,7 +66,7 @@
 - **使用テーブル・正本**: rw: tasks／w: state_transitions／r: config（retry_limit）／r: evidence（必須証跡・verifier 証跡の検査）／r: agents（principal 検査）
 - **外部依存**: なし
 - **設定値**: config.retry_limit（C・暫定既定値 3 — 差戻し上限） ／ **固定値**: なし
-- **trace**: 上流 = BR-A4 REQ-003 ／ 下流 = AC-13-1 AC-13-2 AC-13-3 AC-13-4 AC-13-5 FN-103 CMP-02 ／ スライス = S0
+- **trace**: 上流 = BR-A4 REQ-003 ／ 下流 = AC-13-1 AC-13-2 AC-13-3 AC-13-4 AC-13-5 AC-13-6 FN-103 CMP-02 ／ スライス = S0
 
 ## FR-14 スプリント制御
 
@@ -129,7 +129,7 @@
 - **使用テーブル・正本**: rw: tasks／rw: loop_runs／w: state_transitions／r: config（approval_retry_limit・retry_limit）／r: approvals（expired／rejected の分類入力）／r: playbooks（地図破損の検出源）／r: spend_ledger（予算超過の検出源）
 - **外部依存**: 通知 transport（Claude Code アプリ — FR-46 経路。テストでは mock で approve/reject/timeout を再現）
 - **設定値**: config.approval_retry_limit（expired 時の承認再要求上限）／config.retry_limit（retry_exhausted 境界 — FR-13 と共有） ／ **固定値**: 異常種別カタログ（ゲート赤・予算超過・地図破損・リトライ超過 — failure_code 分類の正本）
-- **trace**: 上流 = BR-H3 BR-F5 REQ-039 ／ 下流 = AC-16-1 AC-16-2 AC-16-3 AC-16-4 FN-110 CMP-01 ／ スライス = S0
+- **trace**: 上流 = BR-H3 BR-F5 REQ-039 ／ 下流 = AC-16-1 AC-16-2 AC-16-3 AC-16-4 AC-16-5 AC-16-6 FN-110 CMP-01 ／ スライス = S0
 
 ## FR-21 企画↔品質ペア判定
 
@@ -150,7 +150,7 @@
 - **使用テーブル・正本**: rw: pair_plan_quality／r: action_plans／r: tasks（review_task 参照）／r: evidence（review_pass・plan_record）／w: evidence（operation_log 系拒否・操作証跡）（拒否時）
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: pair 成立条件 = 両参照実在＋review_pass PASS＋commit_hash 一致（s0-contract §4.1）
-- **trace**: 上流 = BR-B1 REQ-008 ／ 下流 = AC-21-1 AC-21-2 AC-21-3 AC-21-4 FN-201 FN-202 CMP-03 ／ スライス = S0
+- **trace**: 上流 = BR-B1 REQ-008 ／ 下流 = AC-21-1 AC-21-2 AC-21-3 AC-21-4 AC-21-5 FN-201 FN-202 CMP-03 ／ スライス = S0
 
 ## FR-22 計画↔計測ペア判定
 
@@ -192,7 +192,7 @@
 - **使用テーブル・正本**: r: config（URL 許可リスト）／r: kpi_nodes（重複検査）／w: evidence（operation_log 系拒否・操作証跡）
 - **外部依存**: なし
 - **設定値**: config.url_allowlist（媒体別） ／ **固定値**: 有料指標型の定義リスト（CAC/ROAS/広告費/CPC/CPM）
-- **trace**: 上流 = BR-C1 REQ-012 ／ 下流 = AC-23-1 AC-23-2 AC-23-3 AC-23-4 FN-204 CMP-03 ／ スライス = S0
+- **trace**: 上流 = BR-C1 REQ-012 ／ 下流 = AC-23-1 AC-23-2 AC-23-3 AC-23-4 AC-23-5 FN-204 CMP-03 ／ スライス = S0
 
 ## FR-24 PR 表記ゲート
 
@@ -276,7 +276,7 @@
 - **使用テーブル・正本**: rw: tasks（CHECK 制約・lease 列）／r: agents（principal・status）／r: agent_executions（execution の帰属照合）／w: state_transitions（拒否記録）
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: CHECK (author_agent_id != verifier_agent_id)（DDL 固定 — 変更は migration＋要件改訂）／principal 相違の判定規則（s0-contract §1）
-- **trace**: 上流 = BR-B4 REQ-011 ／ 下流 = AC-27-1 AC-27-2 AC-27-3 AC-27-4 FN-105 CMP-02 CMP-05 ／ スライス = S0
+- **trace**: 上流 = BR-B4 REQ-011 ／ 下流 = AC-27-1 AC-27-2 AC-27-3 AC-27-4 AC-27-5 FN-105 CMP-02 CMP-05 ／ スライス = S0
 
 ## FR-28 証跡完備検証
 
@@ -297,7 +297,7 @@
 - **使用テーブル・正本**: r: workflows（required_evidence_json）／r: evidence（当該 task の kind 集合）／rw: tasks（done 遷移）／w: state_transitions
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: evidence kind の enum と kind 固有規則（s0-contract §2.1 — rename 禁止）／S0 のタスク種別ごとの必須 kind 集合（§2.1 末尾）
-- **trace**: 上流 = BR-B3 REQ-010 REQ-052 ／ 下流 = AC-28-1 AC-28-2 AC-28-3 AC-28-4 FN-208 CMP-03 CMP-04 ／ スライス = S0
+- **trace**: 上流 = BR-B3 REQ-010 REQ-052 ／ 下流 = AC-28-1 AC-28-2 AC-28-3 AC-28-4 AC-28-5 AC-28-6 FN-208 CMP-03 CMP-04 ／ スライス = S0
 
 ## FR-31 ヒアリングエンジン
 
@@ -360,7 +360,7 @@
 - **使用テーブル・正本**: rw: config（w は INSERT のみ — UPDATE/DELETE 不可）／r: agents（changed_by_agent_id の FK 先）
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: 安全側既定値の seed 表（spend_cap_monthly=5000 円/月・retry_limit 等 — 初期 migration で投入）／append-only 保護トリガ（config_no_update／config_no_delete）
-- **trace**: 上流 = BR-D3 REQ-018 ／ 下流 = AC-33-1 AC-33-2 AC-33-3 AC-33-4 AC-33-5 FN-305 CMP-06 ／ スライス = S0
+- **trace**: 上流 = BR-D3 REQ-018 ／ 下流 = AC-33-1 AC-33-2 AC-33-3 AC-33-4 AC-33-5 AC-33-6 FN-305 CMP-06 ／ スライス = S0
 
 ## FR-34 事業非依存（business_profiles 分離）
 
@@ -402,7 +402,7 @@
 - **使用テーブル・正本**: r: config（registry.* 行）／w: evidence（operation_log 系拒否・操作証跡）／r: spend_ledger（有償経路の台帳配線検査）
 - **外部依存**: なし
 - **設定値**: config.registry.<service>（優先経路・フォールバック・認証方式の JSON）／config.registry.<service>.paid_exception（有償経路の明示例外宣言） ／ **固定値**: 経路優先順 MCP → ブラウザ → 有償 API（BR-F1 — 変更は要件改訂）／route_type 語彙（mcp/browser/api/wp_rest/wp_cli — playbooks DDL と共通）
-- **trace**: 上流 = BR-F1 BR-F3 REQ-026 REQ-030 NFR-8 ／ 下流 = AC-41-1 AC-41-2 AC-41-3 AC-41-4 AC-41-5 FN-401 FN-412 CMP-07 ／ スライス = S0
+- **trace**: 上流 = BR-F1 BR-F3 REQ-026 REQ-030 NFR-8 ／ 下流 = AC-41-1 AC-41-2 AC-41-3 AC-41-4 AC-41-5 AC-41-6 FN-401 FN-412 CMP-07 ／ スライス = S0
 
 ## FR-42 ブラウザ自動化基盤
 
@@ -528,7 +528,7 @@
 - **使用テーブル・正本**: w: evidence（operation_log 系拒否・操作証跡）（evidence kind — 検知時のみ）／r: config（マスキング規則の非秘匿設定）
 - **外部依存**: OS キーチェーンまたは暗号化ストア（SQLite 外 — 鍵分離 BR-F4）
 - **設定値**: config.secret.masking_patterns（credential パターンの非秘匿定義） ／ **固定値**: 秘匿値の保管先 = OS キーチェーン／暗号化ストアのみ（SQLite・repo・ログ禁止 — BR-F4）
-- **trace**: 上流 = BR-F4 REQ-031 NFR-4 ／ 下流 = AC-47-1 AC-47-2 AC-47-3 AC-47-4 FN-411 CMP-07 ／ スライス = S0
+- **trace**: 上流 = BR-F4 REQ-031 NFR-4 ／ 下流 = AC-47-1 AC-47-2 AC-47-3 AC-47-4 AC-47-5 AC-47-6 FN-411 CMP-07 ／ スライス = S0
 
 ## FR-51 レンダリングパイプライン
 
@@ -549,7 +549,7 @@
 - **使用テーブル・正本**: r: tasks／r: workflows（出力プロファイル）／w: assets／w: evidence／w: evidence（operation_log 系拒否・操作証跡）／r: config（サイズ上限・WP 接続参照）
 - **外部依存**: ヘッドレスブラウザ（スクショ・PDF 化）／Docker WP（メディア API）／git（commit 解決）
 - **設定値**: config.render_output_max_bytes／config.wp_target（Docker WP 接続参照） ／ **固定値**: hash アルゴリズム = SHA-256／出力プロファイル種別（screenshot|pdf|manuscript）
-- **trace**: 上流 = BR-G1 BR-G2 NFR-2 REQ-041 ／ 下流 = AC-51-1 AC-51-2 AC-51-3 AC-51-4 FN-501 FN-502 FN-503 CMP-12 ／ スライス = S0
+- **trace**: 上流 = BR-G1 BR-G2 NFR-2 REQ-041 ／ 下流 = AC-51-1 AC-51-2 AC-51-3 AC-51-4 AC-51-5 FN-501 FN-502 FN-503 CMP-12 ／ スライス = S0
 
 ## FR-52 デザイントークン適用
 
@@ -612,7 +612,7 @@
 - **使用テーブル・正本**: r: tasks／w: evidence／w: evidence（operation_log 系拒否・操作証跡）／r: pair_plan_quality（審査経路整合の参照）
 - **外部依存**: git（hash 取得・checkout 復元）
 - **設定値**: なし ／ **固定値**: commit_hash 桁数 = 40 または 64（DDL CHECK と同値）／evidence kind = commit_hash / review_pass（s0-contract §2.1）
-- **trace**: 上流 = BR-G1 BR-B3 REQ-032 ／ 下流 = AC-54-1 AC-54-2 AC-54-3 AC-54-4 FN-511 CMP-12 ／ スライス = S0
+- **trace**: 上流 = BR-G1 BR-B3 REQ-032 ／ 下流 = AC-54-1 AC-54-2 AC-54-3 AC-54-4 AC-54-5 FN-511 CMP-12 ／ スライス = S0
 
 ## FR-55 資産収束・リパーパス追跡
 
@@ -633,7 +633,7 @@
 - **使用テーブル・正本**: rw: assets／r: tasks（source_task_id 整合）／w: evidence（operation_log 系拒否・操作証跡）
 - **外部依存**: Docker WP（実体の置き場 — 本 FR 自体は参照登録のみ）
 - **設定値**: config.asset_metadata_max_bytes（参照サイズ上限 — 実体混入検知） ／ **固定値**: 系譜構造 = parent_asset_id による単方向ツリー（循環禁止）
-- **trace**: 上流 = BR-G2 REQ-033 REQ-034 ／ 下流 = AC-55-1 AC-55-2 AC-55-3 FN-512 CMP-12 ／ スライス = S0
+- **trace**: 上流 = BR-G2 REQ-033 REQ-034 ／ 下流 = AC-55-1 AC-55-2 AC-55-3 AC-55-4 FN-512 CMP-12 ／ スライス = S0
 
 ## FR-61 KPI ツリー
 
@@ -654,7 +654,7 @@
 - **使用テーブル・正本**: rw: kpi_nodes／r: business_profiles／r: measurements（集計）／w: evidence（operation_log 系拒否・操作証跡）
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: 5 階層 enum（exposure/micro_cv/conversion/relationship/revenue — DDL CHECK と同値）／有料指標型の禁止リスト（cac/roas/ad_spend — FR-23 と共有）
-- **trace**: 上流 = BR-E1 REQ-020 REQ-021 ／ 下流 = AC-61-1 AC-61-2 AC-61-3 AC-61-4 AC-61-5 FN-601 FN-604 CMP-13 ／ スライス = S0
+- **trace**: 上流 = BR-E1 REQ-020 REQ-021 ／ 下流 = AC-61-1 AC-61-2 AC-61-3 AC-61-4 AC-61-5 AC-61-6 FN-601 FN-604 CMP-13 ／ スライス = S0
 
 ## FR-62 計測取り込みパイプライン
 
@@ -675,7 +675,7 @@
 - **使用テーブル・正本**: w: measurements／r: kpi_nodes／r: tasks／w: evidence／w: evidence（operation_log 系拒否・操作証跡）／r: playbooks（ブラウザ経路手順）／r: config
 - **外部依存**: GA4 / GSC 正規 API（read-only — ADR-006）／ブラウザエクスポート（フォールバック経路）
 - **設定値**: config.import_quarantine_dir（隔離先）／config.ga4_property_ref（接続参照 — credential は秘匿ストア） ／ **固定値**: hash アルゴリズム = SHA-256／1 取込 = 1 transaction（部分コミット禁止）
-- **trace**: 上流 = BR-E2 REQ-022 REQ-023 ／ 下流 = AC-62-1 AC-62-2 AC-62-3 AC-62-4 AC-62-5 FN-602 FN-603 CMP-13 ／ スライス = S0
+- **trace**: 上流 = BR-E2 REQ-022 REQ-023 ／ 下流 = AC-62-1 AC-62-2 AC-62-3 AC-62-4 AC-62-5 AC-62-6 AC-62-7 FN-602 FN-603 CMP-13 ／ スライス = S0
 
 ## FR-63 ダッシュボード生成
 
@@ -738,7 +738,7 @@
 - **使用テーブル・正本**: rw: schema_version／r: tactical_learning_packets・loop_runs（TLP 孤児検査）／参照: 全業務テーブル（migration の適用対象 — s0-contract §2 が正準）／rw: schema_version
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: migration ファイル命名規約（NNNN_description.sql）／昇格 3 段階（expand/backfill/contract）と rename 禁止（s0-contract §5）
-- **trace**: 上流 = NFR-3 charter v0.4 §3 横断原則（HELIX 同様、壊す変更をしない） ／ 下流 = AC-72-1 AC-72-2 AC-72-3 AC-72-4 FN-702 CMP-05 ／ スライス = S0
+- **trace**: 上流 = NFR-3 charter v0.4 §3 横断原則（HELIX 同様、壊す変更をしない） ／ 下流 = AC-72-1 AC-72-2 AC-72-3 AC-72-4 AC-72-5 FN-702 CMP-05 ／ スライス = S0
 
 ## FR-73 例外支出台帳（spend_ledger）
 

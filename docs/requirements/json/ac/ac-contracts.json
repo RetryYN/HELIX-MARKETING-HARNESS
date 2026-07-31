@@ -252,6 +252,25 @@
       ]
     },
     {
+      "id": "AC-13-6",
+      "target": "FR-13",
+      "polarity": "reject",
+      "given": "FR-13 の不変条件『差戻し理由・verifier 証跡を欠く FAIL 遷移は存在しない』が成立している状態（正常系 fixture を seed 済み）",
+      "when": "当該不変条件のみを破る操作（差戻し理由・verifier 証跡を欠く FAIL 遷移は存在しない に反する入力・順序・並行実行）を実行する",
+      "then": "操作は拒否されるか安全側へ倒れ、不変条件は破れないまま維持される（他の不変条件の検査に依存しない）",
+      "fixture": "FR-13 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件",
+      "observation_point": "raise される例外型／対象テーブルの前後スナップショット比較",
+      "expected_state": "不変条件が維持された状態（操作前と同一）",
+      "expected_db_delta": "差分なし（拒否は副作用を持たない）",
+      "expected_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "forbidden_side_effects": "不変条件を破った状態での永続化・部分適用",
+      "error_type": "GateRejected",
+      "target_update": "S0.1（FR-13 の不変条件強制）",
+      "tc": [
+        "TCC-13-6"
+      ]
+    },
+    {
       "id": "AC-14-1",
       "target": "FR-14",
       "polarity": "normal",
@@ -442,6 +461,44 @@
       ]
     },
     {
+      "id": "AC-16-5",
+      "target": "FR-16",
+      "polarity": "reject",
+      "given": "FR-16 の不変条件『承認 decision = rejected は escalate に含めない（non_retryabl』が成立している状態（正常系 fixture を seed 済み）",
+      "when": "当該不変条件のみを破る操作（承認 decision = rejected は escalate に含めない（non_retryabl に反する入力・順序・並行実行）を実行する",
+      "then": "操作は拒否されるか安全側へ倒れ、不変条件は破れないまま維持される（他の不変条件の検査に依存しない）",
+      "fixture": "FR-16 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件",
+      "observation_point": "raise される例外型／対象テーブルの前後スナップショット比較",
+      "expected_state": "不変条件が維持された状態（操作前と同一）",
+      "expected_db_delta": "差分なし（拒否は副作用を持たない）",
+      "expected_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "forbidden_side_effects": "不変条件を破った状態での永続化・部分適用",
+      "error_type": "GateRejected",
+      "target_update": "S0.1（FR-16 の不変条件強制）",
+      "tc": [
+        "TCC-16-5"
+      ]
+    },
+    {
+      "id": "AC-16-6",
+      "target": "FR-16",
+      "polarity": "reject",
+      "given": "FR-16 の不変条件『escalated は終端であり、人が新しい run/task を明示発行するまで遷移しない』が成立している状態（正常系 fixture を seed 済み）",
+      "when": "当該不変条件のみを破る操作（escalated は終端であり、人が新しい run/task を明示発行するまで遷移しない に反する入力・順序・並行実行）を実行する",
+      "then": "操作は拒否されるか安全側へ倒れ、不変条件は破れないまま維持される（他の不変条件の検査に依存しない）",
+      "fixture": "FR-16 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件",
+      "observation_point": "raise される例外型／対象テーブルの前後スナップショット比較",
+      "expected_state": "不変条件が維持された状態（操作前と同一）",
+      "expected_db_delta": "差分なし（拒否は副作用を持たない）",
+      "expected_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "forbidden_side_effects": "不変条件を破った状態での永続化・部分適用",
+      "error_type": "GateRejected",
+      "target_update": "S0.1（FR-16 の不変条件強制）",
+      "tc": [
+        "TCC-16-6"
+      ]
+    },
+    {
       "id": "AC-21-1",
       "target": "FR-21",
       "polarity": "normal",
@@ -515,6 +572,25 @@
       "target_update": "S0.1（ペアゲート）",
       "tc": [
         "TCC-21-4"
+      ]
+    },
+    {
+      "id": "AC-21-5",
+      "target": "FR-21",
+      "polarity": "reject",
+      "given": "FR-21 の不変条件『pair 判定に人間によるバイパス経路が存在しない』が成立している状態（正常系 fixture を seed 済み）",
+      "when": "当該不変条件のみを破る操作（pair 判定に人間によるバイパス経路が存在しない に反する入力・順序・並行実行）を実行する",
+      "then": "操作は拒否されるか安全側へ倒れ、不変条件は破れないまま維持される（他の不変条件の検査に依存しない）",
+      "fixture": "FR-21 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件",
+      "observation_point": "raise される例外型／対象テーブルの前後スナップショット比較",
+      "expected_state": "不変条件が維持された状態（操作前と同一）",
+      "expected_db_delta": "差分なし（拒否は副作用を持たない）",
+      "expected_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "forbidden_side_effects": "不変条件を破った状態での永続化・部分適用",
+      "error_type": "GateRejected",
+      "target_update": "S0.1（FR-21 の不変条件強制）",
+      "tc": [
+        "TCC-21-5"
       ]
     },
     {
@@ -648,6 +724,25 @@
       "target_update": "S0.2（ゲート層）",
       "tc": [
         "TCC-23-4"
+      ]
+    },
+    {
+      "id": "AC-23-5",
+      "target": "FR-23",
+      "polarity": "reject",
+      "given": "FR-23 の不変条件『本ゲートに人間によるバイパス経路が存在しない』が成立している状態（正常系 fixture を seed 済み）",
+      "when": "当該不変条件のみを破る操作（本ゲートに人間によるバイパス経路が存在しない に反する入力・順序・並行実行）を実行する",
+      "then": "操作は拒否されるか安全側へ倒れ、不変条件は破れないまま維持される（他の不変条件の検査に依存しない）",
+      "fixture": "FR-23 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件",
+      "observation_point": "raise される例外型／対象テーブルの前後スナップショット比較",
+      "expected_state": "不変条件が維持された状態（操作前と同一）",
+      "expected_db_delta": "差分なし（拒否は副作用を持たない）",
+      "expected_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "forbidden_side_effects": "不変条件を破った状態での永続化・部分適用",
+      "error_type": "GateRejected",
+      "target_update": "S0.1（FR-23 の不変条件強制）",
+      "tc": [
+        "TCC-23-5"
       ]
     },
     {
@@ -898,6 +993,25 @@
       ]
     },
     {
+      "id": "AC-27-5",
+      "target": "FR-27",
+      "polarity": "reject",
+      "given": "FR-27 の不変条件『判定単位は principal（agent 行の差だけでは相違と認めない — s0-contract §』が成立している状態（正常系 fixture を seed 済み）",
+      "when": "当該不変条件のみを破る操作（判定単位は principal（agent 行の差だけでは相違と認めない — s0-contract § に反する入力・順序・並行実行）を実行する",
+      "then": "操作は拒否されるか安全側へ倒れ、不変条件は破れないまま維持される（他の不変条件の検査に依存しない）",
+      "fixture": "FR-27 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件",
+      "observation_point": "raise される例外型／対象テーブルの前後スナップショット比較",
+      "expected_state": "不変条件が維持された状態（操作前と同一）",
+      "expected_db_delta": "差分なし（拒否は副作用を持たない）",
+      "expected_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "forbidden_side_effects": "不変条件を破った状態での永続化・部分適用",
+      "error_type": "GateRejected",
+      "target_update": "S0.1（FR-27 の不変条件強制）",
+      "tc": [
+        "TCC-27-5"
+      ]
+    },
+    {
       "id": "AC-28-1",
       "target": "FR-28",
       "polarity": "normal",
@@ -971,6 +1085,44 @@
       "target_update": "S0.3（証跡完備検証）",
       "tc": [
         "TCC-28-4"
+      ]
+    },
+    {
+      "id": "AC-28-5",
+      "target": "FR-28",
+      "polarity": "reject",
+      "given": "FR-28 の不変条件『証跡の検証は INSERT 時（証跡ストア FN-703）と done 遷移時の二重で行う』が成立している状態（正常系 fixture を seed 済み）",
+      "when": "当該不変条件のみを破る操作（証跡の検証は INSERT 時（証跡ストア FN-703）と done 遷移時の二重で行う に反する入力・順序・並行実行）を実行する",
+      "then": "操作は拒否されるか安全側へ倒れ、不変条件は破れないまま維持される（他の不変条件の検査に依存しない）",
+      "fixture": "FR-28 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件",
+      "observation_point": "raise される例外型／対象テーブルの前後スナップショット比較",
+      "expected_state": "不変条件が維持された状態（操作前と同一）",
+      "expected_db_delta": "差分なし（拒否は副作用を持たない）",
+      "expected_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "forbidden_side_effects": "不変条件を破った状態での永続化・部分適用",
+      "error_type": "GateRejected",
+      "target_update": "S0.1（FR-28 の不変条件強制）",
+      "tc": [
+        "TCC-28-5"
+      ]
+    },
+    {
+      "id": "AC-28-6",
+      "target": "FR-28",
+      "polarity": "reject",
+      "given": "FR-28 の不変条件『done 遷移の拒否は task の状態・retry_count・証跡を変更しない』が成立している状態（正常系 fixture を seed 済み）",
+      "when": "当該不変条件のみを破る操作（done 遷移の拒否は task の状態・retry_count・証跡を変更しない に反する入力・順序・並行実行）を実行する",
+      "then": "操作は拒否されるか安全側へ倒れ、不変条件は破れないまま維持される（他の不変条件の検査に依存しない）",
+      "fixture": "FR-28 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件",
+      "observation_point": "raise される例外型／対象テーブルの前後スナップショット比較",
+      "expected_state": "不変条件が維持された状態（操作前と同一）",
+      "expected_db_delta": "差分なし（拒否は副作用を持たない）",
+      "expected_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "forbidden_side_effects": "不変条件を破った状態での永続化・部分適用",
+      "error_type": "GateRejected",
+      "target_update": "S0.1（FR-28 の不変条件強制）",
+      "tc": [
+        "TCC-28-6"
       ]
     },
     {
@@ -1183,6 +1335,25 @@
       ]
     },
     {
+      "id": "AC-33-6",
+      "target": "FR-33",
+      "polarity": "reject",
+      "given": "FR-33 の不変条件『reason 必須（reason のない変更行は存在しない）』が成立している状態（正常系 fixture を seed 済み）",
+      "when": "当該不変条件のみを破る操作（reason 必須（reason のない変更行は存在しない） に反する入力・順序・並行実行）を実行する",
+      "then": "操作は拒否されるか安全側へ倒れ、不変条件は破れないまま維持される（他の不変条件の検査に依存しない）",
+      "fixture": "FR-33 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件",
+      "observation_point": "raise される例外型／対象テーブルの前後スナップショット比較",
+      "expected_state": "不変条件が維持された状態（操作前と同一）",
+      "expected_db_delta": "差分なし（拒否は副作用を持たない）",
+      "expected_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "forbidden_side_effects": "不変条件を破った状態での永続化・部分適用",
+      "error_type": "GateRejected",
+      "target_update": "S0.1（FR-33 の不変条件強制）",
+      "tc": [
+        "TCC-33-6"
+      ]
+    },
+    {
       "id": "AC-34-1",
       "target": "FR-34",
       "polarity": "normal",
@@ -1332,6 +1503,25 @@
       "target_update": "S0.1（コネクタ選定）",
       "tc": [
         "TCC-41-5"
+      ]
+    },
+    {
+      "id": "AC-41-6",
+      "target": "FR-41",
+      "polarity": "reject",
+      "given": "FR-41 の不変条件『媒体追加はレジストリ行＋ワークフロー＋攻略地図の追加のみで完結し、外殻コードを変更しない（NFR-8）』が成立している状態（正常系 fixture を seed 済み）",
+      "when": "当該不変条件のみを破る操作（媒体追加はレジストリ行＋ワークフロー＋攻略地図の追加のみで完結し、外殻コードを変更しない（NFR-8） に反する入力・順序・並行実行）を実行する",
+      "then": "操作は拒否されるか安全側へ倒れ、不変条件は破れないまま維持される（他の不変条件の検査に依存しない）",
+      "fixture": "FR-41 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件",
+      "observation_point": "raise される例外型／対象テーブルの前後スナップショット比較",
+      "expected_state": "不変条件が維持された状態（操作前と同一）",
+      "expected_db_delta": "差分なし（拒否は副作用を持たない）",
+      "expected_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "forbidden_side_effects": "不変条件を破った状態での永続化・部分適用",
+      "error_type": "GateRejected",
+      "target_update": "S0.1（FR-41 の不変条件強制）",
+      "tc": [
+        "TCC-41-6"
       ]
     },
     {
@@ -1716,6 +1906,44 @@
       ]
     },
     {
+      "id": "AC-47-5",
+      "target": "FR-47",
+      "polarity": "reject",
+      "given": "FR-47 の不変条件『evidence.external_operation_id 等の記録は秘匿情報を除いて行われる（s0-』が成立している状態（正常系 fixture を seed 済み）",
+      "when": "当該不変条件のみを破る操作（evidence.external_operation_id 等の記録は秘匿情報を除いて行われる（s0- に反する入力・順序・並行実行）を実行する",
+      "then": "操作は拒否されるか安全側へ倒れ、不変条件は破れないまま維持される（他の不変条件の検査に依存しない）",
+      "fixture": "FR-47 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件",
+      "observation_point": "raise される例外型／対象テーブルの前後スナップショット比較",
+      "expected_state": "不変条件が維持された状態（操作前と同一）",
+      "expected_db_delta": "差分なし（拒否は副作用を持たない）",
+      "expected_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "forbidden_side_effects": "不変条件を破った状態での永続化・部分適用",
+      "error_type": "GateRejected",
+      "target_update": "S0.1（FR-47 の不変条件強制）",
+      "tc": [
+        "TCC-47-5"
+      ]
+    },
+    {
+      "id": "AC-47-6",
+      "target": "FR-47",
+      "polarity": "reject",
+      "given": "FR-47 の不変条件『秘匿ストアを迂回して credential をコードや config に埋め込む経路が存在しない』が成立している状態（正常系 fixture を seed 済み）",
+      "when": "当該不変条件のみを破る操作（秘匿ストアを迂回して credential をコードや config に埋め込む経路が存在しない に反する入力・順序・並行実行）を実行する",
+      "then": "操作は拒否されるか安全側へ倒れ、不変条件は破れないまま維持される（他の不変条件の検査に依存しない）",
+      "fixture": "FR-47 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件",
+      "observation_point": "raise される例外型／対象テーブルの前後スナップショット比較",
+      "expected_state": "不変条件が維持された状態（操作前と同一）",
+      "expected_db_delta": "差分なし（拒否は副作用を持たない）",
+      "expected_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "forbidden_side_effects": "不変条件を破った状態での永続化・部分適用",
+      "error_type": "GateRejected",
+      "target_update": "S0.1（FR-47 の不変条件強制）",
+      "tc": [
+        "TCC-47-6"
+      ]
+    },
+    {
       "id": "AC-51-1",
       "target": "FR-51",
       "polarity": "normal",
@@ -1789,6 +2017,25 @@
       "target_update": "S0.1（制作パイプライン）",
       "tc": [
         "TCC-51-4"
+      ]
+    },
+    {
+      "id": "AC-51-5",
+      "target": "FR-51",
+      "polarity": "reject",
+      "given": "FR-51 の不変条件『外部書込み先は Docker WP のみ（本番 WP への書込みは常時拒否）』が成立している状態（正常系 fixture を seed 済み）",
+      "when": "当該不変条件のみを破る操作（外部書込み先は Docker WP のみ（本番 WP への書込みは常時拒否） に反する入力・順序・並行実行）を実行する",
+      "then": "操作は拒否されるか安全側へ倒れ、不変条件は破れないまま維持される（他の不変条件の検査に依存しない）",
+      "fixture": "FR-51 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件",
+      "observation_point": "raise される例外型／対象テーブルの前後スナップショット比較",
+      "expected_state": "不変条件が維持された状態（操作前と同一）",
+      "expected_db_delta": "差分なし（拒否は副作用を持たない）",
+      "expected_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "forbidden_side_effects": "不変条件を破った状態での永続化・部分適用",
+      "error_type": "GateRejected",
+      "target_update": "S0.1（FR-51 の不変条件強制）",
+      "tc": [
+        "TCC-51-5"
       ]
     },
     {
@@ -1982,6 +2229,25 @@
       ]
     },
     {
+      "id": "AC-54-5",
+      "target": "FR-54",
+      "polarity": "reject",
+      "given": "FR-54 の不変条件『PASS 後の改変は新 commit＝新 hash となり、旧 PASS は新版に流用できない（版すり替』が成立している状態（正常系 fixture を seed 済み）",
+      "when": "当該不変条件のみを破る操作（PASS 後の改変は新 commit＝新 hash となり、旧 PASS は新版に流用できない（版すり替 に反する入力・順序・並行実行）を実行する",
+      "then": "操作は拒否されるか安全側へ倒れ、不変条件は破れないまま維持される（他の不変条件の検査に依存しない）",
+      "fixture": "FR-54 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件",
+      "observation_point": "raise される例外型／対象テーブルの前後スナップショット比較",
+      "expected_state": "不変条件が維持された状態（操作前と同一）",
+      "expected_db_delta": "差分なし（拒否は副作用を持たない）",
+      "expected_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "forbidden_side_effects": "不変条件を破った状態での永続化・部分適用",
+      "error_type": "GateRejected",
+      "target_update": "S0.1（FR-54 の不変条件強制）",
+      "tc": [
+        "TCC-54-5"
+      ]
+    },
+    {
       "id": "AC-55-1",
       "target": "FR-55",
       "polarity": "normal",
@@ -2036,6 +2302,25 @@
       "target_update": "S0.2（制作層）／assets の冪等・系譜検査",
       "tc": [
         "TCC-55-3"
+      ]
+    },
+    {
+      "id": "AC-55-4",
+      "target": "FR-55",
+      "polarity": "reject",
+      "given": "FR-55 の不変条件『出自記録（parent 参照・source_task_id）のない派生資産は存在しない』が成立している状態（正常系 fixture を seed 済み）",
+      "when": "当該不変条件のみを破る操作（出自記録（parent 参照・source_task_id）のない派生資産は存在しない に反する入力・順序・並行実行）を実行する",
+      "then": "操作は拒否されるか安全側へ倒れ、不変条件は破れないまま維持される（他の不変条件の検査に依存しない）",
+      "fixture": "FR-55 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件",
+      "observation_point": "raise される例外型／対象テーブルの前後スナップショット比較",
+      "expected_state": "不変条件が維持された状態（操作前と同一）",
+      "expected_db_delta": "差分なし（拒否は副作用を持たない）",
+      "expected_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "forbidden_side_effects": "不変条件を破った状態での永続化・部分適用",
+      "error_type": "GateRejected",
+      "target_update": "S0.1（FR-55 の不変条件強制）",
+      "tc": [
+        "TCC-55-4"
       ]
     },
     {
@@ -2134,6 +2419,25 @@
       ]
     },
     {
+      "id": "AC-61-6",
+      "target": "FR-61",
+      "polarity": "reject",
+      "given": "FR-61 の不変条件『階層は露出→マイクロ CV→転換→関係→収益の 5 層に閉じ、層外の値は存在しない』が成立している状態（正常系 fixture を seed 済み）",
+      "when": "当該不変条件のみを破る操作（階層は露出→マイクロ CV→転換→関係→収益の 5 層に閉じ、層外の値は存在しない に反する入力・順序・並行実行）を実行する",
+      "then": "操作は拒否されるか安全側へ倒れ、不変条件は破れないまま維持される（他の不変条件の検査に依存しない）",
+      "fixture": "FR-61 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件",
+      "observation_point": "raise される例外型／対象テーブルの前後スナップショット比較",
+      "expected_state": "不変条件が維持された状態（操作前と同一）",
+      "expected_db_delta": "差分なし（拒否は副作用を持たない）",
+      "expected_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "forbidden_side_effects": "不変条件を破った状態での永続化・部分適用",
+      "error_type": "GateRejected",
+      "target_update": "S0.1（FR-61 の不変条件強制）",
+      "tc": [
+        "TCC-61-6"
+      ]
+    },
+    {
       "id": "AC-62-1",
       "target": "FR-62",
       "polarity": "normal",
@@ -2226,6 +2530,44 @@
       "target_update": "S0.1（計測取り込み）",
       "tc": [
         "TCC-62-5"
+      ]
+    },
+    {
+      "id": "AC-62-6",
+      "target": "FR-62",
+      "polarity": "reject",
+      "given": "FR-62 の不変条件『投入は冪等 — 同一エクスポートの再取込で行が重複しない』が成立している状態（正常系 fixture を seed 済み）",
+      "when": "当該不変条件のみを破る操作（投入は冪等 — 同一エクスポートの再取込で行が重複しない に反する入力・順序・並行実行）を実行する",
+      "then": "操作は拒否されるか安全側へ倒れ、不変条件は破れないまま維持される（他の不変条件の検査に依存しない）",
+      "fixture": "FR-62 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件",
+      "observation_point": "raise される例外型／対象テーブルの前後スナップショット比較",
+      "expected_state": "不変条件が維持された状態（操作前と同一）",
+      "expected_db_delta": "差分なし（拒否は副作用を持たない）",
+      "expected_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "forbidden_side_effects": "不変条件を破った状態での永続化・部分適用",
+      "error_type": "GateRejected",
+      "target_update": "S0.1（FR-62 の不変条件強制）",
+      "tc": [
+        "TCC-62-6"
+      ]
+    },
+    {
+      "id": "AC-62-7",
+      "target": "FR-62",
+      "polarity": "reject",
+      "given": "FR-62 の不変条件『手動入力値を実測として投入する経路が存在しない』が成立している状態（正常系 fixture を seed 済み）",
+      "when": "当該不変条件のみを破る操作（手動入力値を実測として投入する経路が存在しない に反する入力・順序・並行実行）を実行する",
+      "then": "操作は拒否されるか安全側へ倒れ、不変条件は破れないまま維持される（他の不変条件の検査に依存しない）",
+      "fixture": "FR-62 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件",
+      "observation_point": "raise される例外型／対象テーブルの前後スナップショット比較",
+      "expected_state": "不変条件が維持された状態（操作前と同一）",
+      "expected_db_delta": "差分なし（拒否は副作用を持たない）",
+      "expected_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "forbidden_side_effects": "不変条件を破った状態での永続化・部分適用",
+      "error_type": "GateRejected",
+      "target_update": "S0.1（FR-62 の不変条件強制）",
+      "tc": [
+        "TCC-62-7"
       ]
     },
     {
@@ -2436,6 +2778,25 @@
       "target_update": "S0.1（migration）",
       "tc": [
         "TCC-72-4"
+      ]
+    },
+    {
+      "id": "AC-72-5",
+      "target": "FR-72",
+      "polarity": "reject",
+      "given": "FR-72 の不変条件『失敗した migration は同じ version を書換えず次 version で修正する』が成立している状態（正常系 fixture を seed 済み）",
+      "when": "当該不変条件のみを破る操作（失敗した migration は同じ version を書換えず次 version で修正する に反する入力・順序・並行実行）を実行する",
+      "then": "操作は拒否されるか安全側へ倒れ、不変条件は破れないまま維持される（他の不変条件の検査に依存しない）",
+      "fixture": "FR-72 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件",
+      "observation_point": "raise される例外型／対象テーブルの前後スナップショット比較",
+      "expected_state": "不変条件が維持された状態（操作前と同一）",
+      "expected_db_delta": "差分なし（拒否は副作用を持たない）",
+      "expected_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "forbidden_side_effects": "不変条件を破った状態での永続化・部分適用",
+      "error_type": "GateRejected",
+      "target_update": "S0.1（FR-72 の不変条件強制）",
+      "tc": [
+        "TCC-72-5"
       ]
     },
     {
@@ -2859,6 +3220,25 @@
       ]
     },
     {
+      "id": "AC-SR-06-5",
+      "target": "SR-06",
+      "polarity": "reject",
+      "given": "SR-06 の不変条件『改訂は supersedes_id による新版 INSERT のみ』が成立している状態（正常系 fixture を seed 済み）",
+      "when": "当該不変条件のみを破る操作（改訂は supersedes_id による新版 INSERT のみ に反する入力・順序・並行実行）を実行する",
+      "then": "操作は拒否されるか安全側へ倒れ、不変条件は破れないまま維持される（他の不変条件の検査に依存しない）",
+      "fixture": "SR-06 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件",
+      "observation_point": "raise される例外型／対象テーブルの前後スナップショット比較",
+      "expected_state": "不変条件が維持された状態（操作前と同一）",
+      "expected_db_delta": "差分なし（拒否は副作用を持たない）",
+      "expected_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "forbidden_side_effects": "不変条件を破った状態での永続化・部分適用",
+      "error_type": "GateRejected",
+      "target_update": "S0.1（SR-06 の不変条件強制）",
+      "tc": [
+        "TCC-SR-06-5"
+      ]
+    },
+    {
       "id": "AC-SR-02",
       "target": "SR-07",
       "polarity": "reject",
@@ -3093,6 +3473,25 @@
       ]
     },
     {
+      "id": "AC-SR-09-4",
+      "target": "SR-09",
+      "polarity": "reject",
+      "given": "SR-09 の不変条件『KPI ツリー（kpi_nodes/measurements）から意味正本への自動書込み経路が存在しない』が成立している状態（正常系 fixture を seed 済み）",
+      "when": "当該不変条件のみを破る操作（KPI ツリー（kpi_nodes/measurements）から意味正本への自動書込み経路が存在しない に反する入力・順序・並行実行）を実行する",
+      "then": "操作は拒否されるか安全側へ倒れ、不変条件は破れないまま維持される（他の不変条件の検査に依存しない）",
+      "fixture": "SR-09 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件",
+      "observation_point": "raise される例外型／対象テーブルの前後スナップショット比較",
+      "expected_state": "不変条件が維持された状態（操作前と同一）",
+      "expected_db_delta": "差分なし（拒否は副作用を持たない）",
+      "expected_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "forbidden_side_effects": "不変条件を破った状態での永続化・部分適用",
+      "error_type": "GateRejected",
+      "target_update": "S0.1（SR-09 の不変条件強制）",
+      "tc": [
+        "TCC-SR-09-4"
+      ]
+    },
+    {
       "id": "AC-SR-10-1",
       "target": "SR-10",
       "polarity": "normal",
@@ -3244,6 +3643,44 @@
       "target_update": "S0.1（append-only 版管理）",
       "tc": [
         "TCC-SR-11-4"
+      ]
+    },
+    {
+      "id": "AC-SR-11-5",
+      "target": "SR-11",
+      "polarity": "reject",
+      "given": "SR-11 の不変条件『版の連鎖（supersedes_id）は途切れず履歴を復元可能』が成立している状態（正常系 fixture を seed 済み）",
+      "when": "当該不変条件のみを破る操作（版の連鎖（supersedes_id）は途切れず履歴を復元可能 に反する入力・順序・並行実行）を実行する",
+      "then": "操作は拒否されるか安全側へ倒れ、不変条件は破れないまま維持される（他の不変条件の検査に依存しない）",
+      "fixture": "SR-11 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件",
+      "observation_point": "raise される例外型／対象テーブルの前後スナップショット比較",
+      "expected_state": "不変条件が維持された状態（操作前と同一）",
+      "expected_db_delta": "差分なし（拒否は副作用を持たない）",
+      "expected_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "forbidden_side_effects": "不変条件を破った状態での永続化・部分適用",
+      "error_type": "GateRejected",
+      "target_update": "S0.1（SR-11 の不変条件強制）",
+      "tc": [
+        "TCC-SR-11-5"
+      ]
+    },
+    {
+      "id": "AC-SR-11-6",
+      "target": "SR-11",
+      "polarity": "reject",
+      "given": "SR-11 の不変条件『分母の縮小（履歴の削除）が構造的に不可能』が成立している状態（正常系 fixture を seed 済み）",
+      "when": "当該不変条件のみを破る操作（分母の縮小（履歴の削除）が構造的に不可能 に反する入力・順序・並行実行）を実行する",
+      "then": "操作は拒否されるか安全側へ倒れ、不変条件は破れないまま維持される（他の不変条件の検査に依存しない）",
+      "fixture": "SR-11 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件",
+      "observation_point": "raise される例外型／対象テーブルの前後スナップショット比較",
+      "expected_state": "不変条件が維持された状態（操作前と同一）",
+      "expected_db_delta": "差分なし（拒否は副作用を持たない）",
+      "expected_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "forbidden_side_effects": "不変条件を破った状態での永続化・部分適用",
+      "error_type": "GateRejected",
+      "target_update": "S0.1（SR-11 の不変条件強制）",
+      "tc": [
+        "TCC-SR-11-6"
       ]
     },
     {
@@ -3491,6 +3928,44 @@
       "target_update": "S0.1（ガバナンス）",
       "tc": [
         "TCC-SR-15-4"
+      ]
+    },
+    {
+      "id": "AC-SR-15-5",
+      "target": "SR-15",
+      "polarity": "reject",
+      "given": "SR-15 の不変条件『S0 構造を壊さず S1 を追加できる（DDL 先行配置＋STC が保証）』が成立している状態（正常系 fixture を seed 済み）",
+      "when": "当該不変条件のみを破る操作（S0 構造を壊さず S1 を追加できる（DDL 先行配置＋STC が保証） に反する入力・順序・並行実行）を実行する",
+      "then": "操作は拒否されるか安全側へ倒れ、不変条件は破れないまま維持される（他の不変条件の検査に依存しない）",
+      "fixture": "SR-15 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件",
+      "observation_point": "raise される例外型／対象テーブルの前後スナップショット比較",
+      "expected_state": "不変条件が維持された状態（操作前と同一）",
+      "expected_db_delta": "差分なし（拒否は副作用を持たない）",
+      "expected_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "forbidden_side_effects": "不変条件を破った状態での永続化・部分適用",
+      "error_type": "GateRejected",
+      "target_update": "S0.1（SR-15 の不変条件強制）",
+      "tc": [
+        "TCC-SR-15-5"
+      ]
+    },
+    {
+      "id": "AC-SR-15-6",
+      "target": "SR-15",
+      "polarity": "reject",
+      "given": "SR-15 の不変条件『分母の縮小・confirmed 降格・ゲート削減の禁止（HELIX ratchet）』が成立している状態（正常系 fixture を seed 済み）",
+      "when": "当該不変条件のみを破る操作（分母の縮小・confirmed 降格・ゲート削減の禁止（HELIX ratchet） に反する入力・順序・並行実行）を実行する",
+      "then": "操作は拒否されるか安全側へ倒れ、不変条件は破れないまま維持される（他の不変条件の検査に依存しない）",
+      "fixture": "SR-15 の正常系 seed ＋ 当該不変条件のみを侵す変異入力 1 件",
+      "observation_point": "raise される例外型／対象テーブルの前後スナップショット比較",
+      "expected_state": "不変条件が維持された状態（操作前と同一）",
+      "expected_db_delta": "差分なし（拒否は副作用を持たない）",
+      "expected_evidence": "拒否の構造化ログ（違反した不変条件の識別子つき）",
+      "forbidden_side_effects": "不変条件を破った状態での永続化・部分適用",
+      "error_type": "GateRejected",
+      "target_update": "S0.1（SR-15 の不変条件強制）",
+      "tc": [
+        "TCC-SR-15-6"
       ]
     },
     {
