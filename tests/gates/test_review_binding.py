@@ -1,7 +1,7 @@
 """review_binding ゲートの単体テストと mutation test。"""
 
 from tools.gates import review_binding
-from tools.gates.common import CTX
+from tools.gates.common import CTX, ROOT
 
 
 def test_path_resolver_maps_previous_paths_to_current() -> None:
@@ -51,3 +51,26 @@ def test_mutation_no_go_successor_is_not_counted() -> None:
 
 def test_review_artifacts_are_bound() -> None:
     assert review_binding.detect_review_faults(CTX) == []
+
+
+def test_dangling_tree_is_not_reachable() -> None:
+    """`git write-tree` の dangling tree は到達不可（push されず clone 先で解決できない）。"""
+    import subprocess
+    dangling = subprocess.run(["git", "write-tree"], capture_output=True, text=True,
+                              check=True, cwd=ROOT).stdout.strip()
+    head_tree = subprocess.run(["git", "rev-parse", "HEAD^{tree}"], capture_output=True,
+                               text=True, check=True, cwd=ROOT).stdout.strip()
+    assert review_binding.tree_is_reachable(head_tree) is True
+    if dangling != head_tree:  # 作業ツリーに未コミット差分がある場合のみ検査できる
+        assert review_binding.tree_is_reachable(dangling) is False, \
+            "dangling tree を到達可能と誤判定している（CI の clone 先で解決できない）"
+
+
+def test_mutation_unreachable_target_tree_is_detected() -> None:
+    """変異: 存在しないツリー sha を到達可能と判定してはならない。"""
+    assert review_binding.tree_is_reachable("0" * 40) is False
+
+
+def test_is_committed_distinguishes_tracked_files() -> None:
+    assert review_binding.is_committed(ROOT / "CLAUDE.md") is True
+    assert review_binding.is_committed(ROOT / "docs/does-not-exist.md") is False

@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import hashlib
+from pathlib import Path
 
 from tools.gates.common import (
     REVIEWS,
@@ -17,6 +18,7 @@ from tools.gates.common import (
     git,
     git_bytes,
     load,
+    rel,
     schema_check,
 )
 
@@ -54,6 +56,21 @@ def successors(reviews: dict[str, dict], review_id: str) -> list[dict]:
     return out
 
 
+def is_committed(path: Path) -> bool:
+    """ファイルが HEAD に存在する（＝コミット済み）か。"""
+    return git("cat-file", "-e", f"HEAD:{rel(path)}").returncode == 0
+
+
+def tree_is_reachable(tree: str) -> bool:
+    """ツリーがいずれかのコミットのルートツリーとして到達可能か。
+
+    `git write-tree` が作る dangling tree は**ローカルの object store にしか存在せず**、
+    push されないため clone 先（CI）で解決できない。ローカルだけ緑になる穴を塞ぐ。
+    """
+    out = git("log", "--all", "--format=%T")
+    return out.returncode == 0 and tree in out.stdout.split()
+
+
 def detect_review_faults(ctx: Ctx) -> list[str]:
     schema = load(REVIEWS / "review.schema.json")
     paths = sorted(p for p in REVIEWS.glob("*.json") if p.name != "review.schema.json")
@@ -75,9 +92,17 @@ def detect_review_faults(ctx: Ctx) -> list[str]:
         if git("cat-file", "-e", f"{r['target_commit']}^{{commit}}").returncode != 0:
             bad.append(f"{p.name}: target_commit がリポジトリに存在しない")
             continue
-        if r.get("target_tree") and git("cat-file", "-e", f"{r['target_tree']}^{{tree}}").returncode != 0:
-            bad.append(f"{p.name}: target_tree がリポジトリに存在しない")
-            continue
+        if r.get("target_tree"):
+            if git("cat-file", "-e", f"{r['target_tree']}^{{tree}}").returncode != 0:
+                bad.append(f"{p.name}: target_tree がリポジトリに存在しない")
+                continue
+            # 成果物自体がコミット済みなら、target_tree も**コミットから到達可能**でなければならない。
+            # `git write-tree` の dangling tree はローカルにしか無く、push・clone 先で解決できない
+            # （作成直後＝未コミットの間は dangling で正常なので、その間は検査しない）。
+            if is_committed(p) and not tree_is_reachable(r["target_tree"]):
+                bad.append(f"{p.name}: target_tree {r['target_tree'][:12]} がコミットから到達不可"
+                           "（dangling tree は clone 先で解決できない — コミット済みツリーへ束縛し直す）")
+                continue
         succ = successors(reviews, r["review_id"])
         # 凍結対象: target_tree があればツリー（amend で動かせない）、無ければ target_commit
         frozen = r.get("target_tree") or r["target_commit"]

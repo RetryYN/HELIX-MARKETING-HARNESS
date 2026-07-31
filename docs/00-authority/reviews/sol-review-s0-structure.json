@@ -2,8 +2,8 @@
   "review_id": "REV-S0-STRUCT-01",
   "reviewer_principal": "codex-sol（実装者と別 principal の独立ブラインドレビュー）",
   "model": "gpt-5.6-sol",
-  "target_commit": "718734a9ab9d9bc01c34e5a0b00ae3ecb1fdc631",
-  "target_tree": "8f825cb0ed4c4ef1fe00dfff68055eb8965e16c2",
+  "target_commit": "2f3b0b3e332a466fbc20ad7fd2aaba3042784c02",
+  "target_tree": "bb219bdbb3a671afe2779b7cf7d3f602cb2aa741",
   "scope": "物理構造・権威一意化 最終是正（PO 指示 §0〜§7）— L0〜L6 再配置・artifact manifest の権威正本化・旧体系の archive 隔離・現在地の一意化・越境書込み事故の監査記録化・brief 状態遷移と TLP 判定の DB 強制・S0.1 着手の自動検出・ゲート分割。束縛対象は契約正本・正準 DDL・ゲート実装・台帳・CI・規律文書・監査記録。artifact-manifest.json／baseline.json／approvals.md は本レビューの結果を受けてdigest が更新される派生台帳のため対象外（契約内容の改変は各契約 digest が直接検出する）",
   "reviewed_artifact_digests": {
     "docs/L1-business-requirements/canonical/br/br-contracts.json": "8b506583964daac8",
