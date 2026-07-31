@@ -92,6 +92,8 @@
   - `generate_tactical_learning_packet(conn, loop_run_id, packet: TlpDraft, clock) -> int` — 対象 run が
     lower かつ終端状態であることを検査し、run 保持の brief_id/digest を写して INSERT（learning／failure の
     packet_kind 別に必須フィールドを検証。DDL の整合トリガが最終防衛。STC-I-05）。
+    **下位 run の終端遷移（DU-01 経由）と同一 transaction で呼ばれる**（s0-contract §3 — 終端遷移と
+    packet 生成の原子性。completed は learning、failed/escalated/cancelled は failure）。
   - `get_tactical_learning_packet(conn, loop_run_id) -> TlpRecord | None` — 上流（WF-STRAT-REVISE）が
     読む唯一の還流読取り口。
   - 上流正本（strategic_briefs）への書込みはこの 2 API（issue/supersede）のみに閉じ、下流実行経路・
@@ -153,7 +155,8 @@
 
 - `apply_all(conn, migrations_dir, clock: Clock, applied_by: str) -> list[Applied]` — 連番 SQL を順適用。
   適用ごとに checksum・applied_at（clock）・applied_by を schema_version へ INSERT。同 version 存在・checksum 不一致は停止（`FatalError`）。
-- `verify(conn) -> None` — foreign_key_check／integrity_check／25 テーブル存在。
+- `verify(conn) -> None` — foreign_key_check／integrity_check／25 テーブル存在／
+  **TLP 孤児検査**（packet を持たない終端 lower run = 0 件。検出時は `FatalError` → escalate。s0-contract §3）。
 - migration 0001 = s0-contract §2 正準 DDL と等価（G-DDL-APPLY が JSON 正本側を常時検証）。
 
 ### DU-12 config/store.py
@@ -212,7 +215,7 @@
 - `poll(conn, approval_id, transport, clock: Clock) -> Decision` — approved は
   `_record_decision`（統合 API）で **approval 証跡の INSERT と approvals.evidence_id 更新を
   単一 transaction** で行い、相互整合の中間状態を外部に見せない。binding 1 項目でも不一致の応答は無効。pending は親 loop_run を waiting へ（task は不進行）、
-  rejected/expired は task failed（遷移は DU-01 経由）。
+  rejected は non_retryable_failure で task failed、expired は承認再要求で待機継続し approval_retry_limit 到達で escalated（遷移は DU-01 経由）。
 
 ### DU-19 content/generate.py
 

@@ -32,7 +32,7 @@
 1. **全終端下流 run**（completed／failed／escalated／cancelled）は TLP を**ちょうど 1 件**持つ
    （DDL の `UNIQUE(loop_run_id)`）。TLP は loop_run_id・strategic_brief_id・strategic_brief_digest・
    evidence_ids を必須で持ち、DDL の整合トリガが「run は lower かつ終端」「TLP.brief_id = run.brief_id」
-   「TLP.digest = run.digest = brief.digest」「二重 packet 禁止」を INSERT 時に強制する（AC-SR-06）。
+   「TLP.digest = run.digest = brief.digest」「二重 packet 禁止」を INSERT 時に強制する（AC-SR-06）。**最低 1 件**は、終端遷移と packet INSERT を同一 transaction で行う kernel 契約（completed=learning、failed/escalated/cancelled=failure）と、DU-11 verify()／LP-OPS ヘルスチェックの孤児検査（packet なし終端 lower run = 0 件）で強制する。
 1bis. **packet_kind の二分**: `learning`（観測から学習を還流 — causal_interpretation・
    hypothesis_assessment 必須）と `failure`（観測前に失敗した run の事実還流 — failure_fact・
    reproduction_conditions・recovery_conditions 必須で、**causal_interpretation を持てない**）。

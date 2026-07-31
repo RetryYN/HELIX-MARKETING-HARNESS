@@ -153,7 +153,7 @@ S0 の 25 機能（FN）を 13 コンポーネントに割り当てる。**割�
 - Claude Code アプリ通知で binding 3 項目（subject / operation / at）を提示し、応答を approvals
   （ストア副層 `approvals_store` 経由）＋ approval 証跡（evidence API 経由）へ記録。承認 pending 中は
   **親 loop_run を waiting** にし task は進行させない（tasks に waiting 状態はない — s0-contract §3.2）。
-  rejected/expired は task を failed へ（同 §4.2）。
+  rejected は non_retryable_failure で task を failed へ、expired は承認再要求で待機継続し approval_retry_limit 到達で escalated（同 §4.2）。
   transport は差替可能な interface（本番: 通知、テスト: mock fixture）。
 
 ### CMP-12 制作・版管理（content/）

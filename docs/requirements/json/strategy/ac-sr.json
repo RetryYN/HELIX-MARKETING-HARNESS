@@ -48,7 +48,7 @@
       ],
       "given": "終端状態（completed/failed/escalated/cancelled）に到達した lower run",
       "when": "generate_tactical_learning_packet を実行",
-      "then": "learning（completed）又は failure（failed/escalated/cancelled）の packet が 1 件生成され、観測・解釈・判定・推奨が分離フィールドに入る。非終端 run・upper run への生成は拒否"
+      "then": "learning（completed）又は failure（failed/escalated/cancelled）の packet が終端遷移と同一 transaction で 1 件生成され、観測・解釈・判定・推奨が分離フィールドに入る。非終端 run・upper run への生成は拒否。packet を持たない終端 lower run は verify()/ヘルスチェックが 0 件を検査（孤児検出時 escalate）"
     },
     {
       "id": "AC-SR-04",

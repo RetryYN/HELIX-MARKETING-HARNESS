@@ -231,7 +231,7 @@
       "ac": [
         "AC-46"
       ],
-      "text": "binding 不一致は公開拒否、rejected/expired は task failed、pending 中は親 loop_run waiting のまま task 不進行",
+      "text": "binding 不一致は公開拒否、rejected は non_retryable_failure で task failed、expired は承認再要求で待機継続し approval_retry_limit 到達で escalated、pending 中は親 loop_run waiting のまま task 不進行",
       "fixtures": [
         "tmp_db",
         "approval_mock"

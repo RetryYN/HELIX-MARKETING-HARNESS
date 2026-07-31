@@ -46,7 +46,7 @@
 | ITC-07 | S0.2 | accept | CMP-02, CMP-03, CMP-12 | AC-12, AC-51, AC-54 | WF-WP-1 一気通貫: 企画→原稿生成（同一入力→同一 hash）→commit 固定→別 agent 審査 PASS→pair_plan_quality 成立。tasks 行の WF ID・担当・期待成果物型が非 NULL |
 | ITC-08 | S0.2 | reject | CMP-03, CMP-10 | AC-21, AC-44 | pair 未成立/revoked/hash 不一致での公開要求を WP API 呼出し前に拒否（HTTP リクエストが発生しないことを mock で証明） |
 | ITC-09 | S0.2 | accept | CMP-10, CMP-11, CMP-03, CMP-04 | AC-44, AC-46 | WF-WP-2 一気通貫: pair 成立→Docker WP 下書き→束縛承認 approve→公開→URL/スクショ/approval 証跡が evidence に揃い T-PUB done |
-| ITC-10 | S0.2 | reject | CMP-11 | AC-46 | 承認 binding 3 項目の 1 つでも不一致なら公開拒否、rejected/expired は task failed、pending 中は親 loop_run が waiting のまま task が進行しない |
+| ITC-10 | S0.2 | reject | CMP-11 | AC-46 | 承認 binding 3 項目の 1 つでも不一致なら公開拒否、rejected は non_retryable_failure で task failed、expired は承認再要求で待機継続し approval_retry_limit 到達で escalated、pending 中は親 loop_run が waiting のまま task が進行しない |
 | ITC-11 | S0.2 | reject | CMP-10 | AC-44 | 同一 idempotency_key の再送で二重公開なし（operation_log 照合で結果補完）、照合不能な timeout は再送せず escalated |
 | ITC-12 | S0.2 | reject | CMP-07 | AC-47 | テスト credential→本番 endpoint / 本番 credential→Docker の組合せを接続前に拒否、ログ・DB・evidence 全走査で平文 credential 検出 0 件 |
 | ITC-13 | S0.3 | accept | CMP-13, CMP-04 | AC-61 | WF-MEAS-1 一気通貫（ga4_mock）: 取得→SHA-256 固定→パース→measurements 投入が kpi_node と取得証跡へ FK 接続 |

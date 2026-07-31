@@ -37,6 +37,6 @@ def test_failure_packet_cannot_carry_causal_interpretation(conn: sqlite3.Connect
     insert_tlp(conn, run, b, kind="failure")  # 事実・再現・復旧のみなら受理
 
 
-@pytest.mark.skip(reason="S0.1 test-first: TLP 生成の kernel 実装と同時に赤→緑")
+@pytest.mark.skip(reason="S0.1 test-first: 終端遷移と同一 transaction の TLP 生成の実装と同時に赤→緑")
 def test_kernel_generates_packet_at_terminal() -> None:
     raise NotImplementedError

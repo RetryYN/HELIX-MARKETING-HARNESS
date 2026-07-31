@@ -582,8 +582,10 @@ else:
          and not fx_errs("tactical-learning-packet", "tactical-learning-packet.failure.valid.json")
          and bool(fx_errs("tactical-learning-packet", "tactical-learning-packet.unlinked.invalid.json"))
          and "UNIQUE" in ddl.split("CREATE TABLE tactical_learning_packets")[1].split(");")[0]
-         and "tactical_learning_packets_integrity" in ddl,
-         "TLP の run/brief digest/evidence 接続＋UNIQUE(loop_run_id)＋整合トリガ＋未接続 fixture を拒否")
+         and "tactical_learning_packets_integrity" in ddl
+         and "同一 transaction で tactical_learning_packet の" in s0md
+         and "packet を持たない終端 lower run = 0 件" in s0md,
+         "TLP の接続＋UNIQUE＋整合トリガ＋最低 1 件の kernel 契約/孤児検査宣言＋未接続 fixture を拒否")
 
     # G-NO-DIRECT-STRATEGY-MUTATION: 上流正本の保護トリガが DDL に実在し、s0-contract §1 が
     # 下流・コネクタ・計測からの直接更新禁止（還流 = TLP のみ）を宣言する

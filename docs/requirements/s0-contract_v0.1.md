@@ -543,6 +543,13 @@ BEGIN SELECT RAISE(ABORT, 'tlp integrity: run must be lower+terminal and brief/d
 `non_retryable_failure` は常に `failed`（局所失敗・代替発行可）、人の関与が必要な失敗は `escalate`
 （tasks）又は `fatal_failure`（loop_runs）で常に `escalated` へ遷移する。
 
+**下位 run の終端と TLP（最低 1 件の強制）**: 下位 loop_run（`loop_kind = 'lower'`）の終端遷移
+（completed／failed／escalated／cancelled への遷移）は、**同一 transaction で tactical_learning_packet の
+INSERT を伴う**（kernel 契約 — completed は `packet_kind = 'learning'`、それ以外は `'failure'`）。
+DDL は「最大 1 件」（UNIQUE）と整合（lower・終端・digest 三者一致）を強制し、「最低 1 件」は
+この kernel 契約＋DU-11 `verify()`／LP-OPS ヘルスチェックの孤児検査
+（**packet を持たない終端 lower run = 0 件**。検出時は escalate）で強制する（AC-SR-03／STC-I-05）。
+
 ### 3.1 loop_runs（上位／下位／マイクロ共通）
 
 | 現状態 | イベント | ガード | 次状態 |
