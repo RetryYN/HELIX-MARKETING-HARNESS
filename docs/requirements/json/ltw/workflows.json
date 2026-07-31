@@ -234,11 +234,13 @@
     },
     {
       "id": "WF-PLAN-2",
-      "purpose": "行動計画更新（月次）",
-      "steps": "learnings 集約 → KPI 実績と目標の乖離分析 → 行動計画 draft 更新 → ブランド計画への trace 検証 → Notion 書戻し",
+      "purpose": "行動計画更新（上流改善工程）",
+      "steps": "tactical_learning_packet 集約 → 意味モデル別の仮説判定（支持/弱化/棄却）→ strategy_revision 起案（根拠・反証・信頼度・対象版付き。単一 KPI 変動のみの accept 不可）→ accepted なら意味モデルの新版作成（supersedes）→ strategic_brief 新版発行 → Notion 書戻し",
       "trace": {
         "upstream": [
-          "WF-PLAN-2"
+          "WF-PLAN-2",
+          "SR-10",
+          "SR-16"
         ],
         "downstream": []
       },
@@ -273,11 +275,12 @@
     {
       "id": "WF-PLAN-5",
       "purpose": "スプリントレビュー・還流",
-      "steps": "計画↔計測ペア成立検証（FR-22）→ 達成/未達の要因分析 → learnings 生成 → 上位ループ入力キュー投入",
+      "steps": "計画↔計測ペア成立検証（FR-22）→ 達成/未達の要因分析 → tactical_learning_packet 生成（観測・解釈・因果・仮説判定・推奨判断を分離。learnings はその構成要素）→ 上位ループ入力キュー投入",
       "trace": {
         "upstream": [
           "WF-PLAN-5",
-          "FR-22"
+          "FR-22",
+          "SR-08"
         ],
         "downstream": []
       },
