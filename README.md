@@ -101,6 +101,6 @@ SR→AC-SR→STC-I→DU の一本線トレース、TLP の learning/failure 二�
 **S0.1 実装**（DB・状態機械・ゲート・証跡 — s0-contract §7 の更新分割、CMP-01〜06＝DU-01〜12 が対象）。
 着手時に `tests/skip-budget.json` の `s0_impl_started` を true にし、以降は
 [G-S0-TEST-REALITY](docs/governance/requirements-gates.md) が S0.1 対象 UT の skip を CI で落とす。
-進行は **HELIX-HARNESS の工程・Gate・PR 経路**に従う（本リポジトリ内の独自手動進行はしない）。
-取込証跡: [helix-intake-2026-08-01.md](docs/governance/helix-intake-2026-08-01.md)
-（PLAN-REVERSE-459・`intake/marketing-harness` ブランチ・コミット ff835a21）。
+**HELIX-HARNESS への Reverse 取込は未実施**（PO 判断待ち — 取込先への書き込みは明示指示があるまで行わない。
+経緯は [helix-intake-2026-08-01.md](docs/governance/helix-intake-2026-08-01.md)）。
+S0.1 の進行方法（本リポジトリ内か HELIX 経路か）も併せて PO が決定する。

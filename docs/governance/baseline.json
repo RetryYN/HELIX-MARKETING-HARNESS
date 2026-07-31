@@ -63,7 +63,7 @@
     ".github/workflows/docs-ci.yml": "262a68df65da9540e66b33c101da2ea333281fc826a550cfed40f3786e3b62d3",
     ".github/workflows/python-ci.yml": "d2fa5ff7b90548a286a696f75fed4ab70ae8881a3b5e34a498e4972884c1f1b0",
     "AGENTS.md": "8a48ed712617ec6f32658f980c4bfc2e1de0f95b19de2fc2d81763c0d6f7ef38",
-    "CLAUDE.md": "4807d01a95d53a08557be0f8d48b39b930b4f709f4e8b5fada2c3741ec0ab725",
+    "CLAUDE.md": "35ebafef65a18ea71ff24baa8b81524b5535db77287f767a53c27441faeb1be2",
     "docs/design/json/cmp-contract.schema.json": "10ab0802c435a991cb1d36f739f0d27f2a18f059ca478c12ebb381766f0cd4e7",
     "docs/design/json/cmp-contracts.json": "1f789a29dfaa34cc3baddec808f9c621ba0f4967591d89c4eb40c16feb6c919e",
     "docs/design/json/components.json": "dceba8ad2f3f75b896527b045a7af44f2fbf5065cb0f0c5160baba34a4b880cc",

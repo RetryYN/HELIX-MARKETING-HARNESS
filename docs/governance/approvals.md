@@ -126,4 +126,4 @@
 |---|---|---|---|---|---|---|
 | 2026-08-01 | sol-review-s0-design-02 | REV-S0-DESIGN-02 | Go | 独立レビュー（codex-sol） | ef4207dbf2a2 | 凍結コミット ef4207d に対する第 2 次ブラインドレビュー。blocker/major ゼロ、minor 1 件は同コミット系列で解消。判定の正本は docs/governance/reviews/ |
 | 2026-08-01 | S0 設計クロージャー | — | completed | PO | — | 完了条件 1〜8 充足。正本確定・旧正本 superseded・src/helix 統一・意味整合ゲート・DDL トリガ 14 本・test-first 実体化ゲート・レビュー成果物束縛。次は HELIX-HARNESS への Reverse 取込（§9） |
-| 2026-08-01 | HELIX Reverse 取込 | PLAN-REVERSE-459 | completed | PO | ff835a21 | HELIX-HARNESS へ既存プロダクトとして取込（design type・R0/R2/R3/R4・forward_routing=L5・reuse-as-is）。証跡 = docs/governance/helix-intake-2026-08-01.md。main へのマージ/push は HELIX 側工程判断 |
+| 2026-08-01 | HELIX Reverse 取込 | — | withdrawn | PO | — | 事前確認なしに取込先リポジトリへ書き込んだため撤回（ブランチ・コミット削除、HELIX 側は原状復帰）。取込の可否・方法は PO 判断待ち。経緯 = docs/governance/helix-intake-2026-08-01.md |
