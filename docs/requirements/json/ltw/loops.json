@@ -7,11 +7,14 @@
     {
       "id": "LP-U",
       "type": "上位ループ（ブランド成長サイクル）",
-      "cycle": "月次",
+      "cycle": "月次 = 観測・戦略棚卸しの定期トリガー。戦略更新はイベントトリガー（ブランド成長状態変化・仮説棄却・市場環境変化・証拠閾値到達・複数 TLP 集積）",
       "start_condition": "ブランド計画（brand_plans）が存在",
-      "feedback": "全媒体の tactical_learning_packet を集約し、strategy_revision で意味モデル（市場・セグメント・価値仮説・戦略判断）を更新 → strategic_brief を新版発行して下位ループへ再発行（KPI 目標の微修正だけでは一周と数えない — SR-16）",
+      "feedback": "全媒体の tactical_learning_packet を集約し、strategy_revision で意味モデル（市場・セグメント・価値仮説・戦略判断）を更新 → strategic_brief を新版発行して下位ループへ再発行。KPI 乖離だけでは revision を発火せず、行動計画の微修正だけでは上流一周と数えない（SR-10/16）",
       "trace": {
-        "upstream": [],
+        "upstream": [
+          "SR-10",
+          "SR-16"
+        ],
         "downstream": []
       }
     },

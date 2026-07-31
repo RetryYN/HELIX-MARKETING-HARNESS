@@ -32,7 +32,7 @@
       "id": "T-REVIEW",
       "title": "審査",
       "author": "critic",
-      "verifier": "—（審査自体が verifier 行為）",
+      "verifier": "gate-engine（critic と別 principal の機械検証 — チェックリスト完全性・review_pass 証跡の型検証）",
       "required_evidence": "review_pass",
       "gate": "倫理・PR 表記・design-evidence（媒体による）",
       "trace": {

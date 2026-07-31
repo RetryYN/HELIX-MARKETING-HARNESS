@@ -21,7 +21,7 @@
         "AC-71",
         "AC-72"
       ],
-      "text": "空 DB→全 migration 適用で 21 テーブル再現、FK/integrity PASS、schema_version 記録、次版昇格成功",
+      "text": "空 DB→全 migration 適用で 25 テーブル再現、FK/integrity PASS、schema_version 記録、次版昇格成功",
       "fixtures": [
         "tmp_db"
       ],

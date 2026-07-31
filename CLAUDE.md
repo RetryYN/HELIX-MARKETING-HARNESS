@@ -10,8 +10,10 @@
   戦略層は strategy-loop-requirements／strategy-learning-contract ↔ strategy-loop-design／
   strategy-loop-test-design のペア（SR 16／SCM 10／STC。JSON 正本 = json/strategy/）。
   DDL・状態遷移・evidence 型・WF 契約の正準は docs/requirements/s0-contract_v0.1.md。
-- 現在地: 要件定義＋基本設計＋詳細設計 完遂（全文書 confirmed）。次 = **S0.1 実装**
+- 現在地: 要件定義＋基本設計＋詳細設計＋戦略層統合 完遂（全文書 confirmed）。次 = **S0.1 実装**
   （CMP-01〜06 = DU-01〜12、⑥の割当テストを test-first で赤→実装 — 基本設計 §2・詳細設計 §3）。
+  S0.1 の完了条件には **STC-I-01〜06**（戦略層: brief digest 決定性・開始拒否・TLP 生成・直接変更不可・
+  append-only・run/brief/digest 整合 = AC-SR-01〜06）の pytest green を含む（python-ci が実行）。
 
 ## 編集の鉄則（CI が fail-close で強制）
 

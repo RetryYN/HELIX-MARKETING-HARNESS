@@ -78,10 +78,12 @@
     "evidence_ids": {
       "type": "array",
       "items": {
-        "type": "string"
+        "type": "string",
+        "pattern": "^(https?://|EV-|OBS-|TLP-|SREV-|file:)"
       },
       "description": "根拠 ID",
-      "minItems": 1
+      "minItems": 1,
+      "uniqueItems": true
     },
     "confidence": {
       "type": "number",
@@ -105,5 +107,6 @@
       ],
       "description": "置換した旧版の ID。上流正本の変更は supersedes_id による append-only 新バージョンのみ"
     }
-  }
+  },
+  "additionalProperties": false
 }

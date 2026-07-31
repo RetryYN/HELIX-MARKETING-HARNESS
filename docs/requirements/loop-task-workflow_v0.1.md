@@ -19,7 +19,7 @@
 
 | ID | 型 | サイクル | 開始条件 | 還流 |
 |---|---|---|---|---|
-| LP-U | 上位ループ（ブランド成長サイクル） | 月次 | ブランド計画（brand_plans）が存在 | 全媒体の tactical_learning_packet を集約し、strategy_revision で意味モデル（市場・セグメント・価値仮説・戦略判断）を更新 → strategic_brief を新版発行して下位ループへ再発行（KPI 目標の微修正だけでは一周と数えない — SR-16） |
+| LP-U | 上位ループ（ブランド成長サイクル） | 月次 = 観測・戦略棚卸しの定期トリガー。**戦略更新はイベントトリガー**（ブランド成長状態変化・仮説棄却・市場環境変化・証拠閾値到達・複数 TLP 集積） | ブランド計画（brand_plans）が存在 | 全媒体の tactical_learning_packet を集約し、strategy_revision で意味モデル（市場・セグメント・価値仮説・戦略判断）を更新 → strategic_brief を新版発行して下位ループへ再発行。**KPI 乖離だけでは revision を発火せず**、行動計画の微修正だけでは上流一周と数えない（SR-10/16） |
 | LP-OPS | 運用巡回（ヘルスチェック） | 日次 | 常時 | 異常検知 → T-OPS タスク発火（WF-OPS-7） |
 | LP-D | 日次回転 | 1 日 | KPI 目標あり＋前日レビュー完了 | 日次でエンゲージ実績を蓄積、週次で learnings 化 |
 | LP-W | 週次回転 | 1 週 | KPI 目標あり | スプリントレビュー（計画↔計測ペア）で learnings 生成 |
@@ -64,7 +64,7 @@
 |---|---|---|---|---|---|
 | T-PLAN | 企画 | strategist | critic | 企画レコード（訴求・ターゲット・狙い＋主要企画は 5 宣言: 定義する問題・変化させる認識・比較軸・価値・対象戦略仮説 — content-plan-contract） | 倫理・認識変化宣言（G-CONTENT-VALUE-DEFINITION） |
 | T-PROD | 制作 | writer/producer | critic | commit_hash | 企画↔品質（審査 PASS で成立） |
-| T-REVIEW | 審査 | critic | —（審査自体が verifier 行為） | review_pass | 倫理・PR 表記・design-evidence（媒体による） |
+| T-REVIEW | 審査 | critic | gate-engine（critic と別 principal の機械検証） | review_pass | 倫理・PR 表記・design-evidence（媒体による） |
 | T-PUB | 公開 | connector | gate-engine | published_url ＋ screenshot | 公開ゲート（成立ペア ID 必須）・束縛承認 |
 | T-ENGAGE | 応答 | responder | critic（事後サンプル審査） | 応答ログ | 倫理・レート |
 | T-MEAS | 計測取込 | collector | parser（型検証） | file_hash ＋ screenshot | なし（読取専用） |
@@ -138,7 +138,7 @@
 | WF | 用途 | ステップ列 | 人の関与 |
 |---|---|---|---|
 | WF-PLAN-1 | ブランド計画策定（初回・年次改訂） | 事業前提充填（WF-FILL-1 呼出）→ 市場・媒体標準リサーチ → ブランド計画 draft（1 年地平・北極星 KPI）→ **人の承認（束縛）** → brand_plans 投入 | 承認のみ |
-| WF-PLAN-2 | 行動計画更新（上流改善工程） | tactical_learning_packet 集約 → 意味モデル別の仮説判定（支持/弱化/棄却）→ strategy_revision 起案（根拠・反証・信頼度・対象版付き。単一 KPI 変動のみの accept 不可）→ accepted なら意味モデルの新版作成（supersedes）→ strategic_brief 新版発行 → Notion 書戻し | なし（乖離が閾値超過時のみ通知） |
+| WF-PLAN-2 | 行動計画更新（上流改善工程の入口） | WF-STRAT-REVISE 呼出（TLP 集約→revision→意味モデル新版）→ WF-STRAT-BRIEF 呼出（brief 新版発行）→ Notion 書戻し。**KPI 目標の更新・媒体別作業一覧の編成はマーケティング戦略ではなく、この経路の出口（brief）に従属する** | なし（乖離が閾値超過時のみ通知） |
 | WF-PLAN-3 | KPI ツリー構築・改訂 | 媒体標準指標リサーチ（出典必須）→ ツリー draft（露出/マイクロCV/転換/関係/収益の 5 層）→ 有料指標の型拒否検証（FR-23）→ kpi_nodes 投入 | なし |
 | WF-PLAN-4 | 媒体ポートフォリオ選定・スプリント計画 | 行動計画 → 媒体別リソース配分 → KPI 目標設定 → スプリント生成（目標なしは開始拒否 = FR-14）→ タスクキュー生成 | なし |
 | WF-PLAN-5 | スプリントレビュー・還流 | 計画↔計測ペア成立検証（FR-22）→ 達成/未達の要因分析 → tactical_learning_packet 生成（観測・解釈・因果・仮説判定・推奨判断を分離。learnings はその構成要素）→ 上位ループ入力キュー投入 | なし |
@@ -146,6 +146,19 @@
 
 **PLAN 共通要件**: 計画系の全成果物（brand_plans・action_plans・kpi_nodes）は SQLite が正本で、
 Notion は表示・入力用の投影のみ（ADR-004）。計画の全変更は変更前後を証跡化する。
+
+### 3.3bis 戦略系ワークフロー（LP-U の正式経路 — 上流の意味モデル更新。SR-02〜11）
+
+正式経路: `TLP 集約 → 観測と解釈の分離 → 意味モデル評価 → strategy_revision → 意味モデル新版生成 →
+strategic_brief 新版発行 → 下流次回転`。KPI 乖離だけでは本経路を発火しない（LP-U のイベントトリガー）。
+
+| WF | 用途 | ステップ列 | S |
+|---|---|---|---|
+| WF-STRAT-OBSERVE | 市場観測の取込 | 出典付き観測収集 → market_observation 化（事実のみ・解釈禁止・信頼度/失効付与）→ schema 検証 → 観測ストア投入 | S1 |
+| WF-STRAT-ANALYZE | 市場分析の更新 | 観測統合 → market_model／segment_context／problem_model の新版 draft（supersedes）→ ペルソナ型拒否検証 → 投入 | S1 |
+| WF-STRAT-COMPOSE | 戦略仮説の構成 | value_hypothesis／category_definition／positioning_hypothesis／causal_assumption／strategic_choice 生成（棄却案＋反証条件必須）→ schema 検証 → 投入 | S1 |
+| WF-STRAT-REVISE | 戦略改訂 | TLP 集約（learning/failure 別）→ 観測と解釈の分離検証 → 意味モデル別の仮説判定 → strategy_revision 起案（根拠・反証・信頼度・対象版。単一 KPI・重複根拠の accept 不可）→ accepted なら**新版 INSERT と旧版 supersede を単一 transaction で実行** | S1 |
+| WF-STRAT-BRIEF | brief 発行 | strategic_choice から strategic_brief 新版発行（正準化 JSON の SHA-256 digest・supersedes・有効期間）→ 下流次回転へ適用 | S0（シード形）／S1（自動発行） |
 
 ### 3.4 充填系ワークフロー（「設定」の分解 — 三エンジンの実行形）
 

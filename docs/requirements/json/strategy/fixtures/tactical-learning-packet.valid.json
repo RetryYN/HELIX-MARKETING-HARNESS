@@ -9,7 +9,7 @@
   ],
   "metrics": [
     {
-      "kpi_node": "read_rate",
+      "kpi_node_key": "read_rate",
       "value": 0.31
     }
   ],
@@ -36,5 +36,6 @@
   "proposed_revision_targets": [
     "VH-FIX-1"
   ],
-  "recommended_next_action": "continue"
+  "recommended_next_action": "continue",
+  "packet_kind": "learning"
 }

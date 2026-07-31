@@ -81,6 +81,21 @@
   `external_operations.status` で分岐（prepared=再送可、sent=リモート照合→confirmed 化、
   照合不能=unknown で escalate・再送禁止）／verifying は既存 PASS/FAIL 再採用
   （retry 二重加算なし）／waiting は充足再照合。判断根拠は DB 行のみ（メモリ状態禁止）。
+- 戦略層 API（SCM-02/04 — SR-06〜09、STC-I-03〜05 が検証）:
+  - `issue_strategic_brief(conn, brief: StrategicBriefDraft, clock: Clock) -> int` — schema 適合検証 →
+    **正準化 JSON（キー昇順・区切り `(",", ":")`・UTF-8。digest/status/created_at を除外）の SHA-256** を
+    digest として決定的に計算 → INSERT。同一入力からの再計算は同一 digest（STC-I-04）。
+  - `supersede_strategic_brief(conn, old_brief_id, new_draft, clock) -> int` — 新版 INSERT
+    （`supersedes_id = old_brief_id`・version+1）と旧版 `status = superseded` を**単一 transaction** で実行。
+  - `validate_strategic_brief(conn, brief_id, held_digest, clock) -> ValidBrief` — status = active・
+    digest 一致・有効期間内を検査し、違反は `GateRejected`（下位 loop_run start ガードの実体。STC-I-03）。
+  - `generate_tactical_learning_packet(conn, loop_run_id, packet: TlpDraft, clock) -> int` — 対象 run が
+    lower かつ終端状態であることを検査し、run 保持の brief_id/digest を写して INSERT（learning／failure の
+    packet_kind 別に必須フィールドを検証。DDL の整合トリガが最終防衛。STC-I-05）。
+  - `get_tactical_learning_packet(conn, loop_run_id) -> TlpRecord | None` — 上流（WF-STRAT-REVISE）が
+    読む唯一の還流読取り口。
+  - 上流正本（strategic_briefs）への書込みはこの 2 API（issue/supersede）のみに閉じ、下流実行経路・
+    コネクタ層へは公開しない（SR-09、STC-I-06）。
 
 ### DU-03 kernel/assigner.py
 
@@ -138,7 +153,7 @@
 
 - `apply_all(conn, migrations_dir, clock: Clock, applied_by: str) -> list[Applied]` — 連番 SQL を順適用。
   適用ごとに checksum・applied_at（clock）・applied_by を schema_version へ INSERT。同 version 存在・checksum 不一致は停止（`FatalError`）。
-- `verify(conn) -> None` — foreign_key_check／integrity_check／21 テーブル存在。
+- `verify(conn) -> None` — foreign_key_check／integrity_check／25 テーブル存在。
 - migration 0001 = s0-contract §2 正準 DDL と等価（G-DDL-APPLY が JSON 正本側を常時検証）。
 
 ### DU-12 config/store.py

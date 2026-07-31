@@ -80,7 +80,7 @@ mr = sum(len(load(Path(f))["items"]) for f in glob.glob(str(J / "mr/*.json")) if
 gate("G-CNT-MR", mr == 54, f"MR=54 (JSON={mr})")
 
 wf = load(J / "ltw/workflows.json")["items"]
-gate("G-CNT-WF", len(wf) == 44, f"WF=44 (JSON={len(wf)})")
+gate("G-CNT-WF", len(wf) == 49, f"WF=49 (JSON={len(wf)})")
 
 # G-UNIQ: ID 重複ゼロ
 for name, items in [("BR", br), ("REQ", req), ("FR/NFR", r), ("AC", ac["items"]), ("FN", fn)]:
@@ -120,7 +120,7 @@ norm = lambda s: [ln.rstrip() for ln in s.splitlines() if ln.rstrip() and not ln
 ddl = (J / "s0/ddl.sql").read_text(encoding="utf-8")
 gate("G-DDL-SYNC", norm(md_sql) == norm(ddl), "ddl.sql == MD DDL ブロック")
 
-# G-DDL-APPLY: DDL が空 DB へ適用でき、FK/integrity が通り、テーブル 25・append-only トリガ 10
+# G-DDL-APPLY: DDL が空 DB へ適用でき、FK/integrity が通り、テーブル 25・トリガ 11（append-only 10＋TLP 整合）
 con = sqlite3.connect(":memory:")
 try:
     con.executescript(ddl)
@@ -128,7 +128,7 @@ try:
     integ = con.execute("PRAGMA integrity_check").fetchone()[0]
     ntab = con.execute("SELECT count(*) FROM sqlite_master WHERE type='table'").fetchone()[0]
     ntrg = con.execute("SELECT count(*) FROM sqlite_master WHERE type='trigger'").fetchone()[0]
-    gate("G-DDL-APPLY", not fk and integ == "ok" and ntab == 25 and ntrg == 10,
+    gate("G-DDL-APPLY", not fk and integ == "ok" and ntab == 25 and ntrg == 11,
          f"DDL 適用 (fk={fk}, integrity={integ}, tables={ntab}, triggers={ntrg})")
 except sqlite3.Error as e:
     gate("G-DDL-APPLY", False, f"DDL 適用失敗: {e}")
@@ -399,6 +399,15 @@ if du_path.exists() and ut_path.exists():
     files = [next(iter(fs)) for fs in du2f.values()]
     gate("G-UTC-FILE", not multi and len(files) == len(set(files)),
          f"test_file が DU と 1 対 1・衝突なし (違反={multi or [f for f in files if files.count(f) > 1]})")
+    # DU↔test file 実在: ⑥宣言の全 test_file と戦略層 STC-I（S0.1）の test_file がディスク上に存在する
+    stc_files = []
+    stc_path = D / "strategy-tests.json"
+    if stc_path.exists():
+        stc_files = [it["test_file"] for it in load(stc_path)["items"]
+                     if it.get("kind") == "impl" and it.get("update") == "S0.1" and it.get("test_file")]
+    missing_tf = sorted({tf for tf in files + stc_files if tf and not (ROOT / tf).exists()})
+    gate("G-UTC-FILE-EXIST", not missing_tf,
+         f"⑥/STC-I 宣言の test_file が実在（S0.1 未実装分は module-level skip で存在） (欠落={missing_tf})")
     # ⑤↔⑥ 対称ヘッダ＋ペア台帳
     dd_head = (ROOT / "docs/design/detailed-design_v0.1.md").read_text(encoding="utf-8")[:800]
     ut_head = (ROOT / "docs/design/unit-test-design_v0.1.md").read_text(encoding="utf-8")[:800]
@@ -447,6 +456,10 @@ def schema_check(schema: dict, doc, path: str = "$") -> list[str]:
     if isinstance(doc, list):
         if len(doc) < schema.get("minItems", 0):
             errs.append(f"{path}: minItems")
+        if schema.get("uniqueItems"):
+            seen_items = [json.dumps(x, sort_keys=True, ensure_ascii=False) for x in doc]
+            if len(seen_items) != len(set(seen_items)):
+                errs.append(f"{path}: uniqueItems 違反")
         if "items" in schema:
             for i2, item in enumerate(doc):
                 errs += schema_check(schema["items"], item, f"{path}[{i2}]")
@@ -535,23 +548,42 @@ else:
     # （additionalProperties: false）、解釈は TLP の分離フィールドのみ
     oprops = sch["market-observation"]["properties"]
     treq = set(sch["tactical-learning-packet"]["required"])
+    tprops = sch["tactical-learning-packet"]["properties"]
+
+    # packet_kind 条件（schema の条件付き必須は validator/store が強制）
+    def tlp_kind_rule(doc: dict) -> bool:
+        if doc.get("packet_kind") == "learning":
+            return all(k in doc for k in ("causal_interpretation", "hypothesis_assessment"))
+        if doc.get("packet_kind") == "failure":
+            return (all(k in doc for k in ("failure_fact", "reproduction_conditions", "recovery_conditions"))
+                    and "causal_interpretation" not in doc)
+        return False
+
+    tlp_v = load(STFX / "tactical-learning-packet.valid.json")
+    tlp_f = load(STFX / "tactical-learning-packet.failure.valid.json")
+    tlp_fc = load(STFX / "tactical-learning-packet.failure-with-causal.invalid.json")
     gate("G-OBS-INTERPRETATION",
          sch["market-observation"].get("additionalProperties") is False
          and "fact" in sch["market-observation"]["required"]
          and not any("interpret" in k for k in oprops)
-         and {"observations", "causal_interpretation", "hypothesis_assessment",
-              "alternative_explanations", "recommended_next_action"} <= treq
+         and {"observations", "packet_kind", "recommended_next_action"} <= treq
+         and {"causal_interpretation", "hypothesis_assessment", "alternative_explanations",
+              "failure_fact", "reproduction_conditions", "recovery_conditions"} <= set(tprops)
          and not fx_errs("market-observation", "market-observation.valid.json")
-         and bool(fx_errs("market-observation", "market-observation.mixed-interpretation.invalid.json")),
-         "観測/解釈の分離（observation に解釈フィールド不可・TLP は分離フィールド）＋混在 fixture を拒否")
+         and bool(fx_errs("market-observation", "market-observation.mixed-interpretation.invalid.json"))
+         and tlp_kind_rule(tlp_v) and tlp_kind_rule(tlp_f) and not tlp_kind_rule(tlp_fc),
+         "観測/解釈の分離＋learning/failure packet 二分（failure への因果解釈捏造 fixture を拒否）")
 
     # G-LEARNING-TRACE: 全 TLP が loop run・brief digest・evidence へ接続
     gate("G-LEARNING-TRACE",
          {"loop_run_id", "strategic_brief_id", "strategic_brief_digest", "evidence_ids"} <= treq
-         and sch["tactical-learning-packet"]["properties"]["evidence_ids"].get("minItems", 0) >= 1
+         and tprops["evidence_ids"].get("minItems", 0) >= 1
          and not fx_errs("tactical-learning-packet", "tactical-learning-packet.valid.json")
-         and bool(fx_errs("tactical-learning-packet", "tactical-learning-packet.unlinked.invalid.json")),
-         "TLP の run/brief digest/evidence 接続必須＋未接続 fixture を拒否")
+         and not fx_errs("tactical-learning-packet", "tactical-learning-packet.failure.valid.json")
+         and bool(fx_errs("tactical-learning-packet", "tactical-learning-packet.unlinked.invalid.json"))
+         and "UNIQUE" in ddl.split("CREATE TABLE tactical_learning_packets")[1].split(");")[0]
+         and "tactical_learning_packets_integrity" in ddl,
+         "TLP の run/brief digest/evidence 接続＋UNIQUE(loop_run_id)＋整合トリガ＋未接続 fixture を拒否")
 
     # G-NO-DIRECT-STRATEGY-MUTATION: 上流正本の保護トリガが DDL に実在し、s0-contract §1 が
     # 下流・コネクタ・計測からの直接更新禁止（還流 = TLP のみ）を宣言する
@@ -567,13 +599,17 @@ else:
                 " VALUES ('SB-G', 1, 'SC-1', 'SEG-1', 'VH-1', 'x', 'y', 'proof', 'm', '[]',"
                 " '2026-08-01', ?, 'active', 't')", ("a" * 64,))
             c2.execute("INSERT INTO loop_runs (loop_kind, loop_type, state, idempotency_key, created_at)"
-                       " VALUES ('upper', 'LP-U', 'pending', 'kg', 't')")
+                       " VALUES ('upper', 'LP-U', 'running', 'kg', 't')")
+            c2.execute("INSERT INTO loop_runs (loop_kind, loop_type, state, idempotency_key, created_at,"
+                       " parent_loop_run_id, strategic_brief_id, strategic_brief_digest)"
+                       " VALUES ('lower', 'LP-W', 'completed', 'kg2', 't', 1, 1, ?)", ("a" * 64,))
             c2.execute(
-                "INSERT INTO tactical_learning_packets (packet_key, loop_run_id, strategic_brief_id,"
-                " strategic_brief_digest, observations_json, hypothesis_result, target_hypothesis_ids_json,"
-                " assessment_reason, causal_interpretation, confidence, evidence_ids_json,"
-                " recommended_next_action, created_at)"
-                " VALUES ('TLP-G', 1, 1, ?, '[]', 'supported', '[]', 'r', 'c', 0.5, '[]', 'continue', 't')",
+                "INSERT INTO tactical_learning_packets (packet_key, packet_kind, loop_run_id,"
+                " strategic_brief_id, strategic_brief_digest, observations_json, hypothesis_result,"
+                " target_hypothesis_ids_json, assessment_reason, causal_interpretation, confidence,"
+                " evidence_ids_json, recommended_next_action, created_at)"
+                " VALUES ('TLP-G', 'learning', 2, 1, ?, '[]', 'supported', '[]', 'r', 'c', 0.5,"
+                " '[\"EV-1\"]', 'continue', 't')",
                 ("a" * 64,))
             # DELETE 検査は FK 参照のない brief（id=2）で行う — FK 拒否がトリガ欠落を偽装しないため
             c2.execute(
@@ -609,15 +645,25 @@ else:
     rreq = set(sch["strategy-revision"]["required"])
 
     def rev_rule(doc: dict) -> bool:
-        return doc.get("status") != "accepted" or len(doc.get("supporting_evidence_ids", [])) >= 2
+        if doc.get("status") != "accepted":
+            return True
+        # 重複根拠は 1 件扱い（同一 KPI・同一根拠の重複で 2 件扱いしない）
+        if len(set(doc.get("supporting_evidence_ids", []))) < 2:
+            return False
+        # accepted かつ maintain 以外は新版必須（新版 supersedes_id = target_id、単一 transaction — 契約 §3）
+        if doc.get("revision_type") != "maintain" and not doc.get("new_version_id"):
+            return False
+        return True
 
     vr = load(STFX / "strategy-revision.valid.json")
     ir = load(STFX / "strategy-revision.single-metric-accept.invalid.json")
+    dr = load(STFX / "strategy-revision.duplicate-evidence.invalid.json")
     gate("G-REVISION-EVIDENCE",
          {"supporting_evidence_ids", "counter_evidence_ids", "confidence", "target_version"} <= rreq
+         and sch["strategy-revision"]["properties"]["supporting_evidence_ids"].get("uniqueItems") is True
          and not schema_check(sch["strategy-revision"], vr) and rev_rule(vr)
-         and not rev_rule(ir),
-         "revision の根拠/反証/信頼度/対象版必須＋単一根拠 accept fixture を拒否")
+         and not rev_rule(ir) and not rev_rule(dr),
+         "revision の根拠/反証/信頼度/対象版＋accepted の新版必須＋単一根拠・重複根拠 accept fixture を拒否")
 
     # G-STRATEGY-VERSION: 上流正本は上書き・削除禁止、supersedes_id の append-only 版管理
     VERSIONED = ["market-model", "segment-context", "problem-model", "value-hypothesis",
@@ -681,18 +727,27 @@ else:
     # カバレッジ検出の変異自己検査: SR カバレッジを 1 件落とした台帳では検出が働くこと
     stc_mut = [dict(it, sr=[s for s in it.get("sr", []) if s != "SR-04"]) for it in stc["items"]]
     mut_detects = sr_ids != {s for it in stc_mut for s in it.get("sr", [])}
+    # AC-SR 配線: 6 件、SR/STC-I への双方向参照が実在（SR→AC-SR→STC-I→DU の一本線）
+    acsr = load(ST / "ac-sr.json")["items"] if (ST / "ac-sr.json").exists() else []
+    stc_ids = {it["id"] for it in stc["items"]}
+    du_ids_all = {d2["id"] for d2 in load(D / "detailed.json")["items"]}
+    acsr_ok = (len(acsr) == 6
+               and all(a.get("given") and a.get("when") and a.get("then") for a in acsr)
+               and all(set(a["sr"]) <= sr_ids and set(a["stc"]) <= stc_ids
+                       and set(a["du"]) <= du_ids_all for a in acsr)
+               and {x for a in acsr for x in a["stc"]} ==
+                   {f"STC-I-0{i}" for i in range(1, 7)})
     gate("G-STRAT-PAIR",
-         mut_detects and
+         mut_detects and acsr_ok and
          len(sr_json) == 16 == sr_md and len(scm) == 10 and pair_ok
          and sr_ids == cov_sr and {c["id"] for c in scm} == cov_scm
          and all(g2 in neg for g2 in STRAT_GATES) and not missing_fx,
-         f"SR16/SCM10 双方向カバー＋4 文書相互 pair＋全戦略ゲートに拒否系 STC "
-         f"(SR差={sorted(sr_ids ^ cov_sr)}, negative欠={sorted(set(STRAT_GATES) - neg)}, fixture欠={missing_fx})")
+         f"SR16/SCM10/AC-SR6 双方向カバー＋4 文書相互 pair＋全戦略ゲートに拒否系 STC "
+         f"(SR差={sorted(sr_ids ^ cov_sr)}, AC-SR={acsr_ok}, negative欠={sorted(set(STRAT_GATES) - neg)}, fixture欠={missing_fx})")
 
 # G-BASE: デグレ検出（HELIX 日付 ratchet 相当のベースライン方式）
 # confirmed 文書のサイレント改変・分母縮小・ゲート削減を停止する。
 # 意図的変更は `--update-baseline` でベースラインを同一コミットで更新する。
-import hashlib
 
 BASELINE = ROOT / "docs/governance/baseline.json"
 current_counts = {"BR": len(br), "REQ": len(req), "FR": len(fr), "NFR": len(nfr),
@@ -713,7 +768,8 @@ ARTIFACT_GLOBS = [
     "docs/requirements/json/**/*.json", "docs/requirements/json/**/*.sql",
     "docs/design/json/**/*.json",
     "scripts/validate_requirements.py", "scripts/hooks/pre-git-gate.sh",
-    ".github/workflows/docs-ci.yml", "CLAUDE.md", "AGENTS.md",
+    ".github/workflows/*.yml", "CLAUDE.md", "AGENTS.md",
+    "pyproject.toml", "uv.lock",
 ]
 artifact_files = sorted({
     str(Path(f).relative_to(ROOT))

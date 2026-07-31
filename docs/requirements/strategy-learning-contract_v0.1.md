@@ -19,6 +19,9 @@
    「期待する認識変化」「戦術目標」「媒体役割（media-roles.json の語彙）」「メッセージ仮説」
    「禁止パターン」「計測計画」を宣言する。**計測計画は「何を観測すれば仮説を判定できるか」であり、
    KPI 目標値の割当だけでは無効**。
+2bis. **digest 算出規則（決定的）**: digest = brief 内容の**正準化 JSON の SHA-256**。正準化 =
+   キー昇順ソート・区切り `(",", ":")`（空白なし）・UTF-8／NFC 正規化・`digest`／`status`／`created_at` を
+   算出対象から除外。キー順・空白差で digest は変化しない（AC-SR-01 が決定性を検証）。
 3. brief の改訂は supersedes_id による新版発行のみ（内容列の UPDATE は DDL トリガが拒否）。
    旧版は superseded へ遷移し、旧版に紐づく実行中 run は完走を許すが、新規 run は新版のみ参照する。
 4. S0 では brief はシードコマンドで投入する（strategic_choice 等の上流モデル ID は S1 の上流実装まで
@@ -26,9 +29,14 @@
 
 ## 2. 還流契約 — tactical_learning_packet（下流→上流）
 
-1. 各下流ループは完了時（completed／failed／escalated の終端到達時）に TLP を 1 件生成する。
-   TLP は loop_run_id・strategic_brief_id・strategic_brief_digest・evidence_ids を必須で持つ
-   （接続のない学習は存在しない扱い — G-LEARNING-TRACE）。
+1. **全終端下流 run**（completed／failed／escalated／cancelled）は TLP を**ちょうど 1 件**持つ
+   （DDL の `UNIQUE(loop_run_id)`）。TLP は loop_run_id・strategic_brief_id・strategic_brief_digest・
+   evidence_ids を必須で持ち、DDL の整合トリガが「run は lower かつ終端」「TLP.brief_id = run.brief_id」
+   「TLP.digest = run.digest = brief.digest」「二重 packet 禁止」を INSERT 時に強制する（AC-SR-06）。
+1bis. **packet_kind の二分**: `learning`（観測から学習を還流 — causal_interpretation・
+   hypothesis_assessment 必須）と `failure`（観測前に失敗した run の事実還流 — failure_fact・
+   reproduction_conditions・recovery_conditions 必須で、**causal_interpretation を持てない**）。
+   観測が成立しなかった run へ因果解釈を捏造させない（DDL CHECK が強制）。
 2. TLP は次を**別フィールドで分離**する: 観測された事実（observations — market_observation ID
    または事実文のみ）／計測値（metrics — KPI ツリー参照）／定性シグナル／異常／
    反証可能な仮説の判定（hypothesis_assessment: supported・weakened・rejected・inconclusive ＋対象仮説 ID＋理由）／
@@ -47,8 +55,12 @@
 2. revision は根拠（supporting_evidence_ids）・反証（counter_evidence_ids — 評価した反証がない場合も
    空配列を明示）・信頼度・対象版（target_version）を必須で持つ。
    **accepted には支持根拠 2 件以上を要求し、単一の計測値だけを根拠とした自動 accept を拒否する**。
-3. 戦略変更は上書きではなく append-only の新バージョン作成（new_version_id ＋ supersedes_id）。
-   maintain（維持）も明示的な revision として記録し、「見ていない」と「見て維持した」を区別する。
+3. **revision と新版生成の原子性**: `status = accepted` かつ `revision_type != maintain` では
+   (a) `new_version_id` 必須、(b) 新版の `supersedes_id = target_id`、(c) 対象旧版の status 遷移
+   （active → superseded／retired）、(d) revision accepted と新版 INSERT・旧版 status 遷移を
+   **単一 transaction** で実行する。支持根拠 ID は重複禁止（uniqueItems）— 単一 KPI や同一根拠の
+   重複で 2 件扱いしない。maintain（維持）も明示的な revision として記録し、
+   「見ていない」と「見て維持した」を区別する。
 4. revision が accepted になったとき、affected_brief_ids の brief は新版発行の対象になる
    （上流の行動計画工程が新 brief を発行 → 下流の次回転から適用）。
 

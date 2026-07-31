@@ -69,28 +69,52 @@
     },
     "measurement_plan": {
       "type": "array",
+      "minItems": 1,
+      "uniqueItems": false,
       "items": {
-        "type": "string"
+        "type": "object",
+        "required": [
+          "observable"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "observable": {
+            "type": "string",
+            "minLength": 1
+          },
+          "success_signal": {
+            "type": "string"
+          },
+          "target_hypothesis_ids": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^(VH|CA)-"
+            }
+          }
+        }
       },
-      "description": "計測計画（何を観測すれば仮説を判定できるか）",
-      "minItems": 1
+      "description": "計測計画（何を観測すれば仮説を判定できるか）。KPI 目標値の割当だけでは無効"
     },
     "valid_from": {
       "type": "string",
       "description": "有効開始（ISO 8601）",
-      "minLength": 8
+      "minLength": 8,
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}([T ]\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2}))?$"
     },
     "valid_until": {
       "type": [
         "string",
         "null"
       ],
-      "description": "有効期限"
+      "description": "有効期限",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}([T ]\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2}))?$"
     },
     "digest": {
       "type": "string",
       "pattern": "^[0-9a-f]{64}$",
-      "description": "brief 内容の sha256。下流 run はこの digest を保持し改変を検出する"
+      "description": "brief 内容の正準化 JSON（キー昇順・区切り (\",\",\":\")・UTF-8/NFC。digest・status・created_at を算出対象から除外）の SHA-256。キー順・空白差で変化しない（AC-SR-01）"
     },
     "supersedes_id": {
       "type": [
@@ -99,5 +123,6 @@
       ],
       "description": "置換した旧版の ID。上流正本の変更は supersedes_id による append-only 新バージョンのみ"
     }
-  }
+  },
+  "additionalProperties": false
 }

@@ -56,6 +56,10 @@ Codex CLI を実装エージェントとして登録済み（`.claude/agents/`�
 **2026-08-01 外部レビュー対応（P0 是正）完遂** — 状態機械の決定性、DDL の lease/attempt/external_operations、
 承認 digest 束縛、X ブラウザ書込みの事前禁止ほか（[是正台帳](docs/governance/review-remediation-2026-08-01.md)）。
 **2026-08-01 上流戦略インフィニティループ再強化 完遂** — charter v0.4、SR 16／意味モデル 12 schema、
-brief／TLP／revision の 3 契約、strategic_briefs・TLP テーブル（DDL 25 テーブル・トリガ 10）、
-戦略ゲート 11 件を追加（fixture negative test 常設）。
+brief／TLP／revision の 3 契約、strategic_briefs・TLP テーブル（DDL 25 テーブル）、
+戦略ゲート群を追加（fixture negative test 常設）。
+**2026-08-01 戦略ループ最終統合是正 完遂** — LP-U のイベントトリガー化、WF-STRAT-OBSERVE〜BRIEF 5 本（WF 49）、
+SR→AC-SR→STC-I→DU の一本線トレース、TLP の learning/failure 二分と DDL 整合トリガ、revision 原子性、
+全戦略 schema 閉鎖（additionalProperties: false・正準化 digest 規則）、python-ci 実働化
+（pytest/ruff/mypy/import-linter/shellcheck/actionlint/gitleaks — charter は v0.4 が唯一の北極星、v0.3 superseded）。
 次: **S0.1 実装**（DB・状態機械・ゲート・証跡 — s0-contract §7 の更新分割、CMP-01〜06 が対象）。

@@ -88,6 +88,12 @@
 
 ## 6. S0 との境界（スコープ拡大禁止）
 
+S0 実装分の SR には受入条件 **AC-SR-01〜06**（[json/strategy/ac-sr.json](json/strategy/ac-sr.json) が
+GWT 正本）を付し、検証は STC-I-01〜06、実装先は DU-01/02/10 とする。トレースは
+`SR → AC-SR → STC-I → DU/CMP → S0.1 完了ゲート` の一本線で、**STC-I-01〜06 の pytest green を
+S0.1 の完了条件に含める**（s0-contract §7）。戦略層は独立した別館ではなく HELIX 本線
+（①〜⑥ペア＋CI）に接続される。
+
 - **SR-15 S0 最小集合**: S0 で必須なのは (a) versioned strategic brief をシードできる、
   (b) 下流 run が brief ID と digest を保持する、(c) tactical learning packet を生成できる、
   (d) 下流から上流正本を直接変更できない、(e) 上流モデルの JSON Schema と将来実装契約が確定している —

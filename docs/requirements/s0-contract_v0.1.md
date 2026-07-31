@@ -200,25 +200,35 @@ CREATE TABLE loop_runs (
 CREATE TABLE tactical_learning_packets (
   id INTEGER PRIMARY KEY,
   packet_key TEXT NOT NULL UNIQUE,
-  loop_run_id INTEGER NOT NULL,
+  packet_kind TEXT NOT NULL CHECK (packet_kind IN ('learning', 'failure')),
+  loop_run_id INTEGER NOT NULL UNIQUE,
   strategic_brief_id INTEGER NOT NULL,
   strategic_brief_digest TEXT NOT NULL CHECK (length(strategic_brief_digest) = 64),
   observations_json TEXT NOT NULL CHECK (json_valid(observations_json)),
   metrics_json TEXT NOT NULL DEFAULT '[]' CHECK (json_valid(metrics_json)),
   qualitative_signals_json TEXT NOT NULL DEFAULT '[]' CHECK (json_valid(qualitative_signals_json)),
   anomalies_json TEXT NOT NULL DEFAULT '[]' CHECK (json_valid(anomalies_json)),
-  hypothesis_result TEXT NOT NULL CHECK (hypothesis_result IN ('supported', 'weakened', 'rejected', 'inconclusive')),
-  target_hypothesis_ids_json TEXT NOT NULL CHECK (json_valid(target_hypothesis_ids_json)),
-  assessment_reason TEXT NOT NULL,
-  causal_interpretation TEXT NOT NULL,
+  hypothesis_result TEXT CHECK (hypothesis_result IS NULL OR hypothesis_result IN ('supported', 'weakened', 'rejected', 'inconclusive')),
+  target_hypothesis_ids_json TEXT NOT NULL DEFAULT '[]' CHECK (json_valid(target_hypothesis_ids_json)),
+  assessment_reason TEXT,
+  causal_interpretation TEXT,
   alternative_explanations_json TEXT NOT NULL DEFAULT '[]' CHECK (json_valid(alternative_explanations_json)),
+  failure_fact TEXT,
+  reproduction_conditions TEXT,
+  recovery_conditions TEXT,
   confidence REAL NOT NULL CHECK (confidence >= 0.0 AND confidence <= 1.0),
   evidence_ids_json TEXT NOT NULL CHECK (json_valid(evidence_ids_json)),
   proposed_revision_targets_json TEXT NOT NULL DEFAULT '[]' CHECK (json_valid(proposed_revision_targets_json)),
   recommended_next_action TEXT NOT NULL CHECK (recommended_next_action IN ('continue', 'modify_tactic', 'request_strategy_review', 'stop')),
   created_at TEXT NOT NULL,
   FOREIGN KEY (loop_run_id) REFERENCES loop_runs(id) ON DELETE RESTRICT,
-  FOREIGN KEY (strategic_brief_id) REFERENCES strategic_briefs(id) ON DELETE RESTRICT
+  FOREIGN KEY (strategic_brief_id) REFERENCES strategic_briefs(id) ON DELETE RESTRICT,
+  CHECK ((packet_kind = 'learning'
+          AND causal_interpretation IS NOT NULL AND hypothesis_result IS NOT NULL
+          AND assessment_reason IS NOT NULL)
+      OR (packet_kind = 'failure'
+          AND failure_fact IS NOT NULL AND reproduction_conditions IS NOT NULL
+          AND recovery_conditions IS NOT NULL AND causal_interpretation IS NULL))
 );
 
 CREATE TABLE tasks (
@@ -487,6 +497,17 @@ CREATE TRIGGER tactical_learning_packets_no_update BEFORE UPDATE ON tactical_lea
 BEGIN SELECT RAISE(ABORT, 'tactical_learning_packets is append-only'); END;
 CREATE TRIGGER tactical_learning_packets_no_delete BEFORE DELETE ON tactical_learning_packets
 BEGIN SELECT RAISE(ABORT, 'tactical_learning_packets is append-only'); END;
+CREATE TRIGGER tactical_learning_packets_integrity BEFORE INSERT ON tactical_learning_packets
+WHEN (SELECT loop_kind FROM loop_runs WHERE id = NEW.loop_run_id) IS NOT 'lower'
+  OR (SELECT state FROM loop_runs WHERE id = NEW.loop_run_id)
+      NOT IN ('completed', 'failed', 'escalated', 'cancelled')
+  OR (SELECT strategic_brief_id FROM loop_runs WHERE id = NEW.loop_run_id)
+      IS NOT NEW.strategic_brief_id
+  OR (SELECT strategic_brief_digest FROM loop_runs WHERE id = NEW.loop_run_id)
+      IS NOT NEW.strategic_brief_digest
+  OR (SELECT digest FROM strategic_briefs WHERE id = NEW.strategic_brief_id)
+      IS NOT NEW.strategic_brief_digest
+BEGIN SELECT RAISE(ABORT, 'tlp integrity: run must be lower+terminal and brief/digest must match'); END;
 ```
 
 ### 2.1 evidence の型契約（FR-28）
@@ -554,10 +575,10 @@ BEGIN SELECT RAISE(ABORT, 'tactical_learning_packets is append-only'); END;
 | verifying | verify_pass | verifier が author と別 principal、全必須証跡・全ゲートが PASS | done |
 | verifying | verify_fail | 差戻し理由と verifier 証跡があり、`retry_count + 1 < config.retry_limit` | in_progress（retry_count を 1 増加） |
 | verifying | verify_fail_exhausted | 差戻し理由と verifier 証跡があり、`retry_count + 1 >= config.retry_limit` | escalated（retry_count を 1 増加） |
-| pending | non_retryable_failure | 秘匿違反、予算超過、未定義遷移、回復不能な外部失敗等が局所的で代替 task を発行できる | failed |
+| pending | non_retryable_failure | 秘匿違反、予算超過、未定義遷移、回復不能な外部失敗、承認 decision = rejected 等が局所的で代替 task を発行できる | failed |
 | in_progress | non_retryable_failure | 同上 | failed |
 | verifying | non_retryable_failure | 同上 | failed |
-| pending | escalate | 人の束縛承認・credential 再投入・設計判断等、人の関与がないと進めない（承認拒否を含む） | escalated |
+| pending | escalate | credential 再投入・設計判断等、人の関与がないと進めない（承認 decision = rejected は含まない — non_retryable_failure で failed。expired は承認再要求で待機継続し config.approval_retry_limit 到達で escalate） | escalated |
 | in_progress | escalate | 同上 | escalated |
 | verifying | escalate | 同上 | escalated |
 
@@ -598,7 +619,7 @@ S0 で seed する workflow は `WF-WP-1`、`WF-WP-2`、`WF-MEAS-1` である。
 |---|---|---|---|---|---|
 | 1. 公開前検証 | pair_plan_quality、commit hash、記事 | 公開可能判定 | review_pass, commit_hash | pair = passed、hash 一致、証跡完備 | 拒否して T-PUB を failed。WP API を呼ばない |
 | 2. 下書き作成 | 記事 HTML、WP 接続、専用 idempotency key | WP draft ID | operation_log | ローカル Docker WP のみ書込み可。`external_operations` を prepared→sent→confirmed で遷移 | timeout/クラッシュは §3.3 の sent 照合で再開、照合不能は escalated |
-| 3. 束縛承認 | draft URL/ID、対象、公開操作、時点 | approved approval | approval | channel = Claude Code アプリ、decision = approved、binding 3 項目完全一致 | rejected/expired は failed。pending は waiting |
+| 3. 束縛承認 | draft URL/ID、対象、公開操作、時点 | approved approval | approval | channel = Claude Code アプリ、decision = approved、binding 3 項目完全一致 | rejected は non_retryable_failure で failed。expired は承認再要求で待機継続し `config.approval_retry_limit` 到達で escalated。pending は waiting |
 | 4. 公開 | approved approval、draft ID、下書きとは別の専用 idempotency key | canonical URL、WP post ID | published_url, operation_log | 承認・pair・証跡の再検証。`external_operations` を prepared→sent→confirmed で遷移 | 再送前照合。公開状態不明（unknown）は escalated |
 | 5. 公開確認 | canonical URL | capture | screenshot | URL 到達・URL 一致 | スクショ失敗は retry、上限到達で escalated |
 | 6. 資産登録と完了 | WP post/media ID、URL | assets 行、done | published_url, screenshot, approval | required_evidence_json の全充足 | 欠落は done 拒否 |
@@ -654,7 +675,7 @@ S0 のスコープと 25 機能を維持したまま、依存順に 3 更新へ�
 
 | 更新 | 目的・完了境界 | FN ID（件数） | 受入の要点 |
 |---|---|---|---|
-| S0.1 | DB、状態機械、ゲート、証跡の基盤を実働化 | FN-101, FN-102, FN-103, FN-104, FN-105, FN-201, FN-202, FN-204, FN-208, FN-305, FN-701, FN-702, FN-703, FN-704（14） | 23 業務テーブル＋インフラ 2 テーブル＋append-only トリガの生成、未定義遷移拒否、principal の異なる author/verifier、pair 未成立公開拒否、必須証跡欠落時の done 拒否、config INSERT 履歴、versioned strategic_brief のシードと digest 保持、有効 brief なしの下位 loop_run 開始拒否、tactical_learning_packet の生成、上流戦略正本への UPDATE/DELETE 拒否（下流からの直接変更不可） |
+| S0.1 | DB、状態機械、ゲート、証跡の基盤を実働化 | FN-101, FN-102, FN-103, FN-104, FN-105, FN-201, FN-202, FN-204, FN-208, FN-305, FN-701, FN-702, FN-703, FN-704（14） | 23 業務テーブル＋インフラ 2 テーブル＋append-only トリガの生成、未定義遷移拒否、principal の異なる author/verifier、pair 未成立公開拒否、必須証跡欠落時の done 拒否、config INSERT 履歴、versioned strategic_brief のシードと digest 決定性、有効 brief なし／失効／digest 不一致の下位 loop_run 開始拒否、learning/failure packet の生成と run/brief/digest 整合、上流戦略正本への UPDATE/DELETE 拒否（下流からの直接変更不可）— 受入は AC-SR-01〜06・検証は **STC-I-01〜06 の pytest green**（python-ci で実行） |
 | S0.2 | 記事制作、審査、束縛承認、ローカル WP 公開を一気通貫化 | FN-401, FN-402, FN-404, FN-406, FN-409, FN-411, FN-501, FN-511（8） | WF-WP-1/2 により commit hash と review PASS を pair 化し、Claude Code アプリ承認後に Docker WP へ公開。URL・スクショ・approval を evidence に収束 |
 | S0.3 | GA4 計測、接続レジストリ、攻略地図、最小ダッシュボード用データ面を成立 | FN-601, FN-602, FN-603（3） | WF-MEAS-1 で PV を取得証跡付きで measurements に投入し、registry/playbooks を使う。S0 の DB クエリを最小ダッシュボードのデータソースとして固定（HTML 生成 FN-605 自体は S1） |
 

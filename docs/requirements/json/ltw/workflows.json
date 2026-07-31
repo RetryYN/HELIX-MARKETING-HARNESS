@@ -234,11 +234,13 @@
     },
     {
       "id": "WF-PLAN-2",
-      "purpose": "行動計画更新（上流改善工程）",
-      "steps": "tactical_learning_packet 集約 → 意味モデル別の仮説判定（支持/弱化/棄却）→ strategy_revision 起案（根拠・反証・信頼度・対象版付き。単一 KPI 変動のみの accept 不可）→ accepted なら意味モデルの新版作成（supersedes）→ strategic_brief 新版発行 → Notion 書戻し",
+      "purpose": "行動計画更新（上流改善工程の入口）",
+      "steps": "WF-STRAT-REVISE 呼出（TLP 集約→revision→意味モデル新版）→ WF-STRAT-BRIEF 呼出（brief 新版発行）→ Notion 書戻し。KPI 目標更新・媒体別作業一覧は戦略ではなく brief に従属",
       "trace": {
         "upstream": [
           "WF-PLAN-2",
+          "WF-STRAT-REVISE",
+          "WF-STRAT-BRIEF",
           "SR-10",
           "SR-16"
         ],
@@ -577,6 +579,70 @@
         "downstream": []
       },
       "human_involvement": "再ログインのみ"
+    },
+    {
+      "id": "WF-STRAT-OBSERVE",
+      "purpose": "市場観測の取込",
+      "steps": "出典付き観測収集 → market_observation 化（事実のみ・解釈禁止・信頼度/失効付与）→ schema 検証 → 観測ストア投入",
+      "slice": "S1",
+      "trace": {
+        "upstream": [
+          "SR-02"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "WF-STRAT-ANALYZE",
+      "purpose": "市場分析の更新",
+      "steps": "観測統合 → market_model／segment_context／problem_model の新版 draft（supersedes）→ ペルソナ型拒否検証 → 投入",
+      "slice": "S1",
+      "trace": {
+        "upstream": [
+          "SR-03",
+          "SR-04"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "WF-STRAT-COMPOSE",
+      "purpose": "戦略仮説の構成",
+      "steps": "VH／CAT／POS／CA／strategic_choice 生成（棄却案＋反証条件必須）→ schema 検証 → 投入",
+      "slice": "S1",
+      "trace": {
+        "upstream": [
+          "SR-05"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "WF-STRAT-REVISE",
+      "purpose": "戦略改訂",
+      "steps": "TLP 集約（learning/failure 別）→ 観測と解釈の分離検証 → 仮説判定 → strategy_revision 起案（単一 KPI・重複根拠の accept 不可）→ accepted なら新版 INSERT と旧版 supersede を単一 transaction で実行",
+      "slice": "S1",
+      "trace": {
+        "upstream": [
+          "SR-10",
+          "SR-11",
+          "SR-16"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "WF-STRAT-BRIEF",
+      "purpose": "brief 発行",
+      "steps": "strategic_choice から strategic_brief 新版発行（正準化 JSON の SHA-256 digest・supersedes・有効期間）→ 下流次回転へ適用",
+      "slice": "S0/S1",
+      "trace": {
+        "upstream": [
+          "SR-06",
+          "SR-07"
+        ],
+        "downstream": []
+      }
     }
   ]
 }

@@ -1,0 +1,24 @@
+{
+  "id": "TLP-FIX-FAIL",
+  "packet_kind": "failure",
+  "loop_run_id": "43",
+  "strategic_brief_id": "SB-FIX-1",
+  "strategic_brief_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "observations": [
+    "公開前の審査で倫理ゲート FAIL（EV-210）"
+  ],
+  "metrics": [],
+  "qualitative_signals": [],
+  "anomalies": [
+    "同一テンプレで 2 回連続 FAIL"
+  ],
+  "failure_fact": "審査ゲート FAIL により公開に到達せず観測なし",
+  "reproduction_conditions": "同一テンプレート＋恐怖訴求判定語を含む原稿",
+  "recovery_conditions": "テンプレートの訴求構成を修正し再審査 PASS",
+  "confidence": 0.8,
+  "evidence_ids": [
+    "EV-210"
+  ],
+  "proposed_revision_targets": [],
+  "recommended_next_action": "modify_tactic"
+}

@@ -166,25 +166,35 @@ CREATE TABLE loop_runs (
 CREATE TABLE tactical_learning_packets (
   id INTEGER PRIMARY KEY,
   packet_key TEXT NOT NULL UNIQUE,
-  loop_run_id INTEGER NOT NULL,
+  packet_kind TEXT NOT NULL CHECK (packet_kind IN ('learning', 'failure')),
+  loop_run_id INTEGER NOT NULL UNIQUE,
   strategic_brief_id INTEGER NOT NULL,
   strategic_brief_digest TEXT NOT NULL CHECK (length(strategic_brief_digest) = 64),
   observations_json TEXT NOT NULL CHECK (json_valid(observations_json)),
   metrics_json TEXT NOT NULL DEFAULT '[]' CHECK (json_valid(metrics_json)),
   qualitative_signals_json TEXT NOT NULL DEFAULT '[]' CHECK (json_valid(qualitative_signals_json)),
   anomalies_json TEXT NOT NULL DEFAULT '[]' CHECK (json_valid(anomalies_json)),
-  hypothesis_result TEXT NOT NULL CHECK (hypothesis_result IN ('supported', 'weakened', 'rejected', 'inconclusive')),
-  target_hypothesis_ids_json TEXT NOT NULL CHECK (json_valid(target_hypothesis_ids_json)),
-  assessment_reason TEXT NOT NULL,
-  causal_interpretation TEXT NOT NULL,
+  hypothesis_result TEXT CHECK (hypothesis_result IS NULL OR hypothesis_result IN ('supported', 'weakened', 'rejected', 'inconclusive')),
+  target_hypothesis_ids_json TEXT NOT NULL DEFAULT '[]' CHECK (json_valid(target_hypothesis_ids_json)),
+  assessment_reason TEXT,
+  causal_interpretation TEXT,
   alternative_explanations_json TEXT NOT NULL DEFAULT '[]' CHECK (json_valid(alternative_explanations_json)),
+  failure_fact TEXT,
+  reproduction_conditions TEXT,
+  recovery_conditions TEXT,
   confidence REAL NOT NULL CHECK (confidence >= 0.0 AND confidence <= 1.0),
   evidence_ids_json TEXT NOT NULL CHECK (json_valid(evidence_ids_json)),
   proposed_revision_targets_json TEXT NOT NULL DEFAULT '[]' CHECK (json_valid(proposed_revision_targets_json)),
   recommended_next_action TEXT NOT NULL CHECK (recommended_next_action IN ('continue', 'modify_tactic', 'request_strategy_review', 'stop')),
   created_at TEXT NOT NULL,
   FOREIGN KEY (loop_run_id) REFERENCES loop_runs(id) ON DELETE RESTRICT,
-  FOREIGN KEY (strategic_brief_id) REFERENCES strategic_briefs(id) ON DELETE RESTRICT
+  FOREIGN KEY (strategic_brief_id) REFERENCES strategic_briefs(id) ON DELETE RESTRICT,
+  CHECK ((packet_kind = 'learning'
+          AND causal_interpretation IS NOT NULL AND hypothesis_result IS NOT NULL
+          AND assessment_reason IS NOT NULL)
+      OR (packet_kind = 'failure'
+          AND failure_fact IS NOT NULL AND reproduction_conditions IS NOT NULL
+          AND recovery_conditions IS NOT NULL AND causal_interpretation IS NULL))
 );
 
 CREATE TABLE tasks (
@@ -453,3 +463,14 @@ CREATE TRIGGER tactical_learning_packets_no_update BEFORE UPDATE ON tactical_lea
 BEGIN SELECT RAISE(ABORT, 'tactical_learning_packets is append-only'); END;
 CREATE TRIGGER tactical_learning_packets_no_delete BEFORE DELETE ON tactical_learning_packets
 BEGIN SELECT RAISE(ABORT, 'tactical_learning_packets is append-only'); END;
+CREATE TRIGGER tactical_learning_packets_integrity BEFORE INSERT ON tactical_learning_packets
+WHEN (SELECT loop_kind FROM loop_runs WHERE id = NEW.loop_run_id) IS NOT 'lower'
+  OR (SELECT state FROM loop_runs WHERE id = NEW.loop_run_id)
+      NOT IN ('completed', 'failed', 'escalated', 'cancelled')
+  OR (SELECT strategic_brief_id FROM loop_runs WHERE id = NEW.loop_run_id)
+      IS NOT NEW.strategic_brief_id
+  OR (SELECT strategic_brief_digest FROM loop_runs WHERE id = NEW.loop_run_id)
+      IS NOT NEW.strategic_brief_digest
+  OR (SELECT digest FROM strategic_briefs WHERE id = NEW.strategic_brief_id)
+      IS NOT NEW.strategic_brief_digest
+BEGIN SELECT RAISE(ABORT, 'tlp integrity: run must be lower+terminal and brief/digest must match'); END;

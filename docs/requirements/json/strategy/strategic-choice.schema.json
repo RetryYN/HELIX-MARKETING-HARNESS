@@ -33,15 +33,18 @@
         "type": "string"
       },
       "description": "選択したセグメント（SEG-*）",
-      "minItems": 1
+      "minItems": 1,
+      "uniqueItems": true
     },
     "value_hypothesis_ids": {
       "type": "array",
       "items": {
-        "type": "string"
+        "type": "string",
+        "pattern": "^(VH|CA)-"
       },
       "description": "採用した価値仮説（VH-*）",
-      "minItems": 1
+      "minItems": 1,
+      "uniqueItems": true
     },
     "category_definition_id": {
       "type": "string",
@@ -91,7 +94,8 @@
     "decision_basis": {
       "type": "array",
       "items": {
-        "type": "string"
+        "type": "string",
+        "pattern": "^(https?://|EV-|OBS-|TLP-|SREV-|file:)"
       },
       "description": "判断根拠（observation / TLP / evidence ID）",
       "minItems": 1
@@ -111,5 +115,6 @@
       ],
       "description": "置換した旧版の ID。上流正本の変更は supersedes_id による append-only 新バージョンのみ"
     }
-  }
+  },
+  "additionalProperties": false
 }

@@ -214,7 +214,10 @@
       "polarity": "reject",
       "update": "S0.1",
       "test_file": "tests/unit/test_strategy_store.py",
-      "text": "strategic_briefs 内容 UPDATE/DELETE のトリガ拒否"
+      "text": "strategic_briefs 内容 UPDATE/DELETE のトリガ拒否",
+      "ac": [
+        "AC-SR-05"
+      ]
     },
     {
       "id": "STC-I-02",
@@ -228,7 +231,10 @@
       "polarity": "reject",
       "update": "S0.1",
       "test_file": "tests/unit/test_strategy_store.py",
-      "text": "TLP UPDATE/DELETE のトリガ拒否"
+      "text": "TLP UPDATE/DELETE のトリガ拒否",
+      "ac": [
+        "AC-SR-05"
+      ]
     },
     {
       "id": "STC-I-03",
@@ -242,7 +248,10 @@
       "polarity": "reject",
       "update": "S0.1",
       "test_file": "tests/unit/test_brief_gate.py",
-      "text": "brief なし/digest 不一致/期間外の下位 run 開始拒否"
+      "text": "brief なし/digest 不一致/期間外の下位 run 開始拒否",
+      "ac": [
+        "AC-SR-02"
+      ]
     },
     {
       "id": "STC-I-04",
@@ -257,7 +266,10 @@
       "polarity": "accept",
       "update": "S0.1",
       "test_file": "tests/unit/test_brief_issuer.py",
-      "text": "シード→digest 決定的計算→supersedes 新版発行"
+      "text": "シード→digest 決定的計算→supersedes 新版発行",
+      "ac": [
+        "AC-SR-01"
+      ]
     },
     {
       "id": "STC-I-05",
@@ -271,7 +283,11 @@
       "polarity": "accept",
       "update": "S0.1",
       "test_file": "tests/unit/test_tlp_generator.py",
-      "text": "下流終端で TLP 1 件・分離フィールド充填"
+      "text": "下流終端で TLP 1 件・分離フィールド充填",
+      "ac": [
+        "AC-SR-03",
+        "AC-SR-06"
+      ]
     },
     {
       "id": "STC-I-06",
@@ -284,7 +300,10 @@
       "polarity": "reject",
       "update": "S0.1",
       "test_file": "tests/unit/test_strategy_paths.py",
-      "text": "下流 kernel/コネクタ API に上流正本書込みが存在しない"
+      "text": "下流 kernel/コネクタ API に上流正本書込みが存在しない",
+      "ac": [
+        "AC-SR-04"
+      ]
     },
     {
       "id": "STC-I-07",

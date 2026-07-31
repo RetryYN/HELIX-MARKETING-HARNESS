@@ -37,7 +37,7 @@
 
 | ID | 更新 | 極性 | 対象 CMP | 参照 AC | シナリオ |
 |---|---|---|---|---|---|
-| ITC-01 | S0.1 | accept | CMP-05 | AC-71, AC-72 | 空 DB→全 migration 適用で 21 テーブル再現、FK/integrity PASS、schema_version に checksum 記録、次版昇格も成功 |
+| ITC-01 | S0.1 | accept | CMP-05 | AC-71, AC-72 | 空 DB→全 migration 適用で 25 テーブル再現、FK/integrity PASS、schema_version に checksum 記録、次版昇格も成功 |
 | ITC-02 | S0.1 | reject | CMP-01, CMP-02 | AC-11, AC-13, AC-27 | 遷移表（s0-contract §3.1/3.2）の**全許可・全拒否組合せをパラメタライズ実行**: 未定義遷移・終端からの遷移は状態/retry_count 不変＋rejected ログ、自己審査割当は DB CHECK とエンジン双方で拒否、verify_fail 反復の retry 境界（上限-1 / 上限到達→escalated） |
 | ITC-03 | S0.1 | reject | CMP-03, CMP-04 | AC-28 | 必須証跡欠落時の done 遷移拒否、kind 型契約違反 payload の INSERT 拒否、credential 文字列混入の evidence 拒否 |
 | ITC-04 | S0.1 | accept | CMP-06 | AC-33 | config の INSERT 履歴化・supersedes 連鎖・有効値解決、UPDATE/DELETE がトリガで拒否される |

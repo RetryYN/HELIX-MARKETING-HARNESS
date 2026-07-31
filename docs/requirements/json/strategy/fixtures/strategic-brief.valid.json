@@ -13,8 +13,16 @@
     "偽の希少性"
   ],
   "measurement_plan": [
-    "読了率",
-    "指名検索の増分"
+    {
+      "observable": "読了率",
+      "success_signal": "損失可視化パートまでの読了が有意に増加",
+      "target_hypothesis_ids": [
+        "VH-FIX-1"
+      ]
+    },
+    {
+      "observable": "指名検索の増分"
+    }
   ],
   "valid_from": "2026-08-01",
   "valid_until": null,

@@ -23,7 +23,7 @@
 | P1-2 | 上位ループの月次固定がチャーター思想と矛盾 | LP-U を「月次観測＋イベントトリガー（成長状態・仮説棄却・環境変化・証拠閾値）の戦略更新」へ改訂。**一部クローズ（2026-08-01）**: charter v0.4 で上流の一周判定を「意味モデルの revision 更新」に変更、LP-U 還流を TLP／revision へ再定義。サイクルのイベントトリガー化は S1 の revision-engine 実装時 |
 | P1-3 | X ブラウザ自動化の PoC 前提 | **本コミットで前倒し是正済み**: X ブラウザ書込みは事前 prohibited（BR-M-X-4・POC-01 rejected/discard・RSK-01・MR-X-3 改訂）。公式 API 採用時のみ自動化を再検討 |
 | P1-4 | 媒体調査に出典正本なし（source URL・digest・claim 構造） | br-media JSON を claim/sources/expires_at 構造へ拡張し、実行直前再検証を接続レジストリの契約に含める。**出口: S0.3（接続レジストリ実装）開始前** |
-| P1-5 | CI が実装開始には不足（pytest・ruff・型・migration・secret scan 等） | **出口: S0.1 最初の実装コミットより前に** pytest+coverage・ruff・pyright・import-linter・migration 試験・secret scan・shellcheck/actionlint を CI へ追加（⑥ §5・CLAUDE.md の既存約束と統合） |
+| P1-5 | CI が実装開始には不足（pytest・ruff・型・migration・secret scan 等） | **クローズ（2026-08-01 戦略ループ最終統合是正）**: python-ci を実働化 — pyproject/uv.lock・pytest+coverage・ruff・mypy strict・import-linter・migration/DDL 試験・gitleaks・shellcheck・actionlint・STC-I-01〜06・DU↔test_file 実在ゲート（G-UTC-FILE-EXIST） |
 | P1-6 | JSON 単一正本＋MD 自動生成への移行 | 段階導入: 本コミットで digest/artifact 束縛まで実施。MD 自動生成化は **出口: charter v0.4（authority manifest）で判断** |
 | P1-7 | charter v0.4（authority manifest・ADR-006 統合・T-REVIEW 責務・Python 版統一） | Python 版は本コミットで 3.14 に統一（tech-stack 正、CI・基本設計を追随）。残りは **出口: S0.1 完遂後の charter 改版** |
 

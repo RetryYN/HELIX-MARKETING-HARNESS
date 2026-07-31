@@ -5,14 +5,12 @@
   "type": "object",
   "required": [
     "id",
+    "packet_kind",
     "loop_run_id",
     "strategic_brief_id",
     "strategic_brief_digest",
     "observations",
     "metrics",
-    "hypothesis_assessment",
-    "causal_interpretation",
-    "alternative_explanations",
     "confidence",
     "evidence_ids",
     "recommended_next_action"
@@ -46,7 +44,24 @@
     "metrics": {
       "type": "array",
       "items": {
-        "type": "object"
+        "type": "object",
+        "required": [
+          "kpi_node_key",
+          "value"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "kpi_node_key": {
+            "type": "string",
+            "minLength": 1
+          },
+          "value": {
+            "type": "number"
+          },
+          "period": {
+            "type": "string"
+          }
+        }
       },
       "description": "計測値（KPI ツリー参照）。単一 KPI 変動だけで上流モデルを自動変更しない"
     },
@@ -116,10 +131,12 @@
     "evidence_ids": {
       "type": "array",
       "items": {
-        "type": "string"
+        "type": "string",
+        "pattern": "^(https?://|EV-|OBS-|TLP-|SREV-|file:)"
       },
       "description": "evidence への接続（G-LEARNING-TRACE）",
-      "minItems": 1
+      "minItems": 1,
+      "uniqueItems": true
     },
     "proposed_revision_targets": {
       "type": "array",
@@ -136,6 +153,31 @@
         "request_strategy_review",
         "stop"
       ]
+    },
+    "packet_kind": {
+      "type": "string",
+      "enum": [
+        "learning",
+        "failure"
+      ],
+      "description": "learning = 観測から学習を還流。failure = 観測前に失敗した run の事実還流（因果解釈の捏造禁止）"
+    },
+    "failure_fact": {
+      "type": "string",
+      "minLength": 1,
+      "description": "failure packet 必須（学習 packet では持たない）"
+    },
+    "reproduction_conditions": {
+      "type": "string",
+      "minLength": 1,
+      "description": "failure packet 必須（学習 packet では持たない）"
+    },
+    "recovery_conditions": {
+      "type": "string",
+      "minLength": 1,
+      "description": "failure packet 必須（学習 packet では持たない）"
     }
-  }
+  },
+  "additionalProperties": false,
+  "description": " packet_kind=learning は causal_interpretation・hypothesis_assessment 必須、packet_kind=failure は failure_fact・reproduction_conditions・recovery_conditions 必須で causal_interpretation を持てない（条件は validator/store が強制）。全終端下流 run は packet を 1 件持つ（UNIQUE(loop_run_id)）。"
 }

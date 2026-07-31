@@ -1,6 +1,6 @@
 # HELIX-MARKETING-HARNESS — L0 企画書（Charter）v0.3
 
-- status: **confirmed**（承認 2026-07-30）
+- status: **superseded**（2026-08-01 — [marketing-harness-charter_v0.4.md](marketing-harness-charter_v0.4.md) が唯一の北極星。本書は履歴として保存。元承認 2026-07-30）
 - 改訂: v0.3 (2026-07-30) — データ基盤を定義（WordPress=コンテンツ資産 DB、Notion=ネタ・計画）。ペア構造（企画↔品質、計画↔計測）を pair_closure のループ版として導入。
 - 改訂: v0.2 (2026-07-30) — アーキテクチャを V-model ペアリングから**ループスクラム型（二重改善ループ）**へ全面変更。自律境界（人/AI の分担）を明文化。
 - 正本リポジトリ: <https://github.com/RetryYN/HELIX-MARKETING-HARNESS>

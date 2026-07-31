@@ -62,17 +62,21 @@
     "supporting_evidence_ids": {
       "type": "array",
       "items": {
-        "type": "string"
+        "type": "string",
+        "pattern": "^(https?://|EV-|OBS-|TLP-|SREV-|file:)"
       },
       "description": "支持根拠（accepted には 2 件以上を要求 — 単一計測値だけの自動 accept 拒否）",
-      "minItems": 1
+      "minItems": 1,
+      "uniqueItems": true
     },
     "counter_evidence_ids": {
       "type": "array",
       "items": {
-        "type": "string"
+        "type": "string",
+        "pattern": "^(https?://|EV-|OBS-|TLP-|SREV-|file:)"
       },
-      "description": "反証（評価した反証がない accept は不可。反証ゼロ評価の場合も空配列を明示）"
+      "description": "反証（評価した反証がない accept は不可。反証ゼロ評価の場合も空配列を明示）",
+      "uniqueItems": true
     },
     "confidence": {
       "type": "number",
@@ -84,14 +88,15 @@
       "type": "array",
       "items": {
         "type": "string"
-      }
+      },
+      "uniqueItems": true
     },
     "new_version_id": {
       "type": [
         "string",
         "null"
       ],
-      "description": "生成した新版 ID（上書きではなく append-only 新バージョン）"
+      "description": "生成した新版 ID。status=accepted かつ revision_type!=maintain では必須。新版の supersedes_id = target_id とし、revision accepted・新版 INSERT・旧版 status 遷移を単一 transaction で実行"
     },
     "status": {
       "type": "string",
@@ -101,5 +106,6 @@
         "rejected"
       ]
     }
-  }
+  },
+  "additionalProperties": false
 }

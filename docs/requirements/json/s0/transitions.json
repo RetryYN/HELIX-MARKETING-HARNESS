@@ -162,42 +162,42 @@
       "entity": "tasks",
       "from": "pending",
       "event": "non_retryable_failure",
-      "guard": "秘匿違反、予算超過、未定義遷移、回復不能な外部失敗等が局所的で代替 task を発行できる",
+      "guard": "秘匿違反、予算超過、未定義遷移、回復不能な外部失敗、承認 decision = rejected 等が局所的で代替 task を発行できる",
       "to": "failed"
     },
     {
       "entity": "tasks",
       "from": "in_progress",
       "event": "non_retryable_failure",
-      "guard": "秘匿違反、予算超過、未定義遷移、回復不能な外部失敗等が局所的で代替 task を発行できる",
+      "guard": "秘匿違反、予算超過、未定義遷移、回復不能な外部失敗、承認 decision = rejected 等が局所的で代替 task を発行できる",
       "to": "failed"
     },
     {
       "entity": "tasks",
       "from": "verifying",
       "event": "non_retryable_failure",
-      "guard": "秘匿違反、予算超過、未定義遷移、回復不能な外部失敗等が局所的で代替 task を発行できる",
+      "guard": "秘匿違反、予算超過、未定義遷移、回復不能な外部失敗、承認 decision = rejected 等が局所的で代替 task を発行できる",
       "to": "failed"
     },
     {
       "entity": "tasks",
       "from": "pending",
       "event": "escalate",
-      "guard": "人の束縛承認・credential 再投入・設計判断等、人の関与がないと進めない（承認拒否を含む）",
+      "guard": "credential 再投入・設計判断等、人の関与がないと進めない（承認 decision = rejected は含まない — non_retryable_failure で failed。expired は承認再要求で待機継続し config.approval_retry_limit 到達で escalate）",
       "to": "escalated"
     },
     {
       "entity": "tasks",
       "from": "in_progress",
       "event": "escalate",
-      "guard": "人の束縛承認・credential 再投入・設計判断等、人の関与がないと進めない（承認拒否を含む）",
+      "guard": "credential 再投入・設計判断等、人の関与がないと進めない（承認 decision = rejected は含まない — non_retryable_failure で failed。expired は承認再要求で待機継続し config.approval_retry_limit 到達で escalate）",
       "to": "escalated"
     },
     {
       "entity": "tasks",
       "from": "verifying",
       "event": "escalate",
-      "guard": "人の束縛承認・credential 再投入・設計判断等、人の関与がないと進めない（承認拒否を含む）",
+      "guard": "credential 再投入・設計判断等、人の関与がないと進めない（承認 decision = rejected は含まない — non_retryable_failure で failed。expired は承認再要求で待機継続し config.approval_retry_limit 到達で escalate）",
       "to": "escalated"
     }
   ],

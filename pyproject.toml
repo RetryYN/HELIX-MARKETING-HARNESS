@@ -1,0 +1,54 @@
+[project]
+name = "helix-marketing-harness"
+version = "0.0.1"
+description = "HELIX-MARKETING-HARNESS — 証跡と機械ゲートで品質を守るマーケティングハーネス（S0.1 実装前の骨格）"
+requires-python = ">=3.14"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-cov>=6.0",
+    "ruff>=0.9",
+    "mypy>=1.14",
+    "import-linter>=2.1",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["harness"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+
+[tool.coverage.run]
+source = ["harness"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py314"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S"]
+ignore = ["S101"]  # pytest の assert
+
+[tool.ruff.lint.per-file-ignores]
+# validator/hooks は独立のゲートスクリプト（長い日本語メッセージ・遅延 import・awk 呼出しを許容）
+"scripts/*" = ["E402", "E501", "F401", "B007", "S603", "S607"]
+
+[tool.mypy]
+python_version = "3.14"
+strict = true
+packages = ["harness"]
+
+[tool.importlinter]
+root_package = "harness"
+
+[[tool.importlinter.contracts]]
+name = "単方向依存: kernel → gates → db（基盤）。逆流禁止（基本設計 §1）"
+type = "layers"
+layers = ["harness.kernel", "harness.gates", "harness.db"]

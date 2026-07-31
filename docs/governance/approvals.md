@@ -50,3 +50,18 @@
 | 2026-08-01 | verification-design | v0.1 | confirmed | PO | 9195ed77af4e | 上流戦略インフィニティループ再強化指示（/goal）による内容束縛承認（G-CONFIRM-DIGEST receipt） |
 | 2026-08-01 | basic-design | v0.1 | confirmed | PO | 783f7397e3d5 | 上流戦略インフィニティループ再強化指示（/goal）による内容束縛承認（G-CONFIRM-DIGEST receipt） |
 | 2026-08-01 | integration-test-design | v0.1 | confirmed | PO | 8765a798bd82 | 上流戦略インフィニティループ再強化指示（/goal）による内容束縛承認（G-CONFIRM-DIGEST receipt） |
+| 2026-08-01 | marketing-harness-charter | v0.3 | superseded | PO | — | S0.1 着手前・戦略ループ最終統合是正指示により v0.4 を唯一の北極星とし v0.3 を superseded（履歴保存） |
+| 2026-08-01 | marketing-harness-charter | v0.4 | confirmed | PO | 9a904549de13 | 戦略ループ最終統合是正指示（/goal）による内容束縛承認（G-CONFIRM-DIGEST receipt） |
+| 2026-08-01 | strategy-loop-requirements | v0.1 | confirmed | PO | 07f1123c7fc0 | 戦略ループ最終統合是正指示（/goal）による内容束縛承認（G-CONFIRM-DIGEST receipt） |
+| 2026-08-01 | strategy-learning-contract | v0.1 | confirmed | PO | 8dd2bfa96519 | 戦略ループ最終統合是正指示（/goal）による内容束縛承認（G-CONFIRM-DIGEST receipt） |
+| 2026-08-01 | strategy-loop-design | v0.1 | confirmed | PO | 08ca4a664d86 | 戦略ループ最終統合是正指示（/goal）による内容束縛承認（G-CONFIRM-DIGEST receipt） |
+| 2026-08-01 | strategy-loop-test-design | v0.1 | confirmed | PO | ada6fcadc224 | 戦略ループ最終統合是正指示（/goal）による内容束縛承認（G-CONFIRM-DIGEST receipt） |
+| 2026-08-01 | s0-contract | v0.1 | confirmed | PO | 92172f5dce24 | 戦略ループ最終統合是正指示（/goal）による内容束縛承認（G-CONFIRM-DIGEST receipt） |
+| 2026-08-01 | loop-task-workflow | v0.1 | confirmed | PO | 98cc3f0cef1f | 戦略ループ最終統合是正指示（/goal）による内容束縛承認（G-CONFIRM-DIGEST receipt） |
+| 2026-08-01 | requirements | v0.1 | confirmed | PO | 00fb9f7aa1eb | 戦略ループ最終統合是正指示（/goal）による内容束縛承認（G-CONFIRM-DIGEST receipt） |
+| 2026-08-01 | function-list | v0.1 | confirmed | PO | 6a15bffa7b23 | 戦略ループ最終統合是正指示（/goal）による内容束縛承認（G-CONFIRM-DIGEST receipt） |
+| 2026-08-01 | glossary | v0.1 | confirmed | PO | afcf91baf759 | 戦略ループ最終統合是正指示（/goal）による内容束縛承認（G-CONFIRM-DIGEST receipt） |
+| 2026-08-01 | verification-design | v0.1 | confirmed | PO | 9195ed77af4e | 戦略ループ最終統合是正指示（/goal）による内容束縛承認（G-CONFIRM-DIGEST receipt） |
+| 2026-08-01 | basic-design | v0.1 | confirmed | PO | 783f7397e3d5 | 戦略ループ最終統合是正指示（/goal）による内容束縛承認（G-CONFIRM-DIGEST receipt） |
+| 2026-08-01 | detailed-design | v0.1 | confirmed | PO | 211c441affce | 戦略ループ最終統合是正指示（/goal）による内容束縛承認（G-CONFIRM-DIGEST receipt） |
+| 2026-08-01 | integration-test-design | v0.1 | confirmed | PO | de47b7438551 | 戦略ループ最終統合是正指示（/goal）による内容束縛承認（G-CONFIRM-DIGEST receipt） |
