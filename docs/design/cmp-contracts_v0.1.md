@@ -31,7 +31,7 @@
 - **degradation／復旧**: クラッシュ後は resume() が DB 行のみから再開（pending 再 claim／sent はリモート照合→confirmed 化、照合不能は escalate・再送禁止／verifying は既存 PASS/FAIL 再採用で retry 二重加算なし）。issue_task は同一 (loop_run_id, step_key) の非終端 task 再利用で冪等。
 - **セキュリティ境界**: 秘密を保持しない（credential は CMP-07 経由でコネクタへ）。外部書込みはコネクタ経由のみで自らは行わない。brief/TLP は business_profile スコープで隔離。書込み系操作は NFR-7 のランダム間隔（Rng 注入）を尊重。
 - **人間判断点**: escalated 後の対処と、brief シード投入（S0 受入基準 5 — シードコマンドは PO 起点）。それ以外は全自動
-- **trace**: FN = FN-102 FN-103 FN-104 FN-105 ／ DU = DU-02 DU-03 DU-04 ／ 独立設計書 = error-taxonomy_v0.1.md
+- **trace**: FN = FN-102 FN-103 FN-104 FN-105 FN-106 FN-107 ／ DU = DU-02 DU-03 DU-04 ／ 独立設計書 = error-taxonomy_v0.1.md
 
 ## CMP-03 ゲートエンジン（gates/）
 
@@ -73,7 +73,7 @@
 - **degradation／復旧**: migration は連番・不変・checksum 記録で再実行安全（適用済みはスキップ、改変は検知停止）。DB 破損は verify() で検出し escalate（自動修復しない — fail-close）。昇格は s0-contract §5.2 の手順のみ。
 - **セキュリティ境界**: credential を保存しない（秘匿は CMP-07 のファイルストア）。保護トリガで append-only 契約（config・strategic_briefs・TLP）を DB 層でも強制。DB ファイルはローカルのみ・外部書込みなし。
 - **人間判断点**: migration 昇格手順（§5.2）の実施判断。適用・検証自体は全自動
-- **trace**: FN = FN-105 FN-701 FN-702 FN-703 ／ DU = DU-10 DU-11 ／ 独立設計書 = db-design_v0.1.md、error-taxonomy_v0.1.md
+- **trace**: FN = FN-105 FN-306 FN-701 FN-702 FN-703 ／ DU = DU-10 DU-11 ／ 独立設計書 = db-design_v0.1.md、error-taxonomy_v0.1.md
 
 ## CMP-06 config 管理（config/store.py）
 
@@ -87,7 +87,7 @@
 - **degradation／復旧**: stateless ロジック＋append-only テーブルで復旧は不要。誤設定は新行 INSERT（supersedes）でのみ是正 — 履歴は消えない。key 不在時は default 返却か呼出し側 fail-close。
 - **セキュリティ境界**: credential を config に置かない（CMP-07 に分離 — 混入は CMP-04/07 の検査対象）。denylist・レート間隔・上限値等のゲート強度を決める値の変更履歴を全保持し、ブランド別値は business_profile スコープ key で隔離。
 - **人間判断点**: 設定変更の reason 記入（変更は人間またはエージェントの明示操作のみ。自動書換えなし）
-- **trace**: FN = FN-305 ／ DU = DU-12 ／ 独立設計書 = brand-isolation-design_v0.1.md、error-taxonomy_v0.1.md
+- **trace**: FN = FN-301 FN-302 FN-303 FN-304 FN-305 FN-306 ／ DU = DU-12 ／ 独立設計書 = brand-isolation-design_v0.1.md、error-taxonomy_v0.1.md
 
 ## CMP-07 接続レジストリ・秘匿ストア（registry/）
 
@@ -101,7 +101,7 @@
 - **degradation／復旧**: 経路不在・復号失敗は fail-close（代替経路の暗黙選択なし — 切替は宣言データ変更のみ）。秘匿ファイル破損はバックアップからの手動復旧（自動再生成しない）。scan は定期・独立実行可能で本体障害と分離。
 - **セキュリティ境界**: 秘密一元管理の正本。Fernet 暗号化・復号値メモリ内のみ・伏字 wrapper・test/prod 物理分離＋endpoint 突合・平文走査 — 本システムの秘密境界そのもの。外部書込み経路の宣言もここが正本で、Docker WP 以外の書込み経路は登録しない。
 - **人間判断点**: credential の初期登録・ローテーション、経路宣言の変更（データ変更 = 人間承認経路）
-- **trace**: FN = FN-401 FN-411 FN-412 ／ DU = DU-13 DU-14 ／ 独立設計書 = external-if-design_v0.1.md、error-taxonomy_v0.1.md
+- **trace**: FN = FN-401 FN-408 FN-411 FN-412 ／ DU = DU-13 DU-14 ／ 独立設計書 = external-if-design_v0.1.md、error-taxonomy_v0.1.md
 
 ## CMP-08 ブラウザ基盤（connectors/browser.py）
 
@@ -129,7 +129,7 @@
 - **degradation／復旧**: broken 降格後は該当経路の操作を停止し escalate（自動再有効化なし — 人間が手順更新後に復帰）。last_success_at による鮮度で陳腐化を可視化。DB 行のみが状態でプロセス復旧は不要。
 - **セキュリティ境界**: 手順書に credential を含めない（参照名のみ — 実値は CMP-07）。書込み系手順は S0 で登録しない。手順書は service スコープで管理されブランド横断の誤適用を防ぐ。
 - **人間判断点**: broken 手順書の更新・再有効化（UI 変更への追随は人間判断）
-- **trace**: FN = FN-402 FN-403 FN-404 ／ DU = DU-16 ／ 独立設計書 = external-if-design_v0.1.md、error-taxonomy_v0.1.md
+- **trace**: FN = FN-402 FN-403 FN-404 FN-405 ／ DU = DU-16 ／ 独立設計書 = external-if-design_v0.1.md、error-taxonomy_v0.1.md
 
 ## CMP-10 WP REST コネクタ（connectors/wp.py）
 
@@ -185,7 +185,7 @@
 - **degradation／復旧**: API 阻害時はブラウザエクスポートへ縮退（レジストリ優先順どおり・それ以上の暗黙代替なし）。投入は hash 照合＋単一 transaction で再実行安全（部分投入が残らない）。隔離行は人間レビュー後に再投入可能。
 - **セキュリティ境界**: GA4 へは read-only のみ（書込み operation は組み立て時点で拒否 — 実 GA4 書込み禁止・環境契約 §6）。credential は CMP-07 経由。計測データは business_profile スコープの kpi_node に紐づけブランド隔離。
 - **人間判断点**: 隔離行の処遇判断（再投入・破棄）。取得・投入は全自動
-- **trace**: FN = FN-601 FN-602 FN-603 FN-604 FN-605 FN-606 ／ DU = DU-21 DU-22 DU-23 ／ 独立設計書 = error-taxonomy_v0.1.md
+- **trace**: FN = FN-601 FN-602 FN-603 FN-604 FN-605 FN-606 FN-607 ／ DU = DU-21 DU-22 DU-23 ／ 独立設計書 = error-taxonomy_v0.1.md
 
 ## SCM-01 strategy-store（戦略正本の append-only 永続化 — CMP-05 拡張）
 

@@ -32,6 +32,23 @@ def load(p: Path):
         return json.load(f)
 
 
+def committed_max_skipped():
+    """git HEAD にコミット済みの baseline.json から skip 上限を読む（作業ツリーは信用しない）。"""
+    try:
+        out = subprocess.run(  # noqa: S603
+            ["git", "show", "HEAD:docs/governance/baseline.json"],  # noqa: S607
+            capture_output=True, text=True, check=False, cwd=ROOT)
+        return json.loads(out.stdout).get("max_skipped") if out.returncode == 0 else None
+    except (json.JSONDecodeError, OSError):
+        return None
+
+
+def skip_raise_approved(prev, new) -> bool:
+    """skip 上限の引き上げに対する PO 承認行が approvals.md にあるか。"""
+    appr = (ROOT / "docs/governance/approvals.md").read_text(encoding="utf-8")
+    return f"skip-budget {prev}→{new}" in appr
+
+
 def md_count(path: Path, pattern: str) -> int:
     text = path.read_text(encoding="utf-8")
     return len(set(re.findall(pattern, text)))
@@ -786,7 +803,7 @@ if "--update-baseline" in sys.argv:
         print(f"REFUSED: 承認 receipt（digest 行）のない confirmed 文書があるため baseline を更新しない: {no_receipt}")
         sys.exit(1)
     skip_budget = json.loads((ROOT / "tests" / "skip-budget.json").read_text(encoding="utf-8"))
-    prev_skip = load(BASELINE).get("max_skipped") if BASELINE.exists() else None
+    prev_skip = committed_max_skipped()
     if prev_skip is not None and skip_budget["max_skipped"] > prev_skip:
         appr = (ROOT / "docs/governance/approvals.md").read_text(encoding="utf-8")
         token = f"skip-budget {prev_skip}→{skip_budget['max_skipped']}"
@@ -814,12 +831,14 @@ if BASELINE.exists():
     gate("G-BASE-STATUS", not demoted, f"confirmed の降格なし (降格={demoted})")
     # ratchet: 分母縮小・ゲート削減の禁止
     shrunk = [f"{k}:{base['counts'][k]}→{v}" for k, v in current_counts.items() if v < base["counts"].get(k, 0)]
-    # skip 上限のラチェット: スタブ増加による上限引き上げを検出（green の誤読を防ぐ）
+    # skip 上限のラチェット: 比較対象は **git HEAD にコミット済みの** baseline（作業ツリーの
+    # 同時改変では回避できない）。引き上げには approvals.md の PO 承認行が別途必要。
     cur_skip = json.loads((ROOT / "tests" / "skip-budget.json").read_text(encoding="utf-8"))["max_skipped"]
-    skip_up = base.get("max_skipped") is not None and cur_skip > base["max_skipped"]
+    committed = committed_max_skipped()
+    skip_up = committed is not None and cur_skip > committed and not skip_raise_approved(committed, cur_skip)
     gate("G-BASE-RATCHET", not shrunk and gate_count_now >= base["gate_count"] and not skip_up,
          f"分母縮小/ゲート削減/skip 上限引上げなし (縮小={shrunk}, "
-         f"gates={gate_count_now}>={base['gate_count']}, skip={cur_skip}<={base.get('max_skipped')})")
+         f"gates={gate_count_now}>={base['gate_count']}, skip={cur_skip}<={committed}[HEAD])")
     # 実装入力（JSON 正本・DDL・validator・CI・規律・hook）の無断改変検出
     adrift = sorted(set(
         [a for a, h in base.get("artifacts", {}).items() if current_artifacts.get(a) != h]

@@ -87,7 +87,7 @@
 - **使用テーブル・正本**: rw: sprints／r: action_plans（FK・active 検査）／r: kpi_nodes（target_json 検査）／r: config（媒体別サイクル）／r: loop_runs（並走・進行検査）
 - **外部依存**: なし
 - **設定値**: config.loop.<媒体>.cycle（媒体別サイクル長 — LP-R3。暫定値は C 充填） ／ **固定値**: sprints.status の enum（planned/active/reviewing/completed/blocked — DDL 正準）
-- **trace**: 上流 = BR-A2 REQ-005 ／ 下流 = AC-14-1 AC-14-2 AC-14-3 FN-106 ／ スライス = S1
+- **trace**: 上流 = BR-A2 REQ-005 ／ 下流 = AC-14-1 AC-14-2 AC-14-3 FN-106 CMP-02 ／ スライス = S1
 
 ## FR-15 還流（learnings 生成と上位還流）
 
@@ -108,7 +108,7 @@
 - **使用テーブル・正本**: w: learnings／r: pair_kpi_measure（成立検査）／r: sprints（reviewing 検査）／r: measurements（根拠参照）／r: kpi_nodes（根拠参照）／r: loop_runs（上位ループ次回転の特定）
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: learnings.status の enum（draft/accepted/superseded — DDL 正準）
-- **trace**: 上流 = BR-A1 BR-I4 REQ-009 ／ 下流 = AC-15-1 AC-15-2 AC-15-3 FN-107 ／ スライス = S1
+- **trace**: 上流 = BR-A1 BR-I4 REQ-009 ／ 下流 = AC-15-1 AC-15-2 AC-15-3 FN-107 CMP-02 ／ スライス = S1
 
 ## FR-16 エスカレーション制御
 
@@ -318,7 +318,7 @@
 - **使用テーブル・正本**: rw: business_profiles／w: evidence／r: tasks（依存タスクの開始前提判定）
 - **外部依存**: Claude Code 対話チャネル（人間への照会経路 — これ以外の照会経路は禁止）
 - **設定値**: なし ／ **固定値**: §4 スキーマの必須スロット定義（fill=H 指定 — 変更は要件改訂）
-- **trace**: 上流 = BR-D1 REQ-016 REQ-037 ／ 下流 = AC-31-1 AC-31-2 AC-31-3 FN-301 FN-302 ／ スライス = S1
+- **trace**: 上流 = BR-D1 REQ-016 REQ-037 ／ 下流 = AC-31-1 AC-31-2 AC-31-3 FN-301 FN-302 CMP-06 ／ スライス = S1
 
 ## FR-32 リサーチエンジン（幻覚抑止）
 
@@ -339,7 +339,7 @@
 - **使用テーブル・正本**: r: config（source_freshness_days）／w: evidence（取得証跡）／r: kpi_nodes（KPI 初期形の突合先）
 - **外部依存**: Web 検索（接続レジストリ経由の読み取り専用経路）
 - **設定値**: config.source_freshness_days（媒体構造調査の鮮度上限 — 暫定既定値 90 日） ／ **固定値**: fill=R スロットの定義（§4 — 変更は要件改訂）
-- **trace**: 上流 = BR-D2 REQ-017 ／ 下流 = AC-32-1 AC-32-2 AC-32-3 FN-303 FN-304 ／ スライス = S1
+- **trace**: 上流 = BR-D2 REQ-017 ／ 下流 = AC-32-1 AC-32-2 AC-32-3 FN-303 FN-304 CMP-06 ／ スライス = S1
 
 ## FR-33 設定管理（config 履歴保持）
 
@@ -381,7 +381,7 @@
 - **使用テーブル・正本**: rw: business_profiles／r: brand_plans・action_plans・kpi_nodes 等（business_profile_id FK スコープ列を持つ業務テーブル）
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: business_profiles の status 遷移（draft/active/archived — DDL CHECK）
-- **trace**: 上流 = BR-D4 BR-I1 REQ-019 REQ-046 ／ 下流 = AC-34-1 AC-34-2 AC-34-3 FN-306 ／ スライス = S1
+- **trace**: 上流 = BR-D4 BR-I1 REQ-019 REQ-046 ／ 下流 = AC-34-1 AC-34-2 AC-34-3 FN-306 CMP-05 CMP-06 ／ スライス = S1
 
 ## FR-41 接続レジストリ
 
@@ -444,7 +444,7 @@
 - **使用テーブル・正本**: rw: playbooks／w: evidence（operation_log 系拒否・操作証跡）（evidence kind）／rw: tasks（escalated 遷移は状態機械 FR-11 経由）／w: evidence（screenshot）
 - **外部依存**: 対象媒体サイト（読取り専用の再解析）／Playwright（FR-42 基盤を利用）
 - **設定値**: なし ／ **固定値**: 自動再生成の試行回数 = 1 回（要件固定 — 変更は要件改訂）
-- **trace**: 上流 = BR-F2 BR-H3 REQ-029 ／ 下流 = AC-43-1 AC-43-2 AC-43-3 FN-405 ／ スライス = S2
+- **trace**: 上流 = BR-F2 BR-H3 REQ-029 ／ 下流 = AC-43-1 AC-43-2 AC-43-3 FN-405 CMP-09 ／ スライス = S2
 
 ## FR-44 WP コネクタ
 
@@ -486,7 +486,7 @@
 - **使用テーブル・正本**: rw: external_operations／w: evidence（operation_log 系拒否・操作証跡）（evidence）／r: sprints / learnings（書戻し元）／w: action_plans / sprints への draft 参照材料／r: config（registry.notion・rate.notion.*）
 - **外部依存**: Notion（公式 MCP 優先／ブラウザ fallback — 接続レジストリ準拠）
 - **設定値**: config.rate.notion.req_per_sec（暫定既定 3 req/秒）／config.sync.notion.cursor_margin_min（ポーリングカーソル余裕・分） ／ **固定値**: Notion 本文分割単位 2,000 字（BR-M-NOTION-1）／webhook はループ判定に使わない（ポーリング基本 — BR-M-NOTION-2）
-- **trace**: 上流 = BR-M-NOTION-1 BR-M-NOTION-2 BR-A1 ／ 下流 = AC-45-1 AC-45-2 AC-45-3 FN-408 ／ スライス = S1
+- **trace**: 上流 = BR-M-NOTION-1 BR-M-NOTION-2 BR-A1 ／ 下流 = AC-45-1 AC-45-2 AC-45-3 FN-408 CMP-07 ／ スライス = S1
 
 ## FR-46 承認チャネル
 
@@ -759,4 +759,4 @@
 - **使用テーブル・正本**: w: spend_ledger／r: tasks（task_id FK）／r: approvals（approval_id FK）／r: external_operations（操作確定の照合）／r: config（spend_cap_monthly — 上限判定は NFR-6）
 - **外部依存**: 有償 API サービス（Seedance 等 — 支出の発生源。台帳自体は外部呼出しなし）
 - **設定値**: config.spend_cap_monthly（C・暫定既定値 5,000 円/月 — 上限判定は NFR-6 側） ／ **固定値**: currency 既定値 JPY（DDL DEFAULT）／amount_minor >= 0（DDL CHECK）
-- **trace**: 上流 = BR-F1 REQ-027 NFR-6 ／ 下流 = AC-73-1 AC-73-2 AC-73-3 FN-607 ／ スライス = S1
+- **trace**: 上流 = BR-F1 REQ-027 NFR-6 ／ 下流 = AC-73-1 AC-73-2 AC-73-3 FN-607 CMP-13 ／ スライス = S1

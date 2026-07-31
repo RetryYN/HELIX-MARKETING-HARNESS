@@ -33,7 +33,7 @@
 | G-UTC-TC/DU/CNT/FILE | 単体テスト設計⑥（utest.json）が TC 59 全件を重複なく実在 DU へ割当・全 DU にテストあり・UTC 69（割当 59＋UT 10）・test_file が DU と 1 対 1 衝突なし | テストの届かないモジュール（TDD の空白）・テストファイル混線 |
 | G-UTC-FILE-EXIST | ⑥と戦略層 STC-I（S0.1）が宣言する全 test_file がディスク上に実在（未実装分は**関数単位** skip（理由付き）として存在し、pytest が個別に skipped と報告 — module-level skip は全層再降下 §8 で廃止） | 宣言だけのテストファイル（実行されない検証の PASS 僭称） |
 | G-PAIR3-EXIST/HDR | ⑤↔⑥ の JSON 正本が存在し、両文書ヘッダが相互 pair 参照、ペア台帳の文書実在 | 片方向ペア（⑤↔⑥ 非対称） |
-| G-BASE-EXIST/HASH/STATUS/RATCHET | baseline.json に対し confirmed 文書のハッシュ一致・降格なし・分母縮小/ゲート削減なし・**pytest skip 上限（tests/skip-budget.json の max_skipped）の引き上げなし（引き上げには approvals.md への PO 承認行『skip-budget N→M』が必要 — baseline 同時更新では素通りしない）**。意図的変更は `--update-baseline` を同一コミットで実行（承認 receipt = digest 行がないと baseline 更新を拒否） | **デグレ**: confirmed のサイレント改変・後退・こっそりスコープ縮小（HELIX 日付 ratchet 相当） |
+| G-BASE-EXIST/HASH/STATUS/RATCHET | baseline.json に対し confirmed 文書のハッシュ一致・降格なし・分母縮小/ゲート削減なし・**pytest skip 上限（tests/skip-budget.json の max_skipped）の引き上げなし（比較対象は **git HEAD にコミット済みの** baseline。引き上げには approvals.md への PO 承認行『skip-budget N→M』が必要 — 作業ツリーで baseline と budget を同時に書き換えても回避できない）**。意図的変更は `--update-baseline` を同一コミットで実行（承認 receipt = digest 行がないと baseline 更新を拒否） | **デグレ**: confirmed のサイレント改変・後退・こっそりスコープ縮小（HELIX 日付 ratchet 相当） |
 | G-BASE-ART | 実装入力（JSON 正本・DDL・validator・CI・CLAUDE.md/AGENTS.md・hook）のハッシュが baseline と一致・未登録なし | 実装入力のサイレント改変（レビュー P0-4: MD だけの束縛では不足） |
 | G-COUNT-SYNC | README・CLAUDE.md・AGENTS.md・設計/ガバナンス文書中の手書きゲート件数表記が実数と一致 | 散在する件数のドリフト（意味整合の欠如） |
 | G-STRAT-BRIEF | strategic_brief 契約が完全（必須フィールド・digest）で、DDL が下位 loop_run に brief id/digest の保持を強制し、開始ガードが有効 brief を要求する | brief なしの下流開始（上流→下流契約の欠落） |
@@ -61,7 +61,7 @@
 | G-DU-DATA | 全 DU の DB read/write が DDL の実在テーブルのみ | 存在しないテーブルへの設計参照（全層再降下 §7） |
 | G-API-UT | **全 23 DU** の各公開 API に UT ≥1（apis[].ut）が割当てられ、api.ut ⊆ trace.ut・宙吊り UT ゼロ・参照テスト関数が def として実在し、test-first スタブは skip 理由に「対象 DU＋**その UT を所有する API 名**（apis[].ut から逆引き）」を宣言している（**実行検証は S0.1 以降で red→green** — 本ゲートは設計フェーズの割当・リンクを保証するもので、テストの実行結果を保証しない） | UT なき API・匿名スタブ（どの API を検証するか不明なテスト）（全層再降下 §8） |
 | G-NO-HOLLOW-DESIGN | 全契約正本（BR/FR/SR/AC/NFR/TC/CMP/DU）に TBD・TODO・仮置き等のプレースホルダが存在しない | 空洞設計の温存（全層再降下 §9） |
-| G-CHAIN-BIDIR | **BR→REQ→FR/SR→AC→TC→CMP→DU→API→UT の全区間**を突合: BR↔REQ・REQ↔FR/SR は相互参照、FR/SR↔AC と CMP↔DU は厳密等号（DU は cmp＋also_implements で所属宣言）、FR/SR→CMP は実在＋FN 被覆、S0 の全 AC・全 TC が最低 1 DU に割当、DU.trace.ut = ∪ apis[].ut（末端一致） | 鎖の片方向化・区間の抜け（trace があるように見えて逆から辿れない — 全層再降下 完了条件 4） |
+| G-CHAIN-BIDIR | **BR→REQ→FR/SR→AC→TC→CMP→DU→API→UT の全区間**を突合: BR↔REQ・REQ↔FR/SR は相互参照、FR/SR↔AC と CMP↔DU は厳密等号（DU は cmp＋also_implements で所属宣言）、FR/SR→CMP は実在＋FN 被覆、S0 の全 AC・全 TC が最低 1 DU に割当、DU.trace.ut = ∪ apis[].ut（末端一致）。**直接 edge** = BR↔REQ／REQ↔FR/SR／FR/SR↔AC／FR/SR→CMP／CMP↔DU／DU↔TC／DU↔API-UT、**導出 edge** = AC→TC（G-TRACE-BIDIR が担保）を経由する TC→CMP（S1 以降を再降下済みとする際は TC→DU 検査の対象スライス拡張が必要） | 鎖の片方向化・区間の抜け（trace があるように見えて逆から辿れない — 全層再降下 完了条件 4） |
 | G-DESIGN-SUBSTANCE | 独立設計書 6 本と機能別設計 11 本が実体を持つ（各 ≥50 行・≥3 節、機能別は trace 表つき） | 参照だけ存在する空設計書（存在検査のすり抜け） |
 | G-DESCENT-SELFTEST | 再降下ゲート群（polarity／DbC／DATA／BIDIR／CHAIN）へ欠陥を注入した**変異データを実際の検出ロジックへ投入**し、検出されることを毎回証明する mutation 自己検査 | 名目だけの粒度ゲート（検出能力の喪失に気づけない） |
 | G-WIRING | スクリプトの全ゲート ID が本台帳に掲載され、CI がスクリプトを呼ぶ | ルールの配線漏れ・死蔵（HELIX lint-wiring 相当） |

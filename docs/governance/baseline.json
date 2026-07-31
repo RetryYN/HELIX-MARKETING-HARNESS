@@ -45,7 +45,7 @@
     "AGENTS.md": "49e65b4b8afe029bbd2b738a0900b9a7eadc67effd494fb0ac2ae19b60b427a9",
     "CLAUDE.md": "ed25edec068e53f2cf78039493dec5cfd276a54a5baa172cb5ab97ead0da721e",
     "docs/design/json/cmp-contract.schema.json": "043daeb891ac8522475f63c710bf490d8a3cc04211f60e7451f4a380b66f0810",
-    "docs/design/json/cmp-contracts.json": "3d9ae3fea89545fea72a9f88ff785d13b61e3b518a19ced70b557e4e940c40d7",
+    "docs/design/json/cmp-contracts.json": "a9b485d4ba312593d81f6650e7fc580fa2e1082c49c28edd4d258c8e93d76405",
     "docs/design/json/components.json": "dceba8ad2f3f75b896527b045a7af44f2fbf5065cb0f0c5160baba34a4b880cc",
     "docs/design/json/detailed.json": "997a911beb2e97d89b855c0570064d307c993cd8a5e07d84068e50988851a46d",
     "docs/design/json/du-contract.schema.json": "c03d81f4533819db0d3c117eaee937b50874863c24b720b31658b31732021113",
@@ -84,7 +84,7 @@
     "docs/requirements/json/br/br-contracts.json": "bf8ac4dddc55f99c9d1171098b4119055b62afa843a3ffbbeb657b7a8188c268",
     "docs/requirements/json/fn.json": "22ade0a4e7ba4b9c5e516160b2229d2081adf7c235b3220179f9644f52fede03",
     "docs/requirements/json/fr/fr-contract.schema.json": "e6b4c96cbce85c6d9813c7765885ee659d2aa6e59a53161c2b4fbf67e65cfc1d",
-    "docs/requirements/json/fr/fr-contracts.json": "a35a45f2c31f216551b9a9ecabee72272fa33f4692383c9a5a44b84f6c09d9ba",
+    "docs/requirements/json/fr/fr-contracts.json": "4de1892a97299903f4b1163c3c848d57d8e8f2c22680de258183512cad5f9c20",
     "docs/requirements/json/ltw/loops.json": "d9fce462764b8a730c51db4b6e107c6d0140bd85e637dc77b535afbc3ef7b56d",
     "docs/requirements/json/ltw/poc.json": "edd382d308e42553dd557585376777bd60800777bc5f795f5ed427ecbe1384d9",
     "docs/requirements/json/ltw/task-types.json": "b9a83eed07403e10e2c4448ff6447cac2e083649b34c2bfe3350e94be917ab2e",
@@ -161,7 +161,7 @@
     "docs/requirements/json/verification/tc-contracts.json": "5ca8b044ef37e97e4c1ef729c03a40a8617410c4beecf214e7950defbb2310be",
     "pyproject.toml": "e14a32bc5450457200c910351417df7d2c8651aa5a8d3f7c847e4a5364820969",
     "scripts/hooks/pre-git-gate.sh": "c479c573bdb491a57716c47c2cf54cda2a094e7cde8103ac2f6952fbb230e080",
-    "scripts/validate_requirements.py": "18cba3662b47b50afaff490a7ae153f8c2bdb8abeb5d4fe68d6722309b7a22da",
+    "scripts/validate_requirements.py": "0adf421c4d7f764927c20619d488db9927e215526e0b6c1acb101ef876d3483a",
     "uv.lock": "b57a054ee0cba1c418d500563695ee3007e82557bd5f540558f811c5c578836f"
   }
 }
