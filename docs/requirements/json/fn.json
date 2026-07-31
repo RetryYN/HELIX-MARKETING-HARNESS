@@ -591,7 +591,7 @@
         "upstream": [],
         "downstream": []
       },
-      "text": "ブラウザ: X/note/YouTube/stand.fm/KDP/ASP。公式 API: IG Graph/LINE Messaging/GA4・GSC（ADR-006）"
+      "text": "ブラウザ: note/YouTube/stand.fm/KDP/ASP（X はブラウザ書込み prohibited — BR-M-X-4、attended 人手投稿のみ）。公式 API: IG Graph/LINE Messaging/GA4・GSC（ADR-006）"
     },
     {
       "id": "FN-501",
@@ -906,7 +906,7 @@
       "id": "FN-701",
       "module": "db",
       "title": "スキーマ定義",
-      "summary": "19 テーブルの DDL（S0 は最小集合）",
+      "summary": "業務 21＋インフラ 2 テーブルの DDL（正準は s0-contract §2）",
       "related": [
         "FR-71"
       ],

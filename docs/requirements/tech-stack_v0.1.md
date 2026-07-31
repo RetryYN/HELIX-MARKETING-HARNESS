@@ -33,7 +33,7 @@ Claude Code 内蔵ブラウザ（2026-07 実装）は「対話的・人が監視
 
 | 項目 | 選定 | 備考 |
 |---|---|---|
-| 突破対象 | SNS（X/note/YouTube/stand.fm）、GTM、生成 AI Web UI（ChatGPT/Grok — Gemini は除外・ADR-006）、Canva（MCP フォールバック）、ASP、KDP、メルカリ等保留分。**IG・LINE・GA4/GSC は公式 API 経路のためブラウザ対象外（ADR-006）** | 攻略地図（playbooks）を SQLite に蓄積・自己修復 1 回→エスカレーション |
+| 突破対象 | SNS（note/YouTube/stand.fm）、GTM、生成 AI Web UI（ChatGPT/Grok — Gemini は除外・ADR-006）、Canva（MCP フォールバック）、ASP、KDP、メルカリ等保留分。**IG・LINE・GA4/GSC は公式 API 経路のためブラウザ対象外（ADR-006）。X はブラウザ書込み prohibited（BR-M-X-4）— attended 人手投稿のみ** | 攻略地図（playbooks）を SQLite に蓄積・自己修復 1 回→エスカレーション |
 | レンダリング | 同 Playwright（スクショ・PDF 出力） | 制作パイプラインと基盤共有 |
 | セッション保管 | Playwright storage_state を暗号化保存 | 平文 credential 禁止（NFR-4） |
 
@@ -71,7 +71,8 @@ Claude Code 内蔵ブラウザ（2026-07 実装）は「対話的・人が監視
 | GA4 / Search Console | 正規 API（無料。ADR-006） | ブラウザエクスポート（一時） |
 | Instagram | Graph API（無料・プロアカウント。ADR-006） | —（エスカレーション） |
 | LINE 公式 | Messaging API（無料枠。ADR-006） | —（エスカレーション） |
-| GTM / X / note / YouTube / stand.fm / ASP / KDP | ブラウザ | —（エスカレーション） |
+| GTM / note / YouTube / stand.fm / ASP / KDP | ブラウザ | —（エスカレーション） |
+| X | attended 人手投稿（ブラウザ書込み prohibited・BR-M-X-4） | 公式 API 採用時のみ自動化を再検討 |
 | Seedance | 有償 API（例外台帳） | ブラウザ生成 AI |
 | Codex CLI（画像生成） | CLI 非対話実行（ChatGPT Pro サブスク枠） | ブラウザ生成 AI |
 | Claude Design | DesignSync | 同期済みキャッシュ |

@@ -12,7 +12,7 @@
 ## 1. 位置づけと合否基準
 
 - 本書は ③の TC 59 を **どの DU の単体テストとして pytest 化するか**を 1 対 1 で確定し、
-  TC が届かない DU には補完単体テスト **UT-01〜08** を定義する。これにより
+  TC が届かない DU には補完単体テスト **UT-01〜10** を定義する。これにより
   **全 59 TC が重複なくいずれかの DU に割当てられ、全 23 DU が 1 件以上のテストを持つ**
   （ゲート G-UTC-TC / G-UTC-DU / G-UTC-FILE が機械検証）。
 - TDD 運用（CLAUDE.md）: 実装は割当テストを pytest 化して赤を確認してから行う。
@@ -57,7 +57,7 @@
 - TC-041/042 は検証設計正本で S0.3 のため S0.3 で実行する。DU-13/16 の実装は S0.2 なので、
   S0.2 完了時の単体保証は補完 UT-07/08 が担う（更新境界の空白を作らない）。
 
-## 3. 補完単体テスト（UT-01〜08 — TC が届かない DU と更新境界の空白）
+## 3. 補完単体テスト（UT-01〜10 — TC が届かない DU と更新境界の空白）
 
 | ID | DU | 極性 | 内容 |
 |---|---|---|---|
@@ -68,7 +68,9 @@
 | UT-05 | DU-22 measure/fetch.py | reject 含む | 解決経路（api 第一）での取得、**api 阻害時の browser フォールバック切替**、取得物の即時 SHA-256 固定＋証跡化、書込み系 operation の組立時拒否（read-only 保証） |
 | UT-06 | DU-03 kernel/assigner.py | reject 含む | active な別 agent 組の割当、同一 agent のみの場合の GateRejected、T-REVIEW の critic 除外 |
 | UT-07 | DU-13 registry/resolver.py | reject 含む | 優先順（mcp→api→browser→有償）の解決、無効経路スキップ、該当なし FatalError（S0.2 の基本保証） |
-| UT-08 | DU-16 connectors/playbooks.py | reject 含む | 保存・参照・last_success_at 更新・連続失敗の broken 降格・ストア副層外からの生 SQL 不在（S0.2 の基本保証） |
+| UT-08 | DU-16 connectors/playbooks.py | reject 含む | 保存・参照・last_success_at 更新・連続失敗（`consecutive_failures` 列）の broken 降格・ストア副層外からの生 SQL 不在（S0.2 の基本保証） |
+| UT-09 | DU-04 kernel/workflow.py | reject 含む | 外部操作の exactly-once: `external_operations` を prepared→sent→confirmed の順で各々コミット、**sent のままクラッシュ→再起動で再送なし**（リモート照合成功で confirmed 化、照合不能は unknown で escalate）、下書きと公開の別 idempotency key |
+| UT-10 | DU-02 kernel/orchestrator.py | reject 含む | claim 所有権: **author agent に属さない execution（verifier・無関係 agent）の claim は GateRejected**、lease 失効前の他 execution claim 拒否、失効後は author agent の新 execution のみ再 claim、principal 不一致 execution は複合 FK で IntegrityError |
 
 ## 4. test double・fixture 規約
 
@@ -84,7 +86,7 @@ DB・DDL の CHECK 制約だけは常に実物を使う（fail-close の二重�
 
 ## 5. デグレ対策
 
-- 本台帳は分母ラチェット対象（DU 23・UTC 67 = TC 割当 59＋UT 8）。縮小・割当解除は
+- 本台帳は分母ラチェット対象（DU 23・UTC 69 = TC 割当 59＋UT 10）。縮小・割当解除は
   G-UTC-*／G-BASE-RATCHET が CI と pre-commit hook で fail-close。
 - ③の TC を変更した場合、本書の割当は G-UTC-TC（59 件全割当・重複なし）が自動で破れを検出する。
 - 実装開始後は utest.json の test_file の存在を DU ごとに検査するペアゲートを CI に追加し、

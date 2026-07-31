@@ -6,22 +6,16 @@
   "items": [
     {
       "id": "POC-01",
-      "verification": "X ブラウザ投稿の生存性（Playwright→Camoufox、検知・BAN 兆候の観測込み）",
-      "success_criteria": "テストアカウントで 2 週間・MR-X-3 レート内の投稿/応答が警告ゼロで継続",
-      "fail_route": "X の優先度降格（note/WP へ再配分）or Premium+API 検討",
-      "blocked": "WF-X-1/2、LP-D(X)",
+      "verification": "X ブラウザ投稿の生存性 — 方針却下により実施しない（2026-08-01 PO 決定: ブラウザ書込みは事前 prohibited。BR-M-X-4）",
+      "success_criteria": "N/A（PoC を開始しない）",
+      "fail_route": "X は attended 人手投稿又は優先度降格（note/WP へ再配分）。自動化は公式 API 採用時のみ再検討",
+      "blocked": "なし（rejected/discard — WF-X-1/2 は attended 人手投稿支援として PoC 非依存で再定義済み）",
       "trace": {
-        "upstream": [
-          "WF-X-1",
-          "LP-D"
-        ],
-        "downstream": [
-          "WF-X-1",
-          "LP-D"
-        ]
+        "upstream": [],
+        "downstream": []
       },
-      "decision_outcome": null,
-      "promotion_strategy": null
+      "decision_outcome": "rejected",
+      "promotion_strategy": "discard"
     },
     {
       "id": "POC-02",

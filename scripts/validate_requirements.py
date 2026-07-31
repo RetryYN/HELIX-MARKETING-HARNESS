@@ -120,14 +120,16 @@ norm = lambda s: [ln.rstrip() for ln in s.splitlines() if ln.rstrip() and not ln
 ddl = (J / "s0/ddl.sql").read_text(encoding="utf-8")
 gate("G-DDL-SYNC", norm(md_sql) == norm(ddl), "ddl.sql == MD DDL ブロック")
 
-# G-DDL-APPLY: DDL が空 DB へ適用でき、FK/integrity が通り、テーブル数 21
+# G-DDL-APPLY: DDL が空 DB へ適用でき、FK/integrity が通り、テーブル 23・append-only トリガ 6
 con = sqlite3.connect(":memory:")
 try:
     con.executescript(ddl)
     fk = con.execute("PRAGMA foreign_key_check").fetchall()
     integ = con.execute("PRAGMA integrity_check").fetchone()[0]
     ntab = con.execute("SELECT count(*) FROM sqlite_master WHERE type='table'").fetchone()[0]
-    gate("G-DDL-APPLY", not fk and integ == "ok" and ntab == 21, f"DDL 適用 (fk={fk}, integrity={integ}, tables={ntab})")
+    ntrg = con.execute("SELECT count(*) FROM sqlite_master WHERE type='trigger'").fetchone()[0]
+    gate("G-DDL-APPLY", not fk and integ == "ok" and ntab == 23 and ntrg == 6,
+         f"DDL 適用 (fk={fk}, integrity={integ}, tables={ntab}, triggers={ntrg})")
 except sqlite3.Error as e:
     gate("G-DDL-APPLY", False, f"DDL 適用失敗: {e}")
 finally:
@@ -152,10 +154,37 @@ enum = {
 badst = [
     f"{t['entity']}:{s}"
     for t in titems
-    for s in ([t.get("from"), t.get("to")] if isinstance(t.get("from"), str) else (t.get("from") or []) + [t.get("to")])
-    if s and "/" not in s and s not in enum[t["entity"]]
+    for s in (t.get("from"), t.get("to"))
+    if s and s not in enum[t["entity"]]
 ]
-gate("G-TRN-ST", not badst, f"遷移状態が DDL enum 内 (不明={badst})")
+gate("G-TRN-ST", not badst, f"遷移状態が DDL enum 内・複合表記なし (不明={badst})")
+
+# G-TRN-UNIQ/REACH/TERM/GUARD: 状態機械の決定性（レビュー P0-1 対応）
+keys = [(t["entity"], t["from"], t["event"]) for t in titems]
+dupkeys = sorted({k for k in keys if keys.count(k) > 1})
+gate("G-TRN-UNIQ", not dupkeys, f"(entity, from, event) が一意 (重複={dupkeys})")
+INITIAL = {"loop_runs": {"pending"}, "tasks": {"pending"}}
+TERMINAL = {"loop_runs": {"completed", "failed", "escalated", "cancelled"},
+            "tasks": {"done", "failed", "escalated"}}
+unreach = []
+for e, states in enum.items():
+    edges: dict[str, set] = {}
+    for t in titems:
+        if t["entity"] == e:
+            edges.setdefault(t["from"], set()).add(t["to"])
+    seen = set(INITIAL[e])
+    stack = list(INITIAL[e])
+    while stack:
+        for nxt in edges.get(stack.pop(), set()):
+            if nxt not in seen:
+                seen.add(nxt)
+                stack.append(nxt)
+    unreach += [f"{e}:{s}" for s in sorted(states - seen)]
+gate("G-TRN-REACH", not unreach, f"enum の全状態が初期状態から BFS 到達可能 (到達不能={unreach})")
+fromterm = [f"{t['entity']}:{t['from']}" for t in titems if t["from"] in TERMINAL[t["entity"]]]
+gate("G-TRN-TERM", not fromterm, f"終端状態からの遷移なし (違反={fromterm})")
+noguard = [f"{t['entity']}:{t['from']}:{t['event']}" for t in titems if not (t.get("guard") or "").strip()]
+gate("G-TRN-GUARD", not noguard, f"全遷移に非空ガード (欠落={noguard})")
 
 # G-CONFIRM: status confirmed を名乗る文書は approvals.md に承認行が実在する（freeze 偽装検出）
 approvals = (ROOT / "docs/governance/approvals.md").read_text(encoding="utf-8")
@@ -169,6 +198,43 @@ for f in glob.glob(str(ROOT / "docs/**/*.md"), recursive=True):
     if re.search(r"status:\s*\*{0,2}confirmed\*{0,2}", head) and base not in approvals:
         imposters.append(p.name)
 gate("G-CONFIRM", not imposters, f"confirmed 文書は承認ログに実在 (偽装={imposters})")
+
+# G-CONFIRM-DIGEST: 承認は内容へ束縛する（レビュー P0-4 対応）。
+# confirmed 文書ごとに、approvals.md のいずれかの行の digest 列（sha256 先頭 12）が現内容と一致すること。
+import hashlib
+
+
+def sha12(p: Path) -> str:
+    return hashlib.sha256(p.read_bytes()).hexdigest()[:12]
+
+
+# 行単位で束縛: (対象, 版, confirmed) の承認行が持つ digest 集合と照合する（digest の行間移植を封じる）
+receipt_index: dict[tuple, set] = {}
+for row in approvals.splitlines():
+    cells = [c.strip() for c in row.split("|")]
+    if len(cells) >= 8 and re.match(r"\d{4}-\d{2}-\d{2}", cells[1]):
+        # cells: ['', 日付, 対象, 版, 判断, 承認者, digest, 備考, '']
+        if cells[4] == "confirmed" and re.fullmatch(r"[0-9a-f]{12}", cells[6]):
+            receipt_index.setdefault((cells[2], cells[3]), set()).add(cells[6])
+
+
+def has_receipt(p: Path) -> bool:
+    base = re.sub(r"_v[\d.]+$", "", p.stem)
+    mver = re.search(r"_v([\d.]+)$", p.stem)
+    ver = f"v{mver.group(1)}" if mver else "-"
+    return sha12(p) in receipt_index.get((base, ver), set())
+
+
+unbound = []
+for f in glob.glob(str(ROOT / "docs/**/*.md"), recursive=True):
+    p = Path(f)
+    if p.name == "approvals.md":
+        continue
+    if re.search(r"status:\s*\*{0,2}confirmed\*{0,2}", p.read_text(encoding="utf-8")[:600]):
+        if not has_receipt(p):
+            unbound.append(f"{p.name}:{sha12(p)}")
+gate("G-CONFIRM-DIGEST", not unbound,
+     f"confirmed 文書の現内容 digest が同一 (対象, 版, confirmed) の承認行に存在 (未束縛={unbound})")
 
 # G-SRC-FRESH: br-media の構造調査値は確認日必須・90 日で失効（出典腐敗検査）
 import datetime
@@ -324,7 +390,7 @@ if du_path.exists() and ut_path.exists():
     covdu = {u["du"] for u in uitems2}
     gate("G-UTC-DU", not baddu and set(duids) <= covdu,
          f"割当 DU 実在＋全 DU にテストあり (不明={baddu}, 未カバー={sorted(set(duids) - covdu)})")
-    gate("G-UTC-CNT", len(uitems2) == 67 and len(extra) == 8, f"UTC=67（割当59＋UT8）(実={len(uitems2)}/{len(extra)})")
+    gate("G-UTC-CNT", len(uitems2) == 69 and len(extra) == 10, f"UTC=69（割当59＋UT10）(実={len(uitems2)}/{len(extra)})")
     # テストファイルは DU と 1 対 1（衝突なし・DU 内は単一ファイル）
     du2f: dict[str, set] = {}
     for u in uitems2:
@@ -365,12 +431,31 @@ confirmed_docs = sorted(
 current_hashes = {d: hashlib.sha256((ROOT / d).read_bytes()).hexdigest() for d in confirmed_docs}
 gate_count_now = len(re.findall(r'gate\(\s*f?"G-', Path(__file__).read_text(encoding="utf-8")))
 
+# baseline は confirmed MD だけでなく実装入力（JSON 正本・DDL・validator・CI・エージェント規律・hook）も束縛する
+ARTIFACT_GLOBS = [
+    "docs/requirements/json/**/*.json", "docs/requirements/json/**/*.sql",
+    "docs/design/json/**/*.json",
+    "scripts/validate_requirements.py", "scripts/hooks/pre-git-gate.sh",
+    ".github/workflows/docs-ci.yml", "CLAUDE.md", "AGENTS.md",
+]
+artifact_files = sorted({
+    str(Path(f).relative_to(ROOT))
+    for g in ARTIFACT_GLOBS for f in glob.glob(str(ROOT / g), recursive=True)
+})
+current_artifacts = {a: hashlib.sha256((ROOT / a).read_bytes()).hexdigest() for a in artifact_files}
+
 if "--update-baseline" in sys.argv:
+    # receipt 束縛: confirmed 文書の現内容 digest が承認ログに存在しない限り baseline を書換えない
+    no_receipt = [d for d in confirmed_docs if not has_receipt(ROOT / d)]
+    if no_receipt:
+        print(f"REFUSED: 承認 receipt（digest 行）のない confirmed 文書があるため baseline を更新しない: {no_receipt}")
+        sys.exit(1)
     BASELINE.write_text(json.dumps({
         "updated": "see git log", "counts": current_counts,
         "gate_count": gate_count_now, "confirmed_docs": current_hashes,
+        "artifacts": current_artifacts,
     }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(f"baseline updated: docs={len(current_hashes)}, gates={gate_count_now}, counts={current_counts}")
+    print(f"baseline updated: docs={len(current_hashes)}, artifacts={len(current_artifacts)}, gates={gate_count_now}, counts={current_counts}")
     sys.exit(0)
 
 if BASELINE.exists():
@@ -387,8 +472,28 @@ if BASELINE.exists():
     shrunk = [f"{k}:{base['counts'][k]}→{v}" for k, v in current_counts.items() if v < base["counts"].get(k, 0)]
     gate("G-BASE-RATCHET", not shrunk and gate_count_now >= base["gate_count"],
          f"分母縮小/ゲート削減なし (縮小={shrunk}, gates={gate_count_now}>={base['gate_count']})")
+    # 実装入力（JSON 正本・DDL・validator・CI・規律・hook）の無断改変検出
+    adrift = sorted(set(
+        [a for a, h in base.get("artifacts", {}).items() if current_artifacts.get(a) != h]
+        + [a for a in current_artifacts if a not in base.get("artifacts", {})]
+    ))
+    gate("G-BASE-ART", "artifacts" in base and not adrift,
+         f"実装入力 artifact の無断改変/未登録なし (差分={adrift or '[]'}; 意図的なら --update-baseline)")
 else:
     gate("G-BASE-EXIST", False, "baseline.json が存在しない（--update-baseline で生成）")
+
+# G-COUNT-SYNC: 手書きのゲート件数表記が実数と一致（意味整合レビュー対応 — 散在数値のドリフト検出）
+count_files = [ROOT / "README.md", ROOT / "CLAUDE.md", ROOT / "AGENTS.md",
+               ROOT / "docs/governance/requirements-gates.md"] + \
+    [Path(f) for f in glob.glob(str(ROOT / "docs/design/*.md"))]
+stale_counts = []
+for p in count_files:
+    text = p.read_text(encoding="utf-8")
+    for m in re.findall(r"整合ゲート\s*(\d+)\s*本|（(\d+)\s*ゲート）|ゲート\s*(\d+)\s*本", text):
+        n = int(next(x for x in m if x))
+        if n != gate_count_now:
+            stale_counts.append(f"{p.name}:{n}!={gate_count_now}")
+gate("G-COUNT-SYNC", not stale_counts, f"ゲート件数の手書き表記が実数と一致 (乖離={stale_counts})")
 
 # G-WIRING: メタゲート — スクリプトのゲート ID と台帳・CI 配線の突合
 src = Path(__file__).read_text(encoding="utf-8")

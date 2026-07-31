@@ -12,15 +12,19 @@
 ## 1. 適用範囲と共通規約
 
 - DB 正本は SQLite である。接続開始時に必ず `PRAGMA foreign_keys = ON` を実行する。SQLite の FK は接続単位で有効化するため、これを省略した接続は不正な実行環境とする。
+- 接続開始時に `PRAGMA journal_mode = WAL` と `PRAGMA busy_timeout`（値は `config.sqlite_busy_timeout_ms`）を設定する。書込みは kernel の単一 writer 経由とし、`SQLITE_BUSY` は busy_timeout 内の待機→タイムアウトで retryable_failure として扱う（書込み競合方針）。
 - 時刻は UTC の ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`) 文字列、ハッシュは SHA-256 の 64 桁 16 進文字列、JSON は UTF-8 の RFC 8259 JSON とする。
 - `*_id` は `INTEGER` の不透明な主キーであり、外部サービス ID・credential・secret を格納しない。外部操作の識別子は `evidence.external_operation_id` のみへ、秘匿情報を除いて記録する。
-- 外部書込みは `tasks.idempotency_key` を必須とし、同じキーで再送しても同じ外部操作を再利用又は安全に拒否する。外部操作後は、状態遷移より先に operation ID・結果を証跡化する（NFR-3）。
+- 外部書込みは操作単位の idempotency key を必須とし、`external_operations` 行を **prepared → sent → confirmed / rejected / unknown** の順で遷移させる。送信前に prepared・sent を各々コミットし（送信直後クラッシュの検出窓）、結果確定後に confirmed/rejected とし `operation_log` 証跡を派生させる。状態遷移はその後に行う（NFR-3）。1 外部操作 = 1 行であり、下書き作成と公開は別 idempotency key の別行とする。
 - `tasks.verifier_agent_id` は全タスクで必須とする。T-REVIEW の verifier は critic 以外の `gate-engine` 等を割り当てる。これにより自己審査禁止を NULL の三値論理に委ねない。
+- 自己審査禁止の判定単位は **principal**（`agents.principal` = 実体となるモデル・人・サービス）である。author と verifier は agent 行の差だけでなく principal が異なることを kernel が claim ガードで検査する。実行の系譜は `agent_executions`（execution = セッション/run、親子関係）に記録し、`agent_executions.principal` は複合 FK `(agent_id, principal)` で `agents` と一致を強制する。lease は execution 単位で保持し、**task を claim できる execution は当該 task の `author_agent_id` に属するものに限る**（lease 失効後の再 claim も author agent の新 execution のみ。kernel がガードで拒否）。
 
 ## 2. 正準 DDL（FR-71）
 
 以下の順序で適用する。`schema_version`（FR-72 の移行管理）と `state_transitions`（NFR-5 の状態遷移ログ）は
-FR-71 の 19 業務テーブルとは別のインフラテーブルである。
+FR-71 の 21 業務テーブル（当初 19 ＋レビュー是正で追加した `agent_executions`・`external_operations`）とは
+別のインフラテーブルである。append-only テーブル（`config`・`evidence`・`state_transitions`）は
+保護トリガで UPDATE/DELETE を拒否し、migration 0001 はトリガ込みで本 DDL と等価とする。
 一部の FK は後続テーブルへの前方参照を含む（SQLite は DML 時に検証するため適用は成功する）。
 適用後の `PRAGMA foreign_key_check` 成功を契約検証（§8）で必須とする。
 
@@ -62,10 +66,25 @@ CREATE TABLE business_profiles (
 CREATE TABLE agents (
   id INTEGER PRIMARY KEY,
   agent_key TEXT NOT NULL UNIQUE,
+  principal TEXT NOT NULL,
   role TEXT NOT NULL,
   display_name TEXT NOT NULL,
   status TEXT NOT NULL CHECK (status IN ('active', 'disabled')),
-  created_at TEXT NOT NULL
+  created_at TEXT NOT NULL,
+  UNIQUE (id, principal)
+);
+
+CREATE TABLE agent_executions (
+  id INTEGER PRIMARY KEY,
+  agent_id INTEGER NOT NULL,
+  principal TEXT NOT NULL,
+  model_version TEXT,
+  session_ref TEXT,
+  parent_execution_id INTEGER,
+  started_at TEXT NOT NULL,
+  ended_at TEXT,
+  FOREIGN KEY (agent_id, principal) REFERENCES agents(id, principal) ON DELETE RESTRICT,
+  FOREIGN KEY (parent_execution_id) REFERENCES agent_executions(id) ON DELETE RESTRICT
 );
 
 CREATE TABLE brand_plans (
@@ -156,8 +175,14 @@ CREATE TABLE tasks (
   author_agent_id INTEGER NOT NULL,
   verifier_agent_id INTEGER NOT NULL,
   state TEXT NOT NULL CHECK (state IN ('pending', 'in_progress', 'verifying', 'done', 'failed', 'escalated')),
+  step_key TEXT NOT NULL,
+  attempt INTEGER NOT NULL DEFAULT 1 CHECK (attempt >= 1),
   retry_count INTEGER NOT NULL DEFAULT 0 CHECK (retry_count >= 0),
   idempotency_key TEXT NOT NULL UNIQUE,
+  lease_owner_execution_id INTEGER,
+  lease_expires_at TEXT,
+  heartbeat_at TEXT,
+  row_version INTEGER NOT NULL DEFAULT 0 CHECK (row_version >= 0),
   expected_output_kind TEXT NOT NULL,
   input_json TEXT NOT NULL CHECK (json_valid(input_json)),
   output_json TEXT CHECK (output_json IS NULL OR json_valid(output_json)),
@@ -171,7 +196,29 @@ CREATE TABLE tasks (
   FOREIGN KEY (workflow_id) REFERENCES workflows(id) ON DELETE RESTRICT,
   FOREIGN KEY (author_agent_id) REFERENCES agents(id) ON DELETE RESTRICT,
   FOREIGN KEY (verifier_agent_id) REFERENCES agents(id) ON DELETE RESTRICT,
-  CHECK (author_agent_id != verifier_agent_id)
+  FOREIGN KEY (lease_owner_execution_id) REFERENCES agent_executions(id) ON DELETE RESTRICT,
+  CHECK (author_agent_id != verifier_agent_id),
+  UNIQUE (loop_run_id, step_key, attempt)
+);
+
+CREATE TABLE external_operations (
+  id INTEGER PRIMARY KEY,
+  task_id INTEGER NOT NULL,
+  service TEXT NOT NULL,
+  operation TEXT NOT NULL,
+  target_endpoint TEXT NOT NULL,
+  idempotency_key TEXT NOT NULL UNIQUE,
+  request_hash TEXT NOT NULL CHECK (length(request_hash) = 64),
+  status TEXT NOT NULL CHECK (status IN ('prepared', 'sent', 'confirmed', 'rejected', 'unknown')),
+  external_operation_id TEXT,
+  remote_object_id TEXT,
+  response_hash TEXT CHECK (response_hash IS NULL OR length(response_hash) = 64),
+  evidence_id INTEGER,
+  prepared_at TEXT NOT NULL,
+  sent_at TEXT,
+  confirmed_at TEXT,
+  FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE RESTRICT,
+  FOREIGN KEY (evidence_id) REFERENCES evidence(id) ON DELETE RESTRICT
 );
 
 CREATE TABLE pair_plan_quality (
@@ -276,6 +323,8 @@ CREATE TABLE playbooks (
   procedure_json TEXT NOT NULL CHECK (json_valid(procedure_json)),
   selector_json TEXT CHECK (selector_json IS NULL OR json_valid(selector_json)),
   status TEXT NOT NULL CHECK (status IN ('active', 'broken', 'retired')),
+  consecutive_failures INTEGER NOT NULL DEFAULT 0 CHECK (consecutive_failures >= 0),
+  last_failure_at TEXT,
   last_success_at TEXT,
   last_verified_by_agent_id INTEGER,
   FOREIGN KEY (last_verified_by_agent_id) REFERENCES agents(id) ON DELETE RESTRICT,
@@ -348,6 +397,19 @@ CREATE TABLE spend_ledger (
   FOREIGN KEY (approval_id) REFERENCES approvals(id) ON DELETE RESTRICT,
   UNIQUE (service, external_operation_id)
 );
+
+CREATE TRIGGER config_no_update BEFORE UPDATE ON config
+BEGIN SELECT RAISE(ABORT, 'config is append-only'); END;
+CREATE TRIGGER config_no_delete BEFORE DELETE ON config
+BEGIN SELECT RAISE(ABORT, 'config is append-only'); END;
+CREATE TRIGGER evidence_no_update BEFORE UPDATE ON evidence
+BEGIN SELECT RAISE(ABORT, 'evidence is append-only'); END;
+CREATE TRIGGER evidence_no_delete BEFORE DELETE ON evidence
+BEGIN SELECT RAISE(ABORT, 'evidence is append-only'); END;
+CREATE TRIGGER state_transitions_no_update BEFORE UPDATE ON state_transitions
+BEGIN SELECT RAISE(ABORT, 'state_transitions is append-only'); END;
+CREATE TRIGGER state_transitions_no_delete BEFORE DELETE ON state_transitions
+BEGIN SELECT RAISE(ABORT, 'state_transitions is append-only'); END;
 ```
 
 ### 2.1 evidence の型契約（FR-28）
@@ -371,11 +433,17 @@ CREATE TABLE spend_ledger (
 
 ### 2.2 config の履歴契約（FR-33）
 
-`config` は append-only である。変更は旧行を UPDATE/DELETE せず、新行を INSERT して `supersedes_config_id` に直前の有効行を指定する。読み取り側は、key ごとに `changed_at` が最大の行を有効値とする。`changed_at` の衝突を避けるため、同一 key の同一時刻 INSERT は拒否する。DB 接続は config への UPDATE/DELETE 権限を与えず、必要ならトリガで拒否する。
+`config` は append-only である。変更は旧行を UPDATE/DELETE せず、新行を INSERT して `supersedes_config_id` に直前の有効行を指定する。読み取り側は、key ごとに `changed_at` が最大の行を有効値とする。`changed_at` の衝突を避けるため、同一 key の同一時刻 INSERT は拒否する。config への UPDATE/DELETE は §2 の保護トリガが常時拒否する（evidence・state_transitions も同様）。
 
 ## 3. 状態遷移契約（FR-11〜13、NFR-3）
 
 遷移表にない組合せは拒否し、状態・retry_count・証跡を変更しない（拒否も `state_transitions` に guard_result = `rejected` で記録する）。各遷移は単一 SQLite transaction で、ガード判定、状態更新、遷移ログ（`state_transitions` 行）をコミットする。`operation_log` 証跡は外部操作専用であり、状態遷移の記録には使わない。`done`、`failed`、`escalated`、`completed`、`cancelled` は終端状態である。
+
+遷移表は **決定的** である: 1 行 = 1 現状態（複合表記禁止）、キー `(entity, 現状態, イベント)` は表内で一意、
+終端状態を現状態とする行は存在せず、enum の全非初期状態はいずれかの行の次状態として到達可能とする
+（G-TRN-UNIQ/REACH/TERM/GUARD が機械検査）。失敗の分類はイベントで区別する:
+`non_retryable_failure` は常に `failed`（局所失敗・代替発行可）、人の関与が必要な失敗は `escalate`
+（tasks）又は `fatal_failure`（loop_runs）で常に `escalated` へ遷移する。
 
 ### 3.1 loop_runs（上位／下位／マイクロ共通）
 
@@ -385,10 +453,18 @@ CREATE TABLE spend_ledger (
 | running | wait | 外部応答・承認・子 task 完了待ち | waiting |
 | waiting | resume | 待機対象の証跡又は承認が充足 | running |
 | running | complete | 全子 task が done、必須ゲート PASS、必須証跡完備 | completed |
-| running / waiting | retryable_failure | 再実行可能で retry_count < `config.retry_limit` | running |
-| running / waiting | retry_exhausted | retry_count >= `config.retry_limit` | escalated |
-| pending / running / waiting | fatal_failure | 認証失効、ゲート赤、地図破損、予算超過等で自動回復不可 | escalated |
-| pending / running / waiting | cancel | 人の明示取消。外部書込み未実行又は補償済み | cancelled |
+| running | retryable_failure | 再実行可能で retry_count < `config.retry_limit` | running |
+| waiting | retryable_failure | 再実行可能で retry_count < `config.retry_limit` | running |
+| running | retry_exhausted | retry_count >= `config.retry_limit` | escalated |
+| waiting | retry_exhausted | retry_count >= `config.retry_limit` | escalated |
+| running | non_retryable_failure | 自動回復不可だが局所的で、人の関与なく代替 run を発行できる | failed |
+| waiting | non_retryable_failure | 自動回復不可だが局所的で、人の関与なく代替 run を発行できる | failed |
+| pending | fatal_failure | 認証失効、ゲート赤、地図破損、予算超過等で自動回復不可・人の関与が必要 | escalated |
+| running | fatal_failure | 認証失効、ゲート赤、地図破損、予算超過等で自動回復不可・人の関与が必要 | escalated |
+| waiting | fatal_failure | 認証失効、ゲート赤、地図破損、予算超過等で自動回復不可・人の関与が必要 | escalated |
+| pending | cancel | 人の明示取消。外部書込み未実行又は補償済み | cancelled |
+| running | cancel | 人の明示取消。外部書込み未実行又は補償済み | cancelled |
+| waiting | cancel | 人の明示取消。外部書込み未実行又は補償済み | cancelled |
 
 上位は `parent_loop_run_id IS NULL`、下位とマイクロは親 run を必須とする。マイクロ run の retry は親 task の検証 retry と同じ境界で数え、親を超えて独自に回数を増やさない。
 
@@ -396,28 +472,32 @@ CREATE TABLE spend_ledger (
 
 | 現状態 | イベント | ガード | 次状態 |
 |---|---|---|---|
-| pending | claim | author/verifier が active かつ別 agent、親 loop が running、入力と workflow が有効 | in_progress |
+| pending | claim | author/verifier が active かつ principal の異なる別 agent、claim する execution が author agent に属する、親 loop が running、入力と workflow が有効 | in_progress |
 | in_progress | submit_for_verification | workflow の実行出力が保存済み、author 側必須証跡が有効 | verifying |
-| verifying | verify_pass | verifier が author と別、全必須証跡・全ゲートが PASS | done |
+| verifying | verify_pass | verifier が author と別 principal、全必須証跡・全ゲートが PASS | done |
 | verifying | verify_fail | 差戻し理由と verifier 証跡があり、`retry_count + 1 < config.retry_limit` | in_progress（retry_count を 1 増加） |
-| verifying | verify_fail | 差戻し理由と verifier 証跡があり、`retry_count + 1 >= config.retry_limit` | escalated（retry_count を 1 増加） |
-| pending / in_progress / verifying | non_retryable_failure | 秘匿違反、承認拒否、予算超過、未定義遷移、回復不能な外部失敗 | failed 又は escalated |
-| pending / in_progress / verifying | escalate | 人の判断待ち又は安全停止が必要 | escalated |
+| verifying | verify_fail_exhausted | 差戻し理由と verifier 証跡があり、`retry_count + 1 >= config.retry_limit` | escalated（retry_count を 1 増加） |
+| pending | non_retryable_failure | 秘匿違反、予算超過、未定義遷移、回復不能な外部失敗等が局所的で代替 task を発行できる | failed |
+| in_progress | non_retryable_failure | 同上 | failed |
+| verifying | non_retryable_failure | 同上 | failed |
+| pending | escalate | 人の束縛承認・credential 再投入・設計判断等、人の関与がないと進めない（承認拒否を含む） | escalated |
+| in_progress | escalate | 同上 | escalated |
+| verifying | escalate | 同上 | escalated |
 
-`failed` は対象 task の失敗が局所的で代替 task を発行できる場合、`escalated` は人の束縛承認・credential 再投入・設計判断等がないと進めない場合に使い分ける。再試行は `verify_fail` のみが retry_count を消費し、通信再送は同じ idempotency key による無消費再送とする。
+失敗の分類はイベント選択で確定する: `non_retryable_failure` は常に `failed`（局所失敗・代替 task 発行可）、`escalate` は常に `escalated`（人の関与が必要）であり、同一 (現状態, イベント) から複数の次状態は存在しない。分類は失敗を検出した層（ゲート・コネクタ・kernel）が事由コードから決定し、`failure_code` に記録する。再試行は `verify_fail` のみが retry_count を消費し、通信再送は同じ idempotency key による無消費再送とする。
 
 ### 3.3 強制終了からの再開規則
 
 | 強制終了時の状態 | 再起動時の扱い | 冪等性・安全条件 |
 |---|---|---|
 | pending | そのまま再度 claim 可 | task の idempotency key を保持 |
-| in_progress（外部操作前） | 同じ author で再開又は lease 失効後に再 claim | workspace・入力・既存証跡を再読込 |
-| in_progress（外部操作中/後） | `operation_log` の external operation ID を先に照合し、成功済みなら出力・証跡を補完して verifying へ進める | 照合不能なら外部書込みを再送せず escalated |
+| in_progress（外部操作前） | 同じ author execution で再開又は `lease_expires_at` 失効後に別 execution が再 claim（`lease_owner_execution_id`・`heartbeat_at` を更新） | workspace・入力・既存証跡を再読込 |
+| in_progress（外部操作中/後） | `external_operations` の status を先に照合する: `prepared` は未送信として同一 idempotency key で再送可、`sent` はリモート側を external operation ID / remote object ID / idempotency key で照合し、成功確認できれば `confirmed` 化して証跡を補完し verifying へ、`confirmed` は証跡補完のみで verifying へ | `sent` で照合不能なら `unknown` とし、外部書込みを再送せず escalate |
 | verifying | verifier が既存出力・証跡を再検証 | PASS/FAIL 証跡が既にあれば同じ結果を採用し二重加算しない |
 | waiting | 承認・子 task・外部ジョブを再照合し、充足なら resume、未充足なら待機継続 | 承認は binding subject/operation/at の完全一致のみ有効 |
 | done / failed / escalated / completed / cancelled | 終端のまま | 新しい run/task を明示発行するまで遷移不可 |
 
-プロセス内メモリだけの lease、未コミットの出力、外部操作の「成功したはず」という推測を再開根拠にしてはならない。外部サービスが idempotency key を受け付けない場合は、operation ID 又は投稿 URL の事前照合を必須とし、照合不能時は fail-close とする。
+プロセス内メモリだけの lease、未コミットの出力、外部操作の「成功したはず」という推測を再開根拠にしてはならない。lease は `tasks.lease_owner_execution_id`・`lease_expires_at`・`heartbeat_at` を正本とし、更新は `row_version` の楽観ロックで競合検出する。外部サービスが idempotency key を受け付けない場合は、WP 側に決定的な meta key / slug として idempotency key を保存し（又は operation ID / 投稿 URL の事前照合）、照合不能時は fail-close とする。
 
 ## 4. S0 ワークフロー実行契約
 
@@ -440,9 +520,9 @@ S0 で seed する workflow は `WF-WP-1`、`WF-WP-2`、`WF-MEAS-1` である。
 | ステップ | 入力 | 出力 | 必須証跡 kind | ゲート | 失敗時分岐 |
 |---|---|---|---|---|---|
 | 1. 公開前検証 | pair_plan_quality、commit hash、記事 | 公開可能判定 | review_pass, commit_hash | pair = passed、hash 一致、証跡完備 | 拒否して T-PUB を failed。WP API を呼ばない |
-| 2. 下書き作成 | 記事 HTML、WP 接続、idempotency key | WP draft ID | operation_log | ローカル Docker WP のみ書込み可 | timeout は operation ID を照合して再開、照合不能は escalated |
+| 2. 下書き作成 | 記事 HTML、WP 接続、専用 idempotency key | WP draft ID | operation_log | ローカル Docker WP のみ書込み可。`external_operations` を prepared→sent→confirmed で遷移 | timeout/クラッシュは §3.3 の sent 照合で再開、照合不能は escalated |
 | 3. 束縛承認 | draft URL/ID、対象、公開操作、時点 | approved approval | approval | channel = Claude Code アプリ、decision = approved、binding 3 項目完全一致 | rejected/expired は failed。pending は waiting |
-| 4. 公開 | approved approval、draft ID、idempotency key | canonical URL、WP post ID | published_url, operation_log | 承認・pair・証跡の再検証 | 再送前照合。公開状態不明は escalated |
+| 4. 公開 | approved approval、draft ID、下書きとは別の専用 idempotency key | canonical URL、WP post ID | published_url, operation_log | 承認・pair・証跡の再検証。`external_operations` を prepared→sent→confirmed で遷移 | 再送前照合。公開状態不明（unknown）は escalated |
 | 5. 公開確認 | canonical URL | capture | screenshot | URL 到達・URL 一致 | スクショ失敗は retry、上限到達で escalated |
 | 6. 資産登録と完了 | WP post/media ID、URL | assets 行、done | published_url, screenshot, approval | required_evidence_json の全充足 | 欠落は done 拒否 |
 
@@ -497,7 +577,7 @@ S0 のスコープと 25 機能を維持したまま、依存順に 3 更新へ�
 
 | 更新 | 目的・完了境界 | FN ID（件数） | 受入の要点 |
 |---|---|---|---|
-| S0.1 | DB、状態機械、ゲート、証跡の基盤を実働化 | FN-101, FN-102, FN-103, FN-104, FN-105, FN-201, FN-202, FN-204, FN-208, FN-305, FN-701, FN-702, FN-703, FN-704（14） | 19 テーブル＋schema_version の生成、未定義遷移拒否、author != verifier、pair 未成立公開拒否、必須証跡欠落時の done 拒否、config INSERT 履歴 |
+| S0.1 | DB、状態機械、ゲート、証跡の基盤を実働化 | FN-101, FN-102, FN-103, FN-104, FN-105, FN-201, FN-202, FN-204, FN-208, FN-305, FN-701, FN-702, FN-703, FN-704（14） | 21 業務テーブル＋インフラ 2 テーブル＋append-only トリガの生成、未定義遷移拒否、principal の異なる author/verifier、pair 未成立公開拒否、必須証跡欠落時の done 拒否、config INSERT 履歴 |
 | S0.2 | 記事制作、審査、束縛承認、ローカル WP 公開を一気通貫化 | FN-401, FN-402, FN-404, FN-406, FN-409, FN-411, FN-501, FN-511（8） | WF-WP-1/2 により commit hash と review PASS を pair 化し、Claude Code アプリ承認後に Docker WP へ公開。URL・スクショ・approval を evidence に収束 |
 | S0.3 | GA4 計測、接続レジストリ、攻略地図、最小ダッシュボード用データ面を成立 | FN-601, FN-602, FN-603（3） | WF-MEAS-1 で PV を取得証跡付きで measurements に投入し、registry/playbooks を使う。S0 の DB クエリを最小ダッシュボードのデータソースとして固定（HTML 生成 FN-605 自体は S1） |
 
@@ -506,7 +586,8 @@ S0 のスコープと 25 機能を維持したまま、依存順に 3 更新へ�
 ## 8. S0 完了時の契約検証
 
 - 空 DB から §2 の DDL と migration を適用し、`foreign_key_check` と `integrity_check` が成功すること。
-- task/loop の全許可・拒否遷移、retry 境界、強制終了後の各再開規則をテストで示すこと。
-- pair 未成立、自己審査、必須 evidence 欠落、承認 binding 不一致、外部 operation 照合不能をすべて fail-close で拒否すること。
+- task/loop の全許可・拒否遷移、retry 境界、強制終了後の各再開規則をテストで示すこと。外部操作の
+  最危険 kill point（WP 側成功・ローカル `sent` のままクラッシュ）で再送が発生しないことを含む。
+- pair 未成立、自己審査（principal 同一を含む）、必須 evidence 欠落、承認 binding 不一致、外部 operation 照合不能をすべて fail-close で拒否すること。
 - Docker WP のみを使い、記事 1 本の制作→審査→承認→公開で `commit_hash`、`review_pass`、`published_url`、`screenshot`、`approval` が DB に揃うこと。
 - GA4 fixture 又は許可された read 経路で PV を取り込み、`measurements` が `kpi_nodes` と取得証跡へ FK で接続されること。

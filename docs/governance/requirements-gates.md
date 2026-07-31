@@ -14,10 +14,12 @@
 | G-GWT | AC 全件に非空の Given/When/Then | 機械検証できない AC（AP-4 相当） |
 | G-S0-CNT / G-S0-SET | S0.1〜S0.3 の fn_ids が 25 件・重複なし・function-list の slice=S0 集合と完全一致 | スコープのサイレント増減 |
 | G-DDL-SYNC | json/s0/ddl.sql が s0-contract の DDL ブロックと一致 | 正準 DDL の二重化・乖離 |
-| G-DDL-APPLY | DDL が空 SQLite へ適用でき FK/integrity 検査が通り 21 テーブル | 実行不能なスキーマ |
+| G-DDL-APPLY | DDL が空 SQLite へ適用でき FK/integrity 検査が通り 23 テーブル＋append-only トリガ 6 | 実行不能なスキーマ |
 | G-EVK | evidence kind 10 種が JSON 契約と DDL の CHECK で同一集合 | 証跡語彙の乖離 |
-| G-TRN-ENT / G-TRN-ST | 遷移表の entity が loop_runs/tasks、from/to 状態が DDL enum 内 | 実装不能な状態機械定義 |
+| G-TRN-ENT / G-TRN-ST | 遷移表の entity が loop_runs/tasks、from/to 状態が DDL enum 内（複合表記の検査除外なし） | 実装不能な状態機械定義 |
+| G-TRN-UNIQ/REACH/TERM/GUARD | (entity, from, event) の一意性・enum 全非初期状態の到達可能性・終端状態からの遷移不在・全遷移の非空ガード | 非決定的な状態機械（レビュー P0-1） |
 | G-CONFIRM | status: confirmed を名乗る文書が approvals.md に承認行を持つ | freeze 偽装（HELIX gate-confirm 相当） |
+| G-CONFIRM-DIGEST | confirmed 文書の現内容 sha256（先頭 12 桁）が承認行の digest 列に存在する | 内容に束縛されない空承認（レビュー P0-4） |
 | G-SRC-FRESH | br-media 各媒体の structure_checked が 90 日以内 | 出典腐敗（媒体規約・上限は変わる。HELIX source-ledger-freshness 相当） |
 | G-POC-EXIT | PoC が出口 2 軸 schema（decision_outcome × promotion_strategy）に適合、confirmed には strategy 必須 | PoC の独り歩き（HELIX poc 規律相当） |
 | G-SUBSTANCE | 全エンティティに 8 文字以上の本文実体 | 空・スタブ本文の完了僭称（HELIX AP-13 相当） |
@@ -27,9 +29,11 @@
 | G-ITC-CNT/UNIQ/CMP/AC/REJ/UPD | 総合テスト設計④（itest.json）が ITC 16・ID 重複ゼロ・全 CMP と全 AC を双方向カバー・拒否系 ≥7・全件 S0.x 割当 | 片肺（総合テスト対のない設計 = HELIX pair gate 違反） |
 | G-PAIR2-EXIST/HDR | ②↔④ の JSON 正本が存在し、両文書ヘッダが相互 pair 参照、ペア台帳の文書実在 | 片方向ペア（②↔④ 非対称） |
 | G-DU-CNT/UNIQ/CMP/FN | 詳細設計⑤の DU 台帳（detailed.json）が DU 23・重複ゼロ・全 CMP を被覆・S0 25 FN を重複なく完全被覆 | モジュール分解の漏れ・二重責務 |
-| G-UTC-TC/DU/CNT/FILE | 単体テスト設計⑥（utest.json）が TC 59 全件を重複なく実在 DU へ割当・全 DU にテストあり・UTC 67（割当 59＋UT 8）・test_file が DU と 1 対 1 衝突なし | テストの届かないモジュール（TDD の空白）・テストファイル混線 |
+| G-UTC-TC/DU/CNT/FILE | 単体テスト設計⑥（utest.json）が TC 59 全件を重複なく実在 DU へ割当・全 DU にテストあり・UTC 69（割当 59＋UT 10）・test_file が DU と 1 対 1 衝突なし | テストの届かないモジュール（TDD の空白）・テストファイル混線 |
 | G-PAIR3-EXIST/HDR | ⑤↔⑥ の JSON 正本が存在し、両文書ヘッダが相互 pair 参照、ペア台帳の文書実在 | 片方向ペア（⑤↔⑥ 非対称） |
-| G-BASE-EXIST/HASH/STATUS/RATCHET | baseline.json に対し confirmed 文書のハッシュ一致・降格なし・分母縮小/ゲート削減なし。意図的変更は `--update-baseline` を同一コミットで実行 | **デグレ**: confirmed のサイレント改変・後退・こっそりスコープ縮小（HELIX 日付 ratchet 相当） |
+| G-BASE-EXIST/HASH/STATUS/RATCHET | baseline.json に対し confirmed 文書のハッシュ一致・降格なし・分母縮小/ゲート削減なし。意図的変更は `--update-baseline` を同一コミットで実行（承認 receipt = digest 行がないと baseline 更新を拒否） | **デグレ**: confirmed のサイレント改変・後退・こっそりスコープ縮小（HELIX 日付 ratchet 相当） |
+| G-BASE-ART | 実装入力（JSON 正本・DDL・validator・CI・CLAUDE.md/AGENTS.md・hook）のハッシュが baseline と一致・未登録なし | 実装入力のサイレント改変（レビュー P0-4: MD だけの束縛では不足） |
+| G-COUNT-SYNC | README・CLAUDE.md・AGENTS.md・設計/ガバナンス文書中の手書きゲート件数表記が実数と一致 | 散在する件数のドリフト（意味整合の欠如） |
 | G-WIRING | スクリプトの全ゲート ID が本台帳に掲載され、CI がスクリプトを呼ぶ | ルールの配線漏れ・死蔵（HELIX lint-wiring 相当） |
 
 ## 運用

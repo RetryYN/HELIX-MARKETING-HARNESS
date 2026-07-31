@@ -63,22 +63,30 @@
 ### DU-02 kernel/orchestrator.py
 
 - `issue_task(conn, loop_run_id, step: WorkflowStep, clock: Clock) -> int` — tasks 行生成。
+  `tasks.step_key`・`tasks.attempt` 列（DDL の `UNIQUE (loop_run_id, step_key, attempt)`）を正本に、
   idempotency_key = `f"{loop_run_id}:{step.key}:{attempt}"`。採番と発行は**単一 transaction** で:
-  (1) 同一 (loop_run_id, step.key) に非終端の既存 task があればその id を返す（再利用 — 新規発行しない）、
-  (2) なければ attempt = 終端行数 + 1 で INSERT、(3) idempotency_key の UNIQUE 衝突時は再読して既存を
+  (1) 同一 (loop_run_id, step_key) に非終端の既存 task があればその id を返す（再利用 — 新規発行しない）、
+  (2) なければ attempt = 終端行数 + 1 で INSERT、(3) UNIQUE 衝突時は再読して既存を
   返す（並行発行の最終防衛）。クラッシュ後の再実行は (1) により冪等。workflow_id・author・verifier・
   expected_output_kind 非 NULL を組立時に保証。
+- `claim(conn, task_id, execution_id, clock) -> None` — lease 取得: `lease_owner_execution_id`・
+  `lease_expires_at`（`config.lease_ttl_sec`）・`heartbeat_at` を `row_version` の楽観ロックで更新。
+  **execution が task の `author_agent_id` に属さない場合は `GateRejected`**（verifier・無関係 agent の
+  execution は lease を取れない。principal は複合 FK で agents と一致強制）。
+  失効前の他 execution からの claim も `GateRejected`。
 - `run_microloop(conn, task_id, executor, verifier, retry_limit_key="retry_limit") -> MicroloopResult`
   — submit→verify 反復。FAIL ごとに verify_fail 遷移（retry_count 消費）、上限到達で escalated。
 - `resume(conn, entity_type, entity_id, clock) -> ResumeAction` — s0-contract §3.3 の全行を実装:
   pending 再 claim／in_progress 外部操作前は workspace・入力・既存証跡再読込／外部操作中後は
-  operation_log 照合（照合不能→escalated・再送禁止）／verifying は既存 PASS/FAIL 再採用
+  `external_operations.status` で分岐（prepared=再送可、sent=リモート照合→confirmed 化、
+  照合不能=unknown で escalate・再送禁止）／verifying は既存 PASS/FAIL 再採用
   （retry 二重加算なし）／waiting は充足再照合。判断根拠は DB 行のみ（メモリ状態禁止）。
 
 ### DU-03 kernel/assigner.py
 
-- `assign(conn, author_role, verifier_role) -> Assignment` — active な別 agent の組。同一 agent しか
-  存在しなければ `GateRejected`（tasks の CHECK と二重防御）。T-REVIEW の verifier は critic 以外。
+- `assign(conn, author_role, verifier_role) -> Assignment` — active かつ **principal の異なる**
+  agent の組（`agents.principal` 比較）。同一 principal しか存在しなければ `GateRejected`
+  （tasks の CHECK と二重防御 — ID 違いだけの自己審査を封じる）。T-REVIEW の verifier は critic 以外。
 
 ### DU-04 kernel/workflow.py
 
@@ -162,21 +170,24 @@
 
 - `get(conn, service, operation, route_type) -> Playbook` ／
   `record_success(conn, playbook_id, agent_id, clock)`（last_success_at 更新）／
-  `record_failure(conn, playbook_id) -> None`（連続失敗閾値 config で broken 降格）。
+  `record_failure(conn, playbook_id, clock) -> None`（`consecutive_failures` を加算し `last_failure_at`
+  を更新、連続失敗閾値 config で broken 降格 — 列は DDL 正本）。
   永続化はストア副層 `_store`（生 SQL はここだけ — 基本設計 §1 規約 3）。
 
 ### DU-17 connectors/wp.py
 
 - `create_draft(conn, task_id, pair_pass: PairPass, html, idempotency_key, clock: Clock) -> DraftRef` ／
   `publish(conn, task_id, pair_pass: PairPass, draft_ref, approval_evidence_id, idempotency_key, clock: Clock) -> PublishedRef`
-  — operation_log／published_url 証跡は task_id に対して DU-09 経由で記録し、再開時は同 task の
-  operation_log から idempotency_key を照合する。
+  — 下書きと公開は**別 idempotency key の別 `external_operations` 行**。各操作は
+  prepared→sent→confirmed を各々コミットで遷移し（送信直後クラッシュの検出窓）、confirmed 後に
+  operation_log／published_url 証跡を DU-09 経由で派生記録する。WP 側には決定的な meta key として
+  idempotency key を保存し、再開時のリモート照合キーとする。
 - `register_asset(conn, task_id, published: PublishedRef, clock: Clock) -> int` — 公開成功後に
   assets 行（wp_media_id・canonical_url・content_hash）をストア副層 `_assets_store` で INSERT し
   asset_id を返す。**published_url 証跡はこの asset_id を得てから記録する**（s0-contract §2.1 の
   整合列を先に成立させる — WF-WP-2 ステップ 6）。
-  — 公開系は `PairPass` 必須（DU-05 のみが生成可）。実行前に同 key の operation_log を照合し、
-  成功済みなら再送せず結果補完。照合不能 timeout は `FatalError`（→ escalated）。
+  — 公開系は `PairPass` 必須（DU-05 のみが生成可）。実行前に同 key の `external_operations` を照合し、
+  confirmed 済みなら再送せず結果補完。sent で照合不能なら unknown とし `FatalError`（→ escalated）。
   base URL は Docker WP allow-list（config）外なら接続前拒否。低レベル client は `_client`（非公開）。
 
 ### DU-18 connectors/approval.py

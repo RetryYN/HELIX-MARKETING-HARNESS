@@ -29,7 +29,7 @@
 
 ## 2. 全体構成
 
-実装言語は Python 3.12。リポジトリ直下に `src/helix/` パッケージと `tests/` を新設する（docs は現行のまま）。
+実装言語は Python 3.14（技術選定書と統一）。リポジトリ直下に `src/helix/` パッケージと `tests/` を新設する（docs は現行のまま）。
 
 ```text
 src/helix/
@@ -188,7 +188,8 @@ S0 の 25 機能（FN）を 13 コンポーネントに割り当てる。**割�
 | 定型変換（DDL→migration、TC→pytest 雛形） | codex-luna（high） | Claude |
 | 設計判断・差分レビュー | codex-sol（low） | PO 承認 |
 
-完了の定義は各更新とも「④の該当 ITC ＋ ③の該当 TC が pytest で green ＋ 要件ゲート 52 本 PASS」。
+完了の定義は各更新とも「④の該当 ITC ＋ ③の該当 TC が pytest で green ＋ 要件整合ゲート全数 PASS
+（件数の正本は baseline.json の gate_count）」。
 
 ## 6. S1 以降への持ち越し
 

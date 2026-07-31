@@ -1,8 +1,9 @@
 {
   "doc": "s0/transitions",
-  "version": "0.1",
+  "version": "0.2",
   "source": "docs/requirements/s0-contract_v0.1.md",
-  "generated": "2026-07-30",
+  "generated": "2026-08-01",
+  "determinism": "1 行 = 1 現状態。(entity, from, event) は一意。終端状態からの遷移なし。全非初期状態は到達可能。",
   "items": [
     {
       "entity": "loop_runs",
@@ -34,28 +35,84 @@
     },
     {
       "entity": "loop_runs",
-      "from": "running / waiting",
+      "from": "running",
       "event": "retryable_failure",
       "guard": "再実行可能で retry_count < `config.retry_limit`",
       "to": "running"
     },
     {
       "entity": "loop_runs",
-      "from": "running / waiting",
+      "from": "waiting",
+      "event": "retryable_failure",
+      "guard": "再実行可能で retry_count < `config.retry_limit`",
+      "to": "running"
+    },
+    {
+      "entity": "loop_runs",
+      "from": "running",
       "event": "retry_exhausted",
       "guard": "retry_count >= `config.retry_limit`",
       "to": "escalated"
     },
     {
       "entity": "loop_runs",
-      "from": "pending / running / waiting",
-      "event": "fatal_failure",
-      "guard": "認証失効、ゲート赤、地図破損、予算超過等で自動回復不可",
+      "from": "waiting",
+      "event": "retry_exhausted",
+      "guard": "retry_count >= `config.retry_limit`",
       "to": "escalated"
     },
     {
       "entity": "loop_runs",
-      "from": "pending / running / waiting",
+      "from": "running",
+      "event": "non_retryable_failure",
+      "guard": "自動回復不可だが局所的で、人の関与なく代替 run を発行できる",
+      "to": "failed"
+    },
+    {
+      "entity": "loop_runs",
+      "from": "waiting",
+      "event": "non_retryable_failure",
+      "guard": "自動回復不可だが局所的で、人の関与なく代替 run を発行できる",
+      "to": "failed"
+    },
+    {
+      "entity": "loop_runs",
+      "from": "pending",
+      "event": "fatal_failure",
+      "guard": "認証失効、ゲート赤、地図破損、予算超過等で自動回復不可・人の関与が必要",
+      "to": "escalated"
+    },
+    {
+      "entity": "loop_runs",
+      "from": "running",
+      "event": "fatal_failure",
+      "guard": "認証失効、ゲート赤、地図破損、予算超過等で自動回復不可・人の関与が必要",
+      "to": "escalated"
+    },
+    {
+      "entity": "loop_runs",
+      "from": "waiting",
+      "event": "fatal_failure",
+      "guard": "認証失効、ゲート赤、地図破損、予算超過等で自動回復不可・人の関与が必要",
+      "to": "escalated"
+    },
+    {
+      "entity": "loop_runs",
+      "from": "pending",
+      "event": "cancel",
+      "guard": "人の明示取消。外部書込み未実行又は補償済み",
+      "to": "cancelled"
+    },
+    {
+      "entity": "loop_runs",
+      "from": "running",
+      "event": "cancel",
+      "guard": "人の明示取消。外部書込み未実行又は補償済み",
+      "to": "cancelled"
+    },
+    {
+      "entity": "loop_runs",
+      "from": "waiting",
       "event": "cancel",
       "guard": "人の明示取消。外部書込み未実行又は補償済み",
       "to": "cancelled"
@@ -64,7 +121,7 @@
       "entity": "tasks",
       "from": "pending",
       "event": "claim",
-      "guard": "author/verifier が active かつ別 agent、親 loop が running、入力と workflow が有効",
+      "guard": "author/verifier が active かつ principal の異なる別 agent、claim する execution が author agent に属する、親 loop が running、入力と workflow が有効",
       "to": "in_progress"
     },
     {
@@ -78,7 +135,7 @@
       "entity": "tasks",
       "from": "verifying",
       "event": "verify_pass",
-      "guard": "verifier が author と別、全必須証跡・全ゲートが PASS",
+      "guard": "verifier が author と別 principal、全必須証跡・全ゲートが PASS",
       "to": "done"
     },
     {
@@ -94,7 +151,7 @@
     {
       "entity": "tasks",
       "from": "verifying",
-      "event": "verify_fail",
+      "event": "verify_fail_exhausted",
       "guard": "差戻し理由と verifier 証跡があり、`retry_count + 1 >= config.retry_limit`",
       "to": "escalated",
       "effects": [
@@ -103,25 +160,44 @@
     },
     {
       "entity": "tasks",
-      "from": "pending / in_progress / verifying",
+      "from": "pending",
       "event": "non_retryable_failure",
-      "guard": "秘匿違反、承認拒否、予算超過、未定義遷移、回復不能な外部失敗",
-      "to": "failed",
-      "note": "failed=局所失敗で代替 task 発行可 / escalated=人の関与が必要（§3.2 の使い分け）"
+      "guard": "秘匿違反、予算超過、未定義遷移、回復不能な外部失敗等が局所的で代替 task を発行できる",
+      "to": "failed"
     },
     {
       "entity": "tasks",
-      "from": "pending / in_progress / verifying",
+      "from": "in_progress",
       "event": "non_retryable_failure",
-      "guard": "秘匿違反、承認拒否、予算超過、未定義遷移、回復不能な外部失敗",
-      "to": "escalated",
-      "note": "failed=局所失敗で代替 task 発行可 / escalated=人の関与が必要（§3.2 の使い分け）"
+      "guard": "秘匿違反、予算超過、未定義遷移、回復不能な外部失敗等が局所的で代替 task を発行できる",
+      "to": "failed"
     },
     {
       "entity": "tasks",
-      "from": "pending / in_progress / verifying",
+      "from": "verifying",
+      "event": "non_retryable_failure",
+      "guard": "秘匿違反、予算超過、未定義遷移、回復不能な外部失敗等が局所的で代替 task を発行できる",
+      "to": "failed"
+    },
+    {
+      "entity": "tasks",
+      "from": "pending",
       "event": "escalate",
-      "guard": "人の判断待ち又は安全停止が必要",
+      "guard": "人の束縛承認・credential 再投入・設計判断等、人の関与がないと進めない（承認拒否を含む）",
+      "to": "escalated"
+    },
+    {
+      "entity": "tasks",
+      "from": "in_progress",
+      "event": "escalate",
+      "guard": "人の束縛承認・credential 再投入・設計判断等、人の関与がないと進めない（承認拒否を含む）",
+      "to": "escalated"
+    },
+    {
+      "entity": "tasks",
+      "from": "verifying",
+      "event": "escalate",
+      "guard": "人の束縛承認・credential 再投入・設計判断等、人の関与がないと進めない（承認拒否を含む）",
       "to": "escalated"
     }
   ],
@@ -133,13 +209,13 @@
     },
     {
       "state": "in_progress（外部操作前）",
-      "on_restart": "同じ author で再開又は lease 失効後に再 claim",
-      "safety": "workspace・入力・既存証跡を再読込"
+      "on_restart": "同じ author execution で再開又は lease_expires_at 失効後に別 execution が再 claim（lease_owner_execution_id・heartbeat_at を更新）",
+      "safety": "workspace・入力・既存証跡を再読込。lease 更新は row_version の楽観ロックで競合検出"
     },
     {
       "state": "in_progress（外部操作中/後）",
-      "on_restart": "`operation_log` の external operation ID を先に照合し、成功済みなら出力・証跡を補完して verifying へ進める",
-      "safety": "照合不能なら外部書込みを再送せず escalated"
+      "on_restart": "external_operations の status を先に照合: prepared=未送信として同一 idempotency key で再送可 / sent=リモート照合し成功確認できれば confirmed 化して証跡補完し verifying へ / confirmed=証跡補完のみで verifying へ",
+      "safety": "sent で照合不能なら unknown とし、外部書込みを再送せず escalate"
     },
     {
       "state": "verifying",

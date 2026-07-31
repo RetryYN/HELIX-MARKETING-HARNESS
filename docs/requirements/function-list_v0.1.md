@@ -60,7 +60,7 @@
 | FN-410 | オートモード判定 | 実績証跡と基準から自動移行判定 | FR-46 | S3 |
 | FN-411 | 秘匿情報ストア | credential/セッションの暗号化保管 | FR-47 | S0 |
 | FN-412 | MCP コネクタ群 | Notion/Canva/HubSpot/Stripe/Discord | FR-41 | S3 |
-| FN-413 | 媒体別外部操作 | ブラウザ: X/note/YouTube/stand.fm/KDP/ASP。公式 API: IG Graph/LINE Messaging/GA4・GSC（ADR-006） | MR-X/NOTE/YT/IG/STFM/KDP/LINE/AFF/MEAS-* | S3 |
+| FN-413 | 媒体別外部操作 | ブラウザ: note/YouTube/stand.fm/KDP/ASP（X はブラウザ書込み prohibited — BR-M-X-4、attended 人手投稿のみ）。公式 API: IG Graph/LINE Messaging/GA4・GSC（ADR-006） | MR-X/NOTE/YT/IG/STFM/KDP/LINE/AFF/MEAS-* | S3 |
 
 ## producers/ — 制作
 
@@ -95,7 +95,7 @@
 
 | FN | 機能 | 概要 | FR | S |
 |---|---|---|---|---|
-| FN-701 | スキーマ定義 | 19 テーブルの DDL（S0 は最小集合） | FR-71 | S0 |
+| FN-701 | スキーマ定義 | 業務 21＋インフラ 2 テーブルの DDL（正準は s0-contract §2） | FR-71 | S0 |
 | FN-702 | マイグレーション | 版数管理・前方昇格 | FR-72 | S0 |
 | FN-703 | 証跡ストア | evidence の記録・参照 API | FR-71/28 | S0 |
 | FN-704 | 構造化ログ | 全遷移・判定・外部操作の記録 | NFR-5 | S0 |

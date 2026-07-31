@@ -7,6 +7,7 @@ CREATE TABLE schema_version (
   checksum_sha256 TEXT NOT NULL CHECK (length(checksum_sha256) = 64),
   applied_by TEXT NOT NULL
 );
+
 CREATE TABLE state_transitions (
   id INTEGER PRIMARY KEY,
   entity_type TEXT NOT NULL CHECK (entity_type IN ('loop_run', 'task')),
@@ -34,10 +35,25 @@ CREATE TABLE business_profiles (
 CREATE TABLE agents (
   id INTEGER PRIMARY KEY,
   agent_key TEXT NOT NULL UNIQUE,
+  principal TEXT NOT NULL,
   role TEXT NOT NULL,
   display_name TEXT NOT NULL,
   status TEXT NOT NULL CHECK (status IN ('active', 'disabled')),
-  created_at TEXT NOT NULL
+  created_at TEXT NOT NULL,
+  UNIQUE (id, principal)
+);
+
+CREATE TABLE agent_executions (
+  id INTEGER PRIMARY KEY,
+  agent_id INTEGER NOT NULL,
+  principal TEXT NOT NULL,
+  model_version TEXT,
+  session_ref TEXT,
+  parent_execution_id INTEGER,
+  started_at TEXT NOT NULL,
+  ended_at TEXT,
+  FOREIGN KEY (agent_id, principal) REFERENCES agents(id, principal) ON DELETE RESTRICT,
+  FOREIGN KEY (parent_execution_id) REFERENCES agent_executions(id) ON DELETE RESTRICT
 );
 
 CREATE TABLE brand_plans (
@@ -128,8 +144,14 @@ CREATE TABLE tasks (
   author_agent_id INTEGER NOT NULL,
   verifier_agent_id INTEGER NOT NULL,
   state TEXT NOT NULL CHECK (state IN ('pending', 'in_progress', 'verifying', 'done', 'failed', 'escalated')),
+  step_key TEXT NOT NULL,
+  attempt INTEGER NOT NULL DEFAULT 1 CHECK (attempt >= 1),
   retry_count INTEGER NOT NULL DEFAULT 0 CHECK (retry_count >= 0),
   idempotency_key TEXT NOT NULL UNIQUE,
+  lease_owner_execution_id INTEGER,
+  lease_expires_at TEXT,
+  heartbeat_at TEXT,
+  row_version INTEGER NOT NULL DEFAULT 0 CHECK (row_version >= 0),
   expected_output_kind TEXT NOT NULL,
   input_json TEXT NOT NULL CHECK (json_valid(input_json)),
   output_json TEXT CHECK (output_json IS NULL OR json_valid(output_json)),
@@ -143,7 +165,29 @@ CREATE TABLE tasks (
   FOREIGN KEY (workflow_id) REFERENCES workflows(id) ON DELETE RESTRICT,
   FOREIGN KEY (author_agent_id) REFERENCES agents(id) ON DELETE RESTRICT,
   FOREIGN KEY (verifier_agent_id) REFERENCES agents(id) ON DELETE RESTRICT,
-  CHECK (author_agent_id != verifier_agent_id)
+  FOREIGN KEY (lease_owner_execution_id) REFERENCES agent_executions(id) ON DELETE RESTRICT,
+  CHECK (author_agent_id != verifier_agent_id),
+  UNIQUE (loop_run_id, step_key, attempt)
+);
+
+CREATE TABLE external_operations (
+  id INTEGER PRIMARY KEY,
+  task_id INTEGER NOT NULL,
+  service TEXT NOT NULL,
+  operation TEXT NOT NULL,
+  target_endpoint TEXT NOT NULL,
+  idempotency_key TEXT NOT NULL UNIQUE,
+  request_hash TEXT NOT NULL CHECK (length(request_hash) = 64),
+  status TEXT NOT NULL CHECK (status IN ('prepared', 'sent', 'confirmed', 'rejected', 'unknown')),
+  external_operation_id TEXT,
+  remote_object_id TEXT,
+  response_hash TEXT CHECK (response_hash IS NULL OR length(response_hash) = 64),
+  evidence_id INTEGER,
+  prepared_at TEXT NOT NULL,
+  sent_at TEXT,
+  confirmed_at TEXT,
+  FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE RESTRICT,
+  FOREIGN KEY (evidence_id) REFERENCES evidence(id) ON DELETE RESTRICT
 );
 
 CREATE TABLE pair_plan_quality (
@@ -248,6 +292,8 @@ CREATE TABLE playbooks (
   procedure_json TEXT NOT NULL CHECK (json_valid(procedure_json)),
   selector_json TEXT CHECK (selector_json IS NULL OR json_valid(selector_json)),
   status TEXT NOT NULL CHECK (status IN ('active', 'broken', 'retired')),
+  consecutive_failures INTEGER NOT NULL DEFAULT 0 CHECK (consecutive_failures >= 0),
+  last_failure_at TEXT,
   last_success_at TEXT,
   last_verified_by_agent_id INTEGER,
   FOREIGN KEY (last_verified_by_agent_id) REFERENCES agents(id) ON DELETE RESTRICT,
@@ -320,3 +366,16 @@ CREATE TABLE spend_ledger (
   FOREIGN KEY (approval_id) REFERENCES approvals(id) ON DELETE RESTRICT,
   UNIQUE (service, external_operation_id)
 );
+
+CREATE TRIGGER config_no_update BEFORE UPDATE ON config
+BEGIN SELECT RAISE(ABORT, 'config is append-only'); END;
+CREATE TRIGGER config_no_delete BEFORE DELETE ON config
+BEGIN SELECT RAISE(ABORT, 'config is append-only'); END;
+CREATE TRIGGER evidence_no_update BEFORE UPDATE ON evidence
+BEGIN SELECT RAISE(ABORT, 'evidence is append-only'); END;
+CREATE TRIGGER evidence_no_delete BEFORE DELETE ON evidence
+BEGIN SELECT RAISE(ABORT, 'evidence is append-only'); END;
+CREATE TRIGGER state_transitions_no_update BEFORE UPDATE ON state_transitions
+BEGIN SELECT RAISE(ABORT, 'state_transitions is append-only'); END;
+CREATE TRIGGER state_transitions_no_delete BEFORE DELETE ON state_transitions
+BEGIN SELECT RAISE(ABORT, 'state_transitions is append-only'); END;

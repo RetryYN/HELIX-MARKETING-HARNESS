@@ -66,29 +66,27 @@
     },
     {
       "id": "WF-X-1",
-      "purpose": "ポスト制作・投稿",
-      "steps": "sns-jp → copywriting → 審査 → 投稿 → スクショ",
+      "purpose": "ポスト制作・attended 人手投稿支援（ブラウザ書込み prohibited・BR-M-X-4）",
+      "steps": "sns-jp → copywriting → 審査 → 束縛承認 → 人手投稿 → URL・画面値の証跡登録",
       "trace": {
         "upstream": [
-          "WF-X-1",
-          "POC-01"
+          "WF-X-1"
         ],
         "downstream": []
       },
-      "poc": "POC-01"
+      "poc": null
     },
     {
       "id": "WF-X-2",
-      "purpose": "リプライ応答",
-      "steps": "engagement-reply-jp → 倫理ルール検査 → 送出",
+      "purpose": "リプライ応答原稿支援（送出は人手）",
+      "steps": "engagement-reply-jp → 倫理ルール検査 → 人手送出 → 証跡登録",
       "trace": {
         "upstream": [
-          "WF-X-2",
-          "POC-01"
+          "WF-X-2"
         ],
         "downstream": []
       },
-      "poc": "POC-01"
+      "poc": null
     },
     {
       "id": "WF-NOTE-1",
@@ -122,12 +120,11 @@
       "steps": "審査 → アップロード → メタ設定 → AI 開示フラグ → スクショ",
       "trace": {
         "upstream": [
-          "WF-YT-2",
-          "POC-01"
+          "WF-YT-2"
         ],
         "downstream": []
       },
-      "poc": "POC-01（YT 変種）"
+      "poc": "YT 個別のブラウザ生存性 PoC（S2 で別途登録。POC-01 は rejected のため流用しない）"
     },
     {
       "id": "WF-IG-1",

@@ -23,13 +23,13 @@
       "kpi_contribution": "露出（インプレッション・プロフィールアクセス）、関係（フォロワー増・エンゲージ率）",
       "workflow": "sns-jp, copywriting, breakout-content-jp, engagement-reply-jp",
       "gate": "企画↔品質、倫理、ゼロ広告費（プロモ投稿禁止）",
-      "safety": "日次投稿レート・応答レート（C）、攻略地図必須、投稿は承認→オート"
+      "safety": "ブラウザ自動書込みは prohibited。人手投稿の計画上限（MR-X-3）を維持し、投稿は束縛承認後に人が実施して URL・画面値を証跡登録"
     },
     {
       "id": "MR-X-2",
       "media": "X",
       "media_name": "2.1 X",
-      "text": "リプライ応答は engagement-reply ワークフローで、倫理ゲート通過後のみ送出",
+      "text": "リプライ応答原稿は engagement-reply ワークフローで生成し、倫理ゲート通過後のみ人手送出に供する（自動送出はしない）",
       "trace": {
         "upstream": [
           "BR-M-X-2"
@@ -42,13 +42,13 @@
       "kpi_contribution": "露出（インプレッション・プロフィールアクセス）、関係（フォロワー増・エンゲージ率）",
       "workflow": "sns-jp, copywriting, breakout-content-jp, engagement-reply-jp",
       "gate": "企画↔品質、倫理、ゼロ広告費（プロモ投稿禁止）",
-      "safety": "日次投稿レート・応答レート（C）、攻略地図必須、投稿は承認→オート"
+      "safety": "ブラウザ自動書込みは prohibited。人手投稿の計画上限（MR-X-3）を維持し、投稿は束縛承認後に人が実施して URL・画面値を証跡登録"
     },
     {
       "id": "MR-X-3",
       "media": "X",
       "media_name": "2.1 X",
-      "text": "（レート・BR-F5）: 検知リスク高。書き込み間隔 2〜8 秒の一様乱数、投稿 5 件/日・ リプライ 10 件/日（C: `rate.x.*`）。警告・CAPTCHA 頻発時は間隔範囲を自動で広げ、凍結兆候で操作停止（RSK-01）",
+      "text": "投稿 5 件/日・リプライ 10 件/日（C: rate.x.*）を人手投稿の計画上限として維持。自動化前提の間隔乱数規定は公式 API 経路採用時のみ適用（ブラウザ書込みは prohibited）",
       "trace": {
         "upstream": [
           "BR-M-X-3"
@@ -61,7 +61,7 @@
       "kpi_contribution": "露出（インプレッション・プロフィールアクセス）、関係（フォロワー増・エンゲージ率）",
       "workflow": "sns-jp, copywriting, breakout-content-jp, engagement-reply-jp",
       "gate": "企画↔品質、倫理、ゼロ広告費（プロモ投稿禁止）",
-      "safety": "日次投稿レート・応答レート（C）、攻略地図必須、投稿は承認→オート"
+      "safety": "ブラウザ自動書込みは prohibited。人手投稿の計画上限（MR-X-3）を維持し、投稿は束縛承認後に人が実施して URL・画面値を証跡登録"
     }
   ]
 }

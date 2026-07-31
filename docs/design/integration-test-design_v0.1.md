@@ -40,7 +40,7 @@
 | ITC-03 | S0.1 | reject | CMP-03, CMP-04 | AC-28 | 必須証跡欠落時の done 遷移拒否、kind 型契約違反 payload の INSERT 拒否、credential 文字列混入の evidence 拒否 |
 | ITC-04 | S0.1 | accept | CMP-06 | AC-33 | config の INSERT 履歴化・supersedes 連鎖・有効値解決、UPDATE/DELETE がトリガで拒否される |
 | ITC-05 | S0.1 | reject | CMP-03, CMP-05 | AC-23 | 有料指標型（cac/roas/ad_spend）の kpi_node 登録を DB CHECK（直接 INSERT）とゲートエンジン API の双方で拒否、広告ドメイン denylist（config 値）が登録を拒否 |
-| ITC-06 | S0.1 | accept | CMP-01, CMP-02, CMP-04 | AC-11 | 強制終了→再起動の再開規則を **s0-contract §3.3 の全行についてパラメタライズ実行**: pending 再 claim、外部操作前後の in_progress、verifying 再検証（二重加算なし）、loop_run waiting の再照合 resume、終端状態の遷移不可 |
+| ITC-06 | S0.1 | accept | CMP-01, CMP-02, CMP-04 | AC-11 | 強制終了→再起動の再開規則を **s0-contract §3.3 の全行についてパラメタライズ実行**: pending 再 claim、外部操作前後の in_progress（`external_operations` の prepared/sent/confirmed/unknown で分岐。**最危険 kill point = WP 側成功・ローカル sent のままクラッシュ→再送なし**を含む）、verifying 再検証（二重加算なし）、loop_run waiting の再照合 resume、終端状態の遷移不可 |
 | ITC-07 | S0.2 | accept | CMP-02, CMP-03, CMP-12 | AC-12, AC-51, AC-54 | WF-WP-1 一気通貫: 企画→原稿生成（同一入力→同一 hash）→commit 固定→別 agent 審査 PASS→pair_plan_quality 成立。tasks 行の WF ID・担当・期待成果物型が非 NULL |
 | ITC-08 | S0.2 | reject | CMP-03, CMP-10 | AC-21, AC-44 | pair 未成立/revoked/hash 不一致での公開要求を WP API 呼出し前に拒否（HTTP リクエストが発生しないことを mock で証明） |
 | ITC-09 | S0.2 | accept | CMP-10, CMP-11, CMP-03, CMP-04 | AC-44, AC-46 | WF-WP-2 一気通貫: pair 成立→Docker WP 下書き→束縛承認 approve→公開→URL/スクショ/approval 証跡が evidence に揃い T-PUB done |

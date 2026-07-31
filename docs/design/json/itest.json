@@ -138,8 +138,9 @@
       ],
       "assertions": [
         "pending: 同一 idempotency_key で再 claim 可",
-        "in_progress（外部操作前）: workspace・入力・既存証跡を再読込して同一 author で再開、lease 失効後は再 claim 可",
-        "in_progress（外部操作後）: operation_log 照合で出力補完し verifying へ、照合不能は escalated",
+        "in_progress（外部操作前）: workspace・入力・既存証跡を再読込して同一 author execution で再開、lease_expires_at 失効後は別 execution が再 claim 可",
+        "in_progress（外部操作中/後）: external_operations の status で分岐 — prepared は同一 key で再送可、sent はリモート照合し成功確認で confirmed 化して verifying へ、照合不能は unknown とし再送せず escalated（最危険 kill point: WP 側成功・ローカル sent のままクラッシュ→再送なし）",
+        "confirmed: 証跡補完のみで verifying へ",
         "verifying: 既存 PASS/FAIL 証跡を再採用し retry_count 二重加算なし",
         "loop_run waiting: 充足で resume、未充足で待機継続",
         "終端状態は再起動後も遷移不可"

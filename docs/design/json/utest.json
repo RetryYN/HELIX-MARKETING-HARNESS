@@ -427,6 +427,22 @@
       "polarity": "mixed",
       "text": "保存・参照・last_success_at 更新・連続失敗 broken 降格・ストア副層規律（S0.2 基本保証）",
       "test_file": "tests/unit/test_connectors_playbooks.py"
+    },
+    {
+      "id": "UT-09",
+      "kind": "unit-extra",
+      "du": "DU-04",
+      "polarity": "reject",
+      "text": "外部操作の exactly-once 保証: external_operations を prepared→sent→confirmed の順で各々コミット、sent のままクラッシュ→再起動で再送が発生しない（リモート照合成功で confirmed 化、照合不能は unknown で escalate）、下書きと公開は別 idempotency key",
+      "test_file": "tests/unit/test_kernel_workflow.py"
+    },
+    {
+      "id": "UT-10",
+      "kind": "unit-extra",
+      "du": "DU-02",
+      "polarity": "reject",
+      "text": "claim 所有権: task の author_agent_id に属さない execution（verifier・無関係 agent）の claim は GateRejected、lease 失効前の他 execution claim 拒否、失効後は author agent の新 execution のみ再 claim 可、agents と execution の principal 不一致は複合 FK で IntegrityError",
+      "test_file": "tests/unit/test_kernel_orchestrator.py"
     }
   ]
 }
