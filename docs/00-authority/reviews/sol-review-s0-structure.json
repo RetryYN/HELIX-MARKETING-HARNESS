@@ -181,7 +181,8 @@
   "resolution_commits": [
     "e66b746384d3ec75eae87c7d6915b5e9b12fd3f4",
     "3b626bd5a2d973adcacef7885565cb0c2667e918",
-    "ef4207dbf2a233f148a1575d8ed95c3688a00324"
+    "ef4207dbf2a233f148a1575d8ed95c3688a00324",
+    "2f3b0b3e332a466fbc20ad7fd2aaba3042784c02"
   ],
   "verdict": "Go",
   "rounds": 6,
