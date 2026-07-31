@@ -2409,6 +2409,286 @@
       "external_calls": "0 回",
       "method": "pytest: 1 フィールド差の brief 2 通で digest 相違を assert し、他方 digest での開始が GateRejected になることを assert",
       "slice": "S0"
+    },
+    {
+      "id": "TCC-13-5",
+      "ac": [
+        "AC-13-5"
+      ],
+      "kind": "reject",
+      "verifies_state": "task は verifying のまま",
+      "verifies_db_delta": "state_transitions 差分なし・tasks 差分なし",
+      "verifies_evidence": "拒否の構造化ログ（理由欠落）",
+      "verifies_forbidden": "理由なし差戻しの成立・retry_count の増加",
+      "external_calls": "0 回",
+      "method": "pytest: seed: verifying 状態の task 1 件、reason=None・evidence_id=None の遷移要求 を seed し、raise される例外型／tasks.status／state_transitions 件数 を assert（verify_fail 遷移を要求する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-16-4",
+      "ac": [
+        "AC-16-4"
+      ],
+      "kind": "reject",
+      "verifies_state": "task は in_progress のまま（escalated にならない）",
+      "verifies_db_delta": "tasks 差分なし",
+      "verifies_evidence": "拒否の構造化ログ（rejected は escalate 対象外）",
+      "verifies_forbidden": "rejected からの escalated 遷移の成立",
+      "external_calls": "0 回",
+      "method": "pytest: seed: approvals.decision='rejected' に紐づく in_progress task を seed し、raise される例外型／tasks.status を assert（escalate 遷移（人へのエスカレーション）を要求する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-21-4",
+      "ac": [
+        "AC-21-4"
+      ],
+      "kind": "reject",
+      "verifies_state": "公開未実行",
+      "verifies_db_delta": "assets・evidence 差分なし",
+      "verifies_evidence": "拒否の構造化ログ（bypass 不能）",
+      "verifies_forbidden": "config によるゲート無効化・外部 HTTP 呼出（0 回であること）",
+      "external_calls": "0 回",
+      "method": "pytest: seed: pair_plan_quality に対応行なし、config に pair_bypass=true を INSERT を seed し、raise される例外型／外部呼出回数 を assert（公開系コネクタを呼び出す）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-23-4",
+      "ac": [
+        "AC-23-4"
+      ],
+      "kind": "reject",
+      "verifies_state": "kpi_nodes に有料指標なし",
+      "verifies_db_delta": "kpi_nodes 差分なし",
+      "verifies_evidence": "拒否の構造化ログ（解除不能）",
+      "verifies_forbidden": "config によるゼロ広告費ゲートの無効化",
+      "external_calls": "0 回",
+      "method": "pytest: seed: config に zero_ad_gate_off=true、登録要求 {type:'CAC'} を seed し、raise される例外型／kpi_nodes 件数 を assert（CAC/ROAS 型の KPI ノード登録を要求する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-28-4",
+      "ac": [
+        "AC-28-4"
+      ],
+      "kind": "boundary",
+      "verifies_state": "task は verifying・retry_count=1 のまま",
+      "verifies_db_delta": "tasks・evidence 差分なし（3 回試行後も同一）",
+      "verifies_evidence": "拒否の構造化ログ 3 件",
+      "verifies_forbidden": "retry_count の増加・状態変化・証跡の自動補完",
+      "external_calls": "0 回",
+      "method": "pytest: seed: verifying 状態 task、必須証跡 3 件中 2 件のみ登録、retry_count=1 を seed し、tasks 行のスナップショット比較（前後）／evidence 件数 を assert（done 遷移を複数回連続で要求する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-33-5",
+      "ac": [
+        "AC-33-5"
+      ],
+      "kind": "reject",
+      "verifies_state": "config は既存 1 行のまま",
+      "verifies_db_delta": "config 差分なし",
+      "verifies_evidence": "拒否の構造化ログ（reason 必須）",
+      "verifies_forbidden": "reason なし変更行の INSERT",
+      "external_calls": "0 回",
+      "method": "pytest: seed: config に既存行 1 件、変更要求 reason='' を seed し、raise される例外型／config 行数 を assert（config の値を変更する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-41-5",
+      "ac": [
+        "AC-41-5"
+      ],
+      "kind": "boundary",
+      "verifies_state": "タスク done・層違反 0",
+      "verifies_db_delta": "tasks +1 行・registry/workflows/playbooks のみ増加",
+      "verifies_evidence": "タスクの operation_log",
+      "verifies_forbidden": "kernel・gates への媒体固有コードの混入",
+      "external_calls": "0 回",
+      "method": "pytest: seed: registry に新媒体行、workflows に 1 本、playbooks に地図 1 件 を seed し、タスク実行結果／import-linter の層検査結果 を assert（その媒体のタスクを 1 件実行し、続けて kernel/gates の import グラフを検査する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-47-4",
+      "ac": [
+        "AC-47-4"
+      ],
+      "kind": "reject",
+      "verifies_state": "秘密が evidence 本文に存在しない",
+      "verifies_db_delta": "evidence は 0 行または マスク済み 1 行",
+      "verifies_evidence": "マスク済み証跡（秘密は伏字）",
+      "verifies_forbidden": "生の認証情報の evidence・ログへの出力",
+      "external_calls": "0 回",
+      "method": "pytest: seed: payload に 'Bearer sk-live-****' を含む外部操作記録要求 を seed し、raise される例外型／evidence 行の本文検査 を assert（operation の evidence 記録を実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-51-4",
+      "ac": [
+        "AC-51-4"
+      ],
+      "kind": "reject",
+      "verifies_state": "publish 未実行",
+      "verifies_db_delta": "assets・external_operations 差分なし",
+      "verifies_evidence": "拒否の構造化ログ（本番 WP 遮断）",
+      "verifies_forbidden": "本番 WP への HTTP 呼出（0 回であること）",
+      "external_calls": "0 回",
+      "method": "pytest: seed: config.wp_endpoint='`https://prod.example.com/wp-json`'（Docker 以外） を seed し、raise される例外型／外部呼出回数の計測 を assert（レンダリング成果物の publish を実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-54-4",
+      "ac": [
+        "AC-54-4"
+      ],
+      "kind": "boundary",
+      "verifies_state": "公開未実行",
+      "verifies_db_delta": "assets 差分なし",
+      "verifies_evidence": "拒否の構造化ログ（hash 不一致）",
+      "verifies_forbidden": "旧 PASS の新版への流用",
+      "external_calls": "0 回",
+      "method": "pytest: seed: PASS レコード（commit hash A）と、1 文字変更後の hash B のワークスペース を seed し、raise される例外型／hash 比較結果 を assert（旧 PASS レコードを参照して公開を要求する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-61-5",
+      "ac": [
+        "AC-61-5"
+      ],
+      "kind": "reject",
+      "verifies_state": "kpi_nodes に層外ノードなし",
+      "verifies_db_delta": "kpi_nodes 差分なし",
+      "verifies_evidence": "拒否の構造化ログ（層外）",
+      "verifies_forbidden": "層外ノードの INSERT",
+      "external_calls": "0 回",
+      "method": "pytest: seed: layer='ブランド好感度' の登録要求（5 層外） を seed し、raise される例外型／kpi_nodes の layer 集合 を assert（KPI ノードを登録する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-62-4",
+      "ac": [
+        "AC-62-4"
+      ],
+      "kind": "boundary",
+      "verifies_state": "measurements は 1 回目と同数",
+      "verifies_db_delta": "measurements 差分なし（2 回目）",
+      "verifies_evidence": "取込スキップの構造化ログ",
+      "verifies_forbidden": "同一 hash の二重投入",
+      "external_calls": "0 回",
+      "method": "pytest: seed: 計測 CSV 1 件（hash H）、1 回目取込済み を seed し、measurements の件数比較／取込 API 戻り値 を assert（取り込みを 2 回連続で実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-62-5",
+      "ac": [
+        "AC-62-5"
+      ],
+      "kind": "reject",
+      "verifies_state": "measurements 差分なし",
+      "verifies_db_delta": "measurements 差分なし",
+      "verifies_evidence": "拒否の構造化ログ（証跡必須）",
+      "verifies_forbidden": "証跡なし実測の保存",
+      "external_calls": "0 回",
+      "method": "pytest: seed: evidence 参照なしの measurement 投入要求 を seed し、raise される例外型／measurements 件数 を assert（measurements への投入を実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-72-4",
+      "ac": [
+        "AC-72-4"
+      ],
+      "kind": "boundary",
+      "verifies_state": "schema_version は N+1（N の書換えは不成立）",
+      "verifies_db_delta": "schema_version 行は追記のみ（N の UPDATE なし）",
+      "verifies_evidence": "migration 実行ログ",
+      "verifies_forbidden": "既存 version 行の UPDATE・後方参照の migration",
+      "external_calls": "0 回",
+      "method": "pytest: seed: schema_version=N-1、失敗した N の記録 を seed し、raise される例外型／schema_version の値 を assert（同じ version N の内容を書き換えて再適用しようとし、続いて version N+1 で修正を適用する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-SR-06-4",
+      "ac": [
+        "AC-SR-06-4"
+      ],
+      "kind": "reject",
+      "verifies_state": "strategic_briefs は 1 件のまま",
+      "verifies_db_delta": "strategic_briefs 差分なし",
+      "verifies_evidence": "拒否の構造化ログ（supersedes 必須）",
+      "verifies_forbidden": "supersedes なし改訂の INSERT・旧版の内容変更",
+      "external_calls": "0 回",
+      "method": "pytest: seed: active brief 1 件、supersedes_id=None の改訂 brief を seed し、raise される例外型／strategic_briefs 件数 を assert（新 brief を発行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-SR-09-3",
+      "ac": [
+        "AC-SR-09-3"
+      ],
+      "kind": "reject",
+      "verifies_state": "意味モデル正本は無変更",
+      "verifies_db_delta": "strategic_briefs 差分なし",
+      "verifies_evidence": "なし（拒否はトリガ層）",
+      "verifies_forbidden": "KPI 変動を契機とする戦略正本の更新",
+      "external_calls": "0 回",
+      "method": "pytest: seed: measurements に閾値超過行を INSERT した直後の状態 を seed し、計測処理後の strategic_briefs スナップショット比較／直接 DML の例外 を assert（計測処理から意味モデル正本（strategic_briefs 等）の更新を試みる）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-SR-11-3",
+      "ac": [
+        "AC-SR-11-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "3 版すべて存在し連鎖が完全",
+      "verifies_db_delta": "差分なし",
+      "verifies_evidence": "なし（拒否はトリガ層）",
+      "verifies_forbidden": "中間版の削除・連鎖の切断",
+      "external_calls": "0 回",
+      "method": "pytest: seed: supersedes 連鎖 3 版（v1/v2/v3） を seed し、DELETE の例外／supersedes_id を辿る再帰クエリの結果 を assert（v2 の削除を試み、続いて v3 から v1 までの履歴を復元する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-SR-11-4",
+      "ac": [
+        "AC-SR-11-4"
+      ],
+      "kind": "reject",
+      "verifies_state": "3 版のまま",
+      "verifies_db_delta": "差分なし",
+      "verifies_evidence": "なし（拒否はトリガ層）",
+      "verifies_forbidden": "履歴件数の減少",
+      "external_calls": "0 回",
+      "method": "pytest: seed: supersedes 連鎖 3 版 を seed し、DELETE の例外／strategic_briefs 件数 を assert（DELETE を実行する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-SR-15-3",
+      "ac": [
+        "AC-SR-15-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "S0 部分は同一・追加分のみ増加",
+      "verifies_db_delta": "S0 テーブル定義の差分なし",
+      "verifies_evidence": "migration 実行ログ",
+      "verifies_forbidden": "S0 テーブル・トリガの変更や削除",
+      "external_calls": "0 回",
+      "method": "pytest: seed: S0 DDL 適用済み DB＋S1 追加 migration を seed し、テーブル・トリガ一覧の前後比較／既存テストの実行結果 を assert（S1 相当のテーブル（意味モデル生成系）を追加する migration を適用する）",
+      "slice": "S0"
+    },
+    {
+      "id": "TCC-SR-15-4",
+      "ac": [
+        "AC-SR-15-4"
+      ],
+      "kind": "reject",
+      "verifies_state": "ゲート NG（縮小検出）",
+      "verifies_db_delta": "差分なし（検査のみ）",
+      "verifies_evidence": "ゲート実行ログ",
+      "verifies_forbidden": "縮小・降格の PASS 通過",
+      "external_calls": "0 回",
+      "method": "pytest: seed: baseline.json 比で件数を減らした一時複製 を seed し、ゲートの終了コードと FAIL 行 を assert（整合ゲート（validate_requirements.py）を実行する）",
+      "slice": "S0"
     }
   ]
 }

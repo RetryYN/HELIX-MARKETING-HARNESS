@@ -34,13 +34,21 @@ def measured_skipped() -> int:
 
 def main() -> int:
     budget = json.loads(BUDGET.read_text())
-    skipped = measured_skipped()
     limit = budget["max_skipped"]
+    # ラチェット: 上限は baseline に記録した値を超えて増やせない（減少方向のみ許可）
+    baseline = json.loads((ROOT / "docs/governance/baseline.json").read_text())
+    recorded = baseline.get("max_skipped")
+    if recorded is not None and limit > recorded:
+        print(f"FAIL [SKIP-BUDGET] 上限を {recorded} → {limit} へ引き上げている（ラチェット違反）。"
+              "スタブ増加は設計追加（du-contracts の UT 追補）と同一コミットで、"
+              "PO 承認 receipt を添えて baseline を更新すること")
+        return 1
+    skipped = measured_skipped()
     if skipped > limit:
         print(f"FAIL [SKIP-BUDGET] skipped {skipped} > 上限 {limit} — "
               "スタブ追加は budget 更新（理由付き）と同一コミットで行うこと")
         return 1
-    print(f"PASS [SKIP-BUDGET] skipped {skipped} <= 上限 {limit}")
+    print(f"PASS [SKIP-BUDGET] skipped {skipped} <= 上限 {limit}（baseline 記録 {recorded}）")
     return 0
 
 

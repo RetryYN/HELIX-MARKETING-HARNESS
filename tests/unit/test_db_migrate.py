@@ -25,79 +25,79 @@ def test_schema_version_recorded_and_upgrades() -> None:
     raise NotImplementedError
 
 
-@pytest.mark.skip(reason="S0.1 test-first: 実装開始時に red 化（設計 = du-contracts DU-11）")
+@pytest.mark.skip(reason="test-first DU-11: apply_all")
 def test_apply_all_empty_db_creates_25_tables_and_11_triggers() -> None:
     """du-contracts DU-11 の契約観点を検証する（実装スライスで red→green）。"""
     raise NotImplementedError
 
 
-@pytest.mark.skip(reason="S0.1 test-first: 実装開始時に red 化（設計 = du-contracts DU-11）")
+@pytest.mark.skip(reason="test-first DU-11: apply_all")
 def test_apply_all_records_version_checksum_applied_at_by() -> None:
     """du-contracts DU-11 の契約観点を検証する（実装スライスで red→green）。"""
     raise NotImplementedError
 
 
-@pytest.mark.skip(reason="S0.1 test-first: 実装開始時に red 化（設計 = du-contracts DU-11）")
+@pytest.mark.skip(reason="test-first DU-11: apply_all")
 def test_apply_all_skips_applied_versions_idempotent() -> None:
     """du-contracts DU-11 の契約観点を検証する（実装スライスで red→green）。"""
     raise NotImplementedError
 
 
-@pytest.mark.skip(reason="S0.1 test-first: 実装開始時に red 化（設計 = du-contracts DU-11）")
+@pytest.mark.skip(reason="test-first DU-11: apply_all")
 def test_apply_all_duplicate_version_stops_fatal() -> None:
     """du-contracts DU-11 の契約観点を検証する（実装スライスで red→green）。"""
     raise NotImplementedError
 
 
-@pytest.mark.skip(reason="S0.1 test-first: 実装開始時に red 化（設計 = du-contracts DU-11）")
+@pytest.mark.skip(reason="test-first DU-11: apply_all")
 def test_apply_all_checksum_mismatch_stops_before_apply() -> None:
     """du-contracts DU-11 の契約観点を検証する（実装スライスで red→green）。"""
     raise NotImplementedError
 
 
-@pytest.mark.skip(reason="S0.1 test-first: 実装開始時に red 化（設計 = du-contracts DU-11）")
+@pytest.mark.skip(reason="test-first DU-11: apply_all")
 def test_apply_all_crash_mid_migration_rolls_back_whole_version() -> None:
     """du-contracts DU-11 の契約観点を検証する（実装スライスで red→green）。"""
     raise NotImplementedError
 
 
-@pytest.mark.skip(reason="S0.1 test-first: 実装開始時に red 化（設計 = du-contracts DU-11）")
+@pytest.mark.skip(reason="test-first DU-11: verify")
 def test_verify_complete_schema_passes() -> None:
     """du-contracts DU-11 の契約観点を検証する（実装スライスで red→green）。"""
     raise NotImplementedError
 
 
-@pytest.mark.skip(reason="S0.1 test-first: 実装開始時に red 化（設計 = du-contracts DU-11）")
+@pytest.mark.skip(reason="test-first DU-11: verify")
 def test_verify_missing_table_or_trigger_fails() -> None:
     """du-contracts DU-11 の契約観点を検証する（実装スライスで red→green）。"""
     raise NotImplementedError
 
 
-@pytest.mark.skip(reason="S0.1 test-first: 実装開始時に red 化（設計 = du-contracts DU-11）")
+@pytest.mark.skip(reason="test-first DU-11: verify")
 def test_verify_foreign_key_violation_fails() -> None:
     """du-contracts DU-11 の契約観点を検証する（実装スライスで red→green）。"""
     raise NotImplementedError
 
 
-@pytest.mark.skip(reason="S0.1 test-first: 実装開始時に red 化（設計 = du-contracts DU-11）")
+@pytest.mark.skip(reason="test-first DU-11: verify")
 def test_verify_tlp_orphan_detected_fatal() -> None:
     """du-contracts DU-11 の契約観点を検証する（実装スライスで red→green）。"""
     raise NotImplementedError
 
 
-@pytest.mark.skip(reason="S0.1 test-first: 実装開始時に red 化（設計 = du-contracts DU-11）")
+@pytest.mark.skip(reason="test-first DU-11: apply_all")
 def test_append_only_triggers_reject_update_and_delete() -> None:
     """du-contracts DU-11 の契約観点を検証する（実装スライスで red→green）。"""
     raise NotImplementedError
 
 
-@pytest.mark.skip(reason="S0.1 test-first: 実装開始時に red 化（設計 = du-contracts DU-11）")
+@pytest.mark.skip(reason="test-first DU-11: apply_all")
 def test_strategic_briefs_content_update_rejected_status_transition_allowed() -> None:
     """du-contracts DU-11 の契約観点を検証する（実装スライスで red→green）。"""
     raise NotImplementedError
 
 
-@pytest.mark.skip(reason="S0.1 test-first: 実装開始時に red 化（設計 = du-contracts DU-11）")
+@pytest.mark.skip(reason="test-first DU-11: apply_all")
 def test_tlp_integrity_trigger_rejects_mismatched_insert() -> None:
     """du-contracts DU-11 の契約観点を検証する（実装スライスで red→green）。"""
     raise NotImplementedError

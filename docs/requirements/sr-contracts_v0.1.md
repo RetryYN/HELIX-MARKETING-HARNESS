@@ -118,7 +118,7 @@
 - **事前条件**: DB マイグレーション適用済み（strategic_briefs テーブル・保護トリガ存在 — DU-10/11）／media_role が media-roles.json 台帳の語彙である（SR-14）／計測計画が「何を観測すれば仮説を判定できるか」を宣言している（KPI 目標値の割当だけでは無効）
 - **事後条件**: strategic_briefs に version ≥ 1・UNIQUE(brief_key, version) の 1 行が INSERT されている／digest = 正準化 JSON（キー昇順・(",",":")・UTF-8/NFC・digest/status/created_at 除外）の SHA-256 64 桁で保存されている／strategic_choice_id → segment_context_id → value_hypothesis_id の trace 3 列が非 NULL
 - **不変条件**: 同一内容の brief は常に同一 digest を得る（決定性 — キー順・空白差で不変）／brief の内容列は発行後 UPDATE 不可（strategic_briefs_no_update トリガ）／改訂は supersedes_id による新版 INSERT のみ
-- **状態遷移**: strategic_briefs: draft→active（発行）、active→superseded（新版発行時 — status 列のみ遷移可）、active→retired
+- **状態遷移**: テーブル列: strategic_briefs.status: draft→active（発行）、active→superseded（新版発行時 — status 列のみ遷移可）、active→retired
 - **正常動作**: brief draft を schema・trace・計測計画の実質性で検証 → 正準化 JSON の SHA-256 で digest を算出 → version・digest・status = active で strategic_briefs へ INSERT する（1 発行 = 1 transaction）。
 - **拒否・異常動作**: trace ID 欠落・media_role 台帳外・計測計画が KPI 目標値だけ・schema 非適合は BriefSchemaRejected で INSERT せず operation_log に理由を記録する（fail-close）。digest 長 64 以外は DDL CHECK でも拒否。
 - **境界動作**: valid_until NULL は無期限として有効。supersedes による新版発行時、旧版は superseded へ遷移し、旧版に紐づく実行中 run は完走を許すが新規 run は新版のみ参照する。同一 (brief_key, version) の再 INSERT は UNIQUE 制約で拒否。
@@ -130,7 +130,7 @@
 - **使用テーブル・正本**: w: strategic_briefs／w: evidence（operation_log 系拒否・操作証跡）（拒否時）／r: config（シード投入時の検証設定）
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: digest 正準化規則（キー昇順・(",",":")・UTF-8/NFC・digest/status/created_at 除外 — strategy-learning-contract §1 2bis）／media-roles.json 台帳（S0 は JSON 正本）
-- **trace**: 上流 = BR-A2 REQ-050 ／ 下流 = AC-SR-01 AC-SR-06-1 AC-SR-06-2 AC-SR-06-3 SCM-02 ／ スライス = S0
+- **trace**: 上流 = BR-A2 REQ-050 ／ 下流 = AC-SR-01 AC-SR-06-1 AC-SR-06-2 AC-SR-06-3 AC-SR-06-4 SCM-02 ／ スライス = S0
 
 ## SR-07 brief なし下流開始不可（開始ガード）
 
@@ -193,7 +193,7 @@
 - **使用テーブル・正本**: r: strategic_briefs（保護対象）／w: tactical_learning_packets（唯一の還流経路）／w: evidence（operation_log 系拒否・操作証跡）（拒否時）
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: 書込み許可 API 一覧（issue_strategic_brief／supersede_strategic_brief の 2 本 — 変更は要件改訂）
-- **trace**: 上流 = BR-B2 BR-B3 REQ-047 ／ 下流 = AC-SR-04 AC-SR-09-1 AC-SR-09-2 SCM-01 SCM-04 ／ スライス = S0
+- **trace**: 上流 = BR-B2 BR-B3 REQ-047 ／ 下流 = AC-SR-04 AC-SR-09-1 AC-SR-09-2 AC-SR-09-3 SCM-01 SCM-04 ／ スライス = S0
 
 ## SR-10 strategy_revision の根拠規律
 
@@ -202,7 +202,7 @@
 - **事前条件**: 対象の意味モデルと target_version が正本に存在する／supporting/counter evidence が TLP・観測レコードとして実在する
 - **事後条件**: accepted revision は支持根拠 2 件以上（重複 ID なし）・反証明示・信頼度・対象版を保持している／accepted かつ maintain 以外では new_version_id・新版の supersedes_id = target_id・旧版 status 遷移（active→superseded/retired）が単一 transaction で成立している
 - **不変条件**: 単一の計測値だけを根拠とした自動 accept が存在しない（支持根拠 ≥2・重複不可）／maintain も明示的 revision として記録される（「見ていない」と「見て維持した」の区別）／counter_evidence_ids は未評価時も空配列で明示される（省略不可）
-- **状態遷移**: 意味モデル正本: active→superseded/retired（revision accepted・maintain 以外 — 新版 INSERT と同一 transaction）
+- **状態遷移**: テーブル列: strategic_briefs.status: active→superseded/retired（revision accepted・maintain 以外 — 新版 INSERT と同一 transaction）
 - **正常動作**: 上流の改善工程が TLP・観測・反証・信頼度・時間差を評価して revision を起票 → 支持根拠 ≥2（重複なし）・反証明示・対象版一致を検証 → accepted なら（maintain 以外）新版 INSERT・旧版 status 遷移・revision 記録を単一 transaction で実行する。
 - **拒否・異常動作**: 支持根拠 0〜1 件・重複 ID による水増し・counter_evidence_ids 欠落・target_version 不一致・new_version_id 欠落（accepted かつ maintain 以外）は RevisionEvidenceRejected で拒否し、operation_log に理由を記録する（fail-close）。
 - **境界動作**: 支持根拠ちょうど 2 件（異なる ID）は accept 可。同一根拠 ID の重複や単一 KPI の 2 期間参照は 2 件扱いしない（uniqueItems）。maintain は new_version_id 不要で revision 記録のみ残す。
@@ -223,7 +223,7 @@
 - **事前条件**: strategic_briefs_no_update/no_delete・tactical_learning_packets_no_update/no_delete トリガが migration 0001 で適用済み／旧版行が存在する（新版発行時）
 - **事後条件**: 旧版行が内容不変のまま残存している（reject された仮説も履歴として残る）／新版行の supersedes_id = 旧版 id／UPDATE/DELETE 試行後に行数・内容が変化していない
 - **不変条件**: strategic_briefs の内容列と tactical_learning_packets の全列は UPDATE/DELETE 不可（トリガが常時拒否）／版の連鎖（supersedes_id）は途切れず履歴を復元可能／分母の縮小（履歴の削除）が構造的に不可能
-- **状態遷移**: strategic_briefs: active→superseded/retired（status 列のみ — 内容列は不変）
+- **状態遷移**: テーブル列: strategic_briefs.status: active→superseded/retired（status 列のみ — 内容列は不変）
 - **正常動作**: 上流正本の変更はすべて supersedes_id を持つ新版行の INSERT として実行し、旧版は status のみ superseded/retired へ遷移する。reject された仮説も新版（status 付き）として履歴に残す。
 - **拒否・異常動作**: 内容列の UPDATE と行 DELETE は保護トリガが IntegrityError（メッセージに 'append-only'）で拒否する。FK 制約等の別要因ではなくトリガ自体が拒否主体であることをテストで区別する（AC-SR-05）。
 - **境界動作**: strategic_briefs は status・valid_until のみ UPDATE 可（トリガ WHEN 条件の境界 — それ以外の列は 1 列でも変更で拒否）。TLP は全列不変。supersedes_id の自己参照・循環は FK と版番号の単調増加で防ぐ。
@@ -235,7 +235,7 @@
 - **使用テーブル・正本**: rw: strategic_briefs（append-only — 内容列不変）／w: tactical_learning_packets（append-only）
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: 保護トリガ定義（s0-contract §2 — migration 0001 と等価）
-- **trace**: 上流 = NFR-2 NFR-3 REQ-048 ／ 下流 = AC-SR-05 AC-SR-11-1 AC-SR-11-2 SCM-01 ／ スライス = S0
+- **trace**: 上流 = NFR-2 NFR-3 REQ-048 ／ 下流 = AC-SR-05 AC-SR-11-1 AC-SR-11-2 AC-SR-11-3 AC-SR-11-4 SCM-01 ／ スライス = S0
 
 ## SR-12 KPI ツリーの位置づけ（観測背骨・戦略正本にしない）
 
@@ -319,8 +319,7 @@
 - **使用テーブル・正本**: r: strategic_briefs（先行配置の存在検証）／r: tactical_learning_packets（同上）
 - **外部依存**: python-ci（GitHub Actions — pytest 実行）
 - **設定値**: なし ／ **固定値**: S0 必須 5 点の一覧（strategy-loop-requirements §6 — 変更は要件改訂）
-- **trace**: 上流 = charter v0.4 §7 ／ 下流 = AC-SR-15-1 AC-SR-15-2 SCM-01 SCM-02 SCM-03 SCM-04 ／ スライス = S0
-- **AC 極性 N/A**: boundary-recovery: S0 スコープ宣言（5 点の集合定義）であり、実行時の数量境界・クラッシュ復旧シナリオが存在しない。復旧系は構成要素の SR-06〜09/11 側 AC が担う。
+- **trace**: 上流 = charter v0.4 §7 ／ 下流 = AC-SR-15-1 AC-SR-15-2 AC-SR-15-3 AC-SR-15-4 SCM-01 SCM-02 SCM-03 SCM-04 ／ スライス = S0
 
 ## SR-16 上流ループ一周の判定
 

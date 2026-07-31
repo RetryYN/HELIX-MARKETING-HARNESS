@@ -785,10 +785,11 @@ if "--update-baseline" in sys.argv:
     if no_receipt:
         print(f"REFUSED: 承認 receipt（digest 行）のない confirmed 文書があるため baseline を更新しない: {no_receipt}")
         sys.exit(1)
+    skip_budget = json.loads((ROOT / "tests" / "skip-budget.json").read_text(encoding="utf-8"))
     BASELINE.write_text(json.dumps({
         "updated": "see git log", "counts": current_counts,
-        "gate_count": gate_count_now, "confirmed_docs": current_hashes,
-        "artifacts": current_artifacts,
+        "gate_count": gate_count_now, "max_skipped": skip_budget["max_skipped"],
+        "confirmed_docs": current_hashes, "artifacts": current_artifacts,
     }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"baseline updated: docs={len(current_hashes)}, artifacts={len(current_artifacts)}, gates={gate_count_now}, counts={current_counts}")
     sys.exit(0)
@@ -805,8 +806,12 @@ if BASELINE.exists():
     gate("G-BASE-STATUS", not demoted, f"confirmed の降格なし (降格={demoted})")
     # ratchet: 分母縮小・ゲート削減の禁止
     shrunk = [f"{k}:{base['counts'][k]}→{v}" for k, v in current_counts.items() if v < base["counts"].get(k, 0)]
-    gate("G-BASE-RATCHET", not shrunk and gate_count_now >= base["gate_count"],
-         f"分母縮小/ゲート削減なし (縮小={shrunk}, gates={gate_count_now}>={base['gate_count']})")
+    # skip 上限のラチェット: スタブ増加による上限引き上げを検出（green の誤読を防ぐ）
+    cur_skip = json.loads((ROOT / "tests" / "skip-budget.json").read_text(encoding="utf-8"))["max_skipped"]
+    skip_up = base.get("max_skipped") is not None and cur_skip > base["max_skipped"]
+    gate("G-BASE-RATCHET", not shrunk and gate_count_now >= base["gate_count"] and not skip_up,
+         f"分母縮小/ゲート削減/skip 上限引上げなし (縮小={shrunk}, "
+         f"gates={gate_count_now}>={base['gate_count']}, skip={cur_skip}<={base.get('max_skipped')})")
     # 実装入力（JSON 正本・DDL・validator・CI・規律・hook）の無断改変検出
     adrift = sorted(set(
         [a for a, h in base.get("artifacts", {}).items() if current_artifacts.get(a) != h]
@@ -848,6 +853,155 @@ try:
 except FileNotFoundError as e:
     gate("G-REQ-CONTRACT", False, f"BR 契約正本が存在しない: {e}")
 
+# ---- 全層再降下 §3-§8: 粒度ゲートの検出関数（本番ゲートと G-DESCENT-SELFTEST が共用） ----
+POLARITIES = {"normal", "reject", "boundary-recovery"}
+
+
+def detect_polarity_gaps(contracts, acs) -> list[str]:
+    """S0 契約で 3 極性が AC でも理由付き N/A でも満たされない箇所を列挙する。"""
+    by_t: dict[str, set] = {}
+    for a in acs:
+        by_t.setdefault(a["target"], set()).add(a["polarity"])
+    bad: list[str] = []
+    for c in contracts:
+        if c["slice"] != "S0":
+            continue
+        have = by_t.get(c["id"], set())
+        na = set(c.get("ac_na", {}).keys())
+        if (have | na) < POLARITIES or (have & na):
+            bad.append(f"{c['id']}:{sorted(POLARITIES - have - na) or '重複NA'}")
+    return bad
+
+
+def detect_invariant_gaps(contracts, acs) -> list[str]:
+    """S0 契約の各不変条件が『固有の』負方向 AC を持たない箇所を列挙する。
+
+    同一 AC を複数の invariant に使い回すと意味的な個別対応にならないため、
+    契約内で負方向 AC の重複使用も欠陥として扱う（Sol major 対応）。
+    """
+    by_id = {a["id"]: a for a in acs}
+    bad: list[str] = []
+    for c in contracts:
+        if c["slice"] != "S0":
+            continue
+        imap = c.get("invariant_ac_map")
+        if not imap or len(imap) != len(c["invariants"]):
+            bad.append(f"{c['id']}:map{len(imap or [])}!=inv{len(c['invariants'])}")
+            continue
+        used_neg: set[str] = set()
+        for i, grp in enumerate(imap):
+            refs = [by_id.get(a) for a in grp]
+            if any(r is None for r in refs):
+                bad.append(f"{c['id']}[{i}]:AC不在")
+                continue
+            if any(r["target"] != c["id"] for r in refs):
+                bad.append(f"{c['id']}[{i}]:target不一致")
+                continue
+            neg = {r["id"] for r in refs
+                   if (r["polarity"] == "reject" and r["error_type"] not in ("なし", ""))
+                   or r["polarity"] == "boundary-recovery"}
+            if not neg:
+                bad.append(f"{c['id']}[{i}]:負方向AC欠落")
+            elif not neg - used_neg:
+                bad.append(f"{c['id']}[{i}]:負方向AC使い回し{sorted(neg)}")
+            else:
+                used_neg |= neg
+    return bad
+
+
+def detect_unknown_tables(dus, tables) -> list[str]:
+    """DU の db_read/db_write に DDL 非実在テーブルが含まれる箇所を列挙する。"""
+    return sorted({f"{d['id']}:{t}" for d in dus for t in d["db_read"] + d["db_write"]
+                   if t.split("（")[0] not in tables})
+
+
+def detect_contract_table_faults(contracts, tables, trn_states) -> list[str]:
+    """FR/SR 契約の tables 表記・state_transitions が DDL/遷移正本と食い違う箇所を列挙する。
+
+    接頭辞に一致しない表記や未知 entity は『検査対象外』にせず欠陥として扱う（fail-open の排除）。
+    """
+    bad: list[str] = []
+    for c in contracts:
+        for entry in c["tables"]:
+            m = re.match(r"^(?:r|w|rw)[:：]\s*([a-z_]+)", entry)
+            if m:
+                if m.group(1) not in tables:
+                    bad.append(f"{c['id']}:未知表{m.group(1)}")
+            elif not entry.startswith("参照:"):
+                bad.append(f"{c['id']}:表記不正『{entry[:24]}』")
+        for entry in c["state_transitions"]:
+            ent = entry.split(":")[0].split("：")[0].strip()
+            if ent in trn_states:
+                # 正準状態機械（loop_runs/tasks）— from/to が enum 内であること
+                for fr_s, to_s in re.findall(r"([a-z_]+)\s*→\s*([a-z_]+)", entry):
+                    if fr_s not in trn_states[ent] or to_s not in trn_states[ent]:
+                        bad.append(f"{c['id']}:未知状態{fr_s}→{to_s}")
+            elif entry.startswith("テーブル列:"):
+                # 状態機械外のテーブル列寿命 — テーブルが DDL に実在すること
+                m2 = re.match(r"テーブル列:\s*([a-z_]+)\.([a-z_]+)\s*:", entry)
+                if not m2:
+                    bad.append(f"{c['id']}:列寿命表記不正『{entry[:24]}』")
+                elif m2.group(1) not in tables:
+                    bad.append(f"{c['id']}:未知表{m2.group(1)}（列寿命）")
+            elif not entry.startswith("参照:"):
+                bad.append(f"{c['id']}:未知entity『{ent[:20]}』")
+    return bad
+
+
+def detect_tc_bidir_faults(tcs, acs) -> list[str]:
+    """TC の AC 参照が実在しない箇所を列挙する。"""
+    ids = {a["id"] for a in acs}
+    return [f"{t['id']}→{a}" for t in tcs for a in t["ac"] if a not in ids]
+
+
+def detect_api_ut_faults(dus, tests_dir) -> list[str]:
+    """API 単位の UT 割当・参照実在・設計リンクの欠陥を列挙する。
+
+    設計フェーズでは UT は test-first スタブだが、各スタブは
+    「どの DU のどの API を検証するか」を skip 理由で宣言していなければならない
+    （名目 UT の匿名化を禁止 — 実行検証は S0.1 で red→green）。
+    """
+    bad: list[str] = []
+    for d in dus:
+        uts = set(d["trace"]["ut"])
+        api_uts: set[str] = set()
+        for a in d["apis"]:
+            refs = a.get("ut") or []
+            if not refs:
+                bad.append(f"{d['id']}:{a['signature'][:28]}:UTなし")
+                continue
+            api_uts |= set(refs)
+            if not set(refs) <= uts:
+                bad.append(f"{d['id']}:{a['signature'][:28]}:trace外UT")
+        if uts - api_uts:
+            bad.append(f"{d['id']}:宙吊りUT{sorted(uts - api_uts)[:2]}")
+        api_names = {re.match(r"def (\w+)", a["signature"]).group(1) for a in d["apis"]
+                     if re.match(r"def (\w+)", a["signature"])}
+        for ref in sorted(uts):
+            if "::" not in ref:
+                bad.append(f"{d['id']}:{ref}:形式")
+                continue
+            fname, tname = ref.split("::", 1)
+            fp = tests_dir / fname
+            if not fp.exists():
+                bad.append(f"{d['id']}:{ref}:ファイル不在")
+                continue
+            txt = fp.read_text(encoding="utf-8")
+            m = re.search(rf"\ndef {re.escape(tname)}\b", txt)
+            if m is None:
+                bad.append(f"{d['id']}:{ref}:def 不在")
+                continue
+            # デコレータは複数行に折り返される場合があるため、直前の空行までを装飾部とみなす
+            head = txt[:m.start()]
+            decos = head[head.rfind("\n\n"):]
+            body = txt[m.start():][:600]
+            if "skip" in decos or "NotImplementedError" in body:
+                # スタブは「DU-xx」と対象 API 名を skip 理由に宣言すること（匿名スタブの禁止）
+                if d["id"] not in decos or not any(n in decos for n in api_names):
+                    bad.append(f"{d['id']}:{ref}:設計リンク不備")
+    return bad
+
+
 # ---- 全層再降下 §3-§4: FR/SR/NFR/AC の粒度ゲート群 ----
 try:
     frc_schema = load(J / "fr" / "fr-contract.schema.json")
@@ -873,22 +1027,10 @@ try:
     trn_states: dict[str, set] = {}
     for t in trn_items:
         trn_states.setdefault(t["entity"], set()).update({t["from"], t["to"]})
-    tbl_unknown, st_unknown = [], []
-    for c in allc:
-        for entry in c["tables"]:
-            m = re.match(r"^(?:r|w|rw)[:：]\s*([a-z_]+)", entry)
-            if m and m.group(1) not in ddl_tables_f:
-                tbl_unknown.append(f"{c['id']}:{m.group(1)}")
-        for entry in c["state_transitions"]:
-            ent = entry.split(":")[0].split("：")[0].strip()
-            if ent in trn_states:
-                for fr_s, to_s in re.findall(r"([a-z_]+)\s*→\s*([a-z_]+)", entry):
-                    if fr_s not in trn_states[ent] or to_s not in trn_states[ent]:
-                        st_unknown.append(f"{c['id']}:{fr_s}→{to_s}")
-    gate("G-FRSR-CONTRACT", not c_errs and cov_ok and not tbl_unknown and not st_unknown,
+    tbl_faults = detect_contract_table_faults(allc, ddl_tables_f, trn_states)
+    gate("G-FRSR-CONTRACT", not c_errs and cov_ok and not tbl_faults,
          f"FR/SR 実行契約: schema 適合＋FR36/SR16 完全被覆＋DDL/遷移正本と突合 "
-         f"(err={c_errs[:3]}, cov={cov_ok}, 未知表={sorted(set(tbl_unknown))[:5]}, "
-         f"未知状態={sorted(set(st_unknown))[:5]})")
+         f"(err={c_errs[:3]}, cov={cov_ok}, 突合={sorted(set(tbl_faults))[:5]})")
 
     # G-NFR-MEASURABLE: 全 NFR に計測契約
     n_errs: list[str] = []
@@ -916,15 +1058,7 @@ try:
          f"(err={a_errs[:3]}, dup={dup_ac}, orphan={orphan_tgt[:3]}, S0欠落={s0_no_ac})")
 
     # G-AC-POLARITY: S0 の各 FR/SR は 3 極性（正常/拒否/境界復旧）を AC か理由付き N/A で被覆
-    POLARITIES = {"normal", "reject", "boundary-recovery"}
-    pol_bad = []
-    for c in allc:
-        if c["slice"] != "S0":
-            continue
-        have = {a["polarity"] for a in ac_by_tgt.get(c["id"], [])}
-        na = set(c.get("ac_na", {}).keys())
-        if (have | na) < POLARITIES or (have & na):
-            pol_bad.append(f"{c['id']}:{sorted(POLARITIES - have - na) or '重複NA'}")
+    pol_bad = detect_polarity_gaps(allc, acc)
     gate("G-AC-POLARITY", not pol_bad, f"S0 要件の 3 極性被覆（AC or 理由付き N/A） (欠落={pol_bad[:5]})")
 
     # G-HUMAN-JUDGE: 全契約に人間判断点の明示（なし宣言 or 具体主体）
@@ -933,33 +1067,10 @@ try:
                       or any(k in c["human_judgement"] for k in ("PO", "人間", "運用者", "承認")))]
     gate("G-HUMAN-JUDGE", not hj_bad, f"人間判断点の明示（なし宣言 or 主体特定） (不明={hj_bad[:5]})")
 
-    # G-INVARIANT-TRACE: S0 契約の**各**不変条件が invariant_ac_map で負方向 AC に対応づく
-    #   （Sol major 対応: 契約単位の 1 件では複数 invariants の空白を検出できないため個別対応を必須化）
-    ac_by_id = {a["id"]: a for a in acc}
-    inv_bad = []
-    for c in allc:
-        if c["slice"] != "S0":
-            continue
-        imap = c.get("invariant_ac_map")
-        if not imap or len(imap) != len(c["invariants"]):
-            inv_bad.append(f"{c['id']}:map{len(imap or [])}!=inv{len(c['invariants'])}")
-            continue
-        for i, grp in enumerate(imap):
-            refs = [ac_by_id.get(a) for a in grp]
-            if any(r is None for r in refs):
-                inv_bad.append(f"{c['id']}[{i}]:AC不在")
-                continue
-            if any(r["target"] != c["id"] for r in refs):
-                inv_bad.append(f"{c['id']}[{i}]:target不一致")
-                continue
-            # 負方向 = reject（具体エラー型）または boundary-recovery が最低 1 件
-            neg = [r for r in refs
-                   if (r["polarity"] == "reject" and r["error_type"] not in ("なし", ""))
-                   or r["polarity"] == "boundary-recovery"]
-            if not neg:
-                inv_bad.append(f"{c['id']}[{i}]:負方向AC欠落")
+    # G-INVARIANT-TRACE: S0 契約の**各**不変条件が invariant_ac_map で固有の負方向 AC に対応づく
+    inv_bad = detect_invariant_gaps(allc, acc)
     gate("G-INVARIANT-TRACE", not inv_bad,
-         f"S0 の各不変条件に負方向 AC（invariant_ac_map 個別対応） (欠落={inv_bad[:5]})")
+         f"S0 の各不変条件に固有の負方向 AC（invariant_ac_map 個別対応） (欠落={inv_bad[:5]})")
 except FileNotFoundError as e:
     for gid in ("G-FRSR-CONTRACT", "G-NFR-MEASURABLE", "G-AC-COVERAGE", "G-AC-POLARITY",
                 "G-HUMAN-JUDGE", "G-INVARIANT-TRACE"):
@@ -975,7 +1086,7 @@ try:
         t_errs += [f"{it.get('id', '?')}: {e}" for e in schema_check(tcc_schema, it)]
     acc_ids = {a["id"] for a in acc2}
     tcc_ids = {t["id"] for t in tcc}
-    dangling_tc = [f"{t['id']}→{a}" for t in tcc for a in t["ac"] if a not in acc_ids]
+    dangling_tc = detect_tc_bidir_faults(tcc, acc2)
     tcc_by_ac: dict[str, set] = {}
     for t in tcc:
         for a in t["ac"]:
@@ -1045,43 +1156,15 @@ try:
     # G-DU-DATA: db_read/db_write が DDL の実在テーブルのみ
     ddl_tables = set(re.findall(r"CREATE TABLE (?:IF NOT EXISTS )?(\w+)",
                                 (J / "s0" / "ddl.sql").read_text(encoding="utf-8")))
-    tbl_bad = sorted({t for it in duc for t in it["db_read"] + it["db_write"]
-                      if t.split("（")[0] not in ddl_tables})
+    tbl_bad = detect_unknown_tables(duc, ddl_tables)
     gate("G-DU-DATA", not tbl_bad, f"DU の DB read/write が DDL 実在テーブルのみ (未知={tbl_bad[:5]})")
 
     # G-API-UT: **API 単位**で UT ≥1・参照テスト関数の実在・api.ut⊆trace.ut・宙吊り UT ゼロ・
     #           スタブ（NotImplementedError）は設計リンク（du-contracts DU-xx を含む skip 理由）必須
-    ut_bad, ut_missing = [], []
-    for it in duc:
-        uts = set(it["trace"]["ut"])
-        api_uts: set[str] = set()
-        for a in it["apis"]:
-            if not a.get("ut"):
-                ut_bad.append(f"{it['id']}:{a['signature'][:30]}:UTなし")
-                continue
-            api_uts |= set(a["ut"])
-            if not set(a["ut"]) <= uts:
-                ut_bad.append(f"{it['id']}:{a['signature'][:30]}:trace外UT")
-        if uts - api_uts:
-            ut_bad.append(f"{it['id']}:宙吊りUT{sorted(uts - api_uts)[:2]}")
-        for ref in uts:
-            if "::" not in ref:
-                ut_missing.append(f"{it['id']}:{ref}:形式")
-                continue
-            fname, tname = ref.split("::", 1)
-            fp = ROOT / "tests" / "unit" / fname
-            if not fp.exists() or f"def {tname}" not in fp.read_text(encoding="utf-8"):
-                ut_missing.append(f"{it['id']}:{ref}")
-    # スタブの設計リンク: NotImplementedError を含む test ファイルは、その件数以上の
-    # 「du-contracts DU-」参照（skip 理由）を持つこと（名目 UT の匿名化を禁止）
-    for fp in sorted((ROOT / "tests" / "unit").glob("test_*.py")):
-        txt = fp.read_text(encoding="utf-8")
-        n_stub = txt.count("raise NotImplementedError")
-        n_link = txt.count("du-contracts DU-")
-        if n_stub > n_link:
-            ut_missing.append(f"{fp.name}:stub{n_stub}>link{n_link}")
-    gate("G-API-UT", not ut_bad and not ut_missing,
-         f"S0 DU の全 API に UT・参照テスト関数の実在 (不足={ut_bad[:3]}, 不在={ut_missing[:5]})")
+    ut_faults = detect_api_ut_faults(duc, ROOT / "tests" / "unit")
+    gate("G-API-UT", not ut_faults,
+         "全 DU の API 単位 UT 割当・参照実在・設計リンク（実行検証は S0.1 で red→green） "
+         f"(欠陥={ut_faults[:5]})")
 
     # G-NO-HOLLOW-DESIGN: 全契約正本にプレースホルダ・空洞文字列がない
     HOLLOW = re.compile(r"TBD|TODO|FIXME|後で書く|後で埋め|後述予定|要検討|仮置き|placeholder|XXX")
@@ -1119,99 +1202,117 @@ try:
 except FileNotFoundError as e:
     gate("G-DESIGN-SUBSTANCE", False, f"設計書が存在しない: {e}")
 
-# G-CHAIN-BIDIR: BR→REQ→FR/SR→AC→(TC)→CMP→DU→API→UT の隣接エッジを双方向で突合（全層再降下 完了条件 4）
-try:
-    req_up = {r["id"]: set(r["trace"]["upstream"]) for r in req}
-    req_down = {r["id"]: set(r["trace"]["downstream"]) | set(r.get("related", [])) for r in req}
-    chain_bad: list[str] = []
-    # (1) BR 契約 ↔ REQ.upstream
-    for it in brc:
+# G-CHAIN-BIDIR: BR→REQ→FR/SR→AC→CMP→DU→API→UT の隣接エッジを双方向で突合（全層再降下 完了条件 4）
+#   検出ロジックは detect_chain_asymmetry() に一元化し、G-DESCENT-SELFTEST が**同じ関数**へ変異データを
+#   投入して検出能力を証明する（本体だけ変更されて自己検査が取り残される drift を防ぐ）。
+def detect_chain_asymmetry(brc_, req_, allc_, acc_, cmpc_, duc_) -> list[str]:
+    """全層 trace の非対称エッジを列挙する（空 = 双方向成立）。"""
+    bad: list[str] = []
+    up = {r["id"]: set(r["trace"]["upstream"]) for r in req_}
+    down = {r["id"]: set(r["trace"]["downstream"]) | set(r.get("related", [])) for r in req_}
+    # (1) BR 契約 ↔ REQ.upstream（双方向）
+    for it in brc_:
         for r in it["trace_down"]["req"]:
-            if it["id"] not in req_up.get(r, set()):
-                chain_bad.append(f"BR→REQ:{it['id']}→{r}")
-    br_req_edges = {(b["id"], r) for b in brc for r in b["trace_down"]["req"]}
-    for r in req:
+            if it["id"] not in up.get(r, set()):
+                bad.append(f"BR→REQ:{it['id']}→{r}")
+    br_edges = {(b["id"], r) for b in brc_ for r in b["trace_down"]["req"]}
+    for r in req_:
         for b in r["trace"]["upstream"]:
-            if b.startswith("BR-") and len(b) == 5 and (b, r["id"]) not in br_req_edges:
-                chain_bad.append(f"REQ→BR:{r['id']}→{b}")
-    # (2) REQ ↔ FR/SR 契約
-    frsr_up = {c["id"]: {t for t in c["trace_up"] if t.startswith("REQ-")} for c in allc}
-    for r in req:
-        for f in req_down[r["id"]]:
-            if f in frsr_up and r["id"] not in frsr_up[f]:
-                chain_bad.append(f"REQ→FRSR:{r['id']}→{f}")
-    for c in allc:
-        for r in frsr_up[c["id"]]:
-            if c["id"] not in req_down.get(r, set()):
-                chain_bad.append(f"FRSR→REQ:{c['id']}→{r}")
-    # (3) FR/SR.trace_down.ac == {AC | AC.target == id}
-    ac_by_target: dict[str, set] = {}
-    for a in acc:
-        ac_by_target.setdefault(a["target"], set()).add(a["id"])
-    for c in allc:
-        if set(c["trace_down"]["ac"]) != ac_by_target.get(c["id"], set()):
-            chain_bad.append(f"FRSR↔AC:{c['id']}")
-    # (4) CMP ↔ DU
-    cmp_du = {c["id"]: set(c["trace"]["du"]) for c in cmpc}
-    du_cmp: dict[str, set] = {}
-    for d_ in duc:
-        du_cmp.setdefault(d_["cmp"], set()).add(d_["id"])
-    for cid, dus in du_cmp.items():
-        if not dus <= cmp_du.get(cid, set()):
-            chain_bad.append(f"DU→CMP:{cid}:{sorted(dus - cmp_du.get(cid, set()))}")
-    # (5) S0 の全 AC が少なくとも 1 DU に割当（AC→DU→API→UT 鎖の起点保証）
-    du_acs = {a for d_ in duc for a in d_["trace"]["ac"]}
-    s0_targets = {c["id"] for c in allc if c["slice"] == "S0"}
-    orphan_ac = sorted(a["id"] for a in acc if a["target"] in s0_targets and a["id"] not in du_acs)
+            if re.fullmatch(r"BR-[A-Z]\d", b) and (b, r["id"]) not in br_edges:
+                bad.append(f"REQ→BR:{r['id']}→{b}")
+    # (2) REQ ↔ FR/SR 契約（双方向）
+    frsr_up_ = {c["id"]: {t for t in c["trace_up"] if t.startswith("REQ-")} for c in allc_}
+    for r in req_:
+        for f in down[r["id"]]:
+            if f in frsr_up_ and r["id"] not in frsr_up_[f]:
+                bad.append(f"REQ→FRSR:{r['id']}→{f}")
+    for c in allc_:
+        for r in frsr_up_[c["id"]]:
+            if c["id"] not in down.get(r, set()):
+                bad.append(f"FRSR→REQ:{c['id']}→{r}")
+    # (3) FR/SR.trace_down.ac == {AC | AC.target == id}（厳密等号）
+    ac_by_t: dict[str, set] = {}
+    for a in acc_:
+        ac_by_t.setdefault(a["target"], set()).add(a["id"])
+    for c in allc_:
+        if set(c["trace_down"]["ac"]) != ac_by_t.get(c["id"], set()):
+            bad.append(f"FRSR↔AC:{c['id']}")
+    # (4) CMP ↔ DU（**厳密等号** — DU は cmp＋also_implements の両方で自分の所属を宣言する）
+    cmp_du_ = {c["id"]: set(c["trace"]["du"]) for c in cmpc_}
+    du_cmp_: dict[str, set] = {}
+    for d_ in duc_:
+        for cid in [d_["cmp"], *d_.get("also_implements", [])]:
+            du_cmp_.setdefault(cid, set()).add(d_["id"])
+    for cid in set(cmp_du_) | set(du_cmp_):
+        if cmp_du_.get(cid, set()) != du_cmp_.get(cid, set()):
+            diff = sorted(cmp_du_.get(cid, set()) ^ du_cmp_.get(cid, set()))
+            bad.append(f"CMP↔DU:{cid}:{diff}")
+    return bad
+
+
+def detect_orphan_s0_ac(allc_, acc_, duc_) -> list[str]:
+    """S0 対象でどの DU にも割当てられていない AC を列挙する（空 = 鎖の起点が全て存在）。"""
+    du_acs_ = {a for d_ in duc_ for a in d_["trace"]["ac"]}
+    s0_t = {c["id"] for c in allc_ if c["slice"] == "S0"}
+    return sorted(a["id"] for a in acc_ if a["target"] in s0_t and a["id"] not in du_acs_)
+
+
+try:
+    chain_bad = detect_chain_asymmetry(brc, req, allc, acc, cmpc, duc)
+    orphan_ac = detect_orphan_s0_ac(allc, acc, duc)
     gate("G-CHAIN-BIDIR", not chain_bad and not orphan_ac,
          f"全層 trace の双方向突合 (非対称={sorted(set(chain_bad))[:6]}, DU未割当S0AC={orphan_ac[:5]})")
 except (FileNotFoundError, NameError) as e:
     gate("G-CHAIN-BIDIR", False, f"trace 正本が読めない: {e}")
 
-# G-DESCENT-SELFTEST: 再降下ゲート群の mutation 自己検査 — 欠陥を注入した複製が検出されることを常時証明
+# G-DESCENT-SELFTEST: 再降下ゲート群の mutation 自己検査。
+#   各ケースは**本番ゲートが使う検出関数そのもの**へ変異データを投入する（ロジックの再記述をしない）。
+#   本体の検出関数を弱めれば自己検査も同時に落ちるため、drift が構造的に起きない。
 try:
     st_ok, st_msg = True, []
-    # (a) G-AC-POLARITY 相当: S0 target の reject AC を全削除 → 欠落検出されるか
-    s0_ids = [c["id"] for c in allc if c["slice"] == "S0"]
-    victim = s0_ids[0]
-    mut_acc = [a for a in acc if not (a["target"] == victim and a["polarity"] == "reject")]
-    mut_by: dict[str, set] = {}
-    for a in mut_acc:
-        mut_by.setdefault(a["target"], set()).add(a["polarity"])
-    vic_na = set(next(c for c in allc if c["id"] == victim).get("ac_na", {}).keys())
-    if (mut_by.get(victim, set()) | vic_na) >= {"normal", "reject", "boundary-recovery"}:
-        st_ok = False
-        st_msg.append("polarity-mutation 未検出")
-    # (b) G-DU-DBC 相当: precondition を空にした API → 検出されるか
-    mut_api = dict(duc[0]["apis"][0])
-    mut_api["precondition"] = []
+    # (a) 極性: S0 の victim から reject AC を全削除 → detect_polarity_gaps が検出するか
+    victim = next(c for c in allc if c["slice"] == "S0"
+                  and any(a["target"] == c["id"] and a["polarity"] == "reject" for a in acc))
+    mut_acc = [a for a in acc if not (a["target"] == victim["id"] and a["polarity"] == "reject")]
+    if not detect_polarity_gaps([victim], mut_acc):
+        st_ok, _ = False, st_msg.append("polarity-mutation 未検出")
+    # (b) DbC: precondition を空にした API → schema_check（本体と同じ）が検出するか
+    mut_api = {**duc[0]["apis"][0], "precondition": []}
     if not schema_check(duc_schema["properties"]["apis"]["items"], mut_api):
-        st_ok = False
-        st_msg.append("dbc-mutation 未検出")
-    # (c) G-DU-DATA 相当: 変異 DU（幽霊テーブルを注入）を同一検出ロジックへ投入 → 検出されるか
-    mut_du = {**duc[0], "db_read": duc[0]["db_read"] + ["ghost_table_xyz"]}
-    mut_tbl_bad = {t for t in mut_du["db_read"] + mut_du["db_write"]
-                   if t.split("（")[0] not in ddl_tables}
-    if "ghost_table_xyz" not in mut_tbl_bad:
-        st_ok = False
-        st_msg.append("data-mutation 未検出")
-    # (d) G-TRACE-BIDIR 相当: 変異 TC（偽 AC 参照）を同一検出ロジックへ投入 → 検出されるか
+        st_ok, _ = False, st_msg.append("dbc-mutation 未検出")
+    # (c) DATA: 幽霊テーブルを注入 → detect_unknown_tables が検出するか
+    mut_du = {**duc[0], "db_read": [*duc[0]["db_read"], "ghost_table_xyz"]}
+    if "ghost_table_xyz" not in " ".join(detect_unknown_tables([mut_du], ddl_tables)):
+        st_ok, _ = False, st_msg.append("data-mutation 未検出")
+    # (d) AC↔TC: 偽 AC 参照の TC → detect_tc_bidir_faults が検出するか
     mut_tc = {**tcc[0], "ac": ["AC-99-9"]}
-    mut_dangling = [a for a in mut_tc["ac"] if a not in acc_ids]
-    if mut_dangling != ["AC-99-9"]:
-        st_ok = False
-        st_msg.append("bidir-mutation 未検出")
-    # (e) G-CHAIN-BIDIR 相当: BR→REQ 片方向参照を注入 → 非対称として検出されるか
-    mut_req_up = {r["id"]: set(r["trace"]["upstream"]) for r in req}
-    mut_brc0 = {**brc[0], "trace_down": {**brc[0]["trace_down"],
-                                         "req": brc[0]["trace_down"]["req"] + ["REQ-052"]}}
-    asym = [r for r in mut_brc0["trace_down"]["req"]
-            if mut_brc0["id"] not in mut_req_up.get(r, set())]
-    if not asym:
-        st_ok = False
-        st_msg.append("chain-mutation 未検出")
+    if not detect_tc_bidir_faults([mut_tc], acc):
+        st_ok, _ = False, st_msg.append("bidir-mutation 未検出")
+    # (e) 全層 chain: BR→REQ 片方向参照を注入 → detect_chain_asymmetry が検出するか
+    mut_br = [{**brc[0], "trace_down": {**brc[0]["trace_down"],
+                                        "req": [*brc[0]["trace_down"]["req"], "REQ-052"]}}, *brc[1:]]
+    if not detect_chain_asymmetry(mut_br, req, allc, acc, cmpc, duc):
+        st_ok, _ = False, st_msg.append("chain-mutation 未検出")
+    # (f) 全層 chain: CMP↔DU を片方向化（DU の also_implements を剥がす）→ 等号検査が検出するか
+    mut_duc = [{k: v for k, v in d_.items() if k != "also_implements"} for d_ in duc]
+    if not detect_chain_asymmetry(brc, req, allc, acc, cmpc, mut_duc):
+        st_ok, _ = False, st_msg.append("cmp-du-mutation 未検出")
+    # (g) invariant 個別対応: 対応表の 1 行を normal AC のみへ差し替え → 検出するか
+    inv_victim = next((c for c in allc if c["slice"] == "S0" and c.get("invariant_ac_map")), None)
+    if inv_victim is not None:
+        normal_ac = next((a["id"] for a in acc
+                          if a["target"] == inv_victim["id"] and a["polarity"] == "normal"), None)
+        if normal_ac:
+            mut_c = {**inv_victim,
+                     "invariant_ac_map": [[normal_ac], *inv_victim["invariant_ac_map"][1:]]}
+            if not detect_invariant_gaps([mut_c], acc):
+                st_ok, _ = False, st_msg.append("invariant-mutation 未検出")
+    # (h) API↔UT: API の ut を空にする → detect_api_ut_faults が検出するか
+    mut_du2 = {**duc[0], "apis": [{**duc[0]["apis"][0], "ut": []}, *duc[0]["apis"][1:]]}
+    if not detect_api_ut_faults([mut_du2], ROOT / "tests" / "unit"):
+        st_ok, _ = False, st_msg.append("api-ut-mutation 未検出")
     gate("G-DESCENT-SELFTEST", st_ok, f"再降下ゲートの mutation 自己検査 (失敗={st_msg})")
-except (NameError, FileNotFoundError, IndexError) as e:
+except (NameError, FileNotFoundError, IndexError, StopIteration) as e:
     gate("G-DESCENT-SELFTEST", False, f"自己検査を実行できない: {e}")
 
 # G-COUNT-SYNC: 手書きのゲート件数表記が実数と一致（意味整合レビュー対応 — 散在数値のドリフト検出）

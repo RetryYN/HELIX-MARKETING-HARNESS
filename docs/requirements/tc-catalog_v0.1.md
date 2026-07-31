@@ -180,5 +180,25 @@
 | TCC-71-4 | reject | AC-71-4 | loop_runs・tasks とも行数不変 | 差分なし | なし（DB 層拒否） | 参照行の連鎖削除・孤児行の発生 | 0 回 | S0 |
 | TCC-SR-08-3 | reject | AC-SR-08-3 | TLP 1 行のまま全列不変 | 差分なし | なし（DB 層拒否） | TLP 行の変更・削除 | 0 回 | S0 |
 | TCC-SR-06-3 | boundary | AC-SR-06-3 | 2 digest が相異なり、不一致 digest の run が未作成 | loop_runs 差分なし | 拒否の構造化ログ（digest 不一致） | 異内容への同一 digest 付与・不一致 digest での run 作成 | 0 回 | S0 |
+| TCC-13-5 | reject | AC-13-5 | task は verifying のまま | state_transitions 差分なし・tasks 差分なし | 拒否の構造化ログ（理由欠落） | 理由なし差戻しの成立・retry_count の増加 | 0 回 | S0 |
+| TCC-16-4 | reject | AC-16-4 | task は in_progress のまま（escalated にならない） | tasks 差分なし | 拒否の構造化ログ（rejected は escalate 対象外） | rejected からの escalated 遷移の成立 | 0 回 | S0 |
+| TCC-21-4 | reject | AC-21-4 | 公開未実行 | assets・evidence 差分なし | 拒否の構造化ログ（bypass 不能） | config によるゲート無効化・外部 HTTP 呼出（0 回であること） | 0 回 | S0 |
+| TCC-23-4 | reject | AC-23-4 | kpi_nodes に有料指標なし | kpi_nodes 差分なし | 拒否の構造化ログ（解除不能） | config によるゼロ広告費ゲートの無効化 | 0 回 | S0 |
+| TCC-28-4 | boundary | AC-28-4 | task は verifying・retry_count=1 のまま | tasks・evidence 差分なし（3 回試行後も同一） | 拒否の構造化ログ 3 件 | retry_count の増加・状態変化・証跡の自動補完 | 0 回 | S0 |
+| TCC-33-5 | reject | AC-33-5 | config は既存 1 行のまま | config 差分なし | 拒否の構造化ログ（reason 必須） | reason なし変更行の INSERT | 0 回 | S0 |
+| TCC-41-5 | boundary | AC-41-5 | タスク done・層違反 0 | tasks +1 行・registry/workflows/playbooks のみ増加 | タスクの operation_log | kernel・gates への媒体固有コードの混入 | 0 回 | S0 |
+| TCC-47-4 | reject | AC-47-4 | 秘密が evidence 本文に存在しない | evidence は 0 行または マスク済み 1 行 | マスク済み証跡（秘密は伏字） | 生の認証情報の evidence・ログへの出力 | 0 回 | S0 |
+| TCC-51-4 | reject | AC-51-4 | publish 未実行 | assets・external_operations 差分なし | 拒否の構造化ログ（本番 WP 遮断） | 本番 WP への HTTP 呼出（0 回であること） | 0 回 | S0 |
+| TCC-54-4 | boundary | AC-54-4 | 公開未実行 | assets 差分なし | 拒否の構造化ログ（hash 不一致） | 旧 PASS の新版への流用 | 0 回 | S0 |
+| TCC-61-5 | reject | AC-61-5 | kpi_nodes に層外ノードなし | kpi_nodes 差分なし | 拒否の構造化ログ（層外） | 層外ノードの INSERT | 0 回 | S0 |
+| TCC-62-4 | boundary | AC-62-4 | measurements は 1 回目と同数 | measurements 差分なし（2 回目） | 取込スキップの構造化ログ | 同一 hash の二重投入 | 0 回 | S0 |
+| TCC-62-5 | reject | AC-62-5 | measurements 差分なし | measurements 差分なし | 拒否の構造化ログ（証跡必須） | 証跡なし実測の保存 | 0 回 | S0 |
+| TCC-72-4 | boundary | AC-72-4 | schema_version は N+1（N の書換えは不成立） | schema_version 行は追記のみ（N の UPDATE なし） | migration 実行ログ | 既存 version 行の UPDATE・後方参照の migration | 0 回 | S0 |
+| TCC-SR-06-4 | reject | AC-SR-06-4 | strategic_briefs は 1 件のまま | strategic_briefs 差分なし | 拒否の構造化ログ（supersedes 必須） | supersedes なし改訂の INSERT・旧版の内容変更 | 0 回 | S0 |
+| TCC-SR-09-3 | reject | AC-SR-09-3 | 意味モデル正本は無変更 | strategic_briefs 差分なし | なし（拒否はトリガ層） | KPI 変動を契機とする戦略正本の更新 | 0 回 | S0 |
+| TCC-SR-11-3 | boundary | AC-SR-11-3 | 3 版すべて存在し連鎖が完全 | 差分なし | なし（拒否はトリガ層） | 中間版の削除・連鎖の切断 | 0 回 | S0 |
+| TCC-SR-11-4 | reject | AC-SR-11-4 | 3 版のまま | 差分なし | なし（拒否はトリガ層） | 履歴件数の減少 | 0 回 | S0 |
+| TCC-SR-15-3 | boundary | AC-SR-15-3 | S0 部分は同一・追加分のみ増加 | S0 テーブル定義の差分なし | migration 実行ログ | S0 テーブル・トリガの変更や削除 | 0 回 | S0 |
+| TCC-SR-15-4 | reject | AC-SR-15-4 | ゲート NG（縮小検出） | 差分なし（検査のみ） | ゲート実行ログ | 縮小・降格の PASS 通過 | 0 回 | S0 |
 
 検証手段（method）の全文は JSON 正本を参照。

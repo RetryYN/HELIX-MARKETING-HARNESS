@@ -233,6 +233,25 @@
       ]
     },
     {
+      "id": "AC-13-5",
+      "target": "FR-13",
+      "polarity": "reject",
+      "given": "検証 FAIL の差戻し要求から差戻し理由（reason）と verifier 証跡参照を除いた入力",
+      "when": "verify_fail 遷移を要求する",
+      "then": "理由・証跡のない FAIL 遷移は VerificationEvidenceMissing で拒否され、task は verifying のまま",
+      "fixture": "seed: verifying 状態の task 1 件、reason=None・evidence_id=None の遷移要求",
+      "observation_point": "raise される例外型／tasks.status／state_transitions 件数",
+      "expected_state": "task は verifying のまま",
+      "expected_db_delta": "state_transitions 差分なし・tasks 差分なし",
+      "expected_evidence": "拒否の構造化ログ（理由欠落）",
+      "forbidden_side_effects": "理由なし差戻しの成立・retry_count の増加",
+      "error_type": "VerificationEvidenceMissing",
+      "target_update": "S0.1（検証マイクロループ）",
+      "tc": [
+        "TCC-13-5"
+      ]
+    },
+    {
       "id": "AC-14-1",
       "target": "FR-14",
       "polarity": "normal",
@@ -404,6 +423,25 @@
       ]
     },
     {
+      "id": "AC-16-4",
+      "target": "FR-16",
+      "polarity": "reject",
+      "given": "承認 decision = rejected を受けた task",
+      "when": "escalate 遷移（人へのエスカレーション）を要求する",
+      "then": "rejected は escalate 経路に乗らず TransitionRejected となり、non_retryable_failure 経由の failed のみが許される",
+      "fixture": "seed: approvals.decision='rejected' に紐づく in_progress task",
+      "observation_point": "raise される例外型／tasks.status",
+      "expected_state": "task は in_progress のまま（escalated にならない）",
+      "expected_db_delta": "tasks 差分なし",
+      "expected_evidence": "拒否の構造化ログ（rejected は escalate 対象外）",
+      "forbidden_side_effects": "rejected からの escalated 遷移の成立",
+      "error_type": "TransitionRejected",
+      "target_update": "S0.1（異常検知・エスカレーション）",
+      "tc": [
+        "TCC-16-4"
+      ]
+    },
+    {
       "id": "AC-21-1",
       "target": "FR-21",
       "polarity": "normal",
@@ -458,6 +496,25 @@
       "target_update": "S0.2（ゲート層）／pair 失効と再成立",
       "tc": [
         "TCC-21-3"
+      ]
+    },
+    {
+      "id": "AC-21-4",
+      "target": "FR-21",
+      "polarity": "reject",
+      "given": "pair 未成立の企画に対し、バイパスを意図した config 行（例: pair_bypass=true）が投入された状態",
+      "when": "公開系コネクタを呼び出す",
+      "then": "config の如何にかかわらず PairNotEstablished で拒否される（バイパス経路が存在しない）",
+      "fixture": "seed: pair_plan_quality に対応行なし、config に pair_bypass=true を INSERT",
+      "observation_point": "raise される例外型／外部呼出回数",
+      "expected_state": "公開未実行",
+      "expected_db_delta": "assets・evidence 差分なし",
+      "expected_evidence": "拒否の構造化ログ（bypass 不能）",
+      "forbidden_side_effects": "config によるゲート無効化・外部 HTTP 呼出（0 回であること）",
+      "error_type": "PairNotEstablished",
+      "target_update": "S0.1（ペアゲート）",
+      "tc": [
+        "TCC-21-4"
       ]
     },
     {
@@ -572,6 +629,25 @@
       "target_update": "S0.2（ゲート層）",
       "tc": [
         "TCC-23-3"
+      ]
+    },
+    {
+      "id": "AC-23-4",
+      "target": "FR-23",
+      "polarity": "reject",
+      "given": "有料指標の登録要求に対し、解除を意図した config 行（例: zero_ad_gate_off=true）が投入された状態",
+      "when": "CAC/ROAS 型の KPI ノード登録を要求する",
+      "then": "config の如何にかかわらず PaidMetricRejected で拒否される（PO でも解除できない機械制約）",
+      "fixture": "seed: config に zero_ad_gate_off=true、登録要求 {type:'CAC'}",
+      "observation_point": "raise される例外型／kpi_nodes 件数",
+      "expected_state": "kpi_nodes に有料指標なし",
+      "expected_db_delta": "kpi_nodes 差分なし",
+      "expected_evidence": "拒否の構造化ログ（解除不能）",
+      "forbidden_side_effects": "config によるゼロ広告費ゲートの無効化",
+      "error_type": "PaidMetricRejected",
+      "target_update": "S0.2（ゲート層）",
+      "tc": [
+        "TCC-23-4"
       ]
     },
     {
@@ -879,6 +955,25 @@
       ]
     },
     {
+      "id": "AC-28-4",
+      "target": "FR-28",
+      "polarity": "boundary-recovery",
+      "given": "必須証跡を 1 件欠く task（他は充足）と、その時点の retry_count・状態",
+      "when": "done 遷移を複数回連続で要求する",
+      "then": "毎回 EvidenceIncomplete で拒否され、task の状態・retry_count・証跡は一切変化しない（拒否は副作用を持たない）",
+      "fixture": "seed: verifying 状態 task、必須証跡 3 件中 2 件のみ登録、retry_count=1",
+      "observation_point": "tasks 行のスナップショット比較（前後）／evidence 件数",
+      "expected_state": "task は verifying・retry_count=1 のまま",
+      "expected_db_delta": "tasks・evidence 差分なし（3 回試行後も同一）",
+      "expected_evidence": "拒否の構造化ログ 3 件",
+      "forbidden_side_effects": "retry_count の増加・状態変化・証跡の自動補完",
+      "error_type": "EvidenceIncomplete",
+      "target_update": "S0.3（証跡完備検証）",
+      "tc": [
+        "TCC-28-4"
+      ]
+    },
+    {
       "id": "AC-31-1",
       "target": "FR-31",
       "polarity": "normal",
@@ -1069,6 +1164,25 @@
       ]
     },
     {
+      "id": "AC-33-5",
+      "target": "FR-33",
+      "polarity": "reject",
+      "given": "reason を空にした config 変更要求",
+      "when": "config の値を変更する",
+      "then": "ConfigReasonMissing で拒否され、config に新しい履歴行が生まれない",
+      "fixture": "seed: config に既存行 1 件、変更要求 reason=''",
+      "observation_point": "raise される例外型／config 行数",
+      "expected_state": "config は既存 1 行のまま",
+      "expected_db_delta": "config 差分なし",
+      "expected_evidence": "拒否の構造化ログ（reason 必須）",
+      "forbidden_side_effects": "reason なし変更行の INSERT",
+      "error_type": "ConfigReasonMissing",
+      "target_update": "S0.1（設定管理）",
+      "tc": [
+        "TCC-33-5"
+      ]
+    },
+    {
       "id": "AC-34-1",
       "target": "FR-34",
       "polarity": "normal",
@@ -1199,6 +1313,25 @@
       "target_update": "S0.1（経路レジストリ）／登録検証",
       "tc": [
         "TCC-41-4"
+      ]
+    },
+    {
+      "id": "AC-41-5",
+      "target": "FR-41",
+      "polarity": "boundary-recovery",
+      "given": "新媒体をレジストリ行・ワークフロー・攻略地図の追加のみで登録した状態（外殻コードは未変更）",
+      "when": "その媒体のタスクを 1 件実行し、続けて kernel/gates の import グラフを検査する",
+      "then": "タスクは正常に実行され、kernel・gates 層のモジュールに媒体固有の import・分岐が増えていない（外殻非侵襲）",
+      "fixture": "seed: registry に新媒体行、workflows に 1 本、playbooks に地図 1 件",
+      "observation_point": "タスク実行結果／import-linter の層検査結果",
+      "expected_state": "タスク done・層違反 0",
+      "expected_db_delta": "tasks +1 行・registry/workflows/playbooks のみ増加",
+      "expected_evidence": "タスクの operation_log",
+      "forbidden_side_effects": "kernel・gates への媒体固有コードの混入",
+      "error_type": "なし",
+      "target_update": "S0.1（コネクタ選定）",
+      "tc": [
+        "TCC-41-5"
       ]
     },
     {
@@ -1564,6 +1697,25 @@
       ]
     },
     {
+      "id": "AC-47-4",
+      "target": "FR-47",
+      "polarity": "reject",
+      "given": "外部操作の記録要求に、認証トークンを含む payload が渡された状態",
+      "when": "operation の evidence 記録を実行する",
+      "then": "CredentialLeakDetected で拒否されるか、秘匿情報がマスクされた形でのみ記録される（生の秘密は evidence に残らない）",
+      "fixture": "seed: payload に 'Bearer sk-live-****' を含む外部操作記録要求",
+      "observation_point": "raise される例外型／evidence 行の本文検査",
+      "expected_state": "秘密が evidence 本文に存在しない",
+      "expected_db_delta": "evidence は 0 行または マスク済み 1 行",
+      "expected_evidence": "マスク済み証跡（秘密は伏字）",
+      "forbidden_side_effects": "生の認証情報の evidence・ログへの出力",
+      "error_type": "CredentialLeakDetected",
+      "target_update": "S0.1（秘密管理）",
+      "tc": [
+        "TCC-47-4"
+      ]
+    },
+    {
       "id": "AC-51-1",
       "target": "FR-51",
       "polarity": "normal",
@@ -1618,6 +1770,25 @@
       "target_update": "S0.2（制作層）／renderer の再開経路",
       "tc": [
         "TCC-51-3"
+      ]
+    },
+    {
+      "id": "AC-51-4",
+      "target": "FR-51",
+      "polarity": "reject",
+      "given": "本番 WP のエンドポイントを指す書込み要求（Docker WP 以外）",
+      "when": "レンダリング成果物の publish を実行する",
+      "then": "WpTargetDenied で拒否され、外部 HTTP 呼出が 0 回である（環境契約 §6）",
+      "fixture": "seed: config.wp_endpoint='`https://prod.example.com/wp-json`'（Docker 以外）",
+      "observation_point": "raise される例外型／外部呼出回数の計測",
+      "expected_state": "publish 未実行",
+      "expected_db_delta": "assets・external_operations 差分なし",
+      "expected_evidence": "拒否の構造化ログ（本番 WP 遮断）",
+      "forbidden_side_effects": "本番 WP への HTTP 呼出（0 回であること）",
+      "error_type": "WpTargetDenied",
+      "target_update": "S0.1（制作パイプライン）",
+      "tc": [
+        "TCC-51-4"
       ]
     },
     {
@@ -1792,6 +1963,25 @@
       ]
     },
     {
+      "id": "AC-54-4",
+      "target": "FR-54",
+      "polarity": "boundary-recovery",
+      "given": "審査 PASS 済みの成果物ソースに 1 文字の変更を加えた状態（新 commit）",
+      "when": "旧 PASS レコードを参照して公開を要求する",
+      "then": "新 hash と PASS 記録の hash が一致せず PairNotEstablished で拒否される（版すり替えの構造的排除）",
+      "fixture": "seed: PASS レコード（commit hash A）と、1 文字変更後の hash B のワークスペース",
+      "observation_point": "raise される例外型／hash 比較結果",
+      "expected_state": "公開未実行",
+      "expected_db_delta": "assets 差分なし",
+      "expected_evidence": "拒否の構造化ログ（hash 不一致）",
+      "forbidden_side_effects": "旧 PASS の新版への流用",
+      "error_type": "PairNotEstablished",
+      "target_update": "S0.1（版管理）",
+      "tc": [
+        "TCC-54-4"
+      ]
+    },
+    {
       "id": "AC-55-1",
       "target": "FR-55",
       "polarity": "normal",
@@ -1925,6 +2115,25 @@
       ]
     },
     {
+      "id": "AC-61-5",
+      "target": "FR-61",
+      "polarity": "reject",
+      "given": "5 階層（露出/マイクロCV/転換/関係/収益）のいずれにも属さない層を指定した KPI ノード登録要求",
+      "when": "KPI ノードを登録する",
+      "then": "KpiLayerRejected で拒否され、階層外ノードが kpi_nodes に存在しない",
+      "fixture": "seed: layer='ブランド好感度' の登録要求（5 層外）",
+      "observation_point": "raise される例外型／kpi_nodes の layer 集合",
+      "expected_state": "kpi_nodes に層外ノードなし",
+      "expected_db_delta": "kpi_nodes 差分なし",
+      "expected_evidence": "拒否の構造化ログ（層外）",
+      "forbidden_side_effects": "層外ノードの INSERT",
+      "error_type": "KpiLayerRejected",
+      "target_update": "S0.1（KPI ツリー）",
+      "tc": [
+        "TCC-61-5"
+      ]
+    },
+    {
       "id": "AC-62-1",
       "target": "FR-62",
       "polarity": "normal",
@@ -1979,6 +2188,44 @@
       "target_update": "S0.3（計測層）／importer の transaction・空境界",
       "tc": [
         "TCC-62-3"
+      ]
+    },
+    {
+      "id": "AC-62-4",
+      "target": "FR-62",
+      "polarity": "boundary-recovery",
+      "given": "同一の計測エクスポートファイル（同一 hash）",
+      "when": "取り込みを 2 回連続で実行する",
+      "then": "2 回目は冪等キーで検出され measurements の行数が増えない（重複投入なし）",
+      "fixture": "seed: 計測 CSV 1 件（hash H）、1 回目取込済み",
+      "observation_point": "measurements の件数比較／取込 API 戻り値",
+      "expected_state": "measurements は 1 回目と同数",
+      "expected_db_delta": "measurements 差分なし（2 回目）",
+      "expected_evidence": "取込スキップの構造化ログ",
+      "forbidden_side_effects": "同一 hash の二重投入",
+      "error_type": "なし",
+      "target_update": "S0.1（計測取り込み）",
+      "tc": [
+        "TCC-62-4"
+      ]
+    },
+    {
+      "id": "AC-62-5",
+      "target": "FR-62",
+      "polarity": "reject",
+      "given": "取得証跡（ファイル hash・スクショ）を伴わない手入力の計測値",
+      "when": "measurements への投入を実行する",
+      "then": "MeasurementEvidenceMissing で拒否され、手入力値が実測として保存されない",
+      "fixture": "seed: evidence 参照なしの measurement 投入要求",
+      "observation_point": "raise される例外型／measurements 件数",
+      "expected_state": "measurements 差分なし",
+      "expected_db_delta": "measurements 差分なし",
+      "expected_evidence": "拒否の構造化ログ（証跡必須）",
+      "forbidden_side_effects": "証跡なし実測の保存",
+      "error_type": "MeasurementEvidenceMissing",
+      "target_update": "S0.1（計測取り込み）",
+      "tc": [
+        "TCC-62-5"
       ]
     },
     {
@@ -2170,6 +2417,25 @@
       "tc": [
         "TCC-72-3",
         "TCC-RESUME-2"
+      ]
+    },
+    {
+      "id": "AC-72-4",
+      "target": "FR-72",
+      "polarity": "boundary-recovery",
+      "given": "version N の migration が途中失敗した DB（schema_version は N-1 のまま）",
+      "when": "同じ version N の内容を書き換えて再適用しようとし、続いて version N+1 で修正を適用する",
+      "then": "version N の書換えは MigrationImmutable で拒否され、N+1 の追加適用のみが成功する（前方参照のみ）",
+      "fixture": "seed: schema_version=N-1、失敗した N の記録",
+      "observation_point": "raise される例外型／schema_version の値",
+      "expected_state": "schema_version は N+1（N の書換えは不成立）",
+      "expected_db_delta": "schema_version 行は追記のみ（N の UPDATE なし）",
+      "expected_evidence": "migration 実行ログ",
+      "forbidden_side_effects": "既存 version 行の UPDATE・後方参照の migration",
+      "error_type": "MigrationImmutable",
+      "target_update": "S0.1（migration）",
+      "tc": [
+        "TCC-72-4"
       ]
     },
     {
@@ -2574,6 +2840,25 @@
       ]
     },
     {
+      "id": "AC-SR-06-4",
+      "target": "SR-06",
+      "polarity": "reject",
+      "given": "既存 active brief と、supersedes_id を持たない同一 strategic_choice の新 brief",
+      "when": "新 brief を発行する",
+      "then": "BriefSupersedesRequired で拒否される（改訂は supersedes_id 経由の新版のみ）",
+      "fixture": "seed: active brief 1 件、supersedes_id=None の改訂 brief",
+      "observation_point": "raise される例外型／strategic_briefs 件数",
+      "expected_state": "strategic_briefs は 1 件のまま",
+      "expected_db_delta": "strategic_briefs 差分なし",
+      "expected_evidence": "拒否の構造化ログ（supersedes 必須）",
+      "forbidden_side_effects": "supersedes なし改訂の INSERT・旧版の内容変更",
+      "error_type": "BriefSupersedesRequired",
+      "target_update": "S0.1（brief 発行）",
+      "tc": [
+        "TCC-SR-06-4"
+      ]
+    },
+    {
       "id": "AC-SR-02",
       "target": "SR-07",
       "polarity": "reject",
@@ -2789,6 +3074,25 @@
       ]
     },
     {
+      "id": "AC-SR-09-3",
+      "target": "SR-09",
+      "polarity": "reject",
+      "given": "KPI 計測値が閾値を跨いだ状態（measurements の新規行）",
+      "when": "計測処理から意味モデル正本（strategic_briefs 等）の更新を試みる",
+      "then": "書込み経路が存在せず、trigger により IntegrityError（append-only）で拒否される（KPI→戦略の自動書込みは不在）",
+      "fixture": "seed: measurements に閾値超過行を INSERT した直後の状態",
+      "observation_point": "計測処理後の strategic_briefs スナップショット比較／直接 DML の例外",
+      "expected_state": "意味モデル正本は無変更",
+      "expected_db_delta": "strategic_briefs 差分なし",
+      "expected_evidence": "なし（拒否はトリガ層）",
+      "forbidden_side_effects": "KPI 変動を契機とする戦略正本の更新",
+      "error_type": "IntegrityError（append-only）",
+      "target_update": "S0.1（上流正本保護）",
+      "tc": [
+        "TCC-SR-09-3"
+      ]
+    },
+    {
       "id": "AC-SR-10-1",
       "target": "SR-10",
       "polarity": "normal",
@@ -2902,6 +3206,44 @@
       "target_update": "S0.1（DU-10 — トリガ WHEN 境界）",
       "tc": [
         "TCC-SR-11-2"
+      ]
+    },
+    {
+      "id": "AC-SR-11-3",
+      "target": "SR-11",
+      "polarity": "boundary-recovery",
+      "given": "v1→v2→v3 と supersedes_id で連鎖した 3 版",
+      "when": "v2 の削除を試み、続いて v3 から v1 までの履歴を復元する",
+      "then": "v2 の削除は IntegrityError（append-only）で拒否され、v3→v2→v1 の連鎖が途切れず復元できる",
+      "fixture": "seed: supersedes 連鎖 3 版（v1/v2/v3）",
+      "observation_point": "DELETE の例外／supersedes_id を辿る再帰クエリの結果",
+      "expected_state": "3 版すべて存在し連鎖が完全",
+      "expected_db_delta": "差分なし",
+      "expected_evidence": "なし（拒否はトリガ層）",
+      "forbidden_side_effects": "中間版の削除・連鎖の切断",
+      "error_type": "IntegrityError（append-only）",
+      "target_update": "S0.1（append-only 版管理）",
+      "tc": [
+        "TCC-SR-11-3"
+      ]
+    },
+    {
+      "id": "AC-SR-11-4",
+      "target": "SR-11",
+      "polarity": "reject",
+      "given": "履歴 3 版のうち古い 2 版を一括削除する要求（分母縮小の試み）",
+      "when": "DELETE を実行する",
+      "then": "すべて IntegrityError（append-only）で拒否され、履歴件数が減らない（縮小が構造的に不可能）",
+      "fixture": "seed: supersedes 連鎖 3 版",
+      "observation_point": "DELETE の例外／strategic_briefs 件数",
+      "expected_state": "3 版のまま",
+      "expected_db_delta": "差分なし",
+      "expected_evidence": "なし（拒否はトリガ層）",
+      "forbidden_side_effects": "履歴件数の減少",
+      "error_type": "IntegrityError（append-only）",
+      "target_update": "S0.1（append-only 版管理）",
+      "tc": [
+        "TCC-SR-11-4"
       ]
     },
     {
@@ -3111,6 +3453,44 @@
       "target_update": "S0.1（G-BASELINE／ratchet）",
       "tc": [
         "TCC-SR-15-2"
+      ]
+    },
+    {
+      "id": "AC-SR-15-3",
+      "target": "SR-15",
+      "polarity": "boundary-recovery",
+      "given": "S0 スキーマが適用済みの DB（25 テーブル・トリガ 11）",
+      "when": "S1 相当のテーブル（意味モデル生成系）を追加する migration を適用する",
+      "then": "S0 の 25 テーブル・トリガ 11 が一切変更されずに新テーブルのみ増え、既存 STC が引き続き green である",
+      "fixture": "seed: S0 DDL 適用済み DB＋S1 追加 migration",
+      "observation_point": "テーブル・トリガ一覧の前後比較／既存テストの実行結果",
+      "expected_state": "S0 部分は同一・追加分のみ増加",
+      "expected_db_delta": "S0 テーブル定義の差分なし",
+      "expected_evidence": "migration 実行ログ",
+      "forbidden_side_effects": "S0 テーブル・トリガの変更や削除",
+      "error_type": "なし",
+      "target_update": "S0.1（スコープ境界）",
+      "tc": [
+        "TCC-SR-15-3"
+      ]
+    },
+    {
+      "id": "AC-SR-15-4",
+      "target": "SR-15",
+      "polarity": "reject",
+      "given": "分母（BR/REQ/FR/SR/AC/ゲート件数）を減らした正本と、confirmed を draft へ降格した文書",
+      "when": "整合ゲート（validate_requirements.py）を実行する",
+      "then": "G-BASE-RATCHET／G-BASE-STATUS が FAIL となり、縮小・降格が検出される（HELIX ratchet）",
+      "fixture": "seed: baseline.json 比で件数を減らした一時複製",
+      "observation_point": "ゲートの終了コードと FAIL 行",
+      "expected_state": "ゲート NG（縮小検出）",
+      "expected_db_delta": "差分なし（検査のみ）",
+      "expected_evidence": "ゲート実行ログ",
+      "forbidden_side_effects": "縮小・降格の PASS 通過",
+      "error_type": "RatchetViolation",
+      "target_update": "S0.1（ガバナンス）",
+      "tc": [
+        "TCC-SR-15-4"
       ]
     },
     {

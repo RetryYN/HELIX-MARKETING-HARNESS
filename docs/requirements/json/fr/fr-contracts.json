@@ -251,7 +251,8 @@
           "AC-13-1",
           "AC-13-2",
           "AC-13-3",
-          "AC-13-4"
+          "AC-13-4",
+          "AC-13-5"
         ],
         "fn": [
           "FN-103"
@@ -270,7 +271,8 @@
           "AC-13-4"
         ],
         [
-          "AC-13-2"
+          "AC-13-2",
+          "AC-13-5"
         ]
       ]
     },
@@ -302,7 +304,7 @@
         "サイクル長・回転数の変更は config 行のみで反映されコード変更を要しない（LP-R3・NFR-8）"
       ],
       "state_transitions": [
-        "sprints.status: planned→active（開始）／active→reviewing（期間終了・レビュー入り）／reviewing→completed（レビュー成立）／active→blocked（開始条件喪失・異常）。※ state_transitions テーブルの entity_type は loop_run/task のみのため、sprint の状態変化は sprints 行の列更新が正本（遷移ログの entity 拡張は S1 の expand migration で設計）"
+        "テーブル列: sprints.status: planned→active（開始）／active→reviewing（期間終了・レビュー入り）／reviewing→completed（レビュー成立）／active→blocked（開始条件喪失・異常）。※ state_transitions テーブルの entity_type は loop_run/task のみのため、sprint の状態変化は sprints 行の列更新が正本（遷移ログの entity 拡張は S1 の expand migration で設計）"
       ],
       "normal_behavior": "開始要求 → sprints.kpi_target_json と対応 kpi_nodes.target_json を検査（KPI 目標の存在 = 計画側の充足）→ 充足なら status を planned から active へ UPDATE。同条件は下位 loop_run の start ガード（§3.1 — sprint の KPI target 存在）でも二重に強制される。",
       "rejection_behavior": "kpi_target_json が空・対象 kpi_node の target 欠如・sprint 不在・planned 以外からの開始要求は SprintStartRejected を raise し、sprints 行を変更しない（fail-close）。当該 sprint に紐づく下位 loop_run の start も §3.1 ガードで拒否され、state_transitions に rejected で記録される。",
@@ -377,7 +379,7 @@
         "learnings の採否（accepted/superseded）は上位ループ側の判断であり、生成側は draft までしか進めない"
       ],
       "state_transitions": [
-        "learnings.status: draft→accepted（上位ループ取り込み）／draft→superseded（pair 失効・新版置換）。※ state_transitions ログの対象外（entity_type は loop_run/task のみ）の列更新であり、learnings 行が正本"
+        "テーブル列: learnings.status: draft→accepted（上位ループ取り込み）／draft→superseded（pair 失効・新版置換）。※ state_transitions ログの対象外（entity_type は loop_run/task のみ）の列更新であり、learnings 行が正本"
       ],
       "normal_behavior": "レビュー成立イベント受領 → 成立 pair_kpi_measure と計測根拠から summary・learning_json を決定的に構成 → learnings に INSERT（status = draft、source_pair_id つき）→ 上位ループ次回転の入力キューへ積む。下位 run 終端時はこの learnings が tactical_learning_packet の構成要素として上流へ還流する。",
       "rejection_behavior": "pair 未成立（passed 行なし）・revoked のみ・sprint が reviewing 以外は PairNotEstablished を、learning_json の schema 違反は LearningSchemaViolation を raise し、learnings に行を作らず上位キューにも積まない（fail-close）。",
@@ -504,7 +506,8 @@
         "ac": [
           "AC-16-1",
           "AC-16-2",
-          "AC-16-3"
+          "AC-16-3",
+          "AC-16-4"
         ],
         "fn": [
           "FN-110"
@@ -519,7 +522,8 @@
           "AC-16-2"
         ],
         [
-          "AC-16-2"
+          "AC-16-2",
+          "AC-16-4"
         ],
         [
           "AC-16-2",
@@ -594,7 +598,8 @@
         "ac": [
           "AC-21-1",
           "AC-21-2",
-          "AC-21-3"
+          "AC-21-3",
+          "AC-21-4"
         ],
         "fn": [
           "FN-201",
@@ -613,7 +618,8 @@
           "AC-21-3"
         ],
         [
-          "AC-21-2"
+          "AC-21-2",
+          "AC-21-4"
         ]
       ]
     },
@@ -644,7 +650,7 @@
         "レビュー成立イベントは成立済みペアからのみ発火する"
       ],
       "state_transitions": [
-        "sprints: reviewing→completed（レビュー成立イベントが駆動）"
+        "テーブル列: sprints.status: reviewing→completed（レビュー成立イベントが駆動）"
       ],
       "normal_behavior": "sprint のレビュー判定時に、KPI 目標が設定された各対象ノードについて (KPI 目標, 計測スナップショット) の両参照を検証し、揃ったノードのペアを pair_kpi_measure に passed で INSERT。全対象ノードのペア成立をもってレビュー成立イベントを発火し、learnings 生成（FR-15）と上位ループ還流の起点とする。",
       "rejection_behavior": "計測スナップショット不在・KPI 目標未設定・measurement の evidence FK 不整合はいずれも ReviewNotEstablished として不成立に倒し、レビュー成立イベントを発火せず learnings も生成しない。判定不能（target_json 破損等）も不成立側へ倒す（fail-close）。",
@@ -751,7 +757,8 @@
         "ac": [
           "AC-23-1",
           "AC-23-2",
-          "AC-23-3"
+          "AC-23-3",
+          "AC-23-4"
         ],
         "fn": [
           "FN-204"
@@ -767,7 +774,8 @@
           "AC-23-2"
         ],
         [
-          "AC-23-2"
+          "AC-23-2",
+          "AC-23-4"
         ]
       ]
     },
@@ -953,7 +961,7 @@
       "state_transitions": [
         "tasks: in_progress→failed（non_retryable_failure — 承認 decision = rejected）",
         "tasks: in_progress→escalated（escalate — expired が config.approval_retry_limit 到達）",
-        "approvals（テーブル列 decision — 状態機械外）: pending / approved / rejected / expired"
+        "テーブル列: approvals.decision: pending / approved / rejected / expired"
       ],
       "normal_behavior": "task の操作型を金銭操作型定義と照合し、該当時はオートモード判定より先に束縛承認を要求: approvals へ pending 行を INSERT しアプリ通知（対象・操作・時点を明記）→ ループを waiting 化 → decision = approved かつ binding 3 項目完全一致を確認 → evidence.kind = approval を記録してから外部操作（prepared→sent→confirmed）へ進む。",
       "rejection_behavior": "approved な approval なしの金銭系外部書込み要求は ApprovalRequired で拒否し WP/決済系 API を呼ばない。decision = rejected は non_retryable_failure イベントで task を failed に倒す（代替 task の発行は可）。操作型が金銭該当か判定不能な場合は金銭型として扱い承認を要求する（fail-close）。",
@@ -1166,7 +1174,8 @@
         "ac": [
           "AC-28-1",
           "AC-28-2",
-          "AC-28-3"
+          "AC-28-3",
+          "AC-28-4"
         ],
         "fn": [
           "FN-208"
@@ -1186,7 +1195,8 @@
           "AC-28-3"
         ],
         [
-          "AC-28-2"
+          "AC-28-2",
+          "AC-28-4"
         ]
       ]
     },
@@ -1405,7 +1415,8 @@
           "AC-33-1",
           "AC-33-2",
           "AC-33-3",
-          "AC-33-4"
+          "AC-33-4",
+          "AC-33-5"
         ],
         "fn": [
           "FN-305"
@@ -1420,7 +1431,8 @@
           "AC-33-2"
         ],
         [
-          "AC-33-2"
+          "AC-33-2",
+          "AC-33-5"
         ],
         [
           "AC-33-3"
@@ -1457,7 +1469,7 @@
         "複数プロファイルの共存がスキーマとして常に許される（profile_key UNIQUE のみが識別制約）"
       ],
       "state_transitions": [
-        "business_profiles: draft → active → archived（status CHECK — 別ブランド追加は型の再充填のみ）"
+        "テーブル列: business_profiles.status: draft → active → archived（status CHECK — 別ブランド追加は型の再充填のみ）"
       ],
       "normal_behavior": "新プロファイルは profile_json の型検証後に business_profiles へ INSERT され、既存プロファイルと共存する。全データアクセスはストア層で business_profile_id スコープを強制され、要求プロファイルの行のみが返る・書かれる。",
       "rejection_behavior": "他プロファイルに属する行への参照・書込み要求は CrossProfileAccessDenied を raise し、DB を変更せず拒否を証跡化する。profile_key 重複は UNIQUE 制約で ProfileKeyConflict。スコープ未指定のアクセスは deny-by-default で拒否（呼出側の自由 WHERE に依存しない）。",
@@ -1569,7 +1581,8 @@
           "AC-41-1",
           "AC-41-2",
           "AC-41-3",
-          "AC-41-4"
+          "AC-41-4",
+          "AC-41-5"
         ],
         "fn": [
           "FN-401",
@@ -1588,7 +1601,8 @@
           "AC-41-4"
         ],
         [
-          "AC-41-2"
+          "AC-41-2",
+          "AC-41-5"
         ]
       ]
     },
@@ -1625,7 +1639,7 @@
         "許可リスト外 URL への遷移は発生しない（FR-23 deny-by-default）"
       ],
       "state_transitions": [
-        "external_operations: prepared→sent→confirmed/rejected/unknown（書込み系操作ごと — s0-contract §1）"
+        "テーブル列: external_operations.status: prepared→sent→confirmed/rejected/unknown（書込み系操作ごと — s0-contract §1）"
       ],
       "normal_behavior": "操作要求を受け playbooks から手順を解決し、Playwright を config.browser.headed に従い起動。書込み系は external_operations を prepared でコミット→ Rng（seed 記録済み）で 1〜5 秒待機→ 送信し sent コミット→ 結果確定で confirmed とし operation_log 証跡を派生→ その後に状態遷移。成功時 playbooks.last_success_at を更新。読取り系は通常速度で実行し乱数待機を課さない。",
       "rejection_behavior": "playbooks 行なし/status=broken は PlaybookMissing/PlaybookBroken で拒否（自己修復は FR-43 へ委譲）。日次書込み上限超過は RateLimitExceeded で当日拒否。X 書込み要求は ProhibitedMediaWrite。許可リスト外 URL は UrlDenied（FR-23）。いずれも operation_log に理由を記録し外部送信を行わない（fail-close）。",
@@ -1720,7 +1734,7 @@
         "破損中（status=broken）の地図を参照する書込み操作は開始されない"
       ],
       "state_transitions": [
-        "playbooks.status: active→broken（破損検知）・broken→active（再生成成功）",
+        "テーブル列: playbooks.status: active→broken（破損検知）・broken→active（再生成成功）",
         "tasks: in_progress→escalated（再生成失敗, event=escalate — BR-H3）"
       ],
       "normal_behavior": "FR-42 からの失敗通知で破損を検知し playbooks.status を broken に更新・operation_log に記録。対象ページを読取り専用で再解析し、地図（selector_json/procedure_json）を再生成して検証手順（対象要素の存在確認）が通れば playbooks を UPDATE し status=active・consecutive_failures=0 とし、元操作の再実行を呼出元へ返す。",
@@ -1802,7 +1816,7 @@
         "REST 書込みはバースト上限 30 req/分・公開 10 件/日以内（MR-WP-5 — config.rate.wp.*）"
       ],
       "state_transitions": [
-        "external_operations: prepared→sent→confirmed/rejected/unknown（書込み操作ごと）",
+        "テーブル列: external_operations.status: prepared→sent→confirmed/rejected/unknown（書込み操作ごと）",
         "tasks: WF-WP-2 の in_progress→verifying 等は状態機械（FR-11）経由 — 本 FR は証跡化までを担う"
       ],
       "normal_behavior": "書込み要求のペア ID・endpoint・（公開時は）approval を検証し、external_operations を prepared でコミット→ REST 送信→ sent コミット→ WP 応答（post ID・リビジョン）で confirmed とし operation_log 証跡（response_hash・external_operation_id）を派生→ その後に状態遷移。公開時は canonical URL を published_url evidence と assets に登録。WP-CLI 構築系はテーマ解析結果を playbooks に保存。",
@@ -1898,7 +1912,7 @@
         "変更検知はポーリング（last_edited_time・分単位精度）でカーソルに余裕を持たせ取りこぼさない（BR-M-NOTION-2）"
       ],
       "state_transitions": [
-        "external_operations: prepared→sent→confirmed/rejected/unknown（書戻し操作ごと）"
+        "テーブル列: external_operations.status: prepared→sent→confirmed/rejected/unknown（書戻し操作ごと）"
       ],
       "normal_behavior": "スプリント開始時に Notion 計画ページを last_edited_time ポーリング（カーソルに分単位の余裕）で読取り、SQLite に draft 保存。レビュー成立時に結果要約を 2,000 字分割・3 req/秒以下のバッチで書戻し、external_operations を prepared→sent→confirmed で遷移させ operation_log 証跡を派生する。",
       "rejection_behavior": "Notion 応答不能・認証失効は NotionUnavailable として同期タスクのみ failed とし operation_log に記録 — ループ本体は SQLite のみで継続する（Notion 障害をループ停止に波及させない）。レート応答（429）は同期を中断しバックオフ後の次回バッチへ繰越す。書戻しデータに秘匿情報が混入した場合はマスキング検査で送信前に拒否（NFR-4）。",
@@ -1982,7 +1996,7 @@
       "state_transitions": [
         "tasks: in_progress→failed（non_retryable_failure — rejected）／in_progress→escalated（escalate — expired 上限到達）",
         "tasks: verifying→done（verify_pass — 承認証跡完備が前提）",
-        "approvals（テーブル列 decision — 状態機械外）: pending / approved / rejected / expired"
+        "テーブル列: approvals.decision: pending / approved / rejected / expired"
       ],
       "normal_behavior": "公開系タスクが承認要求を出すと binding 3 項目を明記した通知を Claude Code アプリへ送り、approvals に decision=pending で INSERT。応答受領で decision を更新し、approved なら approval evidence を登録して binding 3 項目の完全一致を条件に後続公開を許可する。オートモード移行は config.auto_mode_criteria と実績証跡から機械判定する（人手の主観判定を挟まない — BR-H2）。",
       "rejection_behavior": "rejected は non_retryable_failure として task を failed へ（再試行しない — 承認拒否は自動リトライ対象外）。公開時の binding 3 項目不一致は ApprovalBindingMismatch で公開拒否し operation_log に記録。承認なしの公開呼出しは ApprovalRequired で拒否（fail-close）。",
@@ -2119,7 +2133,8 @@
         "ac": [
           "AC-47-1",
           "AC-47-2",
-          "AC-47-3"
+          "AC-47-3",
+          "AC-47-4"
         ],
         "fn": [
           "FN-411"
@@ -2134,7 +2149,8 @@
           "AC-47-2"
         ],
         [
-          "AC-47-2"
+          "AC-47-2",
+          "AC-47-4"
         ],
         [
           "AC-47-2",
@@ -2220,7 +2236,8 @@
         "ac": [
           "AC-51-1",
           "AC-51-2",
-          "AC-51-3"
+          "AC-51-3",
+          "AC-51-4"
         ],
         "fn": [
           "FN-501",
@@ -2240,7 +2257,8 @@
           "AC-51-3"
         ],
         [
-          "AC-51-2"
+          "AC-51-2",
+          "AC-51-4"
         ]
       ]
     },
@@ -2479,7 +2497,8 @@
         "ac": [
           "AC-54-1",
           "AC-54-2",
-          "AC-54-3"
+          "AC-54-3",
+          "AC-54-4"
         ],
         "fn": [
           "FN-511"
@@ -2495,7 +2514,8 @@
           "AC-54-3"
         ],
         [
-          "AC-54-2"
+          "AC-54-2",
+          "AC-54-4"
         ]
       ]
     },
@@ -2612,7 +2632,7 @@
         "KPI ツリーは観測背骨であり、数値変化から戦略正本への自動書込みは行わない（BR-E1 禁止事項）"
       ],
       "state_transitions": [
-        "kpi_nodes.status: active→archived（ノード退役。削除はしない — FK RESTRICT）"
+        "テーブル列: kpi_nodes.status: active→archived（ノード退役。削除はしない — FK RESTRICT）"
       ],
       "normal_behavior": "登録要求の metric_type を FR-23 の有料指標定義と照合 → 非該当なら layer・medium・aggregation_formula を検証して kpi_nodes へ INSERT。集計は kpi_nodes×measurements の JOIN で媒体横断（layer 別・medium 別）に実行できる正規化を維持する。",
       "rejection_behavior": "有料指標型は PaidMetricRejected で登録拒否（アプリ層 FR-23 ＋ DDL CHECK(metric_type NOT IN ...) の二重で fail-close）。layer が 5 階層外・node_key 重複・親不在／別 profile の親指定は KpiNodeInvalid で拒否し operation_log に記録。",
@@ -2650,7 +2670,8 @@
           "AC-61-1",
           "AC-61-2",
           "AC-61-3",
-          "AC-61-4"
+          "AC-61-4",
+          "AC-61-5"
         ],
         "fn": [
           "FN-601",
@@ -2666,7 +2687,8 @@
           "AC-61-2"
         ],
         [
-          "AC-61-2"
+          "AC-61-2",
+          "AC-61-5"
         ],
         [
           "AC-61-4"
@@ -2752,7 +2774,9 @@
         "ac": [
           "AC-62-1",
           "AC-62-2",
-          "AC-62-3"
+          "AC-62-3",
+          "AC-62-4",
+          "AC-62-5"
         ],
         "fn": [
           "FN-602",
@@ -2769,10 +2793,12 @@
           "AC-62-3"
         ],
         [
-          "AC-62-3"
+          "AC-62-3",
+          "AC-62-4"
         ],
         [
-          "AC-62-2"
+          "AC-62-2",
+          "AC-62-5"
         ]
       ]
     },
@@ -2904,8 +2930,8 @@
       ],
       "tables": [
         "w: schema_version",
-        "w: 全 25 テーブル（DDL 生成対象）",
-        "r: config（sqlite_busy_timeout_ms）"
+        "r: config（sqlite_busy_timeout_ms）",
+        "参照: DDL 25 テーブル全体（s0-contract §2 が正準 — 個別列挙は正本の二重化になるため参照）"
       ],
       "external_deps": [],
       "config_values": [
@@ -2997,8 +3023,9 @@
       ],
       "tables": [
         "rw: schema_version",
-        "rw: 全業務テーブル（migration の対象）",
-        "r: tactical_learning_packets・loop_runs（TLP 孤児検査）"
+        "r: tactical_learning_packets・loop_runs（TLP 孤児検査）",
+        "参照: 全業務テーブル（migration の適用対象 — s0-contract §2 が正準）",
+        "rw: schema_version"
       ],
       "external_deps": [],
       "config_values": [],
@@ -3014,7 +3041,8 @@
         "ac": [
           "AC-72-1",
           "AC-72-2",
-          "AC-72-3"
+          "AC-72-3",
+          "AC-72-4"
         ],
         "fn": [
           "FN-702"
@@ -3032,7 +3060,8 @@
           "AC-72-2"
         ],
         [
-          "AC-72-3"
+          "AC-72-3",
+          "AC-72-4"
         ]
       ]
     },

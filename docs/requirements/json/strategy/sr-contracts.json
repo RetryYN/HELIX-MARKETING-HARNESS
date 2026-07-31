@@ -340,7 +340,7 @@
         "改訂は supersedes_id による新版 INSERT のみ"
       ],
       "state_transitions": [
-        "strategic_briefs: draft→active（発行）、active→superseded（新版発行時 — status 列のみ遷移可）、active→retired"
+        "テーブル列: strategic_briefs.status: draft→active（発行）、active→superseded（新版発行時 — status 列のみ遷移可）、active→retired"
       ],
       "normal_behavior": "brief draft を schema・trace・計測計画の実質性で検証 → 正準化 JSON の SHA-256 で digest を算出 → version・digest・status = active で strategic_briefs へ INSERT する（1 発行 = 1 transaction）。",
       "rejection_behavior": "trace ID 欠落・media_role 台帳外・計測計画が KPI 目標値だけ・schema 非適合は BriefSchemaRejected で INSERT せず operation_log に理由を記録する（fail-close）。digest 長 64 以外は DDL CHECK でも拒否。",
@@ -377,7 +377,8 @@
           "AC-SR-01",
           "AC-SR-06-1",
           "AC-SR-06-2",
-          "AC-SR-06-3"
+          "AC-SR-06-3",
+          "AC-SR-06-4"
         ],
         "cmp": [
           "SCM-02"
@@ -393,7 +394,8 @@
           "AC-SR-06-2"
         ],
         [
-          "AC-SR-06-2"
+          "AC-SR-06-2",
+          "AC-SR-06-4"
         ]
       ]
     },
@@ -620,7 +622,8 @@
         "ac": [
           "AC-SR-04",
           "AC-SR-09-1",
-          "AC-SR-09-2"
+          "AC-SR-09-2",
+          "AC-SR-09-3"
         ],
         "cmp": [
           "SCM-01",
@@ -636,7 +639,8 @@
           "AC-SR-09-2"
         ],
         [
-          "AC-SR-04"
+          "AC-SR-04",
+          "AC-SR-09-3"
         ]
       ]
     },
@@ -665,7 +669,7 @@
         "counter_evidence_ids は未評価時も空配列で明示される（省略不可）"
       ],
       "state_transitions": [
-        "意味モデル正本: active→superseded/retired（revision accepted・maintain 以外 — 新版 INSERT と同一 transaction）"
+        "テーブル列: strategic_briefs.status: active→superseded/retired（revision accepted・maintain 以外 — 新版 INSERT と同一 transaction）"
       ],
       "normal_behavior": "上流の改善工程が TLP・観測・反証・信頼度・時間差を評価して revision を起票 → 支持根拠 ≥2（重複なし）・反証明示・対象版一致を検証 → accepted なら（maintain 以外）新版 INSERT・旧版 status 遷移・revision 記録を単一 transaction で実行する。",
       "rejection_behavior": "支持根拠 0〜1 件・重複 ID による水増し・counter_evidence_ids 欠落・target_version 不一致・new_version_id 欠落（accepted かつ maintain 以外）は RevisionEvidenceRejected で拒否し、operation_log に理由を記録する（fail-close）。",
@@ -737,7 +741,7 @@
         "分母の縮小（履歴の削除）が構造的に不可能"
       ],
       "state_transitions": [
-        "strategic_briefs: active→superseded/retired（status 列のみ — 内容列は不変）"
+        "テーブル列: strategic_briefs.status: active→superseded/retired（status 列のみ — 内容列は不変）"
       ],
       "normal_behavior": "上流正本の変更はすべて supersedes_id を持つ新版行の INSERT として実行し、旧版は status のみ superseded/retired へ遷移する。reject された仮説も新版（status 付き）として履歴に残す。",
       "rejection_behavior": "内容列の UPDATE と行 DELETE は保護トリガが IntegrityError（メッセージに 'append-only'）で拒否する。FK 制約等の別要因ではなくトリガ自体が拒否主体であることをテストで区別する（AC-SR-05）。",
@@ -771,7 +775,9 @@
         "ac": [
           "AC-SR-05",
           "AC-SR-11-1",
-          "AC-SR-11-2"
+          "AC-SR-11-2",
+          "AC-SR-11-3",
+          "AC-SR-11-4"
         ],
         "cmp": [
           "SCM-01"
@@ -784,10 +790,12 @@
           "AC-SR-11-2"
         ],
         [
-          "AC-SR-11-2"
+          "AC-SR-11-2",
+          "AC-SR-11-3"
         ],
         [
-          "AC-SR-05"
+          "AC-SR-05",
+          "AC-SR-11-4"
         ]
       ]
     },
@@ -1042,7 +1050,9 @@
       "trace_down": {
         "ac": [
           "AC-SR-15-1",
-          "AC-SR-15-2"
+          "AC-SR-15-2",
+          "AC-SR-15-3",
+          "AC-SR-15-4"
         ],
         "cmp": [
           "SCM-01",
@@ -1052,18 +1062,17 @@
         ]
       },
       "slice": "S0",
-      "ac_na": {
-        "boundary-recovery": "S0 スコープ宣言（5 点の集合定義）であり、実行時の数量境界・クラッシュ復旧シナリオが存在しない。復旧系は構成要素の SR-06〜09/11 側 AC が担う。"
-      },
       "invariant_ac_map": [
         [
           "AC-SR-15-2"
         ],
         [
-          "AC-SR-15-2"
+          "AC-SR-15-2",
+          "AC-SR-15-3"
         ],
         [
-          "AC-SR-15-2"
+          "AC-SR-15-2",
+          "AC-SR-15-4"
         ]
       ]
     },

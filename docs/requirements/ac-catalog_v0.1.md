@@ -120,6 +120,15 @@
 - **禁止副作用**: done への遷移・review_pass 証跡の生成 ／ **エラー型**: SelfReviewRejected
 - **対象更新**: S0.1（審査ゲート）／verify_pass ガード ／ **TC**: TCC-13-4
 
+### AC-13-5（拒否）
+
+- **Given**: 検証 FAIL の差戻し要求から差戻し理由（reason）と verifier 証跡参照を除いた入力 ／ **When**: verify_fail 遷移を要求する ／ **Then**: 理由・証跡のない FAIL 遷移は VerificationEvidenceMissing で拒否され、task は verifying のまま
+- **fixture**: seed: verifying 状態の task 1 件、reason=None・evidence_id=None の遷移要求
+- **観測点**: raise される例外型／tasks.status／state_transitions 件数 ／ **期待状態**: task は verifying のまま
+- **期待 DB 差分**: state_transitions 差分なし・tasks 差分なし ／ **期待証跡**: 拒否の構造化ログ（理由欠落）
+- **禁止副作用**: 理由なし差戻しの成立・retry_count の増加 ／ **エラー型**: VerificationEvidenceMissing
+- **対象更新**: S0.1（検証マイクロループ） ／ **TC**: TCC-13-5
+
 ## FR-14
 
 ### AC-14-1（正常）
@@ -207,6 +216,15 @@
 - **禁止副作用**: 1 回目 expired での即時 escalate・expired の failed への誤分類（rejected と混同）・承認なしの公開実行 ／ **エラー型**: なし
 - **対象更新**: S0.2（CMP-11 承認通知＋CMP-01）／approval_retry_limit 境界 ／ **TC**: TCC-16-3
 
+### AC-16-4（拒否）
+
+- **Given**: 承認 decision = rejected を受けた task ／ **When**: escalate 遷移（人へのエスカレーション）を要求する ／ **Then**: rejected は escalate 経路に乗らず TransitionRejected となり、non_retryable_failure 経由の failed のみが許される
+- **fixture**: seed: approvals.decision='rejected' に紐づく in_progress task
+- **観測点**: raise される例外型／tasks.status ／ **期待状態**: task は in_progress のまま（escalated にならない）
+- **期待 DB 差分**: tasks 差分なし ／ **期待証跡**: 拒否の構造化ログ（rejected は escalate 対象外）
+- **禁止副作用**: rejected からの escalated 遷移の成立 ／ **エラー型**: TransitionRejected
+- **対象更新**: S0.1（異常検知・エスカレーション） ／ **TC**: TCC-16-4
+
 ## FR-21
 
 ### AC-21-1（正常）
@@ -235,6 +253,15 @@
 - **期待 DB 差分**: pair_plan_quality +1 行（新 passed）、operation_log +1 行（1 回目拒否） ／ **期待証跡**: operation_log 拒否行（理由 = pair revoked）＋新 review_pass 証跡
 - **禁止副作用**: revoked 行の passed への書き戻し・revoked ペアでの外部書込み ／ **エラー型**: PairNotEstablished（1 回目）／なし（2 回目）
 - **対象更新**: S0.2（ゲート層）／pair 失効と再成立 ／ **TC**: TCC-21-3
+
+### AC-21-4（拒否）
+
+- **Given**: pair 未成立の企画に対し、バイパスを意図した config 行（例: pair_bypass=true）が投入された状態 ／ **When**: 公開系コネクタを呼び出す ／ **Then**: config の如何にかかわらず PairNotEstablished で拒否される（バイパス経路が存在しない）
+- **fixture**: seed: pair_plan_quality に対応行なし、config に pair_bypass=true を INSERT
+- **観測点**: raise される例外型／外部呼出回数 ／ **期待状態**: 公開未実行
+- **期待 DB 差分**: assets・evidence 差分なし ／ **期待証跡**: 拒否の構造化ログ（bypass 不能）
+- **禁止副作用**: config によるゲート無効化・外部 HTTP 呼出（0 回であること） ／ **エラー型**: PairNotEstablished
+- **対象更新**: S0.1（ペアゲート） ／ **TC**: TCC-21-4
 
 ## FR-22
 
@@ -293,6 +320,15 @@
 - **期待 DB 差分**: operation_log +1 行（拒否） ／ **期待証跡**: operation_log 拒否行（理由 = allowlist 未設定）
 - **禁止副作用**: URL 許可（fail-open） ／ **エラー型**: UrlDenied
 - **対象更新**: S0.2（ゲート層） ／ **TC**: TCC-23-3
+
+### AC-23-4（拒否）
+
+- **Given**: 有料指標の登録要求に対し、解除を意図した config 行（例: zero_ad_gate_off=true）が投入された状態 ／ **When**: CAC/ROAS 型の KPI ノード登録を要求する ／ **Then**: config の如何にかかわらず PaidMetricRejected で拒否される（PO でも解除できない機械制約）
+- **fixture**: seed: config に zero_ad_gate_off=true、登録要求 {type:'CAC'}
+- **観測点**: raise される例外型／kpi_nodes 件数 ／ **期待状態**: kpi_nodes に有料指標なし
+- **期待 DB 差分**: kpi_nodes 差分なし ／ **期待証跡**: 拒否の構造化ログ（解除不能）
+- **禁止副作用**: config によるゼロ広告費ゲートの無効化 ／ **エラー型**: PaidMetricRejected
+- **対象更新**: S0.2（ゲート層） ／ **TC**: TCC-23-4
 
 ## FR-24
 
@@ -448,6 +484,15 @@
 - **禁止副作用**: 未定義 kind の素通し（fail-open）・既存 workflow 行の required_evidence_json の書換え（rename/意味変更禁止 — 新 version で対応） ／ **エラー型**: EvidenceIncomplete（判定不能時も拒否種別を統一）
 - **対象更新**: S0.1（ゲート層）／宣言不正の fail-close と証跡追記による復旧 ／ **TC**: TCC-28-3
 
+### AC-28-4（境界・復旧）
+
+- **Given**: 必須証跡を 1 件欠く task（他は充足）と、その時点の retry_count・状態 ／ **When**: done 遷移を複数回連続で要求する ／ **Then**: 毎回 EvidenceIncomplete で拒否され、task の状態・retry_count・証跡は一切変化しない（拒否は副作用を持たない）
+- **fixture**: seed: verifying 状態 task、必須証跡 3 件中 2 件のみ登録、retry_count=1
+- **観測点**: tasks 行のスナップショット比較（前後）／evidence 件数 ／ **期待状態**: task は verifying・retry_count=1 のまま
+- **期待 DB 差分**: tasks・evidence 差分なし（3 回試行後も同一） ／ **期待証跡**: 拒否の構造化ログ 3 件
+- **禁止副作用**: retry_count の増加・状態変化・証跡の自動補完 ／ **エラー型**: EvidenceIncomplete
+- **対象更新**: S0.3（証跡完備検証） ／ **TC**: TCC-28-4
+
 ## FR-31
 
 ### AC-31-1（正常）
@@ -544,6 +589,15 @@
 - **禁止副作用**: 同一 (key, changed_at) の重複行の混入 ／ **エラー型**: IntegrityError（UNIQUE constraint failed: config.key, config.changed_at）
 - **対象更新**: S0.1（config 管理）／UNIQUE 制約 ／ **TC**: TCC-33-4
 
+### AC-33-5（拒否）
+
+- **Given**: reason を空にした config 変更要求 ／ **When**: config の値を変更する ／ **Then**: ConfigReasonMissing で拒否され、config に新しい履歴行が生まれない
+- **fixture**: seed: config に既存行 1 件、変更要求 reason=''
+- **観測点**: raise される例外型／config 行数 ／ **期待状態**: config は既存 1 行のまま
+- **期待 DB 差分**: config 差分なし ／ **期待証跡**: 拒否の構造化ログ（reason 必須）
+- **禁止副作用**: reason なし変更行の INSERT ／ **エラー型**: ConfigReasonMissing
+- **対象更新**: S0.1（設定管理） ／ **TC**: TCC-33-5
+
 ## FR-34
 
 ### AC-34-1（正常）
@@ -610,6 +664,15 @@
 - **期待 DB 差分**: operation_log に拒否 1 行 ／ **期待証跡**: operation_log の拒否行（BR-M-X-4 理由つき）
 - **禁止副作用**: x の browser 書込み経路行の混入・後続経路解決での採用 ／ **エラー型**: XBrowserRouteDenied
 - **対象更新**: S0.1（経路レジストリ）／登録検証 ／ **TC**: TCC-41-4
+
+### AC-41-5（境界・復旧）
+
+- **Given**: 新媒体をレジストリ行・ワークフロー・攻略地図の追加のみで登録した状態（外殻コードは未変更） ／ **When**: その媒体のタスクを 1 件実行し、続けて kernel/gates の import グラフを検査する ／ **Then**: タスクは正常に実行され、kernel・gates 層のモジュールに媒体固有の import・分岐が増えていない（外殻非侵襲）
+- **fixture**: seed: registry に新媒体行、workflows に 1 本、playbooks に地図 1 件
+- **観測点**: タスク実行結果／import-linter の層検査結果 ／ **期待状態**: タスク done・層違反 0
+- **期待 DB 差分**: tasks +1 行・registry/workflows/playbooks のみ増加 ／ **期待証跡**: タスクの operation_log
+- **禁止副作用**: kernel・gates への媒体固有コードの混入 ／ **エラー型**: なし
+- **対象更新**: S0.1（コネクタ選定） ／ **TC**: TCC-41-5
 
 ## FR-42
 
@@ -794,6 +857,15 @@
 - **禁止副作用**: 期限切れセッションでの外部送信・テスト credential の本番 endpoint 使用（fail-open）・再投入値の SQLite 保存 ／ **エラー型**: SecretUnavailable（期限切れ）／CredentialEndpointMismatch
 - **対象更新**: S0.2（CMP-07 秘匿ストア）／再投入・再開経路 ／ **TC**: TCC-47-3
 
+### AC-47-4（拒否）
+
+- **Given**: 外部操作の記録要求に、認証トークンを含む payload が渡された状態 ／ **When**: operation の evidence 記録を実行する ／ **Then**: CredentialLeakDetected で拒否されるか、秘匿情報がマスクされた形でのみ記録される（生の秘密は evidence に残らない）
+- **fixture**: seed: payload に 'Bearer sk-live-****' を含む外部操作記録要求
+- **観測点**: raise される例外型／evidence 行の本文検査 ／ **期待状態**: 秘密が evidence 本文に存在しない
+- **期待 DB 差分**: evidence は 0 行または マスク済み 1 行 ／ **期待証跡**: マスク済み証跡（秘密は伏字）
+- **禁止副作用**: 生の認証情報の evidence・ログへの出力 ／ **エラー型**: CredentialLeakDetected
+- **対象更新**: S0.1（秘密管理） ／ **TC**: TCC-47-4
+
 ## FR-51
 
 ### AC-51-1（正常）
@@ -822,6 +894,15 @@
 - **期待 DB 差分**: assets +1 行、evidence +1 行（file_hash）— WP への新規アップロード 0 回 ／ **期待証跡**: evidence 行（kind=file_hash、value=出力 SHA-256）
 - **禁止副作用**: 同一実体の二重アップロード・assets の重複行 ／ **エラー型**: なし
 - **対象更新**: S0.2（制作層）／renderer の再開経路 ／ **TC**: TCC-51-3
+
+### AC-51-4（拒否）
+
+- **Given**: 本番 WP のエンドポイントを指す書込み要求（Docker WP 以外） ／ **When**: レンダリング成果物の publish を実行する ／ **Then**: WpTargetDenied で拒否され、外部 HTTP 呼出が 0 回である（環境契約 §6）
+- **fixture**: seed: config.wp_endpoint='`https://prod.example.com/wp-json`'（Docker 以外）
+- **観測点**: raise される例外型／外部呼出回数の計測 ／ **期待状態**: publish 未実行
+- **期待 DB 差分**: assets・external_operations 差分なし ／ **期待証跡**: 拒否の構造化ログ（本番 WP 遮断）
+- **禁止副作用**: 本番 WP への HTTP 呼出（0 回であること） ／ **エラー型**: WpTargetDenied
+- **対象更新**: S0.1（制作パイプライン） ／ **TC**: TCC-51-4
 
 ## FR-52
 
@@ -910,6 +991,15 @@
 - **禁止副作用**: 同一 (task, kind, value) の重複行・不正桁数 hash の記録 ／ **エラー型**: InvalidCommitHash（不正桁のみ。重複再実行は正常収束）
 - **対象更新**: S0.2（制作層）／versioning の冪等・桁検査 ／ **TC**: TCC-54-3
 
+### AC-54-4（境界・復旧）
+
+- **Given**: 審査 PASS 済みの成果物ソースに 1 文字の変更を加えた状態（新 commit） ／ **When**: 旧 PASS レコードを参照して公開を要求する ／ **Then**: 新 hash と PASS 記録の hash が一致せず PairNotEstablished で拒否される（版すり替えの構造的排除）
+- **fixture**: seed: PASS レコード（commit hash A）と、1 文字変更後の hash B のワークスペース
+- **観測点**: raise される例外型／hash 比較結果 ／ **期待状態**: 公開未実行
+- **期待 DB 差分**: assets 差分なし ／ **期待証跡**: 拒否の構造化ログ（hash 不一致）
+- **禁止副作用**: 旧 PASS の新版への流用 ／ **エラー型**: PairNotEstablished
+- **対象更新**: S0.1（版管理） ／ **TC**: TCC-54-4
+
 ## FR-55
 
 ### AC-55-1（正常）
@@ -977,6 +1067,15 @@
 - **禁止副作用**: strategic_briefs の変更・KPI 起点の自動 revision 行の生成 ／ **エラー型**: IntegrityError（append-only）
 - **対象更新**: S0.1（KPI ツリー）／戦略正本保護トリガ ／ **TC**: TCC-61-4
 
+### AC-61-5（拒否）
+
+- **Given**: 5 階層（露出/マイクロCV/転換/関係/収益）のいずれにも属さない層を指定した KPI ノード登録要求 ／ **When**: KPI ノードを登録する ／ **Then**: KpiLayerRejected で拒否され、階層外ノードが kpi_nodes に存在しない
+- **fixture**: seed: layer='ブランド好感度' の登録要求（5 層外）
+- **観測点**: raise される例外型／kpi_nodes の layer 集合 ／ **期待状態**: kpi_nodes に層外ノードなし
+- **期待 DB 差分**: kpi_nodes 差分なし ／ **期待証跡**: 拒否の構造化ログ（層外）
+- **禁止副作用**: 層外ノードの INSERT ／ **エラー型**: KpiLayerRejected
+- **対象更新**: S0.1（KPI ツリー） ／ **TC**: TCC-61-5
+
 ## FR-62
 
 ### AC-62-1（正常）
@@ -1005,6 +1104,24 @@
 - **期待 DB 差分**: 再実行: measurements +10。空取込: evidence +1（value=S2、row_count=0）のみ ／ **期待証跡**: evidence（kind=measurement、value=S2、payload.row_count=0）
 - **禁止副作用**: 5 行だけの部分コミット残留・再実行での 15 行化 ／ **エラー型**: なし（注入クラッシュは transaction rollback で吸収）
 - **対象更新**: S0.3（計測層）／importer の transaction・空境界 ／ **TC**: TCC-62-3
+
+### AC-62-4（境界・復旧）
+
+- **Given**: 同一の計測エクスポートファイル（同一 hash） ／ **When**: 取り込みを 2 回連続で実行する ／ **Then**: 2 回目は冪等キーで検出され measurements の行数が増えない（重複投入なし）
+- **fixture**: seed: 計測 CSV 1 件（hash H）、1 回目取込済み
+- **観測点**: measurements の件数比較／取込 API 戻り値 ／ **期待状態**: measurements は 1 回目と同数
+- **期待 DB 差分**: measurements 差分なし（2 回目） ／ **期待証跡**: 取込スキップの構造化ログ
+- **禁止副作用**: 同一 hash の二重投入 ／ **エラー型**: なし
+- **対象更新**: S0.1（計測取り込み） ／ **TC**: TCC-62-4
+
+### AC-62-5（拒否）
+
+- **Given**: 取得証跡（ファイル hash・スクショ）を伴わない手入力の計測値 ／ **When**: measurements への投入を実行する ／ **Then**: MeasurementEvidenceMissing で拒否され、手入力値が実測として保存されない
+- **fixture**: seed: evidence 参照なしの measurement 投入要求
+- **観測点**: raise される例外型／measurements 件数 ／ **期待状態**: measurements 差分なし
+- **期待 DB 差分**: measurements 差分なし ／ **期待証跡**: 拒否の構造化ログ（証跡必須）
+- **禁止副作用**: 証跡なし実測の保存 ／ **エラー型**: MeasurementEvidenceMissing
+- **対象更新**: S0.1（計測取り込み） ／ **TC**: TCC-62-5
 
 ## FR-63
 
@@ -1101,6 +1218,15 @@
 - **期待 DB 差分**: 最終的に差分なし（適用→復元で相殺） ／ **期待証跡**: verify() の失敗結果ログ＋復元実施の記録
 - **禁止副作用**: verify() fail のままの運転継続・失敗した同一 version の書換え修正 ／ **エラー型**: MigrationVerifyFailed
 - **対象更新**: S0.1（DB 基盤）／backup 復元経路 ／ **TC**: TCC-72-3 TCC-RESUME-2
+
+### AC-72-4（境界・復旧）
+
+- **Given**: version N の migration が途中失敗した DB（schema_version は N-1 のまま） ／ **When**: 同じ version N の内容を書き換えて再適用しようとし、続いて version N+1 で修正を適用する ／ **Then**: version N の書換えは MigrationImmutable で拒否され、N+1 の追加適用のみが成功する（前方参照のみ）
+- **fixture**: seed: schema_version=N-1、失敗した N の記録
+- **観測点**: raise される例外型／schema_version の値 ／ **期待状態**: schema_version は N+1（N の書換えは不成立）
+- **期待 DB 差分**: schema_version 行は追記のみ（N の UPDATE なし） ／ **期待証跡**: migration 実行ログ
+- **禁止副作用**: 既存 version 行の UPDATE・後方参照の migration ／ **エラー型**: MigrationImmutable
+- **対象更新**: S0.1（migration） ／ **TC**: TCC-72-4
 
 ## FR-73
 
@@ -1305,6 +1431,15 @@
 - **禁止副作用**: 異なる内容への同一 digest 付与・不一致 digest での run 作成 ／ **エラー型**: GateRejected
 - **対象更新**: S0.1（戦略ストア）／canonical_digest・開始ガード ／ **TC**: STC-I-04 TCC-SR-06-3
 
+### AC-SR-06-4（拒否）
+
+- **Given**: 既存 active brief と、supersedes_id を持たない同一 strategic_choice の新 brief ／ **When**: 新 brief を発行する ／ **Then**: BriefSupersedesRequired で拒否される（改訂は supersedes_id 経由の新版のみ）
+- **fixture**: seed: active brief 1 件、supersedes_id=None の改訂 brief
+- **観測点**: raise される例外型／strategic_briefs 件数 ／ **期待状態**: strategic_briefs は 1 件のまま
+- **期待 DB 差分**: strategic_briefs 差分なし ／ **期待証跡**: 拒否の構造化ログ（supersedes 必須）
+- **禁止副作用**: supersedes なし改訂の INSERT・旧版の内容変更 ／ **エラー型**: BriefSupersedesRequired
+- **対象更新**: S0.1（brief 発行） ／ **TC**: TCC-SR-06-4
+
 ## SR-07
 
 ### AC-SR-02（拒否）
@@ -1410,6 +1545,15 @@
 - **禁止副作用**: 推奨の蓄積による brief の自動 supersede・status 自動遷移 ／ **エラー型**: なし
 - **対象更新**: S0.1（DU-02/10 — 推奨≠決定の境界） ／ **TC**: TCC-SR-09-2
 
+### AC-SR-09-3（拒否）
+
+- **Given**: KPI 計測値が閾値を跨いだ状態（measurements の新規行） ／ **When**: 計測処理から意味モデル正本（strategic_briefs 等）の更新を試みる ／ **Then**: 書込み経路が存在せず、trigger により IntegrityError（append-only）で拒否される（KPI→戦略の自動書込みは不在）
+- **fixture**: seed: measurements に閾値超過行を INSERT した直後の状態
+- **観測点**: 計測処理後の strategic_briefs スナップショット比較／直接 DML の例外 ／ **期待状態**: 意味モデル正本は無変更
+- **期待 DB 差分**: strategic_briefs 差分なし ／ **期待証跡**: なし（拒否はトリガ層）
+- **禁止副作用**: KPI 変動を契機とする戦略正本の更新 ／ **エラー型**: IntegrityError（append-only）
+- **対象更新**: S0.1（上流正本保護） ／ **TC**: TCC-SR-09-3
+
 ## SR-10
 
 ### AC-SR-10-1（正常）
@@ -1467,6 +1611,24 @@
 - **期待 DB 差分**: 許可 2 列の UPDATE のみ（内容差分なし） ／ **期待証跡**: IntegrityError の pytest 捕捉記録（トリガ主体の拒否 — FK 等の別要因でない）
 - **禁止副作用**: 内容列の部分更新・拒否時の行破損 ／ **エラー型**: IntegrityError（内容列 UPDATE 時）
 - **対象更新**: S0.1（DU-10 — トリガ WHEN 境界） ／ **TC**: TCC-SR-11-2
+
+### AC-SR-11-3（境界・復旧）
+
+- **Given**: v1→v2→v3 と supersedes_id で連鎖した 3 版 ／ **When**: v2 の削除を試み、続いて v3 から v1 までの履歴を復元する ／ **Then**: v2 の削除は IntegrityError（append-only）で拒否され、v3→v2→v1 の連鎖が途切れず復元できる
+- **fixture**: seed: supersedes 連鎖 3 版（v1/v2/v3）
+- **観測点**: DELETE の例外／supersedes_id を辿る再帰クエリの結果 ／ **期待状態**: 3 版すべて存在し連鎖が完全
+- **期待 DB 差分**: 差分なし ／ **期待証跡**: なし（拒否はトリガ層）
+- **禁止副作用**: 中間版の削除・連鎖の切断 ／ **エラー型**: IntegrityError（append-only）
+- **対象更新**: S0.1（append-only 版管理） ／ **TC**: TCC-SR-11-3
+
+### AC-SR-11-4（拒否）
+
+- **Given**: 履歴 3 版のうち古い 2 版を一括削除する要求（分母縮小の試み） ／ **When**: DELETE を実行する ／ **Then**: すべて IntegrityError（append-only）で拒否され、履歴件数が減らない（縮小が構造的に不可能）
+- **fixture**: seed: supersedes 連鎖 3 版
+- **観測点**: DELETE の例外／strategic_briefs 件数 ／ **期待状態**: 3 版のまま
+- **期待 DB 差分**: 差分なし ／ **期待証跡**: なし（拒否はトリガ層）
+- **禁止副作用**: 履歴件数の減少 ／ **エラー型**: IntegrityError（append-only）
+- **対象更新**: S0.1（append-only 版管理） ／ **TC**: TCC-SR-11-4
 
 ## SR-12
 
@@ -1574,6 +1736,24 @@
 - **期待 DB 差分**: 差分なし（検証のみ） ／ **期待証跡**: CI ログ（baseline 違反・ゲート名つき）
 - **禁止副作用**: 分母縮小・スコープ拡大の黙認（fail-open） ／ **エラー型**: GateFailure（CI exit 非 0）
 - **対象更新**: S0.1（G-BASELINE／ratchet） ／ **TC**: TCC-SR-15-2
+
+### AC-SR-15-3（境界・復旧）
+
+- **Given**: S0 スキーマが適用済みの DB（25 テーブル・トリガ 11） ／ **When**: S1 相当のテーブル（意味モデル生成系）を追加する migration を適用する ／ **Then**: S0 の 25 テーブル・トリガ 11 が一切変更されずに新テーブルのみ増え、既存 STC が引き続き green である
+- **fixture**: seed: S0 DDL 適用済み DB＋S1 追加 migration
+- **観測点**: テーブル・トリガ一覧の前後比較／既存テストの実行結果 ／ **期待状態**: S0 部分は同一・追加分のみ増加
+- **期待 DB 差分**: S0 テーブル定義の差分なし ／ **期待証跡**: migration 実行ログ
+- **禁止副作用**: S0 テーブル・トリガの変更や削除 ／ **エラー型**: なし
+- **対象更新**: S0.1（スコープ境界） ／ **TC**: TCC-SR-15-3
+
+### AC-SR-15-4（拒否）
+
+- **Given**: 分母（BR/REQ/FR/SR/AC/ゲート件数）を減らした正本と、confirmed を draft へ降格した文書 ／ **When**: 整合ゲート（validate_requirements.py）を実行する ／ **Then**: G-BASE-RATCHET／G-BASE-STATUS が FAIL となり、縮小・降格が検出される（HELIX ratchet）
+- **fixture**: seed: baseline.json 比で件数を減らした一時複製
+- **観測点**: ゲートの終了コードと FAIL 行 ／ **期待状態**: ゲート NG（縮小検出）
+- **期待 DB 差分**: 差分なし（検査のみ） ／ **期待証跡**: ゲート実行ログ
+- **禁止副作用**: 縮小・降格の PASS 通過 ／ **エラー型**: RatchetViolation
+- **対象更新**: S0.1（ガバナンス） ／ **TC**: TCC-SR-15-4
 
 ## SR-16
 
