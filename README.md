@@ -50,7 +50,13 @@ Codex CLI を実装エージェントとして登録済み（`.claude/agents/`�
 ## 現在地
 
 スライス駆動で構築中（L0 charter confirmed 2026-07-30）。
-**要件定義＋基本設計＋詳細設計 完遂・全文書 confirmed（2026-07-31 PO 承認）** — §99 全 8 判断クローズ、
+
+**⚠ 2026-08-01 PO 指示: 全層 再監査中（粒度是正）** — ID・件数・参照・ペア構造は成立している一方、
+要求・要件・設計本文の意味粒度が HELIX-HARNESS 本体の品質基準に未達。要求定義→要件定義→基本設計→
+詳細設計→単体テスト設計を上流から再降下する（[粒度ギャップ監査](docs/governance/granularity-gap-audit-v0.1.md)）。
+**再降下完了まで S0.1 実装は停止**。以下の過去の「完遂」記述は履歴であり、現時点の品質保証を意味しない。
+
+要件定義＋基本設計＋詳細設計 一次完了・全文書 confirmed（2026-07-31 PO 承認）— §99 全 8 判断クローズ、
 整合ゲート CI 常時実行（件数の正本 = baseline.json の gate_count）、①↔③（TC 59）・②↔④（ITC 16）・
 ⑤↔⑥（DU 23／UTC 69）の HELIX 式文書ペア 3 層成立。
 **2026-08-01 外部レビュー対応（P0 是正）完遂** — 状態機械の決定性、DDL の lease/attempt/external_operations、
@@ -62,4 +68,5 @@ brief／TLP／revision の 3 契約、strategic_briefs・TLP テーブル（DDL 
 SR→AC-SR→STC-I→DU の一本線トレース、TLP の learning/failure 二分と DDL 整合トリガ、revision 原子性、
 全戦略 schema 閉鎖（additionalProperties: false・正準化 digest 規則）、python-ci 実働化
 （pytest/ruff/mypy/import-linter/shellcheck/actionlint/gitleaks — charter は v0.4 が唯一の北極星、v0.3 superseded）。
-次: **S0.1 実装**（DB・状態機械・ゲート・証跡 — s0-contract §7 の更新分割、CMP-01〜06 が対象）。
+次: **全層再降下（粒度是正）** → 完了後にのみ S0.1 実装を再開（DB・状態機械・ゲート・証跡 —
+s0-contract §7 の更新分割、CMP-01〜06 が対象）。

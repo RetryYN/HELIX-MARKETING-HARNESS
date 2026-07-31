@@ -65,3 +65,4 @@
 | 2026-08-01 | basic-design | v0.1 | confirmed | PO | 4dd6ad7a0d58 | 戦略ループ最終統合是正指示（/goal）による内容束縛承認（G-CONFIRM-DIGEST receipt） |
 | 2026-08-01 | detailed-design | v0.1 | confirmed | PO | cb06e217cb04 | 戦略ループ最終統合是正指示（/goal）による内容束縛承認（G-CONFIRM-DIGEST receipt） |
 | 2026-08-01 | integration-test-design | v0.1 | confirmed | PO | 91a172e61c2b | 戦略ループ最終統合是正指示（/goal）による内容束縛承認（G-CONFIRM-DIGEST receipt） |
+| 2026-08-01 | 全層再降下・粒度是正指示 | — | directive | PO | — | 要求定義からの全層再降下（/goal）。「完遂」表現を撤回し全層 再監査中へ。S0.1 実装は再降下完了＋Sol Go まで停止。分母削減禁止・追加/分解/詳細化のみ許可。基準正本 = TAKUMI_CMO／charter v0.4／HELIX-HARNESS main |

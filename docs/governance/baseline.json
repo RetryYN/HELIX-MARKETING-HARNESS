@@ -42,7 +42,7 @@
     ".github/workflows/docs-ci.yml": "d7772899814719583ec45f380e79d99f500b38f8c9e99eacaae5edb48dfced5c",
     ".github/workflows/python-ci.yml": "62b6dfb01fabe826c758641435e68776a9aa111c4e4da9cb47c777530cf61d24",
     "AGENTS.md": "49e65b4b8afe029bbd2b738a0900b9a7eadc67effd494fb0ac2ae19b60b427a9",
-    "CLAUDE.md": "bea9a202fa3d72a072dee86b8d40dcef9314cd454cb314aaef23d49a58338fe3",
+    "CLAUDE.md": "ed25edec068e53f2cf78039493dec5cfd276a54a5baa172cb5ab97ead0da721e",
     "docs/design/json/components.json": "dceba8ad2f3f75b896527b045a7af44f2fbf5065cb0f0c5160baba34a4b880cc",
     "docs/design/json/detailed.json": "997a911beb2e97d89b855c0570064d307c993cd8a5e07d84068e50988851a46d",
     "docs/design/json/itest.json": "33204874253a81d0b82c601b77653456e181800d87a5d6b84b72176706f9546b",

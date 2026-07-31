@@ -10,10 +10,12 @@
   戦略層は strategy-loop-requirements／strategy-learning-contract ↔ strategy-loop-design／
   strategy-loop-test-design のペア（SR 16／SCM 10／STC。JSON 正本 = json/strategy/）。
   DDL・状態遷移・evidence 型・WF 契約の正準は docs/requirements/s0-contract_v0.1.md。
-- 現在地: 要件定義＋基本設計＋詳細設計＋戦略層統合 完遂（全文書 confirmed）。次 = **S0.1 実装**
-  （CMP-01〜06 = DU-01〜12、⑥の割当テストを test-first で赤→実装 — 基本設計 §2・詳細設計 §3）。
-  S0.1 の完了条件には **STC-I-01〜06**（戦略層: brief digest 決定性・開始拒否・TLP 生成・直接変更不可・
-  append-only・run/brief/digest 整合 = AC-SR-01〜06）の pytest green を含む（python-ci が実行）。
+- 現在地: **全層 再監査中（2026-08-01 PO 指示 — 粒度是正の全層再降下）**。①〜⑥＋戦略層は一次
+  confirmed 済みだが、本文の意味粒度が HELIX-HARNESS 本体基準に未達のため、要求定義から単体テスト設計
+  まで上流から再降下する（基準: TAKUMI_CMO-Claude_Cowark／charter v0.4／HELIX-HARNESS 最新 main。
+  監査 = docs/governance/granularity-gap-audit-v0.1.md）。**再降下完了＋Sol の HELIX 基準ブラインド
+  レビュー Go まで S0.1 実装は停止**。再開後の S0.1 完了条件には **STC-I-01〜06**（AC-SR-01〜06）の
+  pytest green を含む（python-ci が実行）。
 
 ## 編集の鉄則（CI が fail-close で強制）
 
