@@ -10,7 +10,7 @@
   戦略層は strategy-loop-requirements／strategy-learning-contract ↔ strategy-loop-design／
   strategy-loop-test-design のペア（SR 16／SCM 10／STC。JSON 正本 = json/strategy/）。
   DDL・状態遷移・evidence 型・WF 契約の正準は docs/requirements/s0-contract_v0.1.md。
-- 現在地: **S0 スコープの設計クロージャー完了**（2026-08-01。S0 スケルトン＋要求/要件/検証契約の再降下＋
+- 現在地: **S0 設計クロージャー完了・独立レビュー Go**（2026-08-01。判定の正本 = docs/governance/reviews/sol-review-s0-design-02.json。S0 スケルトン＋要求/要件/検証契約の再降下＋
   S0 基本・詳細・単体テスト設計。**S1 以降は planned** — AC→TC→CMP/SCM→DU→API→UT の再降下が未完）。実装・検証の入力は
   **契約正本**（JSON）を用いる: BR = json/br/br-contracts.json／FR = json/fr/fr-contracts.json／
   SR = json/strategy/sr-contracts.json／NFR = json/nfr/nfr-contracts.json／AC = json/ac/ac-contracts.json／

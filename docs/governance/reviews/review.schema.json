@@ -13,7 +13,8 @@
     "findings",
     "resolution_commits",
     "verdict",
-    "completed_at"
+    "completed_at",
+    "rounds"
   ],
   "properties": {
     "review_id": {
