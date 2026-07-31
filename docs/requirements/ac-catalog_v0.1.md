@@ -272,7 +272,7 @@
 ### AC-24-1（正常）
 
 - **Given**: ASP ドメインへのアフィリエイトリンクと規定の PR 表記ブロックを両方含む commit 固定済み記事 ／ **When**: 公開前の PR 表記検証を実行する ／ **Then**: 表記検証に合格して公開ゲートを通過し、拒否ログは増えない
-- **fixture**: seed: config.affiliate_domainlist=['asp.example.test']、記事 HTML に <a href='`https://asp.example.test/...`'> と PR 表記ブロック（必須文言）を含む fixture ファイル
+- **fixture**: seed: config.affiliate_domainlist=['asp.example.test']、記事 HTML に アフィリエイトリンク（`https://asp.example.test/...`） と PR 表記ブロック（必須文言）を含む fixture ファイル
 - **観測点**: 検証 API の戻り値／operation_log 件数 ／ **期待状態**: T-PUB が公開ステップへ進行可能（表記検証 PASS）
 - **期待 DB 差分**: operation_log 差分なし ／ **期待証跡**: なし（正常通過。審査側 review_pass の checked_items に表記検証結果）
 - **禁止副作用**: operation_log への拒否行追加・表記なしでの通過 ／ **エラー型**: なし
