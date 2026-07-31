@@ -199,10 +199,43 @@ def render_cmp_contracts() -> tuple[Path, str]:
     return ROOT / "docs" / "design" / "cmp-contracts_v0.1.md", "".join(out)
 
 
+def render_du_contracts() -> tuple[Path, str]:
+    src = ROOT / "docs" / "design" / "json" / "du-contracts.json"
+    data = json.loads(src.read_text())
+    out = [GENERATED_HEADER.format(src="docs/design/json/du-contracts.json")]
+    out.append("# 詳細設計 実装契約（DU contracts）v" + data["version"] + "\n\n")
+    out.append("> status: **draft（再降下中）**（2026-08-01 全層再降下 §7 — JSON 内容正本の生成ビュー）\n")
+    out.append("> 各 DU に公開 API 署名・DbC・例外・tx 境界・冪等性・競合制御・AC/TC/UT 対応を必須化\n")
+    out.append("> （G-DU-API／G-DU-DBC／G-DU-ERROR／G-DU-DATA／G-API-UT）。\n\n")
+    for it in data["items"]:
+        out.append(f"## {it['id']} `{it['module']}`（{it['cmp']}）\n\n")
+        for api in it["apis"]:
+            out.append(f"### `{api['signature']}`\n\n")
+            out.append(f"- **pre**: {'／'.join(api['precondition'])}\n")
+            out.append(f"- **post**: {'／'.join(api['postcondition'])}\n")
+            raises = "／".join(f"`{r['type']}`（{r['when']}）" for r in api["raises"]) or "なし"
+            out.append(f"- **raises**: {raises} ／ **pure**: {'yes' if api['pure'] else 'no'}\n\n")
+        out.append(f"- **DTO・値オブジェクト**: {'／'.join(it['dtos']) or 'なし'}\n")
+        out.append(f"- **状態遷移**: {'／'.join(it['state_transitions']) or 'なし'}\n")
+        out.append(f"- **DB read**: {'／'.join(it['db_read']) or 'なし'} ／ **DB write**: {'／'.join(it['db_write']) or 'なし'}\n")
+        out.append(f"- **tx 境界**: {it['transaction_boundary']}\n")
+        out.append(f"- **pure／副作用端点**: {it['purity']}\n")
+        out.append(f"- **冪等性**: {it['idempotency']} ／ **retry/resume**: {it['retry_resume']}\n")
+        out.append(f"- **競合制御**: {it['concurrency']}\n")
+        out.append(f"- **ログ・証跡**: {it['logging_evidence']}\n")
+        out.append(f"- **依存 API**: {'／'.join(it['depends_on_apis']) or 'なし'}\n")
+        tr = it["trace"]
+        fd = "、".join(tr.get("feature_design", [])) or "—"
+        out.append(f"- **trace**: AC = {' '.join(tr['ac']) or '—'} ／ TC = {' '.join(tr['tc']) or '—'} ／ "
+                   f"UT = {' '.join(tr['ut']) or '—'} ／ 機能別設計 = {fd}\n\n")
+    return ROOT / "docs" / "design" / "du-contracts_v0.1.md", "".join(out)
+
+
 RENDERERS = [
     render_br_contracts,
     render_tc_catalog,
     render_cmp_contracts,
+    render_du_contracts,
     _make_contract_renderer("json/fr/fr-contracts.json", "fr-contracts_v0.1.md",
                             "機能要件 実行契約（FR contracts）",
                             "各 FR に 18 観点の実行・検証・拒否・復旧契約を必須化（G-REQ-CONTRACT／G-INVARIANT-TRACE）。"),

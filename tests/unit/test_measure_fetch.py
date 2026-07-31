@@ -2,5 +2,38 @@
 
 import pytest
 
-pytest.skip("S0.1 test-first: 対応 DU の実装と同時に赤→緑（utest.json の割当が正本）",
-            allow_module_level=True)
+
+@pytest.mark.skip(reason="S1 スライス: 実装開始時に red 化（設計 = du-contracts DU-22）")
+def test_api_first_route_selected() -> None:
+    """du-contracts DU-22 の契約観点を検証する（red→green は実装スライスで）。"""
+    raise NotImplementedError
+
+
+@pytest.mark.skip(reason="S1 スライス: 実装開始時に red 化（設計 = du-contracts DU-22）")
+def test_browser_fallback_converges_same_evidence_contract() -> None:
+    """du-contracts DU-22 の契約観点を検証する（red→green は実装スライスで）。"""
+    raise NotImplementedError
+
+
+@pytest.mark.skip(reason="S1 スライス: 実装開始時に red 化（設計 = du-contracts DU-22）")
+def test_write_operation_assembly_rejected() -> None:
+    """du-contracts DU-22 の契約観点を検証する（red→green は実装スライスで）。"""
+    raise NotImplementedError
+
+
+@pytest.mark.skip(reason="S1 スライス: 実装開始時に red 化（設計 = du-contracts DU-22）")
+def test_property_mismatch_rejected_before_call() -> None:
+    """du-contracts DU-22 の契約観点を検証する（red→green は実装スライスで）。"""
+    raise NotImplementedError
+
+
+@pytest.mark.skip(reason="S1 スライス: 実装開始時に red 化（設計 = du-contracts DU-22）")
+def test_hash_fixed_and_operation_log_before_ingest() -> None:
+    """du-contracts DU-22 の契約観点を検証する（red→green は実装スライスで）。"""
+    raise NotImplementedError
+
+
+@pytest.mark.skip(reason="S1 スライス: 実装開始時に red 化（設計 = du-contracts DU-22）")
+def test_dry_run_records_fingerprint_only() -> None:
+    """du-contracts DU-22 の契約観点を検証する（red→green は実装スライスで）。"""
+    raise NotImplementedError

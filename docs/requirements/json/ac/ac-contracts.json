@@ -2340,7 +2340,7 @@
       "error_type": "なし",
       "target_update": "S0.1（戦略ストア）／canonical_digest",
       "tc": [
-        "STC-I-01",
+        "STC-I-04",
         "TCC-SR-01"
       ]
     },
@@ -2398,7 +2398,7 @@
       "error_type": "GateRejected",
       "target_update": "S0.1（開始ガード）",
       "tc": [
-        "STC-I-02",
+        "STC-I-03",
         "TCC-SR-02"
       ]
     },
@@ -2477,7 +2477,7 @@
       "error_type": "IntegrityError",
       "target_update": "S0.1（TLP 整合トリガ）",
       "tc": [
-        "STC-I-06",
+        "STC-I-05",
         "TCC-CONFLICT-2",
         "TCC-SR-06"
       ]
@@ -2536,7 +2536,7 @@
       "error_type": "IntegrityError（append-only）",
       "target_update": "S0.1（保護トリガ）",
       "tc": [
-        "STC-I-04",
+        "STC-I-06",
         "TCC-SR-04"
       ]
     },
@@ -2651,7 +2651,8 @@
       "error_type": "IntegrityError（append-only）",
       "target_update": "S0.1（append-only 版管理）",
       "tc": [
-        "STC-I-06",
+        "STC-I-01",
+        "STC-I-02",
         "TCC-SR-05"
       ]
     },

@@ -977,6 +977,76 @@ try:
 except FileNotFoundError as e:
     gate("G-CMP-INTERFACE", False, f"CMP 設計契約が存在しない: {e}")
 
+# ---- 全層再降下 §7-§8: DU 実装契約・UT 接続・空洞設計の禁止 ----
+try:
+    duc_schema = load(D / "du-contract.schema.json")
+    duc = load(D / "du-contracts.json")["items"]
+    du_ledger = {i["id"]: i for i in load(D / "detailed.json")["items"]}
+
+    # G-DU-API: schema 適合＋DU 23 完全被覆＋module/cmp が⑤台帳と一致
+    d_errs: list[str] = []
+    for it in duc:
+        d_errs += [f"{it.get('id', '?')}: {e}" for e in schema_check(duc_schema, it)]
+    duc_ids = {i["id"] for i in duc}
+    mod_bad = [it["id"] for it in duc
+               if it["id"] in du_ledger and du_ledger[it["id"]]["module"] != it["module"]]
+    gate("G-DU-API", not d_errs and duc_ids == set(du_ledger) and not mod_bad,
+         f"DU 実装契約: schema 適合＋DU23 被覆＋module 一致 "
+         f"(err={d_errs[:3]}, 差={sorted(duc_ids ^ set(du_ledger))}, module={mod_bad})")
+
+    # G-DU-DBC: 全 API に非自明な pre/post（プレースホルダ禁止は G-NO-HOLLOW-DESIGN）
+    dbc_bad = [f"{it['id']}:{a['signature'][:30]}" for it in duc for a in it["apis"]
+               if not a["precondition"] or not a["postcondition"]]
+    gate("G-DU-DBC", not dbc_bad, f"全公開 API に pre/post (欠落={dbc_bad[:3]})")
+
+    # G-DU-ERROR: raises の型がエラー分類正本（error-taxonomy_v0.1.md）に掲載されている
+    taxonomy = (ROOT / "docs/design/error-taxonomy_v0.1.md").read_text(encoding="utf-8")
+    unknown_err = sorted({r["type"] for it in duc for a in it["apis"] for r in a["raises"]
+                          if r["type"].split("（")[0] not in taxonomy})
+    gate("G-DU-ERROR", not unknown_err, f"raises 型がエラー分類正本に掲載 (未掲載={unknown_err[:5]})")
+
+    # G-DU-DATA: db_read/db_write が DDL の実在テーブルのみ
+    ddl_tables = set(re.findall(r"CREATE TABLE (?:IF NOT EXISTS )?(\w+)",
+                                (J / "s0" / "ddl.sql").read_text(encoding="utf-8")))
+    tbl_bad = sorted({t for it in duc for t in it["db_read"] + it["db_write"]
+                      if t.split("（")[0] not in ddl_tables})
+    gate("G-DU-DATA", not tbl_bad, f"DU の DB read/write が DDL 実在テーブルのみ (未知={tbl_bad[:5]})")
+
+    # G-API-UT: S0 DU の全 API に UT ≥1、参照テスト関数がファイルに実在（def として）
+    ut_bad, ut_missing = [], []
+    for it in duc:
+        uts = it["trace"]["ut"]
+        if it["id"] in {d for d in du_ledger if du_ledger[d].get("cmp", "").startswith("CMP-0")} \
+           and it["id"] <= "DU-12":
+            if len(uts) < len(it["apis"]):
+                ut_bad.append(f"{it['id']}:{len(uts)}<{len(it['apis'])}")
+        for ref in uts:
+            if "::" not in ref:
+                ut_missing.append(f"{it['id']}:{ref}:形式")
+                continue
+            fname, tname = ref.split("::", 1)
+            fp = ROOT / "tests" / "unit" / fname
+            if not fp.exists() or f"def {tname}" not in fp.read_text(encoding="utf-8"):
+                ut_missing.append(f"{it['id']}:{ref}")
+    gate("G-API-UT", not ut_bad and not ut_missing,
+         f"S0 DU の全 API に UT・参照テスト関数の実在 (不足={ut_bad[:3]}, 不在={ut_missing[:5]})")
+
+    # G-NO-HOLLOW-DESIGN: 全契約正本にプレースホルダ・空洞文字列がない
+    HOLLOW = re.compile(r"TBD|TODO|FIXME|後で書く|後で埋め|後述予定|要検討|仮置き|placeholder|XXX")
+    hollow_hits: list[str] = []
+    for p in (J / "br" / "br-contracts.json", J / "fr" / "fr-contracts.json",
+              J / "strategy" / "sr-contracts.json", J / "ac" / "ac-contracts.json",
+              J / "nfr" / "nfr-contracts.json", J / "verification" / "tc-contracts.json",
+              D / "cmp-contracts.json", D / "du-contracts.json"):
+        txt = p.read_text(encoding="utf-8")
+        for m in HOLLOW.finditer(txt):
+            hollow_hits.append(f"{p.name}:{m.group(0)}")
+    gate("G-NO-HOLLOW-DESIGN", not hollow_hits,
+         f"契約正本にプレースホルダなし (検出={sorted(set(hollow_hits))[:5]})")
+except FileNotFoundError as e:
+    for gid in ("G-DU-API", "G-DU-DBC", "G-DU-ERROR", "G-DU-DATA", "G-API-UT", "G-NO-HOLLOW-DESIGN"):
+        gate(gid, False, f"DU 契約正本が存在しない: {e}")
+
 # G-COUNT-SYNC: 手書きのゲート件数表記が実数と一致（意味整合レビュー対応 — 散在数値のドリフト検出）
 count_files = [ROOT / "README.md", ROOT / "CLAUDE.md", ROOT / "AGENTS.md",
                ROOT / "docs/governance/requirements-gates.md"] + \

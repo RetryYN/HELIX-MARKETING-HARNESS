@@ -7,6 +7,11 @@
 > JSON 正本: [json/detailed.json](json/detailed.json)（DU 台帳＝分解・対応の正本。**公開 API 署名の正本は本書 MD**）
 > 位置づけ: ②の CMP 13 を **DU（設計ユニット）23 モジュール**に分解し、公開 API・エラー・データ接触を
 > 実装単位で確定する。契約の再定義はしない。
+> **実装契約正本（2026-08-01 全層再降下 §7）**: 各 DU の公開 API 署名・DbC・例外・tx 境界・冪等性・
+> 競合制御・AC/TC/UT 対応 = [json/du-contracts.json](json/du-contracts.json)
+> （ビュー [du-contracts_v0.1.md](du-contracts_v0.1.md)）。重要機能の機能別詳細設計 = [features/](features/)
+> 11 本。本書 §3 は概説であり、実装・単体テストの入力は契約正本を用いる
+> （G-DU-API／G-DU-DBC／G-DU-ERROR／G-DU-DATA／G-API-UT が fail-close 検査）。
 
 ---
 

@@ -72,3 +72,4 @@
 | 2026-08-01 | strategy-loop-requirements | v0.1 | confirmed | PO | 7acdd0d3730c | 全層再降下・粒度是正指示（/goal）による改訂受領（実行契約正本ポインタ追記、G-CONFIRM-DIGEST receipt） |
 | 2026-08-01 | basic-design | v0.1 | confirmed | PO | 71080830c131 | 全層再降下・粒度是正指示（/goal）による改訂受領（契約正本ポインタ追記、G-CONFIRM-DIGEST receipt） |
 | 2026-08-01 | verification-design | v0.1 | confirmed | PO | 35d2d3edd229 | 全層再降下・粒度是正指示（/goal）による改訂受領（契約正本ポインタ追記、G-CONFIRM-DIGEST receipt） |
+| 2026-08-01 | detailed-design | v0.1 | confirmed | PO | b4fd8a582074 | 全層再降下・粒度是正指示（/goal）による改訂受領（DU 実装契約正本・機能別設計ポインタ追記、G-CONFIRM-DIGEST receipt） |

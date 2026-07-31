@@ -1195,7 +1195,7 @@
 - **観測点**: digest 算出関数の戻り値比較 ／ **期待状態**: digest 一致（決定性）
 - **期待 DB 差分**: 差分なし（算出は pure） ／ **期待証跡**: なし（拒否・算出は証跡対象外）
 - **禁止副作用**: DB への書込み・brief 行の変更 ／ **エラー型**: なし
-- **対象更新**: S0.1（戦略ストア）／canonical_digest ／ **TC**: STC-I-01 TCC-SR-01
+- **対象更新**: S0.1（戦略ストア）／canonical_digest ／ **TC**: STC-I-04 TCC-SR-01
 
 ### AC-SR-06-1（拒否）
 
@@ -1224,7 +1224,7 @@
 - **観測点**: raise される GateRejected／loop_runs SELECT COUNT ／ **期待状態**: run 未作成
 - **期待 DB 差分**: 差分なし ／ **期待証跡**: 拒否の構造化ログ
 - **禁止副作用**: loop_runs への INSERT ／ **エラー型**: GateRejected
-- **対象更新**: S0.1（開始ガード） ／ **TC**: STC-I-02 TCC-SR-02
+- **対象更新**: S0.1（開始ガード） ／ **TC**: STC-I-03 TCC-SR-02
 
 ### AC-SR-07-1（正常）
 
@@ -1262,7 +1262,7 @@
 - **観測点**: IntegrityError の発生とメッセージ ／ **期待状態**: TLP 未挿入
 - **期待 DB 差分**: 差分なし ／ **期待証跡**: なし（拒否・算出は証跡対象外）
 - **禁止副作用**: 不正 packet の INSERT 成功 ／ **エラー型**: IntegrityError
-- **対象更新**: S0.1（TLP 整合トリガ） ／ **TC**: STC-I-06 TCC-CONFLICT-2 TCC-SR-06
+- **対象更新**: S0.1（TLP 整合トリガ） ／ **TC**: STC-I-05 TCC-CONFLICT-2 TCC-SR-06
 
 ### AC-SR-08-1（拒否）
 
@@ -1291,7 +1291,7 @@
 - **観測点**: sqlite3.IntegrityError のメッセージ（'append-only'） ／ **期待状態**: 正本無変更
 - **期待 DB 差分**: 差分なし ／ **期待証跡**: なし（拒否はトリガ層）
 - **禁止副作用**: 上流正本の行変更 ／ **エラー型**: IntegrityError（append-only）
-- **対象更新**: S0.1（保護トリガ） ／ **TC**: STC-I-04 TCC-SR-04
+- **対象更新**: S0.1（保護トリガ） ／ **TC**: STC-I-06 TCC-SR-04
 
 ### AC-SR-09-1（正常）
 
@@ -1349,7 +1349,7 @@
 - **観測点**: 各 DML の例外型とメッセージ ／ **期待状態**: 全行が実行前と同一
 - **期待 DB 差分**: 差分なし ／ **期待証跡**: なし（拒否・算出は証跡対象外）
 - **禁止副作用**: 1 本でも成功する DML ／ **エラー型**: IntegrityError（append-only）
-- **対象更新**: S0.1（append-only 版管理） ／ **TC**: STC-I-06 TCC-SR-05
+- **対象更新**: S0.1（append-only 版管理） ／ **TC**: STC-I-01 STC-I-02 TCC-SR-05
 
 ### AC-SR-11-1（正常）
 

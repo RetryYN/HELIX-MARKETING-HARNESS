@@ -10,7 +10,7 @@
 | G-CNT-BR/REQ/FR/NFR/AC/ACDEF/FN/BRM/MR/WF | JSON 件数 = MD の分母（BR38・REQ52・FR36・NFR10・AC19+deferred17・FN61・BR-M70・MR54・WF49） | MD↔JSON の同期漏れ、分母のサイレント変更 |
 | G-REQ-CONTRACT | BR 構造化契約（br-contracts.json）が schema 適合（12 観点必須・additionalProperties: false）で全 38 BR を被覆し、12 独立要求群がすべて担当 BR を持ち、REQ 参照が実在し、生成ビュー（br-contracts_v0.1.md）が正本と同期 | 1 行要求の温存・要求群の宙吊り・手編集ビューの乖離（全層再降下 §2） |
 | G-UNIQ-* | BR/REQ/FR・NFR/AC/FN の ID 重複ゼロ | ID 衝突 |
-| G-TRC-BR | s0/trace.json が全 31 BR をカバー | トレース断絶（BR が要件へ降りていない） |
+| G-TRC-BR | s0/trace.json が全 38 BR をカバー | トレース断絶（BR が要件へ降りていない） |
 | G-TRC-AC | AC の target が実在する FR | 宙に浮いた受入条件 |
 | G-GWT | AC 全件に非空の Given/When/Then | 機械検証できない AC（AP-4 相当） |
 | G-S0-CNT / G-S0-SET | S0.1〜S0.3 の fn_ids が 25 件・重複なし・function-list の slice=S0 集合と完全一致 | スコープのサイレント増減 |
@@ -31,7 +31,7 @@
 | G-PAIR2-EXIST/HDR | ②↔④ の JSON 正本が存在し、両文書ヘッダが相互 pair 参照、ペア台帳の文書実在 | 片方向ペア（②↔④ 非対称） |
 | G-DU-CNT/UNIQ/CMP/FN | 詳細設計⑤の DU 台帳（detailed.json）が DU 23・重複ゼロ・全 CMP を被覆・S0 25 FN を重複なく完全被覆 | モジュール分解の漏れ・二重責務 |
 | G-UTC-TC/DU/CNT/FILE | 単体テスト設計⑥（utest.json）が TC 59 全件を重複なく実在 DU へ割当・全 DU にテストあり・UTC 69（割当 59＋UT 10）・test_file が DU と 1 対 1 衝突なし | テストの届かないモジュール（TDD の空白）・テストファイル混線 |
-| G-UTC-FILE-EXIST | ⑥と戦略層 STC-I（S0.1）が宣言する全 test_file がディスク上に実在（未実装分は module-level skip として存在し、pytest が skipped と報告） | 宣言だけのテストファイル（実行されない検証の PASS 僭称） |
+| G-UTC-FILE-EXIST | ⑥と戦略層 STC-I（S0.1）が宣言する全 test_file がディスク上に実在（未実装分は**関数単位** skip（理由付き）として存在し、pytest が個別に skipped と報告 — module-level skip は全層再降下 §8 で廃止） | 宣言だけのテストファイル（実行されない検証の PASS 僭称） |
 | G-PAIR3-EXIST/HDR | ⑤↔⑥ の JSON 正本が存在し、両文書ヘッダが相互 pair 参照、ペア台帳の文書実在 | 片方向ペア（⑤↔⑥ 非対称） |
 | G-BASE-EXIST/HASH/STATUS/RATCHET | baseline.json に対し confirmed 文書のハッシュ一致・降格なし・分母縮小/ゲート削減なし。意図的変更は `--update-baseline` を同一コミットで実行（承認 receipt = digest 行がないと baseline 更新を拒否） | **デグレ**: confirmed のサイレント改変・後退・こっそりスコープ縮小（HELIX 日付 ratchet 相当） |
 | G-BASE-ART | 実装入力（JSON 正本・DDL・validator・CI・CLAUDE.md/AGENTS.md・hook）のハッシュが baseline と一致・未登録なし | 実装入力のサイレント改変（レビュー P0-4: MD だけの束縛では不足） |
@@ -55,6 +55,12 @@
 | G-INVARIANT-TRACE | S0 の各 FR/SR（reject N/A を除く）に、具体エラー型つきの拒否系 AC が ≥1 — 不変条件が負方向に検証される | 破られても検出されない不変条件（全層再降下 §3/§9） |
 | G-TRACE-BIDIR | TC 検証契約（tc-contracts.json）が schema 適合（状態・DB 差分・証跡・禁止副作用・外部呼出回数を検証、kill/conflict/resume 種別を含む）で、全 AC と TC が双方向に接続（AC 無 TC・宙吊り参照・非対称参照 = 0） | 検証の届かない AC・「行が存在する」だけの TC（全層再降下 §5） |
 | G-CMP-INTERFACE | 全 CMP（13）／SCM（10）に 11 観点の設計契約（cmp-contracts.json — 提供/要求 interface・責務境界・依存方向・データフロー・状態/tx 所有者・エラー分類・degradation・セキュリティ境界・人間判断点）が schema 適合で存在し、参照する独立設計書がディスク上に実在 | interface なきコンポーネント・宙に浮いた独立設計書参照（全層再降下 §6） |
+| G-DU-API | 全 DU（23）に実装契約（du-contracts.json — 公開 API 署名 `def name(...) -> 型`・DTO/値オブジェクト・状態遷移・tx 境界・冪等性・競合制御・AC/TC/UT 対応）が schema 適合で存在し、module が⑤台帳と一致 | API なき DU（実装が無契約で始まる — 全層再降下 §7） |
+| G-DU-DBC | 全公開 API に precondition／postcondition（DbC）が非空で存在 | 契約なき API（pre/post の暗黙化 — 全層再降下 §7） |
+| G-DU-ERROR | 全 API の raises 型がエラー分類正本（error-taxonomy_v0.1.md）に掲載 | 台帳外エラー型の発明・分類の分裂（全層再降下 §7） |
+| G-DU-DATA | 全 DU の DB read/write が DDL の実在テーブルのみ | 存在しないテーブルへの設計参照（全層再降下 §7） |
+| G-API-UT | S0 実装対象 DU（DU-01〜12）の全公開 API に UT ≥1 が割当てられ、参照テスト関数（test_file::test_name）がディスク上に def として実在 | UT なき API・宣言だけのテスト参照（全層再降下 §8） |
+| G-NO-HOLLOW-DESIGN | 全契約正本（BR/FR/SR/AC/NFR/TC/CMP/DU）に TBD・TODO・仮置き等のプレースホルダが存在しない | 空洞設計の温存（全層再降下 §9） |
 | G-WIRING | スクリプトの全ゲート ID が本台帳に掲載され、CI がスクリプトを呼ぶ | ルールの配線漏れ・死蔵（HELIX lint-wiring 相当） |
 
 ## 運用
