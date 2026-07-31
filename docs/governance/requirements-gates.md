@@ -47,6 +47,12 @@
 | G-MEDIA-ROLE | 媒体役割台帳（media-roles.json）が 12 語彙以上で、brief が戦略役割と認識変化を必須で持つ。台帳外役割（媒体名等）の fixture を拒否 | 媒体名の役割僭称（戦術の戦略化） |
 | G-CONTENT-VALUE-DEFINITION | コンテンツ企画契約が 5 宣言（定義する問題・変化させる認識・比較軸・価値・対象戦略仮説）を必須とし、宣言欠落 fixture を拒否 | 認識変化を宣言しない投稿物量産 |
 | G-STRAT-PAIR | 戦略層 4 文書（要件・契約・設計・テスト設計）が相互 pair 参照を持ち、SR 16／SCM 10／AC-SR 6 が STC で双方向カバーされ、全戦略ゲートに拒否系 STC（negative test）が存在 | 片肺の戦略層（検証なき意味モデル） |
+| G-FRSR-CONTRACT | 全 FR（36）／SR（16）に 18 観点の実行契約（fr-contracts.json／sr-contracts.json — 入出力・事前/事後/不変・正常/拒否/境界・復旧・冪等性・証跡・テーブル・trace）が schema 適合で存在 | 責務 1 行要件の温存（実装が無契約で始まる — 全層再降下 §3） |
+| G-NFR-MEASURABLE | 全 NFR（10）に計測契約（測定対象・方法・閾値・環境・違反時動作・証跡）が schema 適合で存在 | 測定方法のない閾値（検証不能な NFR — 全層再降下 §3） |
+| G-AC-COVERAGE | AC 検証契約（ac-contracts.json）が schema 適合（GWT＋fixture・観測点・DB 差分・証跡・禁止副作用・エラー型・対象更新）・target 実在・ID 一意で、S0 の全 FR/SR に AC ≥1 | AC なし実装対象・「行が存在する」検証（全層再降下 §4） |
+| G-AC-POLARITY | S0 の各 FR/SR が正常／拒否／境界復旧の 3 極性を AC または理由付き N/A（ac_na）で被覆（AC と N/A の重複宣言は矛盾として拒否） | 正常系だけの受入（拒否・境界の空白 — 全層再降下 §4） |
+| G-HUMAN-JUDGE | 全 FR/SR 契約に人間判断点の明示（「なし（全自動）」宣言 or 主体特定 — PO/人間/運用者/承認） | 人間判断点の暗黙化（HELIX 人間判断点列必須 相当） |
+| G-INVARIANT-TRACE | S0 の各 FR/SR（reject N/A を除く）に、具体エラー型つきの拒否系 AC が ≥1 — 不変条件が負方向に検証される | 破られても検出されない不変条件（全層再降下 §3/§9） |
 | G-WIRING | スクリプトの全ゲート ID が本台帳に掲載され、CI がスクリプトを呼ぶ | ルールの配線漏れ・死蔵（HELIX lint-wiring 相当） |
 
 ## 運用

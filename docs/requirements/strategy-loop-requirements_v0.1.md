@@ -6,6 +6,9 @@
 > [loop-task-workflow_v0.1.md](loop-task-workflow_v0.1.md)（LP-U の工程名は本書でも維持）
 > 機械可読正本: [json/strategy/](json/strategy/)（12 schema・媒体役割台帳・コンテンツ企画契約・[sr.json](json/strategy/sr.json)）。
 > 契約詳細（brief／TLP／revision）は [strategy-learning-contract_v0.1.md](strategy-learning-contract_v0.1.md)。
+> **実行契約正本（2026-08-01 全層再降下 §3）**: 各 SR の 18 観点実行契約 =
+> [json/strategy/sr-contracts.json](json/strategy/sr-contracts.json)
+> （ビュー [sr-contracts_v0.1.md](sr-contracts_v0.1.md)。G-FRSR-CONTRACT が fail-close 検査）。
 >
 > 位置づけ: 上流戦略ループが「下流の数値を受けて行動計画を微修正するだけの管理ループ」へ縮退することを
 > 構造的に禁止し、市場理解・価値定義・戦略仮説そのものを継続的に更新するインフィニティループとして

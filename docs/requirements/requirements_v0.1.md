@@ -6,6 +6,13 @@
 > 機械可読正本: 要件エンティティ（BR/REQ/FR/NFR/AC/FN/MR/WF）は [json/](json/) に JSON 正本を併置する。
 > 人の承認は MD、実装・変換の入力は JSON を用い、編集時は両方を同期する（PO 方針 2026-07-30）。
 > 各 FR/NFR は BR に trace する。値はハードコードせず充填経路（H/R/C）を踏襲。
+> **実行契約正本（2026-08-01 全層再降下 §3-§4）**: 各 FR の 18 観点実行契約 =
+> [json/fr/fr-contracts.json](json/fr/fr-contracts.json)（ビュー [fr-contracts_v0.1.md](fr-contracts_v0.1.md)）、
+> 各 NFR の計測契約 = [json/nfr/nfr-contracts.json](json/nfr/nfr-contracts.json)
+> （ビュー [nfr-contracts_v0.1.md](nfr-contracts_v0.1.md)）、AC 検証契約 =
+> [json/ac/ac-contracts.json](json/ac/ac-contracts.json)（ビュー [ac-catalog_v0.1.md](ac-catalog_v0.1.md)）。
+> 本書 §2/§3 の一覧は躯体であり、実装・検証の入力は契約正本を用いる
+> （G-FRSR-CONTRACT／G-NFR-MEASURABLE／G-AC-COVERAGE／G-AC-POLARITY が fail-close 検査）。
 > スコープ: 背骨＋S0 ウォーキングスケルトンの要件。S1 以降のスライス要件は各スライス着手時に追補する。
 
 ---

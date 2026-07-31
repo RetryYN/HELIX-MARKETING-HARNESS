@@ -68,3 +68,5 @@
 | 2026-08-01 | 全層再降下・粒度是正指示 | — | directive | PO | — | 要求定義からの全層再降下（/goal）。「完遂」表現を撤回し全層 再監査中へ。S0.1 実装は再降下完了＋Sol Go まで停止。分母削減禁止・追加/分解/詳細化のみ許可。基準正本 = TAKUMI_CMO／charter v0.4／HELIX-HARNESS main |
 | 2026-08-01 | requirement-list | v0.1 | confirmed | PO | e096adc2a76f | 全層再降下・粒度是正指示（/goal）による改訂受領（BR-I 群 7 件・REQ-046〜052 追加、G-CONFIRM-DIGEST receipt） |
 | 2026-08-01 | br-backbone | v0.1 | confirmed | PO | cad318a952e1 | 全層再降下・粒度是正指示（/goal）による改訂受領（BR-I 群 7 件・REQ-046〜052 追加、G-CONFIRM-DIGEST receipt） |
+| 2026-08-01 | requirements | v0.1 | confirmed | PO | 5110cd813f7a | 全層再降下・粒度是正指示（/goal）による改訂受領（実行契約正本ポインタ追記、G-CONFIRM-DIGEST receipt） |
+| 2026-08-01 | strategy-loop-requirements | v0.1 | confirmed | PO | 7acdd0d3730c | 全層再降下・粒度是正指示（/goal）による改訂受領（実行契約正本ポインタ追記、G-CONFIRM-DIGEST receipt） |

@@ -1,0 +1,2891 @@
+{
+  "version": "0.1",
+  "note": "機能要件（FR）実行契約 — 内容正本。ビュー = fr-contracts_v0.1.md（render_views.py 生成、手編集禁止）。schema = fr-contract.schema.json",
+  "items": [
+    {
+      "id": "FR-11",
+      "title": "ループ状態機械",
+      "input": [
+        "イベント（str — cli/kernel 発火）",
+        "対象 loop_run_id（int — loop_runs）",
+        "ガード評価に必要な現 DB 状態（sqlite3.Connection）"
+      ],
+      "output": [
+        "新状態へ更新された loop_runs 行",
+        "state_transitions への遷移証跡行",
+        "拒否時: TransitionRejected 例外（理由つき）"
+      ],
+      "precondition": [
+        "対象 loop_run が存在する",
+        "遷移表（transitions.json 由来）がロード済み",
+        "DB マイグレーション適用済み（DU-11 verify() green）"
+      ],
+      "postcondition": [
+        "(現状態, イベント) に合致する遷移が 1 件だけ適用されている",
+        "state_transitions に遷移 1 行が追記されている",
+        "ガード不成立時は状態が変化していない"
+      ],
+      "invariants": [
+        "終端状態からの遷移は存在しない",
+        "遷移は宣言表にある (entity, from, event) のみ",
+        "lower run は有効 strategic_brief の id/digest を保持し続ける（SR-07）"
+      ],
+      "state_transitions": [
+        "loop_runs: 遷移表（json/s0/transitions.json）の全行が本 FR の対象"
+      ],
+      "normal_behavior": "イベント受領 → 遷移表から (現状態, イベント) を一意解決 → ガード条件を DB 状態で評価 → 成立なら loop_runs.status を次状態へ UPDATE し state_transitions へ証跡 INSERT（同一 transaction）。",
+      "rejection_behavior": "遷移表に合致がない・ガード不成立・終端からの遷移要求は TransitionRejected を raise し、DB を変更せず operation_log に拒否理由を記録する（fail-close）。",
+      "boundary_behavior": "同一 run への同時イベントは transaction の直列化で 1 件のみ成立し、後続は再読込後に再判定。存在しない run_id は即拒否。",
+      "retry_resume_recovery": "クラッシュ時は transaction ごと消えるため中間状態が残らない。再開はプロセス再起動後に loop_runs の現状態から続行（申し送りなし — BR-A1）。",
+      "human_judgement": "なし（全自動。escalated への遷移後の対処は BR-H3 経由で人間）",
+      "side_effects": [
+        "loop_runs UPDATE",
+        "state_transitions INSERT",
+        "operation_log INSERT（拒否時）"
+      ],
+      "idempotency": "同一イベントの再送は現状態不一致で拒否される（状態遷移自体が冪等キー）。証跡は重複しない。",
+      "evidence": [
+        "state_transitions 行（遷移ごと）",
+        "operation_log 行（拒否ごと）"
+      ],
+      "tables": [
+        "r: transitions（表定義は JSON 正本）",
+        "rw: loop_runs",
+        "w: state_transitions",
+        "w: operation_log",
+        "r: strategic_briefs（lower 開始ガード）"
+      ],
+      "external_deps": [],
+      "config_values": [],
+      "fixed_values": [
+        "遷移表（transitions.json — 変更は要件改訂）"
+      ],
+      "trace_up": [
+        "BR-A1",
+        "REQ-002",
+        "REQ-006"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-11-1",
+          "AC-11-2",
+          "AC-11-3"
+        ],
+        "fn": [
+          "FN-101"
+        ],
+        "cmp": [
+          "CMP-01"
+        ]
+      },
+      "slice": "S0"
+    },
+    {
+      "id": "FR-12",
+      "title": "タスク発行",
+      "input": [
+        "ループステップ到達イベント（loop_run_id: int・step_key: str — kernel オーケストレータ発火）",
+        "workflow 定義（workflows 行 — task_type・definition_json・required_evidence_json）",
+        "エージェント登録（agents 行 — role・principal・status）"
+      ],
+      "output": [
+        "tasks 行（workflow_id・author_agent_id・verifier_agent_id・expected_output_kind すべて非 NULL、state = pending）",
+        "拒否時: TaskIssuanceRejected 例外（理由つき）"
+      ],
+      "precondition": [
+        "親 loop_run が running 状態で存在する",
+        "step_key に対応する active な workflow が存在する",
+        "author/verifier に割当可能な active agent が存在する（principal の異なる 2 体）",
+        "T-PUB の場合: pair_plan_quality（status = passed）が成立している（T-R2）"
+      ],
+      "postcondition": [
+        "tasks に 1 行が INSERT され、ワークフロー ID・担当・期待成果物型がすべて非 NULL（AC-12）",
+        "author_agent_id != verifier_agent_id かつ principal が異なる（自己審査禁止 FR-27 の前提充足）",
+        "idempotency_key と UNIQUE(loop_run_id, step_key, attempt) が既存行と衝突していない"
+      ],
+      "invariants": [
+        "T-PUB は審査 PASS のペア成立なしに生成されない（T-R2 — 発行段階で拒否）",
+        "tasks.verifier_agent_id は全タスクで必須（NULL の三値論理に委ねない — s0-contract §1）",
+        "発行済み行の workflow_id・担当は発行後に差し替えない（再発行は新 attempt 行）"
+      ],
+      "state_transitions": [
+        "tasks: 発行は state = pending の行 INSERT（遷移前）。以降の pending→in_progress→verifying→done/failed/escalated は s0-contract §3.2 遷移表を FR-11 の状態機械が駆動"
+      ],
+      "normal_behavior": "ループステップ到達 → workflows から step_key/task_type に対応する active 定義を一意解決 → assigner が role と principal 差で author/verifier を割当 → idempotency_key を付与して tasks 行を INSERT（state = pending、expected_output_kind = workflow 宣言の出力型）。",
+      "rejection_behavior": "workflow 不在・active agent 不足・author と verifier の principal 同一・T-PUB のペア未成立は TaskIssuanceRejected を raise し tasks に行を作らない（fail-close）。自己審査割当は DB CHECK（author_agent_id != verifier_agent_id）でも二重に拒否される。",
+      "boundary_behavior": "同一 (loop_run_id, step_key, attempt) の再発行は UNIQUE 制約で 1 件のみ成立。同一 idempotency_key の再送は既存 tasks 行を返し重複行を作らない。差戻し再試行は attempt の別行ではなく同一行の retry_count で数える（§3.2）。",
+      "retry_resume_recovery": "発行は単一 transaction の INSERT であり、クラッシュ時は行ごと消える。再起動後はループステップの再評価で同一 idempotency_key により再発行され、既存行があればそれを採用して続行する（申し送りなし — BR-A1）。",
+      "human_judgement": "なし（全自動。割当不能の恒常化は FR-16 経由で escalated）",
+      "side_effects": [
+        "tasks INSERT"
+      ],
+      "idempotency": "idempotency_key（UNIQUE）と (loop_run_id, step_key, attempt) の UNIQUE が重複発行を検出し、再実行は既存行の採用に収束する（二重発行なし）。",
+      "evidence": [
+        "tasks 行そのもの（発行記録の正本 — workflow_id・担当・期待成果物型）",
+        "state_transitions 行（発行後の claim 以降の遷移で記録）"
+      ],
+      "tables": [
+        "r: loop_runs（親 running 検査）",
+        "r: workflows（定義解決）",
+        "r: agents（割当候補・principal 検査）",
+        "r: pair_plan_quality（T-PUB ガード）",
+        "w: tasks"
+      ],
+      "external_deps": [],
+      "config_values": [],
+      "fixed_values": [
+        "タスク型カタログ（T-PLAN〜T-OPS — loop-task-workflow §2.1。author/verifier 役割と必須証跡 kind の割当）"
+      ],
+      "trace_up": [
+        "BR-A4",
+        "REQ-007"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-12-1",
+          "AC-12-2",
+          "AC-12-3"
+        ],
+        "fn": [
+          "FN-102",
+          "FN-104"
+        ],
+        "cmp": [
+          "CMP-02"
+        ]
+      },
+      "slice": "S0"
+    },
+    {
+      "id": "FR-13",
+      "title": "検証マイクロループ",
+      "input": [
+        "verifying 到達タスク（tasks 行 — output_json 保存済み）",
+        "検証結果（verifier agent の PASS/FAIL 判定＋FAIL 時の差戻し理由）",
+        "config.retry_limit（int — config 有効値。暫定既定値 3）"
+      ],
+      "output": [
+        "PASS: done へ遷移した tasks 行",
+        "FAIL: in_progress へ差し戻された tasks 行（retry_count +1・差戻し理由記録）",
+        "リトライ上限到達: escalated へ遷移した tasks 行",
+        "ガード不成立時: TransitionRejected 例外"
+      ],
+      "precondition": [
+        "対象 task が verifying 状態で存在する",
+        "verifier が author と principal の異なる active agent である",
+        "config.retry_limit の有効値が解決できる"
+      ],
+      "postcondition": [
+        "verify_pass: 全必須証跡・全ゲート PASS を確認したうえで done に遷移している",
+        "verify_fail: retry_count が 1 だけ増加し、差戻し理由（failure_detail）と verifier 証跡が残っている",
+        "retry_count + 1 >= config.retry_limit の FAIL は verify_fail_exhausted で escalated に遷移している"
+      ],
+      "invariants": [
+        "retry_count を消費するのは verify_fail 系イベントのみ（通信再送は同一 idempotency key の無消費再送 — §3.2）",
+        "PASS の判定者は常に author と別 principal（自己審査禁止 FR-27）",
+        "差戻し理由・verifier 証跡を欠く FAIL 遷移は存在しない"
+      ],
+      "state_transitions": [
+        "tasks: verifying → done（verify_pass）",
+        "tasks: verifying → in_progress（verify_fail・retry_count を 1 増加）",
+        "tasks: verifying → escalated（verify_fail_exhausted・retry_count を 1 増加）"
+      ],
+      "normal_behavior": "verifying 到達で検証エージェント（verifier）を起動 → 出力・必須証跡・通過ゲートを検査 → PASS なら verify_pass で done、FAIL なら差戻し理由と verifier 証跡を伴い verify_fail で in_progress へ戻して retry_count を 1 増加（各遷移は state_transitions 記録つき単一 transaction）。",
+      "rejection_behavior": "差戻し理由又は verifier 証跡を欠く FAIL、verifier の principal が author と同一、verifying 以外の状態への verify_* 適用は TransitionRejected を raise し、状態・retry_count を変更せず state_transitions に guard_result = rejected で記録する（fail-close）。",
+      "boundary_behavior": "retry_count + 1 >= config.retry_limit（暫定 3）の FAIL は in_progress へ戻さず verify_fail_exhausted で escalated（retry_count は 1 増加）。retry_count = limit - 1 が最後の差戻し機会であり、境界ちょうどで escalated 側へ倒れる。",
+      "retry_resume_recovery": "強制終了時は §3.3 に従い verifier が既存出力・証跡を再検証する。PASS/FAIL 証跡が既にあれば同じ結果を採用し、retry_count を二重加算しない。escalated 到達後は終端であり新 task の明示発行まで遷移しない。",
+      "human_judgement": "escalated 到達後の対処のみ人間（BR-H3 — FR-16 経由の通知）。PASS/FAIL 判定と差戻しは全自動",
+      "side_effects": [
+        "tasks UPDATE（state・retry_count・failure_detail）",
+        "state_transitions INSERT"
+      ],
+      "idempotency": "同一 FAIL の再適用は現状態不一致（in_progress）で拒否され retry_count の二重加算は起きない。再検証は既存 PASS/FAIL 証跡を採用して同一結果に収束する。",
+      "evidence": [
+        "evidence: review_pass（PASS 時 — T-REVIEW の証跡）",
+        "state_transitions 行（verify_fail／verify_fail_exhausted の遷移・rejected 記録）",
+        "tasks.failure_detail（差戻し理由）"
+      ],
+      "tables": [
+        "rw: tasks",
+        "w: state_transitions",
+        "r: config（retry_limit）",
+        "r: evidence（必須証跡・verifier 証跡の検査）",
+        "r: agents（principal 検査）"
+      ],
+      "external_deps": [],
+      "config_values": [
+        "config.retry_limit（C・暫定既定値 3 — 差戻し上限）"
+      ],
+      "fixed_values": [],
+      "trace_up": [
+        "BR-A4",
+        "REQ-003"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-13-1",
+          "AC-13-2",
+          "AC-13-3"
+        ],
+        "fn": [
+          "FN-103"
+        ],
+        "cmp": [
+          "CMP-02"
+        ]
+      },
+      "slice": "S0"
+    },
+    {
+      "id": "FR-14",
+      "title": "スプリント制御",
+      "input": [
+        "スプリント開始要求（sprint_id: int — sprints 行、status = planned）",
+        "KPI 目標（sprints.kpi_target_json ＋対応 kpi_nodes.target_json — 計画側の充足）",
+        "媒体別サイクル設定（config.loop.<媒体>.cycle）"
+      ],
+      "output": [
+        "開始成立: status = active へ更新された sprints 行",
+        "拒否時: SprintStartRejected 例外（KPI 目標欠如等の理由つき）"
+      ],
+      "precondition": [
+        "sprint が planned 状態で存在し、active な action_plan に FK 接続している",
+        "sprint の期間が ends_at >= starts_at を満たす（DDL CHECK）",
+        "媒体のサイクル設定が config で解決できる（LP-R3）"
+      ],
+      "postcondition": [
+        "開始した sprint は空でない KPI 目標を保持している（LP-R2 — 開始条件 = 計画側の充足）",
+        "他媒体の sprint 状態は変化していない（独立性 — LP-R1）",
+        "開始条件未充足の sprint は planned のまま変化していない"
+      ],
+      "invariants": [
+        "KPI 目標（計画側の充足）を満たさない限り sprint は開始できない",
+        "媒体ごとの sprint は独立に回り、他媒体の遅延・blocked に影響されない（BR-A2 — 同期強制なし）",
+        "サイクル長・回転数の変更は config 行のみで反映されコード変更を要しない（LP-R3・NFR-8）"
+      ],
+      "state_transitions": [
+        "sprints.status: planned→active（開始）／active→reviewing（期間終了・レビュー入り）／reviewing→completed（レビュー成立）／active→blocked（開始条件喪失・異常）。※ state_transitions テーブルの entity_type は loop_run/task のみのため、sprint の状態変化は sprints 行の列更新が正本（遷移ログの entity 拡張は S1 の expand migration で設計）"
+      ],
+      "normal_behavior": "開始要求 → sprints.kpi_target_json と対応 kpi_nodes.target_json を検査（KPI 目標の存在 = 計画側の充足）→ 充足なら status を planned から active へ UPDATE。同条件は下位 loop_run の start ガード（§3.1 — sprint の KPI target 存在）でも二重に強制される。",
+      "rejection_behavior": "kpi_target_json が空・対象 kpi_node の target 欠如・sprint 不在・planned 以外からの開始要求は SprintStartRejected を raise し、sprints 行を変更しない（fail-close）。当該 sprint に紐づく下位 loop_run の start も §3.1 ガードで拒否され、state_transitions に rejected で記録される。",
+      "boundary_behavior": "複数媒体の sprint が並走し、一方が blocked でも他方は開始・進行できる（同期強制なし）。starts_at 前の開始要求は拒否。ends_at 到達時は reviewing へ移行し、以降の新規タスク発行を止める。",
+      "retry_resume_recovery": "開始判定は無状態（DB 読取り＋1 UPDATE）。クラッシュ時は planned のまま残り、再起動後に同じ判定を再実行して開始できる。active で中断した sprint は現 status から続行する（申し送りなし）。",
+      "human_judgement": "なし（全自動。blocked の恒常化は FR-16 経由で通知）",
+      "side_effects": [
+        "sprints UPDATE（status）"
+      ],
+      "idempotency": "active への開始要求の再送は現 status 不一致で拒否され二重開始しない。開始判定は同一入力→同一結果の pure な検査。",
+      "evidence": [
+        "sprints 行（status 変化の正本）",
+        "state_transitions 行（当該 sprint に紐づく下位 loop_run start の guard_result — KPI target 欠如は rejected で記録）"
+      ],
+      "tables": [
+        "rw: sprints",
+        "r: action_plans（FK・active 検査）",
+        "r: kpi_nodes（target_json 検査）",
+        "r: config（媒体別サイクル）",
+        "r: loop_runs（並走・進行検査）"
+      ],
+      "external_deps": [],
+      "config_values": [
+        "config.loop.<媒体>.cycle（媒体別サイクル長 — LP-R3。暫定値は C 充填）"
+      ],
+      "fixed_values": [
+        "sprints.status の enum（planned/active/reviewing/completed/blocked — DDL 正準）"
+      ],
+      "trace_up": [
+        "BR-A2",
+        "REQ-005"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-14-1",
+          "AC-14-2",
+          "AC-14-3"
+        ],
+        "fn": [
+          "FN-106"
+        ],
+        "cmp": []
+      },
+      "slice": "S1"
+    },
+    {
+      "id": "FR-15",
+      "title": "還流（learnings 生成と上位還流）",
+      "input": [
+        "スプリントレビュー成立イベント（FR-22 — pair_kpi_measure 行 status = passed）",
+        "対象 sprint（sprints 行 — reviewing 状態）",
+        "レビュー根拠（kpi_nodes・measurements・evidence の参照群）"
+      ],
+      "output": [
+        "learnings 行（sprint_id・source_pair_id・summary・learning_json、status = draft）",
+        "上位ループ次回転の入力キュー登録（learnings を LP-U の入力として参照可能化。上流へは TLP の構成要素として還流 — §5bis）",
+        "拒否時: PairNotEstablished 例外"
+      ],
+      "precondition": [
+        "pair_kpi_measure（status = passed）が成立している（REQ-009 — ペア成立まで還流は発生しない）",
+        "対象 sprint が reviewing 状態である",
+        "learning_json が schema 検証を通る"
+      ],
+      "postcondition": [
+        "learnings に source_pair_id で成立ペアへ FK 接続した行が 1 件存在する",
+        "上位ループの次回転が当該 learnings を入力として参照できる",
+        "同一 pair から learnings が重複生成されていない"
+      ],
+      "invariants": [
+        "ペア未成立のスプリントから learnings は生成されない（片肺禁止 — REQ-009）",
+        "還流は learnings→TLP 構成要素の経路のみで上流へ届き、下流から strategic_briefs を直接更新しない（s0-contract §1・SR-07）",
+        "learnings の採否（accepted/superseded）は上位ループ側の判断であり、生成側は draft までしか進めない"
+      ],
+      "state_transitions": [
+        "learnings.status: draft→accepted（上位ループ取り込み）／draft→superseded（pair 失効・新版置換）。※ state_transitions ログの対象外（entity_type は loop_run/task のみ）の列更新であり、learnings 行が正本"
+      ],
+      "normal_behavior": "レビュー成立イベント受領 → 成立 pair_kpi_measure と計測根拠から summary・learning_json を決定的に構成 → learnings に INSERT（status = draft、source_pair_id つき）→ 上位ループ次回転の入力キューへ積む。下位 run 終端時はこの learnings が tactical_learning_packet の構成要素として上流へ還流する。",
+      "rejection_behavior": "pair 未成立（passed 行なし）・revoked のみ・sprint が reviewing 以外は PairNotEstablished を、learning_json の schema 違反は LearningSchemaViolation を raise し、learnings に行を作らず上位キューにも積まない（fail-close）。",
+      "boundary_behavior": "同一 pair からの再実行は既存 learnings を検出して重複生成しない。pair が成立後に revoked へ落ちた場合、生成済み learnings は superseded とし、当該 pair からの新規生成は拒否する。",
+      "retry_resume_recovery": "生成は単一 transaction の INSERT でクラッシュ時は行ごと消える。再実行は同一 source_pair_id の既存行検出で冪等に収束する。上位キューへの投入は learnings 行の存在を正本として再構成できる（申し送りなし）。",
+      "human_judgement": "なし（生成は全自動。learnings の採否・戦略反映は上位ループ = strategy_revision 側の工程 — SR-10）",
+      "side_effects": [
+        "learnings INSERT",
+        "learnings UPDATE（status = superseded — pair 失効時のみ）"
+      ],
+      "idempotency": "同一 source_pair_id の既存行検出により再実行は無副作用。summary・learning_json は同一入力→同一内容の決定的構成とする。",
+      "evidence": [
+        "learnings 行（source_pair_id つき — 還流の正本）",
+        "evidence: measurement（レビュー成立の根拠側 — FR-22 と共有）"
+      ],
+      "tables": [
+        "w: learnings",
+        "r: pair_kpi_measure（成立検査）",
+        "r: sprints（reviewing 検査）",
+        "r: measurements（根拠参照）",
+        "r: kpi_nodes（根拠参照）",
+        "r: loop_runs（上位ループ次回転の特定）"
+      ],
+      "external_deps": [],
+      "config_values": [],
+      "fixed_values": [
+        "learnings.status の enum（draft/accepted/superseded — DDL 正準）"
+      ],
+      "trace_up": [
+        "BR-A1",
+        "BR-I4",
+        "REQ-009"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-15-1",
+          "AC-15-2",
+          "AC-15-3"
+        ],
+        "fn": [
+          "FN-107"
+        ],
+        "cmp": []
+      },
+      "slice": "S1"
+    },
+    {
+      "id": "FR-16",
+      "title": "エスカレーション制御",
+      "input": [
+        "異常検知シグナル（ゲート赤・予算超過・地図破損・リトライ超過 — ゲート層/コネクタ/kernel が事由コード付きで発火）",
+        "対象 task／loop_run（tasks・loop_runs 行）",
+        "config.approval_retry_limit・config.retry_limit（境界値 — config 有効値）"
+      ],
+      "output": [
+        "escalated へ遷移した tasks 行（failure_code に事由コード記録）",
+        "安全停止: fatal_failure で escalated へ遷移した親 loop_runs 行（該当ループの保留）",
+        "通知送出（FR-46 経路 — Claude Code アプリ）",
+        "誤分類・不正遷移時: TransitionRejected 例外"
+      ],
+      "precondition": [
+        "対象 task／loop_run が非終端状態で存在する",
+        "異常が事由コードへ分類済みである（分類は検出した層の責務 — §3.2）",
+        "遷移表（escalate／fatal_failure／retry_exhausted の行）がロード済み"
+      ],
+      "postcondition": [
+        "人の関与が必要な異常の task は escalated、該当 loop_run は fatal_failure で escalated（安全停止）に遷移している",
+        "tasks.failure_code に事由コードが記録されている",
+        "通知が FR-46 経路へ 1 件送出されている（transport 失敗でも状態遷移は成立し、通知のみ再送する）"
+      ],
+      "invariants": [
+        "escalate は常に escalated、non_retryable_failure は常に failed（同一 (現状態, イベント) から複数の次状態は存在しない — §3.2）",
+        "承認 decision = rejected は escalate に含めない（non_retryable_failure → failed が正準）",
+        "escalated は終端であり、人が新しい run/task を明示発行するまで遷移しない"
+      ],
+      "state_transitions": [
+        "tasks: pending/in_progress/verifying → escalated（escalate — 人の関与が必要な異常）",
+        "tasks: verifying → escalated（verify_fail_exhausted — リトライ超過。FR-13 と共有）",
+        "loop_runs: pending/running/waiting → escalated（fatal_failure — 認証失効・ゲート赤・地図破損・予算超過等）",
+        "loop_runs: running/waiting → escalated（retry_exhausted — retry_count >= config.retry_limit）"
+      ],
+      "normal_behavior": "検出層（ゲート・コネクタ・kernel）が異常を事由コードへ分類 → 人の関与が必要なら該当 task へ escalate を発火して failure_code を記録 → 親 loop_run へ fatal_failure を発火して安全停止（保留）→ FR-46 経路で通知を送出。各遷移は state_transitions 証跡つきの単一 transaction。",
+      "rejection_behavior": "終端状態への escalate、事由コード未分類の異常、承認 rejected の escalate への誤投入は TransitionRejected を raise し状態を変更しない（rejected は non_retryable_failure で failed へ倒すのが正準）。拒否は state_transitions に guard_result = rejected で記録する。",
+      "boundary_behavior": "承認 expired は即 escalate せず承認再要求で待機継続し、config.approval_retry_limit 到達で escalated（§4.2 ステップ 3）。retry_exhausted は retry_count >= config.retry_limit ちょうどで発火。通知 transport の一時失敗は遷移を巻き戻さず通知のみ再送する。",
+      "retry_resume_recovery": "遷移は transaction 原子的でクラッシュ時に中間状態が残らない。再起動後、escalated は終端のまま保持され、未達通知は tasks/loop_runs の escalated 行と state_transitions を正本に再送出できる（推測による再開なし — §3.3）。",
+      "human_judgement": "escalated 到達後の対処（credential 再投入・設計判断・地図修復の承認等）は人間（BR-H3）。検知・分類・遷移・通知は全自動",
+      "side_effects": [
+        "tasks UPDATE（state・failure_code）",
+        "loop_runs UPDATE（state）",
+        "state_transitions INSERT",
+        "通知送出（FR-46 経路 — 外部 transport。テストでは mock）"
+      ],
+      "idempotency": "同一異常の再発火は現状態不一致（escalated = 終端）で拒否され二重遷移しない。通知は task/run 単位で重複を抑止し、再送は同一内容に収束する。",
+      "evidence": [
+        "state_transitions 行（escalate／fatal_failure／retry_exhausted の遷移と rejected 記録）",
+        "tasks.failure_code・failure_detail（事由コードと詳細）",
+        "approvals 行（expired 再要求の系列 — 境界の証跡）"
+      ],
+      "tables": [
+        "rw: tasks",
+        "rw: loop_runs",
+        "w: state_transitions",
+        "r: config（approval_retry_limit・retry_limit）",
+        "r: approvals（expired／rejected の分類入力）",
+        "r: playbooks（地図破損の検出源）",
+        "r: spend_ledger（予算超過の検出源）"
+      ],
+      "external_deps": [
+        "通知 transport（Claude Code アプリ — FR-46 経路。テストでは mock で approve/reject/timeout を再現）"
+      ],
+      "config_values": [
+        "config.approval_retry_limit（expired 時の承認再要求上限）",
+        "config.retry_limit（retry_exhausted 境界 — FR-13 と共有）"
+      ],
+      "fixed_values": [
+        "異常種別カタログ（ゲート赤・予算超過・地図破損・リトライ超過 — failure_code 分類の正本）"
+      ],
+      "trace_up": [
+        "BR-H3",
+        "BR-F5",
+        "REQ-039"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-16-1",
+          "AC-16-2",
+          "AC-16-3"
+        ],
+        "fn": [
+          "FN-110"
+        ],
+        "cmp": [
+          "CMP-01"
+        ]
+      },
+      "slice": "S0"
+    },
+    {
+      "id": "FR-21",
+      "title": "企画↔品質ペア判定",
+      "input": [
+        "ペア成立要求（plan_id・review_task_id・review_evidence_id — WF-WP-1 ステップ 5）",
+        "公開前検証要求（action plan ID＋成立ペア ID — 公開系コネクタ FR-4x 経由）",
+        "ペア失効イベント（企画変更・commit 変更の検知 — kernel）"
+      ],
+      "output": [
+        "成立時: pair_plan_quality 行（status = passed）",
+        "公開許可判定（通過 or PairNotEstablished 例外）",
+        "失効時: 該当 pair の status = revoked への更新"
+      ],
+      "precondition": [
+        "対象 action_plans 行が存在する",
+        "review_pass 証跡（evidence.kind = review_pass、result = PASS）が T-REVIEW の task に存在する",
+        "review_pass の commit_hash が制作物の commit_hash と一致している"
+      ],
+      "postcondition": [
+        "成立時のみ pair_plan_quality に passed 行が 1 件存在する",
+        "pair 不成立・revoked の plan に対する公開系外部書込みが 0 件である",
+        "企画又は commit の変更後、旧 pair は revoked になっている"
+      ],
+      "invariants": [
+        "企画レコードと審査 PASS 証跡の両参照が揃わない限り pair は成立しない（片肺禁止 — BR-B1）",
+        "revoked な pair を根拠にした公開は存在しない",
+        "pair 判定に人間によるバイパス経路が存在しない"
+      ],
+      "state_transitions": [
+        "tasks: T-PUB の pending→failed（公開前検証で pair 不成立 = non_retryable_failure）"
+      ],
+      "normal_behavior": "review PASS 成立時に (plan_id, review_task_id, review_evidence_id) の三参照を検証し、review_pass の commit_hash が制作 hash と一致する場合のみ pair_plan_quality に passed 行を INSERT。公開系コネクタは呼出し時に成立ペア ID を要求し、status = passed の pair が実在する場合のみ WP API 呼出しへ進む（WF-WP-2 ステップ 1）。",
+      "rejection_behavior": "ペア ID なし・pair 不在・status = revoked・review_pass 証跡欠落・commit_hash 不一致の公開呼出しは PairNotEstablished を raise し、WP API を一切呼ばず T-PUB を non_retryable_failure で failed に倒す。参照整合が判定不能な場合（FK 破損・evidence 不在）も拒否側へ倒す（fail-close）。",
+      "boundary_behavior": "企画又は commit を変更した時点で既存 pair を revoked とし、再審査まで公開不可。revoke と公開の競合は公開直前の同一 transaction 内再検証で拒否側が勝つ。同一 (plan_id, review_evidence_id) の重複成立は UNIQUE 制約で 1 行に抑止。",
+      "retry_resume_recovery": "ペア判定は DB 状態のみで再評価可能（申し送りなし）。クラッシュ後は pair_plan_quality の現在行から再判定して続行。revoked 後の復旧は再審査 PASS → 新 pair 成立のみ。",
+      "human_judgement": "なし（判定は全自動。審査 PASS 自体は FR-25/FR-27 の規律下で verifier agent が行う）",
+      "side_effects": [
+        "pair_plan_quality INSERT（成立時）",
+        "pair_plan_quality の status UPDATE（revoked 化）",
+        "operation_log INSERT（公開拒否時）"
+      ],
+      "idempotency": "同一 (plan_id, review_evidence_id) の成立要求は UNIQUE 制約により 1 行のみ。公開前検証は pure（同一 DB 状態→同一判定）で再実行安全。",
+      "evidence": [
+        "pair_plan_quality 行（成立・失効の状態）",
+        "evidence.kind = review_pass／plan_record（成立根拠）",
+        "operation_log 拒否行（ペア不成立の公開試行）"
+      ],
+      "tables": [
+        "rw: pair_plan_quality",
+        "r: action_plans",
+        "r: tasks（review_task 参照）",
+        "r: evidence（review_pass・plan_record）",
+        "w: operation_log（拒否時）"
+      ],
+      "external_deps": [],
+      "config_values": [],
+      "fixed_values": [
+        "pair 成立条件 = 両参照実在＋review_pass PASS＋commit_hash 一致（s0-contract §4.1）"
+      ],
+      "trace_up": [
+        "BR-B1",
+        "REQ-008"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-21-1",
+          "AC-21-2",
+          "AC-21-3"
+        ],
+        "fn": [
+          "FN-201",
+          "FN-202"
+        ],
+        "cmp": [
+          "CMP-03"
+        ]
+      },
+      "slice": "S0"
+    },
+    {
+      "id": "FR-22",
+      "title": "計画↔計測ペア判定",
+      "input": [
+        "ペア登録要求（sprint_id・kpi_node_id・measurement_id）",
+        "レビュー成立判定要求（対象 sprint_id — スプリント制御 FR-14 経由）",
+        "KPI 目標（sprints.kpi_target_json／kpi_nodes.target_json）と計測スナップショット（measurements 行）"
+      ],
+      "output": [
+        "成立時: pair_kpi_measure 行（status = passed）＋レビュー成立イベントの発火（learnings 生成 FR-15 の起点）",
+        "不成立時: ReviewNotEstablished 例外（レビュー・還流は発生しない）"
+      ],
+      "precondition": [
+        "対象 sprint が存在し KPI 目標（kpi_target_json）が設定済み",
+        "measurement 行が evidence_id（取得証跡）への FK を持つ",
+        "kpi_node が当該 sprint の目標対象ノードである"
+      ],
+      "postcondition": [
+        "成立時のみ pair_kpi_measure に passed 行が存在する",
+        "不成立の sprint でレビュー成立イベント・learnings 生成・上位還流が 0 件である"
+      ],
+      "invariants": [
+        "KPI 目標と計測スナップショットの両参照が揃わない限りレビューは成立しない（片肺禁止 — BR-B2）",
+        "取得証跡（evidence）に FK 接続しない measurement をペアの根拠にしない",
+        "レビュー成立イベントは成立済みペアからのみ発火する"
+      ],
+      "state_transitions": [
+        "sprints: reviewing→completed（レビュー成立イベントが駆動）"
+      ],
+      "normal_behavior": "sprint のレビュー判定時に、KPI 目標が設定された各対象ノードについて (KPI 目標, 計測スナップショット) の両参照を検証し、揃ったノードのペアを pair_kpi_measure に passed で INSERT。全対象ノードのペア成立をもってレビュー成立イベントを発火し、learnings 生成（FR-15）と上位ループ還流の起点とする。",
+      "rejection_behavior": "計測スナップショット不在・KPI 目標未設定・measurement の evidence FK 不整合はいずれも ReviewNotEstablished として不成立に倒し、レビュー成立イベントを発火せず learnings も生成しない。判定不能（target_json 破損等）も不成立側へ倒す（fail-close）。",
+      "boundary_behavior": "kpi_target_json が空 JSON・目標ノード 0 件の sprint は判定不能として不成立（fail-open で素通しにしない）。期間外の measurement（period が sprint 期間と重ならない）はスナップショットとして不採用。重複ペアは UNIQUE(sprint_id, kpi_node_id, measurement_id) で 1 行。",
+      "retry_resume_recovery": "判定は DB 状態のみで再評価可能。クラッシュ後は pair_kpi_measure の現在行から再判定。計測の後着（取り込み完了）後に再判定すれば成立し得る（不成立は恒久拒否ではなく待機）。",
+      "human_judgement": "なし（全自動。レビュー成立後の learnings 内容の評価は上位ループの工程）",
+      "side_effects": [
+        "pair_kpi_measure INSERT（成立時）",
+        "レビュー成立イベント発火（sprints 遷移・learnings 生成の起点）",
+        "operation_log は使用しない（外部操作なし）"
+      ],
+      "idempotency": "同一 (sprint, kpi_node, measurement) の登録は UNIQUE 制約で 1 行。レビュー成立イベントは sprint 状態遷移（reviewing→completed）が冪等キーとなり二重発火しない。",
+      "evidence": [
+        "pair_kpi_measure 行（成立状態）",
+        "measurements 行と evidence.kind = measurement（スナップショット根拠）",
+        "state_transitions 行（sprint レビュー遷移）"
+      ],
+      "tables": [
+        "rw: pair_kpi_measure",
+        "r: sprints（kpi_target_json）",
+        "r: kpi_nodes",
+        "r: measurements",
+        "r: evidence（取得証跡 FK）",
+        "w: learnings（成立イベント下流 — FR-15 経由）"
+      ],
+      "external_deps": [],
+      "config_values": [],
+      "fixed_values": [
+        "ペア成立条件 = KPI 目標実在＋期間整合スナップショット＋取得証跡 FK（s0-contract §2）"
+      ],
+      "trace_up": [
+        "BR-B2",
+        "REQ-009"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-22-1",
+          "AC-22-2",
+          "AC-22-3"
+        ],
+        "fn": [
+          "FN-203"
+        ],
+        "cmp": [
+          "CMP-03"
+        ]
+      },
+      "slice": "S1"
+    },
+    {
+      "id": "FR-23",
+      "title": "ゼロ広告費ゲート",
+      "input": [
+        "KPI ノード登録要求（kpi_node の型・名称）",
+        "ブラウザ遷移先 URL（str — コネクタ経由）"
+      ],
+      "output": [
+        "登録拒否: PaidMetricRejected 例外",
+        "URL 遮断: UrlDenied 例外＋operation_log 行",
+        "許可時: 通過（副作用なし）"
+      ],
+      "precondition": [
+        "有料指標型の定義リスト（固定値）がロード済み",
+        "URL 許可リスト（allow-list）が config に存在する"
+      ],
+      "postcondition": [
+        "有料指標は kpi_nodes に存在しない",
+        "課金ドメインへの遷移が operation_log 上で 0 件"
+      ],
+      "invariants": [
+        "deny-by-default（許可リストにない URL は常に拒否）",
+        "本ゲートに人間によるバイパス経路が存在しない"
+      ],
+      "state_transitions": [],
+      "normal_behavior": "KPI 登録時は指標型を有料指標定義と照合し、非該当のみ登録を通す。ブラウザ遷移時は URL を許可リストと照合し、一致のみ通す。",
+      "rejection_behavior": "有料指標（CAC/ROAS/広告費 系の型）は PaidMetricRejected で登録拒否。許可リスト外 URL は UrlDenied で遷移拒否し operation_log に記録。判定不能（リスト破損等）も拒否側へ倒す。",
+      "boundary_behavior": "サブドメイン・リダイレクト先も最終 URL で判定。許可リスト空 = 全遮断（安全側）。",
+      "retry_resume_recovery": "ゲートは無状態（判定のみ）。再実行は同一判定を返す。リスト更新後は次回判定から反映。",
+      "human_judgement": "なし（PO でも解除不可の機械的制約 — BR-C1）",
+      "side_effects": [
+        "operation_log INSERT（拒否時のみ）"
+      ],
+      "idempotency": "判定は pure（同一入力→同一判定）。拒否ログは操作単位で 1 行。",
+      "evidence": [
+        "operation_log の拒否行（URL・指標名・理由）"
+      ],
+      "tables": [
+        "r: config（URL 許可リスト）",
+        "r: kpi_nodes（重複検査）",
+        "w: operation_log"
+      ],
+      "external_deps": [],
+      "config_values": [
+        "config.url_allowlist（媒体別）"
+      ],
+      "fixed_values": [
+        "有料指標型の定義リスト（CAC/ROAS/広告費/CPC/CPM）"
+      ],
+      "trace_up": [
+        "BR-C1",
+        "REQ-012"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-23-1",
+          "AC-23-2",
+          "AC-23-3"
+        ],
+        "fn": [
+          "FN-204"
+        ],
+        "cmp": [
+          "CMP-03"
+        ]
+      },
+      "slice": "S0"
+    },
+    {
+      "id": "FR-24",
+      "title": "PR 表記ゲート",
+      "input": [
+        "公開前成果物（記事 HTML/ソース — git workspace、commit hash で特定）",
+        "アフィリエイト判定用 ASP ドメインリスト（config）",
+        "PR 表記ブロックの検証規則（固定値 — 必須文言・配置）"
+      ],
+      "output": [
+        "通過判定（アフィリエイト非該当 or 表記検証合格）",
+        "拒否時: PrLabelMissing 例外＋operation_log 行（公開ゲート不通過）"
+      ],
+      "precondition": [
+        "成果物が commit hash で固定済み（FR-54）",
+        "ASP ドメインリストが config に存在する",
+        "公開ゲート（FR-21 経路）の前段として本検証が配線されている"
+      ],
+      "postcondition": [
+        "PR 表記ブロックなしのアフィリエイト成果物が公開ゲートを通過していない",
+        "拒否時、外部書込み（WP API 呼出し）が 0 件である"
+      ],
+      "invariants": [
+        "表記検証に合格しないアフィリエイト成果物の公開は存在しない（ステマ規制遵守 — BR-C2）",
+        "判定不能な成果物はアフィリエイト該当として扱う（fail-close）",
+        "検証は commit 固定済み成果物に対して行い、検証後の内容差し替えは pair 失効（FR-21）で無効化される"
+      ],
+      "state_transitions": [
+        "tasks: T-PUB の pending→failed（表記検証不合格 = non_retryable_failure）"
+      ],
+      "normal_behavior": "公開前検証時に成果物からリンクを抽出し、ASP ドメインリストと照合してアフィリエイト該当性を判定。該当時は PR 表記ブロック（必須文言・配置規則）の存在を検証し、合格した場合のみ公開ゲートへ通す。非該当の成果物は表記検証なしで通過する。",
+      "rejection_behavior": "アフィリエイトリンクを含み表記ブロックがない・文言不備の成果物は PrLabelMissing を raise して公開ゲートを通さず、operation_log に拒否理由（対象 URL・欠落規則）を記録して T-PUB を failed に倒す。リンク抽出不能・HTML パース不能はアフィリエイト該当扱いで拒否（fail-close）。",
+      "boundary_behavior": "ASP ドメインリスト未設定（config 欠落）は判定不能として全公開を拒否（fail-close）。短縮 URL・リダイレクトは展開後の最終 URL で判定。リンク 0 件の成果物は非該当として通過。",
+      "retry_resume_recovery": "ゲートは無状態（判定のみ）。再実行は同一 commit に対し同一判定を返す。表記追加後は再 commit → 再審査 → 新 pair 成立を経て再判定。",
+      "human_judgement": "なし（機械検証。表記規則自体の改訂は要件改訂で行う）",
+      "side_effects": [
+        "operation_log INSERT（拒否時のみ）"
+      ],
+      "idempotency": "判定は pure（同一 commit＋同一リスト→同一判定）。拒否ログは公開試行単位で 1 行。",
+      "evidence": [
+        "operation_log の拒否行（対象成果物 commit hash・検出リンク・欠落規則）",
+        "通過時は review_pass 証跡の checked_items に表記検証結果を含める"
+      ],
+      "tables": [
+        "r: config（ASP ドメインリスト）",
+        "r: assets（成果物参照）",
+        "w: operation_log（拒否時）"
+      ],
+      "external_deps": [],
+      "config_values": [
+        "config.affiliate_domainlist（ASP ドメインリスト — 媒体拡張時に追記）"
+      ],
+      "fixed_values": [
+        "PR 表記ブロックの検証規則（必須文言・配置 — 景表法ステマ規制準拠）"
+      ],
+      "trace_up": [
+        "BR-C2",
+        "REQ-013",
+        "NFR-9"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-24-1",
+          "AC-24-2",
+          "AC-24-3"
+        ],
+        "fn": [
+          "FN-205"
+        ],
+        "cmp": [
+          "CMP-03"
+        ]
+      },
+      "slice": "S1"
+    },
+    {
+      "id": "FR-25",
+      "title": "倫理ゲート",
+      "input": [
+        "審査対象（成果物＋企画情報 — T-REVIEW の入力）",
+        "P5 チェック項目定義（固定値: 恐怖訴求・偽希少性・不安増幅・診断の押し付け）"
+      ],
+      "output": [
+        "PASS 時: review_pass 証跡（checked_items に P5 全項目の判定を含む）",
+        "FAIL 時: 差戻し理由つき verify_fail（EthicsViolation 分類）"
+      ],
+      "precondition": [
+        "審査ワークフローの必須項目として P5 が定義済み（workflows.definition_json）",
+        "verifier が author と別 principal（FR-27）",
+        "審査対象が commit hash で固定済み"
+      ],
+      "postcondition": [
+        "P5 該当の成果物に review_pass（PASS）証跡が存在しない",
+        "FAIL 時は差戻し理由が残り task が in_progress へ戻っている（上限到達時は escalated）"
+      ],
+      "invariants": [
+        "P5 チェックを実施しない審査 PASS は無効（checked_items に P5 全項目がない review_pass を証跡ストアが拒否）",
+        "境界事例（該当疑い）は FAIL 側へ倒す（fail-close）",
+        "P5 項目定義の縮小はコードからできない（変更は要件改訂）"
+      ],
+      "state_transitions": [
+        "tasks: verifying→in_progress（verify_fail — P5 FAIL、retry_count +1）",
+        "tasks: verifying→escalated（verify_fail_exhausted — retry 上限到達）",
+        "tasks: verifying→done（verify_pass — P5 全項目クリア時のみ）"
+      ],
+      "normal_behavior": "T-REVIEW 実行時に verifier が P5 チェック項目（恐怖訴求・偽希少性・不安増幅・診断の押し付け）を必須項目として全件評価し、全項目非該当の場合のみ review_pass 証跡（checked_items に判定を格納）を残して verify_pass する。",
+      "rejection_behavior": "P5 いずれかに該当した場合は EthicsViolation として verify_fail（差戻し理由＋verifier 証跡必須）で in_progress へ戻し、review_pass は生成しない。該当性が判定不能な境界事例も FAIL 側へ倒す（fail-close）。checked_items に P5 全項目を含まない PASS 証跡は証跡ストアが INSERT を拒否する。",
+      "boundary_behavior": "verify_fail の反復で retry_count + 1 >= config.retry_limit に達した場合は verify_fail_exhausted で escalated へ遷移し人間の裁定を待つ。差戻し理由のない verify_fail は遷移ガードで拒否。",
+      "retry_resume_recovery": "差戻し後は author が修正 → 再 commit → 再審査（同一 task の retry）。escalated 後の再開は人間の裁定に基づく新 task/run の明示発行のみ。クラッシュ時は verifying の再開規則（§3.3 — 既存 PASS/FAIL 証跡があれば同一結果を採用）に従う。",
+      "human_judgement": "実在: retry 上限到達で escalated となった境界事例の裁定は人間（PO）が行う（BR-H3 経由）。自動判定側にバイパス経路はなく、裁定結果は新 run/task の明示発行として反映する。",
+      "side_effects": [
+        "evidence INSERT（review_pass — PASS 時／verifier の FAIL 理由証跡）",
+        "tasks UPDATE（verify_fail での差戻し・retry_count 増加）",
+        "state_transitions INSERT（遷移ごと）"
+      ],
+      "idempotency": "同一 commit への再審査は同一判定を返す（決定的ルールセット — S0 は fail-close のルールベース）。PASS/FAIL 証跡は UNIQUE(task_id, kind, value) で重複しない。",
+      "evidence": [
+        "evidence.kind = review_pass（checked_items に P5 全項目の判定）",
+        "verifier の FAIL 理由証跡（差戻しごと）",
+        "state_transitions 行（verify_fail／verify_fail_exhausted）"
+      ],
+      "tables": [
+        "r: workflows（審査項目定義）",
+        "rw: tasks（T-REVIEW）",
+        "w: evidence（review_pass）",
+        "w: state_transitions"
+      ],
+      "external_deps": [],
+      "config_values": [
+        "config.retry_limit（差戻し上限 — FR-13 と共通）"
+      ],
+      "fixed_values": [
+        "P5 チェック項目定義（恐怖訴求・偽希少性・不安増幅・診断の押し付け — 変更は要件改訂）"
+      ],
+      "trace_up": [
+        "BR-C3",
+        "REQ-014"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-25-1",
+          "AC-25-2",
+          "AC-25-3"
+        ],
+        "fn": [
+          "FN-206"
+        ],
+        "cmp": [
+          "CMP-03"
+        ]
+      },
+      "slice": "S1"
+    },
+    {
+      "id": "FR-26",
+      "title": "金銭 escalation",
+      "input": [
+        "タスクの操作型（task_type — 金銭操作型判定の対象）",
+        "束縛承認要求（binding_subject・binding_operation・binding_at — FR-46 経路）",
+        "承認応答（approvals.decision — Claude Code アプリ）"
+      ],
+      "output": [
+        "承認要求: approvals 行（decision = pending）＋アプリ通知",
+        "approved 時: evidence.kind = approval ＋外部操作の実行許可",
+        "rejected/expired 時: 失敗分類イベント（non_retryable_failure／escalate）"
+      ],
+      "precondition": [
+        "金銭操作型の定義リスト（価格変更・返金・決済設定）がロード済み",
+        "承認チャネル（channel = claude_code_app）が構成済み（FR-46）",
+        "対象 task が in_progress で外部書込み前である"
+      ],
+      "postcondition": [
+        "金銭操作型 task の外部書込みは approved な approval（binding 3 項目完全一致）を持つ場合のみ実行されている",
+        "rejected の task は failed、approval_retry_limit 到達の task は escalated になっている"
+      ],
+      "invariants": [
+        "オートモード状態（config.auto_mode_criteria の充足）に関わらず金銭操作型は束縛承認を要する（バイパス不可 — BR-C4）",
+        "binding subject/operation/at の 3 項目が完全一致しない応答は承認として無効",
+        "承認なしの金銭系外部書込みが operation_log 上に 0 件"
+      ],
+      "state_transitions": [
+        "tasks: running 相当の in_progress→waiting は loop 側で表現（承認待ち = loop_runs running→waiting/wait）",
+        "tasks: pending/in_progress/verifying→failed（non_retryable_failure — decision = rejected）",
+        "tasks: pending/in_progress/verifying→escalated（escalate — expired が approval_retry_limit 到達）"
+      ],
+      "normal_behavior": "task の操作型を金銭操作型定義と照合し、該当時はオートモード判定より先に束縛承認を要求: approvals へ pending 行を INSERT しアプリ通知（対象・操作・時点を明記）→ ループを waiting 化 → decision = approved かつ binding 3 項目完全一致を確認 → evidence.kind = approval を記録してから外部操作（prepared→sent→confirmed）へ進む。",
+      "rejection_behavior": "approved な approval なしの金銭系外部書込み要求は ApprovalRequired で拒否し WP/決済系 API を呼ばない。decision = rejected は non_retryable_failure イベントで task を failed に倒す（代替 task の発行は可）。操作型が金銭該当か判定不能な場合は金銭型として扱い承認を要求する（fail-close）。",
+      "boundary_behavior": "decision = expired は承認の再要求を発行して待機を継続し、再要求回数が config.approval_retry_limit に到達したら escalate イベントで escalated へ倒す。binding 3 項目のいずれかが不一致の応答は無効として待機継続。pending のままの場合は waiting を維持する。",
+      "retry_resume_recovery": "クラッシュ後は approvals の現在行を再照合し、approved（binding 完全一致）なら実行再開、pending なら待機継続、expired なら再要求カウントから継続（§3.3 waiting 再開規則）。外部操作は idempotency key と external_operations 照合で二重実行を防ぐ。",
+      "human_judgement": "実在: 承認者（利用者）が Claude Code アプリで approve/reject を決定する。オートモード移行後もこの判断は機械化されない（BR-C4 の escalation 境界）。escalated 後の対処も人間（BR-H3）。",
+      "side_effects": [
+        "approvals INSERT（要求・再要求ごと）",
+        "アプリ通知送信（FR-46 経路）",
+        "evidence INSERT（kind = approval — approved 時）",
+        "state_transitions INSERT（waiting 化・failed/escalated 遷移）"
+      ],
+      "idempotency": "同一 (task, binding_subject, binding_operation, binding_at) の承認要求は UNIQUE 制約で 1 行。approved の再確認は pure。外部操作は専用 idempotency key で二重送信しない。",
+      "evidence": [
+        "approvals 行（要求・応答の全履歴）",
+        "evidence.kind = approval（decision = approved、binding 3 項目）",
+        "operation_log 行（承認なし実行の拒否）"
+      ],
+      "tables": [
+        "rw: approvals",
+        "r: tasks（操作型判定）",
+        "r: config（auto_mode_criteria・approval_retry_limit）",
+        "w: evidence（approval）",
+        "w: state_transitions",
+        "r: external_operations（再開照合）"
+      ],
+      "external_deps": [
+        "Claude Code アプリ通知（承認チャネル — transport はテストで mock 可）"
+      ],
+      "config_values": [
+        "config.approval_retry_limit（expired 再要求の上限）",
+        "config.auto_mode_criteria（オートモード判定 — 本 FR はこれに優先する）"
+      ],
+      "fixed_values": [
+        "金銭操作型の定義リスト（価格変更・返金・決済設定に類する操作型）"
+      ],
+      "trace_up": [
+        "BR-C4",
+        "REQ-015"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-26-1",
+          "AC-26-2",
+          "AC-26-3"
+        ],
+        "fn": [
+          "FN-207"
+        ],
+        "cmp": [
+          "CMP-03",
+          "CMP-11"
+        ]
+      },
+      "slice": "S1"
+    },
+    {
+      "id": "FR-27",
+      "title": "自己審査禁止",
+      "input": [
+        "タスク割当要求（author_agent_id・verifier_agent_id — タスク発行 FR-12）",
+        "claim 要求（execution → task — kernel）",
+        "agents / agent_executions の principal 情報"
+      ],
+      "output": [
+        "有効な割当: tasks 行（author != verifier、principal 相違）",
+        "拒否時: DB 層 IntegrityError（CHECK 違反）又はエンジン層 SelfReviewRejected"
+      ],
+      "precondition": [
+        "tasks に CHECK (author_agent_id != verifier_agent_id) が適用済み（DDL — s0-contract §2）",
+        "agents.principal が全 agent に設定済み",
+        "agent_executions.principal が複合 FK (agent_id, principal) で agents と一致強制済み"
+      ],
+      "postcondition": [
+        "author_agent_id == verifier_agent_id の tasks 行が存在しない",
+        "author と同一 principal の verifier による verify_pass が存在しない",
+        "verifier 側 execution による claim が成立していない"
+      ],
+      "invariants": [
+        "自己審査の拒否は DB 制約とエンジンの二重で強制され、片方の欠落でも成立しない（BR-B4・P4）",
+        "判定単位は principal（agent 行の差だけでは相違と認めない — s0-contract §1）",
+        "verifier_agent_id は全タスクで NOT NULL（三値論理に委ねない）"
+      ],
+      "state_transitions": [
+        "tasks: pending→in_progress（claim — ガードで principal 相違・execution の author 帰属を検査）",
+        "tasks: verifying→done（verify_pass — ガードで verifier の別 principal を再検査）"
+      ],
+      "normal_behavior": "タスク発行時に author と verifier を別 agent かつ別 principal で割り当てて tasks を INSERT（T-REVIEW の verifier は critic 以外の gate-engine 等）。claim 時は kernel ガードが execution の author agent 帰属と principal 相違を検査し、verify_pass 時も verifier の別 principal を再検査してから done へ遷移する。",
+      "rejection_behavior": "author_agent_id == verifier_agent_id の INSERT/UPDATE は DB の CHECK 制約が IntegrityError で拒否。別 agent 行でも principal が同一の割当・verify はエンジン（kernel の claim／verify_pass ガード）が SelfReviewRejected で拒否し state_transitions に guard_result = rejected を記録。principal が照合不能（agents 不整合等）な場合も拒否側へ倒す（fail-close）。二重拒否のため、エンジンを迂回した直接 DML も DB 層で止まる。",
+      "boundary_behavior": "lease 失効後の再 claim も author agent に属する execution のみ許可（verifier や第三 agent の execution による claim はガードで拒否）。agent の disabled 化後は claim ガードの active 検査で拒否。同時 claim は row_version の楽観ロックで 1 件のみ成立。",
+      "retry_resume_recovery": "制約・ガードは無状態で、クラッシュ後も DB の CHECK と kernel ガードがそのまま有効。再開時の再 claim も同一ガードを通る（§3.3 — プロセス内メモリの lease を再開根拠にしない）。",
+      "human_judgement": "なし（PO でも解除不可の機械的制約。escalated 後の再割当判断は人間だが、その割当も本制約下に置かれる）",
+      "side_effects": [
+        "state_transitions INSERT（claim/verify の guard_result = rejected 行）",
+        "DB 層拒否は副作用なし（transaction rollback）"
+      ],
+      "idempotency": "判定は pure（同一割当→同一判定）。拒否は DB 状態を変更せず、再試行しても同一結果。",
+      "evidence": [
+        "state_transitions 行（guard_result = rejected の claim/verify 拒否）",
+        "tasks 行そのもの（author/verifier の割当証跡）",
+        "agent_executions 行（実行系譜と principal）"
+      ],
+      "tables": [
+        "rw: tasks（CHECK 制約・lease 列）",
+        "r: agents（principal・status）",
+        "r: agent_executions（execution の帰属照合）",
+        "w: state_transitions（拒否記録）"
+      ],
+      "external_deps": [],
+      "config_values": [],
+      "fixed_values": [
+        "CHECK (author_agent_id != verifier_agent_id)（DDL 固定 — 変更は migration＋要件改訂）",
+        "principal 相違の判定規則（s0-contract §1）"
+      ],
+      "trace_up": [
+        "BR-B4",
+        "REQ-011"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-27-1",
+          "AC-27-2",
+          "AC-27-3"
+        ],
+        "fn": [
+          "FN-105"
+        ],
+        "cmp": [
+          "CMP-02",
+          "CMP-05"
+        ]
+      },
+      "slice": "S0"
+    },
+    {
+      "id": "FR-28",
+      "title": "証跡完備検証",
+      "input": [
+        "done 遷移要求（verify_pass イベント — 対象 task_id）",
+        "workflows.required_evidence_json（タスク種別ごとの必須 kind 集合）",
+        "evidence テーブルの当該 task 行（kind・payload_json）"
+      ],
+      "output": [
+        "完備時: done 遷移の通過（tasks.state = done）",
+        "欠落時: EvidenceIncomplete 例外＋遷移拒否（state_transitions に rejected 記録）"
+      ],
+      "precondition": [
+        "task が verifying 状態である",
+        "task の workflow に required_evidence_json が宣言済み（S0 基準: T-PLAN = plan_record、T-PROD = commit_hash、T-REVIEW = review_pass、T-PUB = published_url・screenshot・approval、T-MEAS = measurement・file_hash・screenshot）",
+        "evidence は append-only トリガで保護済み"
+      ],
+      "postcondition": [
+        "done な task は required_evidence_json の全 kind の evidence 行を持つ",
+        "kind 固有規則（§2.1 — payload 必須キー・列対応）を満たさない証跡を根拠に done になっていない"
+      ],
+      "invariants": [
+        "宣言のみの完了は構造的に不可能（証跡の DB 収束が完了の必要条件 — BR-B3）",
+        "証跡の検証は INSERT 時（証跡ストア FN-703）と done 遷移時の二重で行う",
+        "done 遷移の拒否は task の状態・retry_count・証跡を変更しない"
+      ],
+      "state_transitions": [
+        "tasks: verifying→done（verify_pass — 必須証跡完備がガード条件）",
+        "tasks: verifying→done の拒否（ガード不成立 = 遷移せず rejected 記録）"
+      ],
+      "normal_behavior": "verify_pass 処理時に task の workflow の required_evidence_json を読み、宣言された全 kind について当該 task_id の evidence 行の存在を確認し、各 kind の固有規則（payload_json 必須キー・列対応・hash 桁数等 — s0-contract §2.1）を再検証してから、同一 transaction で done へ遷移し state_transitions に passed を記録する。",
+      "rejection_behavior": "必須 kind の欠落・kind 規則違反（payload 必須キー欠落・result != PASS・hash 不正等）は EvidenceIncomplete として done 遷移を拒否し、state_transitions に guard_result = rejected を記録して task は verifying のまま留める。required_evidence_json が読解不能・kind が未定義の場合も判定不能として拒否する（fail-close）。",
+      "boundary_behavior": "required_evidence_json に evidence.kind の enum 外の値を含む workflow は判定不能として done を常に拒否（宣言の誤りを素通しにしない）。同一 kind の重複証跡は UNIQUE(task_id, kind, value) の範囲で許容し、最低 1 件の適合で充足。空配列宣言は「必須なし」として通過（ただし S0 の全 task type は非空を seed）。",
+      "retry_resume_recovery": "検証は DB 状態のみで再評価可能。欠落分の証跡を追記（append-only INSERT）後に verify_pass を再要求すれば通過する。クラッシュ後は verifying の再開規則（§3.3）に従い既存証跡を再検証する。",
+      "human_judgement": "なし（全自動の機械検証。証跡が揃えられない task の扱いは §3 の失敗分類で escalated/failed へ）",
+      "side_effects": [
+        "tasks UPDATE（done 遷移 — 完備時のみ）",
+        "state_transitions INSERT（passed/rejected）"
+      ],
+      "idempotency": "検証は pure（同一 evidence 集合→同一判定）。done 遷移自体は状態機械の冪等キー（verifying 以外からの verify_pass は拒否）で二重完了しない。",
+      "evidence": [
+        "evidence 行（kind ごとの完備集合そのもの）",
+        "state_transitions 行（done 遷移の passed／拒否の rejected）"
+      ],
+      "tables": [
+        "r: workflows（required_evidence_json）",
+        "r: evidence（当該 task の kind 集合）",
+        "rw: tasks（done 遷移）",
+        "w: state_transitions"
+      ],
+      "external_deps": [],
+      "config_values": [],
+      "fixed_values": [
+        "evidence kind の enum と kind 固有規則（s0-contract §2.1 — rename 禁止）",
+        "S0 のタスク種別ごとの必須 kind 集合（§2.1 末尾）"
+      ],
+      "trace_up": [
+        "BR-B3",
+        "REQ-010",
+        "REQ-052"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-28-1",
+          "AC-28-2",
+          "AC-28-3"
+        ],
+        "fn": [
+          "FN-208"
+        ],
+        "cmp": [
+          "CMP-03",
+          "CMP-04"
+        ]
+      },
+      "slice": "S0"
+    },
+    {
+      "id": "FR-31",
+      "title": "ヒアリングエンジン",
+      "input": [
+        "§4 スキーマの必須スロット定義（fill=H — JSON 正本）",
+        "対象 business_profile の現充填状態（business_profiles.profile_json）",
+        "人間回答（Claude Code 対話経由 — 構造化値）",
+        "依存タスクの開始前提判定要求（task_id）"
+      ],
+      "output": [
+        "未充足スロットごとの質問リスト（構造化問診）",
+        "型検証済み充填値で更新された business_profiles 行",
+        "拒否時: SlotUnfilledRejected（依存タスク開始）／AnswerTypeInvalid（型不一致回答）"
+      ],
+      "precondition": [
+        "§4 スキーマ（必須スロット・型定義）がロード済み",
+        "対象 business_profiles 行が存在する",
+        "DB マイグレーション適用済み（DU-11 verify() green）"
+      ],
+      "postcondition": [
+        "充填された値はすべて型検証 PASS 済みの人間回答由来である",
+        "未充足スロットが残る限り依存タスクは pending のまま",
+        "問診・回答・型検証結果の紐付け証跡が残っている"
+      ],
+      "invariants": [
+        "未充足スロットを推測値で充填する経路がコード上に存在しない（値の出所は人間回答のみ — BR-D1 禁止事項）",
+        "型検証を通らない値は profile_json に一切書き込まれない",
+        "充填状態の判定は business_profiles の正本のみを根拠とする"
+      ],
+      "state_transitions": [
+        "tasks: pending → pending（依存タスクの開始イベントは前提スロット未充足のガード不成立で拒否 — 遷移せず）"
+      ],
+      "normal_behavior": "必須スロットの空きをスキーマと profile_json の突合で検出 → 未充足スロットごとに質問リストを生成 → Claude Code 対話で人に照会 → 回答を型検証し、PASS した値のみ profile_json へ充填して証跡を残す。全スロット充足後に依存タスクの開始前提判定が通る。",
+      "rejection_behavior": "未充足スロットに依存するタスクの開始要求は SlotUnfilledRejected を raise し、タスク状態を変更せず拒否理由（未充足スロット名）を構造化ログに残す。型検証 NG の回答は AnswerTypeInvalid として充填せず、同一スロットを再照会する。エンジンによる推測充填要求は常に拒否（fail-close）。",
+      "boundary_behavior": "全スロット充足時は質問リストが空（照会 0 件で正常終了）。回答が部分的な場合は充足分のみ充填し残りは未充足のまま維持。同一スロットへの再回答は新値で更新し、旧値は証跡に残る。",
+      "retry_resume_recovery": "問診途中のクラッシュでも充填済みスロットは DB に確定済み。再開時は空き検出を再実行し、残りの未充足スロットのみ再照会する（申し送りなし）。",
+      "human_judgement": "あり（問診への回答 = 事業前提の確定は常に人間 — BR-D1。回答以外の判断はなし）",
+      "side_effects": [
+        "business_profiles UPDATE（profile_json の充填）",
+        "evidence INSERT（問診・回答・型検証結果）",
+        "構造化ログ（FN-704 — 開始拒否・型検証 NG）"
+      ],
+      "idempotency": "空き検出が冪等キー: 充填済みスロットは再照会されない。同一回答の再送は同値上書きで DB 差分を生まない。",
+      "evidence": [
+        "問診レコードと回答の紐付け行（evidence）",
+        "回答の型検証結果ログ",
+        "未充足時の開始拒否ログ（構造化ログ）"
+      ],
+      "tables": [
+        "rw: business_profiles",
+        "w: evidence",
+        "r: tasks（依存タスクの開始前提判定）"
+      ],
+      "external_deps": [
+        "Claude Code 対話チャネル（人間への照会経路 — これ以外の照会経路は禁止）"
+      ],
+      "config_values": [],
+      "fixed_values": [
+        "§4 スキーマの必須スロット定義（fill=H 指定 — 変更は要件改訂）"
+      ],
+      "trace_up": [
+        "BR-D1",
+        "REQ-016",
+        "REQ-037"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-31-1",
+          "AC-31-2",
+          "AC-31-3"
+        ],
+        "fn": [
+          "FN-301",
+          "FN-302"
+        ]
+      },
+      "slice": "S1"
+    },
+    {
+      "id": "FR-32",
+      "title": "リサーチエンジン（幻覚抑止）",
+      "input": [
+        "リサーチ充填（fill=R）指定スロットの充填要求（スロット名・型）",
+        "Web 検索結果（値・出典 URL・取得日時の組）"
+      ],
+      "output": [
+        "出典 URL 付き draft（KPI 初期形・媒体標準指標・運用詳細）",
+        "拒否時: UnsourcedValueRejected（出典なし値）／StaleSourceRejected（鮮度切れ出典）"
+      ],
+      "precondition": [
+        "fill=R スロットの型定義がロード済み",
+        "Web 検索経路（接続レジストリ準拠）が利用可能",
+        "config.source_freshness_days が config に存在する"
+      ],
+      "postcondition": [
+        "draft の全値が出典 URL へ trace できる",
+        "出典なしの値が draft に 1 件も存在しない",
+        "媒体構造調査には structure_checked 日付が付与されている"
+      ],
+      "invariants": [
+        "出典 URL のない値は draft に書けない（記憶ベースの媒体仕様記述の禁止 — BR-D2）",
+        "draft は draft のまま正本にならない（正本昇格は人間承認経由）",
+        "検索取得は読み取り専用で外部書込みを行わない"
+      ],
+      "state_transitions": [],
+      "normal_behavior": "fill=R スロットの充填要求 → Web 検索で候補値を取得 → 各値に出典 URL・取得日時を紐付けて型検証 → 出典・鮮度検証を通過した値のみで draft を起草し、出典 URL 列と structure_checked 日付を含めて保存する。",
+      "rejection_behavior": "出典 URL を欠く値の draft 書込みは UnsourcedValueRejected を raise し、その値を破棄して拒否理由を構造化ログに残す。鮮度上限（config.source_freshness_days）超過の出典は StaleSourceRejected で drop（G-SRC-FRESH）。出典検証不能（URL 解決失敗等）も拒否側へ倒す（fail-close）。",
+      "boundary_behavior": "検索結果 0 件のスロットは draft に含めず未充足のまま残す（空 draft を正本化しない）。鮮度がちょうど上限日数の出典は有効（超過のみ拒否）。同一スロットへの複数出典は全出典を保持する。",
+      "retry_resume_recovery": "起草途中のクラッシュは draft 未確定のため再実行で最初から起草し直す（検索は再取得 — 出典日時は新しくなる）。保存済み draft は残り、再実行は新 draft として区別される。",
+      "human_judgement": "あり（draft の採否 — リサーチ値の正本昇格は人間承認を経る。起草自体は全自動）",
+      "side_effects": [
+        "draft の保存（出典 URL 列つき）",
+        "evidence INSERT（kind = operation_log — Web 取得の記録）",
+        "構造化ログ（出典なし値・鮮度切れの拒否）"
+      ],
+      "idempotency": "同一スロット・同一出典 URL・同一値の再起草は draft 内で重複せず 1 件に正規化される。検索の再実行自体は安全（読み取り専用）。",
+      "evidence": [
+        "draft の出典 URL 列",
+        "structure_checked 日付",
+        "出典なし値の拒否ログ（構造化ログ）",
+        "operation_log 証跡（Web 取得 — evidence kind）"
+      ],
+      "tables": [
+        "r: config（source_freshness_days）",
+        "w: evidence（取得証跡）",
+        "r: kpi_nodes（KPI 初期形の突合先）"
+      ],
+      "external_deps": [
+        "Web 検索（接続レジストリ経由の読み取り専用経路）"
+      ],
+      "config_values": [
+        "config.source_freshness_days（媒体構造調査の鮮度上限 — 暫定既定値 90 日）"
+      ],
+      "fixed_values": [
+        "fill=R スロットの定義（§4 — 変更は要件改訂）"
+      ],
+      "trace_up": [
+        "BR-D2",
+        "REQ-017"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-32-1",
+          "AC-32-2",
+          "AC-32-3"
+        ],
+        "fn": [
+          "FN-303",
+          "FN-304"
+        ]
+      },
+      "slice": "S1"
+    },
+    {
+      "id": "FR-33",
+      "title": "設定管理（config 履歴保持）",
+      "input": [
+        "設定変更要求（key, value_json, value_type, reason, changed_by_agent_id）",
+        "設定参照要求（key — str）"
+      ],
+      "output": [
+        "新 config 行（INSERT — supersedes_config_id で直前有効行を参照）",
+        "有効値（key ごとに changed_at 最大の行）",
+        "拒否時: ConfigAppendOnlyViolation／ConfigReasonMissing 例外"
+      ],
+      "precondition": [
+        "config テーブルと append-only 保護トリガが生成済み（DU-11 verify() green）",
+        "安全側既定値が初期 migration で seed 済み"
+      ],
+      "postcondition": [
+        "変更は新行 INSERT のみで反映され、旧行は不変のまま残っている",
+        "新行の reason が非空で記録されている",
+        "supersedes_config_id が直前の有効行を指している"
+      ],
+      "invariants": [
+        "config は append-only（UPDATE/DELETE は保護トリガが常時 ABORT — 変更は INSERT の履歴保持のみ）",
+        "reason 必須（reason のない変更行は存在しない）",
+        "既定値は保守的（安全側）に設定され、危険側変更も履歴として必ず残る",
+        "同一 key・同一 changed_at の行は存在しない（UNIQUE）"
+      ],
+      "state_transitions": [],
+      "normal_behavior": "変更要求を受領 → reason 非空・value_type と value_json の整合を検証 → 直前の有効行を解決して supersedes_config_id に設定し、新行を INSERT する。参照は key ごとに changed_at 最大の行を有効値として返す。",
+      "rejection_behavior": "config への UPDATE/DELETE は保護トリガが RAISE(ABORT) で常時拒否（ConfigAppendOnlyViolation）。reason が空・欠落の変更要求は ConfigReasonMissing で INSERT 前に拒否。同一 key・同一 changed_at の INSERT は UNIQUE 制約で拒否。value_type 外の型は CHECK 制約で拒否（fail-close）。",
+      "boundary_behavior": "参照 key が config に不在の場合は安全側既定値表から保守的値を返し、既定値もなければ拒否側へ倒す（fail-open な暗黙値を返さない）。同一 key への同時変更は UNIQUE (key, changed_at) の直列化で片方のみ成立。",
+      "retry_resume_recovery": "INSERT は単一 transaction のためクラッシュ時は中間状態が残らない。再実行は直前有効行を再解決して INSERT し直す。履歴チェーンは supersedes_config_id で常に復元可能。",
+      "human_judgement": "あり（安全側数値の危険側変更 — 上限緩和等 — は人間承認を経る。参照・履歴解決は全自動）",
+      "side_effects": [
+        "config INSERT（変更ごとに 1 行）",
+        "構造化ログ（拒否時 — append-only 違反・reason 欠落）"
+      ],
+      "idempotency": "同一 key・同一 changed_at の再送は UNIQUE 制約で重複せず拒否される。参照は pure（同一 DB 状態→同一有効値）。",
+      "evidence": [
+        "config の履歴行（旧行が不変のまま残る — それ自体が証跡）",
+        "変更 reason 列",
+        "構造化ログ（拒否行）"
+      ],
+      "tables": [
+        "rw: config（w は INSERT のみ — UPDATE/DELETE 不可）",
+        "r: agents（changed_by_agent_id の FK 先）"
+      ],
+      "external_deps": [],
+      "config_values": [],
+      "fixed_values": [
+        "安全側既定値の seed 表（spend_cap_monthly=5000 円/月・retry_limit 等 — 初期 migration で投入）",
+        "append-only 保護トリガ（config_no_update／config_no_delete）"
+      ],
+      "trace_up": [
+        "BR-D3",
+        "REQ-018"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-33-1",
+          "AC-33-2",
+          "AC-33-3"
+        ],
+        "fn": [
+          "FN-305"
+        ],
+        "cmp": [
+          "CMP-06"
+        ]
+      },
+      "slice": "S0"
+    },
+    {
+      "id": "FR-34",
+      "title": "事業非依存（business_profiles 分離）",
+      "input": [
+        "新プロファイル登録要求（profile_key, name, profile_json）",
+        "データアクセスのスコープ解決要求（business_profile_id — ストア層経由）"
+      ],
+      "output": [
+        "business_profiles 行（複数共存）",
+        "スコープ強制済みクエリ結果（要求 profile のデータのみ）",
+        "拒否時: CrossProfileAccessDenied／ProfileKeyConflict 例外"
+      ],
+      "precondition": [
+        "business_profiles と business_profile_id FK 付き業務テーブルが生成済み",
+        "アクセス要求に business_profile_id スコープが解決済みで渡る（ストア層一元化）"
+      ],
+      "postcondition": [
+        "登録後も既存プロファイルの行・参照データが不変である",
+        "クエリ結果に他プロファイルの行が 0 件である",
+        "越境アクセスの拒否が証跡に残っている"
+      ],
+      "invariants": [
+        "事業固有値は business_profiles・config・充填スロットのみに存在する（コード・ワークフロー定義への焼き付け禁止 — BR-D4）",
+        "ブランド越境のデータ参照・書込みは構造的に不可能（BR-I1 — スコープ解決はストア層で一元化）",
+        "複数プロファイルの共存がスキーマとして常に許される（profile_key UNIQUE のみが識別制約）"
+      ],
+      "state_transitions": [
+        "business_profiles: draft → active → archived（status CHECK — 別ブランド追加は型の再充填のみ）"
+      ],
+      "normal_behavior": "新プロファイルは profile_json の型検証後に business_profiles へ INSERT され、既存プロファイルと共存する。全データアクセスはストア層で business_profile_id スコープを強制され、要求プロファイルの行のみが返る・書かれる。",
+      "rejection_behavior": "他プロファイルに属する行への参照・書込み要求は CrossProfileAccessDenied を raise し、DB を変更せず拒否を証跡化する。profile_key 重複は UNIQUE 制約で ProfileKeyConflict。スコープ未指定のアクセスは deny-by-default で拒否（呼出側の自由 WHERE に依存しない）。",
+      "boundary_behavior": "archived プロファイルは読取可・新規書込み不可。プロファイル 1 件のみでもスコープ強制は省略されない。削除は参照行がある限り FK ON DELETE RESTRICT で拒否。",
+      "retry_resume_recovery": "登録は単一 transaction でクラッシュ時に中間状態が残らない。再登録は profile_key の UNIQUE で重複検出。スコープ解決は無状態のため再実行安全。",
+      "human_judgement": "あり（新事業プロファイルの充填内容の確定・追加/廃止の意思決定は人間。スコープ強制は全自動）",
+      "side_effects": [
+        "business_profiles INSERT/UPDATE（status 遷移）",
+        "構造化ログ（越境拒否）"
+      ],
+      "idempotency": "同一 profile_key の再登録は UNIQUE で拒否（重複プロファイルは生まれない）。スコープ解決は pure（同一入力→同一スコープ）。",
+      "evidence": [
+        "business_profiles の複数行共存（SELECT で確認可能）",
+        "越境アクセスの拒否ログ（構造化ログ）",
+        "事業固有値のハードコード検出ゲート green"
+      ],
+      "tables": [
+        "rw: business_profiles",
+        "r: brand_plans・action_plans・kpi_nodes 等（business_profile_id FK スコープ列を持つ業務テーブル）"
+      ],
+      "external_deps": [],
+      "config_values": [],
+      "fixed_values": [
+        "business_profiles の status 遷移（draft/active/archived — DDL CHECK）"
+      ],
+      "trace_up": [
+        "BR-D4",
+        "BR-I1",
+        "REQ-019",
+        "REQ-046"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-34-1",
+          "AC-34-2",
+          "AC-34-3"
+        ],
+        "fn": [
+          "FN-306"
+        ]
+      },
+      "slice": "S1"
+    },
+    {
+      "id": "FR-41",
+      "title": "接続レジストリ",
+      "input": [
+        "経路解決要求（service, operation — connectors 各層から）",
+        "レジストリ行（config `registry.<service>` の JSON 値 — 優先経路 MCP/ブラウザ/API・フォールバック経路・認証方式）",
+        "有償経路の例外宣言（config `registry.<service>.paid_exception` — 現状 Seedance のみ）"
+      ],
+      "output": [
+        "解決済み経路（route_type: mcp/browser/api/wp_rest/wp_cli — 呼出元コネクタへ）",
+        "解決不能時: RouteNotRegistered / PaidRouteDenied 例外",
+        "operation_log 行（拒否・フォールバック発動時）"
+      ],
+      "precondition": [
+        "config にレジストリ行が投入済み（tech-stack §5 の初期表が seed）",
+        "経路選定ロジックがレジストリ参照のみで動く（コード内に service→経路の分岐が存在しない）",
+        "有償経路の宣言には spend_ledger 記録経路（FR-73）が配線済み"
+      ],
+      "postcondition": [
+        "返却された経路はレジストリ行の宣言と一致している",
+        "有償 API 経路は例外宣言のあるサービスに限って返却されている",
+        "フォールバック発動・拒否は operation_log に理由つきで残っている"
+      ],
+      "invariants": [
+        "経路優先順は MCP → ブラウザ → 有償 API（明示例外のみ — BR-F1）で、レジストリ行の変更のみで切替可能",
+        "X のブラウザ書込み経路はレジストリに登録できない（BR-M-X-4 — 登録要求自体を拒否）",
+        "媒体追加はレジストリ行＋ワークフロー＋攻略地図の追加のみで完結し、外殻コードを変更しない（NFR-8）"
+      ],
+      "state_transitions": [],
+      "normal_behavior": "経路解決要求を受け、config のレジストリ行から (service) の優先経路を読み、認証方式を添えて経路を返す。第一経路が利用不能（コネクタからの失敗通知）ならフォールバック経路へ切替え、切替を operation_log に記録する。経路の追加・変更は config INSERT（履歴保持 — FR-33）のみで反映される。",
+      "rejection_behavior": "未登録 service は RouteNotRegistered を raise し operation_log に記録。例外宣言のないサービスへの有償 API 経路解決は PaidRouteDenied で拒否。X への browser 書込み経路の登録・解決要求は ProhibitedMediaWrite で拒否（BR-M-X-4）。レジストリ行 JSON の破損・型不一致は解決不能として拒否側へ倒す（fail-close）。",
+      "boundary_behavior": "フォールバック経路が未宣言で第一経路も不能な場合は経路なしとして呼出元タスクを escalated へ誘導（解決 API は RouteNotRegistered）。同一 service の複数レジストリ行は changed_at 最新の 1 行のみ有効。空レジストリ = 全 service 解決不能（安全側）。",
+      "retry_resume_recovery": "解決は無状態（config 読取のみ）で再実行は同一結果を返す。config 行更新後は次回解決から反映。クラッシュ後の再開に固有の中間状態はない。",
+      "human_judgement": "なし（全自動。有償経路の例外宣言の追加自体は config 変更として人間 = PO 判断 — BR-F1）",
+      "side_effects": [
+        "operation_log INSERT（拒否・フォールバック発動時）",
+        "なし（解決成功時は pure — 読取のみ）"
+      ],
+      "idempotency": "同一 (service, operation) の解決は同一 config 状態で同一経路を返す pure 判定。拒否ログは解決要求単位で 1 行。",
+      "evidence": [
+        "operation_log 行（拒否・フォールバック発動 — service・要求経路・理由）"
+      ],
+      "tables": [
+        "r: config（registry.* 行）",
+        "w: operation_log",
+        "r: spend_ledger（有償経路の台帳配線検査）"
+      ],
+      "external_deps": [],
+      "config_values": [
+        "config.registry.<service>（優先経路・フォールバック・認証方式の JSON）",
+        "config.registry.<service>.paid_exception（有償経路の明示例外宣言）"
+      ],
+      "fixed_values": [
+        "経路優先順 MCP → ブラウザ → 有償 API（BR-F1 — 変更は要件改訂）",
+        "route_type 語彙（mcp/browser/api/wp_rest/wp_cli — playbooks DDL と共通）"
+      ],
+      "trace_up": [
+        "BR-F1",
+        "BR-F3",
+        "REQ-026",
+        "REQ-030",
+        "NFR-8"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-41-1",
+          "AC-41-2",
+          "AC-41-3"
+        ],
+        "fn": [
+          "FN-401",
+          "FN-412"
+        ],
+        "cmp": [
+          "CMP-07"
+        ]
+      },
+      "slice": "S0"
+    },
+    {
+      "id": "FR-42",
+      "title": "ブラウザ自動化基盤",
+      "input": [
+        "ブラウザ操作要求（service・operation・対象 URL・payload — タスク実行層から）",
+        "攻略地図行（playbooks: procedure_json・selector_json・status — FR-43 と共有）",
+        "headed/headless 切替値（config.browser.headed — bool）",
+        "Rng/Clock（注入 — 操作間隔乱数と seed 記録用）"
+      ],
+      "output": [
+        "操作結果（成功時: 取得値・スクショ参照 — 呼出元へ）",
+        "playbooks.last_success_at 更新（成功時）",
+        "書込み系: external_operations 行（prepared→sent→confirmed）＋ operation_log 証跡",
+        "拒否時: PlaybookMissing / RateLimitExceeded / ProhibitedMediaWrite / UrlDenied 例外"
+      ],
+      "precondition": [
+        "対象 (service, operation, route_type=browser) の playbooks 行が status=active で存在する",
+        "URL 許可リスト（FR-23）が config に存在する",
+        "credential は暗号化ストアから実行時注入済み（FR-47 — SQLite/ログに平文なし）",
+        "書込み系は成立済みペア ID・専用 idempotency key を呼出元が保持している"
+      ],
+      "postcondition": [
+        "操作は playbooks の手順・セレクタどおりに実行され、成功時に last_success_at が更新されている",
+        "書込み系操作は external_operations 1 行（1 操作 = 1 行）と operation_log 証跡を残し、その後に状態遷移している",
+        "書込み系の連続操作間隔は 1〜5 秒の一様乱数で、seed・生成値が構造化ログに記録されている（NFR-7）"
+      ],
+      "invariants": [
+        "X へのブラウザ書込みは常に拒否（BR-M-X-4 — バイパス経路なし）",
+        "書込み・公開系は 1 媒体 1 日 10 件以下（config.rate.<media>.daily_write_cap）を超えない",
+        "操作間隔は固定値でなく範囲乱数（固定間隔は機械署名 — BR-F5）",
+        "許可リスト外 URL への遷移は発生しない（FR-23 deny-by-default）"
+      ],
+      "state_transitions": [
+        "external_operations: prepared→sent→confirmed/rejected/unknown（書込み系操作ごと — s0-contract §1）"
+      ],
+      "normal_behavior": "操作要求を受け playbooks から手順を解決し、Playwright を config.browser.headed に従い起動。書込み系は external_operations を prepared でコミット→ Rng（seed 記録済み）で 1〜5 秒待機→ 送信し sent コミット→ 結果確定で confirmed とし operation_log 証跡を派生→ その後に状態遷移。成功時 playbooks.last_success_at を更新。読取り系は通常速度で実行し乱数待機を課さない。",
+      "rejection_behavior": "playbooks 行なし/status=broken は PlaybookMissing/PlaybookBroken で拒否（自己修復は FR-43 へ委譲）。日次書込み上限超過は RateLimitExceeded で当日拒否。X 書込み要求は ProhibitedMediaWrite。許可リスト外 URL は UrlDenied（FR-23）。いずれも operation_log に理由を記録し外部送信を行わない（fail-close）。",
+      "boundary_behavior": "間隔乱数は範囲端 1 秒・5 秒を含む一様分布。日次 10 件目は許可・11 件目は拒否（日付境界は Clock 注入基準）。セレクタ不一致は失敗として consecutive_failures を加算し FR-43 の破損検知へ渡す。セッション失効は書込み前に検知し送信しない。",
+      "retry_resume_recovery": "送信直後クラッシュは external_operations の status で再開: prepared は同一 idempotency key で再送可、sent はリモート照合で confirmed 化または unknown→escalate（再送しない — s0-contract §3.3）。乱数はログの seed から再現可能（NFR-2）。",
+      "human_judgement": "なし（全自動。検知・警告兆候時の媒体停止判断は安全側自動調整＋escalated 経由で人間 — BR-F5）",
+      "side_effects": [
+        "外部サイトへのブラウザ操作（書込みは external_operations 経由のみ）",
+        "external_operations INSERT/UPDATE",
+        "operation_log INSERT",
+        "playbooks.last_success_at / consecutive_failures UPDATE",
+        "構造化ログ行（seed・生成間隔値）"
+      ],
+      "idempotency": "書込み系は操作単位の idempotency key（external_operations.idempotency_key UNIQUE）で二重実行を検出（BR-I7）。sent 照合により再送は発生しない。読取り系は再実行安全。",
+      "evidence": [
+        "operation_log 行（external_operation_id・request_fingerprint つき）",
+        "screenshot evidence（操作確認）",
+        "構造化ログ（乱数 seed・間隔値 — NFR-7 再現用）"
+      ],
+      "tables": [
+        "rw: playbooks",
+        "rw: external_operations",
+        "w: operation_log（evidence kind）",
+        "r: config（browser.headed・rate.*・url_allowlist）",
+        "w: evidence（screenshot）"
+      ],
+      "external_deps": [
+        "Playwright（ブラウザ自動化）",
+        "対象媒体サイト（note/YouTube/stand.fm/KDP/ASP 等 — X 書込みは prohibited）"
+      ],
+      "config_values": [
+        "config.browser.headed（headed/headless 切替）",
+        "config.rate.<media>.daily_write_cap（暫定既定 10 件/日）",
+        "config.rate.write_interval_range（暫定既定 1〜5 秒一様）"
+      ],
+      "fixed_values": [
+        "読取り系は乱数待機の対象外（NFR-7）",
+        "書込み間隔は一様分布（分布形は要件固定）"
+      ],
+      "trace_up": [
+        "BR-F2",
+        "BR-F5",
+        "BR-M-X-4",
+        "REQ-028",
+        "REQ-044",
+        "NFR-7"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-42-1",
+          "AC-42-2",
+          "AC-42-3"
+        ],
+        "fn": [
+          "FN-402",
+          "FN-403",
+          "FN-404"
+        ],
+        "cmp": [
+          "CMP-08",
+          "CMP-09"
+        ]
+      },
+      "slice": "S1"
+    },
+    {
+      "id": "FR-43",
+      "title": "攻略地図の自己修復",
+      "input": [
+        "破損シグナル（セレクタ不一致・手順失敗 — FR-42 の失敗通知）",
+        "対象 playbooks 行（id・procedure_json・selector_json・consecutive_failures）",
+        "対象ページの現 DOM（読取り専用の再解析対象）"
+      ],
+      "output": [
+        "再生成された playbooks 行（成功時: 新 selector_json/procedure_json・status=active）",
+        "失敗時: 対象タスクの escalated 遷移＋通知（FR-46 経路）",
+        "operation_log 行（破損検知・再生成試行・結果）"
+      ],
+      "precondition": [
+        "対象 playbooks 行が存在し status が active または broken である",
+        "破損シグナルが失敗の具体（不一致セレクタ・失敗ステップ）を含む",
+        "再解析はログイン済みセッションで読取りのみ可能"
+      ],
+      "postcondition": [
+        "再生成は 1 回だけ試行されている（試行回数が operation_log で確認できる）",
+        "成功時: playbooks が新地図で UPDATE され status=active・consecutive_failures=0",
+        "失敗時: playbooks.status=broken のまま対象タスクが escalated で通知済み"
+      ],
+      "invariants": [
+        "再解析・再生成の過程で外部サイトへの書込みを行わない（読取りのみ）",
+        "自動再試行は 1 回まで（2 回目以降の自動試行経路が存在しない — 要件固定）",
+        "破損中（status=broken）の地図を参照する書込み操作は開始されない"
+      ],
+      "state_transitions": [
+        "playbooks.status: active→broken（破損検知）・broken→active（再生成成功）",
+        "tasks: in_progress→escalated（再生成失敗, event=escalate — BR-H3）"
+      ],
+      "normal_behavior": "FR-42 からの失敗通知で破損を検知し playbooks.status を broken に更新・operation_log に記録。対象ページを読取り専用で再解析し、地図（selector_json/procedure_json）を再生成して検証手順（対象要素の存在確認）が通れば playbooks を UPDATE し status=active・consecutive_failures=0 とし、元操作の再実行を呼出元へ返す。",
+      "rejection_behavior": "再生成 1 回の失敗（再解析不能・検証不通過）で追加試行せず、playbooks は broken のまま対象タスクを escalated へ遷移させ FR-46 経路で通知する（BR-H3）。ページ到達不能・認証失効も同様に escalated へ倒す（fail-close — 地図を推測で書き換えない）。",
+      "boundary_behavior": "同一 playbook への並行破損通知は 1 件のみ再生成し後続は結果待ち。status=retired は自己修復対象外（即 escalated）。再生成成功直後の再失敗は新たな破損検知として再度 1 回だけ試行可（試行カウントは破損イベント単位）。",
+      "retry_resume_recovery": "再生成中クラッシュは playbooks.status=broken が残るため、再開時は破損検知済みとして再生成を最初からやり直す（読取りのみで外部副作用なし）。escalated 後の復旧は人間対処→地図修正→タスク再投入。",
+      "human_judgement": "再生成失敗時の対処（地図手動修正・媒体運用判断）は escalated 経由で人間（BR-H3）。それ以外は全自動",
+      "side_effects": [
+        "playbooks UPDATE（status・selector_json・procedure_json・consecutive_failures）",
+        "operation_log INSERT（検知・試行・結果）",
+        "tasks の escalated 遷移（失敗時）",
+        "外部サイトへの読取りアクセス（書込みなし）"
+      ],
+      "idempotency": "再生成は破損イベント単位で 1 回（operation_log の試行記録で重複試行を検出）。再解析は読取りのみで再実行安全。",
+      "evidence": [
+        "operation_log 行（破損検知: 不一致セレクタ・失敗ステップ）",
+        "operation_log 行（再生成試行と結果）",
+        "screenshot evidence（再解析時のページ状態）"
+      ],
+      "tables": [
+        "rw: playbooks",
+        "w: operation_log（evidence kind）",
+        "rw: tasks（escalated 遷移は状態機械 FR-11 経由）",
+        "w: evidence（screenshot）"
+      ],
+      "external_deps": [
+        "対象媒体サイト（読取り専用の再解析）",
+        "Playwright（FR-42 基盤を利用）"
+      ],
+      "config_values": [],
+      "fixed_values": [
+        "自動再生成の試行回数 = 1 回（要件固定 — 変更は要件改訂）"
+      ],
+      "trace_up": [
+        "BR-F2",
+        "BR-H3",
+        "REQ-029"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-43-1",
+          "AC-43-2",
+          "AC-43-3"
+        ],
+        "fn": [
+          "FN-405"
+        ]
+      },
+      "slice": "S2"
+    },
+    {
+      "id": "FR-44",
+      "title": "WP コネクタ",
+      "input": [
+        "REST 書込み要求（投稿・メディア・下書き・公開 — WF-WP-2 から。成立済みペア ID・専用 idempotency key つき）",
+        "WP-CLI 構築要求（子テーマ・プラグイン配備・テーマ解析 — 構築タスクから）",
+        "接続先（接続レジストリ経由 — Application Password は暗号化ストアから実行時注入）"
+      ],
+      "output": [
+        "REST 成功時: WP draft ID / post ID / canonical URL / media ID（external_operations・evidence へ）",
+        "WP-CLI 成功時: 実行結果＋テーマ解析結果の playbooks 構造化保存（BR-G4）",
+        "拒否時: PairRequired / ProductionWriteDenied / ApprovalRequired 例外"
+      ],
+      "precondition": [
+        "書込み系は pair_plan_quality に status=passed のペア行が存在する（FR-21 — 成立済みペア ID）",
+        "書込み先 endpoint がローカル Docker WP である（環境契約 §6 — 唯一の実 WP 書込み先）",
+        "公開操作は decision=approved の approvals 行（binding 3 項目一致）が存在する（FR-46）",
+        "操作ごとの専用 idempotency key を保持（下書き作成と公開は別 key）"
+      ],
+      "postcondition": [
+        "外部書込み 1 件につき external_operations 1 行が prepared→sent→confirmed で遷移し operation_log 証跡が派生している",
+        "公開成功時 published_url evidence と assets 参照（canonical_url・wp_post_id）が登録されている",
+        "テーマ解析結果は playbooks（route_type=wp_cli）に構造化保存されている"
+      ],
+      "invariants": [
+        "本番 WP・Docker 以外の WP への自動書込みは発生しない（設定検出時は実行拒否 — 環境契約 §6）",
+        "ペア ID なしの書込み呼出しは常に拒否（fail-close — requirements §1）",
+        "credential は SQLite/repo/ログ/evidence に平文で残らない（FR-47）",
+        "REST 書込みはバースト上限 30 req/分・公開 10 件/日以内（MR-WP-5 — config.rate.wp.*）"
+      ],
+      "state_transitions": [
+        "external_operations: prepared→sent→confirmed/rejected/unknown（書込み操作ごと）",
+        "tasks: WF-WP-2 の in_progress→verifying 等は状態機械（FR-11）経由 — 本 FR は証跡化までを担う"
+      ],
+      "normal_behavior": "書込み要求のペア ID・endpoint・（公開時は）approval を検証し、external_operations を prepared でコミット→ REST 送信→ sent コミット→ WP 応答（post ID・リビジョン）で confirmed とし operation_log 証跡（response_hash・external_operation_id）を派生→ その後に状態遷移。公開時は canonical URL を published_url evidence と assets に登録。WP-CLI 構築系はテーマ解析結果を playbooks に保存。",
+      "rejection_behavior": "成立済みペア ID なしは PairRequired、Docker 以外の WP endpoint への書込み設定は ProductionWriteDenied、公開時の approved approval なし・binding 不一致は ApprovalRequired/ApprovalBindingMismatch で拒否し、いずれも外部送信 0 回で operation_log に理由を記録（fail-close）。WP 側エラー（4xx/5xx）は rejected とし証跡化して呼出元へ失敗を返す。",
+      "boundary_behavior": "レート上限（30 req/分）到達時はバースト待機し上限を超えない。下書きと公開は別 idempotency key の別 external_operations 行（1 操作 = 1 行）。同一 idempotency key の再要求は UNIQUE 制約で既存行に照合され二重送信しない。",
+      "retry_resume_recovery": "sent のままクラッシュした最危険 kill point（WP 側成功・ローカル sent）は、WP 側を post ID / idempotency key で照合し成功確認できれば confirmed 化して証跡補完、照合不能なら unknown とし再送せず escalate（s0-contract §3.3・§8）。prepared は同一 key で再送可。",
+      "human_judgement": "公開の束縛承認（FR-46 経由）。unknown 照合不能時の対処は escalated 経由で人間。それ以外は全自動",
+      "side_effects": [
+        "Docker WP への REST 書込み（投稿・メディア・公開）",
+        "WP-CLI 実行（構築系）",
+        "external_operations INSERT/UPDATE",
+        "operation_log / published_url evidence INSERT",
+        "assets INSERT（canonical_url・wp_media_id）",
+        "playbooks INSERT/UPDATE（テーマ解析）"
+      ],
+      "idempotency": "操作単位の idempotency key（external_operations.idempotency_key UNIQUE）で二重実行を検出（BR-I7）。下書きと公開は別 key。sent 照合により再送は発生しない。",
+      "evidence": [
+        "operation_log 行（service=wp・external_operation_id・request_fingerprint）",
+        "published_url evidence（url・wp_post_id・external_operation_id・asset_id）",
+        "screenshot evidence（公開確認 — WF-WP-2）"
+      ],
+      "tables": [
+        "rw: external_operations",
+        "w: operation_log / published_url（evidence）",
+        "w: assets",
+        "r: pair_plan_quality（ペア成立検証）",
+        "r: approvals（公開時）",
+        "rw: playbooks（テーマ解析）",
+        "r: config（rate.wp.*・接続レジストリ行）"
+      ],
+      "external_deps": [
+        "ローカル Docker WP（wordpress + mariadb — 唯一の実書込み先）",
+        "WP REST API（Application Passwords）",
+        "WP-CLI"
+      ],
+      "config_values": [
+        "config.rate.wp.burst_per_min（暫定既定 30 req/分）",
+        "config.rate.wp.publish_daily_cap（暫定既定 10 件/日）"
+      ],
+      "fixed_values": [
+        "下書き作成と公開は別 idempotency key の別行（s0-contract §1）",
+        "書込み許可 endpoint = ローカル Docker WP のみ（環境契約 §6）"
+      ],
+      "trace_up": [
+        "BR-G4",
+        "BR-I7",
+        "REQ-036",
+        "REQ-008"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-44-1",
+          "AC-44-2",
+          "AC-44-3"
+        ],
+        "fn": [
+          "FN-406",
+          "FN-407"
+        ],
+        "cmp": [
+          "CMP-10"
+        ]
+      },
+      "slice": "S1"
+    },
+    {
+      "id": "FR-45",
+      "title": "Notion 同期",
+      "input": [
+        "スプリント開始イベント（読取りトリガ — オーケストレータから）",
+        "レビュー成立イベント（書戻しトリガ — pair 成立後）",
+        "Notion 側計画ページ（接続レジストリ経由: MCP 優先／ブラウザ fallback）",
+        "書戻し対象の結果データ（sprints・learnings 由来の要約）"
+      ],
+      "output": [
+        "読取り時: 計画データの SQLite 側 draft（sprints/action_plans への参照材料 — 判定には使わない）",
+        "書戻し時: Notion ページ更新＋external_operations/operation_log 証跡",
+        "障害時: NotionUnavailable 記録（同期タスクのみ失敗 — ループは継続）"
+      ],
+      "precondition": [
+        "接続レジストリに Notion 行（MCP 優先・ブラウザ fallback）が存在する",
+        "credential は暗号化ストアから実行時注入（FR-47）",
+        "書戻しは操作単位の idempotency key を保持する"
+      ],
+      "postcondition": [
+        "読取り結果は SQLite に draft として保存され、ループ判定は SQLite のみで行われている",
+        "書戻し 1 件につき external_operations 1 行と operation_log 証跡が残っている",
+        "Notion 障害時も loop_runs / tasks の進行が Notion 応答に依存していない"
+      ],
+      "invariants": [
+        "Notion はループ判定・ゲート判定に関与しない（SQLite が唯一の正本 — FR-45）",
+        "同期は低頻度バッチ（3 req/秒・2,000 字分割を前提 — BR-M-NOTION-1）でレート超過しない",
+        "変更検知はポーリング（last_edited_time・分単位精度）でカーソルに余裕を持たせ取りこぼさない（BR-M-NOTION-2）"
+      ],
+      "state_transitions": [
+        "external_operations: prepared→sent→confirmed/rejected/unknown（書戻し操作ごと）"
+      ],
+      "normal_behavior": "スプリント開始時に Notion 計画ページを last_edited_time ポーリング（カーソルに分単位の余裕）で読取り、SQLite に draft 保存。レビュー成立時に結果要約を 2,000 字分割・3 req/秒以下のバッチで書戻し、external_operations を prepared→sent→confirmed で遷移させ operation_log 証跡を派生する。",
+      "rejection_behavior": "Notion 応答不能・認証失効は NotionUnavailable として同期タスクのみ failed とし operation_log に記録 — ループ本体は SQLite のみで継続する（Notion 障害をループ停止に波及させない）。レート応答（429）は同期を中断しバックオフ後の次回バッチへ繰越す。書戻しデータに秘匿情報が混入した場合はマスキング検査で送信前に拒否（NFR-4）。",
+      "boundary_behavior": "2,000 字境界はブロック分割で送信（1 ブロック超過を作らない）。ポーリング精度が分単位のため境界更新はカーソル余裕で重複取得し、取得側の冪等 upsert で吸収。空の計画ページは draft なしとして正常終了。",
+      "retry_resume_recovery": "書戻し中クラッシュは external_operations の prepared/sent 照合で再開（sent 照合不能は unknown・再送なし）。読取りはカーソル位置から再実行安全。同期失敗は次回トリガで最初から再試行してよい（低頻度・冪等）。",
+      "human_judgement": "なし（全自動。恒常的な Notion 障害の運用判断は escalated 経由で人間）",
+      "side_effects": [
+        "Notion ページ読取り・書戻し（外部）",
+        "external_operations INSERT/UPDATE",
+        "operation_log INSERT",
+        "SQLite への計画 draft 保存"
+      ],
+      "idempotency": "書戻しは操作単位の idempotency key で二重実行を検出（BR-I7）。読取りは last_edited_time カーソル＋冪等 upsert で重複取得を吸収。",
+      "evidence": [
+        "operation_log 行（service=notion・external_operation_id・request_fingerprint）",
+        "読取り draft の file_hash / measurement 系証跡（取得物の同定）"
+      ],
+      "tables": [
+        "rw: external_operations",
+        "w: operation_log（evidence）",
+        "r: sprints / learnings（書戻し元）",
+        "w: action_plans / sprints への draft 参照材料",
+        "r: config（registry.notion・rate.notion.*）"
+      ],
+      "external_deps": [
+        "Notion（公式 MCP 優先／ブラウザ fallback — 接続レジストリ準拠）"
+      ],
+      "config_values": [
+        "config.rate.notion.req_per_sec（暫定既定 3 req/秒）",
+        "config.sync.notion.cursor_margin_min（ポーリングカーソル余裕・分）"
+      ],
+      "fixed_values": [
+        "Notion 本文分割単位 2,000 字（BR-M-NOTION-1）",
+        "webhook はループ判定に使わない（ポーリング基本 — BR-M-NOTION-2）"
+      ],
+      "trace_up": [
+        "BR-M-NOTION-1",
+        "BR-M-NOTION-2",
+        "BR-A1"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-45-1",
+          "AC-45-2",
+          "AC-45-3"
+        ],
+        "fn": [
+          "FN-408"
+        ]
+      },
+      "slice": "S1"
+    },
+    {
+      "id": "FR-46",
+      "title": "承認チャネル",
+      "input": [
+        "承認要求（対象 binding_subject・操作 binding_operation・時点 binding_at — 公開系タスクから）",
+        "承認応答（approved/rejected/expired/pending — Claude Code アプリ通知への応答）",
+        "オートモード判定材料（config.auto_mode_criteria＋実績証跡 — 機械判定用）"
+      ],
+      "output": [
+        "approvals 行（channel=claude_code_app・binding 3 項目・decision・responder_ref）",
+        "approval evidence（kind=approval — decision=approved 時、approvals.evidence_id と相互整合）",
+        "拒否時: ApprovalBindingMismatch / NonRetryableFailure 例外と対応する task 遷移"
+      ],
+      "precondition": [
+        "Claude Code アプリで通知を受け取れる利用者が構成済み（環境契約 §6 — transport は mock 可）",
+        "承認要求は binding 3 項目（対象・操作・時点）を欠落なく明記している",
+        "config.approval_retry_limit が存在する"
+      ],
+      "postcondition": [
+        "承認要求 1 件につき approvals 1 行が (task_id, binding 3 項目) UNIQUE で存在する",
+        "approved 時のみ後続の公開操作が binding 3 項目の完全一致照合を通過できる",
+        "decision と task 状態が対応している（approved→進行／rejected→failed／expired→再要求または escalated／pending→waiting）"
+      ],
+      "invariants": [
+        "pending の間、対象タスクは進行せず親 loop_run は waiting のまま（AC-46 系 — 先行公開経路なし）",
+        "binding 3 項目のいずれか 1 つでも不一致なら公開は通らない（部分一致許容なし）",
+        "承認応答の書換え・削除は不可（approvals は証跡 — decision 変更は新規要求で行う）"
+      ],
+      "state_transitions": [
+        "tasks: pending→waiting（承認要求送出）・waiting→in_progress（approved）・waiting→failed（rejected = non_retryable_failure）・waiting→escalated（expired が approval_retry_limit 到達）",
+        "approvals.decision: pending→approved/rejected/expired"
+      ],
+      "normal_behavior": "公開系タスクが承認要求を出すと binding 3 項目を明記した通知を Claude Code アプリへ送り、approvals に decision=pending で INSERT。応答受領で decision を更新し、approved なら approval evidence を登録して binding 3 項目の完全一致を条件に後続公開を許可する。オートモード移行は config.auto_mode_criteria と実績証跡から機械判定する（人手の主観判定を挟まない — BR-H2）。",
+      "rejection_behavior": "rejected は non_retryable_failure として task を failed へ（再試行しない — 承認拒否は自動リトライ対象外）。公開時の binding 3 項目不一致は ApprovalBindingMismatch で公開拒否し operation_log に記録。承認なしの公開呼出しは ApprovalRequired で拒否（fail-close）。",
+      "boundary_behavior": "expired は承認を再要求して待機継続し、再要求回数が config.approval_retry_limit に到達したら escalated へ（無限待機しない）。同一 (task, binding 3 項目) の重複要求は UNIQUE 制約で既存行に照合。binding_at と実公開時点の乖離は不一致として拒否。",
+      "retry_resume_recovery": "クラッシュ後は approvals.decision から再開: pending は応答待ちを継続、approved は evidence 整合を確認して公開へ、rejected/expired は各遷移規則を適用。通知の再送は同一 binding の再要求として扱い二重承認を作らない。",
+      "human_judgement": "承認応答そのもの（approve/reject）が人間判断の正規経路（BR-H1 — 束縛承認）。オートモード移行後は基準充足の機械判定で承認を省略",
+      "side_effects": [
+        "Claude Code アプリへの通知送出（transport は mock 可）",
+        "approvals INSERT/UPDATE（decision）",
+        "evidence INSERT（kind=approval）",
+        "operation_log INSERT（照合拒否時）",
+        "tasks の状態遷移（状態機械 FR-11 経由）"
+      ],
+      "idempotency": "承認要求は (task_id, binding_subject, binding_operation, binding_at) UNIQUE で重複要求を検出。応答の重複受信は decision 確定済み行への no-op。",
+      "evidence": [
+        "approvals 行（binding 3 項目・decision・responder_ref・decided_at）",
+        "approval evidence（decision=approved・approvals.evidence_id と相互整合）",
+        "operation_log 行（binding 不一致の公開拒否）"
+      ],
+      "tables": [
+        "rw: approvals",
+        "w: evidence（approval）",
+        "w: operation_log",
+        "rw: tasks（遷移は FR-11 経由）",
+        "r: config（approval_retry_limit・auto_mode_criteria）"
+      ],
+      "external_deps": [
+        "Claude Code アプリ通知（承認 transport — テストは mock）"
+      ],
+      "config_values": [
+        "config.approval_retry_limit（expired 再要求の上限）",
+        "config.auto_mode_criteria（オートモード移行基準 — C）"
+      ],
+      "fixed_values": [
+        "channel = claude_code_app（approvals DDL CHECK — 変更は要件改訂）",
+        "binding 照合は 3 項目完全一致（部分一致なし）"
+      ],
+      "trace_up": [
+        "BR-H1",
+        "BR-H2",
+        "REQ-038"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-46-1",
+          "AC-46-2",
+          "AC-46-3"
+        ],
+        "fn": [
+          "FN-409",
+          "FN-410"
+        ],
+        "cmp": [
+          "CMP-11"
+        ]
+      },
+      "slice": "S0"
+    },
+    {
+      "id": "FR-47",
+      "title": "秘匿情報",
+      "input": [
+        "credential 投入（Application Password・API キー・ログインセッション — 初回は人が暗号化ストアへ）",
+        "秘匿値の取得要求（service 名 — コネクタ実行時注入用）",
+        "ログ・証跡へ書き出される全文字列（マスキング検査対象 — NFR-4）"
+      ],
+      "output": [
+        "実行時注入される秘匿値（メモリ上のみ — 呼出コネクタへ）",
+        "取得不能時: SecretUnavailable 例外（操作は開始されない）",
+        "マスキング済みログ・証跡（平文 credential を含まない）"
+      ],
+      "precondition": [
+        "OS キーチェーンまたは暗号化ストアが利用可能である",
+        "テスト用と本番用 credential が別発行・別保管されている（環境契約 §6）",
+        "マスキング規則（既知 secret 値・パターン）がロード済み"
+      ],
+      "postcondition": [
+        "リポジトリ・SQLite・ログ・evidence の全文検索で平文 credential 検出 0 件（AC-47）",
+        "秘匿値はメモリ内でのみ使用され、外部操作後に永続化されていない",
+        "テスト credential が本番 endpoint に、本番 credential が Docker/mock に使われていない"
+      ],
+      "invariants": [
+        "平文 credential ゼロ（NFR-4 — SQLite/repo/ログ/evidence のいずれにも置かない）",
+        "evidence.external_operation_id 等の記録は秘匿情報を除いて行われる（s0-contract §1）",
+        "秘匿ストアを迂回して credential をコードや config に埋め込む経路が存在しない"
+      ],
+      "state_transitions": [],
+      "normal_behavior": "コネクタが接続時に service 名で秘匿値を要求すると、暗号化ストア（OS キーチェーン優先）から復号してメモリ上でのみ注入する。ログ・operation_log・evidence への全書出しはマスキング層を通過し、既知 secret 値・credential パターンを伏字化してから永続化する。",
+      "rejection_behavior": "秘匿値の取得不能（未投入・復号失敗・ストア不能）は SecretUnavailable を raise し外部操作を開始しない（fail-close）。書出し内容に平文 credential を検知した場合はマスクした上で CredentialLeakDetected を operation_log に記録し、当該書出し元のタスクを escalated へ誘導する。credential とテスト/本番 endpoint の組合せ不一致は実行拒否（環境契約 §6）。",
+      "boundary_behavior": "セッション失効・期限切れは取得時に検知し、再投入が必要なら escalated（credential 再投入は人の関与 — s0-contract §3.1 escalate ガード）。マスキングは部分一致（URL 埋込・JSON 内包）も対象。空ストア = 全接続不能（安全側）。",
+      "retry_resume_recovery": "秘匿ストアは SQLite 外のため DB 再開手順に依存しない。SecretUnavailable で止まったタスクは credential 再投入後に同一状態から再実行可能。マスキングは書出しごとの純検査で再実行安全。",
+      "human_judgement": "人間: credential の初回投入・失効時の再投入（環境契約 §6）。検査・マスキング・拒否は全自動",
+      "side_effects": [
+        "OS キーチェーン／暗号化ストアの読取り",
+        "operation_log INSERT（漏洩検知・取得不能時）",
+        "なし（正常注入は永続化を伴わない）"
+      ],
+      "idempotency": "取得・マスキングは pure（同一入力→同一結果）。漏洩検知ログは書出し操作単位で 1 行。再投入は上書きで冪等。",
+      "evidence": [
+        "operation_log 行（SecretUnavailable・CredentialLeakDetected — 秘匿値そのものは含まない）",
+        "全文検索 0 件の検査結果（AC-47 の検証観測）"
+      ],
+      "tables": [
+        "w: operation_log（evidence kind — 検知時のみ）",
+        "r: config（マスキング規則の非秘匿設定）"
+      ],
+      "external_deps": [
+        "OS キーチェーンまたは暗号化ストア（SQLite 外 — 鍵分離 BR-F4）"
+      ],
+      "config_values": [
+        "config.secret.masking_patterns（credential パターンの非秘匿定義）"
+      ],
+      "fixed_values": [
+        "秘匿値の保管先 = OS キーチェーン／暗号化ストアのみ（SQLite・repo・ログ禁止 — BR-F4）"
+      ],
+      "trace_up": [
+        "BR-F4",
+        "REQ-031",
+        "NFR-4"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-47-1",
+          "AC-47-2",
+          "AC-47-3"
+        ],
+        "fn": [
+          "FN-411"
+        ],
+        "cmp": [
+          "CMP-07"
+        ]
+      },
+      "slice": "S0"
+    },
+    {
+      "id": "FR-51",
+      "title": "レンダリングパイプライン",
+      "input": [
+        "制作タスク ID（int — tasks、T-PROD 系）",
+        "入力ソース（git ワークスペース内の HTML/SVG/原稿ファイル群 — commit で特定）",
+        "出力プロファイル（str — screenshot|pdf|manuscript、workflows の step 定義由来）",
+        "WP 接続情報（Docker WP のみ — 接続レジストリ経由）"
+      ],
+      "output": [
+        "レンダリング成果物（画像/PDF/原稿ファイル — WP メディアへアップロード）",
+        "assets への参照登録行（wp_media_id・canonical_url・content_hash）",
+        "evidence 行（kind=file_hash — 出力の SHA-256）",
+        "失敗時: RenderFailed 例外（段階・理由つき）"
+      ],
+      "precondition": [
+        "入力ソースが git ワークスペースに commit 済み（未 commit の作業ツリーは入力にしない）",
+        "対象 task が実行中状態にある",
+        "WP コネクタの接続先が Docker WP である（環境契約 §6）"
+      ],
+      "postcondition": [
+        "出力ファイルの SHA-256 が evidence（kind=file_hash）に記録されている",
+        "WP アップロード成功時は assets に参照行が 1 件存在し content_hash が出力 hash と一致する",
+        "失敗時は assets・WP に部分成果物が残っていない"
+      ],
+      "invariants": [
+        "同一 commit ＋同一プロファイル→同一出力 hash（決定性 — NFR-2。時刻・乱数は Clock/Rng 注入でレンダリングに混入させない）",
+        "コンテンツ実体は WP へ収束し SQLite には参照（hash・ID・URL）のみを置く（BR-G2）",
+        "外部書込み先は Docker WP のみ（本番 WP への書込みは常時拒否）"
+      ],
+      "state_transitions": [],
+      "normal_behavior": "task の workflow step から出力プロファイルを解決 → git ワークスペースの commit を特定 → レンダリング実行（HTML/SVG→ブラウザスクショ、HTML→PDF、原稿は FN-501 生成）→ 出力の SHA-256 算出 → Docker WP メディアへアップロード → assets へ参照 INSERT ＋ evidence（file_hash）INSERT を同一 transaction で行う。",
+      "rejection_behavior": "入力ソースが未 commit・commit 解決不能なら UnversionedSourceRejected で拒否（BR-G1）。接続先が Docker WP 以外なら WpTargetDenied で拒否し operation_log に記録。レンダリング途中失敗は RenderFailed を raise し、WP アップ済み断片があれば削除を試みたうえで assets/evidence を書かない（fail-close）。",
+      "boundary_behavior": "空の入力ソース（対象ファイル 0 件）は RenderFailed で拒否。同一 commit＋同一プロファイルの再実行は同一 hash を得て assets の UNIQUE(canonical_url/wp_media_id) で重複登録されない。巨大出力はサイズ上限（config）超過で拒否。",
+      "retry_resume_recovery": "assets/evidence 書込みは同一 transaction のためクラッシュで中間行が残らない。WP アップ後・登録前のクラッシュは、再実行時に content_hash 一致の既存メディアを照合して再アップせず登録のみ行う（冪等再開）。",
+      "human_judgement": "なし（全自動。成果物の合否は FR-27 審査ゲートの領分）",
+      "side_effects": [
+        "Docker WP メディアへのアップロード",
+        "assets INSERT",
+        "evidence INSERT（file_hash）",
+        "operation_log INSERT（外部操作・拒否時）"
+      ],
+      "idempotency": "出力 hash と assets の UNIQUE 制約が冪等キー。同一入力の再実行は同一 hash に収束し、参照行・証跡は重複しない。",
+      "evidence": [
+        "evidence 行（kind=file_hash — file_path・file_hash・algorithm=SHA-256）",
+        "operation_log 行（WP アップロード操作・拒否）"
+      ],
+      "tables": [
+        "r: tasks",
+        "r: workflows（出力プロファイル）",
+        "w: assets",
+        "w: evidence",
+        "w: operation_log",
+        "r: config（サイズ上限・WP 接続参照）"
+      ],
+      "external_deps": [
+        "ヘッドレスブラウザ（スクショ・PDF 化）",
+        "Docker WP（メディア API）",
+        "git（commit 解決）"
+      ],
+      "config_values": [
+        "config.render_output_max_bytes",
+        "config.wp_target（Docker WP 接続参照）"
+      ],
+      "fixed_values": [
+        "hash アルゴリズム = SHA-256",
+        "出力プロファイル種別（screenshot|pdf|manuscript）"
+      ],
+      "trace_up": [
+        "BR-G1",
+        "BR-G2",
+        "NFR-2",
+        "REQ-041"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-51-1",
+          "AC-51-2",
+          "AC-51-3"
+        ],
+        "fn": [
+          "FN-501",
+          "FN-502",
+          "FN-503"
+        ],
+        "cmp": [
+          "CMP-12"
+        ]
+      },
+      "slice": "S0"
+    },
+    {
+      "id": "FR-52",
+      "title": "デザイントークン適用",
+      "input": [
+        "レンダリング要求（FR-51 パイプラインからの呼出 — 対象ソース参照つき）",
+        "デザイントークン集合（Claude Design / DesignSync 正本から取得 — JSON）",
+        "トークンキャッシュ（直近同期済み — ローカルストア、版数・hash つき）"
+      ],
+      "output": [
+        "トークン注入済みレンダリング入力（CSS 変数等へ展開）",
+        "適用記録（使用トークンの版数・hash — evidence payload に記録）",
+        "取得不能かつキャッシュなし: DesignTokenUnavailable 例外"
+      ],
+      "precondition": [
+        "対象制作物がトークン適用対象（レンダリング経由）である",
+        "トークン正本への同期経路またはキャッシュのいずれかが構成済みである"
+      ],
+      "postcondition": [
+        "レンダリング出力に適用されたトークンの版数・hash が証跡に残っている",
+        "正本取得成功時はキャッシュが取得内容で更新されている",
+        "トークン外の恣意的スタイル指定が注入されていない（BR-G3 禁止事項）"
+      ],
+      "invariants": [
+        "トークンは Claude Design 正本（またはその同期キャッシュ）からのみ取得し、複製・手書き定義を持たない",
+        "同一トークン版＋同一ソース→同一出力（決定性 — NFR-2。トークン版 hash を証跡化して非決定要素を固定）"
+      ],
+      "state_transitions": [],
+      "normal_behavior": "DesignSync からトークンを取得 → 版数・hash を算出しキャッシュを更新 → レンダリング入力へトークンを注入（CSS 変数・テーマ値展開）→ 適用トークンの版数・hash をレンダリング証跡の payload に記録する。",
+      "rejection_behavior": "トークン取得不能かつキャッシュも存在しない場合は DesignTokenUnavailable を raise しレンダリングを実行しない（トークンなし出力を作らない — fail-close）。キャッシュ破損（hash 不一致・JSON 不正）は破損キャッシュを使用せず同様に拒否し operation_log に記録。",
+      "boundary_behavior": "正本取得不能でキャッシュありは直近同期済みキャッシュで継続し、キャッシュ利用（stale）フラグと版数を証跡に残す。トークン集合が空の応答は取得失敗と同等に扱う。",
+      "retry_resume_recovery": "取得はタイムアウト後に規定回数まで再試行し、失敗はキャッシュ経路へフォールバック。キャッシュ更新はアトミック（temp 書込み→rename）で中間状態を残さない。",
+      "human_judgement": "なし（デザインシステム自体の改訂承認は BR-G3 の PO 領分）",
+      "side_effects": [
+        "トークンキャッシュ ファイル更新",
+        "operation_log INSERT（取得・フォールバック・拒否）"
+      ],
+      "idempotency": "同一トークン版での再適用は同一出力。取得は read-only で何度実行しても正本を変更しない。",
+      "evidence": [
+        "レンダリング証跡 payload 内のトークン版数・hash・stale フラグ",
+        "operation_log 行（取得失敗・フォールバック）"
+      ],
+      "tables": [
+        "w: operation_log",
+        "r: config（DesignSync 接続参照・再試行回数）"
+      ],
+      "external_deps": [
+        "Claude Design（DesignSync — トークン正本）"
+      ],
+      "config_values": [
+        "config.designsync_source（正本参照）",
+        "config.designsync_fetch_retry_max",
+        "config.designsync_cache_path"
+      ],
+      "fixed_values": [
+        "キャッシュ検証 = SHA-256 hash 一致",
+        "トークン注入方式（CSS 変数展開）"
+      ],
+      "trace_up": [
+        "BR-G3",
+        "REQ-035",
+        "NFR-2"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-52-1",
+          "AC-52-2",
+          "AC-52-3"
+        ],
+        "fn": [
+          "FN-504"
+        ],
+        "cmp": [
+          "CMP-12"
+        ]
+      },
+      "slice": "S1"
+    },
+    {
+      "id": "FR-53",
+      "title": "音声・動画・EPUB パイプライン",
+      "input": [
+        "台本・素材参照（git ワークスペース＋WP 資産参照 — commit・asset_id で特定）",
+        "パイプライン種別（str — voice|video|epub|3d）",
+        "実行プロファイル（VOICEVOX 話者・Remotion 比率プロファイル・pandoc 設定 — config/固定値）"
+      ],
+      "output": [
+        "生成メディア（mp3/mp4/epub — WP メディアへアップし assets 参照登録）",
+        "実行記録（入力参照・ツール版数・コマンドライン・出力 hash — evidence payload）",
+        "失敗時: PipelineExecutionFailed 例外（段階つき）"
+      ],
+      "precondition": [
+        "台本・素材参照が commit／asset_id で完全に特定できる（浮動参照なし）",
+        "対象ツール（VOICEVOX localhost・ffmpeg/Remotion・pandoc）が到達可能である"
+      ],
+      "postcondition": [
+        "入力（台本・素材参照）から出力までが再現可能なコード実行として記録されている（ツール版数・パラメータ・出力 hash）",
+        "生成物は WP 資産として登録され、元資産への parent_asset_id 参照を保持する（リパーパス系譜 — FR-55）"
+      ],
+      "invariants": [
+        "同一入力＋同一ツール版→同一出力（決定性 — NFR-2。エンコーダ等の非決定要素は出力 hash を証跡化して固定し、乱数種・時刻は Clock/Rng 注入）",
+        "コンテンツ実体は WP 収束・SQLite は参照のみ（BR-G2）",
+        "外部書込みは Docker WP のみ"
+      ],
+      "state_transitions": [],
+      "normal_behavior": "パイプライン種別を解決 → 入力（台本 commit・素材 asset_id）を固定 → ツール実行（VOICEVOX localhost API／Remotion+ffmpeg(NVENC)／pandoc）→ 出力の SHA-256 算出 → Docker WP へアップし assets へ parent_asset_id つきで参照 INSERT ＋ evidence（file_hash・実行記録 payload）INSERT。",
+      "rejection_behavior": "入力参照が解決不能（存在しない asset_id・未 commit 台本）は UnversionedSourceRejected で拒否。ツール到達不能・実行失敗は PipelineExecutionFailed を raise し、部分出力を assets/WP に登録しない。実行記録を残せない場合も成果物を登録せず拒否する（記録なし成果物の禁止 — fail-close）。",
+      "boundary_behavior": "長尺入力は config の実行タイムアウト・サイズ上限で打ち切り拒否。VOICEVOX は localhost のみ許可（外部 TTS への送信は経路として存在しない）。同一入力の再実行は出力 hash 一致で assets 重複登録されない。",
+      "retry_resume_recovery": "ツール実行は task 単位で最初から再実行（中間ファイルは temp 領域に置き、成功時のみ採用）。クラッシュ時は temp を破棄して再実行すれば同一出力に収束する。",
+      "human_judgement": "なし（全自動。成果物の公開可否は審査・承認ゲートの領分）",
+      "side_effects": [
+        "ツールプロセス実行（VOICEVOX/ffmpeg/Remotion/pandoc）",
+        "Docker WP メディアアップロード",
+        "assets INSERT",
+        "evidence INSERT",
+        "operation_log INSERT"
+      ],
+      "idempotency": "同一入力・同一ツール版の再実行は同一 hash に収束し、assets/evidence の UNIQUE 制約で重複しない。",
+      "evidence": [
+        "evidence 行（kind=file_hash — 出力 hash）",
+        "実行記録 payload（入力参照・ツール版数・パラメータ）",
+        "operation_log 行（外部操作）"
+      ],
+      "tables": [
+        "r: tasks",
+        "r: assets（素材参照・parent 解決）",
+        "w: assets",
+        "w: evidence",
+        "w: operation_log",
+        "r: config"
+      ],
+      "external_deps": [
+        "VOICEVOX（localhost）",
+        "Remotion / ffmpeg（NVENC）",
+        "pandoc",
+        "Blender ヘッドレス（3D — S3）",
+        "Docker WP"
+      ],
+      "config_values": [
+        "config.pipeline_exec_timeout_sec",
+        "config.pipeline_output_max_bytes",
+        "config.voicevox_endpoint（localhost 固定値の参照）"
+      ],
+      "fixed_values": [
+        "VOICEVOX 接続先 = localhost のみ",
+        "hash アルゴリズム = SHA-256",
+        "動画比率別プロファイル定義"
+      ],
+      "trace_up": [
+        "BR-G1",
+        "BR-G2",
+        "NFR-2"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-53-1",
+          "AC-53-2",
+          "AC-53-3"
+        ],
+        "fn": [
+          "FN-505",
+          "FN-506",
+          "FN-507",
+          "FN-508"
+        ],
+        "cmp": [
+          "CMP-12"
+        ]
+      },
+      "slice": "S3+"
+    },
+    {
+      "id": "FR-54",
+      "title": "版と証跡（commit hash 束縛）",
+      "input": [
+        "審査対象の成果物ソース（git ワークスペースのパス群）",
+        "対象 task ID（int — tasks、T-PROD/T-REVIEW 系）",
+        "審査 PASS 記録要求（reviewer・checked_items — FR-27 経路）"
+      ],
+      "output": [
+        "evidence 行（kind=commit_hash — repository・commit_hash・paths）",
+        "PASS 記録（kind=review_pass — commit_hash 列で成果物版に束縛）",
+        "hash 不一致時: CommitHashMismatch 例外"
+      ],
+      "precondition": [
+        "成果物ソースが git 管理下にあり commit 済みである（REQ-032）",
+        "commit_hash 証跡の記録が PASS 記録より先行している"
+      ],
+      "postcondition": [
+        "審査に出た成果物が commit hash で一意に特定できる",
+        "PASS 記録の commit_hash 列が成果物の commit_hash 証跡と一致している",
+        "hash から成果物ソースを checkout で復元できる（AC-54 系）"
+      ],
+      "invariants": [
+        "版管理外の成果物は審査・公開経路に乗らない（BR-G1 禁止事項）",
+        "PASS 後の改変は新 commit＝新 hash となり、旧 PASS は新版に流用できない（版すり替えの構造的排除）"
+      ],
+      "state_transitions": [],
+      "normal_behavior": "制作完了時にワークスペースの HEAD commit hash（40/64 桁）と対象 paths を evidence（kind=commit_hash）へ INSERT → 審査時は同 hash を review_pass 証跡の commit_hash 列・payload に記録し、PASS が特定版に束縛される。公開ゲート（FR-27 側）はこの束縛を検査する。",
+      "rejection_behavior": "未 commit の作業ツリー・dirty 状態での証跡化要求は UnversionedSourceRejected で拒否。PASS 記録時に指定 commit_hash が当該 task の commit_hash 証跡と一致しなければ CommitHashMismatch で拒否し operation_log に記録（fail-close）。hash 桁数不正は DDL CHECK でも拒否される。",
+      "boundary_behavior": "同一 task で複数回 commit した場合は最新の commit_hash 証跡が審査対象版。40 桁（SHA-1）と 64 桁（SHA-256）の両 git hash を許容し、それ以外の長さは拒否。paths 空の証跡は拒否。",
+      "retry_resume_recovery": "証跡は append-only のため再実行は UNIQUE(task_id, kind, value) で重複 INSERT にならない。復元は evidence の repository・commit_hash から git checkout で決定的に再現する。",
+      "human_judgement": "なし（審査 PASS の実施主体は FR-27 のペア審査 — 本 FR は束縛の機械保証のみ）",
+      "evidence": [
+        "evidence 行（kind=commit_hash）",
+        "evidence 行（kind=review_pass — commit_hash 束縛）",
+        "operation_log 行（拒否）"
+      ],
+      "side_effects": [
+        "evidence INSERT（commit_hash / review_pass）",
+        "operation_log INSERT（拒否時）"
+      ],
+      "idempotency": "同一 (task_id, kind, commit_hash) の再記録は UNIQUE 制約で 1 行に収束。判定（一致検査）は pure。",
+      "tables": [
+        "r: tasks",
+        "w: evidence",
+        "w: operation_log",
+        "r: pair_plan_quality（審査経路整合の参照）"
+      ],
+      "external_deps": [
+        "git（hash 取得・checkout 復元）"
+      ],
+      "config_values": [],
+      "fixed_values": [
+        "commit_hash 桁数 = 40 または 64（DDL CHECK と同値）",
+        "evidence kind = commit_hash / review_pass（s0-contract §2.1）"
+      ],
+      "trace_up": [
+        "BR-G1",
+        "BR-B3",
+        "REQ-032"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-54-1",
+          "AC-54-2",
+          "AC-54-3"
+        ],
+        "fn": [
+          "FN-511"
+        ],
+        "cmp": [
+          "CMP-12"
+        ]
+      },
+      "slice": "S0"
+    },
+    {
+      "id": "FR-55",
+      "title": "資産収束・リパーパス追跡",
+      "input": [
+        "登録要求（asset_type・name・WP アップロード結果の wp_media_id・canonical_url・content_hash）",
+        "派生登録時: 元資産 ID（int — assets.parent_asset_id へ）",
+        "出所 task ID（int — assets.source_task_id へ）"
+      ],
+      "output": [
+        "assets 行（参照のみ — 実体は WP 側）",
+        "派生時: parent_asset_id で系譜接続された assets 行",
+        "実体格納の試行: ContentBodyRejected 例外"
+      ],
+      "precondition": [
+        "コンテンツ実体が WP へアップロード済みで wp_media_id または canonical_url が得られている",
+        "派生登録時は parent の assets 行が存在する"
+      ],
+      "postcondition": [
+        "assets 行は参照情報（ID・URL・hash・metadata）のみを保持し本文実体を含まない",
+        "派生資産から parent_asset_id を再帰的に辿って元資産（記事）へ到達できる（リパーパス系譜）"
+      ],
+      "invariants": [
+        "コンテンツ実体の正本は WP に一元化され SQLite は参照のみ（BR-G2 — 実体の DB 直接格納の禁止）",
+        "出自記録（parent 参照・source_task_id）のない派生資産は存在しない"
+      ],
+      "state_transitions": [],
+      "normal_behavior": "WP アップロード完了後、wp_media_id・canonical_url・content_hash・metadata を assets へ INSERT。派生制作（記事→SNS/スライド/音声/動画/EPUB）では parent_asset_id に元資産を指定して INSERT し、系譜クエリ（再帰 CTE）で追跡可能にする。",
+      "rejection_behavior": "登録ペイロードに本文実体（本文テキスト・バイナリ・data URI 等、参照サイズ上限超のフィールド）が含まれる場合は ContentBodyRejected で拒否。WP 参照（wp_media_id/canonical_url）のいずれも欠く登録・存在しない parent_asset_id 指定は AssetReferenceInvalid で拒否し operation_log に記録（fail-close）。",
+      "boundary_behavior": "canonical_url・wp_media_id は UNIQUE で二重登録は制約違反として拒否。自己参照（parent = 自分）・循環系譜は登録時検査で拒否。parent なし（根 = オリジナル記事）は正常。",
+      "retry_resume_recovery": "登録は 1 INSERT = 1 transaction。再実行は UNIQUE(canonical_url/wp_media_id) で重複せず、既存行を返して冪等に完了する。WP 側と参照の不整合は content_hash 照合で検出し escalation（BR-H3）へ回す。",
+      "human_judgement": "なし（全自動）",
+      "side_effects": [
+        "assets INSERT",
+        "operation_log INSERT（拒否時）"
+      ],
+      "idempotency": "UNIQUE(canonical_url)・UNIQUE(wp_media_id) が冪等キー。同一資産の再登録は行を増やさない。",
+      "evidence": [
+        "assets 行自体（参照＋系譜の正本）",
+        "operation_log 行（拒否）",
+        "公開時は evidence（kind=published_url — asset_id 列で接続）"
+      ],
+      "tables": [
+        "rw: assets",
+        "r: tasks（source_task_id 整合）",
+        "w: operation_log"
+      ],
+      "external_deps": [
+        "Docker WP（実体の置き場 — 本 FR 自体は参照登録のみ）"
+      ],
+      "config_values": [
+        "config.asset_metadata_max_bytes（参照サイズ上限 — 実体混入検知）"
+      ],
+      "fixed_values": [
+        "系譜構造 = parent_asset_id による単方向ツリー（循環禁止）"
+      ],
+      "trace_up": [
+        "BR-G2",
+        "REQ-033",
+        "REQ-034"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-55-1",
+          "AC-55-2",
+          "AC-55-3"
+        ],
+        "fn": [
+          "FN-512"
+        ],
+        "cmp": [
+          "CMP-12"
+        ]
+      },
+      "slice": "S0"
+    },
+    {
+      "id": "FR-61",
+      "title": "KPI ツリー",
+      "input": [
+        "KPI ノード定義（node_key・name・layer・medium・metric_type・aggregation_formula・parent_node_id — 登録要求）",
+        "対象 business_profile_id（int — business_profiles）",
+        "計測値の紐付け照会（node_key／layer／medium 条件 — 集計クエリ）"
+      ],
+      "output": [
+        "kpi_nodes 行（5 階層のいずれかに接地）",
+        "媒体横断集計クエリの結果セット（layer×medium 断面）",
+        "有料指標の登録要求: PaidMetricRejected 例外（FR-23 連携）"
+      ],
+      "precondition": [
+        "対象 business_profile が存在する",
+        "parent_node_id 指定時は親ノードが同一 business_profile に存在する",
+        "ゼロ広告費ゲート（FR-23）の有料指標型定義がロード済みである"
+      ],
+      "postcondition": [
+        "登録ノードの layer が 5 階層（exposure/micro_cv/conversion/relationship/revenue）のいずれかである",
+        "同一 business_profile 内で node_key が一意である",
+        "全 measurements 行が kpi_node_id 経由で本ツリーのノードに接地している"
+      ],
+      "invariants": [
+        "有料指標型（cac/roas/ad_spend）のノードは kpi_nodes に存在しない（FR-23 ＋ DDL CHECK の二重防御 — BR-C1）",
+        "階層は露出→マイクロ CV→転換→関係→収益の 5 層に閉じ、層外の値は存在しない",
+        "KPI ツリーは観測背骨であり、数値変化から戦略正本への自動書込みは行わない（BR-E1 禁止事項）"
+      ],
+      "state_transitions": [
+        "kpi_nodes.status: active→archived（ノード退役。削除はしない — FK RESTRICT）"
+      ],
+      "normal_behavior": "登録要求の metric_type を FR-23 の有料指標定義と照合 → 非該当なら layer・medium・aggregation_formula を検証して kpi_nodes へ INSERT。集計は kpi_nodes×measurements の JOIN で媒体横断（layer 別・medium 別）に実行できる正規化を維持する。",
+      "rejection_behavior": "有料指標型は PaidMetricRejected で登録拒否（アプリ層 FR-23 ＋ DDL CHECK(metric_type NOT IN ...) の二重で fail-close）。layer が 5 階層外・node_key 重複・親不在／別 profile の親指定は KpiNodeInvalid で拒否し operation_log に記録。",
+      "boundary_behavior": "根ノード（parent_node_id NULL）は正常。measurements から参照中のノードは FK RESTRICT で削除不能（archived 化のみ）。同一 node_key の再登録は UNIQUE(business_profile_id, node_key) で拒否。",
+      "retry_resume_recovery": "登録は 1 INSERT = 1 transaction で中間状態なし。再実行は UNIQUE 制約で重複せず拒否される（既存確認後の冪等応答可）。集計クエリは read-only で何度でも安全。",
+      "human_judgement": "KPI ツリー初期形の承認（リサーチ充填後 — BR-E1。以後のノード登録・集計は全自動）",
+      "side_effects": [
+        "kpi_nodes INSERT/UPDATE(status)",
+        "operation_log INSERT（拒否時）"
+      ],
+      "idempotency": "UNIQUE(business_profile_id, node_key) が冪等キー。集計は pure（同一 DB 状態→同一結果）。",
+      "evidence": [
+        "operation_log 行（有料指標拒否・定義不正拒否）",
+        "kpi_nodes 行（階層定義の正本）"
+      ],
+      "tables": [
+        "rw: kpi_nodes",
+        "r: business_profiles",
+        "r: measurements（集計）",
+        "w: operation_log"
+      ],
+      "external_deps": [],
+      "config_values": [],
+      "fixed_values": [
+        "5 階層 enum（exposure/micro_cv/conversion/relationship/revenue — DDL CHECK と同値）",
+        "有料指標型の禁止リスト（cac/roas/ad_spend — FR-23 と共有）"
+      ],
+      "trace_up": [
+        "BR-E1",
+        "REQ-020",
+        "REQ-021"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-61-1",
+          "AC-61-2",
+          "AC-61-3"
+        ],
+        "fn": [
+          "FN-601",
+          "FN-604"
+        ],
+        "cmp": [
+          "CMP-13"
+        ]
+      },
+      "slice": "S0"
+    },
+    {
+      "id": "FR-62",
+      "title": "計測取り込みパイプライン",
+      "input": [
+        "取得物（正規 API 応答 または ブラウザエクスポートファイル — GA4/GSC は正規 API — ADR-006）",
+        "対象サービス種別（str — パーサ選択キー）",
+        "対象 T-MEAS task ID（int — tasks）",
+        "取得時スクショ（ブラウザ経路時 — file_path）"
+      ],
+      "output": [
+        "measurements 行（kpi_node_id・期間・値・evidence_id つき）",
+        "evidence 行（kind=measurement — source hash／kind=file_hash／kind=screenshot）",
+        "エラー隔離ファイル（パース失敗行 — 隔離先パスと件数）",
+        "パース全滅時: ImportSourceInvalid 例外"
+      ],
+      "precondition": [
+        "取得経路が接続レジストリと ADR-006 に従って解決済みである",
+        "投入先の kpi_nodes 行が存在する（未登録ノードへの投入はしない）",
+        "取得物ファイルが読取可能で SHA-256 を算出できる"
+      ],
+      "postcondition": [
+        "取得物の SHA-256 が evidence（kind=measurement の value／file_hash）として投入前に記録されている",
+        "正常行のみが measurements に存在し、失敗行は隔離先に件数つきで残っている",
+        "全 measurements 行の evidence_id が取得証跡へ FK 接続している"
+      ],
+      "invariants": [
+        "証跡（hash・ブラウザ経路時はスクショ）なしの計測値は measurements に存在しない（BR-E2 禁止事項）",
+        "投入は冪等 — 同一エクスポートの再取込で行が重複しない",
+        "手動入力値を実測として投入する経路が存在しない"
+      ],
+      "state_transitions": [],
+      "normal_behavior": "取得（GA4/GSC は正規 Data API、他はブラウザエクスポート）→ 取得物の SHA-256 算出と evidence（measurement: source・file_hash・period・row_count）INSERT → サービス別パーサで行解釈 → kpi_node 解決 → measurements へ一括 INSERT（1 取込 = 1 transaction）。ブラウザ経路では取得画面スクショも evidence 化する。",
+      "rejection_behavior": "パース失敗行はエラー隔離（隔離ファイル＋件数記録）し、正常行のみ投入する（部分投入許容）。全行失敗・ファイル破損・hash 算出不能は ImportSourceInvalid で全体拒否。未登録 kpi_node 宛の行・有料指標由来の行は投入せず隔離し operation_log に記録（fail-close）。",
+      "boundary_behavior": "空エクスポート（データ 0 行）は measurements 差分なしで正常終了し、取得証跡のみ残る。同一 (kpi_node_id, period, dimensions) の重複行は UNIQUE 制約で 2 行目以降を投入しない。期間逆転（period_end < period_start）行は隔離。",
+      "retry_resume_recovery": "投入 transaction 失敗は全行 rollback（部分コミットなし）。再実行は同一 source hash の evidence UNIQUE(task_id, kind, value) と measurements の UNIQUE で冪等に収束。API 阻害時はブラウザエクスポートへ一時フォールバックし、同一 evidence 契約に収束させる。",
+      "human_judgement": "なし（取得失敗の escalation は BR-H3 経由）",
+      "side_effects": [
+        "measurements INSERT",
+        "evidence INSERT（measurement/file_hash/screenshot）",
+        "隔離ファイル生成",
+        "operation_log INSERT",
+        "外部 read（GA4 Data API・ブラウザ）"
+      ],
+      "idempotency": "source hash（evidence UNIQUE）と measurements の UNIQUE(kpi_node_id, period_start, period_end, dimensions_json) の二重冪等キー。同一エクスポートの再投入は差分ゼロ。",
+      "evidence": [
+        "evidence 行（kind=measurement — source・file_hash・period・row_count）",
+        "evidence 行（kind=file_hash／kind=screenshot — ブラウザ経路）",
+        "operation_log 行（取得操作・隔離・拒否）"
+      ],
+      "tables": [
+        "w: measurements",
+        "r: kpi_nodes",
+        "r: tasks",
+        "w: evidence",
+        "w: operation_log",
+        "r: playbooks（ブラウザ経路手順）",
+        "r: config"
+      ],
+      "external_deps": [
+        "GA4 / GSC 正規 API（read-only — ADR-006）",
+        "ブラウザエクスポート（フォールバック経路）"
+      ],
+      "config_values": [
+        "config.import_quarantine_dir（隔離先）",
+        "config.ga4_property_ref（接続参照 — credential は秘匿ストア）"
+      ],
+      "fixed_values": [
+        "hash アルゴリズム = SHA-256",
+        "1 取込 = 1 transaction（部分コミット禁止）"
+      ],
+      "trace_up": [
+        "BR-E2",
+        "REQ-022",
+        "REQ-023"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-62-1",
+          "AC-62-2",
+          "AC-62-3"
+        ],
+        "fn": [
+          "FN-602",
+          "FN-603"
+        ],
+        "cmp": [
+          "CMP-13"
+        ]
+      },
+      "slice": "S0"
+    },
+    {
+      "id": "FR-63",
+      "title": "ダッシュボード生成",
+      "input": [
+        "SQLite 現在状態（kpi_nodes・measurements ほか — read-only 参照）",
+        "生成要求（対象期間・出力先パス — 計測投入後の生成ステップ／PO 閲覧要求）",
+        "出力形式（html 主／xlsx 従）"
+      ],
+      "output": [
+        "自己完結 HTML ファイル（CSS/JS インライン・外部 CDN 依存なし）",
+        "evidence 行（kind=dashboard — file_path・file_hash・period_end）",
+        "xlsx エクスポートファイル（従）",
+        "外部参照検出時: ExternalReferenceDetected 例外"
+      ],
+      "precondition": [
+        "DB マイグレーション適用済みで参照テーブルが読める",
+        "出力先ディレクトリが書込可能である"
+      ],
+      "postcondition": [
+        "生成 HTML が外部リソース参照（CDN・外部 URL の script/link/img）を含まない",
+        "生成物の SHA-256 が evidence（kind=dashboard）に記録されている",
+        "DB の業務テーブルが生成前後で不変（read-only 生成）"
+      ],
+      "invariants": [
+        "生成は決定的 — 同一 DB 状態→同一出力 hash（BR-E3。生成時刻は Clock 注入し出力へ埋め込む場合も入力として固定）",
+        "生成物に認証情報・secret を含めない（BR-E3 制約）",
+        "手動集計を経由しない（SQLite からの自動生成のみ）"
+      ],
+      "state_transitions": [],
+      "normal_behavior": "SQLite から layer×medium×期間の集計を read-only クエリで取得 → テンプレートへ展開し CSS/JS を全インライン化した自己完結 HTML を生成 → 出力の SHA-256 を算出し evidence（kind=dashboard）へ INSERT。xlsx は同一クエリ結果から従として出力する。",
+      "rejection_behavior": "生成後の自己検査で外部リソース参照を検出したら ExternalReferenceDetected で成果物を破棄し証跡化しない。secret パターン（credential 文字列）の混入検出も同様に破棄・拒否し operation_log に記録（fail-close）。DB 読取不能は DashboardGenerationFailed で拒否。",
+      "boundary_behavior": "measurements が 0 件でも空ダッシュボード（データなし表示）を決定的に生成する。同一 DB 状態での再生成は同一 hash となり evidence の UNIQUE(task_id, kind, value) で証跡が重複しない。巨大 DB は生成タイムアウト（config）で打ち切り拒否。",
+      "retry_resume_recovery": "生成は temp へ書き出し成功時に rename するため中間生成物が残らない。クラッシュ後は再実行のみで復旧（DB は read-only のため汚染なし）。",
+      "human_judgement": "なし（閲覧のみ — PO が AI を介さず現況把握する手段の提供）",
+      "side_effects": [
+        "HTML/xlsx ファイル生成",
+        "evidence INSERT（dashboard）",
+        "operation_log INSERT（拒否時）"
+      ],
+      "idempotency": "同一 DB 状態→同一出力 hash（pure な変換）。証跡は hash を value とする UNIQUE で重複しない。",
+      "evidence": [
+        "evidence 行（kind=dashboard — file_path・file_hash・period_end）",
+        "operation_log 行（生成実行・拒否）"
+      ],
+      "tables": [
+        "r: kpi_nodes",
+        "r: measurements",
+        "r: pair_kpi_measure",
+        "r: sprints",
+        "w: evidence",
+        "w: operation_log",
+        "r: config"
+      ],
+      "external_deps": [],
+      "config_values": [
+        "config.dashboard_output_dir",
+        "config.dashboard_gen_timeout_sec"
+      ],
+      "fixed_values": [
+        "自己完結制約（外部 CDN・外部 URL 参照の禁止）",
+        "hash アルゴリズム = SHA-256",
+        "HTML 主・xlsx 従の序列"
+      ],
+      "trace_up": [
+        "BR-E3",
+        "REQ-024",
+        "REQ-025",
+        "NFR-2"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-63-1",
+          "AC-63-2",
+          "AC-63-3"
+        ],
+        "fn": [
+          "FN-605",
+          "FN-606"
+        ],
+        "cmp": [
+          "CMP-13"
+        ]
+      },
+      "slice": "S1"
+    },
+    {
+      "id": "FR-71",
+      "title": "主要テーブル（DB スキーマ生成）",
+      "input": [
+        "DDL 正本（s0-contract §2 — 業務 23＋インフラ 2 の 25 テーブル）",
+        "生成対象 SQLite ファイルパス（str）"
+      ],
+      "output": [
+        "25 テーブル＋append-only 保護トリガ＋FK 制約の生成済み SQLite DB",
+        "検証結果（DU-11 verify() — pass/fail）",
+        "拒否時: SchemaVerificationFailed 例外"
+      ],
+      "precondition": [
+        "migration ファイル群（NNNN_description.sql）が存在する",
+        "対象 SQLite が空または既知の schema_version を持つ"
+      ],
+      "postcondition": [
+        "25 テーブルすべてが DDL 正本と相当である（DDL 相当性検証 PASS）",
+        "PRAGMA foreign_key_check・integrity_check が違反 0 件",
+        "append-only トリガ（config・evidence・state_transitions）が有効である"
+      ],
+      "invariants": [
+        "append-only テーブルへの UPDATE/DELETE は保護トリガが常時 ABORT",
+        "FK はすべて ON DELETE RESTRICT（暗黙のカスケード削除は存在しない）",
+        "接続開始時に WAL・busy_timeout（config.sqlite_busy_timeout_ms）が設定される"
+      ],
+      "state_transitions": [],
+      "normal_behavior": "空の SQLite へ migration を順次適用して 23 業務テーブル＋インフラ 2 テーブル（schema_version・state_transitions）・保護トリガ・index を生成 → DU-11 verify() で DDL 相当性・FK 有効性・初期 workflow seed を検証し、PASS で使用開始を許可する。",
+      "rejection_behavior": "verify() 不合格（テーブル欠落・DDL 不一致・FK 無効・integrity 違反）は SchemaVerificationFailed を raise し、その DB の使用開始を拒否する（fail-close — 不完全スキーマ上で業務書込みを開始しない）。保護トリガ欠落も同様に拒否。",
+      "boundary_behavior": "既に全 migration 適用済みの DB への再適用は no-op（schema_version 照合でスキップ）。空パス・アクセス不能パスは生成前に拒否。SQLITE_BUSY は busy_timeout 内待機→タイムアウトで retryable_failure。",
+      "retry_resume_recovery": "migration は transaction 内適用のためクラッシュ時は当該 migration ごと巻き戻る。再開は schema_version の最終行から続行し、適用済み分を再適用しない。",
+      "human_judgement": "なし（全自動。本番 DB への昇格実施の確認のみ FR-72 経由で人間）",
+      "side_effects": [
+        "CREATE TABLE/TRIGGER/INDEX（25 テーブル＋保護トリガ）",
+        "schema_version INSERT（適用記録）"
+      ],
+      "idempotency": "適用済み migration は schema_version 照合で再適用されない（version が冪等キー）。verify() は読み取り専用で何度でも安全。",
+      "evidence": [
+        "schema_version 行（version・migration 名・checksum・適用者・時刻）",
+        "verify() の検証結果ログ（構造化ログ）"
+      ],
+      "tables": [
+        "w: schema_version",
+        "w: 全 25 テーブル（DDL 生成対象）",
+        "r: config（sqlite_busy_timeout_ms）"
+      ],
+      "external_deps": [],
+      "config_values": [
+        "config.sqlite_busy_timeout_ms（接続時 PRAGMA）"
+      ],
+      "fixed_values": [
+        "DDL 正本（s0-contract §2 — 変更は migration＋要件改訂のみ）",
+        "append-only 対象テーブルの集合（config・evidence・state_transitions）"
+      ],
+      "trace_up": [
+        "BR-A3",
+        "BR-B3",
+        "REQ-004"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-71-1",
+          "AC-71-2",
+          "AC-71-3"
+        ],
+        "fn": [
+          "FN-701",
+          "FN-703"
+        ],
+        "cmp": [
+          "CMP-04",
+          "CMP-05"
+        ]
+      },
+      "slice": "S0"
+    },
+    {
+      "id": "FR-72",
+      "title": "マイグレーション（前方参照のみの昇格）",
+      "input": [
+        "連番 migration ファイル（NNNN_description.sql — 不変）",
+        "昇格対象 DB（現 schema_version 付き）",
+        "適用者（applied_by — str）"
+      ],
+      "output": [
+        "昇格済み DB（新 schema_version 行つき）",
+        "DU-11 verify() の検証結果",
+        "拒否時: MigrationChecksumMismatch／MigrationVerifyFailed 例外"
+      ],
+      "precondition": [
+        "変更が expand/backfill/contract のいずれかとして設計済み",
+        "適用前 SQLite backup が作成済み",
+        "migration 内容の SHA-256 が算出済み"
+      ],
+      "postcondition": [
+        "schema_version に version・migration 名・checksum・適用者・時刻が INSERT されている",
+        "PRAGMA foreign_key_check・integrity_check が違反 0 件",
+        "旧形式 reader が壊れていない（前方参照のみ — 既存の列・値・意味を破壊しない）"
+      ],
+      "invariants": [
+        "昇格は前方参照のみ（rename・意味変更・破壊的変更の禁止 — 新名は expand で追加し旧名は read 互換維持）",
+        "適用済み migration ファイルは不変（checksum で改竄検知）",
+        "失敗した migration は同じ version を書換えず次 version で修正する"
+      ],
+      "state_transitions": [],
+      "normal_behavior": "expand→backfill→contract の順で設計された migration を transaction 内で適用 → PRAGMA foreign_key_check・integrity_check・行数/hash 比較 → schema_version へ INSERT → DU-11 verify()（FK 有効性・integrity・25 テーブル存在・TLP 孤児検査 = packet なし終端 lower run 0 件）と回帰テストを実行して昇格を確定する。",
+      "rejection_behavior": "同 version が schema_version に既存、または checksum 不一致なら MigrationChecksumMismatch で適用前に停止する。適用後の verify()・回帰テスト失敗は MigrationVerifyFailed とし、backup から復元して昇格を取り消す（fail-close — 壊れた版で運転を続けない）。",
+      "boundary_behavior": "version 飛び（欠番）は適用順検証で拒否。空 DB への適用は全 migration の一括初期生成（FR-71）。backfill は再開可能・冪等な明示的 task として実行し、巨大更新を暗黙の DDL に混ぜない。",
+      "retry_resume_recovery": "transaction 内適用のためクラッシュは当該 migration ごと巻き戻り、schema_version 未記録なら再適用可能。verify() 失敗時は backup 復元が復旧点。backfill は冪等のため中断後の再実行が安全。",
+      "human_judgement": "人間: 本番昇格は結果を確認して実施（s0-contract §5.2）。開発 DB への適用・検証は全自動",
+      "side_effects": [
+        "DDL 変更（expand/contract）",
+        "schema_version INSERT",
+        "backup ファイル作成",
+        "evidence INSERT（backfill の件数・hash・失敗）"
+      ],
+      "idempotency": "version が冪等キー: 適用済み version は再適用されない。backfill は冪等設計を必須とし再実行で二重更新しない。",
+      "evidence": [
+        "schema_version 行（checksum_sha256 含む）",
+        "backfill の evidence 行（件数・hash・失敗）",
+        "verify()・回帰テストの結果ログ"
+      ],
+      "tables": [
+        "rw: schema_version",
+        "rw: 全業務テーブル（migration の対象）",
+        "r: tactical_learning_packets・loop_runs（TLP 孤児検査）"
+      ],
+      "external_deps": [],
+      "config_values": [],
+      "fixed_values": [
+        "migration ファイル命名規約（NNNN_description.sql）",
+        "昇格 3 段階（expand/backfill/contract）と rename 禁止（s0-contract §5）"
+      ],
+      "trace_up": [
+        "NFR-3",
+        "charter v0.4 §3 横断原則（HELIX 同様、壊す変更をしない）"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-72-1",
+          "AC-72-2",
+          "AC-72-3"
+        ],
+        "fn": [
+          "FN-702"
+        ],
+        "cmp": [
+          "CMP-05"
+        ]
+      },
+      "slice": "S0"
+    },
+    {
+      "id": "FR-73",
+      "title": "例外支出台帳（spend_ledger）",
+      "input": [
+        "支出記録要求（service, amount_minor, currency, purpose, task_id, approval_id, external_operation_id, occurred_at）",
+        "月間累計の照会要求（対象月）"
+      ],
+      "output": [
+        "spend_ledger 行（例外利用 1 件 = 1 行）",
+        "月間累計額（NFR-6 の上限判定入力）",
+        "拒否時: SpendRecordIncomplete／DuplicateSpendEntry 例外"
+      ],
+      "precondition": [
+        "参照先 tasks 行が存在する（task_id FK）",
+        "有償操作の external_operations 証跡が先行して記録済み（証跡化 → 状態遷移の順）"
+      ],
+      "postcondition": [
+        "Seedance 等の例外利用が全件 spend_ledger に存在する（記録なしの有償操作 0 件）",
+        "amount_minor >= 0・currency 3 文字が制約で保証されている",
+        "月間累計が spend_ledger の SELECT だけで算出できる"
+      ],
+      "invariants": [
+        "有償経路の実行は spend_ledger 記録とペアである（台帳なしの支出は存在しない — BR-F1）",
+        "同一 (service, external_operation_id) の行は 1 件のみ（UNIQUE — 二重計上禁止）",
+        "台帳行は事後修正しない（訂正は逆仕訳の追加行）"
+      ],
+      "state_transitions": [],
+      "normal_behavior": "有償 API の外部操作確定（external_operations = confirmed）時に、サービス・金額（amount_minor）・用途（purpose）・タスク参照（task_id）・承認参照（approval_id）を spend_ledger へ INSERT する。月間累計は occurred_at で集計し、NFR-6 の上限判定（config.spend_cap_monthly）へ供給する。",
+      "rejection_behavior": "service・amount_minor・purpose・task_id のいずれかを欠く記録要求は SpendRecordIncomplete で INSERT 前に拒否（NOT NULL/FK 制約と二重に強制）。同一 (service, external_operation_id) の再 INSERT は UNIQUE 制約で DuplicateSpendEntry。負の金額は CHECK 制約で拒否。台帳記録に失敗した有償操作は成功扱いにしない（fail-close）。",
+      "boundary_behavior": "amount_minor = 0（無償枠内利用）も 1 行として記録する（全件記録 — 閾値なし）。月跨ぎの支出は occurred_at の属する月に計上。external_operation_id が NULL の手動記録は UNIQUE の対象外として許容。",
+      "retry_resume_recovery": "INSERT は外部操作の確定と同一フローで行い、クラッシュ時は external_operations の status 照合（§3.3）で再開し、同一 external_operation_id の再記録は UNIQUE で吸収される。",
+      "human_judgement": "あり（例外支出の事前承認 = approval_id 参照。記録・集計は全自動）",
+      "side_effects": [
+        "spend_ledger INSERT（例外利用ごとに 1 行）"
+      ],
+      "idempotency": "(service, external_operation_id) が冪等キー: 同一操作の再記録は重複せず拒否される。集計は pure（同一台帳→同一累計）。",
+      "evidence": [
+        "spend_ledger 行そのもの（サービス・金額・用途・タスク参照）",
+        "operation_log 証跡（external_operation_id で台帳と紐付く — evidence kind）"
+      ],
+      "tables": [
+        "w: spend_ledger",
+        "r: tasks（task_id FK）",
+        "r: approvals（approval_id FK）",
+        "r: external_operations（操作確定の照合）",
+        "r: config（spend_cap_monthly — 上限判定は NFR-6）"
+      ],
+      "external_deps": [
+        "有償 API サービス（Seedance 等 — 支出の発生源。台帳自体は外部呼出しなし）"
+      ],
+      "config_values": [
+        "config.spend_cap_monthly（C・暫定既定値 5,000 円/月 — 上限判定は NFR-6 側）"
+      ],
+      "fixed_values": [
+        "currency 既定値 JPY（DDL DEFAULT）",
+        "amount_minor >= 0（DDL CHECK）"
+      ],
+      "trace_up": [
+        "BR-F1",
+        "REQ-027",
+        "NFR-6"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-73-1",
+          "AC-73-2",
+          "AC-73-3"
+        ],
+        "fn": [
+          "FN-607"
+        ]
+      },
+      "slice": "S1"
+    }
+  ]
+}

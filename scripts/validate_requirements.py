@@ -848,6 +848,86 @@ try:
 except FileNotFoundError as e:
     gate("G-REQ-CONTRACT", False, f"BR 契約正本が存在しない: {e}")
 
+# ---- 全層再降下 §3-§4: FR/SR/NFR/AC の粒度ゲート群 ----
+try:
+    frc_schema = load(J / "fr" / "fr-contract.schema.json")
+    acc_schema = load(J / "ac" / "ac-contract.schema.json")
+    nfc_schema = load(J / "nfr" / "nfr-contract.schema.json")
+    frc = load(J / "fr" / "fr-contracts.json")["items"]
+    sr_c = load(J / "strategy" / "sr-contracts.json")["items"]
+    acc = load(J / "ac" / "ac-contracts.json")["items"]
+    nfc = load(J / "nfr" / "nfr-contracts.json")["items"]
+    allc = frc + sr_c
+
+    # G-FRSR-CONTRACT: 全 FR/SR に 18 観点契約（schema 適合＋分母完全被覆）
+    c_errs: list[str] = []
+    for it in allc:
+        c_errs += [f"{it.get('id', '?')}: {e}" for e in schema_check(frc_schema, it)]
+    fr_md_ids = {i["id"] for i in fr}
+    sr_ids = {i["id"] for i in load(J / "strategy" / "sr.json")["items"]}
+    cov_ok = {i["id"] for i in frc} == fr_md_ids and {i["id"] for i in sr_c} == sr_ids
+    gate("G-FRSR-CONTRACT", not c_errs and cov_ok,
+         f"FR/SR 実行契約: schema 適合＋FR36/SR16 完全被覆 (err={c_errs[:3]}, cov={cov_ok})")
+
+    # G-NFR-MEASURABLE: 全 NFR に計測契約
+    n_errs: list[str] = []
+    for it in nfc:
+        n_errs += [f"{it.get('id', '?')}: {e}" for e in schema_check(nfc_schema, it)]
+    nfr_ids = {i["id"] for i in nfr}
+    nfr_json_ids = {i["id"].replace("NFR-0", "NFR-") for i in nfc} | {i["id"] for i in nfc}
+    gate("G-NFR-MEASURABLE", not n_errs and all(i in nfr_json_ids for i in nfr_ids),
+         f"NFR 計測契約: schema 適合＋NFR10 完全被覆 (err={n_errs[:3]})")
+
+    # G-AC-COVERAGE: AC 契約 schema 適合・target 実在・S0 契約に AC ≥1・ID 一意
+    a_errs: list[str] = []
+    for it in acc:
+        a_errs += [f"{it.get('id', '?')}: {e}" for e in schema_check(acc_schema, it)]
+    ac_ids = [a["id"] for a in acc]
+    dup_ac = len(ac_ids) != len(set(ac_ids))
+    valid_targets = fr_md_ids | sr_ids | nfr_ids | {i["id"] for i in nfc}
+    orphan_tgt = [a["id"] for a in acc if a["target"] not in valid_targets]
+    ac_by_tgt: dict[str, list] = {}
+    for a in acc:
+        ac_by_tgt.setdefault(a["target"], []).append(a)
+    s0_no_ac = [c["id"] for c in allc if c["slice"] == "S0" and not ac_by_tgt.get(c["id"])]
+    gate("G-AC-COVERAGE", not a_errs and not dup_ac and not orphan_tgt and not s0_no_ac,
+         f"AC 検証契約: schema 適合＋target 実在＋S0 要件の AC 実在 "
+         f"(err={a_errs[:3]}, dup={dup_ac}, orphan={orphan_tgt[:3]}, S0欠落={s0_no_ac})")
+
+    # G-AC-POLARITY: S0 の各 FR/SR は 3 極性（正常/拒否/境界復旧）を AC か理由付き N/A で被覆
+    POLARITIES = {"normal", "reject", "boundary-recovery"}
+    pol_bad = []
+    for c in allc:
+        if c["slice"] != "S0":
+            continue
+        have = {a["polarity"] for a in ac_by_tgt.get(c["id"], [])}
+        na = set(c.get("ac_na", {}).keys())
+        if (have | na) < POLARITIES or (have & na):
+            pol_bad.append(f"{c['id']}:{sorted(POLARITIES - have - na) or '重複NA'}")
+    gate("G-AC-POLARITY", not pol_bad, f"S0 要件の 3 極性被覆（AC or 理由付き N/A） (欠落={pol_bad[:5]})")
+
+    # G-HUMAN-JUDGE: 全契約に人間判断点の明示（なし宣言 or 具体主体）
+    hj_bad = [c["id"] for c in allc
+              if not (c["human_judgement"].startswith("なし")
+                      or any(k in c["human_judgement"] for k in ("PO", "人間", "運用者", "承認")))]
+    gate("G-HUMAN-JUDGE", not hj_bad, f"人間判断点の明示（なし宣言 or 主体特定） (不明={hj_bad[:5]})")
+
+    # G-INVARIANT-TRACE: S0 契約の不変条件が拒否系 AC（具体エラー型つき）で負方向に検証される
+    inv_bad = []
+    for c in allc:
+        if c["slice"] != "S0" or "reject" in set(c.get("ac_na", {}).keys()):
+            continue
+        rejects = [a for a in ac_by_tgt.get(c["id"], [])
+                   if a["polarity"] == "reject" and a["error_type"] not in ("なし", "")]
+        if not rejects:
+            inv_bad.append(c["id"])
+    gate("G-INVARIANT-TRACE", not inv_bad,
+         f"S0 不変条件の負方向検証（具体エラー型つき reject AC） (欠落={inv_bad[:5]})")
+except FileNotFoundError as e:
+    for gid in ("G-FRSR-CONTRACT", "G-NFR-MEASURABLE", "G-AC-COVERAGE", "G-AC-POLARITY",
+                "G-HUMAN-JUDGE", "G-INVARIANT-TRACE"):
+        gate(gid, False, f"契約正本が存在しない: {e}")
+
 # G-COUNT-SYNC: 手書きのゲート件数表記が実数と一致（意味整合レビュー対応 — 散在数値のドリフト検出）
 count_files = [ROOT / "README.md", ROOT / "CLAUDE.md", ROOT / "AGENTS.md",
                ROOT / "docs/governance/requirements-gates.md"] + \
