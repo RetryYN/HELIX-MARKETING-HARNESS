@@ -73,3 +73,13 @@
 | 2026-08-01 | basic-design | v0.1 | confirmed | PO | 71080830c131 | 全層再降下・粒度是正指示（/goal）による改訂受領（契約正本ポインタ追記、G-CONFIRM-DIGEST receipt） |
 | 2026-08-01 | verification-design | v0.1 | confirmed | PO | 35d2d3edd229 | 全層再降下・粒度是正指示（/goal）による改訂受領（契約正本ポインタ追記、G-CONFIRM-DIGEST receipt） |
 | 2026-08-01 | detailed-design | v0.1 | confirmed | PO | b4fd8a582074 | 全層再降下・粒度是正指示（/goal）による改訂受領（DU 実装契約正本・機能別設計ポインタ追記、G-CONFIRM-DIGEST receipt） |
+
+## skip 上限（pytest skipped）の引き上げ承認
+
+> tests/skip-budget.json の `max_skipped` を引き上げる場合のみ、本表に PO 承認行を追加する。
+> 形式: `| 日付 | skip-budget | 旧→新 | approved | PO | 理由 |`。
+> 引き下げ（スタブの red→green 化による解消）は承認不要。
+
+| 日付 | 対象 | 変更 | 判定 | 承認者 | 理由 |
+|---|---|---|---|---|---|
+| 2026-08-01 | skip-budget | 0→194 | approved | PO | 全層再降下 §8 — DU 23 契約の API 58 本に対する test-first スタブ 185 本＋⑥既存分（S0.1 実装で解消） |

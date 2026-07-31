@@ -27,6 +27,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # skip 上限ラチェットの比較元（親コミットの baseline）に必要
       - uses: actions/setup-python@v5
         with:
           python-version: "3.14"

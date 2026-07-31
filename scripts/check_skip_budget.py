@@ -37,12 +37,19 @@ def main() -> int:
     limit = budget["max_skipped"]
     # ラチェット: 上限は baseline に記録した値を超えて増やせない（減少方向のみ許可）
     # 比較対象は git HEAD にコミット済みの baseline（作業ツリーの同時改変では回避できない）
-    proc = subprocess.run(  # noqa: S603
-        ["git", "show", "HEAD:docs/governance/baseline.json"],  # noqa: S607
-        capture_output=True, text=True, check=False, cwd=ROOT)
-    recorded = json.loads(proc.stdout).get("max_skipped") if proc.returncode == 0 else None
+    # 比較元は **親コミット**（CI では検査対象コミット自身が HEAD になるため）
+    recorded = None
+    for rev in ("HEAD^", "HEAD"):
+        proc = subprocess.run(  # noqa: S603
+            ["git", "show", f"{rev}:docs/governance/baseline.json"],  # noqa: S607
+            capture_output=True, text=True, check=False, cwd=ROOT)
+        if proc.returncode == 0:
+            recorded = json.loads(proc.stdout).get("max_skipped")
+            break
     approvals = (ROOT / "docs/governance/approvals.md").read_text()
-    approved = recorded is not None and f"skip-budget {recorded}→{limit}" in approvals
+    pat = re.compile(rf"^\|[^|]*\|\s*skip-budget\s*\|[^|]*{recorded}→{limit}[^|]*\|[^|]*\|\s*PO\s*\|",
+                     re.MULTILINE)
+    approved = recorded is not None and bool(pat.search(approvals))
     if recorded is not None and limit > recorded and not approved:
         print(f"FAIL [SKIP-BUDGET] 上限を {recorded} → {limit} へ引き上げている（ラチェット違反）。"
               "スタブ増加は設計追加（du-contracts の UT 追補）と同一コミットで、"

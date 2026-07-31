@@ -33,7 +33,7 @@
 | G-UTC-TC/DU/CNT/FILE | 単体テスト設計⑥（utest.json）が TC 59 全件を重複なく実在 DU へ割当・全 DU にテストあり・UTC 69（割当 59＋UT 10）・test_file が DU と 1 対 1 衝突なし | テストの届かないモジュール（TDD の空白）・テストファイル混線 |
 | G-UTC-FILE-EXIST | ⑥と戦略層 STC-I（S0.1）が宣言する全 test_file がディスク上に実在（未実装分は**関数単位** skip（理由付き）として存在し、pytest が個別に skipped と報告 — module-level skip は全層再降下 §8 で廃止） | 宣言だけのテストファイル（実行されない検証の PASS 僭称） |
 | G-PAIR3-EXIST/HDR | ⑤↔⑥ の JSON 正本が存在し、両文書ヘッダが相互 pair 参照、ペア台帳の文書実在 | 片方向ペア（⑤↔⑥ 非対称） |
-| G-BASE-EXIST/HASH/STATUS/RATCHET | baseline.json に対し confirmed 文書のハッシュ一致・降格なし・分母縮小/ゲート削減なし・**pytest skip 上限（tests/skip-budget.json の max_skipped）の引き上げなし（比較対象は **git HEAD にコミット済みの** baseline。引き上げには approvals.md への PO 承認行『skip-budget N→M』が必要 — 作業ツリーで baseline と budget を同時に書き換えても回避できない）**。意図的変更は `--update-baseline` を同一コミットで実行（承認 receipt = digest 行がないと baseline 更新を拒否） | **デグレ**: confirmed のサイレント改変・後退・こっそりスコープ縮小（HELIX 日付 ratchet 相当） |
+| G-BASE-EXIST/HASH/STATUS/RATCHET | baseline.json に対し confirmed 文書のハッシュ一致・降格なし・分母縮小/ゲート削減なし・**pytest skip 上限（tests/skip-budget.json の max_skipped）の引き上げなし（比較元は **親コミット（HEAD^）** の baseline — CI では検査対象コミット自身が HEAD になるため。引き上げには approvals.md の**構造化 PO 承認行**（`日付／skip-budget／N→M／approved／PO／理由` の 6 列テーブル行）が必要で、作業ツリー同時改変・引き上げのコミットのいずれでも回避できない）**。意図的変更は `--update-baseline` を同一コミットで実行（承認 receipt = digest 行がないと baseline 更新を拒否） | **デグレ**: confirmed のサイレント改変・後退・こっそりスコープ縮小（HELIX 日付 ratchet 相当） |
 | G-BASE-ART | 実装入力（JSON 正本・DDL・validator・CI・CLAUDE.md/AGENTS.md・hook）のハッシュが baseline と一致・未登録なし | 実装入力のサイレント改変（レビュー P0-4: MD だけの束縛では不足） |
 | G-COUNT-SYNC | README・CLAUDE.md・AGENTS.md・設計/ガバナンス文書中の手書きゲート件数表記が実数と一致 | 散在する件数のドリフト（意味整合の欠如） |
 | G-STRAT-BRIEF | strategic_brief 契約が完全（必須フィールド・digest）で、DDL が下位 loop_run に brief id/digest の保持を強制し、開始ガードが有効 brief を要求する | brief なしの下流開始（上流→下流契約の欠落） |

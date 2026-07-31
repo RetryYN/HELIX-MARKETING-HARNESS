@@ -33,20 +33,32 @@ def load(p: Path):
 
 
 def committed_max_skipped():
-    """git HEAD にコミット済みの baseline.json から skip 上限を読む（作業ツリーは信用しない）。"""
-    try:
+    """**親コミット**の baseline.json から skip 上限を読む。
+
+    CI では検査対象コミット自身が HEAD になるため、HEAD を比較元にすると引き上げを
+    コミットするだけで検査を素通りできる。親（HEAD^）= 変更前の状態を比較元にする。
+    親が無い（初回コミット）場合は None を返し、ラチェット検査を適用しない。
+    """
+    for rev in ("HEAD^", "HEAD"):  # 親が無いリポジトリでは HEAD へフォールバック
         out = subprocess.run(  # noqa: S603
-            ["git", "show", "HEAD:docs/governance/baseline.json"],  # noqa: S607
+            ["git", "show", f"{rev}:docs/governance/baseline.json"],  # noqa: S607
             capture_output=True, text=True, check=False, cwd=ROOT)
-        return json.loads(out.stdout).get("max_skipped") if out.returncode == 0 else None
-    except (json.JSONDecodeError, OSError):
-        return None
+        if out.returncode == 0:
+            try:
+                return json.loads(out.stdout).get("max_skipped")
+            except json.JSONDecodeError:
+                return None
+        if rev == "HEAD^" and "unknown revision" not in (out.stderr or ""):
+            continue
+    return None
 
 
 def skip_raise_approved(prev, new) -> bool:
-    """skip 上限の引き上げに対する PO 承認行が approvals.md にあるか。"""
+    """skip 上限の引き上げに対する **PO 承認行**（構造化テーブル行）が approvals.md にあるか。"""
     appr = (ROOT / "docs/governance/approvals.md").read_text(encoding="utf-8")
-    return f"skip-budget {prev}→{new}" in appr
+    pat = re.compile(rf"^\|[^|]*\|\s*skip-budget\s*\|[^|]*{prev}→{new}[^|]*\|[^|]*\|\s*PO\s*\|",
+                     re.MULTILINE)
+    return bool(pat.search(appr))
 
 
 def md_count(path: Path, pattern: str) -> int:
