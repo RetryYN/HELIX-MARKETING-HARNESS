@@ -8,9 +8,10 @@
 
 ## ドキュメント
 
-- [BR 背骨](docs/requirements/br-backbone_v0.1.md) — 業務要求 31 項目（confirmed）
+- [BR 背骨](docs/requirements/br-backbone_v0.1.md) — 業務要求 38 項目（confirmed）
+- [BR 構造化契約](docs/requirements/br-contracts_v0.1.md) — 全 BR の目的・価値・制約・禁止・証跡ほか 12 観点（生成ビュー）
 - [媒体別業務要求](docs/requirements/br-media_v0.1.md) — BR-M・21 媒体の構造調査値と PO 判断 8 件（confirmed）
-- [要求一覧](docs/requirements/requirement-list_v0.1.md) — REQ 45 項目・優先度・対応 FR 付き（confirmed）
+- [要求一覧](docs/requirements/requirement-list_v0.1.md) — REQ 52 項目・優先度・対応 FR 付き（confirmed）
 - [要件定義書](docs/requirements/requirements_v0.1.md) — FR 36 / NFR 10・AC・S0 受入基準・トレース（confirmed）
 - [機能一覧](docs/requirements/function-list_v0.1.md) — FN 61 機能・スライス配分（confirmed）
 - [媒体・手法別詳細要件](docs/requirements/media-requirements_v0.1.md) — 19 媒体を 7 観点で（confirmed）
@@ -19,6 +20,10 @@
 - [上流戦略ループ要件](docs/requirements/strategy-loop-requirements_v0.1.md) — SR 16・意味モデル 12・ペルソナ禁止・S0 境界（confirmed）
 - [戦略学習契約](docs/requirements/strategy-learning-contract_v0.1.md) — brief／TLP／revision の 3 契約＋コンテンツ 5 宣言（confirmed）
 - [戦略層 JSON 正本](docs/requirements/json/strategy/) — 12 schema・媒体役割台帳・コンテンツ企画契約・fixture（ゲートの negative test 入力）
+- [FR 実行契約](docs/requirements/fr-contracts_v0.1.md)／[SR 実行契約](docs/requirements/sr-contracts_v0.1.md) — 18 観点（入出力・DbC・拒否・境界・復旧・冪等性・証跡）（生成ビュー）
+- [NFR 計測契約](docs/requirements/nfr-contracts_v0.1.md) — 測定対象・方法・閾値・環境・違反時動作（生成ビュー）
+- [AC カタログ](docs/requirements/ac-catalog_v0.1.md) — AC 211（fixture・観測点・DB 差分・証跡・禁止副作用・エラー型）（生成ビュー）
+- [TC カタログ](docs/requirements/tc-catalog_v0.1.md) — TCC 217（正常/拒否/境界/強制終了/競合/再開）（生成ビュー）
 - [検証設計書](docs/requirements/verification-design_v0.1.md) — 要件定義との対（pair）。TC 59・全 AC カバー・拒否系 27（confirmed）
 - [JSON 正本](docs/requirements/json/) — 要件エンティティの機械可読正本（実装・変換の入力。MD と同期）
 - [技術・ツール選定書](docs/requirements/tech-stack_v0.1.md) — スタック集約と再検討トリガー（confirmed）
@@ -26,6 +31,9 @@
 - [基本設計書](docs/design/basic-design_v0.1.md) — ②。CMP 13 コンポーネント・S0 25 FN 完全被覆（confirmed）
 - [総合テスト設計書](docs/design/integration-test-design_v0.1.md) — ④。基本設計との対（pair）。ITC 16・拒否系 7・E2E 含む（confirmed）
 - [詳細設計書](docs/design/detailed-design_v0.1.md) — ⑤。DU 23 モジュール・公開 API 仕様（confirmed）
+- [CMP 設計契約](docs/design/cmp-contracts_v0.1.md)／[DU 実装契約](docs/design/du-contracts_v0.1.md) — 11 観点／14 観点（API 58 本の署名・DbC・例外・tx・冪等性）（生成ビュー）
+- 独立設計書: [外部 IF](docs/design/external-if-design_v0.1.md)／[DB](docs/design/db-design_v0.1.md)／[状態機械](docs/design/state-machine-design_v0.1.md)／[エラー分類](docs/design/error-taxonomy_v0.1.md)／[承認](docs/design/approval-design_v0.1.md)／[ブランド隔離](docs/design/brand-isolation-design_v0.1.md)
+- [機能別詳細設計](docs/design/features/) — 11 本（戦略改訂・brief・TLP・証跡・migration・状態機械・ブランド隔離・KPI handoff・キャンペーン・外部操作・承認）
 - [単体テスト設計書](docs/design/unit-test-design_v0.1.md) — ⑥。詳細設計との対（pair）。TC 59 全割当＋UT 10（confirmed）
 - [戦略ループ設計](docs/design/strategy-loop-design_v0.1.md) — SCM 10・S0 最小変更／S1 上流スライス配分（confirmed）
 - [戦略層テスト設計](docs/design/strategy-loop-test-design_v0.1.md) — STC（ゲート×fixture 常設＋S0.1/S1 pytest）（confirmed）
@@ -51,10 +59,13 @@ Codex CLI を実装エージェントとして登録済み（`.claude/agents/`�
 
 スライス駆動で構築中（L0 charter confirmed 2026-07-30）。
 
-**⚠ 2026-08-01 PO 指示: 全層 再監査中（粒度是正）** — ID・件数・参照・ペア構造は成立している一方、
-要求・要件・設計本文の意味粒度が HELIX-HARNESS 本体の品質基準に未達。要求定義→要件定義→基本設計→
-詳細設計→単体テスト設計を上流から再降下する（[粒度ギャップ監査](docs/governance/granularity-gap-audit-v0.1.md)）。
-**再降下完了まで S0.1 実装は停止**。以下の過去の「完遂」記述は履歴であり、現時点の品質保証を意味しない。
+**2026-08-01 全層再降下（粒度是正）完了** — HELIX-HARNESS 本体基準への粒度是正を要求定義から
+単体テスト設計まで実施（[粒度ギャップ監査](docs/governance/granularity-gap-audit-v0.1.md)）。
+BR 38（12 観点の構造化契約）／FR 36・SR 16（18 観点の実行契約）／NFR 10（計測契約）／
+AC 211・TCC 217（fixture・DB 差分・証跡・禁止副作用・エラー型つき）／CMP・SCM 23（11 観点の設計契約）／
+DU 23（API 58 本の署名・DbC・例外・tx・冪等性）＋独立設計書 6 本＋機能別設計 11 本。
+ゲートは 105 本（BR→REQ→FR/SR→AC→TC→CMP→DU→API→UT の全区間双方向突合、mutation 自己検査つき）。
+Sol ブラインドレビュー（HELIX 基準）で **Go**。
 
 要件定義＋基本設計＋詳細設計 一次完了・全文書 confirmed（2026-07-31 PO 承認）— §99 全 8 判断クローズ、
 整合ゲート CI 常時実行（件数の正本 = baseline.json の gate_count）、①↔③（TC 59）・②↔④（ITC 16）・

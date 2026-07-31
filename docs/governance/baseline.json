@@ -43,7 +43,7 @@
     ".github/workflows/docs-ci.yml": "b46f343194dd37434eae27aa4a629dec1cdde7be9dd44c4d0f30991115e06545",
     ".github/workflows/python-ci.yml": "cabf47456ba469206f7f27f175986c8a9952cfab2ced5a70aef23d5ac32c2643",
     "AGENTS.md": "49e65b4b8afe029bbd2b738a0900b9a7eadc67effd494fb0ac2ae19b60b427a9",
-    "CLAUDE.md": "ed25edec068e53f2cf78039493dec5cfd276a54a5baa172cb5ab97ead0da721e",
+    "CLAUDE.md": "67992ff90d6496290871b59b385358d529970c9fb334dc9ffc0b899bf3bc8dcf",
     "docs/design/json/cmp-contract.schema.json": "043daeb891ac8522475f63c710bf490d8a3cc04211f60e7451f4a380b66f0810",
     "docs/design/json/cmp-contracts.json": "a9b485d4ba312593d81f6650e7fc580fa2e1082c49c28edd4d258c8e93d76405",
     "docs/design/json/components.json": "dceba8ad2f3f75b896527b045a7af44f2fbf5065cb0f0c5160baba34a4b880cc",
@@ -161,7 +161,7 @@
     "docs/requirements/json/verification/tc-contracts.json": "5ca8b044ef37e97e4c1ef729c03a40a8617410c4beecf214e7950defbb2310be",
     "pyproject.toml": "e14a32bc5450457200c910351417df7d2c8651aa5a8d3f7c847e4a5364820969",
     "scripts/hooks/pre-git-gate.sh": "c479c573bdb491a57716c47c2cf54cda2a094e7cde8103ac2f6952fbb230e080",
-    "scripts/validate_requirements.py": "6dc712781d5f319d4707e08bd0d3310f6361a61854c4d644139055ff7e77947b",
+    "scripts/validate_requirements.py": "f5645889f058c0dbef33e054b0558bf77f42dc3327db21f021fb7bb6a6cbdb10",
     "uv.lock": "b57a054ee0cba1c418d500563695ee3007e82557bd5f540558f811c5c578836f"
   }
 }

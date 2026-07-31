@@ -846,10 +846,13 @@ if BASELINE.exists():
     # 同時改変では回避できない）。引き上げには approvals.md の PO 承認行が別途必要。
     cur_skip = json.loads((ROOT / "tests" / "skip-budget.json").read_text(encoding="utf-8"))["max_skipped"]
     committed = committed_max_skipped()
-    skip_up = committed is not None and cur_skip > committed and not skip_raise_approved(committed, cur_skip)
+    skip_raised = committed is not None and cur_skip > committed
+    skip_ok_by_approval = skip_raised and skip_raise_approved(committed, cur_skip)
+    skip_up = skip_raised and not skip_ok_by_approval
+    skip_note = "承認済み引上げ" if skip_ok_by_approval else ("引上げなし" if not skip_raised else "未承認引上げ")
     gate("G-BASE-RATCHET", not shrunk and gate_count_now >= base["gate_count"] and not skip_up,
-         f"分母縮小/ゲート削減/skip 上限引上げなし (縮小={shrunk}, "
-         f"gates={gate_count_now}>={base['gate_count']}, skip={cur_skip}<={committed}[HEAD])")
+         f"分母縮小/ゲート削減なし・skip 上限は{skip_note} (縮小={shrunk}, "
+         f"gates={gate_count_now}>={base['gate_count']}, skip={cur_skip} vs 親={committed})")
     # 実装入力（JSON 正本・DDL・validator・CI・規律・hook）の無断改変検出
     adrift = sorted(set(
         [a for a, h in base.get("artifacts", {}).items() if current_artifacts.get(a) != h]
