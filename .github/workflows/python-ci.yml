@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0  # skip ラチェットの比較元（親コミットの baseline）に必要
       - uses: astral-sh/setup-uv@v5
         with:
           python-version: "3.14"

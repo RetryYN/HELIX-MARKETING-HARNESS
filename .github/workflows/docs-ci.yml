@@ -28,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2  # skip 上限ラチェットの比較元（親コミットの baseline）に必要
+          fetch-depth: 0  # 親コミットの baseline（skip ラチェット）とレビュー成果物の target_commit 解決に必要
       - uses: actions/setup-python@v5
         with:
           python-version: "3.14"
