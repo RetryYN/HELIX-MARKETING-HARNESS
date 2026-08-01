@@ -2,8 +2,8 @@
   "review_id": "REV-S0-STRUCT-04",
   "reviewer_principal": "codex-sol (別 principal)",
   "model": "gpt-5.6-sol",
-  "target_commit": "bc560d37d628f1794744a0a4f3b85ec9a20ce4e7",
-  "target_tree": "8ca91cce83015d31258d58d12653cbd952c58ed0",
+  "target_commit": "e67cc7e8cb209e9d163a64a7faa88b18fead86bc",
+  "target_tree": "9f90a9683bd46f95782323898259808651fe7443",
   "scope": "第7次レビュー（Go）指摘の是正 — 注釈と実装の齟齬・findings 台帳の追補",
   "supersedes_review": [
     "REV-S0-STRUCT-03"
@@ -80,7 +80,7 @@
     }
   ],
   "resolution_commits": [
-    "bc560d37d628f1794744a0a4f3b85ec9a20ce4e7"
+    "e67cc7e8cb209e9d163a64a7faa88b18fead86bc"
   ],
   "verdict": "Go",
   "completed_at": "2026-08-01",
