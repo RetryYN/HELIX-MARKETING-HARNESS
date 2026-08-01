@@ -1,0 +1,41 @@
+{
+  "review_id": "REV-S0-STRUCT-12",
+  "reviewer_principal": "codex-sol (gpt-5.6-sol / openai-codex-cli)",
+  "author_principal": "claude-code (claude-opus-5)",
+  "author_execution_id": "9230d21c-4589-4845-9488-a7b5a60cb46d",
+  "reviewer_execution_id": "019fbec7-5156-7451-8d7c-155debcf1d4a",
+  "review_run_id": "REV-S0-STRUCT-12-R1",
+  "reviewer_provider": "openai-codex-cli",
+  "review_log_path": "docs/00-authority/reviews/logs/REV-S0-STRUCT-12.jsonl",
+  "review_log_digest": "d1fd051c93914cf9",
+  "separation_status": "self_attested",
+  "model": "gpt-5.6-sol",
+  "target_commit": "d115f8b614a1cb99413a40c04514dec318cec19f",
+  "target_tree": "4dd188fa2a94b00f55659337e17b48231ba21270",
+  "scope": "S0.1 着手前提条件 4 件の met 昇格（met_by = 各専用ゲート）。本番 emit・negative／mutation テスト green・CI green（Docs CI 30714560481／Python CI 30714560477）と CI 成果物 pytest-outcome の実在を根拠とする。plan の status は planned のまま・src/helix 未着手",
+  "supersedes_review": [
+    "REV-S0-STRUCT-11"
+  ],
+  "reviewed_artifact_digests": {
+    "docs/00-authority/baselines/baseline.json": "5cbf74a1037c582a",
+    "docs/00-authority/reviews/logs/REV-S0-STRUCT-12.jsonl": "d1fd051c93914cf9",
+    "docs/00-authority/reviews/sol-review-s0-structure-11.json": "cb11e3b380c5704f",
+    "docs/L6-feature-design/S0/plan-s0.1.json": "eb69df5f3b581d32",
+    "tests/gates/test_test_reality.py": "f9da6076e84370d5",
+    "tools/gates/test_reality.py": "0f6d87cf2cb0c79d"
+  },
+  "resolution_commits": [
+    "d115f8b614a1"
+  ],
+  "verdict": "Go",
+  "completed_at": "2026-08-02",
+  "rounds": 1,
+  "findings": [
+    {
+      "severity": "minor",
+      "status": "resolved",
+      "summary": "R12-01 対象 UT の件数を散文で固定記載しており実態（正本からの機械導出）とずれる",
+      "resolution": "per-ut-executed-and-passed の description から固定件数を削除し、対象件数は契約正本から機械導出する旨へ書き換えた"
+    }
+  ]
+}
