@@ -5,6 +5,11 @@ import json
 from tools.gates import review_binding
 from tools.gates.common import CTX, ROOT
 
+# 実行証跡を取得できなかった過去のレビュー（ここへ追加することは証跡強度の後退にあたる）
+HISTORICAL_UNVERIFIED = ["REV-S0-DESIGN-01", "REV-S0-DESIGN-02", "REV-S0-STRUCT-01",
+                         "REV-S0-STRUCT-02", "REV-S0-STRUCT-03", "REV-S0-STRUCT-04",
+                         "REV-S0-STRUCT-05", "REV-S0-STRUCT-06"]
+
 
 def test_path_resolver_maps_previous_paths_to_current() -> None:
     """manifest.previous_paths の解決能力を検証するため、**意図的に**旧パスを固定する。
@@ -456,8 +461,12 @@ def test_real_reviews_use_the_three_valued_status() -> None:
         d = json.loads(q.read_text(encoding="utf-8"))
         got.setdefault(d["separation_status"], []).append(d["review_id"])
     assert set(got) <= set(review_binding.SEPARATION_STATUSES)
-    assert sorted(got.get("self_attested", [])) == ["REV-S0-STRUCT-07", "REV-S0-STRUCT-08",
-                                                    "REV-S0-STRUCT-09"]
+    # 期待は**構造**で書く（レビューを 1 件足すたびに固定リストを直す自己参照を避ける）。
+    # ラチェット: 証跡なし（unverified）を名乗れるのは過去の 8 件だけで、新しいレビューは
+    # 必ず self_attested 以上。ci_attested は検証鍵が未配備のため誰も名乗れない。
+    assert sorted(got.get("unverified", [])) == HISTORICAL_UNVERIFIED
+    assert set(got.get("self_attested", [])) >= {"REV-S0-STRUCT-07", "REV-S0-STRUCT-08",
+                                                 "REV-S0-STRUCT-09"}
     assert "ci_attested" not in got
 
 

@@ -87,7 +87,9 @@
   "separation_verified_reviews": [
     "REV-S0-STRUCT-07",
     "REV-S0-STRUCT-08",
-    "REV-S0-STRUCT-09"
+    "REV-S0-STRUCT-09",
+    "REV-S0-STRUCT-10",
+    "REV-S0-STRUCT-11"
   ],
   "separation_statuses": {
     "REV-S0-DESIGN-02": "unverified",
@@ -100,6 +102,8 @@
     "REV-S0-STRUCT-07": "self_attested",
     "REV-S0-STRUCT-08": "self_attested",
     "REV-S0-STRUCT-09": "self_attested",
+    "REV-S0-STRUCT-10": "self_attested",
+    "REV-S0-STRUCT-11": "self_attested",
     "REV-S0-STRUCT-01": "unverified"
   },
   "api_verification_levels": {
