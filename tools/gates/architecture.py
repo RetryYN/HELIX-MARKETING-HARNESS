@@ -21,7 +21,10 @@ from tools.gates.common import (
     UPDATES,
     Ctx,
     gate,
+    is_frozen,
+    live_markdown,
     load,
+    rel,
     schema_check,
 )
 
@@ -186,6 +189,90 @@ def detect_tlp_json_predicate_faults(ddl: str) -> list[str]:
     return bad
 
 
+# ---------------------------------------------------------------- 物理数の主張（PO 指示 §3）
+# 「25 テーブル」「保護トリガ 16 本」のような**物理数の主張**は、散文の記憶ではなく実 DDL から
+# 導出した数と突合する。部分集合を語る主張（特定テーブルに限定した本数）は、その文脈に現れる
+# テーブル名から**期待値を計算**して突合する（総数へ丸めない — 部分集合の主張も検証対象）。
+# 「トリガ 11」「トリガーは 11 本」「11 基のトリガ」のような表記ゆれも物理数の主張として拾う
+# （単位語・助詞の有無や語順に依らない — 独立レビュー R2-03）
+TRIGGER_CLAIM = re.compile(r"トリガー?\s*(?:は|が|を|の|＝|=|:|：)?\s*(\d+)")
+# 前置形は**単位語を必須**にする（`§2 の保護トリガ`・`3.2 トリガ` のような節番号を数と読まない）
+TRIGGER_CLAIM_PRE = re.compile(
+    r"(?<![A-Za-z0-9-.§])(\d+)\s*(?:本|件|個|基)\s*(?:の|もの)?\s*(?:保護|整合|append-only)?トリガー?")
+# 「S0 テーブル」「SCM-01 テーブル」のような識別子の一部を数値と読まない
+TABLE_CLAIM = re.compile(r"(?<![A-Za-z0-9-])(\d+)\s*テーブル")
+# 部分集合の記述（「戦略正本 2 テーブル」等）と総数の主張を混同しないための閾値。
+# 総数（25）は 2 桁であり、1 桁の主張は総数を名乗っていない
+TABLE_TOTAL_MIN = 10
+# 監査記録・承認ログは「その時点の事実」を保存する履歴であり、現在の物理数へ追随させない
+HISTORICAL_PREFIXES = ("docs/00-authority/audits/", "docs/00-authority/approvals/",
+                       "docs/00-authority/superseded/")
+SEGMENT_SPLIT = re.compile(r"[。\n]|(?<=\|)")
+
+
+def ddl_physical(ddl: str) -> tuple[set[str], dict[str, str]]:
+    """実 DDL のテーブル集合と、トリガ名 → 対象テーブル名の写像を返す。"""
+    con = _apply(ddl)
+    tables = {r[0] for r in con.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")}
+    trg = {r[0]: r[1] for r in con.execute(
+        "SELECT name, tbl_name FROM sqlite_master WHERE type='trigger'")}
+    con.close()
+    return tables, trg
+
+
+def _texts(root: Path = ROOT) -> list[tuple[str, str]]:
+    """検査対象の (出所, テキスト) を集める（現役 MD・契約 JSON・テスト関数名）。"""
+    out: list[tuple[str, str]] = []
+    for p in live_markdown():
+        out.append((rel(p), p.read_text(encoding="utf-8")))
+    for p in sorted(root.glob("docs/L*/**/*.json")):
+        if is_frozen(p):
+            continue
+        out.append((rel(p), p.read_text(encoding="utf-8")))
+    for p in sorted(root.glob("tests/**/*.py")):
+        for m in re.finditer(r"^def (test_\w+)", p.read_text(encoding="utf-8"), re.M):
+            out.append((f"{rel(p)}::{m.group(1)}", m.group(1)))
+    return out
+
+
+TEST_NAME_CLAIM = re.compile(r"_(\d+)_tables?_(?:and_)?(\d+)_triggers?")
+
+
+def detect_physical_count_faults(ddl: str, root: Path = ROOT) -> list[str]:
+    """散文・契約・テスト名の物理数（テーブル数・トリガ数）を実 DDL と突合する。
+
+    期待値は定数ではなく**実 DDL から導出**する。数値で書いてよいのは**総数**だけとし、
+    部分集合（特定テーブルに限った本数）は数値で書かない — 長い文の中の数値がどの範囲を
+    指すのかは機械にも人にも決まらず、実物との乖離が検出できないまま残るため。
+    """
+    tables, trg_table = ddl_physical(ddl)
+    n_tab, n_trg = len(tables), len(trg_table)
+    bad: list[str] = []
+    for origin, text in _texts(root):
+        if origin.startswith(HISTORICAL_PREFIXES):
+            continue
+        for m in TEST_NAME_CLAIM.finditer(text):
+            if (int(m.group(1)), int(m.group(2))) != (n_tab, n_trg):
+                bad.append(f"{origin}: テスト名の物理数 {m.group(1)}テーブル/{m.group(2)}トリガ "
+                           f"が実 DDL（{n_tab}/{n_trg}）と不一致")
+        for seg in SEGMENT_SPLIT.split(text):
+            if not seg or ("トリガ" not in seg and "テーブル" not in seg):
+                continue
+            for pat in (TRIGGER_CLAIM, TRIGGER_CLAIM_PRE):
+                for m in pat.finditer(seg):
+                    if int(m.group(1)) != n_trg:
+                        bad.append(f"{origin}: トリガ数の主張 {m.group(1)} が実 DDL の {n_trg} と不一致"
+                                   f"（部分集合は数値で書かない — 総数だけを数値で持つ）: "
+                                   f"{seg.strip()[:70]}")
+            for m in TABLE_CLAIM.finditer(seg):
+                n = int(m.group(1))
+                if n >= TABLE_TOTAL_MIN and n != n_tab:
+                    bad.append(f"{origin}: テーブル総数の主張 {n} が実 DDL の {n_tab} と不一致: "
+                               f"{seg.strip()[:70]}")
+    return sorted(set(bad))
+
+
 def detect_unknown_tables(dus: list[dict], tables: set[str]) -> list[str]:
     """DU の db_read/db_write に DDL 非実在テーブルが含まれる箇所を列挙する。"""
     return sorted({f"{d['id']}:{t}" for d in dus for t in d["db_read"] + d["db_write"]
@@ -226,6 +313,11 @@ def _ddl(ctx: Ctx) -> None:
         gate("G-DDL-APPLY", False, f"DDL 適用失敗: {e}")
     finally:
         con.close()
+
+    phys = detect_physical_count_faults(ctx.ddl)
+    gate("G-DESIGN-PHYSICAL-COUNT", not phys,
+         "現役文書・契約 JSON・テスト名の物理数（テーブル数・トリガ数）が**実 DDL から導出した数**と"
+         f"一致（部分集合の本数を数値で書かない） (違反={phys[:3]})")
 
     kinds = {k["kind"] for k in load(EVIDENCE_KINDS)["items"]}
     m = re.search(r"kind TEXT NOT NULL CHECK \(kind IN \(([^)]*)\)", ctx.ddl)
@@ -353,11 +445,11 @@ def _design_substance(ctx: Ctx) -> None:
     # スライス横断で数える（S0 → S1 への再配置が「分母の縮小」に見えないようにする — ラチェット）。
     # スライス単位の下限も併せて持つ（総数だけだと S0 の設計が消えても通ってしまう）。
     feature_docs = sorted(L6.rglob("*.md"))
-    if len(feature_docs) < 13:
-        thin.append(f"features 不足:{len(feature_docs)}<13")
+    if len(feature_docs) < 14:
+        thin.append(f"features 不足:{len(feature_docs)}<14")
     s0_docs = sorted((L6 / "S0").glob("*.md"))
-    if len(s0_docs) < 10:
-        thin.append(f"S0 features 不足:{len(s0_docs)}<10")
+    if len(s0_docs) < 11:
+        thin.append(f"S0 features 不足:{len(s0_docs)}<11")
     for p in design_docs + feature_docs:
         txt = p.read_text(encoding="utf-8")
         if txt.count("\n") < 50 or txt.count("## ") < 3:

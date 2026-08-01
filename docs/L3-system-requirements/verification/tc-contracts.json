@@ -3078,7 +3078,7 @@
         "AC-71-1"
       ],
       "kind": "normal",
-      "verifies_state": "25 テーブル＋保護トリガ 6 件（config/evidence/state_transitions × update/delete）存在、verify() = pass",
+      "verifies_state": "25 テーブル＋保護トリガ 16 本（append-only・TLP 整合・brief 不変／状態遷移／valid_until）存在、verify() = pass",
       "verifies_db_delta": "全 25 テーブル CREATE、schema_version +N 行（migration ごと）",
       "verifies_evidence": "schema_version 行（version・migration 名・checksum・適用者・時刻）",
       "verifies_forbidden": "DDL 正本にないテーブル・トリガの生成、FK OFF での使用開始",
@@ -6088,5 +6088,5 @@
   "supersedes": [
     "ARCHIVE-TC-LEGACY"
   ],
-  "approval_digest": "f7d415686eb5"
+  "approval_digest": "3494028deb83"
 }

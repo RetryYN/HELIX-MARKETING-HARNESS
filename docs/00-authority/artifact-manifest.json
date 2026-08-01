@@ -1094,7 +1094,7 @@
       "previous_paths": [
         "docs/requirements/json/ac/ac-contracts.json"
       ],
-      "approval_digest": "a69edfaf2881",
+      "approval_digest": "c1c38b721b01",
       "review_digest": null
     },
     {
@@ -2668,7 +2668,7 @@
       "previous_paths": [
         "docs/requirements/json/verification/tc-contracts.json"
       ],
-      "approval_digest": "f7d415686eb5",
+      "approval_digest": "3494028deb83",
       "review_digest": null
     },
     {
@@ -2844,7 +2844,7 @@
       "previous_paths": [
         "docs/design/json/cmp-contracts.json"
       ],
-      "approval_digest": "83dbd38d8ec7",
+      "approval_digest": "5b0b79cd0988",
       "review_digest": null
     },
     {
@@ -2910,7 +2910,7 @@
       "previous_paths": [
         "docs/design/strategy-loop-design_v0.1.md"
       ],
-      "approval_digest": "fbd993f518e3",
+      "approval_digest": "a71d08d3eeb4",
       "review_digest": null
     },
     {
@@ -2932,7 +2932,7 @@
       "previous_paths": [
         "docs/design/db-design_v0.1.md"
       ],
-      "approval_digest": "c6c6d1b14a61",
+      "approval_digest": "1db73b60d65d",
       "review_digest": null
     },
     {
@@ -3154,7 +3154,7 @@
       "previous_paths": [
         "docs/design/json/du-contracts.json"
       ],
-      "approval_digest": "32c2ca8c6db9",
+      "approval_digest": "87ea56915121",
       "review_digest": null
     },
     {
@@ -3306,7 +3306,7 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [],
       "previous_paths": [],
-      "approval_digest": "c1d27ed43ec9",
+      "approval_digest": "0fbb79605a51",
       "review_digest": null
     },
     {
@@ -3328,7 +3328,7 @@
       "previous_paths": [
         "docs/L6-feature-design/S0/brand-isolation.md"
       ],
-      "approval_digest": "15385a3aeb9a",
+      "approval_digest": "9c3a6f189045",
       "review_digest": null
     },
     {
@@ -3348,7 +3348,7 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [],
       "previous_paths": [],
-      "approval_digest": "37f65232af98",
+      "approval_digest": "6d055ecbc9d0",
       "review_digest": null
     },
     {
@@ -3368,7 +3368,7 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [],
       "previous_paths": [],
-      "approval_digest": "68caad8a8d36",
+      "approval_digest": "a853aa7a8520",
       "review_digest": null
     },
     {
@@ -3388,7 +3388,7 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [],
       "previous_paths": [],
-      "approval_digest": "96e0517c3a18",
+      "approval_digest": "007e970453f9",
       "review_digest": null
     },
     {
@@ -3408,7 +3408,7 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [],
       "previous_paths": [],
-      "approval_digest": "6ab3c00f07bb",
+      "approval_digest": "549b596478ac",
       "review_digest": null
     },
     {
@@ -3428,7 +3428,7 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [],
       "previous_paths": [],
-      "approval_digest": "35e104af0939",
+      "approval_digest": "455a9403061d",
       "review_digest": null
     },
     {
@@ -3468,7 +3468,7 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [],
       "previous_paths": [],
-      "approval_digest": "ca1faf629bf6",
+      "approval_digest": "5a31447f6508",
       "review_digest": null
     },
     {
@@ -3488,7 +3488,7 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [],
       "previous_paths": [],
-      "approval_digest": "878b8edc0a59",
+      "approval_digest": "abd8face2173",
       "review_digest": null
     },
     {
@@ -3508,7 +3508,7 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [],
       "previous_paths": [],
-      "approval_digest": "8905e1821b8d",
+      "approval_digest": "b74cfbb78293",
       "review_digest": null
     },
     {
@@ -3575,6 +3575,46 @@
         "docs/L6-feature-design/S0/strategic-revision.md"
       ],
       "approval_digest": null,
+      "review_digest": null
+    },
+    {
+      "artifact_id": "L6-S0-CONFIG-STORE",
+      "layer": "L6",
+      "slice": "S0",
+      "domain": "config",
+      "artifact_type": "design-doc",
+      "authority_format": "markdown",
+      "authority_status": "active",
+      "lifecycle_status": "confirmed",
+      "canonical_path": "docs/L6-feature-design/S0/config-store.md",
+      "view_path": null,
+      "view_generation": "none",
+      "pair_artifact_id": null,
+      "supersedes": [],
+      "extends_artifact_ids": [],
+      "depends_on_artifact_ids": [],
+      "previous_paths": [],
+      "approval_digest": "9bb9a6bac766",
+      "review_digest": null
+    },
+    {
+      "artifact_id": "L6-S0-IMPLEMENTATION-UNITS",
+      "layer": "L6",
+      "slice": "S0",
+      "domain": "implementation-units",
+      "artifact_type": "design-contract",
+      "authority_format": "json",
+      "authority_status": "active",
+      "lifecycle_status": "confirmed",
+      "canonical_path": "docs/L6-feature-design/S0/implementation-units.json",
+      "view_path": null,
+      "view_generation": "none",
+      "pair_artifact_id": null,
+      "supersedes": [],
+      "extends_artifact_ids": [],
+      "depends_on_artifact_ids": [],
+      "previous_paths": [],
+      "approval_digest": "c163f8ac030e",
       "review_digest": null
     }
   ]

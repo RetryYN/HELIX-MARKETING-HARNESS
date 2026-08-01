@@ -2,9 +2,9 @@
 artifact_id: L6-S0-EXTERNAL-OPERATIONS
 lifecycle_status: confirmed
 slice: S0
-traces: [FR-41]
+traces: [FR-12, FR-41]
 forward_refs: [FR-42, FR-44]
-dus: [DU-02, DU-04, DU-06, DU-13, DU-14, DU-15, DU-16, DU-17, DU-18, DU-22]
+dus: [DU-04, DU-13, DU-14, DU-15, DU-16, DU-17]
 ---
 
 # 機能設計: 外部操作（external_operations ライフサイクル・冪等・レート節度）
@@ -158,3 +158,30 @@ class RatePacer:
 | 媒体禁止・日次 cap 拒否 | DU-15・DU-16 | AC-42-2 | TCC-42-2 | ProhibitedMediaWrite／RateLimitExceeded |
 | ブラウザ経路の sent 照合・unknown escalate | DU-15・DU-02 | AC-42-3 | TCC-42-3 | 照合不能 = unknown・escalate |
 | 計測取得の read-only 保証 | DU-22 | AC-62-1 | TCC-62-1 | 実 GA4 書込み経路の不在 |
+
+## 9. 実装単位（implementation_units）
+
+責務は DU の **API 1 本**へ接続する。API・AC・TC・UT の対応の機械可読な正本は
+[implementation-units.json](implementation-units.json)（`G-L6-IMPLEMENTATION-TRACE` が
+DU／API の実在・pre/post への責務の明記・AC／TC／UT の実在と対応を fail-close 検査する）。
+
+| unit_id | DU | API | 責務 | AC |
+|---|---|---|---|---|
+| IU-EXTERNALOPERATIONS-01 | DU-04 | `load` | definition_json / required_evidence_json を schema 検証して WorkflowD… | AC-12-1, AC-12-2, AC-12-4, AC-42-1 |
+| IU-EXTERNALOPERATIONS-02 | DU-04 | `run_step` | ステップ出力の証跡保存は DU-09 record() 経由のみ（evidence 直 INSERT しない） | AC-12-3, AC-42-2, AC-42-3 |
+| IU-EXTERNALOPERATIONS-03 | DU-13 | `list_declared` | レジストリ宣言行を読取専用で返す（診断・ヘルスチェック用。DB を変更しない） | AC-41-3 |
+| IU-EXTERNALOPERATIONS-04 | DU-13 | `resolve` | 優先順 mcp → api → browser →（例外宣言時のみ）有償 の順で最初の有効経路を Route として返す | AC-41-1, AC-41-2, AC-41-3, AC-41-4, AC-41-5, AC-41-6 |
+| IU-EXTERNALOPERATIONS-05 | DU-14 | `check_endpoint` | scope×endpoint が正当（test→Docker/mock、prod→本番）の場合のみ正常復帰し、接続を許可する | AC-47-3 |
+| IU-EXTERNALOPERATIONS-06 | DU-14 | `get_credential` | 復号値はメモリ内の Secret ハンドルのみとして返り、SQLite・repo・ログ・evidence へは書かれない（参照ハ… | AC-47-1, AC-47-2, AC-47-4, AC-47-5 |
+| IU-EXTERNALOPERATIONS-07 | DU-14 | `mask` | config.secret.masking_patterns と本モジュールのパターン集合に一致する部分をすべて伏字化した文字列… | AC-47-2 |
+| IU-EXTERNALOPERATIONS-08 | DU-14 | `scan` | 平文 credential パターン（鍵語・トークン形状の正規表現集合 — 正本は本モジュール、DU-09 と共有・config… | AC-47-6 |
+| IU-EXTERNALOPERATIONS-09 | DU-15 | `launch` | Playwright セッションを起動し、storage_state をプロファイル別ファイルへ保存/再利用する | AC-42-1 |
+| IU-EXTERNALOPERATIONS-10 | DU-15 | `run_playbook` | 書込み系は external_operations を prepared→sent→confirmed の順で各々コミットして遷… | AC-42-1, AC-42-2, AC-42-3 |
+| IU-EXTERNALOPERATIONS-11 | DU-15 | `screenshot` | URL 到達確認（最終 URL 一致）つきで capture を out_path へ保存しパスを返す | AC-42-1 |
+| IU-EXTERNALOPERATIONS-12 | DU-16 | `get` | UNIQUE(service, operation, route_type) の行を status=active の場合のみ P… | AC-42-1, AC-42-2, AC-43-1, AC-43-2, AC-43-3 |
+| IU-EXTERNALOPERATIONS-13 | DU-16 | `record_failure` | consecutive_failures を 1 加算し last_failure_at を clock から更新する | AC-42-3 |
+| IU-EXTERNALOPERATIONS-14 | DU-16 | `record_success` | last_success_at を clock から更新し、consecutive_failures を 0 に戻し、last_… | AC-43-3 |
+| IU-EXTERNALOPERATIONS-15 | DU-17 | `create_draft` | external_operations 行を prepared→sent→confirmed で遷移させ（各々コミット）、con… | AC-44-2, AC-44-3, AC-51-1, AC-51-2, AC-51-4, AC-51-5 |
+| IU-EXTERNALOPERATIONS-16 | DU-17 | `publish` | external_operations 行を prepared→sent→confirmed で遷移させ、confirmed 後… | AC-44-1 |
+| IU-EXTERNALOPERATIONS-17 | DU-17 | `register_asset` | assets 行（wp_media_id・canonical_url・content_hash）をストア副層 `_assets_… | AC-44-1 |
+| IU-EXTERNALOPERATIONS-18 | DU-17 | `upload_media` | external_operations を prepared→sent→confirmed で遷移させ、wp_media_id … | AC-51-3 |

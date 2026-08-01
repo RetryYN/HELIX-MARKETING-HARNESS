@@ -114,3 +114,59 @@ def test_denied_brief_transition_aborts(src: str, dst: str) -> None:
             con.execute("UPDATE strategic_briefs SET status = ? WHERE brief_key = 'SB-T'", (dst,))
     finally:
         con.close()
+
+
+# --- 物理数の主張（PO 指示 §3）の検出能力 ---
+
+def test_physical_counts_are_clean_on_real_tree() -> None:
+    assert architecture.detect_physical_count_faults(CTX.ddl) == []
+
+
+def test_ddl_physical_is_derived_from_real_ddl() -> None:
+    """期待値は定数ではなく実 DDL から導出する（定数と DDL の二重管理を作らない）。"""
+    tables, trg = architecture.ddl_physical(CTX.ddl)
+    assert len(tables) == architecture.EXPECTED_TABLES
+    assert len(trg) == architecture.EXPECTED_TRIGGERS
+    assert set(trg.values()) <= tables
+
+
+@pytest.mark.parametrize("claim", ["トリガ 14 本", "トリガ 11 本", "保護トリガ 4 本",
+                                   "整合トリガ 6 件", "15 本のトリガ", "トリガ 11",
+                                   "トリガーは 11 本", "11 基のトリガ", "トリガー 14"])
+def test_mutation_stale_trigger_count_is_detected(tmp_path, monkeypatch, claim) -> None:
+    """変異: 旧いトリガ本数（11／14）や部分集合の本数を書くと検出される。"""
+    monkeypatch.setattr(architecture, "_texts", lambda root=None: [("dummy.md", claim)])
+    faults = architecture.detect_physical_count_faults(CTX.ddl)
+    assert any("トリガ数の主張" in f for f in faults), claim
+
+
+@pytest.mark.parametrize("claim", ["19 テーブル", "24 テーブル", "26 テーブル"])
+def test_mutation_stale_table_count_is_detected(tmp_path, monkeypatch, claim) -> None:
+    """変異: 総数を名乗るテーブル数が実 DDL とずれると検出される。"""
+    monkeypatch.setattr(architecture, "_texts", lambda root=None: [("dummy.md", claim)])
+    faults = architecture.detect_physical_count_faults(CTX.ddl)
+    assert any("テーブル総数の主張" in f for f in faults), claim
+
+
+def test_mutation_stale_test_name_count_is_detected(monkeypatch) -> None:
+    """変異: テスト関数名に埋め込んだ物理数が実 DDL とずれると検出される。"""
+    monkeypatch.setattr(architecture, "_texts", lambda root=None: [
+        ("t.py::x", "test_apply_all_empty_db_creates_25_tables_and_14_triggers")])
+    faults = architecture.detect_physical_count_faults(CTX.ddl)
+    assert any("テスト名の物理数" in f for f in faults)
+
+
+def test_section_numbers_are_not_read_as_trigger_counts(monkeypatch) -> None:
+    """偽陽性回帰: 節番号（§2 の保護トリガ／3.2 トリガ 16 本）を本数の主張と読まない。"""
+    monkeypatch.setattr(architecture, "_texts", lambda root=None: [
+        ("d.md", "config への UPDATE/DELETE は §2 の保護トリガが常時拒否する"),
+        ("e.md", "### 3.2 トリガ 16 本の意図"),
+        ("f.md", "ツール代替（tech-stack §7 トリガー）")])
+    assert architecture.detect_physical_count_faults(CTX.ddl) == []
+
+
+def test_identifier_digits_are_not_read_as_counts(monkeypatch) -> None:
+    """偽陽性回帰: 「S0 テーブル」「SCM-01 テーブル」の識別子を数値の主張と読まない。"""
+    monkeypatch.setattr(architecture, "_texts", lambda root=None: [
+        ("d.md", "S0 テーブル定義の差分なし / SCM-01 テーブルに依存 / 戦略正本 2 テーブル")])
+    assert architecture.detect_physical_count_faults(CTX.ddl) == []

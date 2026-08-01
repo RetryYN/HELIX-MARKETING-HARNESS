@@ -66,7 +66,7 @@ transaction を開閉する層。
   （状態所有の一点化 — 遷移表外の状態変更をコード構造で塞ぐ）。
 - コネクタ（CMP-08〜11）は業務状態テーブルに触れない。所掌はストア副層 2 表（playbooks・approvals）のみ。
 
-## 3. append-only 群・可変群とトリガ 14 本の意図
+## 3. append-only 群・可変群とトリガ 16 本の意図
 
 ### 3.1 群の区分
 
@@ -76,7 +76,7 @@ transaction を開閉する層。
 - **可変群（残り）**: 状態列・lease 等の UPDATE を許すが、変更経路は §2 の所有 CMP に限定する。
   可変群でも DELETE は業務上使わない（FK は全て ON DELETE RESTRICT — 暗黙カスケードなし）。
 
-### 3.2 トリガ 14 本の意図（本文は s0-contract §2 が正準）
+### 3.2 トリガ 16 本の意図（本文は s0-contract §2 が正準）
 
 | # | トリガ | 意図 |
 |---|---|---|
@@ -136,7 +136,7 @@ DU-11 `verify()` の孤児検査が守る（役割分担 — s0-contract §3）�
   （推測での index 追加禁止 — 書込みコストと引換えのため）。
 - **定常整合性検査**（DU-11 `verify()` — 起動時・昇格時・LP-OPS ヘルスチェックで実行）:
   1. `PRAGMA foreign_key_check` / `PRAGMA integrity_check` 違反 0 件。
-  2. 25 テーブル・トリガ 14 本の存在。
+  2. 25 テーブル・トリガ 16 本の存在。
   3. TLP 孤児検査（terminal lower run で packet 0 件 → escalate）。
   4. 相互整合の追加検査（read-only SQL）: `approvals.evidence_id` ↔ approval 証跡の相互参照、
      `pair_plan_quality` passed の review 証跡実在、`measurements.evidence_id` の kind = measurement。

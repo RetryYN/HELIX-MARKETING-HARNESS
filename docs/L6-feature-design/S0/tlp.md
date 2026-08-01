@@ -3,8 +3,8 @@ artifact_id: L6-S0-TLP
 lifecycle_status: confirmed
 slice: S0
 traces: [SR-06, SR-08, SR-09]
-forward_refs: [SR-01, SR-02, SR-03, SR-05]
-dus: [DU-01, DU-02, DU-11]
+forward_refs: [SR-01, SR-02, SR-03, SR-04, SR-05]
+dus: [DU-02]
 ---
 
 # 機能別詳細設計 — tactical_learning_packet（学習／失敗 packet）
@@ -112,3 +112,17 @@ DDL（正準 = s0-contract §2）が INSERT 時に強制する 4 条件を、実
 | append-only（提出のみ・撤回不可） | DU-10/11 | AC-SR-05, AC-SR-09-1, AC-SR-09-2 | STC-I-02, TCC-SR-05, TCC-SR-09-1, TCC-SR-09-2, STC-G-10 |
 | 孤児検査（packet なし終端 lower run = 0） | DU-11 | AC-SR-03, AC-71-1 | STC-I-05, TCC-71-1 |
 | 観測・解釈・判定・推奨の分離充填 | DU-02 | AC-SR-02-3 | STC-I-05, TCC-SR-02-3, STC-G-08/09 |
+
+## 8. 実装単位（implementation_units）
+
+責務は DU の **API 1 本**へ接続する。API・AC・TC・UT の対応の機械可読な正本は
+[implementation-units.json](implementation-units.json)（`G-L6-IMPLEMENTATION-TRACE` が
+DU／API の実在・pre/post への責務の明記・AC／TC／UT の実在と対応を fail-close 検査する）。
+
+| unit_id | DU | API | 責務 | AC |
+|---|---|---|---|---|
+| IU-TLP-01 | DU-02 | `generate_tactical_learning_packet` | run 保持の strategic_brief_id/digest を写して INSERT（run/brief/digest 三… | AC-SR-03, AC-SR-06, AC-SR-08-1, AC-SR-08-2, AC-SR-09-2 |
+| IU-TLP-02 | DU-02 | `get_tactical_learning_packet` | 該当行があれば TlpRecord、なければ None（read-only・DB 不変） | AC-SR-09-2 |
+| IU-TLP-03 | DU-02 | `issue_task` | 同一 (loop_run_id, step_key) に非終端の既存 task があればその id を返す（新規発行しない — … | AC-SR-09-4 |
+| IU-TLP-04 | DU-02 | `supersede_strategic_brief` | 新版 INSERT（supersedes_id=old_brief_id・version+1・digest 決定計算）と旧版 s… | AC-SR-04 |
+| IU-TLP-05 | DU-02 | `validate_strategic_brief` | status=active・digest 一致・有効期間内（valid_from <= now < valid_until 又は… | AC-SR-08-3, AC-SR-09-1, AC-SR-09-3 |

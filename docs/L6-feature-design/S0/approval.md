@@ -133,3 +133,15 @@ sequenceDiagram
 | 金銭 rejected の failed 分類 | DU-01 | AC-26-2 | TCC-26-2 | non_retryable_failure・送信 0 回 |
 | 金銭 expired の limit 到達 escalate | DU-02 | AC-26-3 | TCC-26-3 | approval_retry_limit = config |
 | approval evidence の型契約・相互整合 | DU-09 | AC-46-1（evidence 面） | TCC-46-1 | kind = approval の必須キー検証 |
+
+## 8. 実装単位（implementation_units）
+
+責務は DU の **API 1 本**へ接続する。API・AC・TC・UT の対応の機械可読な正本は
+[implementation-units.json](implementation-units.json)（`G-L6-IMPLEMENTATION-TRACE` が
+DU／API の実在・pre/post への責務の明記・AC／TC／UT の実在と対応を fail-close 検査する）。
+
+| unit_id | DU | API | 責務 | AC |
+|---|---|---|---|---|
+| IU-APPROVAL-01 | DU-18 | `poll` | approved（binding 3 項目完全一致）は `_record_decision` で approval 証跡 INS… | AC-46-1, AC-46-2, AC-46-4 |
+| IU-APPROVAL-02 | DU-18 | `request` | approvals 行を decision=pending・channel='claude_code_app' で INSERT… | AC-46-1 |
+| IU-APPROVAL-03 | DU-18 | `rerequest_on_expired` | 同一 binding 3 項目の新規 approvals 行として再要求を INSERT し、系列（要求・再要求・応答の全履歴）… | AC-46-3 |

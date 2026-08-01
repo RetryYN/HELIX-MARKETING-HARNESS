@@ -48,7 +48,7 @@ slice: S0
 
 ## 3. S0 に入れる最小変更（それ以外は S1）
 
-1. DDL: strategic_briefs／tactical_learning_packets テーブル＋保護トリガ 4 本＋
+1. DDL: strategic_briefs／tactical_learning_packets テーブル＋保護トリガ（append-only・状態遷移・valid_until・TLP 整合）＋
    loop_runs.strategic_brief_id/digest 列と lower CHECK（s0-contract §2 が正準・適用検証済み）。
 2. 状態機械: loop_runs `pending → start` ガードへの brief 検証の追加（s0-contract §3.1）。
 3. シード: versioned brief の投入コマンド（S0 受入基準 5 の「シードコマンド経由」に従う）。

@@ -1,0 +1,1621 @@
+{
+  "version": "0.1",
+  "note": "S0 L6 機能設計の実装単位。責務を DU の API 1 本へ接続し、その振る舞いを検証する AC／TC／UT を束縛する。G-L6-IMPLEMENTATION-TRACE が DU/API の実在・pre/post への責務の明記・AC/TC/UT の実在と対応・同一 API の責務重複・「準用」による trace 代替を fail-close 検査する。",
+  "items": [
+    {
+      "unit_id": "IU-APPROVAL-01",
+      "doc": "docs/L6-feature-design/S0/approval.md",
+      "du_id": "DU-18",
+      "responsibility": "`poll`・`approvals`: approved（binding 3 項目完全一致）は `_record_decision` で approval 証跡 INSERT（DU-09 経由）と approvals.evidence_id 更新を単一 transaction で行い、相互整合の中間状態を外部に見せない",
+      "api_refs": [
+        "poll"
+      ],
+      "ac_refs": [
+        "AC-46-1",
+        "AC-46-2",
+        "AC-46-4"
+      ],
+      "tc_refs": [
+        "TCC-46-1",
+        "TCC-46-2",
+        "TCC-46-4"
+      ],
+      "ut_refs": [
+        "test_connectors_approval.py::test_poll_approved_records_evidence_atomically",
+        "test_connectors_approval.py::test_binding_mismatch_response_invalid_keeps_waiting",
+        "test_connectors_approval.py::test_rejected_classified_non_retryable_failure"
+      ]
+    },
+    {
+      "unit_id": "IU-APPROVAL-02",
+      "doc": "docs/L6-feature-design/S0/approval.md",
+      "du_id": "DU-18",
+      "responsibility": "`request`・`binding`: approvals 行を decision=pending・channel='claude_code_app' で INSERT（ストア副層 approvals_store 経由 — 生 SQL はここだけ）し approval_id を返す",
+      "api_refs": [
+        "request"
+      ],
+      "ac_refs": [
+        "AC-46-1"
+      ],
+      "tc_refs": [
+        "TCC-46-1"
+      ],
+      "ut_refs": [
+        "test_connectors_approval.py::test_request_inserts_pending_and_notifies_binding",
+        "test_connectors_approval.py::test_duplicate_request_unique_idempotent"
+      ]
+    },
+    {
+      "unit_id": "IU-APPROVAL-03",
+      "doc": "docs/L6-feature-design/S0/approval.md",
+      "du_id": "DU-18",
+      "responsibility": "`rerequest_on_expired`・`approvals`: 同一 binding 3 項目の新規 approvals 行として再要求を INSERT し、系列（要求・再要求・応答の全履歴）を証跡に残す",
+      "api_refs": [
+        "rerequest_on_expired"
+      ],
+      "ac_refs": [
+        "AC-46-3"
+      ],
+      "tc_refs": [
+        "TCC-46-3"
+      ],
+      "ut_refs": [
+        "test_connectors_approval.py::test_rerequest_on_expired_new_row_series",
+        "test_connectors_approval.py::test_rerequest_limit_reached_escalates"
+      ]
+    },
+    {
+      "unit_id": "IU-CONFIGSTORE-01",
+      "doc": "docs/L6-feature-design/S0/config-store.md",
+      "du_id": "DU-12",
+      "responsibility": "`get`・`conn`: key ごとに changed_at 最大の行を有効値とし、value_type に従って型変換して返す（read-only）",
+      "api_refs": [
+        "get"
+      ],
+      "ac_refs": [
+        "AC-33-3"
+      ],
+      "tc_refs": [
+        "TCC-33-3"
+      ],
+      "ut_refs": [
+        "test_config_store.py::test_get_returns_latest_row_type_converted",
+        "test_config_store.py::test_get_missing_key_returns_default_when_given",
+        "test_config_store.py::test_get_missing_key_without_default_fail_close"
+      ]
+    },
+    {
+      "unit_id": "IU-CONFIGSTORE-02",
+      "doc": "docs/L6-feature-design/S0/config-store.md",
+      "du_id": "DU-12",
+      "responsibility": "`set`・`value_type`: 旧行を UPDATE/DELETE せず新行を INSERT し、supersedes_config_id に直前の有効行を連鎖させる（append-only 履歴）",
+      "api_refs": [
+        "set"
+      ],
+      "ac_refs": [
+        "AC-33-1",
+        "AC-33-2",
+        "AC-33-4",
+        "AC-33-5",
+        "AC-33-6"
+      ],
+      "tc_refs": [
+        "TCC-33-1",
+        "TCC-33-2",
+        "TCC-33-4",
+        "TCC-33-5",
+        "TCC-33-6"
+      ],
+      "ut_refs": [
+        "test_config_store.py::test_set_inserts_new_row_with_supersedes_chain",
+        "test_config_store.py::test_set_without_reason_rejected",
+        "test_config_store.py::test_set_same_key_same_changed_at_rejected",
+        "test_config_store.py::test_direct_update_delete_blocked_by_trigger"
+      ]
+    },
+    {
+      "unit_id": "IU-EVIDENCE-01",
+      "doc": "docs/L6-feature-design/S0/evidence.md",
+      "du_id": "DU-08",
+      "responsibility": "`check_complete`・`task`: 現 workflow の required kind 全てが当該 task の evidence に存在し、各 kind の型契約規則（s0-contract §2.1）を DU-09 の validator で再検証して全通過の場合のみ返る",
+      "api_refs": [
+        "check_complete"
+      ],
+      "ac_refs": [
+        "AC-28-1",
+        "AC-28-2",
+        "AC-28-3",
+        "AC-28-4",
+        "AC-28-5",
+        "AC-28-6"
+      ],
+      "tc_refs": [
+        "TCC-28-1",
+        "TCC-28-2",
+        "TCC-28-3",
+        "TCC-28-4",
+        "TCC-28-5",
+        "TCC-28-6"
+      ],
+      "ut_refs": [
+        "test_gates_evidence_check.py::test_check_complete_all_required_kinds_pass",
+        "test_gates_evidence_check.py::test_check_complete_missing_kind_rejected",
+        "test_gates_evidence_check.py::test_check_complete_kind_rule_violation_rejected",
+        "test_gates_evidence_check.py::test_check_complete_unknown_required_kind_fail_close"
+      ]
+    },
+    {
+      "unit_id": "IU-EVIDENCE-02",
+      "doc": "docs/L6-feature-design/S0/evidence.md",
+      "du_id": "DU-09",
+      "responsibility": "`exists`・`conn`: UNIQUE(task_id, kind, value) キーでの存在照会結果を返す（read-only）",
+      "api_refs": [
+        "exists"
+      ],
+      "ac_refs": [
+        "AC-28-3"
+      ],
+      "tc_refs": [
+        "TCC-28-3"
+      ],
+      "ut_refs": [
+        "test_evidence_store.py::test_exists_reflects_unique_key_presence"
+      ]
+    },
+    {
+      "unit_id": "IU-EVIDENCE-03",
+      "doc": "docs/L6-feature-design/S0/evidence.md",
+      "du_id": "DU-09",
+      "responsibility": "`for_task`・`conn`: 該当 task の証跡行（kind 指定時は絞込み）を返す（read-only・DB 不変）",
+      "api_refs": [
+        "for_task"
+      ],
+      "ac_refs": [
+        "AC-28-4"
+      ],
+      "tc_refs": [
+        "TCC-28-4"
+      ],
+      "ut_refs": [
+        "test_evidence_store.py::test_for_task_filters_by_kind_read_only"
+      ]
+    },
+    {
+      "unit_id": "IU-EVIDENCE-04",
+      "doc": "docs/L6-feature-design/S0/evidence.md",
+      "du_id": "DU-09",
+      "responsibility": "`record`・`kind`: kind 別必須キー・列整合（asset_id/external_operation_id/file_path/file_hash/commit_hash）・追加検証（review_pass は result=PASS かつ reviewer≠author、commit_hash は 40/64…",
+      "api_refs": [
+        "record"
+      ],
+      "ac_refs": [
+        "AC-28-1",
+        "AC-28-2",
+        "AC-28-3",
+        "AC-28-5",
+        "AC-28-6",
+        "AC-47-1",
+        "AC-47-2",
+        "AC-47-3",
+        "AC-47-4",
+        "AC-47-5",
+        "AC-47-6",
+        "AC-54-1",
+        "AC-54-2",
+        "AC-54-3",
+        "AC-54-4",
+        "AC-54-5"
+      ],
+      "tc_refs": [
+        "TCC-28-1",
+        "TCC-28-2",
+        "TCC-28-3",
+        "TCC-28-5",
+        "TCC-28-6",
+        "TCC-47-1",
+        "TCC-47-2",
+        "TCC-47-3",
+        "TCC-47-4",
+        "TCC-47-5",
+        "TCC-47-6",
+        "TCC-54-1",
+        "TCC-54-2",
+        "TCC-54-3",
+        "TCC-54-4",
+        "TCC-54-5"
+      ],
+      "ut_refs": [
+        "test_evidence_store.py::test_record_valid_kind_payload_inserts_and_returns_id",
+        "test_evidence_store.py::test_record_missing_required_key_rejected_per_kind",
+        "test_evidence_store.py::test_record_column_consistency_violation_rejected",
+        "test_evidence_store.py::test_record_review_pass_result_not_pass_rejected",
+        "test_evidence_store.py::test_record_review_pass_reviewer_equals_author_rejected",
+        "test_evidence_store.py::test_record_commit_hash_length_boundary_40_64",
+        "test_evidence_store.py::test_record_file_hash_length_boundary_64",
+        "test_evidence_store.py::test_record_approval_mutual_consistency_enforced",
+        "test_evidence_store.py::test_record_credential_pattern_in_payload_rejected",
+        "test_evidence_store.py::test_record_duplicate_task_kind_value_rejected_idempotent",
+        "test_evidence_store.py::test_no_update_delete_api_and_trigger_blocks_mutation"
+      ]
+    },
+    {
+      "unit_id": "IU-EVIDENCE-05",
+      "doc": "docs/L6-feature-design/S0/evidence.md",
+      "du_id": "DU-20",
+      "responsibility": "`commit_workspace`・`workspace`: commit を実行し、40 又は 64 桁の 16 進 hash を検証して返す",
+      "api_refs": [
+        "commit_workspace"
+      ],
+      "ac_refs": [
+        "AC-54-4",
+        "AC-54-5",
+        "AC-55-1",
+        "AC-55-2"
+      ],
+      "tc_refs": [
+        "TCC-54-4",
+        "TCC-54-5",
+        "TCC-55-1",
+        "TCC-55-2"
+      ],
+      "ut_refs": [
+        "test_content_versioning.py::test_commit_returns_valid_40_or_64_hex_hash"
+      ]
+    },
+    {
+      "unit_id": "IU-EVIDENCE-06",
+      "doc": "docs/L6-feature-design/S0/evidence.md",
+      "du_id": "DU-20",
+      "responsibility": "`link`・`commit_hash`: commit_hash 証跡（kind=commit_hash、value=hash、payload={repository, commit_hash, paths}、commit_hash 列同値）を DU-09 record() 経由で INSERT し evidence_id を返す",
+      "api_refs": [
+        "link"
+      ],
+      "ac_refs": [
+        "AC-54-3",
+        "AC-55-3",
+        "AC-55-4"
+      ],
+      "tc_refs": [
+        "TCC-54-3",
+        "TCC-55-3",
+        "TCC-55-4"
+      ],
+      "ut_refs": [
+        "test_content_versioning.py::test_link_records_commit_hash_evidence",
+        "test_content_versioning.py::test_link_39_digit_hash_rejected",
+        "test_content_versioning.py::test_link_rerun_converges_to_single_row"
+      ]
+    },
+    {
+      "unit_id": "IU-EVIDENCE-07",
+      "doc": "docs/L6-feature-design/S0/evidence.md",
+      "du_id": "DU-20",
+      "responsibility": "`restore`・`commit_hash`: commit_hash の checkout により審査時と同一内容のソースを dest へ復元しパスを返す（AC-54-1 — 審査記録からの成果物ソース復元）",
+      "api_refs": [
+        "restore"
+      ],
+      "ac_refs": [
+        "AC-54-1",
+        "AC-54-2"
+      ],
+      "tc_refs": [
+        "TCC-54-1",
+        "TCC-54-2"
+      ],
+      "ut_refs": [
+        "test_content_versioning.py::test_restore_reproduces_reviewed_source"
+      ]
+    },
+    {
+      "unit_id": "IU-EXTERNALOPERATIONS-01",
+      "doc": "docs/L6-feature-design/S0/external-operations.md",
+      "du_id": "DU-04",
+      "responsibility": "`load`・`workflows`: definition_json / required_evidence_json を schema 検証して WorkflowDef を返す（read-only）",
+      "api_refs": [
+        "load"
+      ],
+      "ac_refs": [
+        "AC-12-1",
+        "AC-12-2",
+        "AC-12-4",
+        "AC-42-1"
+      ],
+      "tc_refs": [
+        "TCC-12-1",
+        "TCC-12-2",
+        "TCC-12-4",
+        "TCC-42-1"
+      ],
+      "ut_refs": [
+        "test_kernel_workflow.py::test_load_active_definition_schema_validated",
+        "test_kernel_workflow.py::test_load_broken_definition_raises_fatal",
+        "test_kernel_workflow.py::test_load_version_pinned_lookup"
+      ]
+    },
+    {
+      "unit_id": "IU-EXTERNALOPERATIONS-02",
+      "doc": "docs/L6-feature-design/S0/external-operations.md",
+      "du_id": "DU-04",
+      "responsibility": "`run_step`・`task`: ステップ出力の証跡保存は DU-09 record() 経由のみ（evidence 直 INSERT しない）",
+      "api_refs": [
+        "run_step"
+      ],
+      "ac_refs": [
+        "AC-12-3",
+        "AC-42-2",
+        "AC-42-3"
+      ],
+      "tc_refs": [
+        "TCC-12-3",
+        "TCC-42-2",
+        "TCC-42-3",
+        "TCC-RESUME-1"
+      ],
+      "ut_refs": [
+        "test_kernel_workflow.py::test_run_step_output_saved_via_evidence_api",
+        "test_kernel_workflow.py::test_run_step_failure_normalized_to_three_kinds",
+        "test_kernel_workflow.py::test_run_step_never_transitions_task_to_done",
+        "test_kernel_workflow.py::test_external_operation_prepared_sent_confirmed_each_committed",
+        "test_kernel_workflow.py::test_external_operation_sent_crash_resume_no_resend",
+        "test_kernel_workflow.py::test_external_operation_unverifiable_marked_unknown_escalates",
+        "test_kernel_workflow.py::test_draft_and_publish_use_distinct_idempotency_keys"
+      ]
+    },
+    {
+      "unit_id": "IU-EXTERNALOPERATIONS-03",
+      "doc": "docs/L6-feature-design/S0/external-operations.md",
+      "du_id": "DU-13",
+      "responsibility": "`list_declared`・`conn`: レジストリ宣言行を読取専用で返す（診断・ヘルスチェック用。DB を変更しない）",
+      "api_refs": [
+        "list_declared"
+      ],
+      "ac_refs": [
+        "AC-41-3"
+      ],
+      "tc_refs": [
+        "TCC-41-3"
+      ],
+      "ut_refs": [
+        "test_registry_resolver.py::test_list_declared_readonly_and_schema_failclose"
+      ]
+    },
+    {
+      "unit_id": "IU-EXTERNALOPERATIONS-04",
+      "doc": "docs/L6-feature-design/S0/external-operations.md",
+      "du_id": "DU-13",
+      "responsibility": "`resolve`・`conn`: 優先順 mcp → api → browser →（例外宣言時のみ）有償 の順で最初の有効経路を Route として返す",
+      "api_refs": [
+        "resolve"
+      ],
+      "ac_refs": [
+        "AC-41-1",
+        "AC-41-2",
+        "AC-41-3",
+        "AC-41-4",
+        "AC-41-5",
+        "AC-41-6"
+      ],
+      "tc_refs": [
+        "TCC-41-1",
+        "TCC-41-2",
+        "TCC-41-3",
+        "TCC-41-4",
+        "TCC-41-5",
+        "TCC-41-6"
+      ],
+      "ut_refs": [
+        "test_registry_resolver.py::test_resolve_priority_order_mcp_first",
+        "test_registry_resolver.py::test_resolve_switch_by_config_insert_only",
+        "test_registry_resolver.py::test_unregistered_service_route_not_registered",
+        "test_registry_resolver.py::test_paid_route_denied_without_exception",
+        "test_registry_resolver.py::test_x_browser_write_route_prohibited"
+      ]
+    },
+    {
+      "unit_id": "IU-EXTERNALOPERATIONS-05",
+      "doc": "docs/L6-feature-design/S0/external-operations.md",
+      "du_id": "DU-14",
+      "responsibility": "`check_endpoint`・`secret`: scope×endpoint が正当（test→Docker/mock、prod→本番）の場合のみ正常復帰し、接続を許可する",
+      "api_refs": [
+        "check_endpoint"
+      ],
+      "ac_refs": [
+        "AC-47-3"
+      ],
+      "tc_refs": [
+        "TCC-47-3"
+      ],
+      "ut_refs": [
+        "test_registry_secrets.py::test_endpoint_mismatch_rejected_before_connect"
+      ]
+    },
+    {
+      "unit_id": "IU-EXTERNALOPERATIONS-06",
+      "doc": "docs/L6-feature-design/S0/external-operations.md",
+      "du_id": "DU-14",
+      "responsibility": "`get_credential`・`credential`: 復号値はメモリ内の Secret ハンドルのみとして返り、SQLite・repo・ログ・evidence へは書かれない（参照ハンドル設計 — NFR-4）",
+      "api_refs": [
+        "get_credential"
+      ],
+      "ac_refs": [
+        "AC-47-1",
+        "AC-47-2",
+        "AC-47-4",
+        "AC-47-5"
+      ],
+      "tc_refs": [
+        "TCC-47-1",
+        "TCC-47-2",
+        "TCC-47-4",
+        "TCC-47-5"
+      ],
+      "ut_refs": [
+        "test_registry_secrets.py::test_get_credential_unavailable_fail_close"
+      ]
+    },
+    {
+      "unit_id": "IU-EXTERNALOPERATIONS-07",
+      "doc": "docs/L6-feature-design/S0/external-operations.md",
+      "du_id": "DU-14",
+      "responsibility": "`mask`・`text`: config.secret.masking_patterns と本モジュールのパターン集合に一致する部分をすべて伏字化した文字列を返す（マスキング層 — external-if-design §6）",
+      "api_refs": [
+        "mask"
+      ],
+      "ac_refs": [
+        "AC-47-2"
+      ],
+      "tc_refs": [
+        "TCC-47-2"
+      ],
+      "ut_refs": [
+        "test_registry_secrets.py::test_secret_repr_and_exception_masked",
+        "test_registry_secrets.py::test_mask_patterns_from_config"
+      ]
+    },
+    {
+      "unit_id": "IU-EXTERNALOPERATIONS-08",
+      "doc": "docs/L6-feature-design/S0/external-operations.md",
+      "du_id": "DU-14",
+      "responsibility": "`scan`・`targets`: 平文 credential パターン（鍵語・トークン形状の正規表現集合 — 正本は本モジュール、DU-09 と共有・config 拡張可）の検出結果を Finding のリストで返す（TC-047 の実装点）",
+      "api_refs": [
+        "scan"
+      ],
+      "ac_refs": [
+        "AC-47-6"
+      ],
+      "tc_refs": [
+        "TCC-47-6"
+      ],
+      "ut_refs": [
+        "test_registry_secrets.py::test_scan_repo_sqlite_logs_zero_plaintext",
+        "test_registry_secrets.py::test_scan_finding_contains_no_plaintext"
+      ]
+    },
+    {
+      "unit_id": "IU-EXTERNALOPERATIONS-09",
+      "doc": "docs/L6-feature-design/S0/external-operations.md",
+      "du_id": "DU-15",
+      "responsibility": "`launch`・`scope`: Playwright セッションを起動し、storage_state をプロファイル別ファイルへ保存/再利用する",
+      "api_refs": [
+        "launch"
+      ],
+      "ac_refs": [
+        "AC-42-1"
+      ],
+      "tc_refs": [
+        "TCC-42-1"
+      ],
+      "ut_refs": [
+        "test_connectors_browser.py::test_launch_failure_retryable",
+        "test_connectors_browser.py::test_storage_state_profile_scoped_cross_denied"
+      ]
+    },
+    {
+      "unit_id": "IU-EXTERNALOPERATIONS-10",
+      "doc": "docs/L6-feature-design/S0/external-operations.md",
+      "du_id": "DU-15",
+      "responsibility": "`run_playbook`・`playbook`: 書込み系は external_operations を prepared→sent→confirmed の順で各々コミットして遷移させ、confirmed 後に operation_log 証跡（DU-09 経由）を派生させてから結果を返す（証跡が先、遷移が後）",
+      "api_refs": [
+        "run_playbook"
+      ],
+      "ac_refs": [
+        "AC-42-1",
+        "AC-42-2",
+        "AC-42-3"
+      ],
+      "tc_refs": [
+        "TCC-42-1",
+        "TCC-42-2",
+        "TCC-42-3",
+        "TCC-RESUME-1"
+      ],
+      "ut_refs": [
+        "test_connectors_browser.py::test_run_playbook_write_interval_uniform_and_seed_logged",
+        "test_connectors_browser.py::test_x_write_rejected_zero_send",
+        "test_connectors_browser.py::test_daily_cap_rejected_before_send",
+        "test_connectors_browser.py::test_sent_reconcile_confirms_without_resend",
+        "test_connectors_browser.py::test_sent_unverifiable_marked_unknown_no_resend"
+      ]
+    },
+    {
+      "unit_id": "IU-EXTERNALOPERATIONS-11",
+      "doc": "docs/L6-feature-design/S0/external-operations.md",
+      "du_id": "DU-15",
+      "responsibility": "`screenshot`・`check_domain`: URL 到達確認（最終 URL 一致）つきで capture を out_path へ保存しパスを返す",
+      "api_refs": [
+        "screenshot"
+      ],
+      "ac_refs": [
+        "AC-42-1"
+      ],
+      "tc_refs": [
+        "TCC-42-1"
+      ],
+      "ut_refs": [
+        "test_connectors_browser.py::test_screenshot_url_reachability_and_mismatch_denied"
+      ]
+    },
+    {
+      "unit_id": "IU-EXTERNALOPERATIONS-12",
+      "doc": "docs/L6-feature-design/S0/external-operations.md",
+      "du_id": "DU-16",
+      "responsibility": "`get`・`conn`: UNIQUE(service, operation, route_type) の行を status=active の場合のみ Playbook として返す",
+      "api_refs": [
+        "get"
+      ],
+      "ac_refs": [
+        "AC-42-1",
+        "AC-42-2",
+        "AC-43-1",
+        "AC-43-2",
+        "AC-43-3"
+      ],
+      "tc_refs": [
+        "TCC-42-1",
+        "TCC-42-2",
+        "TCC-43-1",
+        "TCC-43-2",
+        "TCC-43-3"
+      ],
+      "ut_refs": [
+        "test_connectors_playbooks.py::test_get_active_playbook_validated",
+        "test_connectors_playbooks.py::test_get_missing_rejected",
+        "test_connectors_playbooks.py::test_get_broken_and_retired_rejected",
+        "test_connectors_playbooks.py::test_broken_schema_json_fatal"
+      ]
+    },
+    {
+      "unit_id": "IU-EXTERNALOPERATIONS-13",
+      "doc": "docs/L6-feature-design/S0/external-operations.md",
+      "du_id": "DU-16",
+      "responsibility": "`record_failure`・`playbook_id`: consecutive_failures を 1 加算し last_failure_at を clock から更新する",
+      "api_refs": [
+        "record_failure"
+      ],
+      "ac_refs": [
+        "AC-42-3"
+      ],
+      "tc_refs": [
+        "TCC-42-3",
+        "TCC-RESUME-1"
+      ],
+      "ut_refs": [
+        "test_connectors_playbooks.py::test_record_failure_increments_and_demotes_at_threshold"
+      ]
+    },
+    {
+      "unit_id": "IU-EXTERNALOPERATIONS-14",
+      "doc": "docs/L6-feature-design/S0/external-operations.md",
+      "du_id": "DU-16",
+      "responsibility": "`record_success`・`playbook_id`: last_success_at を clock から更新し、consecutive_failures を 0 に戻し、last_verified_by_agent_id を更新する",
+      "api_refs": [
+        "record_success"
+      ],
+      "ac_refs": [
+        "AC-43-3"
+      ],
+      "tc_refs": [
+        "TCC-43-3"
+      ],
+      "ut_refs": [
+        "test_connectors_playbooks.py::test_record_success_resets_failures_and_verifier"
+      ]
+    },
+    {
+      "unit_id": "IU-EXTERNALOPERATIONS-15",
+      "doc": "docs/L6-feature-design/S0/external-operations.md",
+      "du_id": "DU-17",
+      "responsibility": "`create_draft`・`pair_pass`: external_operations 行を prepared→sent→confirmed で遷移させ（各々コミット）、confirmed 後に operation_log 証跡（DU-09 経由）を派生記録してから DraftRef を返す",
+      "api_refs": [
+        "create_draft"
+      ],
+      "ac_refs": [
+        "AC-44-2",
+        "AC-44-3",
+        "AC-51-1",
+        "AC-51-2",
+        "AC-51-4",
+        "AC-51-5"
+      ],
+      "tc_refs": [
+        "TCC-44-2",
+        "TCC-44-3",
+        "TCC-51-1",
+        "TCC-51-2",
+        "TCC-51-4",
+        "TCC-51-5"
+      ],
+      "ut_refs": [
+        "test_connectors_wp.py::test_draft_and_publish_separate_keys_separate_rows",
+        "test_connectors_wp.py::test_create_draft_prepared_sent_confirmed_each_commit",
+        "test_connectors_wp.py::test_production_endpoint_denied_before_connect"
+      ]
+    },
+    {
+      "unit_id": "IU-EXTERNALOPERATIONS-16",
+      "doc": "docs/L6-feature-design/S0/external-operations.md",
+      "du_id": "DU-17",
+      "responsibility": "`publish`・`approval_pass`: external_operations 行を prepared→sent→confirmed で遷移させ、confirmed 後に operation_log 証跡を派生記録し、canonical URL・WP post ID を PublishedRef で返す",
+      "api_refs": [
+        "publish"
+      ],
+      "ac_refs": [
+        "AC-44-1"
+      ],
+      "tc_refs": [
+        "TCC-44-1"
+      ],
+      "ut_refs": [
+        "test_connectors_wp.py::test_draft_and_publish_separate_keys_separate_rows",
+        "test_connectors_wp.py::test_pair_required_rejected_zero_http",
+        "test_connectors_wp.py::test_publish_without_approval_pass_rejected",
+        "test_connectors_wp.py::test_production_endpoint_denied_before_connect",
+        "test_connectors_wp.py::test_sent_reconcile_confirms_without_resend",
+        "test_connectors_wp.py::test_sent_unverifiable_unknown_escalates"
+      ]
+    },
+    {
+      "unit_id": "IU-EXTERNALOPERATIONS-17",
+      "doc": "docs/L6-feature-design/S0/external-operations.md",
+      "du_id": "DU-17",
+      "responsibility": "`register_asset`・`published`: assets 行（wp_media_id・canonical_url・content_hash）をストア副層 `_assets_store` で INSERT し asset_id を返す",
+      "api_refs": [
+        "register_asset"
+      ],
+      "ac_refs": [
+        "AC-44-1"
+      ],
+      "tc_refs": [
+        "TCC-44-1"
+      ],
+      "ut_refs": [
+        "test_connectors_wp.py::test_register_asset_before_published_url_evidence"
+      ]
+    },
+    {
+      "unit_id": "IU-EXTERNALOPERATIONS-18",
+      "doc": "docs/L6-feature-design/S0/external-operations.md",
+      "du_id": "DU-17",
+      "responsibility": "`upload_media`・`media_path`: external_operations を prepared→sent→confirmed で遷移させ、wp_media_id を MediaRef で返す",
+      "api_refs": [
+        "upload_media"
+      ],
+      "ac_refs": [
+        "AC-51-3"
+      ],
+      "tc_refs": [
+        "TCC-51-3"
+      ],
+      "ut_refs": [
+        "test_connectors_wp.py::test_upload_media_content_hash_idempotent"
+      ]
+    },
+    {
+      "unit_id": "IU-KPIHANDOFF-01",
+      "doc": "docs/L6-feature-design/S0/kpi-handoff.md",
+      "du_id": "DU-07",
+      "responsibility": "`check_domain`・`denylist`: denylist 非該当かつ判定可能な場合のみ返る。denylist/allowlist が取得不能・未設定の場合は fail-close（通さない — deny-by-default）",
+      "api_refs": [
+        "check_domain"
+      ],
+      "ac_refs": [
+        "AC-23-3"
+      ],
+      "tc_refs": [
+        "TCC-23-3"
+      ],
+      "ut_refs": [
+        "test_gates_zero_ad.py::test_check_domain_denylist_hit_rejected",
+        "test_gates_zero_ad.py::test_check_domain_clean_domain_passes",
+        "test_gates_zero_ad.py::test_check_domain_empty_allowlist_fail_close"
+      ]
+    },
+    {
+      "unit_id": "IU-KPIHANDOFF-02",
+      "doc": "docs/L6-feature-design/S0/kpi-handoff.md",
+      "du_id": "DU-07",
+      "responsibility": "`check_metric_type`・`metric_type`: deny 型（cac/roas/ad_spend — 有料指標）でなければ何もせず返る（kpi_nodes の CHECK と二重防御）",
+      "api_refs": [
+        "check_metric_type"
+      ],
+      "ac_refs": [
+        "AC-23-1",
+        "AC-23-2",
+        "AC-23-4",
+        "AC-23-5"
+      ],
+      "tc_refs": [
+        "TCC-23-1",
+        "TCC-23-2",
+        "TCC-23-4",
+        "TCC-23-5"
+      ],
+      "ut_refs": [
+        "test_gates_zero_ad.py::test_check_metric_type_free_metric_passes",
+        "test_gates_zero_ad.py::test_check_metric_type_deny_types_rejected",
+        "test_gates_zero_ad.py::test_check_metric_type_case_variant_rejected"
+      ]
+    },
+    {
+      "unit_id": "IU-KPIHANDOFF-03",
+      "doc": "docs/L6-feature-design/S0/kpi-handoff.md",
+      "du_id": "DU-21",
+      "responsibility": "`archive_node`・`node_id`: status を archived へ更新し、measurements・子ノードからの参照整合を保ったまま集計対象から外す（AC-61-3）",
+      "api_refs": [
+        "archive_node"
+      ],
+      "ac_refs": [
+        "AC-61-3",
+        "AC-61-4"
+      ],
+      "tc_refs": [
+        "TCC-61-3",
+        "TCC-61-4"
+      ],
+      "ut_refs": [
+        "test_measure_kpi.py::test_archive_keeps_reference_integrity"
+      ]
+    },
+    {
+      "unit_id": "IU-KPIHANDOFF-04",
+      "doc": "docs/L6-feature-design/S0/kpi-handoff.md",
+      "du_id": "DU-21",
+      "responsibility": "`create_node`・`node`: 階層・媒体タグ・集計式（aggregation_formula の構文検証）を通過した kpi_nodes 行を INSERT し id を返す",
+      "api_refs": [
+        "create_node"
+      ],
+      "ac_refs": [
+        "AC-61-1",
+        "AC-61-2",
+        "AC-61-5",
+        "AC-61-6"
+      ],
+      "tc_refs": [
+        "TCC-61-1",
+        "TCC-61-2",
+        "TCC-61-5",
+        "TCC-61-6"
+      ],
+      "ut_refs": [
+        "test_measure_kpi.py::test_create_node_all_five_layers_grounded",
+        "test_measure_kpi.py::test_paid_metric_type_rejected",
+        "test_measure_kpi.py::test_duplicate_node_key_invalid",
+        "test_measure_kpi.py::test_cross_profile_parent_rejected"
+      ]
+    },
+    {
+      "unit_id": "IU-KPIHANDOFF-05",
+      "doc": "docs/L6-feature-design/S0/kpi-handoff.md",
+      "du_id": "DU-21",
+      "responsibility": "`tree`・`business_profile_id`: 当該プロファイルの親子解決済みツリー（layer×medium の断面クエリ可能な形）を返す",
+      "api_refs": [
+        "tree"
+      ],
+      "ac_refs": [
+        "AC-61-1"
+      ],
+      "tc_refs": [
+        "TCC-61-1"
+      ],
+      "ut_refs": [
+        "test_measure_kpi.py::test_tree_resolves_hierarchy_per_profile"
+      ]
+    },
+    {
+      "unit_id": "IU-KPIHANDOFF-06",
+      "doc": "docs/L6-feature-design/S0/kpi-handoff.md",
+      "du_id": "DU-22",
+      "responsibility": "`fetch`・`route`: 取得物（CSV/xlsx 又は API 応答）を out_dir へ保存し、即 SHA-256 で固定する（投入前の改竄検出基準値）",
+      "api_refs": [
+        "fetch"
+      ],
+      "ac_refs": [
+        "AC-62-1",
+        "AC-62-2",
+        "AC-62-3",
+        "AC-62-4",
+        "AC-62-5",
+        "AC-62-6",
+        "AC-62-7"
+      ],
+      "tc_refs": [
+        "TCC-62-1",
+        "TCC-62-2",
+        "TCC-62-3",
+        "TCC-62-4",
+        "TCC-62-5",
+        "TCC-62-6",
+        "TCC-62-7"
+      ],
+      "ut_refs": [
+        "test_measure_fetch.py::test_api_first_route_selected",
+        "test_measure_fetch.py::test_browser_fallback_converges_same_evidence_contract",
+        "test_measure_fetch.py::test_write_operation_assembly_rejected",
+        "test_measure_fetch.py::test_property_mismatch_rejected_before_call",
+        "test_measure_fetch.py::test_hash_fixed_and_operation_log_before_ingest",
+        "test_measure_fetch.py::test_dry_run_records_fingerprint_only"
+      ]
+    },
+    {
+      "unit_id": "IU-KPIHANDOFF-07",
+      "doc": "docs/L6-feature-design/S0/kpi-handoff.md",
+      "du_id": "DU-23",
+      "responsibility": "`ingest`・`expected_hash`: 投入前に raw の SHA-256 を再計算し expected_hash と一致する場合のみ投入する（改竄・取り違えの fail-close）",
+      "api_refs": [
+        "ingest"
+      ],
+      "ac_refs": [
+        "AC-62-1",
+        "AC-62-3",
+        "AC-62-4",
+        "AC-62-5"
+      ],
+      "tc_refs": [
+        "TCC-62-1",
+        "TCC-62-3",
+        "TCC-62-4",
+        "TCC-62-5"
+      ],
+      "ut_refs": [
+        "test_measure_parse.py::test_ingest_hash_mismatch_rejected_no_insert",
+        "test_measure_parse.py::test_ingest_single_transaction_full_rollback",
+        "test_measure_parse.py::test_ingest_rerun_idempotent_zero_delta",
+        "test_measure_parse.py::test_fk_missing_rejected_before_insert",
+        "test_measure_parse.py::test_imported_at_supplied_by_clock"
+      ]
+    },
+    {
+      "unit_id": "IU-KPIHANDOFF-08",
+      "doc": "docs/L6-feature-design/S0/kpi-handoff.md",
+      "du_id": "DU-23",
+      "responsibility": "`parse`・`schema`: schema/type 検証を通過した正常行と、壊れた行の隔離ファイル（正常行と分離）を返す（AC-62-2 — 部分破損は正常行のみ継続）",
+      "api_refs": [
+        "parse"
+      ],
+      "ac_refs": [
+        "AC-62-2",
+        "AC-62-6",
+        "AC-62-7"
+      ],
+      "tc_refs": [
+        "TCC-62-2",
+        "TCC-62-6",
+        "TCC-62-7"
+      ],
+      "ut_refs": [
+        "test_measure_parse.py::test_partial_corruption_quarantined_normal_rows_continue",
+        "test_measure_parse.py::test_all_rows_corrupt_import_source_invalid",
+        "test_measure_parse.py::test_empty_export_zero_rows_evidence_only"
+      ]
+    },
+    {
+      "unit_id": "IU-MIGRATION-01",
+      "doc": "docs/L6-feature-design/S0/migration.md",
+      "du_id": "DU-10",
+      "responsibility": "`connect`・`path`: PRAGMA foreign_keys=ON・journal_mode=WAL・busy_timeout（config.sqlite_busy_timeout_ms）を設定し row_factory を構成した Connection を返す（唯一の接続入口 — これを経ない接続経路をコード上に存…",
+      "api_refs": [
+        "connect"
+      ],
+      "ac_refs": [
+        "AC-71-1",
+        "AC-71-2",
+        "AC-71-3",
+        "AC-71-4"
+      ],
+      "tc_refs": [
+        "TCC-71-1",
+        "TCC-71-2",
+        "TCC-71-3",
+        "TCC-71-4"
+      ],
+      "ut_refs": [
+        "test_db_connect.py::test_connect_sets_foreign_keys_on",
+        "test_db_connect.py::test_connect_sets_wal_and_busy_timeout",
+        "test_db_connect.py::test_connect_configures_row_factory",
+        "test_db_connect.py::test_connect_missing_protection_trigger_fatal",
+        "test_db_connect.py::test_connect_unmigrated_db_fatal",
+        "test_db_connect.py::test_connected_db_append_only_trigger_blocks_update_delete"
+      ]
+    },
+    {
+      "unit_id": "IU-MIGRATION-02",
+      "doc": "docs/L6-feature-design/S0/migration.md",
+      "du_id": "DU-11",
+      "responsibility": "`apply_all`・`migrations_dir`: 未適用の連番 SQL を順に適用し、適用ごとに version・migration_name・checksum_sha256・applied_at（clock）・applied_by を schema_version へ同一 transaction で INSERT",
+      "api_refs": [
+        "apply_all"
+      ],
+      "ac_refs": [
+        "AC-71-1",
+        "AC-71-3",
+        "AC-71-4",
+        "AC-72-1",
+        "AC-72-2",
+        "AC-72-4",
+        "AC-72-5"
+      ],
+      "tc_refs": [
+        "TCC-71-1",
+        "TCC-71-3",
+        "TCC-71-4",
+        "TCC-72-1",
+        "TCC-72-2",
+        "TCC-72-4",
+        "TCC-72-5"
+      ],
+      "ut_refs": [
+        "test_db_migrate.py::test_apply_all_empty_db_creates_25_tables_and_16_triggers",
+        "test_db_migrate.py::test_apply_all_records_version_checksum_applied_at_by",
+        "test_db_migrate.py::test_apply_all_skips_applied_versions_idempotent",
+        "test_db_migrate.py::test_apply_all_duplicate_version_stops_fatal",
+        "test_db_migrate.py::test_apply_all_checksum_mismatch_stops_before_apply",
+        "test_db_migrate.py::test_apply_all_crash_mid_migration_rolls_back_whole_version",
+        "test_db_migrate.py::test_append_only_triggers_reject_update_and_delete",
+        "test_db_migrate.py::test_strategic_briefs_content_update_rejected_status_transition_allowed",
+        "test_db_migrate.py::test_tlp_integrity_trigger_rejects_mismatched_insert"
+      ]
+    },
+    {
+      "unit_id": "IU-MIGRATION-03",
+      "doc": "docs/L6-feature-design/S0/migration.md",
+      "du_id": "DU-11",
+      "responsibility": "`verify`・`conn`: PRAGMA foreign_key_check／integrity_check 違反 0 件・25 テーブルと保護トリガ 16 本の存在・TLP 孤児検査（packet を持たない終端 lower run = 0 件）・相互整合検査（approvals.evidence_id ↔ approv…",
+      "api_refs": [
+        "verify"
+      ],
+      "ac_refs": [
+        "AC-71-2",
+        "AC-72-3"
+      ],
+      "tc_refs": [
+        "TCC-71-2",
+        "TCC-72-3",
+        "TCC-RESUME-2"
+      ],
+      "ut_refs": [
+        "test_db_migrate.py::test_verify_complete_schema_passes",
+        "test_db_migrate.py::test_verify_missing_table_or_trigger_fails",
+        "test_db_migrate.py::test_verify_foreign_key_violation_fails",
+        "test_db_migrate.py::test_verify_tlp_orphan_detected_fatal"
+      ]
+    },
+    {
+      "unit_id": "IU-PAIRGATE-01",
+      "doc": "docs/L6-feature-design/S0/pair-gate.md",
+      "du_id": "DU-05",
+      "responsibility": "`establish`・`review_evidence_id`: hash 一致時のみ pair_plan_quality(status=passed) を INSERT し PairPass を返す",
+      "api_refs": [
+        "establish"
+      ],
+      "ac_refs": [
+        "AC-21-1",
+        "AC-21-2",
+        "AC-21-3"
+      ],
+      "tc_refs": [
+        "TCC-21-1",
+        "TCC-21-2",
+        "TCC-21-3"
+      ],
+      "ut_refs": [
+        "test_gates_pair.py::test_establish_hash_match_creates_passed_pair_and_pairpass",
+        "test_gates_pair.py::test_establish_hash_mismatch_rejected_no_row",
+        "test_gates_pair.py::test_establish_duplicate_pair_rejected"
+      ]
+    },
+    {
+      "unit_id": "IU-PAIRGATE-02",
+      "doc": "docs/L6-feature-design/S0/pair-gate.md",
+      "du_id": "DU-05",
+      "responsibility": "`require_pair`・`conn`: status=passed の pair 行が存在する場合のみ PairPass を返す（read-only）",
+      "api_refs": [
+        "require_pair"
+      ],
+      "ac_refs": [
+        "AC-21-4",
+        "AC-21-5"
+      ],
+      "tc_refs": [
+        "TCC-21-4",
+        "TCC-21-5"
+      ],
+      "ut_refs": [
+        "test_gates_pair.py::test_require_pair_missing_or_revoked_rejected",
+        "test_gates_pair.py::test_require_pair_passed_returns_pairpass",
+        "test_gates_pair.py::test_pairpass_forgery_without_sentinel_raises_fatal"
+      ]
+    },
+    {
+      "unit_id": "IU-PAIRGATE-03",
+      "doc": "docs/L6-feature-design/S0/pair-gate.md",
+      "du_id": "DU-05",
+      "responsibility": "`revoke_if_changed`・`plan_id`: 企画又は commit の変更検知時に該当 pair を status=revoked へ更新し True を返す（変更なしは False・DB 不変）",
+      "api_refs": [
+        "revoke_if_changed"
+      ],
+      "ac_refs": [
+        "AC-21-3"
+      ],
+      "tc_refs": [
+        "TCC-21-3"
+      ],
+      "ut_refs": [
+        "test_gates_pair.py::test_revoke_if_changed_revokes_on_commit_change"
+      ]
+    },
+    {
+      "unit_id": "IU-PAIRGATE-04",
+      "doc": "docs/L6-feature-design/S0/pair-gate.md",
+      "du_id": "DU-06",
+      "responsibility": "`check_publishable`・`commit_hash`: require_pair（passed 存在）＋ pair の review_pass hash と commit_hash の一致 ＋ 公開前必須証跡（review_pass/commit_hash）完備をまとめて検証し、全成立時のみ PairPass を返す",
+      "api_refs": [
+        "check_publishable"
+      ],
+      "ac_refs": [
+        "AC-21-1",
+        "AC-21-2",
+        "AC-21-3",
+        "AC-21-4",
+        "AC-21-5",
+        "AC-44-1",
+        "AC-44-2",
+        "AC-44-3"
+      ],
+      "tc_refs": [
+        "TCC-21-1",
+        "TCC-21-2",
+        "TCC-21-3",
+        "TCC-21-4",
+        "TCC-21-5",
+        "TCC-44-1",
+        "TCC-44-2",
+        "TCC-44-3"
+      ],
+      "ut_refs": [
+        "test_gates_publish.py::test_check_publishable_all_conditions_returns_pairpass",
+        "test_gates_publish.py::test_check_publishable_without_pair_rejected",
+        "test_gates_publish.py::test_check_publishable_hash_mismatch_rejected",
+        "test_gates_publish.py::test_check_publishable_missing_evidence_rejected",
+        "test_gates_publish.py::test_check_publishable_rejection_precedes_connector_call"
+      ]
+    },
+    {
+      "unit_id": "IU-STATEMACHINE-01",
+      "doc": "docs/L6-feature-design/S0/state-machine.md",
+      "du_id": "DU-01",
+      "responsibility": "`register_guard`・`guard`: guard 登録簿に event→fn が登録され、以後の transition() が G1〜G5 の評価順序で呼び出す",
+      "api_refs": [
+        "register_guard"
+      ],
+      "ac_refs": [
+        "AC-SR-07-2"
+      ],
+      "tc_refs": [
+        "TCC-SR-07-2"
+      ],
+      "ut_refs": [
+        "test_kernel_state.py::test_register_guard_wires_event_guard",
+        "test_kernel_state.py::test_register_guard_unregistered_event_allowed_transition_fatal"
+      ]
+    },
+    {
+      "unit_id": "IU-STATEMACHINE-02",
+      "doc": "docs/L6-feature-design/S0/state-machine.md",
+      "du_id": "DU-01",
+      "responsibility": "`transition`・`conn`: 許可時: guard 評価→状態 UPDATE→state_transitions（guard_result=passed）INSERT を BEGIN IMMEDIATE の単一 transaction でコミットし TransitionResult を返す",
+      "api_refs": [
+        "transition"
+      ],
+      "ac_refs": [
+        "AC-11-1",
+        "AC-11-2",
+        "AC-11-3",
+        "AC-11-4",
+        "AC-13-1",
+        "AC-13-2",
+        "AC-13-3",
+        "AC-13-4",
+        "AC-13-5",
+        "AC-13-6",
+        "AC-16-1",
+        "AC-16-2",
+        "AC-16-3",
+        "AC-16-4",
+        "AC-16-5",
+        "AC-16-6",
+        "AC-SR-02",
+        "AC-SR-07-1"
+      ],
+      "tc_refs": [
+        "TCC-11-1",
+        "TCC-11-2",
+        "TCC-11-3",
+        "TCC-11-4",
+        "TCC-13-1",
+        "TCC-13-2",
+        "TCC-13-3",
+        "TCC-13-4",
+        "TCC-13-5",
+        "TCC-13-6",
+        "TCC-16-1",
+        "TCC-16-2",
+        "TCC-16-3",
+        "TCC-16-4",
+        "TCC-16-5",
+        "TCC-16-6",
+        "TCC-CONFLICT-1",
+        "TCC-KILL-1",
+        "TCC-SR-02",
+        "TCC-SR-07-1"
+      ],
+      "ut_refs": [
+        "test_kernel_state.py::test_transition_allowed_commits_state_and_passed_log",
+        "test_kernel_state.py::test_transition_undefined_combination_rejected_db_unchanged",
+        "test_kernel_state.py::test_transition_terminal_state_request_rejected",
+        "test_kernel_state.py::test_transition_rejected_records_rejected_row_only",
+        "test_kernel_state.py::test_transition_crash_mid_tx_leaves_no_partial_state",
+        "test_kernel_state.py::test_transition_verify_fail_retry_boundary_switches_to_exhausted",
+        "test_kernel_state.py::test_transition_double_fire_rejected_by_stale_from_state",
+        "test_kernel_state.py::test_transition_begin_immediate_serializes_concurrent_write",
+        "test_kernel_state.py::test_lower_start_without_valid_brief_rejected",
+        "test_kernel_state.py::test_lower_terminal_transition_includes_tlp_same_tx"
+      ]
+    },
+    {
+      "unit_id": "IU-STATEMACHINE-03",
+      "doc": "docs/L6-feature-design/S0/state-machine.md",
+      "du_id": "DU-02",
+      "responsibility": "`claim`・`task`: lease_owner_execution_id・lease_expires_at（config.lease_ttl_sec）・heartbeat_at を row_version 楽観ロックで更新（row_version +1）",
+      "api_refs": [
+        "claim"
+      ],
+      "ac_refs": [
+        "AC-27-3"
+      ],
+      "tc_refs": [
+        "TCC-27-3"
+      ],
+      "ut_refs": [
+        "test_kernel_orchestrator.py::test_claim_by_author_execution_acquires_lease",
+        "test_kernel_orchestrator.py::test_claim_by_verifier_execution_rejected",
+        "test_kernel_orchestrator.py::test_claim_by_unrelated_agent_execution_rejected",
+        "test_kernel_orchestrator.py::test_claim_before_lease_expiry_by_other_execution_rejected",
+        "test_kernel_orchestrator.py::test_claim_after_lease_expiry_author_new_execution_only",
+        "test_kernel_orchestrator.py::test_claim_row_version_mismatch_rejected"
+      ]
+    },
+    {
+      "unit_id": "IU-STATEMACHINE-04",
+      "doc": "docs/L6-feature-design/S0/state-machine.md",
+      "du_id": "DU-02",
+      "responsibility": "`issue_task`・`loop_run`: 同一 (loop_run_id, step_key) に非終端の既存 task があればその id を返す（新規発行しない — 冪等）",
+      "api_refs": [
+        "issue_task"
+      ],
+      "ac_refs": [
+        "AC-12-1",
+        "AC-12-2",
+        "AC-12-3",
+        "AC-12-4",
+        "AC-27-1",
+        "AC-27-2",
+        "AC-27-4",
+        "AC-27-5"
+      ],
+      "tc_refs": [
+        "TCC-12-1",
+        "TCC-12-2",
+        "TCC-12-3",
+        "TCC-12-4",
+        "TCC-27-1",
+        "TCC-27-2",
+        "TCC-27-4",
+        "TCC-27-5"
+      ],
+      "ut_refs": [
+        "test_kernel_orchestrator.py::test_issue_task_inserts_with_deterministic_idempotency_key",
+        "test_kernel_orchestrator.py::test_issue_task_reuses_nonterminal_existing_task",
+        "test_kernel_orchestrator.py::test_issue_task_unique_collision_rereads_existing",
+        "test_kernel_orchestrator.py::test_issue_task_attempt_increments_after_terminal_rows",
+        "test_kernel_orchestrator.py::test_issue_task_pair_not_established_tpub_rejected"
+      ]
+    },
+    {
+      "unit_id": "IU-STATEMACHINE-05",
+      "doc": "docs/L6-feature-design/S0/state-machine.md",
+      "du_id": "DU-02",
+      "responsibility": "`run_microloop`・`task`: submit→verify を反復し、FAIL ごとに verify_fail 遷移（retry_count 消費）を DU-01 経由で適用",
+      "api_refs": [
+        "run_microloop"
+      ],
+      "ac_refs": [
+        "AC-27-1"
+      ],
+      "tc_refs": [
+        "TCC-27-1"
+      ],
+      "ut_refs": [
+        "test_kernel_orchestrator.py::test_run_microloop_verify_fail_consumes_retry_until_escalated"
+      ]
+    },
+    {
+      "unit_id": "IU-STATEMACHINE-06",
+      "doc": "docs/L6-feature-design/S0/state-machine.md",
+      "du_id": "DU-02",
+      "responsibility": "`validate_strategic_brief`・`held_digest`: status=active・digest 一致・有効期間内（valid_from <= now < valid_until 又は valid_until NULL）をすべて満たす場合のみ ValidBrief を返す（lower run start ガード G3 の実体 — STC-I-03）",
+      "api_refs": [
+        "validate_strategic_brief"
+      ],
+      "ac_refs": [
+        "AC-SR-02",
+        "AC-SR-07-1",
+        "AC-SR-07-2"
+      ],
+      "tc_refs": [
+        "TCC-SR-02",
+        "TCC-SR-07-1",
+        "TCC-SR-07-2"
+      ],
+      "ut_refs": [
+        "test_kernel_orchestrator.py::test_validate_strategic_brief_active_digest_period_passes",
+        "test_kernel_orchestrator.py::test_validate_strategic_brief_invalid_status_digest_period_rejected"
+      ]
+    },
+    {
+      "unit_id": "IU-STATEMACHINE-07",
+      "doc": "docs/L6-feature-design/S0/state-machine.md",
+      "du_id": "DU-03",
+      "responsibility": "`assign`・`agents`: active かつ principal の異なる agent の組（agents.principal 比較）を返す",
+      "api_refs": [
+        "assign"
+      ],
+      "ac_refs": [
+        "AC-27-1",
+        "AC-27-2",
+        "AC-27-3",
+        "AC-27-4",
+        "AC-27-5"
+      ],
+      "tc_refs": [
+        "TCC-27-1",
+        "TCC-27-2",
+        "TCC-27-3",
+        "TCC-27-4",
+        "TCC-27-5"
+      ],
+      "ut_refs": [
+        "test_kernel_assigner.py::test_assign_active_different_principal_pair",
+        "test_kernel_assigner.py::test_assign_same_agent_pair_rejected",
+        "test_kernel_assigner.py::test_assign_distinct_agents_same_principal_rejected",
+        "test_kernel_assigner.py::test_assign_review_verifier_excludes_critic",
+        "test_kernel_assigner.py::test_assign_inactive_agents_excluded"
+      ]
+    },
+    {
+      "unit_id": "IU-STRATEGICBRIEF-01",
+      "doc": "docs/L6-feature-design/S0/strategic-brief.md",
+      "du_id": "DU-02",
+      "responsibility": "`generate_tactical_learning_packet`・`loop_kind`: run 保持の strategic_brief_id/digest を写して INSERT（run/brief/digest 三者一致 — DDL の integrity トリガが最終防衛）",
+      "api_refs": [
+        "generate_tactical_learning_packet"
+      ],
+      "ac_refs": [
+        "AC-SR-15-1",
+        "AC-SR-15-3"
+      ],
+      "tc_refs": [
+        "TCC-SR-15-1",
+        "TCC-SR-15-3"
+      ],
+      "ut_refs": [
+        "test_kernel_orchestrator.py::test_generate_tlp_kind_branches_learning_and_failure",
+        "test_kernel_orchestrator.py::test_generate_tlp_non_lower_or_nonterminal_rejected",
+        "test_kernel_orchestrator.py::test_generate_tlp_brief_digest_mismatch_rejected",
+        "test_kernel_orchestrator.py::test_generate_tlp_atomic_with_terminal_transition"
+      ]
+    },
+    {
+      "unit_id": "IU-STRATEGICBRIEF-02",
+      "doc": "docs/L6-feature-design/S0/strategic-brief.md",
+      "du_id": "DU-02",
+      "responsibility": "`issue_strategic_brief`・`brief`: 正準化 JSON（キー昇順・区切り (\",\", \":\")・UTF-8。digest/status/created_at を除外）の SHA-256 を digest として決定的に計算し INSERT（同一入力→同一 digest — STC-I-04）",
+      "api_refs": [
+        "issue_strategic_brief"
+      ],
+      "ac_refs": [
+        "AC-SR-01",
+        "AC-SR-06-1",
+        "AC-SR-06-3"
+      ],
+      "tc_refs": [
+        "TCC-SR-01",
+        "TCC-SR-06-1",
+        "TCC-SR-06-3"
+      ],
+      "ut_refs": [
+        "test_kernel_orchestrator.py::test_issue_strategic_brief_digest_deterministic_for_equivalent_json",
+        "test_kernel_orchestrator.py::test_issue_strategic_brief_schema_violation_rejected",
+        "test_kernel_orchestrator.py::test_downstream_paths_cannot_write_strategic_briefs"
+      ]
+    },
+    {
+      "unit_id": "IU-STRATEGICBRIEF-03",
+      "doc": "docs/L6-feature-design/S0/strategic-brief.md",
+      "du_id": "DU-02",
+      "responsibility": "`issue_task`・`loop_run`: 同一 (loop_run_id, step_key) に非終端の既存 task があればその id を返す（新規発行しない — 冪等）",
+      "api_refs": [
+        "issue_task"
+      ],
+      "ac_refs": [
+        "AC-SR-06-5",
+        "AC-SR-15-5",
+        "AC-SR-15-6"
+      ],
+      "tc_refs": [
+        "TCC-SR-06-5",
+        "TCC-SR-15-5",
+        "TCC-SR-15-6"
+      ],
+      "ut_refs": [
+        "test_kernel_orchestrator.py::test_issue_task_inserts_with_deterministic_idempotency_key",
+        "test_kernel_orchestrator.py::test_issue_task_reuses_nonterminal_existing_task",
+        "test_kernel_orchestrator.py::test_issue_task_unique_collision_rereads_existing",
+        "test_kernel_orchestrator.py::test_issue_task_attempt_increments_after_terminal_rows",
+        "test_kernel_orchestrator.py::test_issue_task_pair_not_established_tpub_rejected"
+      ]
+    },
+    {
+      "unit_id": "IU-STRATEGICBRIEF-04",
+      "doc": "docs/L6-feature-design/S0/strategic-brief.md",
+      "du_id": "DU-02",
+      "responsibility": "`resume`・`entity`: s0-contract §3.3 の全行を実装: pending=再 claim 可／in_progress（外部操作前）=workspace・入力・既存証跡再読込／in_progress（外部操作中後）=external_operations.status で分岐（prepared=同一 ke…",
+      "api_refs": [
+        "resume"
+      ],
+      "ac_refs": [
+        "AC-SR-15-4"
+      ],
+      "tc_refs": [
+        "TCC-SR-15-4"
+      ],
+      "ut_refs": [
+        "test_kernel_orchestrator.py::test_resume_pending_reclaimable",
+        "test_kernel_orchestrator.py::test_resume_in_progress_before_external_reloads_state",
+        "test_kernel_orchestrator.py::test_resume_sent_remote_match_confirms_without_resend",
+        "test_kernel_orchestrator.py::test_resume_sent_unverifiable_unknown_escalates",
+        "test_kernel_orchestrator.py::test_resume_verifying_reuses_existing_verdict_no_double_count",
+        "test_kernel_orchestrator.py::test_resume_waiting_rechecks_satisfaction"
+      ]
+    },
+    {
+      "unit_id": "IU-STRATEGICBRIEF-05",
+      "doc": "docs/L6-feature-design/S0/strategic-brief.md",
+      "du_id": "DU-02",
+      "responsibility": "`supersede_strategic_brief`・`old_brief_id`: 新版 INSERT（supersedes_id=old_brief_id・version+1・digest 決定計算）と旧版 status=superseded 化を単一 transaction で実行（新旧とも active の中間状態を残さない）",
+      "api_refs": [
+        "supersede_strategic_brief"
+      ],
+      "ac_refs": [
+        "AC-SR-06-2",
+        "AC-SR-06-4"
+      ],
+      "tc_refs": [
+        "TCC-SR-06-2",
+        "TCC-SR-06-4"
+      ],
+      "ut_refs": [
+        "test_kernel_orchestrator.py::test_supersede_strategic_brief_single_tx_new_active_old_superseded",
+        "test_kernel_orchestrator.py::test_downstream_paths_cannot_write_strategic_briefs"
+      ]
+    },
+    {
+      "unit_id": "IU-STRATEGICBRIEF-06",
+      "doc": "docs/L6-feature-design/S0/strategic-brief.md",
+      "du_id": "DU-02",
+      "responsibility": "`validate_strategic_brief`・`held_digest`: status=active・digest 一致・有効期間内（valid_from <= now < valid_until 又は valid_until NULL）をすべて満たす場合のみ ValidBrief を返す（lower run start ガード G3 の実体 — STC-I-03）",
+      "api_refs": [
+        "validate_strategic_brief"
+      ],
+      "ac_refs": [
+        "AC-SR-15-2"
+      ],
+      "tc_refs": [
+        "TCC-SR-15-2"
+      ],
+      "ut_refs": [
+        "test_kernel_orchestrator.py::test_validate_strategic_brief_active_digest_period_passes",
+        "test_kernel_orchestrator.py::test_validate_strategic_brief_invalid_status_digest_period_rejected"
+      ]
+    },
+    {
+      "unit_id": "IU-STRATEGICBRIEF-07",
+      "doc": "docs/L6-feature-design/S0/strategic-brief.md",
+      "du_id": "DU-11",
+      "responsibility": "`apply_all`・`migrations_dir`: 未適用の連番 SQL を順に適用し、適用ごとに version・migration_name・checksum_sha256・applied_at（clock）・applied_by を schema_version へ同一 transaction で INSERT",
+      "api_refs": [
+        "apply_all"
+      ],
+      "ac_refs": [
+        "AC-SR-11-1",
+        "AC-SR-11-5",
+        "AC-SR-11-6"
+      ],
+      "tc_refs": [
+        "TCC-SR-11-1",
+        "TCC-SR-11-5",
+        "TCC-SR-11-6"
+      ],
+      "ut_refs": [
+        "test_db_migrate.py::test_apply_all_empty_db_creates_25_tables_and_16_triggers",
+        "test_db_migrate.py::test_apply_all_records_version_checksum_applied_at_by",
+        "test_db_migrate.py::test_apply_all_skips_applied_versions_idempotent",
+        "test_db_migrate.py::test_apply_all_duplicate_version_stops_fatal",
+        "test_db_migrate.py::test_apply_all_checksum_mismatch_stops_before_apply",
+        "test_db_migrate.py::test_apply_all_crash_mid_migration_rolls_back_whole_version",
+        "test_db_migrate.py::test_append_only_triggers_reject_update_and_delete",
+        "test_db_migrate.py::test_strategic_briefs_content_update_rejected_status_transition_allowed",
+        "test_db_migrate.py::test_tlp_integrity_trigger_rejects_mismatched_insert"
+      ]
+    },
+    {
+      "unit_id": "IU-STRATEGICBRIEF-08",
+      "doc": "docs/L6-feature-design/S0/strategic-brief.md",
+      "du_id": "DU-11",
+      "responsibility": "`verify`・`conn`: PRAGMA foreign_key_check／integrity_check 違反 0 件・25 テーブルと保護トリガ 16 本の存在・TLP 孤児検査（packet を持たない終端 lower run = 0 件）・相互整合検査（approvals.evidence_id ↔ approv…",
+      "api_refs": [
+        "verify"
+      ],
+      "ac_refs": [
+        "AC-SR-05",
+        "AC-SR-11-2",
+        "AC-SR-11-3",
+        "AC-SR-11-4"
+      ],
+      "tc_refs": [
+        "TCC-SR-05",
+        "TCC-SR-11-2",
+        "TCC-SR-11-3",
+        "TCC-SR-11-4"
+      ],
+      "ut_refs": [
+        "test_db_migrate.py::test_verify_complete_schema_passes",
+        "test_db_migrate.py::test_verify_missing_table_or_trigger_fails",
+        "test_db_migrate.py::test_verify_foreign_key_violation_fails",
+        "test_db_migrate.py::test_verify_tlp_orphan_detected_fatal"
+      ]
+    },
+    {
+      "unit_id": "IU-TLP-01",
+      "doc": "docs/L6-feature-design/S0/tlp.md",
+      "du_id": "DU-02",
+      "responsibility": "`generate_tactical_learning_packet`・`loop_kind`: run 保持の strategic_brief_id/digest を写して INSERT（run/brief/digest 三者一致 — DDL の integrity トリガが最終防衛）",
+      "api_refs": [
+        "generate_tactical_learning_packet"
+      ],
+      "ac_refs": [
+        "AC-SR-03",
+        "AC-SR-06",
+        "AC-SR-08-1",
+        "AC-SR-08-2",
+        "AC-SR-09-2"
+      ],
+      "tc_refs": [
+        "TCC-CONFLICT-2",
+        "TCC-KILL-2",
+        "TCC-SR-03",
+        "TCC-SR-06",
+        "TCC-SR-08-1",
+        "TCC-SR-08-2",
+        "TCC-SR-09-2"
+      ],
+      "ut_refs": [
+        "test_kernel_orchestrator.py::test_generate_tlp_kind_branches_learning_and_failure",
+        "test_kernel_orchestrator.py::test_generate_tlp_non_lower_or_nonterminal_rejected",
+        "test_kernel_orchestrator.py::test_generate_tlp_brief_digest_mismatch_rejected",
+        "test_kernel_orchestrator.py::test_generate_tlp_atomic_with_terminal_transition"
+      ]
+    },
+    {
+      "unit_id": "IU-TLP-02",
+      "doc": "docs/L6-feature-design/S0/tlp.md",
+      "du_id": "DU-02",
+      "responsibility": "`get_tactical_learning_packet`: 指定 run の `TlpRecord` を返し、該当行がなければ None（read-only・DB 不変）",
+      "api_refs": [
+        "get_tactical_learning_packet"
+      ],
+      "ac_refs": [
+        "AC-SR-09-2"
+      ],
+      "tc_refs": [
+        "TCC-SR-09-2"
+      ],
+      "ut_refs": [
+        "test_kernel_orchestrator.py::test_get_tactical_learning_packet_returns_record_or_none"
+      ]
+    },
+    {
+      "unit_id": "IU-TLP-03",
+      "doc": "docs/L6-feature-design/S0/tlp.md",
+      "du_id": "DU-02",
+      "responsibility": "`issue_task`・`loop_run`: 同一 (loop_run_id, step_key) に非終端の既存 task があればその id を返す（新規発行しない — 冪等）",
+      "api_refs": [
+        "issue_task"
+      ],
+      "ac_refs": [
+        "AC-SR-09-4"
+      ],
+      "tc_refs": [
+        "TCC-SR-09-4"
+      ],
+      "ut_refs": [
+        "test_kernel_orchestrator.py::test_issue_task_inserts_with_deterministic_idempotency_key",
+        "test_kernel_orchestrator.py::test_issue_task_reuses_nonterminal_existing_task",
+        "test_kernel_orchestrator.py::test_issue_task_unique_collision_rereads_existing",
+        "test_kernel_orchestrator.py::test_issue_task_attempt_increments_after_terminal_rows",
+        "test_kernel_orchestrator.py::test_issue_task_pair_not_established_tpub_rejected"
+      ]
+    },
+    {
+      "unit_id": "IU-TLP-04",
+      "doc": "docs/L6-feature-design/S0/tlp.md",
+      "du_id": "DU-02",
+      "responsibility": "`supersede_strategic_brief`・`old_brief_id`: 新版 INSERT（supersedes_id=old_brief_id・version+1・digest 決定計算）と旧版 status=superseded 化を単一 transaction で実行（新旧とも active の中間状態を残さない）",
+      "api_refs": [
+        "supersede_strategic_brief"
+      ],
+      "ac_refs": [
+        "AC-SR-04"
+      ],
+      "tc_refs": [
+        "TCC-SR-04"
+      ],
+      "ut_refs": [
+        "test_kernel_orchestrator.py::test_supersede_strategic_brief_single_tx_new_active_old_superseded",
+        "test_kernel_orchestrator.py::test_downstream_paths_cannot_write_strategic_briefs"
+      ]
+    },
+    {
+      "unit_id": "IU-TLP-05",
+      "doc": "docs/L6-feature-design/S0/tlp.md",
+      "du_id": "DU-02",
+      "responsibility": "`validate_strategic_brief`・`held_digest`: status=active・digest 一致・有効期間内（valid_from <= now < valid_until 又は valid_until NULL）をすべて満たす場合のみ ValidBrief を返す（lower run start ガード G3 の実体 — STC-I-03）",
+      "api_refs": [
+        "validate_strategic_brief"
+      ],
+      "ac_refs": [
+        "AC-SR-08-3",
+        "AC-SR-09-1",
+        "AC-SR-09-3"
+      ],
+      "tc_refs": [
+        "TCC-SR-08-3",
+        "TCC-SR-09-1",
+        "TCC-SR-09-3"
+      ],
+      "ut_refs": [
+        "test_kernel_orchestrator.py::test_validate_strategic_brief_active_digest_period_passes",
+        "test_kernel_orchestrator.py::test_validate_strategic_brief_invalid_status_digest_period_rejected"
+      ]
+    }
+  ]
+}

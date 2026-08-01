@@ -234,7 +234,7 @@ def test_mutation_trace_from_another_slice_is_detected(tmp_path) -> None:
     shutil.copytree(ROOT / "docs/L6-feature-design", root / "docs/L6-feature-design")
     victim = root / "docs/L6-feature-design/S0/evidence.md"
     victim.write_text(victim.read_text(encoding="utf-8").replace(
-        "traces: [FR-28, FR-54]", "traces: [FR-34]"), encoding="utf-8")
+        "traces: [FR-28, FR-54, FR-55]", "traces: [FR-34]"), encoding="utf-8")
     faults = authority.detect_slice_faults(CTX, root=Path(root))
     assert any("別スライスの要求を根拠にできない" in b for b in faults)
 

@@ -4,7 +4,7 @@ lifecycle_status: confirmed
 slice: S0
 traces: [SR-06, SR-07, SR-11, SR-15]
 forward_refs: [SR-01, SR-02, SR-04, SR-05, SR-14]
-dus: [DU-01, DU-02, DU-11]
+dus: [DU-02, DU-11]
 ---
 
 # 機能別詳細設計 — strategic_brief の発行・失効・検証
@@ -122,3 +122,20 @@ sequenceDiagram
 | validate＋下流開始ガード | DU-01, DU-02 | AC-SR-02, AC-SR-07-1, AC-SR-07-2, AC-11-1 | STC-I-02（AC 側 tc 表記。pytest 実体は STC-I-03）, TCC-SR-02, TCC-SR-07-1, TCC-SR-07-2, TCC-11-1 |
 | 直接変更不可（2 API 限定） | DU-02, DU-10 | AC-SR-04, AC-SR-05 | TCC-SR-04, TCC-SR-05, STC-I-01, STC-I-06, STC-G-10 |
 | S0 シード投入 | DU-02 | AC-SR-15-1 | TCC-SR-15-1 |
+
+## 8. 実装単位（implementation_units）
+
+責務は DU の **API 1 本**へ接続する。API・AC・TC・UT の対応の機械可読な正本は
+[implementation-units.json](implementation-units.json)（`G-L6-IMPLEMENTATION-TRACE` が
+DU／API の実在・pre/post への責務の明記・AC／TC／UT の実在と対応を fail-close 検査する）。
+
+| unit_id | DU | API | 責務 | AC |
+|---|---|---|---|---|
+| IU-STRATEGICBRIEF-01 | DU-02 | `generate_tactical_learning_packet` | run 保持の strategic_brief_id/digest を写して INSERT（run/brief/digest 三… | AC-SR-15-1, AC-SR-15-3 |
+| IU-STRATEGICBRIEF-02 | DU-02 | `issue_strategic_brief` | 正準化 JSON（キー昇順・区切り (",", ":")・UTF-8。digest/status/created_at を除外）… | AC-SR-01, AC-SR-06-1, AC-SR-06-3 |
+| IU-STRATEGICBRIEF-03 | DU-02 | `issue_task` | 同一 (loop_run_id, step_key) に非終端の既存 task があればその id を返す（新規発行しない — … | AC-SR-06-5, AC-SR-15-5, AC-SR-15-6 |
+| IU-STRATEGICBRIEF-04 | DU-02 | `resume` | s0-contract §3.3 の全行を実装: pending=再 claim 可／in_progress（外部操作前）=wo… | AC-SR-15-4 |
+| IU-STRATEGICBRIEF-05 | DU-02 | `supersede_strategic_brief` | 新版 INSERT（supersedes_id=old_brief_id・version+1・digest 決定計算）と旧版 s… | AC-SR-06-2, AC-SR-06-4 |
+| IU-STRATEGICBRIEF-06 | DU-02 | `validate_strategic_brief` | status=active・digest 一致・有効期間内（valid_from <= now < valid_until 又は… | AC-SR-15-2 |
+| IU-STRATEGICBRIEF-07 | DU-11 | `apply_all` | 未適用の連番 SQL を順に適用し、適用ごとに version・migration_name・checksum_sha256・a… | AC-SR-11-1, AC-SR-11-5, AC-SR-11-6 |
+| IU-STRATEGICBRIEF-08 | DU-11 | `verify` | PRAGMA foreign_key_check／integrity_check 違反 0 件・25 テーブルと保護トリガ 16… | AC-SR-05, AC-SR-11-2, AC-SR-11-3, AC-SR-11-4 |

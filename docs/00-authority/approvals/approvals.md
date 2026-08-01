@@ -220,3 +220,51 @@
 | 2026-08-01 | state-machine | - | confirmed | PO | ca1faf629bf6 | S0 設計クロージャー最終是正 §1: S0 機能設計の確認・承認（FR／SR・DU・API・AC・TC・UT 接続の実在を機械監査） |
 | 2026-08-01 | strategic-brief | - | confirmed | PO | 878b8edc0a59 | S0 設計クロージャー最終是正 §1: S0 機能設計の確認・承認（FR／SR・DU・API・AC・TC・UT 接続の実在を機械監査） |
 | 2026-08-01 | tlp | - | confirmed | PO | 8905e1821b8d | S0 設計クロージャー最終是正 §1: S0 機能設計の確認・承認（FR／SR・DU・API・AC・TC・UT 接続の実在を機械監査） |
+| 2026-08-01 | ac-contracts.json | v0.1 | confirmed | PO | 08cccf8e7ffa | 意味トレース最終是正: L6 責務の API 単位接続（implementation_units）・保護トリガ数の実 DDL 統一・ブランド隔離 S0 責務の実契約整合に伴う内容束縛承認 |
+| 2026-08-01 | tc-contracts.json | v0.1 | confirmed | PO | 3494028deb83 | 意味トレース最終是正: L6 責務の API 単位接続（implementation_units）・保護トリガ数の実 DDL 統一・ブランド隔離 S0 責務の実契約整合に伴う内容束縛承認 |
+| 2026-08-01 | cmp-contracts.json | v0.1 | confirmed | PO | 5b0b79cd0988 | 意味トレース最終是正: L6 責務の API 単位接続（implementation_units）・保護トリガ数の実 DDL 統一・ブランド隔離 S0 責務の実契約整合に伴う内容束縛承認 |
+| 2026-08-01 | strategy-loop-design | v0.1 | confirmed | PO | a71d08d3eeb4 | 意味トレース最終是正: L6 責務の API 単位接続（implementation_units）・保護トリガ数の実 DDL 統一・ブランド隔離 S0 責務の実契約整合に伴う内容束縛承認 |
+| 2026-08-01 | db-design | v0.1 | confirmed | PO | 1db73b60d65d | 意味トレース最終是正: L6 責務の API 単位接続（implementation_units）・保護トリガ数の実 DDL 統一・ブランド隔離 S0 責務の実契約整合に伴う内容束縛承認 |
+| 2026-08-01 | du-contracts.json | v0.1 | confirmed | PO | 87ea56915121 | 意味トレース最終是正: L6 責務の API 単位接続（implementation_units）・保護トリガ数の実 DDL 統一・ブランド隔離 S0 責務の実契約整合に伴う内容束縛承認 |
+| 2026-08-01 | approval | - | confirmed | PO | 65915c3cadb5 | 意味トレース最終是正: L6 責務の API 単位接続（implementation_units）・保護トリガ数の実 DDL 統一・ブランド隔離 S0 責務の実契約整合に伴う内容束縛承認 |
+| 2026-08-01 | brand-isolation-foundation | - | confirmed | PO | 9c3a6f189045 | 意味トレース最終是正: L6 責務の API 単位接続（implementation_units）・保護トリガ数の実 DDL 統一・ブランド隔離 S0 責務の実契約整合に伴う内容束縛承認 |
+| 2026-08-01 | evidence | - | confirmed | PO | 917fc975e1e3 | 意味トレース最終是正: L6 責務の API 単位接続（implementation_units）・保護トリガ数の実 DDL 統一・ブランド隔離 S0 責務の実契約整合に伴う内容束縛承認 |
+| 2026-08-01 | external-operations | - | confirmed | PO | 63d9009b4866 | 意味トレース最終是正: L6 責務の API 単位接続（implementation_units）・保護トリガ数の実 DDL 統一・ブランド隔離 S0 責務の実契約整合に伴う内容束縛承認 |
+| 2026-08-01 | kpi-handoff | - | confirmed | PO | 007e970453f9 | 意味トレース最終是正: L6 責務の API 単位接続（implementation_units）・保護トリガ数の実 DDL 統一・ブランド隔離 S0 責務の実契約整合に伴う内容束縛承認 |
+| 2026-08-01 | migration | - | confirmed | PO | 3ddd978795b3 | 意味トレース最終是正: L6 責務の API 単位接続（implementation_units）・保護トリガ数の実 DDL 統一・ブランド隔離 S0 責務の実契約整合に伴う内容束縛承認 |
+| 2026-08-01 | pair-gate | - | confirmed | PO | 76a9ce945819 | 意味トレース最終是正: L6 責務の API 単位接続（implementation_units）・保護トリガ数の実 DDL 統一・ブランド隔離 S0 責務の実契約整合に伴う内容束縛承認 |
+| 2026-08-01 | state-machine | - | confirmed | PO | 5a31447f6508 | 意味トレース最終是正: L6 責務の API 単位接続（implementation_units）・保護トリガ数の実 DDL 統一・ブランド隔離 S0 責務の実契約整合に伴う内容束縛承認 |
+| 2026-08-01 | strategic-brief | - | confirmed | PO | abd8face2173 | 意味トレース最終是正: L6 責務の API 単位接続（implementation_units）・保護トリガ数の実 DDL 統一・ブランド隔離 S0 責務の実契約整合に伴う内容束縛承認 |
+| 2026-08-01 | tlp | - | confirmed | PO | b74cfbb78293 | 意味トレース最終是正: L6 責務の API 単位接続（implementation_units）・保護トリガ数の実 DDL 統一・ブランド隔離 S0 責務の実契約整合に伴う内容束縛承認 |
+| 2026-08-01 | config-store | - | confirmed | PO | d35a83a6000e | 意味トレース最終是正: DU-12 の機能設計を新設（config の append-only 履歴・安全側既定値） |
+| 2026-08-01 | implementation-units.json | v0.1 | confirmed | PO | 968b79f4439f | 意味トレース最終是正: S0 L6 責務 65 件を API・AC・TC・UT へ接続する機械可読正本を新設 |
+| 2026-08-01 | config-store | - | confirmed | PO | a54a636bec01 | 意味トレース最終是正: DU-12 の機能設計を新設（config の append-only 履歴・安全側既定値） |
+| 2026-08-01 | ac-catalog | v0.1 | confirmed | PO | b39b46a88d4d | 意味トレース最終是正: 生成ビューの再生成（scripts/render_views.py — 手編集なし） |
+| 2026-08-01 | tc-catalog | v0.1 | confirmed | PO | fe1b90c54470 | 意味トレース最終是正: 生成ビューの再生成（scripts/render_views.py — 手編集なし） |
+| 2026-08-01 | cmp-contracts | v0.1 | confirmed | PO | a46ad309a05c | 意味トレース最終是正: 生成ビューの再生成（scripts/render_views.py — 手編集なし） |
+| 2026-08-01 | du-contracts | v0.1 | confirmed | PO | 91e64e3cd8c6 | 意味トレース最終是正: 生成ビューの再生成（scripts/render_views.py — 手編集なし） |
+| 2026-08-01 | approval | - | confirmed | PO | 0fbb79605a51 | 意味トレース最終是正: markdownlint 準拠の整形（連続空行の解消 — 内容の変更なし）に伴う内容束縛承認 |
+| 2026-08-01 | config-store | - | confirmed | PO | 9bb9a6bac766 | 意味トレース最終是正: markdownlint 準拠の整形（連続空行の解消 — 内容の変更なし）に伴う内容束縛承認 |
+| 2026-08-01 | ac-contracts.json | v0.1 | confirmed | PO | c1c38b721b01 | 意味トレース最終是正（独立レビュー対応）: 保護トリガ数の化石表記の解消・実装単位の AC 是正・trace 代替表現の除去に伴う内容束縛承認 |
+| 2026-08-01 | evidence | - | confirmed | PO | a7fdcb49c11f | 意味トレース最終是正（独立レビュー対応）: 保護トリガ数の化石表記の解消・実装単位の AC 是正・trace 代替表現の除去に伴う内容束縛承認 |
+| 2026-08-01 | pair-gate | - | confirmed | PO | 455a9403061d | 意味トレース最終是正（独立レビュー対応）: 保護トリガ数の化石表記の解消・実装単位の AC 是正・trace 代替表現の除去に伴う内容束縛承認 |
+| 2026-08-01 | implementation-units.json | v0.1 | confirmed | PO | c163f8ac030e | 意味トレース最終是正（独立レビュー対応）: 保護トリガ数の化石表記の解消・実装単位の AC 是正・trace 代替表現の除去に伴う内容束縛承認 |
+| 2026-08-01 | ac-catalog | v0.1 | confirmed | PO | 04255f9c7f76 | 意味トレース最終是正: 生成ビューの再生成（scripts/render_views.py — 手編集なし） |
+| 2026-08-01 | tc-catalog | v0.1 | confirmed | PO | fe1b90c54470 | 意味トレース最終是正: 生成ビューの再生成（scripts/render_views.py — 手編集なし） |
+| 2026-08-01 | cmp-contracts | v0.1 | confirmed | PO | a46ad309a05c | 意味トレース最終是正: 生成ビューの再生成（scripts/render_views.py — 手編集なし） |
+| 2026-08-01 | du-contracts | v0.1 | confirmed | PO | 91e64e3cd8c6 | 意味トレース最終是正: 生成ビューの再生成（scripts/render_views.py — 手編集なし） |
+| 2026-08-01 | br-contracts | v0.1 | confirmed | PO | 543b04527d75 | 意味トレース最終是正: 生成ビューの再生成（scripts/render_views.py — 手編集なし） |
+| 2026-08-01 | fr-contracts | v0.1 | confirmed | PO | 562f9839a594 | 意味トレース最終是正: 生成ビューの再生成（scripts/render_views.py — 手編集なし） |
+| 2026-08-01 | sr-contracts | v0.1 | confirmed | PO | 0f9a68344ca4 | 意味トレース最終是正: 生成ビューの再生成（scripts/render_views.py — 手編集なし） |
+| 2026-08-01 | nfr-contracts | v0.1 | confirmed | PO | 263662ea8be8 | 意味トレース最終是正: 生成ビューの再生成（scripts/render_views.py — 手編集なし） |
+| 2026-08-01 | evidence | - | confirmed | PO | 6d055ecbc9d0 | 意味トレース最終是正（独立レビュー R2-01〜R2-04 対応）: 実装単位の AC 意味検査の強化に伴う trace 先要求の明示と内容束縛承認 |
+| 2026-08-01 | external-operations | - | confirmed | PO | a853aa7a8520 | 意味トレース最終是正（独立レビュー R2-01〜R2-04 対応）: 実装単位の AC 意味検査の強化に伴う trace 先要求の明示と内容束縛承認 |
+| 2026-08-01 | migration | - | confirmed | PO | 549b596478ac | 意味トレース最終是正（独立レビュー R2-01〜R2-04 対応）: 実装単位の AC 意味検査の強化に伴う trace 先要求の明示と内容束縛承認 |
+| 2026-08-01 | br-contracts | v0.1 | confirmed | PO | 543b04527d75 | 意味トレース最終是正: 生成ビューの再生成（scripts/render_views.py — 手編集なし） |
+| 2026-08-01 | ac-catalog | v0.1 | confirmed | PO | 04255f9c7f76 | 意味トレース最終是正: 生成ビューの再生成（scripts/render_views.py — 手編集なし） |
+| 2026-08-01 | fr-contracts | v0.1 | confirmed | PO | 562f9839a594 | 意味トレース最終是正: 生成ビューの再生成（scripts/render_views.py — 手編集なし） |
+| 2026-08-01 | nfr-contracts | v0.1 | confirmed | PO | 263662ea8be8 | 意味トレース最終是正: 生成ビューの再生成（scripts/render_views.py — 手編集なし） |
+| 2026-08-01 | sr-contracts | v0.1 | confirmed | PO | 0f9a68344ca4 | 意味トレース最終是正: 生成ビューの再生成（scripts/render_views.py — 手編集なし） |
+| 2026-08-01 | tc-catalog | v0.1 | confirmed | PO | fe1b90c54470 | 意味トレース最終是正: 生成ビューの再生成（scripts/render_views.py — 手編集なし） |
+| 2026-08-01 | cmp-contracts | v0.1 | confirmed | PO | a46ad309a05c | 意味トレース最終是正: 生成ビューの再生成（scripts/render_views.py — 手編集なし） |
+| 2026-08-01 | du-contracts | v0.1 | confirmed | PO | 91e64e3cd8c6 | 意味トレース最終是正: 生成ビューの再生成（scripts/render_views.py — 手編集なし） |

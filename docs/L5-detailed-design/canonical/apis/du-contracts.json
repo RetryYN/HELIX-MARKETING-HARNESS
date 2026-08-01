@@ -172,9 +172,7 @@
           "test_kernel_state.py::test_lower_terminal_transition_includes_tlp_same_tx"
         ],
         "feature_design": [
-          "docs/L6-feature-design/S0/state-machine.md",
-          "docs/L6-feature-design/S0/strategic-brief.md",
-          "docs/L6-feature-design/S0/tlp.md"
+          "docs/L6-feature-design/S0/state-machine.md"
         ]
       },
       "also_implements": [
@@ -626,8 +624,7 @@
         "feature_design": [
           "docs/L6-feature-design/S0/state-machine.md",
           "docs/L6-feature-design/S0/strategic-brief.md",
-          "docs/L6-feature-design/S0/tlp.md",
-          "docs/L6-feature-design/S0/external-operations.md"
+          "docs/L6-feature-design/S0/tlp.md"
         ]
       },
       "also_implements": [
@@ -939,8 +936,7 @@
           "test_kernel_workflow.py::test_draft_and_publish_use_distinct_idempotency_keys"
         ],
         "feature_design": [
-          "docs/L6-feature-design/S0/external-operations.md",
-          "docs/L6-feature-design/S0/evidence.md"
+          "docs/L6-feature-design/S0/external-operations.md"
         ]
       },
       "semantic_refs": {
@@ -1225,8 +1221,7 @@
           "test_gates_publish.py::test_check_publishable_rejection_precedes_connector_call"
         ],
         "feature_design": [
-          "docs/L6-feature-design/S0/pair-gate.md",
-          "docs/L6-feature-design/S0/external-operations.md"
+          "docs/L6-feature-design/S0/pair-gate.md"
         ]
       },
       "semantic_refs": {
@@ -1685,7 +1680,7 @@
           ],
           "postcondition": [
             "PRAGMA foreign_keys=ON・journal_mode=WAL・busy_timeout（config.sqlite_busy_timeout_ms）を設定し row_factory を構成した Connection を返す（唯一の接続入口 — これを経ない接続経路をコード上に存在させない）",
-            "保護トリガ（config/evidence/state_transitions/strategic_briefs/tactical_learning_packets の append-only／整合トリガ 14 本）の存在を確認してから返す"
+            "保護トリガ（config/evidence/state_transitions/strategic_briefs/tactical_learning_packets の append-only／整合トリガ 16 本）の存在を確認してから返す"
           ],
           "raises": [
             {
@@ -1781,7 +1776,7 @@
           "postcondition": [
             "未適用の連番 SQL を順に適用し、適用ごとに version・migration_name・checksum_sha256・applied_at（clock）・applied_by を schema_version へ同一 transaction で INSERT",
             "適用済み version はスキップ（schema_version 照合による冪等再開 — version が冪等キー）",
-            "0001 適用後は 25 テーブル（業務 23＋インフラ 2）＋保護トリガ 14 本が成立する"
+            "0001 適用後は 25 テーブル（業務 23＋インフラ 2）＋保護トリガ 16 本が成立する"
           ],
           "raises": [
             {
@@ -1812,7 +1807,7 @@
             "conn は migration 適用済み DB への接続"
           ],
           "postcondition": [
-            "PRAGMA foreign_key_check／integrity_check 違反 0 件・25 テーブルと保護トリガ 14 本の存在・TLP 孤児検査（packet を持たない終端 lower run = 0 件）・相互整合検査（approvals.evidence_id ↔ approval 証跡、pair passed の review 証跡実在、measurements.evidence_id の kind=measurement）を全通過した場合のみ返る",
+            "PRAGMA foreign_key_check／integrity_check 違反 0 件・25 テーブルと保護トリガ 16 本の存在・TLP 孤児検査（packet を持たない終端 lower run = 0 件）・相互整合検査（approvals.evidence_id ↔ approval 証跡、pair passed の review 証跡実在、measurements.evidence_id の kind=measurement）を全通過した場合のみ返る",
             "検査はすべて read-only（何度でも安全・自動修復しない）"
           ],
           "raises": [
@@ -1917,7 +1912,6 @@
         ],
         "feature_design": [
           "docs/L6-feature-design/S0/migration.md",
-          "docs/L6-feature-design/S0/tlp.md",
           "docs/L6-feature-design/S0/strategic-brief.md"
         ]
       },
@@ -2060,7 +2054,7 @@
           "test_config_store.py::test_direct_update_delete_blocked_by_trigger"
         ],
         "feature_design": [
-          "docs/L6-feature-design/S0/brand-isolation-foundation.md"
+          "docs/L6-feature-design/S0/config-store.md"
         ]
       },
       "semantic_refs": {
@@ -2958,8 +2952,7 @@
           "test_connectors_wp.py::test_register_asset_before_published_url_evidence"
         ],
         "feature_design": [
-          "docs/L6-feature-design/S0/external-operations.md",
-          "docs/L6-feature-design/S0/evidence.md"
+          "docs/L6-feature-design/S0/external-operations.md"
         ]
       },
       "semantic_refs": {
@@ -3137,7 +3130,6 @@
         ],
         "feature_design": [
           "docs/L6-feature-design/S0/approval.md",
-          "docs/L6-feature-design/S0/external-operations.md",
           "docs/L6-feature-design/S1/brand-isolation-completion.md"
         ]
       },
@@ -3712,8 +3704,7 @@
           "test_measure_fetch.py::test_dry_run_records_fingerprint_only"
         ],
         "feature_design": [
-          "docs/L6-feature-design/S0/kpi-handoff.md",
-          "docs/L6-feature-design/S0/external-operations.md"
+          "docs/L6-feature-design/S0/kpi-handoff.md"
         ]
       },
       "semantic_refs": {
@@ -3878,8 +3869,7 @@
           "test_measure_parse.py::test_imported_at_supplied_by_clock"
         ],
         "feature_design": [
-          "docs/L6-feature-design/S0/kpi-handoff.md",
-          "docs/L6-feature-design/S0/evidence.md"
+          "docs/L6-feature-design/S0/kpi-handoff.md"
         ]
       },
       "semantic_refs": {
@@ -3922,5 +3912,5 @@
     "ARCHIVE-UT-LEGACY",
     "docs/L5-detailed-design/canonical/detailed-design_v0.1.md §3（API 正本宣言）"
   ],
-  "approval_digest": "32c2ca8c6db9"
+  "approval_digest": "87ea56915121"
 }

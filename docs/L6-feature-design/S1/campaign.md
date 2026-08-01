@@ -126,7 +126,7 @@ flowchart TB
 | 実装単位 | DU | AC | TCC | 備考 |
 |---|---|---|---|---|
 | campaigns テーブル・expand migration | DU-11（migrate）＋ S1 採番 DU | —（S1 採番） | —（S1 採番） | FR-72 規律に従う |
-| issue_campaign 発行検証・役割台帳照合 | S1 採番 DU（SR-14 照合器は brief 発行と共用） | AC-SR-01（brief 発行決定性の準用） | STC-I-04（準用） | MediaRoleRejected は既存 G-MEDIA-ROLE |
+| issue_campaign 発行検証・役割台帳照合 | S1 採番 DU（SR-14 照合器は brief 発行と共用） | S1 で AC 新設（campaign 発行の決定性） | S1 で STC 新設 | brief 発行の AC を借りず固有 AC を起こす。MediaRoleRejected は既存 G-MEDIA-ROLE |
 | brief 束ね発注（campaign_id） | DU-02（issue_strategic_brief 拡張） | AC-SR-01・AC-SR-02 | STC-I-03・STC-I-04 | lower run 開始ガードは S0 と不変 |
 | TLP 集約参照・横断評価 | DU-02（TLP 読取り）＋ S1 採番 DU | AC-SR-03（TLP 生成の前提） | STC-I-05（前提） | 合算のみ評価の禁止を review チェック項目化 |
-| ブランド隔離交差 | [brand-isolation-completion.md](brand-isolation-completion.md) §3 に追従 | AC-34-2（準用） | TCC-34-2（準用） | campaigns は直接スコープ列 |
+| ブランド隔離交差 | [brand-isolation-completion.md](brand-isolation-completion.md) §3 に追従 | S1 で AC 新設（campaigns の越境拒否） | S1 で TC 新設 | campaigns は直接スコープ列 |

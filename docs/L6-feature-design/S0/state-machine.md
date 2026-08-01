@@ -135,3 +135,19 @@ details_json と例外の両方に載る:
 | row_version・lease 排他 | DU-01, DU-02 | AC-27-3 | TCC-27-3, UT-10 |
 | lower 終端の TLP 同一 tx | DU-01, DU-02 | AC-SR-03 | TCC-SR-03, TCC-KILL-2, STC-I-05 |
 | 発火権限（G1 実行時再検査） | DU-01 | AC-27-2 | TCC-27-2, TC-GATE-02 |
+
+## 9. 実装単位（implementation_units）
+
+責務は DU の **API 1 本**へ接続する。API・AC・TC・UT の対応の機械可読な正本は
+[implementation-units.json](implementation-units.json)（`G-L6-IMPLEMENTATION-TRACE` が
+DU／API の実在・pre/post への責務の明記・AC／TC／UT の実在と対応を fail-close 検査する）。
+
+| unit_id | DU | API | 責務 | AC |
+|---|---|---|---|---|
+| IU-STATEMACHINE-01 | DU-01 | `register_guard` | guard 登録簿に event→fn が登録され、以後の transition() が G1〜G5 の評価順序で呼び出す | AC-SR-07-2 |
+| IU-STATEMACHINE-02 | DU-01 | `transition` | 許可時: guard 評価→状態 UPDATE→state_transitions（guard_result=passed）IN… | AC-11-1, AC-11-2, AC-11-3, AC-11-4, AC-13-1, AC-13-2, AC-13-3, AC-13-4, AC-13-5, AC-13-6, AC-16-1, AC-16-2, AC-16-3, AC-16-4, AC-16-5, AC-16-6, AC-SR-02, AC-SR-07-1 |
+| IU-STATEMACHINE-03 | DU-02 | `claim` | lease_owner_execution_id・lease_expires_at（config.lease_ttl_sec）・… | AC-27-3 |
+| IU-STATEMACHINE-04 | DU-02 | `issue_task` | 同一 (loop_run_id, step_key) に非終端の既存 task があればその id を返す（新規発行しない — … | AC-12-1, AC-12-2, AC-12-3, AC-12-4, AC-27-1, AC-27-2, AC-27-4, AC-27-5 |
+| IU-STATEMACHINE-05 | DU-02 | `run_microloop` | submit→verify を反復し、FAIL ごとに verify_fail 遷移（retry_count 消費）を DU-0… | AC-27-1 |
+| IU-STATEMACHINE-06 | DU-02 | `validate_strategic_brief` | status=active・digest 一致・有効期間内（valid_from <= now < valid_until 又は… | AC-SR-02, AC-SR-07-1, AC-SR-07-2 |
+| IU-STATEMACHINE-07 | DU-03 | `assign` | active かつ principal の異なる agent の組（agents.principal 比較）を返す | AC-27-1, AC-27-2, AC-27-3, AC-27-4, AC-27-5 |

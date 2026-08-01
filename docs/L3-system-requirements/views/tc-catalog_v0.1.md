@@ -2,7 +2,7 @@
 
 # テストケース 検証契約カタログ（TC contracts）v0.1
 
-> status: **confirmed**（2026-08-01 PO 承認 — receipt f7d415686eb5）。JSON 内容正本の生成ビュー（全層再降下 §5）
+> status: **confirmed**（2026-08-01 PO 承認 — receipt 3494028deb83）。JSON 内容正本の生成ビュー（全層再降下 §5）
 > 全 AC 検証契約と双方向接続（G-TRACE-BIDIR）。状態・DB 差分・証跡・禁止副作用・外部呼出回数を検証。
 > 旧体系のテストケースは historical 記録のみ（現行分母は本カタログ）。
 
@@ -107,7 +107,7 @@
 | TCC-63-1 | normal | AC-63-1 | 自己完結 HTML 1 ファイル（CSS/JS インライン） | evidence +1 行（dashboard）— 2 回目は差分なし。業務テーブル不変 | evidence（kind=dashboard、value=出力 hash、payload に file_path・file_hash・period_end） | 外部 CDN・外部 URL 参照の混入・業務テーブルへの書込み | 0 回 | S1 |
 | TCC-63-2 | reject | AC-63-2 | 出力ファイル 0 件、dashboard 証跡 0 件 | operation_log +1 行（検出・破棄）のみ | 構造化ログの拒否行（理由 = external reference detected／secret pattern） | 汚染 HTML の出力先残留・汚染成果物の証跡化 | 0 回 | S1 |
 | TCC-63-3 | boundary | AC-63-3 | 自己完結 HTML 1 ファイル（空データ表示）、断片 0 件 | evidence +1 行（dashboard）— クラッシュ試行分の証跡は 0 | evidence（kind=dashboard — 成功分のみ） | temp 断片の出力先残留・生成失敗分の証跡化 | 0 回 | S1 |
-| TCC-71-1 | normal | AC-71-1 | 25 テーブル＋保護トリガ 6 件（config/evidence/state_transitions × update/delete）存在、verify() = pass | 全 25 テーブル CREATE、schema_version +N 行（migration ごと） | schema_version 行（version・migration 名・checksum・適用者・時刻） | DDL 正本にないテーブル・トリガの生成、FK OFF での使用開始 | 0 回 | S0 |
+| TCC-71-1 | normal | AC-71-1 | 25 テーブル＋保護トリガ 16 本（append-only・TLP 整合・brief 不変／状態遷移／valid_until）存在、verify() = pass | 全 25 テーブル CREATE、schema_version +N 行（migration ごと） | schema_version 行（version・migration 名・checksum・適用者・時刻） | DDL 正本にないテーブル・トリガの生成、FK OFF での使用開始 | 0 回 | S0 |
 | TCC-71-2 | reject | AC-71-2 | 使用開始拒否（kernel 起動せず） | 差分なし（拒否後の業務書込み 0 件） | verify() の検証結果ログ（欠落テーブル名 = spend_ledger） | 不完全スキーマへの業務行 INSERT・欠落の黙認（fail-open） | 0 回 | S0 |
 | TCC-71-3 | boundary | AC-71-3 | schema_version 行数不変・evidence 値不変 | 差分なし | なし（no-op と拒否のみ） | migration の二重適用・append-only 行の改変 | 0 回 | S0 |
 | TCC-72-1 | normal | AC-72-1 | version=2、既存行の行数・hash 一致（破壊なし） | schema_version +1 行、新テーブル CREATE（既存行の変更なし） | schema_version 行（version=2・migration 名・checksum_sha256・applied_by・applied_at） | 既存の列・値・意味の変更（破壊的変更）・rename | 0 回 | S0 |

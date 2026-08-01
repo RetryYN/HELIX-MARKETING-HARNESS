@@ -141,3 +141,20 @@ invariant: 判定は**達成/未達を問わない** — 目標と実測の両�
 | 計測投入の冪等・証跡 FK | DU-22・DU-23 | AC-62-1 | TCC-62-1 | 観測背骨側の前提 |
 | 非有料指標の入口検査（ゼロ広告費ゲート） | DU-07 | AC-23-1 | TCC-23-1 | KPI ツリーへ入る指標種別・ドメインの fail-close 検査（FR-23） |
 | TLP metrics の KPI ノード参照・分離 | DU-02・DU-10 | AC-SR-03・AC-SR-04 | STC-I-05・STC-I-06 | SR-12 の実装固定（自動書込み経路の不在） |
+
+## 7. 実装単位（implementation_units）
+
+責務は DU の **API 1 本**へ接続する。API・AC・TC・UT の対応の機械可読な正本は
+[implementation-units.json](implementation-units.json)（`G-L6-IMPLEMENTATION-TRACE` が
+DU／API の実在・pre/post への責務の明記・AC／TC／UT の実在と対応を fail-close 検査する）。
+
+| unit_id | DU | API | 責務 | AC |
+|---|---|---|---|---|
+| IU-KPIHANDOFF-01 | DU-07 | `check_domain` | denylist 非該当かつ判定可能な場合のみ返る。denylist/allowlist が取得不能・未設定の場合は fail-… | AC-23-3 |
+| IU-KPIHANDOFF-02 | DU-07 | `check_metric_type` | deny 型（cac/roas/ad_spend — 有料指標）でなければ何もせず返る（kpi_nodes の CHECK と二… | AC-23-1, AC-23-2, AC-23-4, AC-23-5 |
+| IU-KPIHANDOFF-03 | DU-21 | `archive_node` | status を archived へ更新し、measurements・子ノードからの参照整合を保ったまま集計対象から外す（AC… | AC-61-3, AC-61-4 |
+| IU-KPIHANDOFF-04 | DU-21 | `create_node` | 階層・媒体タグ・集計式（aggregation_formula の構文検証）を通過した kpi_nodes 行を INSERT … | AC-61-1, AC-61-2, AC-61-5, AC-61-6 |
+| IU-KPIHANDOFF-05 | DU-21 | `tree` | 当該プロファイルの親子解決済みツリー（layer×medium の断面クエリ可能な形）を返す | AC-61-1 |
+| IU-KPIHANDOFF-06 | DU-22 | `fetch` | 取得物（CSV/xlsx 又は API 応答）を out_dir へ保存し、即 SHA-256 で固定する（投入前の改竄検出基準… | AC-62-1, AC-62-2, AC-62-3, AC-62-4, AC-62-5, AC-62-6, AC-62-7 |
+| IU-KPIHANDOFF-07 | DU-23 | `ingest` | 投入前に raw の SHA-256 を再計算し expected_hash と一致する場合のみ投入する（改竄・取り違えの fa… | AC-62-1, AC-62-3, AC-62-4, AC-62-5 |
+| IU-KPIHANDOFF-08 | DU-23 | `parse` | schema/type 検証を通過した正常行と、壊れた行の隔離ファイル（正常行と分離）を返す（AC-62-2 — 部分破損は正常… | AC-62-2, AC-62-6, AC-62-7 |

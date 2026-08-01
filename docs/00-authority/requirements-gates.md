@@ -97,6 +97,7 @@ slice: cross
 |---|---|---|
 | G-DDL-SYNC | ddl.sql が s0-contract の DDL ブロックと一致 | 正準 DDL の二重化 |
 | G-DDL-APPLY | DDL が空 SQLite へ適用でき FK/integrity が通り、テーブル 25・トリガ 16 | 実行不能なスキーマ |
+| G-DESIGN-PHYSICAL-COUNT | 現役文書・契約 JSON・テスト関数名が主張する物理数（テーブル総数・トリガ本数）が**実 DDL から導出した数**と一致し、部分集合の本数を数値で書いていない（監査記録・承認ログは当時の事実を保存する履歴なので対象外） | 設計文書の物理数が実スキーマから乖離（11／14 本のような化石表記の温存） |
 | G-EVK | evidence kind 10 種が JSON 契約と DDL CHECK で同一集合 | 証跡語彙の乖離 |
 | G-TRN-ENT / G-TRN-ST | 遷移 entity が loop_runs/tasks、from/to が DDL enum 内 | 実装不能な状態機械 |
 | G-TRN-UNIQ/REACH/TERM/GUARD | (entity, from, event) 一意・全状態の到達可能性・終端からの遷移不在・全遷移に非空ガード | 非決定的な状態機械 |
@@ -121,6 +122,7 @@ slice: cross
 | G-DU-DBC | 全公開 API に precondition／postcondition | 契約なき API |
 | G-DU-ERROR | 全 API の raises 型がエラー分類正本に掲載 | 台帳外エラー型の発明 |
 | G-DU-DATA | 全 DU の DB read/write が DDL の実在テーブルのみ | 存在しないテーブルへの設計参照 |
+| G-L6-IMPLEMENTATION-TRACE | S0 L6 機能設計の責務（`docs/L6-feature-design/S0/implementation-units.json` の `implementation_units`）が **API 1 本**へ接続し、DU／API が実在し、responsibility の識別子が当該 API の pre／post／raises に現れ、`ac_refs` が DU の trace.ac に属し、`tc_refs` の各 TC がその AC を検証し、`ut_refs` が当該 API の UT 割当に属する。DU を指すだけ・同一 API に重なる AC を主張する重複責務・「準用」等による trace 代替を拒否し、S0 文書が機能設計を担う DU は全 API・全 AC が責務へ接続していることを要求する | 責務が API まで降りていない／AC・TC・UT が当該振る舞いを検証していない意味の断絶 |
 | G-API-UT | **API 単位**で UT ≥1・api.ut ⊆ trace.ut・宙吊り UT ゼロ・参照テスト関数が実在・スタブは設計リンク（DU＋API 名）を宣言 | UT なき API・匿名スタブ |
 | G-NO-HOLLOW-DESIGN | 全契約正本にプレースホルダ（TBD/TODO/仮置き等）が存在しない | 空洞設計の温存 |
 

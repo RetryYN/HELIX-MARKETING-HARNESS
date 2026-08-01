@@ -8,7 +8,7 @@
       "update": "S0.1",
       "purpose": "DB、状態機械、ゲート、証跡の基盤を実働化",
       "fn_ids": ["FN-101", "FN-102", "FN-103", "FN-104", "FN-105", "FN-201", "FN-202", "FN-204", "FN-208", "FN-305", "FN-701", "FN-702", "FN-703", "FN-704"],
-      "acceptance": "19 テーブル＋schema_version の生成、未定義遷移拒否、author != verifier、pair 未成立公開拒否、必須証跡欠落時の done 拒否、config INSERT 履歴"
+      "acceptance": "25 テーブル（業務 23＋インフラ 2）の生成、未定義遷移拒否、author != verifier、pair 未成立公開拒否、必須証跡欠落時の done 拒否、config INSERT 履歴"
     },
     {
       "update": "S0.2",

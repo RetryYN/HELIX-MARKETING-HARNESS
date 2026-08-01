@@ -4932,7 +4932,7 @@
       "then": "業務 23＋インフラ 2 の 25 テーブル・append-only トリガ・FK が生成され、verify() が pass を返し使用開始が許可される",
       "fixture": "seed: 空 DB（0 バイト新規ファイル）、migrations/ 配下の全 NNNN_*.sql",
       "observation_point": "sqlite_master SELECT（テーブル・トリガ数）／verify() 戻り値／PRAGMA foreign_key_check・integrity_check",
-      "expected_state": "25 テーブル＋保護トリガ 6 件（config/evidence/state_transitions × update/delete）存在、verify() = pass",
+      "expected_state": "25 テーブル＋保護トリガ 16 本（append-only・TLP 整合・brief 不変／状態遷移／valid_until）存在、verify() = pass",
       "expected_db_delta": "全 25 テーブル CREATE、schema_version +N 行（migration ごと）",
       "expected_evidence": "schema_version 行（version・migration 名・checksum・適用者・時刻）",
       "forbidden_side_effects": "DDL 正本にないテーブル・トリガの生成、FK OFF での使用開始",
@@ -7041,9 +7041,9 @@
       "id": "AC-SR-15-3",
       "target": "SR-15",
       "polarity": "boundary-recovery",
-      "given": "S0 スキーマが適用済みの DB（25 テーブル・トリガ 11）",
+      "given": "S0 スキーマが適用済みの DB（25 テーブル・トリガ 16）",
       "when": "S1 相当のテーブル（意味モデル生成系）を追加する migration を適用する",
-      "then": "S0 の 25 テーブル・トリガ 11 が一切変更されずに新テーブルのみ増え、既存 STC が引き続き green である",
+      "then": "S0 の 25 テーブル・トリガ 16 が一切変更されずに新テーブルのみ増え、既存 STC が引き続き green である",
       "fixture": "seed: S0 DDL 適用済み DB＋S1 追加 migration",
       "observation_point": "テーブル・トリガ一覧の前後比較／既存テストの実行結果",
       "expected_state": "S0 部分は同一・追加分のみ増加",
@@ -7244,5 +7244,5 @@
   "supersedes": [
     "ARCHIVE-AC-LEGACY"
   ],
-  "approval_digest": "a69edfaf2881"
+  "approval_digest": "c1c38b721b01"
 }

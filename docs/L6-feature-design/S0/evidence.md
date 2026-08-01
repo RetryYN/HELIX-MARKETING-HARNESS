@@ -2,9 +2,9 @@
 artifact_id: L6-S0-EVIDENCE
 lifecycle_status: confirmed
 slice: S0
-traces: [FR-28, FR-54]
+traces: [FR-28, FR-54, FR-55]
 forward_refs: []
-dus: [DU-04, DU-08, DU-09, DU-17, DU-20, DU-23]
+dus: [DU-08, DU-09, DU-20]
 ---
 
 # 機能別詳細設計 — 証跡（evidence）
@@ -89,7 +89,7 @@ sequenceDiagram
 ## 6. append-only と順序規律（NFR-3）
 
 - **append-only**: evidence への UPDATE/DELETE は DB トリガが常時拒否
-  （[db-design_v0.1.md §3.2](../../L4-basic-design/canonical/data/db-design_v0.1.md) トリガ 3–4）。DU-09 は read/INSERT API のみを公開し、
+  （[db-design_v0.1.md §3.2](../../L4-basic-design/canonical/data/db-design_v0.1.md) の append-only 群）。DU-09 は read/INSERT API のみを公開し、
   訂正は新しい value での追記＋参照側の付替えで表現する（過去の done 判定根拠を消さない）。
 - **operation_log 証跡化 → 状態遷移の順**: 外部操作は `external_operations` が confirmed/rejected に
   確定した後、まず operation_log 証跡を派生記録し、**その後に**状態遷移を発火する。
@@ -107,3 +107,19 @@ sequenceDiagram
 | append-only（トリガ＋API 非公開） | DU-09, DU-10 | AC-71-3 | TCC-71-3 |
 | 証跡化→状態遷移の順序（NFR-3） | DU-02, DU-04 | AC-44-1, AC-26-1 | TCC-44-1, TCC-26-1 |
 | credential 混入拒否 | DU-09, DU-14 | AC-47 系 | TCC-47（TC-047） |
+
+## 8. 実装単位（implementation_units）
+
+責務は DU の **API 1 本**へ接続する。API・AC・TC・UT の対応の機械可読な正本は
+[implementation-units.json](implementation-units.json)（`G-L6-IMPLEMENTATION-TRACE` が
+DU／API の実在・pre/post への責務の明記・AC／TC／UT の実在と対応を fail-close 検査する）。
+
+| unit_id | DU | API | 責務 | AC |
+|---|---|---|---|---|
+| IU-EVIDENCE-01 | DU-08 | `check_complete` | 現 workflow の required kind 全てが当該 task の evidence に存在し、各 kind の型契… | AC-28-1, AC-28-2, AC-28-3, AC-28-4, AC-28-5, AC-28-6 |
+| IU-EVIDENCE-02 | DU-09 | `exists` | UNIQUE(task_id, kind, value) キーでの存在照会結果を返す（read-only） | AC-28-3 |
+| IU-EVIDENCE-03 | DU-09 | `for_task` | 該当 task の証跡行（kind 指定時は絞込み）を返す（read-only・DB 不変） | AC-28-4 |
+| IU-EVIDENCE-04 | DU-09 | `record` | kind 別必須キー・列整合（asset_id/external_operation_id/file_path/file_has… | AC-28-1, AC-28-2, AC-28-3, AC-28-5, AC-28-6, AC-47-1, AC-47-2, AC-47-3, AC-47-4, AC-47-5, AC-47-6, AC-54-1, AC-54-2, AC-54-3, AC-54-4, AC-54-5 |
+| IU-EVIDENCE-05 | DU-20 | `commit_workspace` | commit を実行し、40 又は 64 桁の 16 進 hash を検証して返す | AC-54-4, AC-54-5, AC-55-1, AC-55-2 |
+| IU-EVIDENCE-06 | DU-20 | `link` | commit_hash 証跡（kind=commit_hash、value=hash、payload={repository, … | AC-54-3, AC-55-3, AC-55-4 |
+| IU-EVIDENCE-07 | DU-20 | `restore` | commit_hash の checkout により審査時と同一内容のソースを dest へ復元しパスを返す（AC-54-1 —… | AC-54-1, AC-54-2 |

@@ -352,7 +352,7 @@
         "connect(path) -> Connection — 唯一の接続入口。PRAGMA foreign_keys=ON・row_factory・config 保護トリガ存在確認（未適用 DB は FatalError）",
         "apply_all(conn, migrations_dir, clock, applied_by) -> list[Applied] — 連番 migration 適用・checksum/applied_at/applied_by を schema_version へ記録",
         "verify(conn) -> None — foreign_key_check／integrity_check／25 テーブル存在／TLP 孤児検査（packet なし終端 lower run = 0 件）",
-        "戦略層 DDL（SCM-01）: strategic_briefs／tactical_learning_packets テーブル＋保護トリガ 4 本＋loop_runs.strategic_brief_id/digest 列と lower CHECK（migration 0001 に内包）"
+        "戦略層 DDL（SCM-01）: strategic_briefs／tactical_learning_packets テーブル＋保護トリガ（両テーブルの append-only・brief 状態遷移／valid_until・TLP 整合）＋loop_runs.strategic_brief_id/digest 列と lower CHECK（migration 0001 に内包）"
       ],
       "required_interfaces": [
         "migrations/NNNN_description.sql（不変・連番。0001 = s0-contract §2 正準 DDL と等価）",
@@ -1031,7 +1031,7 @@
       "title": "strategy-store（戦略正本の append-only 永続化 — CMP-05 拡張）",
       "provided_interfaces": [
         "strategic_briefs／tactical_learning_packets テーブル（migration 0001 内包の正準 DDL — s0-contract §2）",
-        "保護トリガ 4 本 — 両テーブルの UPDATE/DELETE 拒否（append-only の DB 層強制）",
+        "保護トリガ — 両テーブルの UPDATE/DELETE 拒否（append-only の DB 層強制。総数の正準は s0-contract §2）",
         "loop_runs.strategic_brief_id/strategic_brief_digest 列＋lower CHECK（lower run の brief 保持を DDL で強制）",
         "verify() の TLP 孤児検査 — packet を持たない終端 lower run = 0 件（違反は FatalError → escalate）"
       ],
@@ -1041,7 +1041,7 @@
       ],
       "responsibility_boundary": "やる: 戦略正本 2 テーブルのスキーマ・保護トリガ・整合検査の提供（ストア副層）。やらない: brief/TLP の内容生成（SCM-02/04）、検証ロジック（SCM-03）、上流モデル 12 schema の格納（S1 の SCM-05〜07）。上流正本の変更 = supersedes_id 付き新版 INSERT のみという不変条件を DB 層で担保。",
       "dependency_direction": "基盤層（db）内の拡張。CMP-05 の migration・verify 範囲に内包され、上位層（CMP-01/02 の戦略 API）から書込み・読取りされる。",
-      "data_flow": "migration 0001 適用 → 2 テーブル＋トリガ 4 本＋loop_runs 列/CHECK 成立 → CMP-02 の issue/supersede/generate API のみが行を INSERT → verify() が孤児・整合を常時検査。",
+      "data_flow": "migration 0001 適用 → 2 テーブル＋保護トリガ＋loop_runs 列/CHECK 成立 → CMP-02 の issue/supersede/generate API のみが行を INSERT → verify() が孤児・整合を常時検査。",
       "state_owner": "strategic_briefs／tactical_learning_packets テーブル（スキーマと保護。行の書込み主体は CMP-02 の閉域 API）",
       "transaction_owner": "なし（migration transaction は CMP-05、業務 INSERT の transaction は CMP-02 が所有）",
       "error_classes": [
@@ -1578,5 +1578,5 @@
   "approved_at": "2026-08-01T00:00:00+09:00",
   "authority": "PO",
   "supersedes": [],
-  "approval_digest": "83dbd38d8ec7"
+  "approval_digest": "5b0b79cd0988"
 }

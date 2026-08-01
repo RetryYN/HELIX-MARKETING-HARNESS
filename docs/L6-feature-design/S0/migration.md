@@ -2,7 +2,7 @@
 artifact_id: L6-S0-MIGRATION
 lifecycle_status: confirmed
 slice: S0
-traces: [FR-72]
+traces: [FR-71, FR-72]
 forward_refs: [SR-03]
 dus: [DU-10, DU-11]
 ---
@@ -75,7 +75,7 @@ read-only の 4 検査。1 つでも不合格なら `FatalError`（SchemaVerific
 | # | 検査 | 不合格の意味 |
 |---|---|---|
 | 1 | `PRAGMA foreign_key_check`・`PRAGMA integrity_check` 違反 0 件 | 参照破損・ファイル破損 |
-| 2 | 25 テーブル（業務 23＋インフラ 2）＋保護トリガ 11 本の存在 | 不完全スキーマ・トリガ欠落 DB |
+| 2 | 25 テーブル（業務 23＋インフラ 2）＋保護トリガ 16 本の存在 | 不完全スキーマ・トリガ欠落 DB |
 | 3 | **TLP 孤児検査**: packet を持たない終端 lower run = 0 件 | kernel 契約すり抜け（検出時 escalate — [tlp.md](tlp.md) §6） |
 | 4 | 相互整合: approvals.evidence_id ↔ approval 証跡、pair passed の review 証跡実在、measurements.evidence_id の kind = measurement | 参照は繋がるが意味が壊れた行 |
 
@@ -107,3 +107,15 @@ read-only の 4 検査。1 つでも不合格なら `FatalError`（SchemaVerific
 | checksum 不一致の適用前停止 | DU-11 | AC-72-2 | TCC-72-2 |
 | verify 失敗 → backup 復元 | DU-11 | AC-72-3 | TCC-72-3, TCC-RESUME-2 |
 | TLP 孤児検査 | DU-11 | AC-SR-03 | STC-I-05 |
+
+## 7. 実装単位（implementation_units）
+
+責務は DU の **API 1 本**へ接続する。API・AC・TC・UT の対応の機械可読な正本は
+[implementation-units.json](implementation-units.json)（`G-L6-IMPLEMENTATION-TRACE` が
+DU／API の実在・pre/post への責務の明記・AC／TC／UT の実在と対応を fail-close 検査する）。
+
+| unit_id | DU | API | 責務 | AC |
+|---|---|---|---|---|
+| IU-MIGRATION-01 | DU-10 | `connect` | PRAGMA foreign_keys=ON・journal_mode=WAL・busy_timeout（config.sqli… | AC-71-1, AC-71-2, AC-71-3, AC-71-4 |
+| IU-MIGRATION-02 | DU-11 | `apply_all` | 未適用の連番 SQL を順に適用し、適用ごとに version・migration_name・checksum_sha256・a… | AC-71-1, AC-71-3, AC-71-4, AC-72-1, AC-72-2, AC-72-4, AC-72-5 |
+| IU-MIGRATION-03 | DU-11 | `verify` | PRAGMA foreign_key_check／integrity_check 違反 0 件・25 テーブルと保護トリガ 16… | AC-71-2, AC-72-3 |

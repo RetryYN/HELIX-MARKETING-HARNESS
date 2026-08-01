@@ -81,3 +81,16 @@ DU-05（`gates/pair.py`）が状態所有者（CMP-03）であり、公開系（
 | 失効と再審査による復旧 | DU-05 | AC-21-3 | TCC-21-3 | revoked→passed の直接遷移なし |
 | バイパス不在（config 無効） | DU-05 | AC-21-4 | TCC-21-4 | config を読まない実装で構造的に保証 |
 | 不変条件の負方向 | DU-05 | AC-21-5 | TCC-21-5 | PairPass 偽造の FatalError |
+
+## 6. 実装単位（implementation_units）
+
+責務は DU の **API 1 本**へ接続する。API・AC・TC・UT の対応の機械可読な正本は
+[implementation-units.json](implementation-units.json)（`G-L6-IMPLEMENTATION-TRACE` が
+DU／API の実在・pre/post への責務の明記・AC／TC／UT の実在と対応を fail-close 検査する）。
+
+| unit_id | DU | API | 責務 | AC |
+|---|---|---|---|---|
+| IU-PAIRGATE-01 | DU-05 | `establish` | hash 一致時のみ pair_plan_quality(status=passed) を INSERT し PairPass … | AC-21-1, AC-21-2, AC-21-3 |
+| IU-PAIRGATE-02 | DU-05 | `require_pair` | status=passed の pair 行が存在する場合のみ PairPass を返す（read-only） | AC-21-4, AC-21-5 |
+| IU-PAIRGATE-03 | DU-05 | `revoke_if_changed` | 企画又は commit の変更検知時に該当 pair を status=revoked へ更新し True を返す（変更なしは … | AC-21-3 |
+| IU-PAIRGATE-04 | DU-06 | `check_publishable` | require_pair（passed 存在）＋ pair の review_pass hash と commit_hash の… | AC-21-1, AC-21-2, AC-21-3, AC-21-4, AC-21-5, AC-44-1, AC-44-2, AC-44-3 |

@@ -2,7 +2,7 @@
 
 # 受入条件 検証契約カタログ（AC contracts）v0.1
 
-> status: **confirmed**（2026-08-01 PO 承認 — receipt a69edfaf2881）。JSON 内容正本の生成ビュー（全層再降下 §4）
+> status: **confirmed**（2026-08-01 PO 承認 — receipt c1c38b721b01）。JSON 内容正本の生成ビュー（全層再降下 §4）
 > 各 AC に GWT＋fixture・観測点・期待状態・DB 差分・証跡・禁止副作用・エラー型・対象更新を必須化
 > （G-AC-COVERAGE／G-AC-POLARITY）。旧体系の受入条件は historical 記録のみ（現行分母は本カタログ）。
 
@@ -1320,7 +1320,7 @@
 
 - **Given**: 空の SQLite ファイルと全 migration ファイル（DDL 正本 s0-contract §2 準拠） ／ **When**: スキーマ生成と DU-11 verify() を実行する ／ **Then**: 業務 23＋インフラ 2 の 25 テーブル・append-only トリガ・FK が生成され、verify() が pass を返し使用開始が許可される
 - **fixture**: seed: 空 DB（0 バイト新規ファイル）、migrations/ 配下の全 NNNN_*.sql
-- **観測点**: sqlite_master SELECT（テーブル・トリガ数）／verify() 戻り値／PRAGMA foreign_key_check・integrity_check ／ **期待状態**: 25 テーブル＋保護トリガ 6 件（config/evidence/state_transitions × update/delete）存在、verify() = pass
+- **観測点**: sqlite_master SELECT（テーブル・トリガ数）／verify() 戻り値／PRAGMA foreign_key_check・integrity_check ／ **期待状態**: 25 テーブル＋保護トリガ 16 本（append-only・TLP 整合・brief 不変／状態遷移／valid_until）存在、verify() = pass
 - **期待 DB 差分**: 全 25 テーブル CREATE、schema_version +N 行（migration ごと） ／ **期待証跡**: schema_version 行（version・migration 名・checksum・適用者・時刻）
 - **禁止副作用**: DDL 正本にないテーブル・トリガの生成、FK OFF での使用開始 ／ **エラー型**: なし
 - **対象更新**: S0.1（DB 基盤）／db.migrate・db.verify ／ **TC**: TCC-71-1
@@ -1946,7 +1946,7 @@
 
 ### AC-SR-15-3（境界・復旧）
 
-- **Given**: S0 スキーマが適用済みの DB（25 テーブル・トリガ 11） ／ **When**: S1 相当のテーブル（意味モデル生成系）を追加する migration を適用する ／ **Then**: S0 の 25 テーブル・トリガ 11 が一切変更されずに新テーブルのみ増え、既存 STC が引き続き green である
+- **Given**: S0 スキーマが適用済みの DB（25 テーブル・トリガ 16） ／ **When**: S1 相当のテーブル（意味モデル生成系）を追加する migration を適用する ／ **Then**: S0 の 25 テーブル・トリガ 16 が一切変更されずに新テーブルのみ増え、既存 STC が引き続き green である
 - **fixture**: seed: S0 DDL 適用済み DB＋S1 追加 migration
 - **観測点**: テーブル・トリガ一覧の前後比較／既存テストの実行結果 ／ **期待状態**: S0 部分は同一・追加分のみ増加
 - **期待 DB 差分**: S0 テーブル定義の差分なし ／ **期待証跡**: migration 実行ログ

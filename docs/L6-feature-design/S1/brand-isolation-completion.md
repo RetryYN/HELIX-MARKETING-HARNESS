@@ -57,6 +57,25 @@ class ScopeContext:
 | `ProfileKeyConflict` | profile_key 重複登録（S0 の UNIQUE 制約をアプリ層例外へ翻訳） | 登録操作の拒否のみ（既存行不変） |
 | `ScopeResolutionFailed` | 不在・draft プロファイルの解決要求 | 実行開始前の拒否（外部操作 0 回） |
 
+### §1.3 プロファイルの seed（S0 から移設）
+
+S0 は `business_profiles` の行を作る API を持たない（S0 基盤文書 §1）。行を作る責務は本スライスで
+初めて実装単位になる。
+
+| 実装単位 | 責務 | 失敗方針 |
+|---|---|---|
+| `seed_default_profile(conn, profile_key, clock) -> int` | 既定 profile を作り `business_profile_id` を返す。**重複実行は冪等**（同じ id を返し行を増やさない） | 異なる `profile_key` での 2 件目は `ProfileKeyConflict`（複数ブランド解禁は §5-4 の後） |
+
+### §1.4 profile スコープ config キーの機械的強制（S0 から移設）
+
+S0 では `<profile_key>.` 接頭は**運用規約**にとどまり、DU-12 の汎用 `set`／`get` は名前空間を
+検査しない。本スライスで次を新設する。
+
+| 実装単位 | 責務 | 失敗方針 |
+|---|---|---|
+| profile スコープ専用の config API | scope 付きで `<profile_key>.` 接頭を**強制的に付与**して読み書きする（呼出側が接頭を書かない） | scope なしでの profile スコープキー操作は `CrossProfileAccessDenied` |
+| global key／profile key の分類表 | どの config キーが全体共有でどれが profile 固有かを台帳で持つ | 台帳外のキーは発行時に拒否（暗黙の全体共有を作らない） |
+
 ## §2 ストア API シグネチャ規約（全 API 必須化）
 
 | 規約 | 内容 |
@@ -122,6 +141,6 @@ class ScopeContext:
 | 越境拒否（読取・書込み・証跡化） | 同上 | AC-34-2 | TCC-34-2 | CrossProfileAccessDenied・DB 不変・拒否証跡 |
 | archived 読取専用・ProfileKeyConflict | 同上 | AC-34-3 | TCC-34-3 | read_only スコープ・UNIQUE 翻訳 |
 | brief 越境運転拒否（negative #5） | DU-01（start ガード）・DU-02（brief 検証） | AC-SR-02 | STC-I-03 | S0 の brief ガードに profile 一致を追加 |
-| 認証・セッション分離（negative #4） | DU-14（secrets）・DU-15（browser storage_state） | AC-34-2（準用） | — | 物理分離実装時に⑥へ TC 追加 |
-| 承認通知の宛先分離 | DU-18（approval コネクタ） | AC-34-2（準用） | — | 通知先 config を `<profile_key>.` 名前空間から解決し、他 profile の宛先へ送らない |
-| KPI 帰属のスコープ絞込み | DU-21（measure/kpi） | AC-34-1（準用） | — | 取込・集計を scope で絞り、他 profile の実績を学習へ混ぜない |
+| 認証・セッション分離（negative #4） | DU-14（secrets）・DU-15（browser storage_state） | S1 で AC 新設（越境 credential／storage_state 取得の拒否） | S1 で TC 新設 | 既存 AC を借りずに固有 AC を起こす（⑥改訂時に採番） |
+| 承認通知の宛先分離 | DU-18（approval コネクタ） | S1 で AC 新設（他 profile の宛先への送出拒否） | S1 で TC 新設 | 通知先 config を `<profile_key>.` 名前空間から解決する |
+| KPI 帰属のスコープ絞込み | DU-21（measure/kpi） | S1 で AC 新設（他 profile 実績の混入拒否） | S1 で TC 新設 | 取込・集計を scope で絞る |

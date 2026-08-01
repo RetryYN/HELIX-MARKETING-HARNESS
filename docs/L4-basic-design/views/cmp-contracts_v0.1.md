@@ -2,7 +2,7 @@
 
 # コンポーネント設計契約（CMP/SCM contracts）v0.1
 
-> status: **confirmed**（2026-08-01 PO 承認 — receipt 83dbd38d8ec7）。JSON 内容正本の生成ビュー（全層再降下 §6）
+> status: **confirmed**（2026-08-01 PO 承認 — receipt 5b0b79cd0988）。JSON 内容正本の生成ビュー（全層再降下 §6）
 > 各 CMP/SCM に 11 観点の設計契約を必須化（G-CMP-INTERFACE）。独立設計書とペアで読む。
 
 ## CMP-01 状態機械カーネル（kernel/state.py）
@@ -63,7 +63,7 @@
 
 ## CMP-05 DB 基盤（db/）
 
-- **提供 interface**: connect(path) -> Connection — 唯一の接続入口。PRAGMA foreign_keys=ON・row_factory・config 保護トリガ存在確認（未適用 DB は FatalError）／apply_all(conn, migrations_dir, clock, applied_by) -> list[Applied] — 連番 migration 適用・checksum/applied_at/applied_by を schema_version へ記録／verify(conn) -> None — foreign_key_check／integrity_check／25 テーブル存在／TLP 孤児検査（packet なし終端 lower run = 0 件）／戦略層 DDL（SCM-01）: strategic_briefs／tactical_learning_packets テーブル＋保護トリガ 4 本＋loop_runs.strategic_brief_id/digest 列と lower CHECK（migration 0001 に内包）
+- **提供 interface**: connect(path) -> Connection — 唯一の接続入口。PRAGMA foreign_keys=ON・row_factory・config 保護トリガ存在確認（未適用 DB は FatalError）／apply_all(conn, migrations_dir, clock, applied_by) -> list[Applied] — 連番 migration 適用・checksum/applied_at/applied_by を schema_version へ記録／verify(conn) -> None — foreign_key_check／integrity_check／25 テーブル存在／TLP 孤児検査（packet なし終端 lower run = 0 件）／戦略層 DDL（SCM-01）: strategic_briefs／tactical_learning_packets テーブル＋保護トリガ（両テーブルの append-only・brief 状態遷移／valid_until・TLP 整合）＋loop_runs.strategic_brief_id/digest 列と lower CHECK（migration 0001 に内包）
 - **要求 interface**: migrations/NNNN_description.sql（不変・連番。0001 = s0-contract §2 正準 DDL と等価）／Clock 注入（applied_at）／sqlite3 標準ライブラリのみ（ORM 不採用）
 - **責務境界**: やる: 正準 DDL の migration 適用・checksum 検証・接続管理・トリガによる保護（config UPDATE/DELETE 拒否、strategic_briefs/TLP の append-only 強制）・整合検査。やらない: 業務ロジック、DDL の定義（s0-contract §2 が正準 — 本 CMP は適用装置）、上位層 import。
 - **依存方向**: 基盤層の最深部（db）。全層から connect() 経由で使われ、何にも依存しない（sqlite3 標準ライブラリのみ）。
@@ -189,11 +189,11 @@
 
 ## SCM-01 strategy-store（戦略正本の append-only 永続化 — CMP-05 拡張）
 
-- **提供 interface**: strategic_briefs／tactical_learning_packets テーブル（migration 0001 内包の正準 DDL — s0-contract §2）／保護トリガ 4 本 — 両テーブルの UPDATE/DELETE 拒否（append-only の DB 層強制）／loop_runs.strategic_brief_id/strategic_brief_digest 列＋lower CHECK（lower run の brief 保持を DDL で強制）／verify() の TLP 孤児検査 — packet を持たない終端 lower run = 0 件（違反は FatalError → escalate）
+- **提供 interface**: strategic_briefs／tactical_learning_packets テーブル（migration 0001 内包の正準 DDL — s0-contract §2）／保護トリガ — 両テーブルの UPDATE/DELETE 拒否（append-only の DB 層強制。総数の正準は s0-contract §2）／loop_runs.strategic_brief_id/strategic_brief_digest 列＋lower CHECK（lower run の brief 保持を DDL で強制）／verify() の TLP 孤児検査 — packet を持たない終端 lower run = 0 件（違反は FatalError → escalate）
 - **要求 interface**: CMP-05 migrate.apply_all()／verify()（DDL 適用・整合検査の実行装置）／s0-contract §2 正準 DDL（テーブル・トリガ定義の正本）
 - **責務境界**: やる: 戦略正本 2 テーブルのスキーマ・保護トリガ・整合検査の提供（ストア副層）。やらない: brief/TLP の内容生成（SCM-02/04）、検証ロジック（SCM-03）、上流モデル 12 schema の格納（S1 の SCM-05〜07）。上流正本の変更 = supersedes_id 付き新版 INSERT のみという不変条件を DB 層で担保。
 - **依存方向**: 基盤層（db）内の拡張。CMP-05 の migration・verify 範囲に内包され、上位層（CMP-01/02 の戦略 API）から書込み・読取りされる。
-- **データフロー**: migration 0001 適用 → 2 テーブル＋トリガ 4 本＋loop_runs 列/CHECK 成立 → CMP-02 の issue/supersede/generate API のみが行を INSERT → verify() が孤児・整合を常時検査。
+- **データフロー**: migration 0001 適用 → 2 テーブル＋保護トリガ＋loop_runs 列/CHECK 成立 → CMP-02 の issue/supersede/generate API のみが行を INSERT → verify() が孤児・整合を常時検査。
 - **状態所有者**: strategic_briefs／tactical_learning_packets テーブル（スキーマと保護。行の書込み主体は CMP-02 の閉域 API） ／ **transaction 所有者**: なし（migration transaction は CMP-05、業務 INSERT の transaction は CMP-02 が所有）
 - **エラー分類**: IntegrityError: 保護トリガ発火（UPDATE/DELETE 試行）・FK/CHECK 違反 → FatalError 正規化・変更されない／MigrationVerifyFailed: TLP 孤児検査違反（packet なし終端 lower run）→ FatalError・escalate／MigrationChecksumMismatch: 戦略 DDL を含む migration の改変検知 → FatalError・適用停止
 - **degradation／復旧**: append-only＋トリガ保護で破壊的変更は構造的に不可能。誤登録は supersedes 付き新版でのみ是正（履歴保持）。verify() の孤児検出は escalate し、原因遷移の修復（TLP 補完）は人間判断下で実施。
