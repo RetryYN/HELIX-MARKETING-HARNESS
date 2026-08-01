@@ -33,9 +33,15 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # 親コミットの baseline（skip/coverage ラチェット）とレビュー成果物の target_commit 解決に必要
-      - uses: actions/setup-python@v5
+      - uses: astral-sh/setup-uv@v5
         with:
           python-version: "3.14"
+      - name: Sync dependencies (frozen lock)
+        run: uv sync --frozen --group dev
+      - name: pytest outcome を生成 (実行時ゲートの入力 — 着手後は存在が必須)
+        run: |
+          uv run pytest -q --junitxml=reports/junit.xml
+          python3 scripts/collect_test_outcome.py
       - name: Run requirements gates (fail-close)
         run: python3 tools/gates/run_all.py
 

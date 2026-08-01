@@ -561,7 +561,7 @@ def _wiring(ctx: Ctx) -> None:
     wrapper = (ROOT / "scripts/validate_requirements.py").read_text(encoding="utf-8")
     thin = wrapper.count("\n") <= 40 and "run_all" in wrapper
     gate("G-GATE-MODULES", not missing_mod and thin,
-         f"ゲートは tools/gates/ の 10 モジュールへ分割され validate_requirements.py は互換ラッパー "
+         f"ゲートは tools/gates/ の工程別モジュールへ分割され validate_requirements.py は互換ラッパー "
          f"(欠落={missing_mod}, ラッパー行数={wrapper.count(chr(10))}, run_all 参照={'run_all' in wrapper})")
 
     no_test, no_mut, no_link = detect_gate_test_faults()
