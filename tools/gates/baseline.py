@@ -302,8 +302,10 @@ def detect_ratchet_faults(prev: dict, counts: dict[str, int], contract_counts: d
     if gates < prev.get("gate_count", 0):
         bad.append(f"ゲート削減:{prev.get('gate_count')}→{gates}")
     prev_skip = prev.get("max_skipped")
-    if prev_skip is not None and skip > prev_skip and not skip_approved:
-        bad.append(f"skip 上限の未承認引き上げ:{prev_skip}→{skip}")
+    if prev_skip is not None and skip > prev_skip:
+        if not skip_approved:
+            bad.append(f"skip 上限の未承認引き上げ:{prev_skip}→{skip}")
+        bad += skip_raise_backing_faults(prev, contract_counts, prev_skip, skip)
     prev_cov = prev.get("coverage_floor")
     cur_cov = load(COVERAGE_FLOOR)["fail_under"]
     if prev_cov is not None and cur_cov < prev_cov:
@@ -323,8 +325,85 @@ def detect_ratchet_faults(prev: dict, counts: dict[str, int], contract_counts: d
     # 実行証跡で分離を確認したレビューは unverified へ落とせない（主体分離のラチェット）
     lost = sorted(set(prev.get("separation_verified_reviews", [])) - set(verified_reviews()))
     if lost:
-        bad.append(f"レビュー主体分離の verified 取消:{lost}")
+        bad.append(f"レビュー主体分離の証跡束縛（self_attested／ci_attested）取消:{lost}")
+    # 証跡の**強度**も後退させられない（ci_attested → self_attested の弱体化 — 独立レビュー R1-03）
+    cur_sep = separation_statuses()
+    for rid, was in sorted(prev.get("separation_statuses", {}).items()):
+        now = cur_sep.get(rid)
+        if now is None:
+            bad.append(f"レビュー成果物の消失:{rid}")
+        elif SEPARATION_RANK.get(now, -1) < SEPARATION_RANK.get(was, -1):
+            bad.append(f"レビュー証跡強度の後退:{rid}:{was}→{now}")
+    # API の検証水準は acceptance から内部分類へ落とせない（分類替えで検査を緩める経路を塞ぐ）
+    cur_lv = api_verification_levels()
+    for aid, was in sorted(prev.get("api_verification_levels", {}).items()):
+        now = cur_lv.get(aid)
+        if now is None:
+            bad.append(f"API の消失:{aid}")
+        elif was == "acceptance" and now != "acceptance":
+            bad.append(f"検証水準の格下げ:{aid}:{was}→{now}")
+    # 更新境界の導出元（FN→DU・FN→update）を黙って動かせない（協調改変 — 独立レビュー R1-04）
+    cur_fn = fn_boundary_map()
+    for key, was in sorted(prev.get("fn_boundary_map", {}).items()):
+        now = cur_fn.get(key)
+        if now is None:
+            bad.append(f"FN の消失:{key}")
+        elif now != was:
+            bad.append(f"更新境界の無承認変更:{key}:{was}→{now}")
     return bad
+
+
+SEPARATION_RANK = {"unverified": 0, "self_attested": 1, "ci_attested": 2}
+
+
+def separation_statuses() -> dict[str, str]:
+    """レビュー ID → separation_status（強度ラチェットの保護対象）。"""
+    out: dict[str, str] = {}
+    for p in sorted(REVIEWS.glob("*.json")):
+        if p.name == "review.schema.json":
+            continue
+        r = load(p)
+        out[r["review_id"]] = r.get("separation_status", "unverified")
+    return out
+
+
+def api_verification_levels() -> dict[str, str]:
+    """API 安定 ID → verification_level（acceptance からの格下げを拒否する）。"""
+    from tools.gates.common import DU_CONTRACTS
+    return {a["api_id"]: a.get("verification_level", "acceptance")
+            for d in load(DU_CONTRACTS)["items"] for a in d["apis"]}
+
+
+def fn_boundary_map() -> dict[str, str]:
+    """FN → 『DU|更新』。resolution_update の導出元そのものをラチェットで固定する。
+
+    DU 台帳の fn_ids と updates.json を**同時に**書き換えれば、集合の一意性を保ったまま
+    任意の API の解消先を動かせてしまう（独立レビュー R1-04）。導出元の対応表を baseline へ
+    保存し、承認のない移動を検出する。
+    """
+    from tools.gates.common import DU_LEDGER, UPDATES
+    du_of = {f: d["id"] for d in load(DU_LEDGER)["items"] for f in d["fn_ids"]}
+    up_of = {f: u["update"] for u in load(UPDATES)["items"] for f in u["fn_ids"]}
+    return {f: f"{du_of.get(f, '-')}|{up_of.get(f, '-')}" for f in sorted(set(du_of) | set(up_of))}
+
+
+def skip_raise_backing_faults(prev: dict, contract_counts: dict[str, int],
+                              prev_skip: int, skip: int) -> list[str]:
+    """skip 上限の引き上げが**同一変更内の設計追加**に裏打ちされているかを検査する。
+
+    承認行の形式だけを見ると「承認行を書けば上限を上げられる」ことになり、実装の遅れを
+    skip で吸収する経路が開く（独立レビュー R5-02）。上限の増分は、同じ変更で増えた
+    API 単位 UT（du-contracts の `apis[].ut`）の本数以内でなければならない。
+    """
+    delta_cap = skip - prev_skip
+    prev_ut = (prev.get("contract_counts") or {}).get("API_UT")
+    if prev_ut is None:
+        return [f"skip 上限の引き上げ({prev_skip}→{skip})を裏づける親コミットの API_UT が無い"]
+    delta_ut = contract_counts.get("API_UT", 0) - prev_ut
+    if delta_ut < delta_cap:
+        return [f"skip 上限の引き上げ({prev_skip}→{skip}: +{delta_cap})が"
+                f"同一変更の UT 追加(+{delta_ut})を超えている（設計追加と同一コミットで行うこと）"]
+    return []
 
 
 def trace_counts() -> dict[str, int]:
@@ -345,13 +424,18 @@ def uncovered_apis() -> list[str]:
 
 
 def verified_reviews() -> list[str]:
-    """実行証跡で主体分離を確認済みのレビュー ID（ラチェットの保護対象）。"""
+    """実行証跡で主体分離を確認済みのレビュー ID（ラチェットの保護対象）。
+
+    self_attested（ローカル実行ログ束縛）と ci_attested（Actions 束縛）の両方を含む。
+    証跡付きから unverified への後退を拒否するのが目的で、出所の強度はここでは区別しない。
+    """
+    from tools.gates.review_binding import ATTESTED
     out = []
     for p in sorted(REVIEWS.glob("*.json")):
         if p.name == "review.schema.json":
             continue
         r = load(p)
-        if r.get("separation_status") == "verified":
+        if r.get("separation_status") in ATTESTED:
             out.append(r["review_id"])
     return sorted(out)
 
@@ -386,6 +470,9 @@ def build_baseline(ctx: Ctx) -> dict:
         "confirmed_docs": confirmed_docs(),
         "plan_preconditions": plan_precondition_ids(),
         "separation_verified_reviews": verified_reviews(),
+        "separation_statuses": separation_statuses(),
+        "api_verification_levels": api_verification_levels(),
+        "fn_boundary_map": fn_boundary_map(),
         **trace_counts(),
         "uncovered_apis": uncovered_apis(),
         "artifacts": artifact_hashes(),

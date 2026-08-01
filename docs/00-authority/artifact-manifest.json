@@ -1094,7 +1094,7 @@
       "previous_paths": [
         "docs/requirements/json/ac/ac-contracts.json"
       ],
-      "approval_digest": "2f2a0dccb82b",
+      "approval_digest": "ab1cabe3793f",
       "review_digest": null
     },
     {
@@ -1160,7 +1160,7 @@
       "previous_paths": [
         "docs/requirements/json/fr/fr-contracts.json"
       ],
-      "approval_digest": "86b7f317f551",
+      "approval_digest": "a58c16eb947f",
       "review_digest": null
     },
     {
@@ -2668,7 +2668,7 @@
       "previous_paths": [
         "docs/requirements/json/verification/tc-contracts.json"
       ],
-      "approval_digest": "3494028deb83",
+      "approval_digest": "c60db3bc035d",
       "review_digest": null
     },
     {
@@ -3154,7 +3154,7 @@
       "previous_paths": [
         "docs/design/json/du-contracts.json"
       ],
-      "approval_digest": "5964e05d821a",
+      "approval_digest": "d2c7b73dd280",
       "review_digest": null
     },
     {
@@ -3368,7 +3368,7 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [],
       "previous_paths": [],
-      "approval_digest": "f058be14213c",
+      "approval_digest": "277a3a58ee7a",
       "review_digest": null
     },
     {
@@ -3468,7 +3468,7 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [],
       "previous_paths": [],
-      "approval_digest": "2881b9a24227",
+      "approval_digest": "cae9a74246c4",
       "review_digest": null
     },
     {
@@ -3614,7 +3614,7 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [],
       "previous_paths": [],
-      "approval_digest": "f7327bdfb57a",
+      "approval_digest": "d53fba0e2c56",
       "review_digest": null
     },
     {
@@ -3634,6 +3634,29 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [
         "L6-S0-IMPLEMENTATION-UNITS"
+      ],
+      "previous_paths": [],
+      "approval_digest": null,
+      "review_digest": null
+    },
+    {
+      "artifact_id": "L6-S0-UPDATE-CLOSURE",
+      "layer": "L6",
+      "slice": "S0",
+      "domain": "implementation-units",
+      "artifact_type": "design-contract",
+      "authority_format": "json",
+      "authority_status": "active",
+      "lifecycle_status": "draft",
+      "canonical_path": "docs/L6-feature-design/S0/update-closure.json",
+      "view_path": null,
+      "view_generation": "none",
+      "pair_artifact_id": null,
+      "supersedes": [],
+      "extends_artifact_ids": [],
+      "depends_on_artifact_ids": [
+        "L6-S0-IMPLEMENTATION-UNITS",
+        "L6-S0-UNCOVERED-APIS"
       ],
       "previous_paths": [],
       "approval_digest": null,
@@ -3679,6 +3702,28 @@
       "depends_on_artifact_ids": [],
       "previous_paths": [],
       "approval_digest": "8ce4869eeabe",
+      "review_digest": null
+    },
+    {
+      "artifact_id": "AUDIT-UPDATE-BOUNDARY-2026-08-02",
+      "layer": "00-authority",
+      "slice": "S0",
+      "domain": "audits",
+      "artifact_type": "audit-record",
+      "authority_format": "markdown",
+      "authority_status": "active",
+      "lifecycle_status": "confirmed",
+      "canonical_path": "docs/00-authority/audits/update-boundary-remediation-2026-08-02.md",
+      "view_path": null,
+      "view_generation": "none",
+      "pair_artifact_id": null,
+      "supersedes": [],
+      "extends_artifact_ids": [],
+      "depends_on_artifact_ids": [
+        "AUDIT-STRUCTURAL-TRACE-2026-08-02"
+      ],
+      "previous_paths": [],
+      "approval_digest": "02e867564eb4",
       "review_digest": null
     }
   ]

@@ -220,9 +220,9 @@ def _counts(ctx: Ctx) -> None:
     gate("G-CNT-WF", len(wf) == 49, f"WF=49 (JSON={len(wf)})")
 
     cur = current_denominators(ctx)
-    want = {"AC_CONTRACT": 211, "TCC": 217, "API": 58, "API_UT": 189}
+    want = {"AC_CONTRACT": 218, "TCC": 224, "API": 58, "API_UT": 199}
     gate("G-CNT-CONTRACT", cur == want,
-         f"現行分母 AC=211／TCC=217／API=58／API_UT=189（旧 19/59/69 は使わない） (実={cur})")
+         f"現行分母 AC=218／TCC=224／API=58／API_UT=199（旧 19/59/69 は使わない） (実={cur})")
 
     hist_bad = detect_legacy_denominator_leaks()
     base = ROOT / "docs/00-authority/baselines/baseline.json"

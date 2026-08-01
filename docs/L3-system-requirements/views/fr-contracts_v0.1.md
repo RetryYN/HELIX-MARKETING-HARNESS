@@ -2,7 +2,7 @@
 
 # 機能要件 実行契約（FR contracts） v0.1
 
-> status: **confirmed**（2026-08-01 PO 承認 — receipt 86b7f317f551）。JSON 内容正本の生成ビュー（全層再降下 §3）
+> status: **confirmed**（2026-08-01 PO 承認 — receipt a58c16eb947f）。JSON 内容正本の生成ビュー（全層再降下 §3）
 > 各 FR に 18 観点の実行・検証・拒否・復旧契約を必須化（G-REQ-CONTRACT／G-INVARIANT-TRACE）。
 
 ## FR-11 ループ状態機械
@@ -24,7 +24,7 @@
 - **使用テーブル・正本**: 参照: 遷移表 JSON 正本（json/s0/transitions.json — DB テーブルではない）／rw: loop_runs／w: state_transitions／w: evidence（外部操作証跡 = operation_log kind）／r: strategic_briefs（lower 開始ガード）
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: 遷移表（transitions.json — 変更は要件改訂）
-- **trace**: 上流 = BR-A1 REQ-001 REQ-002 REQ-006 ／ 下流 = AC-11-1 AC-11-2 AC-11-3 AC-11-4 FN-101 CMP-01 ／ スライス = S0
+- **trace**: 上流 = BR-A1 REQ-001 REQ-002 REQ-006 ／ 下流 = AC-11-1 AC-11-2 AC-11-3 AC-11-4 AC-11-5 AC-11-6 FN-101 CMP-01 ／ スライス = S0
 
 ## FR-12 タスク発行
 
@@ -45,7 +45,7 @@
 - **使用テーブル・正本**: r: loop_runs（親 running 検査）／r: workflows（定義解決）／r: agents（割当候補・principal 検査）／r: pair_plan_quality（T-PUB ガード）／w: tasks
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: タスク型カタログ（T-PLAN〜T-OPS — loop-task-workflow §2.1。author/verifier 役割と必須証跡 kind の割当）
-- **trace**: 上流 = BR-A4 REQ-007 ／ 下流 = AC-12-1 AC-12-2 AC-12-3 AC-12-4 FN-102 FN-104 CMP-02 ／ スライス = S0
+- **trace**: 上流 = BR-A4 REQ-007 ／ 下流 = AC-12-1 AC-12-2 AC-12-3 AC-12-4 AC-12-5 AC-12-6 FN-102 FN-104 CMP-02 ／ スライス = S0
 
 ## FR-13 検証マイクロループ
 
@@ -66,7 +66,7 @@
 - **使用テーブル・正本**: rw: tasks／w: state_transitions／r: config（retry_limit）／r: evidence（必須証跡・verifier 証跡の検査）／r: agents（principal 検査）
 - **外部依存**: なし
 - **設定値**: config.retry_limit（C・暫定既定値 3 — 差戻し上限） ／ **固定値**: なし
-- **trace**: 上流 = BR-A4 REQ-003 ／ 下流 = AC-13-1 AC-13-2 AC-13-3 AC-13-4 AC-13-5 AC-13-6 FN-103 CMP-02 ／ スライス = S0
+- **trace**: 上流 = BR-A4 REQ-003 ／ 下流 = AC-13-1 AC-13-2 AC-13-3 AC-13-4 AC-13-5 AC-13-6 AC-13-7 AC-13-8 AC-13-9 FN-103 CMP-02 ／ スライス = S0
 
 ## FR-14 スプリント制御
 

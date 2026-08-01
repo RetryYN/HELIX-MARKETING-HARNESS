@@ -20,6 +20,7 @@ from tools.gates.common import (
     SR_CONTRACTS,
     TC_CONTRACTS,
     TESTS_UNIT,
+    UPDATES,
     Ctx,
     api_clauses,
     api_name,
@@ -265,6 +266,28 @@ def detect_clause_coverage_faults(ctx: Ctx) -> list[str]:
                        "（API 契約節でないものを検証するなら clause_na_reason を書く）")
     for d in ctx.duc:
         for a in d["apis"]:
+            lv = a.get("verification_level")
+            internal = lv in INTERNAL_LEVELS
+            ut_refs = {c for u in a.get("ut", []) for c in u.get("clause_refs", [])}
+            if internal:
+                if len(a.get("internal_reason") or "") < 20:
+                    bad.append(f"{a['api_id']}: verification_level={lv} なのに internal_reason が無い"
+                               "（内部 API である理由を明示しない分類を認めない）")
+                if a.get("internal_reason_code") not in INTERNAL_REASON_CODES:
+                    bad.append(f"{a['api_id']}: internal_reason_code が閉じた語彙"
+                               f" {INTERNAL_REASON_CODES} 外（{a.get('internal_reason_code')}）")
+                # 宣言だけで検査を緩めさせない（独立レビュー R1-01）: 内部 API は**自分の振る舞い**
+                # （postcondition・raises）の全節が UT／ITC へ直接接続していなければならない。
+                # 呼出側義務・配線時保証で逃がせるのは precondition だけ。
+                # AC 被覆で代替させない（独立レビュー R2-01）: 内部 API を名乗る以上、
+                # その振る舞いは UT が直接検証していなければならない。
+                own = [c["clause_id"] for c in (*a.get("postcondition", []), *a.get("raises", []))]
+                loose = [c for c in own if c not in ut_refs]
+                if loose:
+                    bad.append(f"{a['api_id']}: 内部 API（{lv}）の post／raises {loose[:2]} が"
+                               "UT の clause_refs に無い（内部分類は検証の免除ではない）")
+            elif a.get("internal_reason") or a.get("internal_reason_code"):
+                bad.append(f"{a['api_id']}: verification_level=acceptance なのに internal_reason 系を持つ")
             for cl in api_clauses(a):
                 cid = cl["clause_id"]
                 na = cl.get("na_reason")
@@ -275,12 +298,28 @@ def detect_clause_coverage_faults(ctx: Ctx) -> list[str]:
                 elif na and not na.startswith(NA_CATEGORIES):
                     bad.append(f"{cid}: na_reason が分類語彙 {NA_CATEGORIES} で始まっていない"
                                "（自由記述で被覆欠落を免除しない）")
+                elif na and na.startswith(UNIT_CATEGORY) and cid not in ut_refs:
+                    bad.append(f"{cid}: 『{UNIT_CATEGORY}』を名乗るのに UT の clause_refs に無い"
+                               "（接続のない単体検証は主張できない）")
+                elif na and na.startswith(GAP_CATEGORY):
+                    if cid in ut_refs:
+                        bad.append(f"{cid}: UT が本節を検証しているのに『{GAP_CATEGORY}』"
+                                   f"（正しい分類は『{UNIT_CATEGORY}』）")
+                    if internal:
+                        bad.append(f"{a['api_id']}: 内部 API（{lv}）なのに契約節 {cid} が"
+                                   f"『{GAP_CATEGORY}』（内部分類と未解決 gap は併存しない）")
     bad += detect_uncovered_api_ledger_faults(ctx, covered)
     return bad
 
 
 # N/A 理由の閉じた語彙。自由記述で「AC が無い」を正当化させない（独立レビュー R1-02）
-NA_CATEGORIES = ("呼出側義務:", "配線時保証:", "他 API で検証:", "受入基準未設定:")
+UNIT_CATEGORY = "単体検証:"
+# 未解決 gap。N/A ではなく「受入基準がまだ無い」という穴であり、設計クロージャーの障害になる
+GAP_CATEGORY = "受入基準未設定:"
+NA_CATEGORIES = ("呼出側義務:", "配線時保証:", "他 API で検証:", UNIT_CATEGORY, GAP_CATEGORY)
+INTERNAL_LEVELS = ("unit", "integration")
+# 内部 API の理由は閉じたコードで宣言する（自由記述で分類を正当化させない — 独立レビュー R1-01）
+INTERNAL_REASON_CODES = ("startup-wiring", "read-only-accessor", "internal-delegation")
 UNCOVERED_APIS = L6 / "S0/uncovered-apis.json"
 
 
@@ -304,24 +343,156 @@ def detect_uncovered_api_ledger_faults(ctx: Ctx, covered: set[str],
         seen.add(it.get("api_id"))
     declared = {i["api_id"]: i for i in items}
     real = {a["api_id"]: (d["id"], api_name(a)) for d in ctx.duc for a in d["apis"]}
+    # 内部 API（unit／integration）は AC を持たない設計判断が確定しているので未解決 gap ではない。
+    # 台帳に載るのは「acceptance を名乗るのに AC が 1 件も無い」＝受入基準が未設定の API だけ。
     actual = {a["api_id"] for d in ctx.duc for a in d["apis"]
-              if not (set(clause_ids(a)) & covered)}
+              if a.get("verification_level") not in INTERNAL_LEVELS
+              and not (set(clause_ids(a)) & covered)}
+    level = {a["api_id"]: a.get("verification_level") for d in ctx.duc for a in d["apis"]}
+    for aid in sorted(k for k, v in level.items() if v in INTERNAL_LEVELS and k in declared):
+        bad.append(f"{aid}: 内部 API（verification_level={level[aid]}）が未被覆 API 台帳に"
+                   "登録されている（内部分類と未解決 gap は併存しない）")
     for extra in sorted(actual - set(declared)):
         bad.append(f"{extra}: AC が 1 節も検証していないのに uncovered-apis.json へ未登録")
     for stale in sorted(set(declared) - actual):
         bad.append(f"{stale}: uncovered-apis.json に登録されているが実際は AC 被覆がある")
     for aid, it in sorted(declared.items()):
-        if not it.get("reason") or not it.get("resolution_slice"):
-            bad.append(f"{aid}: uncovered-apis.json の reason／resolution_slice が空")
-        elif it["resolution_slice"] not in RESOLUTION_SLICES:
-            bad.append(f"{aid}: resolution_slice が語彙 {RESOLUTION_SLICES} 外")
+        if not it.get("reason") or not it.get("resolution_update"):
+            bad.append(f"{aid}: uncovered-apis.json の reason／resolution_update が空")
         # 台帳のメタデータが実契約と食い違っていないか（虚偽の DU／関数名を置けない）
         if aid in real and (it.get("du_id"), it.get("function")) != real[aid]:
             bad.append(f"{aid}: uncovered-apis.json の du_id／function が実契約 {real[aid]} と不一致")
     return bad
 
 
-RESOLUTION_SLICES = ("S0.1", "S1", "later")
+def update_of_du(ctx: Ctx) -> tuple[dict[str, str], list[str]]:
+    """DU → 更新（S0.1／S0.2／S0.3）を DU 台帳の `fn_ids` と updates.json から**機械導出**する。
+
+    slice（S0／S1／later ＝ いつ作るか）と update（S0 内の実装順序）は別軸である。
+    台帳へ手入力された update 値は、この導出結果と一致しなければ受け付けない。
+    """
+    bad: list[str] = []
+    fn_update: dict[str, str] = {}
+    for u in load(UPDATES)["items"]:
+        for f in u["fn_ids"]:
+            if f in fn_update:
+                bad.append(f"{f}: updates.json で複数更新に属している（{fn_update[f]}／{u['update']}）")
+            fn_update[f] = u["update"]
+    derived: dict[str, str] = {}
+    for d in ctx.dus:
+        miss = [f for f in d["fn_ids"] if f not in fn_update]
+        got = sorted({fn_update[f] for f in d["fn_ids"] if f in fn_update})
+        if miss:
+            bad.append(f"{d['id']}: FN {miss[:2]} が updates.json のどの更新にも属さない")
+        elif len(got) != 1:
+            bad.append(f"{d['id']}: FN が複数更新に跨る {got}（更新境界が一意に決まらない）")
+        else:
+            derived[d["id"]] = got[0]
+    return derived, bad
+
+
+def detect_uncovered_update_faults(ctx: Ctx,
+                                   ledger_path: Path = UNCOVERED_APIS) -> list[str]:
+    """未被覆 API 台帳の解消先が update 軸で宣言され、DU→FN→updates.json の導出と一致するか。
+
+    slice を解消先に書くと「いつ作るか」と「どの更新で閉じるか」が 1 欄に潰れる（PO 指示 §2）。
+    """
+    derived, bad = update_of_du(ctx)
+    vocab = [u["update"] for u in load(UPDATES)["items"]]
+    if not ledger_path.exists():
+        return bad + [f"{ledger_path.name} が無い"]
+    if "resolution_slice" in ledger_path.read_text(encoding="utf-8"):
+        bad.append(f"{ledger_path.name}: resolution_slice が残存（slice と update の混同）")
+    for it in load(ledger_path).get("items", []):
+        aid = it.get("api_id")
+        got = it.get("resolution_update")
+        if not got:
+            bad.append(f"{aid}: resolution_update が無い")
+            continue
+        if got not in vocab:
+            bad.append(f"{aid}: resolution_update {got} が updates.json の更新語彙 {vocab} 外")
+            continue
+        want = derived.get(it.get("du_id", ""))
+        if want is None:
+            bad.append(f"{aid}: du_id {it.get('du_id')} の更新を DU 台帳から導出できない")
+        elif got != want:
+            bad.append(f"{aid}: resolution_update {got} が DU→FN→updates.json の導出 {want} と不一致")
+    return bad
+
+
+UPDATE_CLOSURE = L6 / "S0/update-closure.json"
+CLOSURE_OWNERS = ("README.md", "CLAUDE.md")
+CLOSED_PHRASE = "設計クロージャー完了"
+
+
+def compute_update_closure(ctx: Ctx) -> tuple[dict[str, str], dict[str, int], list[str]]:
+    """更新ごとの設計クロージャー状態を**実態から導出**する（宣言は参照しない）。
+
+    closed の条件（PO 指示 §4）: 当該更新の未被覆 API = 0 ／ 全 API 契約節が AC・UT・ITC か
+    正当な internal 分類（`受入基準未設定:` が残っていない）／AC を持つ API が実装単位を持つ。
+    """
+    derived, bad = update_of_du(ctx)
+    ledger = load(UNCOVERED_APIS).get("items", []) if UNCOVERED_APIS.exists() else []
+    units = load(IMPL_UNITS).get("items", []) if IMPL_UNITS.exists() else []
+    unit_apis = {u.get("api_ref") for u in units if isinstance(u, dict)}
+    ac_clauses_all = {c for a in ctx.acc for c in (a.get("verifies_clause_refs") or [])}
+    uncovered: dict[str, int] = {}
+    open_reasons: dict[str, list[str]] = {}
+    for it in ledger:
+        up = it.get("resolution_update")
+        uncovered[up] = uncovered.get(up, 0) + 1
+        open_reasons.setdefault(up, []).append(f"{it.get('api_id')}: 未被覆 API")
+    for d in ctx.duc:
+        up = derived.get(d["id"])
+        if up is None:
+            continue
+        for a in d["apis"]:
+            for cl in api_clauses(a):
+                if (cl.get("na_reason") or "").startswith(GAP_CATEGORY):
+                    open_reasons.setdefault(up, []).append(f"{cl['clause_id']}: {GAP_CATEGORY}")
+            if (set(clause_ids(a)) & ac_clauses_all) and a["api_id"] not in unit_apis:
+                open_reasons.setdefault(up, []).append(f"{a['api_id']}: 実装単位が無い")
+    computed = {u["update"]: ("open" if open_reasons.get(u["update"]) else "closed")
+                for u in load(UPDATES)["items"]}
+    for up in sorted(open_reasons):
+        if up not in computed:
+            bad.append(f"{up}: updates.json に存在しない更新が解消先に宣言されている")
+    return computed, {u: uncovered.get(u, 0) for u in computed}, bad
+
+
+def detect_update_closure_faults(ctx: Ctx, closure_path: Path = UPDATE_CLOSURE) -> list[str]:
+    """更新ごとの完了宣言が実態と一致し、現在地の正本行がその宣言と一致するかを検査する。"""
+    computed, uncovered, bad = compute_update_closure(ctx)
+    if not closure_path.exists():
+        return bad + [f"{closure_path.name} が無い（更新単位の完了宣言が機械可読でない）"]
+    items = load(closure_path).get("items", [])
+    declared = {i.get("update"): i for i in items}
+    if set(declared) != set(computed):
+        bad.append(f"{closure_path.name} の更新集合 {sorted(declared)} が"
+                   f" updates.json {sorted(computed)} と不一致")
+    texts = {n: (ctx_root(n)).read_text(encoding="utf-8") for n in CLOSURE_OWNERS}
+    for up in sorted(set(declared) & set(computed)):
+        it = declared[up]
+        got = it.get("design_closure")
+        if got not in ("closed", "open"):
+            bad.append(f"{up}: design_closure が closed／open 以外（{got}）")
+            continue
+        if got != computed[up]:
+            bad.append(f"{up}: design_closure={got} が実態 {computed[up]} と不一致"
+                       f"（未被覆 API={uncovered[up]}）")
+        claim = it.get("current_state_claim") or ""
+        if len(claim) < 8:
+            bad.append(f"{up}: current_state_claim が無い（現在地と宣言が接続していない）")
+            continue
+        if (CLOSED_PHRASE in claim) != (computed[up] == "closed"):
+            bad.append(f"{up}: current_state_claim『{claim}』が実態 {computed[up]} と矛盾する"
+                       f"（closed のときだけ『{CLOSED_PHRASE}』を名乗れる）")
+        if f"未被覆 API {uncovered[up]}" not in claim:
+            bad.append(f"{up}: current_state_claim が実数『未被覆 API {uncovered[up]}』を含まない")
+        for name, txt in texts.items():
+            if txt.count(claim) != 1:
+                bad.append(f"{name}: 現在地に『{claim}』が {txt.count(claim)} 回")
+    return bad
 
 
 def ctx_root(rel_path: str) -> Path:
@@ -386,6 +557,17 @@ def run(ctx: Ctx) -> None:
          "L6 の責務が api_ref 1 件＋契約節（clause_id）へ構造接続し、AC／UT が同じ節を参照し、"
          "全契約節が AC 被覆か理由付き N/A を持つ（語彙一致・借用表現での代替を拒否） "
          f"(違反={iu[:3]})")
+    uu = detect_uncovered_update_faults(ctx)
+    gate("G-UNCOVERED-API-UPDATE", not uu,
+         "未被覆 API 台帳の解消先が update 軸（updates.json の語彙）で宣言され、"
+         "DU 台帳の fn_ids → updates.json から導出した更新と一致する（slice との混同・手入力の齟齬を拒否） "
+         f"(違反={uu[:3]})")
+    uc = detect_update_closure_faults(ctx)
+    gate("G-UPDATE-DESIGN-CLOSURE", not uc,
+         "更新（S0.1／S0.2／S0.3）ごとの設計クロージャー宣言が実態（未被覆 API=0・受入基準未設定の"
+         "契約節ゼロ・AC を持つ API の実装単位実在）と一致し、README／CLAUDE.md の現在地が"
+         "その宣言と実数まで一致する（closed のときだけ設計クロージャー完了を名乗れる） "
+         f"(違反={uc[:3]})")
 
 
 def _ledger(ctx: Ctx) -> None:

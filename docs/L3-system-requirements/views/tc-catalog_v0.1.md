@@ -2,7 +2,7 @@
 
 # テストケース 検証契約カタログ（TC contracts）v0.1
 
-> status: **confirmed**（2026-08-01 PO 承認 — receipt 3494028deb83）。JSON 内容正本の生成ビュー（全層再降下 §5）
+> status: **confirmed**（2026-08-01 PO 承認 — receipt c60db3bc035d）。JSON 内容正本の生成ビュー（全層再降下 §5）
 > 全 AC 検証契約と双方向接続（G-TRACE-BIDIR）。状態・DB 差分・証跡・禁止副作用・外部呼出回数を検証。
 > 旧体系のテストケースは historical 記録のみ（現行分母は本カタログ）。
 
@@ -225,5 +225,12 @@
 | TCC-SR-11-6 | reject | AC-SR-11-6 | 不変条件が維持された状態（操作前と同一） | 差分なし（拒否は副作用を持たない） | 拒否の構造化ログ（違反した不変条件の識別子つき） | 不変条件を破った状態での永続化・部分適用 | 0 回 | S0 |
 | TCC-SR-15-5 | reject | AC-SR-15-5 | 不変条件が維持された状態（操作前と同一） | 差分なし（拒否は副作用を持たない） | 拒否の構造化ログ（違反した不変条件の識別子つき） | 不変条件を破った状態での永続化・部分適用 | 0 回 | S0 |
 | TCC-SR-15-6 | reject | AC-SR-15-6 | 不変条件が維持された状態（操作前と同一） | 差分なし（拒否は副作用を持たない） | 拒否の構造化ログ（違反した不変条件の識別子つき） | 不変条件を破った状態での永続化・部分適用 | 0 回 | S0 |
+| TCC-13-7 | normal | AC-13-7 | tasks.state = 'escalated'、retry_count = 3 | state_transitions +6 行（submit_for_verification 3・verify_fail 2・verify_fail_exhausted 1）、tasks 1 行の state/retry_count UPDATE | state_transitions の各行（details_json に差戻し理由） | escalated 到達後の再反復・retry_count の 2 以上の加算・DU-01 を経由しない tasks 直接 UPDATE | 0 回 | S0 |
+| TCC-13-8 | reject | AC-13-8 | tasks.state = 'verifying'（不変）、retry_count = 0（不変） | 差分なし | review_fail 証跡が作られないこと | 同一 principal による FAIL の受理・理由なし FAIL での retry_count 消費 | 0 回 | S0 |
+| TCC-13-9 | boundary | AC-13-9 | tasks.state = 'in_progress'（不変）、retry_count = 0（不変） | 差分なし | なし（証跡行が作られないこと） | 一時失敗の verify_fail 計上・非再試行系への誤分類 | 0 回 | S0 |
+| TCC-11-5 | resume | AC-11-5 | 各 entity が s0-contract §3.3 の規則どおりの状態 | resume による直接 UPDATE 0 行（状態変更は state_transitions 経由のみ） | 既存 evidence 行が不変 | 終端 entity の再開・DU-01 を経由しない直接 UPDATE・DB 行以外を根拠にした分岐 | 0 回 | S0 |
+| TCC-11-6 | reject | AC-11-6 | tasks.state = 'escalated' | external_operations 1 行 UPDATE（sent→unknown）、tasks 1 行 UPDATE（in_progress→escalated）、state_transitions +1 行（event='escalate'）、送信系の新規行 0 | external_operations の sent 行が unknown 化され、operation_log 証跡に再送行が増えないこと | 照合不能時の再送・confirmed 化・done 遷移 | 照合 1 回・送信 0 回 | S0 |
+| TCC-12-5 | normal | AC-12-5 | workflows の行・列が前後で不変 | 差分なし | なし（証跡行が作られないこと） | 定義の暗黙補完・enum 外 kind の黙認・load による workflows 書込み | 0 回 | S0 |
+| TCC-12-6 | reject | AC-12-6 | 実行が開始されず tasks に新規行が生じない | 差分なし | なし（証跡行が作られないこと） | 破損定義での実行開始・既定値による補完・例外の握り潰し | 0 回 | S0 |
 
 検証手段（method）の全文は JSON 正本を参照。

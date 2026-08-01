@@ -178,6 +178,107 @@
       "clause_na_reason": "brief保持列のDDL保護トリガを観測し、API契約節を検証しない"
     },
     {
+      "id": "AC-11-5",
+      "target": "FR-11",
+      "polarity": "boundary-recovery",
+      "given": "プロセス再起動直後の DB に、非終端の各状態の entity が存在する（tasks: pending／外部操作前の in_progress／verifying、loop_runs: running／waiting）",
+      "when": "各 entity に対して resume を実行する",
+      "then": "s0-contract §3.3 の分岐どおりの ResumeAction（根拠行 id 付き）が返り、状態変更が必要な場合も遷移は DU-01 経由でのみ実行される（プロセス内メモリや推測を根拠にしない）",
+      "fixture": "seed: loop_runs 2 行（state='running' と state='waiting'）、tasks 3 行（state='pending'／'in_progress'／'verifying'）、各行に対応する evidence・agent_executions を投入",
+      "observation_point": "resume 戻り値（ResumeAction の分岐と根拠行 id）／tasks・loop_runs SELECT／state_transitions SELECT",
+      "expected_state": "各 entity は s0-contract §3.3 の規則どおりの状態（pending は再 claim 可のまま、外部操作前の in_progress は再読込のみ、waiting は充足条件の再判定）",
+      "expected_db_delta": "resume 自体による直接 UPDATE は 0 行（状態変更は DU-01 の遷移として state_transitions に現れる）",
+      "expected_evidence": "既存 evidence 行は不変（再読込のみ）",
+      "forbidden_side_effects": "終端 entity の再開・DU-01 を経由しない直接 UPDATE・DB 行以外を根拠にした分岐",
+      "error_type": "なし",
+      "target_update": "S0.1（CMP-02 再開制御＋CMP-01 状態機械）／resume",
+      "tc": [
+        "TCC-11-5"
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "agent_executions",
+          "evidence",
+          "loop_runs",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "loop_runs.state",
+          "tasks.state"
+        ],
+        "state_refs": [
+          "loop_runs.running",
+          "loop_runs.waiting",
+          "tasks.in_progress",
+          "tasks.pending",
+          "tasks.verifying"
+        ],
+        "event_refs": [
+          "resume"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": [
+          "resume",
+          "transition"
+        ]
+      },
+      "verifies_clause_refs": [
+        "API-DU02-04-POST-01",
+        "API-DU02-04-POST-02"
+      ]
+    },
+    {
+      "id": "AC-11-6",
+      "target": "FR-11",
+      "polarity": "reject",
+      "given": "外部操作を sent のまま中断した task（external_operations.status='sent'）と、リモート照合が不能（idempotency key・remote object ID のいずれからも成否を判定できない）な接続",
+      "when": "resume を実行する",
+      "then": "再送を行わず unknown として扱い、FatalError で escalate 経路へ倒れる（成功したはずという推測での再送・完了扱いをしない）",
+      "fixture": "seed: tasks 1 行（state='in_progress'）、external_operations 1 行（status='sent'）、リモート照合が不能を返す接続スタブ注入",
+      "observation_point": "raise される例外型／外部呼出回数／tasks.state SELECT／state_transitions SELECT／external_operations.status SELECT",
+      "expected_state": "tasks.state = 'escalated'（人の関与へ）",
+      "expected_db_delta": "external_operations 1 行 UPDATE（status='sent'→'unknown'）、tasks 1 行 UPDATE（in_progress→escalated）、state_transitions +1 行（event='escalate'）。送信系の新規行は増えない",
+      "expected_evidence": "external_operations の sent 行が unknown 化され、operation_log 証跡に再送の行は増えない",
+      "forbidden_side_effects": "照合不能時の再送（external_operations の新規 sent 行）・成功扱いでの confirmed 化・done 遷移",
+      "error_type": "FatalError",
+      "target_update": "S0.1（CMP-02 再開制御）／resume",
+      "tc": [
+        "TCC-11-6"
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "external_operations",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "external_operations.status",
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.escalated",
+          "tasks.in_progress"
+        ],
+        "event_refs": [
+          "escalate"
+        ],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "FatalError"
+        ],
+        "api_refs": [
+          "resume"
+        ]
+      },
+      "verifies_clause_refs": [
+        "API-DU02-04-RAISE-01"
+      ]
+    },
+    {
       "id": "AC-12-1",
       "target": "FR-12",
       "polarity": "normal",
@@ -336,6 +437,86 @@
       },
       "verifies_clause_refs": [
         "API-DU02-01-RAISE-01"
+      ]
+    },
+    {
+      "id": "AC-12-5",
+      "target": "FR-12",
+      "polarity": "normal",
+      "given": "workflows に同一 workflow_key の複数版（active 最新版と旧版）が存在し、いずれも definition_json／required_evidence_json が schema 適合である",
+      "when": "版を指定せずに load し、続けて旧版を指定して load する",
+      "then": "未指定では active 最新版、指定時はその版の WorkflowDef が返り、required_evidence_json の kind がすべて evidence enum 内であることが検証され、DB は読み取りのみで変化しない",
+      "fixture": "seed: workflows 2 行（同一 workflow_key の version=1 と version=2、version=2 が active）、双方の definition_json／required_evidence_json は schema 適合・kind は evidence enum 内",
+      "observation_point": "load 戻り値（WorkflowDef の version と required_evidence）／workflows SELECT（前後比較）",
+      "expected_state": "workflows の行・列は前後で不変（読み取りのみ）",
+      "expected_db_delta": "差分なし",
+      "expected_evidence": "なし（証跡行は作られない）",
+      "forbidden_side_effects": "定義の暗黙補完・enum 外 kind の黙認・load による workflows への書込み",
+      "error_type": "なし",
+      "target_update": "S0.1（CMP-02 ワークフロー実行器）／load",
+      "tc": [
+        "TCC-12-5"
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "workflows"
+        ],
+        "column_refs": [
+          "workflows.definition_json",
+          "workflows.required_evidence_json"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": [
+          "load"
+        ]
+      },
+      "verifies_clause_refs": [
+        "API-DU04-01-POST-01",
+        "API-DU04-01-POST-02"
+      ]
+    },
+    {
+      "id": "AC-12-6",
+      "target": "FR-12",
+      "polarity": "reject",
+      "given": "(a) 該当 workflow_key の定義行が存在しない状態と、(b) definition_json／required_evidence_json が schema 破損している定義行",
+      "when": "それぞれ load を実行してタスク実行を開始しようとする",
+      "then": "どちらも FatalError で fail-close し、壊れた定義・不在定義のまま実行が開始されず DB も変化しない",
+      "fixture": "seed: (a) workflows 0 行、(b) workflows 1 行（definition_json が JSON 破損・required_evidence_json が schema 不適合）",
+      "observation_point": "raise される例外型／tasks SELECT（行が増えないこと）／workflows SELECT",
+      "expected_state": "実行は開始されず、tasks に新規行は生じない",
+      "expected_db_delta": "差分なし（拒否は副作用を持たない）",
+      "expected_evidence": "なし（証跡行は作られない）",
+      "forbidden_side_effects": "破損定義での実行開始・既定値による定義の補完・例外の握り潰し",
+      "error_type": "FatalError",
+      "target_update": "S0.1（CMP-02 ワークフロー実行器）／load",
+      "tc": [
+        "TCC-12-6"
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "tasks",
+          "workflows"
+        ],
+        "column_refs": [
+          "workflows.definition_json",
+          "workflows.required_evidence_json"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "FatalError"
+        ],
+        "api_refs": [
+          "load"
+        ]
+      },
+      "verifies_clause_refs": [
+        "API-DU04-01-RAISE-01"
       ]
     },
     {
@@ -587,6 +768,149 @@
       },
       "verifies_clause_refs": [],
       "clause_na_reason": "不変条件の安全性検査であり、個別API契約節を観測しない"
+    },
+    {
+      "id": "AC-13-7",
+      "target": "FR-13",
+      "polarity": "normal",
+      "given": "retry_limit=3 の config、in_progress で lease を保持する task 1 件、author と別 principal の verifier、および常に FAIL 判定を返す verifier スタブ",
+      "when": "run_microloop を 1 回呼び出して収束まで実行する",
+      "then": "submit→verify の反復が FAIL ごとに retry_count を 1 消費し、上限到達で verify_fail_exhausted により escalated へ収束して MicroloopResult を返す（反復・上限判定はすべて DU-01 の遷移経由で行われる）",
+      "fixture": "seed: config 1 行（key='retry_limit', value_json='3', value_type='integer'）、agents 2 行（principal 相違）、agent_executions 2 行、tasks 1 行（state='in_progress', retry_count=0, lease 保持）、常時 FAIL の verifier スタブ注入",
+      "observation_point": "run_microloop 戻り値（MicroloopResult）／tasks.state・tasks.retry_count SELECT／state_transitions SELECT",
+      "expected_state": "tasks.state = 'escalated'（終端）、retry_count = 3",
+      "expected_db_delta": "tasks 行の state/retry_count UPDATE、state_transitions +6 行（submit_for_verification 3・verify_fail 2・verify_fail_exhausted 1、いずれも guard_result='passed'）",
+      "expected_evidence": "state_transitions の各行（差戻し理由は details_json に保持）",
+      "forbidden_side_effects": "escalated 到達後の再反復・retry_count の 2 以上の加算・DU-01 を経由しない tasks の直接 UPDATE",
+      "error_type": "なし",
+      "target_update": "S0.1（CMP-02 マイクロループ）／run_microloop",
+      "tc": [
+        "TCC-13-7"
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "agent_executions",
+          "agents",
+          "config",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "tasks.retry_count",
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.escalated",
+          "tasks.in_progress",
+          "tasks.verifying"
+        ],
+        "event_refs": [
+          "submit_for_verification",
+          "verify_fail",
+          "verify_fail_exhausted"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": [
+          "run_microloop"
+        ]
+      },
+      "verifies_clause_refs": [
+        "API-DU02-03-POST-01",
+        "API-DU02-03-POST-02"
+      ]
+    },
+    {
+      "id": "AC-13-8",
+      "target": "FR-13",
+      "polarity": "reject",
+      "given": "verifying の task と、(a) author と同一 principal の verifier による FAIL 要求、(b) 差戻し理由・verifier 証跡を欠く FAIL 要求",
+      "when": "それぞれの verify_fail 要求で run_microloop を実行する",
+      "then": "どちらも GateRejected で拒否され、task は verifying のまま state・retry_count・証跡が変化しない（主体分離と証跡要件は microloop 側でも二重に強制される）",
+      "fixture": "seed: agents 2 行（(a) は principal 同一、(b) は principal 相違）、tasks 1 行（state='verifying', retry_count=0）、(b) は差戻し理由・verifier 証跡を投入しない",
+      "observation_point": "raise される例外型／tasks.state・retry_count SELECT／state_transitions SELECT／evidence SELECT",
+      "expected_state": "tasks.state = 'verifying'（不変）、retry_count = 0（不変）",
+      "expected_db_delta": "差分なし（拒否は副作用を持たない）",
+      "expected_evidence": "なし（review_fail 証跡は作られない）",
+      "forbidden_side_effects": "同一 principal による FAIL の受理・理由なし FAIL での retry_count 消費",
+      "error_type": "GateRejected",
+      "target_update": "S0.1（CMP-02 マイクロループ）／verify_fail",
+      "tc": [
+        "TCC-13-8"
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "agents",
+          "evidence",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "tasks.retry_count",
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.verifying"
+        ],
+        "event_refs": [
+          "verify_fail"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "GateRejected"
+        ],
+        "api_refs": [
+          "run_microloop"
+        ]
+      },
+      "verifies_clause_refs": [
+        "API-DU02-03-RAISE-01"
+      ]
+    },
+    {
+      "id": "AC-13-9",
+      "target": "FR-13",
+      "polarity": "boundary-recovery",
+      "given": "in_progress の task と、実行中に一時失敗（ネットワーク断等）を送出する executor スタブ",
+      "when": "run_microloop を実行する",
+      "then": "executor の一時失敗は RetryableError として呼出側へ還元され、検証 FAIL の retry 消費とは区別されて task の state・retry_count・証跡が変化しない",
+      "fixture": "seed: config 1 行（key='retry_limit'）、agents 2 行（principal 相違）、tasks 1 行（state='in_progress', retry_count=0）、一時失敗を 1 回送出する executor スタブ注入",
+      "observation_point": "raise される例外型／tasks.state・retry_count SELECT／state_transitions SELECT",
+      "expected_state": "tasks.state = 'in_progress'（不変）、retry_count = 0（不変）",
+      "expected_db_delta": "差分なし（一時失敗は検証差戻しではない）",
+      "expected_evidence": "なし（証跡行は作られない）",
+      "forbidden_side_effects": "executor の一時失敗を verify_fail として retry_count に計上すること・非再試行系への誤分類",
+      "error_type": "RetryableError",
+      "target_update": "S0.1（CMP-02 マイクロループ）／run_microloop",
+      "tc": [
+        "TCC-13-9"
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "agents",
+          "config",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "tasks.retry_count",
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.in_progress"
+        ],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "RetryableError"
+        ],
+        "api_refs": [
+          "run_microloop"
+        ]
+      },
+      "verifies_clause_refs": [
+        "API-DU02-03-RAISE-02"
+      ]
     },
     {
       "id": "AC-14-1",
@@ -2335,6 +2659,7 @@
         "api_refs": []
       },
       "verifies_clause_refs": [
+        "API-DU08-01-POST-02",
         "API-DU08-01-RAISE-01"
       ]
     },
@@ -7850,5 +8175,5 @@
   "supersedes": [
     "ARCHIVE-AC-LEGACY"
   ],
-  "approval_digest": "2f2a0dccb82b"
+  "approval_digest": "ab1cabe3793f"
 }

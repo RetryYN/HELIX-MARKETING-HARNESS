@@ -236,6 +236,30 @@
       ]
     },
     {
+      "unit_id": "IU-EXTERNALOPERATIONS-01",
+      "doc": "docs/L6-feature-design/S0/external-operations.md",
+      "du_id": "DU-04",
+      "responsibility": "`load`・`workflows`: definition_json / required_evidence_json を schema 検証して WorkflowDef を返し（read-only）、required_evidence_json の kind が evidence enum 内であることを検証する。定義行不在・schema 破損は FatalError で fail-close し実行を開始しない",
+      "api_ref": "API-DU04-01",
+      "clause_refs": [
+        "API-DU04-01-POST-01",
+        "API-DU04-01-POST-02",
+        "API-DU04-01-RAISE-01"
+      ],
+      "ac_refs": [
+        "AC-12-5",
+        "AC-12-6"
+      ],
+      "ut_refs": [
+        "test_kernel_workflow.py::test_load_active_definition_schema_validated",
+        "test_kernel_workflow.py::test_load_broken_definition_raises_fatal"
+      ],
+      "tc_refs": [
+        "TCC-12-5",
+        "TCC-12-6"
+      ]
+    },
+    {
       "unit_id": "IU-EXTERNALOPERATIONS-02",
       "doc": "docs/L6-feature-design/S0/external-operations.md",
       "du_id": "DU-04",
@@ -1018,6 +1042,34 @@
       ]
     },
     {
+      "unit_id": "IU-STATEMACHINE-05",
+      "doc": "docs/L6-feature-design/S0/state-machine.md",
+      "du_id": "DU-02",
+      "responsibility": "`run_microloop`・`task`: submit→verify を反復し、FAIL ごとに verify_fail 遷移（retry_count 消費）を DU-01 経由で適用し、上限到達で verify_fail_exhausted により escalated へ収束させる。主体分離・差戻し証跡の欠落は GateRejected、executor の一時失敗は RetryableError として区別する",
+      "api_ref": "API-DU02-03",
+      "clause_refs": [
+        "API-DU02-03-POST-01",
+        "API-DU02-03-POST-02",
+        "API-DU02-03-RAISE-01",
+        "API-DU02-03-RAISE-02"
+      ],
+      "ac_refs": [
+        "AC-13-7",
+        "AC-13-8",
+        "AC-13-9"
+      ],
+      "ut_refs": [
+        "test_kernel_orchestrator.py::test_run_microloop_executor_transient_failure_retryable",
+        "test_kernel_orchestrator.py::test_run_microloop_self_review_or_missing_evidence_rejected",
+        "test_kernel_orchestrator.py::test_run_microloop_verify_fail_consumes_retry_until_escalated"
+      ],
+      "tc_refs": [
+        "TCC-13-7",
+        "TCC-13-8",
+        "TCC-13-9"
+      ]
+    },
+    {
       "unit_id": "IU-STATEMACHINE-06",
       "doc": "docs/L6-feature-design/S0/state-machine.md",
       "du_id": "DU-02",
@@ -1060,6 +1112,35 @@
       ],
       "tc_refs": [
         "TCC-27-2"
+      ]
+    },
+    {
+      "unit_id": "IU-STATEMACHINE-08",
+      "doc": "docs/L6-feature-design/S0/state-machine.md",
+      "du_id": "DU-02",
+      "responsibility": "`resume`・`entity`: s0-contract §3.3 の再開分岐を DB 行のみを根拠に判定して ResumeAction（分岐結果と根拠行 id）を返し、状態変更は DU-01 経由でのみ実行する。sent のままリモート照合不能な外部操作は再送せず unknown 化して escalate する",
+      "api_ref": "API-DU02-04",
+      "clause_refs": [
+        "API-DU02-04-POST-01",
+        "API-DU02-04-POST-02",
+        "API-DU02-04-RAISE-01"
+      ],
+      "ac_refs": [
+        "AC-11-5",
+        "AC-11-6"
+      ],
+      "ut_refs": [
+        "test_kernel_orchestrator.py::test_resume_delegates_transition_to_state_machine",
+        "test_kernel_orchestrator.py::test_resume_in_progress_before_external_reloads_state",
+        "test_kernel_orchestrator.py::test_resume_pending_reclaimable",
+        "test_kernel_orchestrator.py::test_resume_sent_remote_match_confirms_without_resend",
+        "test_kernel_orchestrator.py::test_resume_sent_unverifiable_unknown_escalates",
+        "test_kernel_orchestrator.py::test_resume_verifying_reuses_existing_verdict_no_double_count",
+        "test_kernel_orchestrator.py::test_resume_waiting_rechecks_satisfaction"
+      ],
+      "tc_refs": [
+        "TCC-11-5",
+        "TCC-11-6"
       ]
     },
     {
@@ -1182,5 +1263,5 @@
   "status": "confirmed",
   "approved_at": "2026-08-02",
   "authority": "PO",
-  "approval_digest": "f7327bdfb57a"
+  "approval_digest": "d53fba0e2c56"
 }

@@ -1,0 +1,159 @@
+{
+  "review_id": "REV-S0-STRUCT-09",
+  "reviewer_principal": "codex-sol (gpt-5.6-sol / openai-codex-cli)",
+  "author_principal": "claude-code (claude-opus-5)",
+  "author_execution_id": "9230d21c-4589-4845-9488-a7b5a60cb46d",
+  "reviewer_execution_id": "019fbe67-aa19-7d23-944b-62ccb76cdeca",
+  "review_run_id": "REV-S0-STRUCT-09-R4",
+  "reviewer_provider": "openai-codex-cli",
+  "review_log_path": "docs/00-authority/reviews/logs/REV-S0-STRUCT-09.jsonl",
+  "review_log_digest": "bec12dffd7fa7340",
+  "separation_status": "self_attested",
+  "model": "gpt-5.6-sol",
+  "target_commit": "2e70141fc4dcef2e574df32cad22a5d7b956a767",
+  "target_tree": "8367e136e2e0635bba39ebac1dc92bceae4e844d",
+  "scope": "未被覆 API／更新境界最終是正（正本 9 本の統一・resolution_update の機械導出・S0.1 の 7 API の acceptance／internal 確定・更新単位の設計クロージャー・レビュー証跡の 3 値化）",
+  "supersedes_review": [
+    "REV-S0-STRUCT-08"
+  ],
+  "reviewed_artifact_digests": {
+    "AGENTS.md": "ef17790fc39ffe4e",
+    "CLAUDE.md": "4ffcc7aa5ed89e86",
+    "README.md": "dd47a06bcd6d627a",
+    "docs/00-authority/approvals/approvals.md": "45df2df11f771184",
+    "docs/00-authority/artifact-manifest.json": "0b51cbe0f14d4acb",
+    "docs/00-authority/audits/update-boundary-remediation-2026-08-02.md": "02e867564eb47f0d",
+    "docs/00-authority/baselines/baseline.json": "3e17d26819331e37",
+    "docs/00-authority/requirements-gates.md": "6773eaa17380041f",
+    "docs/00-authority/reviews/logs/REV-S0-STRUCT-09.jsonl": "bec12dffd7fa7340",
+    "docs/00-authority/reviews/review.schema.json": "15184b058bb479dd",
+    "docs/00-authority/reviews/sol-review-s0-structure-07.json": "ce60e121d4934cd8",
+    "docs/00-authority/reviews/sol-review-s0-structure-08.json": "b8a2a2db490b227e",
+    "docs/L3-system-requirements/canonical/acceptance/ac-contracts.json": "0d4aa86945f56e61",
+    "docs/L3-system-requirements/canonical/functional/fr-contracts.json": "c39dba4e2318a095",
+    "docs/L3-system-requirements/verification/tc-contracts.json": "b9d1664c7e130c2d",
+    "docs/L3-system-requirements/views/ac-catalog_v0.1.md": "6da0fbbb9b31880c",
+    "docs/L3-system-requirements/views/fr-contracts_v0.1.md": "5ee813b4ec916a79",
+    "docs/L3-system-requirements/views/tc-catalog_v0.1.md": "02c9d37918a72c0f",
+    "docs/L5-detailed-design/canonical/apis/du-contract.schema.json": "21d3e4b509f8ca38",
+    "docs/L5-detailed-design/canonical/apis/du-contracts.json": "85c0eea465723ab5",
+    "docs/L5-detailed-design/views/du-contracts_v0.1.md": "59dc6c35c9bbc72c",
+    "docs/L6-feature-design/S0/external-operations.md": "277a3a58ee7a4454",
+    "docs/L6-feature-design/S0/implementation-units.json": "249ad9431f22bc03",
+    "docs/L6-feature-design/S0/state-machine.md": "cae9a74246c4b42b",
+    "docs/L6-feature-design/S0/uncovered-apis.json": "a72dff2495266967",
+    "docs/L6-feature-design/S0/update-closure.json": "19a73979a5f53f84",
+    "tests/gates/test_baseline.py": "4da5f2582fcd83c1",
+    "tests/gates/test_detailed_design.py": "6f8e8dcb56e31d25",
+    "tests/gates/test_requirements.py": "a53724be55aec378",
+    "tests/gates/test_review_binding.py": "eda94a5f15f4b62d",
+    "tests/unit/test_kernel_assigner.py": "eec0af87e74026e8",
+    "tests/unit/test_kernel_orchestrator.py": "eb3814025cff9f1b",
+    "tests/unit/test_kernel_state.py": "d6a552adc788b534",
+    "tools/gates/authority.py": "b92f73c0db4a768f",
+    "tools/gates/baseline.py": "8d3832989cf0a0df",
+    "tools/gates/detailed_design.py": "30f41cf92af51e95",
+    "tools/gates/requirements.py": "fcde0fecae3e05ab",
+    "tools/gates/review_binding.py": "49bda166c233c84a",
+    "scripts/check_skip_budget.py": "6774573e7a1a51f5",
+    "tests/skip-budget.json": "75ab4edd8b338a7b"
+  },
+  "findings": [
+    {
+      "severity": "blocker",
+      "summary": "R1-01: verification_level を internal にするだけで未被覆 API 台帳とクロージャー検査から外れ、契約節の検証が緩んでいた",
+      "status": "resolved",
+      "resolution": "internal_reason_code を閉じた語彙で必須化し、内部 API の postcondition・raises 全節に UT の clause_refs 接続を要求（AC 被覆で代替不可）。acceptance→内部分類の格下げを baseline のラチェットで拒否"
+    },
+    {
+      "severity": "major",
+      "summary": "R1-02: ci_attested が run ID と URL の形だけで成立し、外部 CI の裏付けなしに名乗れた",
+      "status": "resolved",
+      "resolution": "リポジトリ内 CI attestation（git 追跡下）への束縛を必須化し、repository／run_id／head_sha／target_tree／workflow／artifact_name／artifact_digest をレビュー宣言と実行ログの実体へ照合"
+    },
+    {
+      "severity": "major",
+      "summary": "R1-03: 証跡強度のラチェットが無く ci_attested → self_attested の後退が通った",
+      "status": "resolved",
+      "resolution": "baseline へ separation_statuses を保存し unverified<self_attested<ci_attested の順位で後退を拒否"
+    },
+    {
+      "severity": "major",
+      "summary": "R1-04: DU 台帳と updates.json の協調改変で更新境界を動かせた",
+      "status": "resolved",
+      "resolution": "baseline へ fn_boundary_map（FN→『DU|更新』）を保存し無承認の移動を拒否"
+    },
+    {
+      "severity": "major",
+      "summary": "R1-05: AC-11-6 の期待 DB 差分に external_operations の sent→unknown が欠落していた",
+      "status": "resolved",
+      "resolution": "AC-11-6／TCC-11-6 の期待 DB 差分・禁止副作用・検証方法へ external_operations の unknown 化と再送 0 を明記"
+    },
+    {
+      "severity": "major",
+      "summary": "R2-01: 内部 API の post/raises が AC 被覆で代替でき、UT 接続を外せた",
+      "status": "resolved",
+      "resolution": "loose 判定から AC 被覆を除去し、無条件に UT の clause_refs 接続を要求。複合変異テストを追加"
+    },
+    {
+      "severity": "major",
+      "summary": "R2-02: run() の git ls-files が logs のみで、正当な ci_attested が常に未追跡扱いになる本番配線の欠陥",
+      "status": "resolved",
+      "resolution": "ls-files を logs と attestations の双方へ拡張し、run() を実行して配線を観測するテストを追加"
+    },
+    {
+      "severity": "major",
+      "summary": "R2-03: attestation の workflow・artifact_name・artifact_digest が非空検査のみで実体へ束縛されていなかった",
+      "status": "resolved",
+      "resolution": "workflow は .github/workflows に実在必須、workflow／artifact_name はレビュー宣言（ci_workflow／ci_artifact_name）と一致必須、artifact_digest は実行ログの完全 sha256 と一致必須"
+    },
+    {
+      "severity": "minor",
+      "summary": "R2-04: 新設ラチェット 3 種の本番分岐へ到達する mutation test が無かった",
+      "status": "resolved",
+      "resolution": "acceptance→unit／ci_attested→self_attested／FN の更新間移動の 3 変異を detect_ratchet_faults へ投入するテストを追加"
+    },
+    {
+      "severity": "major",
+      "summary": "R3-01: R2-01 の複合変異（AC 追加＋UT 削除）を固定するテストが無かった",
+      "status": "resolved",
+      "resolution": "内部 API の節を AC へ移しつつ UT 参照を削除する変異テストを追加"
+    },
+    {
+      "severity": "major",
+      "summary": "R3-02: ci_attested がローカル生成の整合的なファイル一式だけで成立し、外部 CI の裏付けを保証していなかった",
+      "status": "resolved",
+      "resolution": "署名検証鍵 trusted-keys.json が未配備の間は ci_attested を成立させない fail-close とし（self_attested が上限）、限界と PO 判断事項を台帳・監査記録へ明記"
+    },
+    {
+      "severity": "minor",
+      "summary": "R3-03: attestations の本番配線テストがソース文字列の存在確認にとどまっていた",
+      "status": "resolved",
+      "resolution": "git を monkeypatch して run() を実行し、ls-files への引数と tracked の到達を assert するテストへ差し替え"
+    },
+    {
+      "severity": "minor",
+      "summary": "R4-01: テストファイル末尾に余分な空行があった",
+      "status": "resolved",
+      "resolution": "末尾の空行を削除（git diff --check clean）"
+    },
+    {
+      "severity": "blocker",
+      "summary": "R5-01: skip 上限の引き上げが 10 本の UT スタブ追加と別コミットになっていた（同一コミット規律違反）",
+      "status": "resolved",
+      "resolution": "設計追加・budget 引き上げ・承認行を単一コミットへ再構成し、G-BASE-RATCHET が同一変更内の裏づけを検査するようにした"
+    },
+    {
+      "severity": "major",
+      "summary": "R5-02: skip 上限の引き上げが承認行の形式検査だけで通り、設計追加との対応が検証されていなかった",
+      "status": "resolved",
+      "resolution": "skip_raise_backing_faults を新設し、上限の増分が同一変更の API 単位 UT 追加本数以内であることを G-BASE-RATCHET と scripts/check_skip_budget.py の双方で要求。負例テストを追加"
+    }
+  ],
+  "resolution_commits": [
+    "2e70141fc4dc"
+  ],
+  "verdict": "Go",
+  "completed_at": "2026-08-02",
+  "rounds": 5
+}

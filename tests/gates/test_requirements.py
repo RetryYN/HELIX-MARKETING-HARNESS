@@ -50,7 +50,7 @@ def test_mutation_malformed_table_notation_is_detected() -> None:
 
 def test_current_denominators_match_declared_scope() -> None:
     assert requirements.current_denominators(CTX) == {
-        "AC_CONTRACT": 211, "TCC": 217, "API": 58, "API_UT": 189}
+        "AC_CONTRACT": 218, "TCC": 224, "API": 58, "API_UT": 199}
 
 
 def test_no_legacy_denominator_leaks_in_live_docs() -> None:

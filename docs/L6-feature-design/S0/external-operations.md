@@ -167,6 +167,7 @@ DU／API の実在・pre/post への責務の明記・AC／TC／UT の実在と�
 
 | unit_id | DU | API | 契約節 | 責務 | AC |
 |---|---|---|---|---|---|
+| IU-EXTERNALOPERATIONS-01 | DU-04 | API-DU04-01 | POST-01・POST-02・RAISE-01 | `load`・`workflows`: definition_json / required_evidence_json を sche… | AC-12-5, AC-12-6 |
 | IU-EXTERNALOPERATIONS-02 | DU-04 | API-DU04-02 | POST-02・RAISE-02 | `run_step`・`task`: ステップ出力の証跡保存は DU-09 record() 経由のみ（evidence 直 I… | AC-42-1, AC-42-3 |
 | IU-EXTERNALOPERATIONS-04 | DU-13 | API-DU13-01 | POST-01・POST-02・RAISE-01・RAISE-02 | `resolve`・`conn`: 優先順 mcp → api → browser →（例外宣言時のみ）有償 の順で最初の有効経… | AC-41-1, AC-41-2, AC-41-3 |
 | IU-EXTERNALOPERATIONS-05 | DU-14 | API-DU14-02 | POST-01・POST-02・RAISE-01 | `check_endpoint`・`secret`: scope×endpoint が正当（test→Docker/mock、p… | AC-47-3 |
@@ -185,7 +186,6 @@ DU／API の実在・pre/post への責務の明記・AC／TC／UT の実在と�
 
 | 外した unit_id | 理由 |
 |---|---|
-| IU-EXTERNALOPERATIONS-01 | この API の契約節を AC と UT の双方で検証している節が無い（全節が理由付き N/A） |
 | IU-EXTERNALOPERATIONS-03 | この API の契約節を AC と UT の双方で検証している節が無い（全節が理由付き N/A） |
 | IU-EXTERNALOPERATIONS-09 | この API の契約節を AC と UT の双方で検証している節が無い（全節が理由付き N/A） |
 | IU-EXTERNALOPERATIONS-11 | この API の契約節を AC と UT の双方で検証している節が無い（全節が理由付き N/A） |

@@ -1,0 +1,24 @@
+{
+  "version": "0.1",
+  "note": "S0 内の更新（updates.json の S0.1／S0.2／S0.3）ごとの設計クロージャー宣言。design_closure は宣言であり、G-UPDATE-DESIGN-CLOSURE が実態（当該更新の未被覆 API = 0／全 API 契約節が AC・UT・ITC または正当な internal 分類を持つ／実装単位が構造参照で成立）から導出した状態と一致しなければならない。current_state_claim は README.md と CLAUDE.md の現在地行に 1 回ずつ現れる正本文で、closed のときだけ『設計クロージャー完了』を名乗れる。S0 全体の完了は 3 更新すべてが closed になったときに限る。",
+  "items": [
+    {
+      "update": "S0.1",
+      "design_closure": "closed",
+      "current_state_claim": "S0.1 設計クロージャー完了（未被覆 API 0）",
+      "note": "DU-01〜12。7 本の未被覆 API を acceptance（run_microloop／resume／load — AC・TCC・実装単位を新設）と internal（register_guard／get_tactical_learning_packet／for_task／exists — UT が契約節を直接検証）へ確定し、受入基準未設定の契約節を残していない"
+    },
+    {
+      "update": "S0.2",
+      "design_closure": "open",
+      "current_state_claim": "S0.2 設計クロージャー未了（planned・未被覆 API 5）",
+      "note": "DU-13〜20。list_declared／launch／screenshot／record_failure／commit_workspace の受入基準が未設定"
+    },
+    {
+      "update": "S0.3",
+      "design_closure": "open",
+      "current_state_claim": "S0.3 設計クロージャー未了（planned・未被覆 API 1）",
+      "note": "DU-21〜23。tree の受入基準が未設定"
+    }
+  ]
+}

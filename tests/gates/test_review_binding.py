@@ -1,5 +1,7 @@
 """review_binding ゲートの単体テストと mutation test。"""
 
+import json
+
 from tools.gates import review_binding
 from tools.gates.common import CTX, ROOT
 
@@ -192,7 +194,7 @@ def test_mutation_out_of_repo_path_is_not_granted_grace(tmp_path) -> None:
 # --- レビュー主体の分離を実行証跡へ束縛（PO 指示 §3）---
 
 def _sep(tmp_path, log_text=None, tracked=None, **over):
-    """verified なレビュー 1 件を組み立て、指定欄だけ変異させて検査する。"""
+    """self_attested なレビュー 1 件を組み立て、指定欄だけ変異させて検査する。"""
     import hashlib
     log = tmp_path / "docs/00-authority/reviews/logs/REV-TEST.jsonl"
     log.parent.mkdir(parents=True, exist_ok=True)
@@ -202,7 +204,7 @@ def _sep(tmp_path, log_text=None, tracked=None, **over):
     log.write_text(log_text, encoding="utf-8")
     r = {
         "review_id": "REV-TEST",
-        "separation_status": "verified",
+        "separation_status": "self_attested",
         "author_principal": "claude-code",
         "author_execution_id": "EXEC-AUTHOR-0001",
         "reviewer_principal": "codex-sol",
@@ -219,7 +221,7 @@ def _sep(tmp_path, log_text=None, tracked=None, **over):
     return review_binding.detect_separation_faults([r], root=tmp_path, tracked=tracked)
 
 
-def test_separation_verified_case_is_clean(tmp_path) -> None:
+def test_separation_self_attested_case_is_clean(tmp_path) -> None:
     assert _sep(tmp_path) == []
 
 
@@ -235,7 +237,7 @@ def test_mutation_same_principal_is_detected(tmp_path) -> None:
 
 
 def test_mutation_forged_log_digest_is_detected(tmp_path) -> None:
-    """変異: 実在ログと一致しない digest では verified を名乗れない。"""
+    """変異: 実在ログと一致しない digest では self_attested を名乗れない。"""
     faults = _sep(tmp_path, review_log_digest="0" * 16)
     assert any("実在ログと不一致" in f for f in faults)
 
@@ -255,7 +257,7 @@ def test_mutation_log_without_execution_id_is_detected(tmp_path) -> None:
 
 def test_mutation_missing_evidence_fields_are_detected(tmp_path) -> None:
     faults = _sep(tmp_path, review_run_id="")
-    assert any("verified なのに" in f for f in faults)
+    assert any("self_attested なのに" in f for f in faults)
 
 
 def test_unverified_must_not_claim_separation_evidence(tmp_path) -> None:
@@ -310,7 +312,7 @@ def test_mutation_model_declared_only_in_session_record_is_detected(tmp_path) ->
 
 
 def test_mutation_untracked_log_is_detected(tmp_path) -> None:
-    """変異: git 未追跡のログでは clone 先で検証できないため verified を名乗れない。"""
+    """変異: git 未追跡のログでは clone 先で検証できないため self_attested を名乗れない。"""
     faults = _sep(tmp_path, tracked=set())
     assert any("git 未追跡" in f for f in faults)
 
@@ -350,3 +352,149 @@ def test_mutation_scalar_payload_does_not_fall_back(tmp_path) -> None:
     log = ('{"type":"session_meta","payload":null,"id":"run-id-EXEC-REVIEWER-0001"}\n'
            '{"type":"turn_context","payload":"x","model":"gpt-5.6-sol"}\n')
     assert review_binding.log_declarations(log) == (set(), set())
+
+
+# --- 証跡の出所の 3 値化（PO 指示 §5）---
+
+
+def test_mutation_local_log_cannot_claim_third_party_verification(tmp_path) -> None:
+    """変異: ローカル生成ログしかない self_attested が第三者検証を名乗れない。"""
+    faults = _sep(tmp_path, reviewer_provider="openai-codex-cli（第三者署名あり）")
+    assert any("第三者検証を主張" in f for f in faults), faults
+
+
+def test_mutation_self_attested_with_ci_fields_is_detected(tmp_path) -> None:
+    faults = _sep(tmp_path, ci_run_id="30707844728")
+    assert any("ci_attested" in f for f in faults), faults
+
+
+RUN_ID = "30707844728"
+RUN_URL = f"https://github.com/RetryYN/HELIX-MARKETING-HARNESS/actions/runs/{RUN_ID}"
+
+
+def _ci(tmp_path, att=None, **over):
+    """ci_attested のレビュー 1 件を、リポジトリ内 CI attestation ごと組み立てる。"""
+    import hashlib
+    _sep(tmp_path)   # 実行ログを先に作る（attestation は**そのログ**へ束縛される）
+    (tmp_path / review_binding.WORKFLOW_DIR).mkdir(parents=True, exist_ok=True)
+    (tmp_path / review_binding.WORKFLOW_DIR / "python-ci.yml").write_text("name: x\n",
+                                                                          encoding="utf-8")
+    log = tmp_path / "docs/00-authority/reviews/logs/REV-TEST.jsonl"
+    body = {"repository": "RetryYN/HELIX-MARKETING-HARNESS", "workflow": "python-ci.yml",
+            "run_id": RUN_ID, "head_sha": "c" * 40, "target_tree": "d" * 40,
+            "artifact_name": "review-log",
+            "artifact_digest": hashlib.sha256(log.read_bytes()).hexdigest()}
+    if att:
+        body.update(att)
+    q = tmp_path / f"{review_binding.ATTESTATIONS}/REV-TEST.json"
+    q.parent.mkdir(parents=True, exist_ok=True)
+    q.write_text(json.dumps(body, ensure_ascii=False), encoding="utf-8")
+    tracked = {"docs/00-authority/reviews/logs/REV-TEST.jsonl",
+               f"{review_binding.ATTESTATIONS}/REV-TEST.json"}
+    over.setdefault("ci_log_digest", hashlib.sha256(q.read_bytes()).hexdigest())
+    over.setdefault("ci_run_url", RUN_URL)
+    over.setdefault("ci_workflow", "python-ci.yml")
+    over.setdefault("ci_artifact_name", "review-log")
+    return _sep(tmp_path, tracked=tracked, separation_status="ci_attested",
+                ci_run_id=RUN_ID, target_commit="c" * 40, target_tree="d" * 40, **over)
+
+
+def test_ci_attested_requires_run_binding(tmp_path) -> None:
+    assert any("ci_attested なのに" in f
+               for f in _sep(tmp_path, separation_status="ci_attested")), "欄なしで通る"
+    # 束縛が全部そろっていても、検証鍵が未配備なら第三者性は成立しない（fail-close）
+    assert any("検証鍵" in f for f in _ci(tmp_path)), _ci(tmp_path)
+
+
+def test_ci_attested_is_unreachable_without_trusted_keys(tmp_path) -> None:
+    """ローカルで整合的な attestation 一式を作っても ci_attested は名乗れない。"""
+    assert _ci(tmp_path) != []
+    assert not (ROOT / review_binding.TRUSTED_KEYS).exists(), \
+        "検証鍵を配備するなら署名検証の実装が先に要る"
+
+
+def test_mutation_ci_attested_without_attestation_file_is_detected(tmp_path) -> None:
+    """変異: run ID と URL の形だけでは第三者検証を名乗れない（attestation 不在）。"""
+    faults = _sep(tmp_path, separation_status="ci_attested", ci_run_id=RUN_ID,
+                  ci_run_url=RUN_URL, ci_log_digest="a" * 64,
+                  ci_workflow="python-ci.yml", ci_artifact_name="review-log")
+    assert any("attestation" in f and "が無い" in f for f in faults), faults
+
+
+def test_mutation_ci_attestation_for_another_commit_is_detected(tmp_path) -> None:
+    """変異: 別コミットの CI 実行を流用できない。"""
+    faults = _ci(tmp_path, att={"head_sha": "f" * 40})
+    assert any("head_sha" in f for f in faults), faults
+
+
+def test_mutation_ci_attestation_digest_mismatch_is_detected(tmp_path) -> None:
+    faults = _ci(tmp_path, ci_log_digest="a" * 64)
+    assert any("ci_log_digest" in f for f in faults), faults
+
+
+def test_mutation_ci_url_not_matching_run_id_is_detected(tmp_path) -> None:
+    """変異: run ID と対応しない URL で ci_attested を名乗れない。"""
+    url = "https://github.com/RetryYN/HELIX-MARKETING-HARNESS/actions/runs/99999999999"
+    faults = _ci(tmp_path, ci_run_url=url)
+    assert any("ci_run_url" in f for f in faults), faults
+
+
+def test_mutation_legacy_verified_status_is_rejected(tmp_path) -> None:
+    """変異: 旧語彙 verified は出所を語らないので受け付けない。"""
+    faults = _sep(tmp_path, separation_status="verified")
+    assert any("separation_status" in f for f in faults), faults
+
+
+def test_real_reviews_use_the_three_valued_status() -> None:
+    import json
+
+    from tools.gates.common import REVIEWS
+    got = {}
+    for q in sorted(REVIEWS.glob("*.json")):
+        if q.name == "review.schema.json":
+            continue
+        d = json.loads(q.read_text(encoding="utf-8"))
+        got.setdefault(d["separation_status"], []).append(d["review_id"])
+    assert set(got) <= set(review_binding.SEPARATION_STATUSES)
+    assert sorted(got.get("self_attested", [])) == ["REV-S0-STRUCT-07", "REV-S0-STRUCT-08",
+                                                    "REV-S0-STRUCT-09"]
+    assert "ci_attested" not in got
+
+
+def test_mutation_ci_attestation_for_another_artifact_is_detected(tmp_path) -> None:
+    """変異: CI が公開した artifact がレビュー実行ログでない場合を落とす。"""
+    faults = _ci(tmp_path, att={"artifact_digest": "e" * 64})
+    assert any("artifact_digest" in f for f in faults), faults
+
+
+def test_mutation_ci_attestation_unknown_workflow_is_detected(tmp_path) -> None:
+    """変異: リポジトリに実在しない workflow を名乗れない。"""
+    faults = _ci(tmp_path, att={"workflow": "ghost.yml"}, ci_workflow="ghost.yml")
+    assert any("実在しない" in f for f in faults), faults
+
+
+def test_mutation_ci_attestation_name_mismatch_is_detected(tmp_path) -> None:
+    faults = _ci(tmp_path, att={"artifact_name": "other"})
+    assert any("artifact_name" in f for f in faults), faults
+
+
+def test_ci_attestation_directory_is_git_tracked_in_production(monkeypatch) -> None:
+    """本番配線: run() が attestations も git ls-files の収集対象に渡す（独立レビュー R2-02）。"""
+    calls: list[tuple] = []
+    real = review_binding.git
+
+    def spy(*args):
+        calls.append(args)
+        return real(*args)
+
+    monkeypatch.setattr(review_binding, "git", spy)
+    monkeypatch.setattr(review_binding, "gate", lambda *a, **k: None)
+    monkeypatch.setattr(review_binding, "detect_review_faults", lambda ctx, notes=None: [])
+    seen: dict = {}
+    monkeypatch.setattr(review_binding, "detect_separation_faults",
+                        lambda reviews, tracked=None, **k: seen.setdefault("tracked", tracked) and [])
+    review_binding.run(CTX)
+    ls = [c for c in calls if c and c[0] == "ls-files"]
+    assert ls, "run() が git ls-files を呼んでいない"
+    assert any(review_binding.ATTESTATIONS in a for a in ls[0]), ls[0]
+    assert seen["tracked"] is not None

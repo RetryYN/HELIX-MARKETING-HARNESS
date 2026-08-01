@@ -8,7 +8,7 @@
   "reviewer_provider": "openai-codex-cli",
   "review_log_path": "docs/00-authority/reviews/logs/REV-S0-STRUCT-08.jsonl",
   "review_log_digest": "ca17998854a90fcb",
-  "separation_status": "verified",
+  "separation_status": "self_attested",
   "model": "gpt-5.6-sol",
   "target_commit": "fda8c99bbf0901941c9439fdca16d80b38a21190",
   "target_tree": "293dcfe7692cb123cb2b9fe91a4db6f6da54022a",

@@ -175,3 +175,39 @@ def test_get_tactical_learning_packet_returns_record_or_none() -> None:
 def test_downstream_paths_cannot_write_strategic_briefs() -> None:
     """du-contracts DU-02 の契約観点を検証する（実装スライスで red→green）。"""
     raise NotImplementedError
+
+
+@pytest.mark.skip(reason="test-first DU-02: run_microloop")
+def test_run_microloop_self_review_or_missing_evidence_rejected() -> None:
+    """du-contracts DU-02 の契約観点を検証する（実装スライスで red→green）。"""
+    raise NotImplementedError
+
+
+@pytest.mark.skip(reason="test-first DU-02: run_microloop")
+def test_run_microloop_executor_transient_failure_retryable() -> None:
+    """du-contracts DU-02 の契約観点を検証する（実装スライスで red→green）。"""
+    raise NotImplementedError
+
+
+@pytest.mark.skip(reason="test-first DU-02: resume")
+def test_resume_delegates_transition_to_state_machine() -> None:
+    """du-contracts DU-02 の契約観点を検証する（実装スライスで red→green）。"""
+    raise NotImplementedError
+
+
+@pytest.mark.skip(reason="test-first DU-02: supersede_strategic_brief")
+def test_supersede_strategic_brief_invalid_chain_rejected() -> None:
+    """du-contracts DU-02 の契約観点を検証する（実装スライスで red→green）。"""
+    raise NotImplementedError
+
+
+@pytest.mark.skip(reason="test-first DU-02: supersede_strategic_brief")
+def test_supersede_strategic_brief_schema_violation_rejected() -> None:
+    """du-contracts DU-02 の契約観点を検証する（実装スライスで red→green）。"""
+    raise NotImplementedError
+
+
+@pytest.mark.skip(reason="test-first DU-02: issue_task")
+def test_issue_task_same_principal_pair_rejected() -> None:
+    """du-contracts DU-02 の契約観点を検証する（実装スライスで red→green）。"""
+    raise NotImplementedError

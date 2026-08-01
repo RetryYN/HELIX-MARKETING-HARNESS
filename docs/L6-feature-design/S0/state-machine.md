@@ -148,6 +148,8 @@ DU／API の実在・pre/post への責務の明記・AC／TC／UT の実在と�
 | IU-STATEMACHINE-03 | DU-02 | API-DU02-02 | POST-01・POST-02・PRE-01・RAISE-01 | `claim`・`task`: lease_owner_execution_id・lease_expires_at（config… | AC-27-1, AC-27-3 |
 | IU-STATEMACHINE-04 | DU-02 | API-DU02-01 | POST-01・POST-02・POST-03・PRE-03・RAISE-01 | `issue_task`・`loop_run`: 同一 (loop_run_id, step_key) に非終端の既存 task… | AC-12-1, AC-12-2, AC-12-3, AC-12-4, AC-27-1 |
 | IU-STATEMACHINE-06 | DU-02 | API-DU02-07 | POST-01・RAISE-01 | `validate_strategic_brief`・`held_digest`: status=active・digest 一… | AC-SR-02, AC-SR-06-3, AC-SR-07-1 |
+| IU-STATEMACHINE-05 | DU-02 | API-DU02-03 | POST-01・POST-02・RAISE-01・RAISE-02 | `run_microloop`・`task`: submit→verify を反復し、FAIL ごとに verify_fail 遷移（retry_c… | AC-13-7, AC-13-8, AC-13-9 |
+| IU-STATEMACHINE-08 | DU-02 | API-DU02-04 | POST-01・POST-02・RAISE-01 | `resume`・`entity`: s0-contract §3.3 の再開分岐を DB 行のみを根拠に判定し ResumeAct… | AC-11-5, AC-11-6 |
 | IU-STATEMACHINE-07 | DU-03 | API-DU03-01 | RAISE-01 | `assign`・`agents`: active かつ principal の異なる agent の組（agents.prin… | AC-27-2 |
 
 本文書が担っていた次の責務は、**API 契約節を AC と UT の双方が検証している状態**を作れないため実装単位から外した（接続の穴は[監査記録](../../00-authority/audits/structural-trace-remediation-2026-08-02.md)が正本）。
@@ -155,4 +157,3 @@ DU／API の実在・pre/post への責務の明記・AC／TC／UT の実在と�
 | 外した unit_id | 理由 |
 |---|---|
 | IU-STATEMACHINE-01 | この API の契約節を AC と UT の双方で検証している節が無い（全節が理由付き N/A） |
-| IU-STATEMACHINE-05 | この API の契約節を AC と UT の双方で検証している節が無い（全節が理由付き N/A） |

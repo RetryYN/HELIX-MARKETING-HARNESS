@@ -6080,6 +6080,270 @@
         "error_type_refs": [],
         "api_refs": []
       }
+    },
+    {
+      "id": "TCC-13-7",
+      "ac": [
+        "AC-13-7"
+      ],
+      "kind": "normal",
+      "verifies_state": "tasks.state = 'escalated'、retry_count = 3",
+      "verifies_db_delta": "state_transitions +6 行（submit_for_verification 3・verify_fail 2・verify_fail_exhausted 1）、tasks 1 行の state/retry_count UPDATE",
+      "verifies_evidence": "state_transitions の各行（details_json に差戻し理由）",
+      "verifies_forbidden": "escalated 到達後の再反復・retry_count の 2 以上の加算・DU-01 を経由しない tasks 直接 UPDATE",
+      "external_calls": "0 回",
+      "method": "pytest: config（retry_limit=3）・agents 2 行（principal 相違）・tasks 1 行（in_progress, retry_count=0）を seed し、常時 FAIL の verifier スタブで run_microloop を実行、tasks.state／retry_count／state_transitions を assert",
+      "slice": "S0",
+      "semantic_refs": {
+        "table_refs": [
+          "agents",
+          "config",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "tasks.retry_count",
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.escalated",
+          "tasks.in_progress",
+          "tasks.verifying"
+        ],
+        "event_refs": [
+          "submit_for_verification",
+          "verify_fail",
+          "verify_fail_exhausted"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": [
+          "run_microloop"
+        ]
+      }
+    },
+    {
+      "id": "TCC-13-8",
+      "ac": [
+        "AC-13-8"
+      ],
+      "kind": "reject",
+      "verifies_state": "tasks.state = 'verifying'（不変）、retry_count = 0（不変）",
+      "verifies_db_delta": "差分なし",
+      "verifies_evidence": "review_fail 証跡が作られないこと",
+      "verifies_forbidden": "同一 principal による FAIL の受理・理由なし FAIL での retry_count 消費",
+      "external_calls": "0 回",
+      "method": "pytest: (a) principal 同一の author/verifier、(b) 差戻し理由・verifier 証跡なし の 2 fixture で run_microloop を実行し、GateRejected と DB 不変を assert",
+      "slice": "S0",
+      "semantic_refs": {
+        "table_refs": [
+          "agents",
+          "evidence",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "tasks.retry_count",
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.verifying"
+        ],
+        "event_refs": [
+          "verify_fail"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "GateRejected"
+        ],
+        "api_refs": [
+          "run_microloop"
+        ]
+      }
+    },
+    {
+      "id": "TCC-13-9",
+      "ac": [
+        "AC-13-9"
+      ],
+      "kind": "boundary",
+      "verifies_state": "tasks.state = 'in_progress'（不変）、retry_count = 0（不変）",
+      "verifies_db_delta": "差分なし",
+      "verifies_evidence": "なし（証跡行が作られないこと）",
+      "verifies_forbidden": "一時失敗の verify_fail 計上・非再試行系への誤分類",
+      "external_calls": "0 回",
+      "method": "pytest: 一時失敗を送出する executor スタブで run_microloop を実行し、RetryableError と tasks の不変を assert",
+      "slice": "S0",
+      "semantic_refs": {
+        "table_refs": [
+          "agents",
+          "config",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "tasks.retry_count",
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.in_progress"
+        ],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "RetryableError"
+        ],
+        "api_refs": [
+          "run_microloop"
+        ]
+      }
+    },
+    {
+      "id": "TCC-11-5",
+      "ac": [
+        "AC-11-5"
+      ],
+      "kind": "resume",
+      "verifies_state": "各 entity が s0-contract §3.3 の規則どおりの状態",
+      "verifies_db_delta": "resume による直接 UPDATE 0 行（状態変更は state_transitions 経由のみ）",
+      "verifies_evidence": "既存 evidence 行が不変",
+      "verifies_forbidden": "終端 entity の再開・DU-01 を経由しない直接 UPDATE・DB 行以外を根拠にした分岐",
+      "external_calls": "0 回",
+      "method": "pytest: 非終端の tasks 3 状態と loop_runs 2 状態を seed し、各 entity に resume を実行して ResumeAction の分岐・根拠行 id と DB 不変を assert",
+      "slice": "S0",
+      "semantic_refs": {
+        "table_refs": [
+          "agent_executions",
+          "evidence",
+          "loop_runs",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "loop_runs.state",
+          "tasks.state"
+        ],
+        "state_refs": [
+          "loop_runs.running",
+          "loop_runs.waiting",
+          "tasks.in_progress",
+          "tasks.pending",
+          "tasks.verifying"
+        ],
+        "event_refs": [
+          "resume"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": [
+          "resume",
+          "transition"
+        ]
+      }
+    },
+    {
+      "id": "TCC-11-6",
+      "ac": [
+        "AC-11-6"
+      ],
+      "kind": "reject",
+      "verifies_state": "tasks.state = 'escalated'",
+      "verifies_db_delta": "external_operations 1 行 UPDATE（sent→unknown）、tasks 1 行 UPDATE（in_progress→escalated）、state_transitions +1 行（event='escalate'）、送信系の新規行 0",
+      "verifies_evidence": "external_operations の sent 行が unknown 化され、operation_log 証跡に再送行が増えないこと",
+      "verifies_forbidden": "照合不能時の再送・confirmed 化・done 遷移",
+      "external_calls": "照合 1 回・送信 0 回",
+      "method": "pytest: external_operations の sent 行と照合不能スタブで resume を実行し、status の unknown 化・escalated 遷移・送信 0 回・再送行 0 を同一テストで assert",
+      "slice": "S0",
+      "semantic_refs": {
+        "table_refs": [
+          "external_operations",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "external_operations.status",
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.escalated",
+          "tasks.in_progress"
+        ],
+        "event_refs": [
+          "escalate"
+        ],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "FatalError"
+        ],
+        "api_refs": [
+          "resume"
+        ]
+      }
+    },
+    {
+      "id": "TCC-12-5",
+      "ac": [
+        "AC-12-5"
+      ],
+      "kind": "normal",
+      "verifies_state": "workflows の行・列が前後で不変",
+      "verifies_db_delta": "差分なし",
+      "verifies_evidence": "なし（証跡行が作られないこと）",
+      "verifies_forbidden": "定義の暗黙補完・enum 外 kind の黙認・load による workflows 書込み",
+      "external_calls": "0 回",
+      "method": "pytest: 同一 workflow_key の version=1／2（2 が active）を seed し、版未指定と版指定の load 戻り値・required_evidence の kind 検証・DB 不変を assert",
+      "slice": "S0",
+      "semantic_refs": {
+        "table_refs": [
+          "workflows"
+        ],
+        "column_refs": [
+          "workflows.definition_json",
+          "workflows.required_evidence_json"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": [
+          "load"
+        ]
+      }
+    },
+    {
+      "id": "TCC-12-6",
+      "ac": [
+        "AC-12-6"
+      ],
+      "kind": "reject",
+      "verifies_state": "実行が開始されず tasks に新規行が生じない",
+      "verifies_db_delta": "差分なし",
+      "verifies_evidence": "なし（証跡行が作られないこと）",
+      "verifies_forbidden": "破損定義での実行開始・既定値による補完・例外の握り潰し",
+      "external_calls": "0 回",
+      "method": "pytest: 定義行なし／definition_json 破損の 2 fixture で load を実行し、FatalError と DB 不変を assert",
+      "slice": "S0",
+      "semantic_refs": {
+        "table_refs": [
+          "tasks",
+          "workflows"
+        ],
+        "column_refs": [
+          "workflows.definition_json",
+          "workflows.required_evidence_json"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "FatalError"
+        ],
+        "api_refs": [
+          "load"
+        ]
+      }
     }
   ],
   "status": "confirmed",
@@ -6088,5 +6352,5 @@
   "supersedes": [
     "ARCHIVE-TC-LEGACY"
   ],
-  "approval_digest": "3494028deb83"
+  "approval_digest": "c60db3bc035d"
 }

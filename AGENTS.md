@@ -18,9 +18,10 @@ Codex エージェント向け。作業規律の正本は CLAUDE.md（同内容�
 ## 実装正本
 
 - Python パッケージは **`src/helix/`** に統一（二重パッケージなし）。
-- 実装・検証の入力は契約 JSON 正本 8 本（BR/FR/SR/NFR/AC/TC/CMP/DU contracts）。
+- 実装・検証の入力は契約 JSON 正本 9 本（BR/FR/SR/NFR/AC/TC/CMP/DU contracts ＋
+  L6 責務／API／契約節／AC／TC／UT = `docs/L6-feature-design/S0/implementation-units.json`）。
   MD は `scripts/render_views.py` の生成ビューで手編集禁止。
 - ゲート実装は `tools/gates/` の工程別モジュール。`scripts/validate_requirements.py` は互換ラッパーで、
   ゲート本体を書き足さない。
-- 現行分母は AC=211 ／ TCC=217 ／ API=58 ／ API_UT=189 のみ。旧体系の分母は
+- 現行分母は AC=218 ／ TCC=224 ／ API=58 ／ API_UT=199 のみ。旧体系の分母は
   baseline.json の `historical_counts` にのみ保持する。

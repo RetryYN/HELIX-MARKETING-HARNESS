@@ -37,8 +37,10 @@ from tools.gates.common import (
 
 # 現在地の正本文（README.md / CLAUDE.md はこの行以外の現在地表明を持たない — PO 指示 §3）
 CURRENT_STATE_LINES = [
-    "S0 設計クロージャー完了（S0 実装入力の設計正本を confirmed 化）",
-    "S1 以降は planned",
+    "構造・権威移行完了（L0〜L6 の正本と機械ゲートを確定）",
+    "S0.1 設計クロージャー完了（未被覆 API 0）",
+    "S0.2 設計クロージャー未了（planned・未被覆 API 5）",
+    "S0.3 設計クロージャー未了（planned・未被覆 API 1）",
     "S0.1 実装未着手",
     "HELIX-HARNESS 取込は未実施・PO 判断待ち",
 ]

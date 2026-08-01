@@ -40,9 +40,12 @@
   戦略層は strategy-loop-requirements／strategy-learning-contract ↔ strategy-loop-design／
   strategy-loop-test-design のペア（SR 16／SCM 10／STC）。
   DDL・状態遷移・evidence 型・WF 契約の正準は docs/L3-system-requirements/canonical/s0-contract_v0.1.md。
-- 現在地（この 4 行が正本。他所へ現在地を書かない）:
-  - S0 設計クロージャー完了（S0 実装入力の設計正本を confirmed 化）
-  - S1 以降は planned
+- 現在地（この 6 行が正本。他所へ現在地を書かない。完了宣言は**更新単位**で、
+  docs/L6-feature-design/S0/update-closure.json の宣言と実態の一致を G-UPDATE-DESIGN-CLOSURE が検査する）:
+  - 構造・権威移行完了（L0〜L6 の正本と機械ゲートを確定）
+  - S0.1 設計クロージャー完了（未被覆 API 0）
+  - S0.2 設計クロージャー未了（planned・未被覆 API 5）
+  - S0.3 設計クロージャー未了（planned・未被覆 API 1）
   - S0.1 実装未着手
   - HELIX-HARNESS 取込は未実施・PO 判断待ち
 - 実装・検証の入力は **契約正本 9 本**（JSON）のみ:
@@ -61,8 +64,15 @@
   （API 安定 ID 1 件・配列禁止）と `clause_refs`（当該 API の契約節 ID）で接続し、`ac_refs` の AC
   （`verifies_clause_refs`）と `ut_refs` の UT（`apis[].ut[].clause_refs`）が**同じ契約節**を
   参照していなければならない。API 名・テスト名・日本語語彙の部分一致を接続の根拠にしない。
-  全 API 契約節は AC 被覆か理由付き `na_reason` のいずれかを持つ（G-L6-IMPLEMENTATION-TRACE）。
-- 現行分母は **AC=211 ／ TCC=217 ／ API=58 ／ API_UT=189** のみ。旧体系の分母は baseline.json の
+  全 API 契約節は AC 被覆か理由付き `na_reason`（閉じた語彙 — `呼出側義務:`／`配線時保証:`／
+  `他 API で検証:`／`単体検証:`／`受入基準未設定:`）のいずれかを持つ（G-L6-IMPLEMENTATION-TRACE）。
+  API は `verification_level`（acceptance／unit／integration）で分かれ、内部 API は `internal_reason` を
+  持ち UT が契約節を直接検証する。`受入基準未設定:` は N/A ではなく**未解決 gap**で、AC が 1 節も
+  検証していない acceptance API は docs/L6-feature-design/S0/uncovered-apis.json に
+  `resolution_update`（DU の fn_ids → updates.json から機械導出 — G-UNCOVERED-API-UPDATE）付きで登録する。
+  更新ごとの設計クロージャー宣言は docs/L6-feature-design/S0/update-closure.json が正本で、
+  実態との一致と現在地との一致を G-UPDATE-DESIGN-CLOSURE が検査する（slice と update を混同しない）。
+- 現行分母は **AC=218 ／ TCC=224 ／ API=58 ／ API_UT=199** のみ。旧体系の分母は baseline.json の
   `historical_counts` にのみ保持し、現役導線では使わない。
 - 次 = **S0.1 実装**（DU-01〜12 の API を test-first。各 API の UT は du-contracts の `apis[].ut` が正本）。
   実装パッケージは **`src/helix/`**。着手は**自動検出**される（`src/helix/` への実装追加・

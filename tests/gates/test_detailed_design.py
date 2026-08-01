@@ -309,7 +309,7 @@ def test_mutation_stale_uncovered_api_entry_is_detected(monkeypatch, tmp_path) -
     p = tmp_path / "uncovered-apis.json"
     p.write_text(json.dumps({"items": [{"api_id": "API-DU05-01", "du_id": "DU-05",
                                         "function": "establish", "reason": "x",
-                                        "resolution_slice": "S1"}]}), encoding="utf-8")
+                                        "resolution_update": "S0.1"}]}), encoding="utf-8")
     covered = {c for a in CTX.acc for c in (a.get("verifies_clause_refs") or [])}
     faults = detailed_design.detect_uncovered_api_ledger_faults(CTX, covered, p)
     assert any("実際は AC 被覆がある" in f for f in faults), faults
@@ -360,11 +360,183 @@ def test_mutation_ledger_metadata_mismatch_is_detected(tmp_path) -> None:
     assert any("実契約" in f and "不一致" in f for f in faults), faults
 
 
-def test_mutation_ledger_unknown_resolution_slice_is_detected(tmp_path) -> None:
+# --- 更新境界（PO 指示 §2・§4）---
+
+
+def _ledger(tmp_path, mutate):
     src = json.loads(detailed_design.UNCOVERED_APIS.read_text(encoding="utf-8"))
-    src["items"][0]["resolution_slice"] = "いつか"
+    mutate(src)
     p = tmp_path / "uncovered-apis.json"
     p.write_text(json.dumps(src, ensure_ascii=False), encoding="utf-8")
+    return p
+
+
+def test_update_is_derived_from_du_fn_ids_and_updates_json() -> None:
+    """DU→FN→updates.json の導出が一意に決まり、S0.1／S0.2／S0.3 の境界を与える。"""
+    derived, bad = detailed_design.update_of_du(CTX)
+    assert bad == []
+    assert derived["DU-01"] == "S0.1" and derived["DU-13"] == "S0.2" and derived["DU-21"] == "S0.3"
+    assert set(derived) == {d["id"] for d in CTX.dus}
+
+
+def test_uncovered_ledger_updates_match_derivation() -> None:
+    assert detailed_design.detect_uncovered_update_faults(CTX) == []
+
+
+def test_mutation_hand_written_update_that_contradicts_derivation_is_detected(tmp_path) -> None:
+    """変異: 導出と食い違う update を手入力できない。"""
+    p = _ledger(tmp_path, lambda s: s["items"][0].update({"resolution_update": "S0.3"}))
+    faults = detailed_design.detect_uncovered_update_faults(CTX, p)
+    assert any("導出" in f and "不一致" in f for f in faults), faults
+
+
+def test_mutation_slice_vocabulary_as_resolution_is_detected(tmp_path) -> None:
+    """変異: slice 語彙（S1／later）を解消先に書けない。"""
+    p = _ledger(tmp_path, lambda s: s["items"][0].update({"resolution_update": "S1"}))
+    faults = detailed_design.detect_uncovered_update_faults(CTX, p)
+    assert any("更新語彙" in f for f in faults), faults
+
+
+def test_mutation_legacy_resolution_slice_field_is_detected(tmp_path) -> None:
+    """変異: 旧欄 resolution_slice の残存を落とす（slice と update の混同）。"""
+    def m(s):
+        s["items"][0]["resolution_slice"] = "S0"
+    p = _ledger(tmp_path, m)
+    faults = detailed_design.detect_uncovered_update_faults(CTX, p)
+    assert any("resolution_slice" in f for f in faults), faults
+
+
+def test_update_closure_declaration_matches_reality() -> None:
+    assert detailed_design.detect_update_closure_faults(CTX) == []
+    computed, uncovered, bad = detailed_design.compute_update_closure(CTX)
+    assert bad == []
+    assert computed["S0.1"] == "closed" and uncovered["S0.1"] == 0
+    assert computed["S0.2"] == "open" and computed["S0.3"] == "open"
+
+
+def test_mutation_unresolved_gap_reopens_the_update(monkeypatch, tmp_path) -> None:
+    """変異: S0.1 の契約節に受入基準未設定が 1 つでも残れば closed を名乗れない。"""
+    def m(duc):
+        for d in duc:
+            if d["id"] != "DU-01":
+                continue
+            detailed_design.api_clauses(d["apis"][0])[0]["na_reason"] = "受入基準未設定: あとで"
+            return
+    ctx = _ctx_with(tmp_path, monkeypatch, mutate_du=m)
+    computed, _, _ = detailed_design.compute_update_closure(ctx)
+    assert computed["S0.1"] == "open"
+    faults = detailed_design.detect_update_closure_faults(ctx)
+    assert any("S0.1" in f and "実態" in f for f in faults), faults
+
+
+def test_mutation_closed_claim_without_closure_is_detected(tmp_path) -> None:
+    """変異: open の更新が現在地で『設計クロージャー完了』を名乗れない。"""
+    src = json.loads(detailed_design.UPDATE_CLOSURE.read_text(encoding="utf-8"))
+    for it in src["items"]:
+        if it["update"] == "S0.2":
+            it["design_closure"] = "closed"
+            it["current_state_claim"] = "S0.2 設計クロージャー完了（未被覆 API 5）"
+    p = tmp_path / "update-closure.json"
+    p.write_text(json.dumps(src, ensure_ascii=False), encoding="utf-8")
+    faults = detailed_design.detect_update_closure_faults(CTX, p)
+    assert any("S0.2" in f and "実態 open" in f for f in faults), faults
+
+
+def test_mutation_claim_absent_from_current_state_is_detected(tmp_path) -> None:
+    """変異: 宣言した現在地行が README／CLAUDE.md に無ければ落とす。"""
+    src = json.loads(detailed_design.UPDATE_CLOSURE.read_text(encoding="utf-8"))
+    for it in src["items"]:
+        if it["update"] == "S0.1":
+            it["current_state_claim"] = "S0.1 設計クロージャー完了（未被覆 API 0）— 未掲載"
+    p = tmp_path / "update-closure.json"
+    p.write_text(json.dumps(src, ensure_ascii=False), encoding="utf-8")
+    faults = detailed_design.detect_update_closure_faults(CTX, p)
+    assert any("現在地に" in f for f in faults), faults
+
+
+# --- verification_level（PO 指示 §3）---
+
+
+def test_every_api_declares_a_verification_level() -> None:
+    levels = {a["api_id"]: a["verification_level"] for d in CTX.duc for a in d["apis"]}
+    assert set(levels.values()) <= {"acceptance", "unit", "integration"}
+    internal = sorted(k for k, v in levels.items() if v != "acceptance")
+    assert internal == ["API-DU01-02", "API-DU02-09", "API-DU09-02", "API-DU09-03"]
+    for d in CTX.duc:
+        for a in d["apis"]:
+            if a["verification_level"] != "acceptance":
+                assert len(a["internal_reason"]) >= 20
+
+
+def test_mutation_internal_level_without_reason_is_detected(monkeypatch, tmp_path) -> None:
+    def m(duc):
+        duc[0]["apis"][0]["verification_level"] = "unit"
+    ctx = _ctx_with(tmp_path, monkeypatch, mutate_du=m)
+    faults = detailed_design.detect_clause_coverage_faults(ctx)
+    assert any("internal_reason" in f for f in faults), faults
+
+
+def test_mutation_unit_category_without_ut_link_is_detected(monkeypatch, tmp_path) -> None:
+    """変異: UT 接続のない節が『単体検証』を名乗れない。"""
+    def m(duc):
+        for d in duc:
+            for a in d["apis"]:
+                for c in detailed_design.api_clauses(a):
+                    if (c.get("na_reason") or "").startswith("呼出側義務:"):
+                        c["na_reason"] = "単体検証: UT が検証している（と主張するだけ）"
+                        return
+    ctx = _ctx_with(tmp_path, monkeypatch, mutate_du=m)
+    faults = detailed_design.detect_clause_coverage_faults(ctx)
+    assert any("単体検証" in f and "clause_refs に無い" in f for f in faults), faults
+
+
+def test_mutation_gap_category_on_ut_verified_clause_is_detected(monkeypatch, tmp_path) -> None:
+    """変異: UT が検証している節を『受入基準未設定』（未解決 gap）と偽れない。"""
+    def m(duc):
+        for d in duc:
+            for a in d["apis"]:
+                for c in detailed_design.api_clauses(a):
+                    if (c.get("na_reason") or "").startswith("単体検証:"):
+                        c["na_reason"] = "受入基準未設定: 受入基準がない"
+                        return
+    ctx = _ctx_with(tmp_path, monkeypatch, mutate_du=m)
+    faults = detailed_design.detect_clause_coverage_faults(ctx)
+    assert any("正しい分類" in f for f in faults), faults
+
+
+def test_mutation_internal_api_listed_in_uncovered_ledger_is_detected(tmp_path) -> None:
+    """変異: 内部 API を未解決 gap の台帳へ載せられない（分類の二重取り）。"""
+    def m(s):
+        s["items"].append({"api_id": "API-DU01-02", "du_id": "DU-01",
+                           "function": "register_guard", "reason": "x",
+                           "resolution_update": "S0.1"})
+    p = _ledger(tmp_path, m)
     covered = {c for a in CTX.acc for c in (a.get("verifies_clause_refs") or [])}
     faults = detailed_design.detect_uncovered_api_ledger_faults(CTX, covered, p)
-    assert any("resolution_slice" in f for f in faults), faults
+    assert any("内部 API" in f for f in faults), faults
+
+
+def test_mutation_internal_api_cannot_swap_ut_link_for_ac(monkeypatch, tmp_path) -> None:
+    """変異: 内部 API の post／raises を AC 被覆へ付け替えて UT 接続を外せない（R2-01）。"""
+    victim = "API-DU01-02"
+    clause = "API-DU01-02-POST-01"
+
+    def m_du(duc):
+        for d in duc:
+            for a in d["apis"]:
+                if a["api_id"] != victim:
+                    continue
+                for u in a["ut"]:
+                    u["clause_refs"] = [c for c in u["clause_refs"] if c != clause]
+                for c in detailed_design.api_clauses(a):
+                    if c["clause_id"] == clause:
+                        c.pop("na_reason", None)
+
+    def m_ac(acc):
+        for a in acc:
+            if a["id"] == "AC-11-1":
+                a["verifies_clause_refs"] = [*a["verifies_clause_refs"], clause]
+
+    ctx = _ctx_with(tmp_path, monkeypatch, mutate_du=m_du, mutate_ac=m_ac)
+    faults = detailed_design.detect_clause_coverage_faults(ctx)
+    assert any(victim in f and "UT の clause_refs に無い" in f for f in faults), faults

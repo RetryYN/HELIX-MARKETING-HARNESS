@@ -2,7 +2,7 @@
 
 # 受入条件 検証契約カタログ（AC contracts）v0.1
 
-> status: **confirmed**（2026-08-01 PO 承認 — receipt 2f2a0dccb82b）。JSON 内容正本の生成ビュー（全層再降下 §4）
+> status: **confirmed**（2026-08-01 PO 承認 — receipt ab1cabe3793f）。JSON 内容正本の生成ビュー（全層再降下 §4）
 > 各 AC に GWT＋fixture・観測点・期待状態・DB 差分・証跡・禁止副作用・エラー型・対象更新を必須化
 > （G-AC-COVERAGE／G-AC-POLARITY）。旧体系の受入条件は historical 記録のみ（現行分母は本カタログ）。
 
@@ -44,6 +44,24 @@
 - **禁止副作用**: loop_runs 行の brief_id/digest 変更・状態遷移の発生 ／ **エラー型**: IntegrityError（保持列変更拒否）／TransitionRejected
 - **対象更新**: S0.1（状態機械・run 保持列保護）／loop_runs 更新経路 ／ **TC**: TCC-11-4
 
+### AC-11-5（境界・復旧）
+
+- **Given**: プロセス再起動直後の DB に、非終端の各状態の entity が存在する（tasks: pending／外部操作前の in_progress／verifying、loop_runs: running／waiting） ／ **When**: 各 entity に対して resume を実行する ／ **Then**: s0-contract §3.3 の分岐どおりの ResumeAction（根拠行 id 付き）が返り、状態変更が必要な場合も遷移は DU-01 経由でのみ実行される（プロセス内メモリや推測を根拠にしない）
+- **fixture**: seed: loop_runs 2 行（state='running' と state='waiting'）、tasks 3 行（state='pending'／'in_progress'／'verifying'）、各行に対応する evidence・agent_executions を投入
+- **観測点**: resume 戻り値（ResumeAction の分岐と根拠行 id）／tasks・loop_runs SELECT／state_transitions SELECT ／ **期待状態**: 各 entity は s0-contract §3.3 の規則どおりの状態（pending は再 claim 可のまま、外部操作前の in_progress は再読込のみ、waiting は充足条件の再判定）
+- **期待 DB 差分**: resume 自体による直接 UPDATE は 0 行（状態変更は DU-01 の遷移として state_transitions に現れる） ／ **期待証跡**: 既存 evidence 行は不変（再読込のみ）
+- **禁止副作用**: 終端 entity の再開・DU-01 を経由しない直接 UPDATE・DB 行以外を根拠にした分岐 ／ **エラー型**: なし
+- **対象更新**: S0.1（CMP-02 再開制御＋CMP-01 状態機械）／resume ／ **TC**: TCC-11-5
+
+### AC-11-6（拒否）
+
+- **Given**: 外部操作を sent のまま中断した task（external_operations.status='sent'）と、リモート照合が不能（idempotency key・remote object ID のいずれからも成否を判定できない）な接続 ／ **When**: resume を実行する ／ **Then**: 再送を行わず unknown として扱い、FatalError で escalate 経路へ倒れる（成功したはずという推測での再送・完了扱いをしない）
+- **fixture**: seed: tasks 1 行（state='in_progress'）、external_operations 1 行（status='sent'）、リモート照合が不能を返す接続スタブ注入
+- **観測点**: raise される例外型／外部呼出回数／tasks.state SELECT／state_transitions SELECT／external_operations.status SELECT ／ **期待状態**: tasks.state = 'escalated'（人の関与へ）
+- **期待 DB 差分**: external_operations 1 行 UPDATE（status='sent'→'unknown'）、tasks 1 行 UPDATE（in_progress→escalated）、state_transitions +1 行（event='escalate'）。送信系の新規行は増えない ／ **期待証跡**: external_operations の sent 行が unknown 化され、operation_log 証跡に再送の行は増えない
+- **禁止副作用**: 照合不能時の再送（external_operations の新規 sent 行）・成功扱いでの confirmed 化・done 遷移 ／ **エラー型**: FatalError
+- **対象更新**: S0.1（CMP-02 再開制御）／resume ／ **TC**: TCC-11-6
+
 ## FR-12
 
 ### AC-12-1（正常）
@@ -81,6 +99,24 @@
 - **期待 DB 差分**: 差分なし ／ **期待証跡**: 構造化ログの拒否行（verifier 未割当）
 - **禁止副作用**: verifier_agent_id NULL の tasks 行の混入 ／ **エラー型**: TaskIssuanceRejected／IntegrityError（NOT NULL）
 - **対象更新**: S0.1（タスク発行）／tasks INSERT 経路 ／ **TC**: TCC-12-4
+
+### AC-12-5（正常）
+
+- **Given**: workflows に同一 workflow_key の複数版（active 最新版と旧版）が存在し、いずれも definition_json／required_evidence_json が schema 適合である ／ **When**: 版を指定せずに load し、続けて旧版を指定して load する ／ **Then**: 未指定では active 最新版、指定時はその版の WorkflowDef が返り、required_evidence_json の kind がすべて evidence enum 内であることが検証され、DB は読み取りのみで変化しない
+- **fixture**: seed: workflows 2 行（同一 workflow_key の version=1 と version=2、version=2 が active）、双方の definition_json／required_evidence_json は schema 適合・kind は evidence enum 内
+- **観測点**: load 戻り値（WorkflowDef の version と required_evidence）／workflows SELECT（前後比較） ／ **期待状態**: workflows の行・列は前後で不変（読み取りのみ）
+- **期待 DB 差分**: 差分なし ／ **期待証跡**: なし（証跡行は作られない）
+- **禁止副作用**: 定義の暗黙補完・enum 外 kind の黙認・load による workflows への書込み ／ **エラー型**: なし
+- **対象更新**: S0.1（CMP-02 ワークフロー実行器）／load ／ **TC**: TCC-12-5
+
+### AC-12-6（拒否）
+
+- **Given**: (a) 該当 workflow_key の定義行が存在しない状態と、(b) definition_json／required_evidence_json が schema 破損している定義行 ／ **When**: それぞれ load を実行してタスク実行を開始しようとする ／ **Then**: どちらも FatalError で fail-close し、壊れた定義・不在定義のまま実行が開始されず DB も変化しない
+- **fixture**: seed: (a) workflows 0 行、(b) workflows 1 行（definition_json が JSON 破損・required_evidence_json が schema 不適合）
+- **観測点**: raise される例外型／tasks SELECT（行が増えないこと）／workflows SELECT ／ **期待状態**: 実行は開始されず、tasks に新規行は生じない
+- **期待 DB 差分**: 差分なし（拒否は副作用を持たない） ／ **期待証跡**: なし（証跡行は作られない）
+- **禁止副作用**: 破損定義での実行開始・既定値による定義の補完・例外の握り潰し ／ **エラー型**: FatalError
+- **対象更新**: S0.1（CMP-02 ワークフロー実行器）／load ／ **TC**: TCC-12-6
 
 ## FR-13
 
@@ -137,6 +173,33 @@
 - **期待 DB 差分**: 差分なし（拒否は副作用を持たない） ／ **期待証跡**: 拒否の構造化ログ（違反した不変条件の識別子つき）
 - **禁止副作用**: 不変条件を破った状態での永続化・部分適用 ／ **エラー型**: GateRejected
 - **対象更新**: S0.1（FR-13 の不変条件強制） ／ **TC**: TCC-13-6
+
+### AC-13-7（正常）
+
+- **Given**: retry_limit=3 の config、in_progress で lease を保持する task 1 件、author と別 principal の verifier、および常に FAIL 判定を返す verifier スタブ ／ **When**: run_microloop を 1 回呼び出して収束まで実行する ／ **Then**: submit→verify の反復が FAIL ごとに retry_count を 1 消費し、上限到達で verify_fail_exhausted により escalated へ収束して MicroloopResult を返す（反復・上限判定はすべて DU-01 の遷移経由で行われる）
+- **fixture**: seed: config 1 行（key='retry_limit', value_json='3', value_type='integer'）、agents 2 行（principal 相違）、agent_executions 2 行、tasks 1 行（state='in_progress', retry_count=0, lease 保持）、常時 FAIL の verifier スタブ注入
+- **観測点**: run_microloop 戻り値（MicroloopResult）／tasks.state・tasks.retry_count SELECT／state_transitions SELECT ／ **期待状態**: tasks.state = 'escalated'（終端）、retry_count = 3
+- **期待 DB 差分**: tasks 行の state/retry_count UPDATE、state_transitions +6 行（submit_for_verification 3・verify_fail 2・verify_fail_exhausted 1、いずれも guard_result='passed'） ／ **期待証跡**: state_transitions の各行（差戻し理由は details_json に保持）
+- **禁止副作用**: escalated 到達後の再反復・retry_count の 2 以上の加算・DU-01 を経由しない tasks の直接 UPDATE ／ **エラー型**: なし
+- **対象更新**: S0.1（CMP-02 マイクロループ）／run_microloop ／ **TC**: TCC-13-7
+
+### AC-13-8（拒否）
+
+- **Given**: verifying の task と、(a) author と同一 principal の verifier による FAIL 要求、(b) 差戻し理由・verifier 証跡を欠く FAIL 要求 ／ **When**: それぞれの verify_fail 要求で run_microloop を実行する ／ **Then**: どちらも GateRejected で拒否され、task は verifying のまま state・retry_count・証跡が変化しない（主体分離と証跡要件は microloop 側でも二重に強制される）
+- **fixture**: seed: agents 2 行（(a) は principal 同一、(b) は principal 相違）、tasks 1 行（state='verifying', retry_count=0）、(b) は差戻し理由・verifier 証跡を投入しない
+- **観測点**: raise される例外型／tasks.state・retry_count SELECT／state_transitions SELECT／evidence SELECT ／ **期待状態**: tasks.state = 'verifying'（不変）、retry_count = 0（不変）
+- **期待 DB 差分**: 差分なし（拒否は副作用を持たない） ／ **期待証跡**: なし（review_fail 証跡は作られない）
+- **禁止副作用**: 同一 principal による FAIL の受理・理由なし FAIL での retry_count 消費 ／ **エラー型**: GateRejected
+- **対象更新**: S0.1（CMP-02 マイクロループ）／verify_fail ／ **TC**: TCC-13-8
+
+### AC-13-9（境界・復旧）
+
+- **Given**: in_progress の task と、実行中に一時失敗（ネットワーク断等）を送出する executor スタブ ／ **When**: run_microloop を実行する ／ **Then**: executor の一時失敗は RetryableError として呼出側へ還元され、検証 FAIL の retry 消費とは区別されて task の state・retry_count・証跡が変化しない
+- **fixture**: seed: config 1 行（key='retry_limit'）、agents 2 行（principal 相違）、tasks 1 行（state='in_progress', retry_count=0）、一時失敗を 1 回送出する executor スタブ注入
+- **観測点**: raise される例外型／tasks.state・retry_count SELECT／state_transitions SELECT ／ **期待状態**: tasks.state = 'in_progress'（不変）、retry_count = 0（不変）
+- **期待 DB 差分**: 差分なし（一時失敗は検証差戻しではない） ／ **期待証跡**: なし（証跡行は作られない）
+- **禁止副作用**: executor の一時失敗を verify_fail として retry_count に計上すること・非再試行系への誤分類 ／ **エラー型**: RetryableError
+- **対象更新**: S0.1（CMP-02 マイクロループ）／run_microloop ／ **TC**: TCC-13-9
 
 ## FR-14
 

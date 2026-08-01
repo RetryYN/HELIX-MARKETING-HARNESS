@@ -83,6 +83,7 @@
 | 日付 | 対象 | 変更 | 判定 | 承認者 | 理由 |
 |---|---|---|---|---|---|
 | 2026-08-01 | skip-budget | 0→194 | approved | PO | 全層再降下 §8 — DU 23 契約の API 58 本に対する test-first スタブ 185 本＋⑥既存分（S0.1 実装で解消） |
+| 2026-08-02 | skip-budget | 194→204 | approved | PO | 未被覆 API／更新境界最終是正 — S0.1 の契約節を UT へ直接接続するための test-first スタブ 10 本の追加（S0.1 実装で red→green 化して解消） |
 
 ## 全層再降下（粒度是正）の完遂承認
 
@@ -289,3 +290,41 @@
 | 2026-08-02 | du-contracts | v0.1 | confirmed | PO | 7cd190c08bd1 | 構造的意味トレース最終是正: 生成ビューの再生成（scripts/render_views.py — 手編集なし） |
 | 2026-08-02 | structural-trace-remediation-2026-08-02 | - | confirmed | PO | 20d2e595c9e8 | 構造的意味トレース最終是正（レビュー R1-02／R1-03 対応）: N/A 拘束と実行証跡の限界の明記に伴う内容束縛承認 |
 | 2026-08-02 | structural-trace-remediation-2026-08-02 | - | confirmed | PO | 8ce4869eeabe | 構造的意味トレース最終是正（レビュー R2-01 対応）: 実行証跡を型付きレコード申告へ強化したことの反映 |
+| 2026-08-02 | fr-contracts.json | v0.1 | confirmed | PO | a58c16eb947f | 未被覆 API／更新境界最終是正: 正本 9 本の統一・update 軸への分離・S0.1 の 7 API の acceptance／internal 確定・更新単位の完了宣言・レビュー証跡の 3 値化に伴う内容束縛承認 |
+| 2026-08-02 | ac-contracts.json | v0.1 | confirmed | PO | 9884c95c669e | 未被覆 API／更新境界最終是正: 正本 9 本の統一・update 軸への分離・S0.1 の 7 API の acceptance／internal 確定・更新単位の完了宣言・レビュー証跡の 3 値化に伴う内容束縛承認 |
+| 2026-08-02 | tc-contracts.json | v0.1 | confirmed | PO | d7f99b5de3a0 | 未被覆 API／更新境界最終是正: 正本 9 本の統一・update 軸への分離・S0.1 の 7 API の acceptance／internal 確定・更新単位の完了宣言・レビュー証跡の 3 値化に伴う内容束縛承認 |
+| 2026-08-02 | du-contracts.json | v0.1 | confirmed | PO | a81fd6bab1f8 | 未被覆 API／更新境界最終是正: 正本 9 本の統一・update 軸への分離・S0.1 の 7 API の acceptance／internal 確定・更新単位の完了宣言・レビュー証跡の 3 値化に伴う内容束縛承認 |
+| 2026-08-02 | implementation-units.json | v0.1 | confirmed | PO | d53fba0e2c56 | 未被覆 API／更新境界最終是正: 正本 9 本の統一・update 軸への分離・S0.1 の 7 API の acceptance／internal 確定・更新単位の完了宣言・レビュー証跡の 3 値化に伴う内容束縛承認 |
+| 2026-08-02 | external-operations | - | confirmed | PO | 277a3a58ee7a | 未被覆 API／更新境界最終是正: 正本 9 本の統一・update 軸への分離・S0.1 の 7 API の acceptance／internal 確定・更新単位の完了宣言・レビュー証跡の 3 値化に伴う内容束縛承認 |
+| 2026-08-02 | state-machine | - | confirmed | PO | cae9a74246c4 | 未被覆 API／更新境界最終是正: 正本 9 本の統一・update 軸への分離・S0.1 の 7 API の acceptance／internal 確定・更新単位の完了宣言・レビュー証跡の 3 値化に伴う内容束縛承認 |
+| 2026-08-02 | update-boundary-remediation-2026-08-02 | - | confirmed | PO | 566c6fabf809 | 未被覆 API／更新境界最終是正: 正本 9 本の統一・update 軸への分離・S0.1 の 7 API の acceptance／internal 確定・更新単位の完了宣言・レビュー証跡の 3 値化に伴う内容束縛承認 |
+| 2026-08-02 | ac-catalog | v0.1 | confirmed | PO | 0ecbc5d4e124 | 未被覆 API／更新境界最終是正: 生成ビューの再生成（scripts/render_views.py — 手編集なし） |
+| 2026-08-02 | fr-contracts | v0.1 | confirmed | PO | 5ee813b4ec91 | 未被覆 API／更新境界最終是正: 生成ビューの再生成（scripts/render_views.py — 手編集なし） |
+| 2026-08-02 | tc-catalog | v0.1 | confirmed | PO | 312f483eb353 | 未被覆 API／更新境界最終是正: 生成ビューの再生成（scripts/render_views.py — 手編集なし） |
+| 2026-08-02 | du-contracts | v0.1 | confirmed | PO | a1733a78e0e4 | 未被覆 API／更新境界最終是正: 生成ビューの再生成（scripts/render_views.py — 手編集なし） |
+| 2026-08-02 | ac-contracts.json | - | confirmed | PO | d612cff58c81 | 未被覆 API／更新境界最終是正: AC 追加位置を既存グループ内へ揃え（生成ビューの見出し重複回避）再生成 |
+| 2026-08-02 | ac-contracts.json | v0.1 | confirmed | PO | d612cff58c81 | 未被覆 API／更新境界最終是正: AC 追加位置を既存グループ内へ揃え（生成ビューの見出し重複回避）再生成 |
+| 2026-08-02 | marketing-harness-charter_v0.4 | - | confirmed | PO | 5fadaee9f132 | 未被覆 API／更新境界最終是正: AC 追加位置を既存グループ内へ揃え（生成ビューの見出し重複回避）再生成 |
+| 2026-08-02 | br-contracts.json | - | confirmed | PO | d5a8189e1cb2 | 未被覆 API／更新境界最終是正: AC 追加位置を既存グループ内へ揃え（生成ビューの見出し重複回避）再生成 |
+| 2026-08-02 | fr-contracts.json | - | confirmed | PO | a58c16eb947f | 未被覆 API／更新境界最終是正: AC 追加位置を既存グループ内へ揃え（生成ビューの見出し重複回避）再生成 |
+| 2026-08-02 | nfr-contracts.json | - | confirmed | PO | 943b990d788e | 未被覆 API／更新境界最終是正: AC 追加位置を既存グループ内へ揃え（生成ビューの見出し重複回避）再生成 |
+| 2026-08-02 | sr-contracts.json | - | confirmed | PO | 572e080e88bc | 未被覆 API／更新境界最終是正: AC 追加位置を既存グループ内へ揃え（生成ビューの見出し重複回避）再生成 |
+| 2026-08-02 | tc-contracts.json | - | confirmed | PO | d7f99b5de3a0 | 未被覆 API／更新境界最終是正: AC 追加位置を既存グループ内へ揃え（生成ビューの見出し重複回避）再生成 |
+| 2026-08-02 | cmp-contracts.json | - | confirmed | PO | 5b0b79cd0988 | 未被覆 API／更新境界最終是正: AC 追加位置を既存グループ内へ揃え（生成ビューの見出し重複回避）再生成 |
+| 2026-08-02 | du-contracts.json | - | confirmed | PO | a81fd6bab1f8 | 未被覆 API／更新境界最終是正: AC 追加位置を既存グループ内へ揃え（生成ビューの見出し重複回避）再生成 |
+| 2026-08-02 | implementation-units.json | - | confirmed | PO | d53fba0e2c56 | 未被覆 API／更新境界最終是正: AC 追加位置を既存グループ内へ揃え（生成ビューの見出し重複回避）再生成 |
+| 2026-08-02 | ac-catalog | v0.1 | confirmed | PO | a74522b0a29d | 未被覆 API／更新境界最終是正: 生成ビューの再生成（scripts/render_views.py — 手編集なし） |
+| 2026-08-02 | ac-contracts.json | v0.1 | confirmed | PO | ab1cabe3793f | 未被覆 API／更新境界最終是正（レビュー R1-01／R1-05 対応）: 内部分類の実質化と AC-11-6 の DB 差分是正に伴う内容束縛承認 |
+| 2026-08-02 | tc-contracts.json | v0.1 | confirmed | PO | c60db3bc035d | 未被覆 API／更新境界最終是正（レビュー R1-01／R1-05 対応）: 内部分類の実質化と AC-11-6 の DB 差分是正に伴う内容束縛承認 |
+| 2026-08-02 | du-contracts.json | v0.1 | confirmed | PO | d2c7b73dd280 | 未被覆 API／更新境界最終是正（レビュー R1-01／R1-05 対応）: 内部分類の実質化と AC-11-6 の DB 差分是正に伴う内容束縛承認 |
+| 2026-08-02 | ac-contracts.json | - | confirmed | PO | ab1cabe3793f | 未被覆 API／更新境界最終是正（レビュー R1-01／R1-05 対応）: 内部分類の実質化と AC-11-6 の DB 差分是正に伴う内容束縛承認 |
+| 2026-08-02 | tc-contracts.json | - | confirmed | PO | c60db3bc035d | 未被覆 API／更新境界最終是正（レビュー R1-01／R1-05 対応）: 内部分類の実質化と AC-11-6 の DB 差分是正に伴う内容束縛承認 |
+| 2026-08-02 | du-contracts.json | - | confirmed | PO | d2c7b73dd280 | 未被覆 API／更新境界最終是正（レビュー R1-01／R1-05 対応）: 内部分類の実質化と AC-11-6 の DB 差分是正に伴う内容束縛承認 |
+| 2026-08-02 | ac-catalog | v0.1 | confirmed | PO | 2906584157e7 | 未被覆 API／更新境界最終是正（レビュー R1-01／R1-05 対応）: 内部分類の実質化と AC-11-6 の DB 差分是正に伴う内容束縛承認 |
+| 2026-08-02 | tc-catalog | v0.1 | confirmed | PO | 192201ecc50b | 未被覆 API／更新境界最終是正（レビュー R1-01／R1-05 対応）: 内部分類の実質化と AC-11-6 の DB 差分是正に伴う内容束縛承認 |
+| 2026-08-02 | du-contracts | v0.1 | confirmed | PO | bf485980483d | 未被覆 API／更新境界最終是正（レビュー R1-01／R1-05 対応）: 内部分類の実質化と AC-11-6 の DB 差分是正に伴う内容束縛承認 |
+| 2026-08-02 | ac-catalog | v0.1 | confirmed | PO | 6da0fbbb9b31 | 未被覆 API／更新境界最終是正（レビュー R1-01／R1-05 対応）: 内部分類の実質化と AC-11-6 の DB 差分是正に伴う内容束縛承認 |
+| 2026-08-02 | tc-catalog | v0.1 | confirmed | PO | 02c9d37918a7 | 未被覆 API／更新境界最終是正（レビュー R1-01／R1-05 対応）: 内部分類の実質化と AC-11-6 の DB 差分是正に伴う内容束縛承認 |
+| 2026-08-02 | du-contracts | v0.1 | confirmed | PO | 59dc6c35c9bb | 未被覆 API／更新境界最終是正（レビュー R1-01／R1-05 対応）: 内部分類の実質化と AC-11-6 の DB 差分是正に伴う内容束縛承認 |
+| 2026-08-02 | update-boundary-remediation-2026-08-02 | - | confirmed | PO | 9aeac2902df4 | 未被覆 API／更新境界最終是正（レビュー R2／R3 対応）: 内部分類の UT 直接接続化・ci_attested の fail-close 化に伴う内容束縛承認 |
+| 2026-08-02 | update-boundary-remediation-2026-08-02 | - | confirmed | PO | 02e867564eb4 | 未被覆 API／更新境界最終是正（レビュー R4-01 対応）: 監査記録の表記是正に伴う内容束縛承認 |

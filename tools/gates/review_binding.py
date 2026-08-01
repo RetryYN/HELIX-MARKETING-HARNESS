@@ -177,6 +177,11 @@ SEPARATION_FIELDS = ("author_principal", "author_execution_id", "reviewer_princi
                      "review_log_path", "review_log_digest")
 # unverified のレビューが散文で分離を主張していないか（値のどこにも現れてはならない語）
 INDEPENDENCE_CLAIMS = ("独立レビュー", "独立ブラインド", "別 principal", "別principal")
+# ローカル生成ログでは名乗れない語。第三者（CI）の記録へ束縛された ci_attested だけが使える
+THIRD_PARTY_CLAIMS = ("第三者署名", "第三者検証", "第三者が検証", "CI 検証済み", "CI検証済み")
+CI_FIELDS = ("ci_run_id", "ci_run_url", "ci_log_digest", "ci_workflow", "ci_artifact_name")
+SEPARATION_STATUSES = ("unverified", "self_attested", "ci_attested")
+ATTESTED = ("self_attested", "ci_attested")
 
 
 ID_KEYS = ("id", "session_id", "conversation_id")
@@ -223,41 +228,112 @@ def log_declarations(text: str) -> tuple[set[str], set[str]]:
     return ids, models
 
 
+ATTESTATIONS = "docs/00-authority/reviews/attestations"
+# 第三者 provenance の検証鍵。未配備の間は ci_attested を成立させない（独立レビュー R3-02）
+TRUSTED_KEYS = f"{ATTESTATIONS}/trusted-keys.json"
+ATTESTATION_FIELDS = ("repository", "workflow", "run_id", "head_sha", "target_tree",
+                      "artifact_name", "artifact_digest")
+WORKFLOW_DIR = ".github/workflows"
+
+
+def _ci_attestation_faults(r: dict, rid: str, root: Path,
+                           tracked: set[str] | None) -> list[str]:
+    """`ci_attested` を **リポジトリ内の CI attestation** へ束縛する（独立レビュー R1-02）。
+
+    ローカルゲートは Actions API を叩けないので、run ID と URL の形だけで第三者検証を
+    名乗らせない。CI が生成して commit した attestation（git 追跡下）が実在し、その digest が
+    `ci_log_digest` と一致し、repository／workflow／run_id／head_sha／target_tree／artifact digest が
+    レビュー成果物の宣言と一致する場合に限って成立する。attestation が無ければ成立しない。
+    """
+    bad: list[str] = []
+    # 第三者性はローカルで自己生成した整合的なファイル一式では作れない（独立レビュー R3-02）。
+    # 署名検証鍵が配備されるまで ci_attested は成立させない＝self_attested が上限（fail-close）。
+    if not (root / TRUSTED_KEYS).is_file():
+        bad.append(f"{rid}: 第三者 provenance の検証鍵 {TRUSTED_KEYS} が未配備のため"
+                   " ci_attested は成立しない（ローカル生成の attestation は self_attested が上限）")
+    miss = [f for f in CI_FIELDS if not r.get(f)]
+    if miss:
+        return bad + [f"{rid}: ci_attested なのに {miss} が無い"]
+    if not str(r["ci_run_url"]).endswith(f"/actions/runs/{r['ci_run_id']}"):
+        bad.append(f"{rid}: ci_run_url が ci_run_id {r['ci_run_id']} を指していない")
+    rel_att = f"{ATTESTATIONS}/{rid}.json"
+    att = root / rel_att
+    if not att.exists():
+        return bad + [f"{rid}: CI attestation {rel_att} が無い"
+                      "（ローカルで検証できない ci_attested は成立しない）"]
+    if tracked is not None and rel_att not in tracked:
+        return bad + [f"{rid}: CI attestation {rel_att} が git 未追跡"]
+    if hashlib.sha256(att.read_bytes()).hexdigest() != r["ci_log_digest"]:
+        return bad + [f"{rid}: ci_log_digest が CI attestation の内容と不一致"]
+    try:
+        a = json.loads(att.read_text(encoding="utf-8"))
+    except ValueError:
+        return bad + [f"{rid}: CI attestation が JSON として読めない"]
+    empty = [f for f in ATTESTATION_FIELDS if not a.get(f)]
+    if empty:
+        return bad + [f"{rid}: CI attestation の {empty} が空"]
+    if not str(r["ci_run_url"]).startswith(f"https://github.com/{a['repository']}/actions/runs/"):
+        bad.append(f"{rid}: ci_run_url が attestation の repository {a['repository']} と不一致")
+    if str(a["run_id"]) != str(r["ci_run_id"]):
+        bad.append(f"{rid}: attestation の run_id {a['run_id']} がレビューの ci_run_id と不一致")
+    if a["head_sha"] != r.get("target_commit") or a["target_tree"] != r.get("target_tree"):
+        bad.append(f"{rid}: attestation の head_sha／target_tree がレビュー対象と不一致")
+    # 非空検査で終わらせない（独立レビュー R2-03）: workflow はリポジトリに実在するものだけ、
+    # artifact は**レビュー実行ログそのもの**でなければならない。
+    if not (root / WORKFLOW_DIR / str(a["workflow"])).is_file():
+        bad.append(f"{rid}: attestation の workflow {a['workflow']} が {WORKFLOW_DIR} に実在しない")
+    if a["workflow"] != r.get("ci_workflow") or a["artifact_name"] != r.get("ci_artifact_name"):
+        bad.append(f"{rid}: attestation の workflow／artifact_name がレビューの宣言と不一致")
+    log = root / str(r.get("review_log_path", ""))
+    if not log.is_file():
+        bad.append(f"{rid}: attestation が指す実行ログが実在しない")
+    elif hashlib.sha256(log.read_bytes()).hexdigest() != a["artifact_digest"]:
+        bad.append(f"{rid}: attestation の artifact_digest が実行ログの sha256 と不一致"
+                   "（CI が公開した artifact とレビューのログが別物）")
+    return bad
+
+
 def detect_separation_faults(reviews: list[dict], root: Path = ROOT,
                              tracked: set[str] | None = None) -> list[str]:
-    """レビュー主体の分離が**実行証跡**で確認できるかを検査する（PO 指示 §3）。
+    """レビュー主体の分離が**実行証跡**で確認できるかを、証跡の出所ごとに検査する（PO 指示 §5）。
 
-    `separation_status: verified` を名乗るには、作成側とレビュー側の principal・execution_id が
-    **別**であり、`review_log_digest` がリポジトリ内の実在ログ（git 追跡下）と一致し、そのログが
-    JSON レコードのフィールドとして `reviewer_execution_id` を申告し、レビュー成果物が記録する
-    `model` をも含んでいなければならない。証跡を取得できないレビューは `unverified` として宣言し、
-    分離を主張する欄を空にし、散文でも独立性を主張しない。
-
-    限界（PO 判断事項）: 実行ログはレビュー実行者自身が生成するローカル成果物であり、
-    本ゲートが保証するのは**構造的整合**（別実行・別 principal・ログとレビューの対応）までである。
-    第三者による署名・改竄検知は本リポジトリの範囲外であり、監査記録に明示する。
+    状態は 3 値である。`self_attested` は、作成側とレビュー側の principal・execution_id が**別**で、
+    `review_log_digest` がリポジトリ内の実在ログ（git 追跡下）と一致し、そのログが JSON レコードの
+    フィールドとして `reviewer_execution_id` と `model` を申告している場合に名乗れる。ただしその
+    ログは**レビュー実行者自身が生成したローカル成果物**であって第三者署名ではないので、
+    「第三者検証」を名乗ることはできない。`ci_attested` は GitHub Actions の run ID・ログ URL・
+    artifact digest へ束縛されている場合に限る。証跡を取得できないレビューは `unverified` とし、
+    分離を主張する欄を空にし、散文でも独立性を主張しない（PO 判断へ送る）。
     """
     bad: list[str] = []
     for r in reviews:
         rid = r.get("review_id", "?")
         status = r.get("separation_status")
-        if status not in ("verified", "unverified"):
-            bad.append(f"{rid}: separation_status が verified／unverified でない")
+        if status not in SEPARATION_STATUSES:
+            bad.append(f"{rid}: separation_status が {SEPARATION_STATUSES} 以外（{status}）")
             continue
+        blob = json.dumps(r, ensure_ascii=False)
+        if status != "ci_attested":
+            said = [w for w in THIRD_PARTY_CLAIMS if w in blob]
+            if said:
+                bad.append(f"{rid}: ローカル生成ログしかないのに第三者検証を主張している{said}")
         if status == "unverified":
-            claimed = [f for f in SEPARATION_FIELDS
+            claimed = [f for f in (*SEPARATION_FIELDS, *CI_FIELDS)
                        if f != "reviewer_principal" and r.get(f)]
             if claimed:
                 bad.append(f"{rid}: unverified なのに分離証跡欄 {claimed} を主張している")
-            blob = json.dumps(r, ensure_ascii=False)
             said = [w for w in INDEPENDENCE_CLAIMS if w in blob]
             if said:
                 bad.append(f"{rid}: 証跡が無いのに散文で独立性を主張している{said}")
             continue
         miss = [f for f in SEPARATION_FIELDS if not r.get(f)]
         if miss:
-            bad.append(f"{rid}: verified なのに {miss} が無い")
+            bad.append(f"{rid}: {status} なのに {miss} が無い")
             continue
+        if status == "self_attested" and [f for f in CI_FIELDS if r.get(f)]:
+            bad.append(f"{rid}: self_attested なのに CI 束縛欄を持つ（名乗るなら ci_attested）")
+        if status == "ci_attested":
+            bad += _ci_attestation_faults(r, rid, root, tracked)
         if r["author_execution_id"] == r["reviewer_execution_id"]:
             bad.append(f"{rid}: author_execution_id と reviewer_execution_id が同一"
                        "（同一実行での自己レビュー）")
@@ -296,11 +372,15 @@ def run(ctx: Ctx) -> None:
          f"（supersedes_review）へ束縛 (欠陥 {len(bad)} 件={bad[:4]}){deferred}")
 
     reviews = [load(p) for p in sorted(REVIEWS.glob("*.json")) if p.name != "review.schema.json"]
-    listed = git("ls-files", "docs/00-authority/reviews/logs")
+    listed = git("ls-files", "docs/00-authority/reviews/logs",
+                 "docs/00-authority/reviews/attestations")
     tracked = {ln for ln in listed.stdout.splitlines() if ln}
     sep = detect_separation_faults(reviews, tracked=tracked)
-    unverified = sorted(r["review_id"] for r in reviews
-                        if r.get("separation_status") == "unverified")
+    by_status = {s: sorted(r["review_id"] for r in reviews
+                           if r.get("separation_status") == s)
+                 for s in SEPARATION_STATUSES}
     gate("G-REVIEW-SEPARATION", not sep,
-         "レビュー主体の分離が実行証跡へ束縛（author≠reviewer の principal／execution_id・"
-         f"実在ログとの digest 一致）(欠陥={sep[:3]}) ※証跡なし＝unverified: {unverified}")
+         "レビュー主体の分離が証跡の出所ごとに宣言される（unverified／self_attested＝ローカル実行"
+         "ログへ束縛／ci_attested＝Actions run へ束縛。第三者検証はci_attested のみ名乗れる）"
+         f" (欠陥={sep[:3]}) ※内訳: " +
+         " ／ ".join(f"{s}={by_status[s]}" for s in SEPARATION_STATUSES))

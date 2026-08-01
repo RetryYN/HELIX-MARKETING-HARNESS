@@ -84,7 +84,9 @@ def test_mutation_gate_removal_is_detected() -> None:
 def test_mutation_unapproved_skip_raise_is_detected() -> None:
     faults = baseline.detect_ratchet_faults(PREV, CUR_COUNTS, CUR_CC, 118, 200, False)
     assert any("skip 上限の未承認引き上げ" in f for f in faults)
-    assert baseline.detect_ratchet_faults(PREV, CUR_COUNTS, CUR_CC, 118, 200, True) == []
+    # 承認済みでも「設計追加が裏づけになっている」ことは別途要る（R5-02）
+    assert baseline.detect_ratchet_faults(PREV, CUR_COUNTS, CUR_CC, 118, 200, True) == [
+        "skip 上限の引き上げ(194→200)を裏づける親コミットの API_UT が無い"]
 
 
 def test_mutation_contract_denominator_shrink_is_detected() -> None:
@@ -358,3 +360,52 @@ def test_mutation_secret_like_key_reaches_production_gate(monkeypatch, capsys) -
         reset()
     assert common is not None
     assert got.get("G-BASE-ART-PATHS") is False, got
+
+
+# --- 検証水準・証跡強度・更新境界のラチェット（独立レビュー R1-01／R1-03／R1-04・R2-04）---
+
+
+def test_mutation_downgrading_verification_level_is_detected(monkeypatch) -> None:
+    """変異: acceptance の API を内部分類へ落として検査を緩められない。"""
+    cur = baseline.api_verification_levels()
+    victim = next(k for k, v in cur.items() if v == "acceptance")
+    monkeypatch.setattr(baseline, "api_verification_levels",
+                        lambda: {**cur, victim: "unit"})
+    prev = {**PREV, "api_verification_levels": cur}
+    faults = baseline.detect_ratchet_faults(prev, CUR_COUNTS, CUR_CC, 118, 194, False)
+    assert any("検証水準の格下げ" in f and victim in f for f in faults), faults
+
+
+def test_mutation_weakening_separation_status_is_detected() -> None:
+    """変異: ci_attested を self_attested へ弱められない（証跡強度の後退）。"""
+    cur = baseline.separation_statuses()
+    victim = "REV-S0-STRUCT-08"
+    prev = {**PREV, "separation_statuses": {**cur, victim: "ci_attested"}}
+    faults = baseline.detect_ratchet_faults(prev, CUR_COUNTS, CUR_CC, 118, 194, False)
+    assert any("証跡強度の後退" in f and victim in f for f in faults), faults
+
+
+def test_mutation_moving_a_fn_across_updates_is_detected() -> None:
+    """変異: DU 台帳と updates.json を協調改変して更新境界を動かせない。"""
+    cur = baseline.fn_boundary_map()
+    victim = "FN-101"
+    prev = {**PREV, "fn_boundary_map": {**cur, victim: "DU-13|S0.2"}}
+    faults = baseline.detect_ratchet_faults(prev, CUR_COUNTS, CUR_CC, 118, 194, False)
+    assert any("更新境界の無承認変更" in f and victim in f for f in faults), faults
+
+
+def test_mutation_skip_raise_without_design_addition_is_detected() -> None:
+    """変異: 承認行だけで skip 上限を上げられない（UT 追加が裏づけになる — R5-02）。"""
+    prev = {**PREV, "contract_counts": {"AC_CONTRACT": 211, "TCC": 217, "API_UT": 189}}
+    faults = baseline.detect_ratchet_faults(
+        prev, CUR_COUNTS, {**CUR_CC, "API_UT": 189}, 118, 204, True)
+    assert any("UT 追加" in f for f in faults), faults
+    ok = baseline.detect_ratchet_faults(
+        prev, CUR_COUNTS, {**CUR_CC, "API_UT": 199}, 118, 204, True)
+    assert all("UT 追加" not in f for f in ok), ok
+
+
+def test_mutation_skip_raise_without_parent_ut_count_is_failclose() -> None:
+    faults = baseline.skip_raise_backing_faults({}, {"API_UT": 199}, 194, 204)
+    assert any("親コミットの API_UT が無い" in f for f in faults), faults
+

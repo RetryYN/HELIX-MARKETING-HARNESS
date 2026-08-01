@@ -10,6 +10,7 @@
         {
           "api_id": "API-DU01-01",
           "signature": "def transition(conn: Connection, entity_type: str, entity_id: int, event: str, actor_agent_id: int | None, details: dict, clock: Clock) -> TransitionResult",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU01-01-PRE-01",
@@ -66,7 +67,7 @@
               "clause_id": "API-DU01-01-RAISE-03",
               "type": "RetryableError",
               "when": "SQLITE_BUSY が busy_timeout（config.sqlite_busy_timeout_ms）を超過（retryable_failure へ正規化）",
-              "na_reason": "受入基準未設定: SQLite競合タイムアウトのRetryableErrorを観測するACがない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（SQLite 競合タイムアウトの RetryableError 正規化を観測する AC がない）"
             }
           ],
           "pure": false,
@@ -136,12 +137,21 @@
                 "API-DU01-01-POST-01",
                 "API-DU01-01-POST-02"
               ]
+            },
+            {
+              "nodeid": "test_kernel_state.py::test_transition_busy_timeout_normalized_to_retryable",
+              "clause_refs": [
+                "API-DU01-01-RAISE-03"
+              ]
             }
           ]
         },
         {
           "api_id": "API-DU01-02",
           "signature": "def register_guard(event: str, fn: Callable[[Connection, Row], GuardResult]) -> None",
+          "verification_level": "unit",
+          "internal_reason_code": "startup-wiring",
+          "internal_reason": "起動時に guard 関数を登録するだけの配線 API で、業務状態・DB を変更しない。外部から観測できるのは登録後の transition() の振る舞い（AC-11／AC-13 系）であり、この API 固有の受入基準は存在しない",
           "precondition": [
             {
               "clause_id": "API-DU01-02-PRE-01",
@@ -158,12 +168,12 @@
             {
               "clause_id": "API-DU01-02-POST-01",
               "text": "guard 登録簿に event→fn が登録され、以後の transition() が G1〜G5 の評価順序で呼び出す",
-              "na_reason": "受入基準未設定: guard登録そのものを観測するACがこのDUにない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（guard登録そのものを観測するACがこのDUにない）"
             },
             {
               "clause_id": "API-DU01-02-POST-02",
               "text": "登録は起動時配線に限る（実行中の差替えは行わない）",
-              "na_reason": "配線時保証: 起動時配線のみという実装規律を観測するACがない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（起動時配線のみという実装規律を観測するACがない）"
             }
           ],
           "raises": [
@@ -171,7 +181,7 @@
               "clause_id": "API-DU01-02-RAISE-01",
               "type": "FatalError",
               "when": "同一 event への矛盾する二重登録・遷移表語彙外 event の登録（配線異常）",
-              "na_reason": "配線時保証: 二重登録・語彙外登録の配線異常を観測するACがない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（二重登録・語彙外登録の配線異常を観測するACがない）"
             }
           ],
           "pure": false,
@@ -186,6 +196,18 @@
               "nodeid": "test_kernel_state.py::test_register_guard_unregistered_event_allowed_transition_fatal",
               "clause_refs": [
                 "API-DU01-02-POST-01"
+              ]
+            },
+            {
+              "nodeid": "test_kernel_state.py::test_register_guard_is_startup_only_no_runtime_swap",
+              "clause_refs": [
+                "API-DU01-02-POST-02"
+              ]
+            },
+            {
+              "nodeid": "test_kernel_state.py::test_register_guard_duplicate_or_unknown_event_fatal",
+              "clause_refs": [
+                "API-DU01-02-RAISE-01"
               ]
             }
           ]
@@ -288,7 +310,10 @@
           "test_kernel_state.py::test_register_guard_wires_event_guard",
           "test_kernel_state.py::test_register_guard_unregistered_event_allowed_transition_fatal",
           "test_kernel_state.py::test_lower_start_without_valid_brief_rejected",
-          "test_kernel_state.py::test_lower_terminal_transition_includes_tlp_same_tx"
+          "test_kernel_state.py::test_lower_terminal_transition_includes_tlp_same_tx",
+          "test_kernel_state.py::test_transition_busy_timeout_normalized_to_retryable",
+          "test_kernel_state.py::test_register_guard_is_startup_only_no_runtime_swap",
+          "test_kernel_state.py::test_register_guard_duplicate_or_unknown_event_fatal"
         ],
         "feature_design": [
           "docs/L6-feature-design/S0/state-machine.md"
@@ -364,6 +389,7 @@
         {
           "api_id": "API-DU02-01",
           "signature": "def issue_task(conn: Connection, loop_run_id: int, step: WorkflowStep, clock: Clock) -> int",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU02-01-PRE-01",
@@ -404,7 +430,7 @@
               "clause_id": "API-DU02-01-RAISE-02",
               "type": "SelfReviewRejected",
               "when": "principal 同一の author/verifier 組しか構成できない（DB CHECK と二重防御）",
-              "na_reason": "受入基準未設定: 自己審査組立時の例外をこの DU の AC は観測しない。"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（自己審査組立時の例外を観測する AC がこの DU にない）"
             }
           ],
           "pure": false,
@@ -439,12 +465,19 @@
                 "API-DU02-01-PRE-03",
                 "API-DU02-01-RAISE-01"
               ]
+            },
+            {
+              "nodeid": "test_kernel_orchestrator.py::test_issue_task_same_principal_pair_rejected",
+              "clause_refs": [
+                "API-DU02-01-RAISE-02"
+              ]
             }
           ]
         },
         {
           "api_id": "API-DU02-02",
           "signature": "def claim(conn: Connection, task_id: int, execution_id: int, clock: Clock) -> None",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU02-02-PRE-01",
@@ -523,6 +556,7 @@
         {
           "api_id": "API-DU02-03",
           "signature": "def run_microloop(conn: Connection, task_id: int, executor: Executor, verifier: Verifier, retry_limit_key: str = \"retry_limit\") -> MicroloopResult",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU02-03-PRE-01",
@@ -538,27 +572,23 @@
           "postcondition": [
             {
               "clause_id": "API-DU02-03-POST-01",
-              "text": "submit→verify を反復し、FAIL ごとに verify_fail 遷移（retry_count 消費）を DU-01 経由で適用",
-              "na_reason": "受入基準未設定: 内部 verify_fail 反復を観測する受入 AC がない。"
+              "text": "submit→verify を反復し、FAIL ごとに verify_fail 遷移（retry_count 消費）を DU-01 経由で適用"
             },
             {
               "clause_id": "API-DU02-03-POST-02",
-              "text": "retry_count + 1 >= config.retry_limit 到達時は verify_fail_exhausted で escalated とし MicroloopResult に終端理由を返す",
-              "na_reason": "受入基準未設定: retry 上限時の内部終端を観測する受入 AC がない。"
+              "text": "retry_count + 1 >= config.retry_limit 到達時は verify_fail_exhausted で escalated とし MicroloopResult に終端理由を返す"
             }
           ],
           "raises": [
             {
               "clause_id": "API-DU02-03-RAISE-01",
               "type": "GateRejected",
-              "when": "verifier が author と同一 principal・差戻し理由/verifier 証跡なしの verify_fail 要求",
-              "na_reason": "受入基準未設定: 主体分離・証跡不足の内部拒否を観測する AC がない。"
+              "when": "verifier が author と同一 principal・差戻し理由/verifier 証跡なしの verify_fail 要求"
             },
             {
               "clause_id": "API-DU02-03-RAISE-02",
               "type": "RetryableError",
-              "when": "executor 実行の一時失敗（retryable_failure へ還元）",
-              "na_reason": "受入基準未設定: executor 一時失敗の内部還元で受入 AC を持たない。"
+              "when": "executor 実行の一時失敗（retryable_failure へ還元）"
             }
           ],
           "pure": false,
@@ -570,12 +600,25 @@
                 "API-DU02-03-POST-02",
                 "API-DU02-03-PRE-01"
               ]
+            },
+            {
+              "nodeid": "test_kernel_orchestrator.py::test_run_microloop_self_review_or_missing_evidence_rejected",
+              "clause_refs": [
+                "API-DU02-03-RAISE-01"
+              ]
+            },
+            {
+              "nodeid": "test_kernel_orchestrator.py::test_run_microloop_executor_transient_failure_retryable",
+              "clause_refs": [
+                "API-DU02-03-RAISE-02"
+              ]
             }
           ]
         },
         {
           "api_id": "API-DU02-04",
           "signature": "def resume(conn: Connection, entity_type: str, entity_id: int, clock: Clock) -> ResumeAction",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU02-04-PRE-01",
@@ -591,21 +634,18 @@
           "postcondition": [
             {
               "clause_id": "API-DU02-04-POST-01",
-              "text": "s0-contract §3.3 の全行を実装: pending=再 claim 可／in_progress（外部操作前）=workspace・入力・既存証跡再読込／in_progress（外部操作中後）=external_operations.status で分岐（prepared=同一 key 再送可、sent=リモート照合→confirmed 化、照合不能=unknown で escalate・再送禁止）／verifying=既存 PASS/FAIL 再採用（retry 二重加算なし）／waiting=充足再照合",
-              "na_reason": "受入基準未設定: 再開分岐の詳細を観測する受入 AC がこの DU にない。"
+              "text": "s0-contract §3.3 の全行を実装: pending=再 claim 可／in_progress（外部操作前）=workspace・入力・既存証跡再読込／in_progress（外部操作中後）=external_operations.status で分岐（prepared=同一 key 再送可、sent=リモート照合→confirmed 化、照合不能=unknown で escalate・再送禁止）／verifying=既存 PASS/FAIL 再採用（retry 二重加算なし）／waiting=充足再照合"
             },
             {
               "clause_id": "API-DU02-04-POST-02",
-              "text": "ResumeAction は分岐結果と根拠行 id を保持し、遷移は DU-01 経由でのみ実行される",
-              "na_reason": "受入基準未設定: ResumeAction と DU-01 委譲を観測する受入 AC がない。"
+              "text": "ResumeAction は分岐結果と根拠行 id を保持し、遷移は DU-01 経由でのみ実行される"
             }
           ],
           "raises": [
             {
               "clause_id": "API-DU02-04-RAISE-01",
               "type": "FatalError",
-              "when": "sent のままリモート照合不能（OperationUnverifiable — unknown 化し escalate。再送しない）",
-              "na_reason": "受入基準未設定: 外部照合不能の復旧例外を観測する受入 AC がない。"
+              "when": "sent のままリモート照合不能（OperationUnverifiable — unknown 化し escalate。再送しない）"
             }
           ],
           "pure": false,
@@ -646,12 +686,19 @@
               "clause_refs": [
                 "API-DU02-04-POST-01"
               ]
+            },
+            {
+              "nodeid": "test_kernel_orchestrator.py::test_resume_delegates_transition_to_state_machine",
+              "clause_refs": [
+                "API-DU02-04-POST-02"
+              ]
             }
           ]
         },
         {
           "api_id": "API-DU02-05",
           "signature": "def issue_strategic_brief(conn: Connection, brief: StrategicBriefDraft, clock: Clock) -> int",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU02-05-PRE-01",
@@ -671,7 +718,7 @@
             {
               "clause_id": "API-DU02-05-POST-02",
               "text": "created_at は clock から供給（digest 計算からは除外）",
-              "na_reason": "受入基準未設定: clock 由来 created_at を直接観測する AC がない。"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（clock 由来 created_at を直接観測する AC がない。）"
             }
           ],
           "raises": [
@@ -708,6 +755,7 @@
         {
           "api_id": "API-DU02-06",
           "signature": "def supersede_strategic_brief(conn: Connection, old_brief_id: int, new_draft: StrategicBriefDraft, clock: Clock) -> int",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU02-06-PRE-01",
@@ -731,13 +779,13 @@
               "clause_id": "API-DU02-06-RAISE-01",
               "type": "GateRejected",
               "when": "superseded/retired/期限切れ版への supersede 要求等の不正連鎖",
-              "na_reason": "受入基準未設定: 不正改訂連鎖の GateRejected を観測する AC がない。"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（不正な改訂連鎖の GateRejected を観測する AC がない）"
             },
             {
               "clause_id": "API-DU02-06-RAISE-02",
               "type": "BriefSchemaRejected",
               "when": "new_draft の schema 不適合",
-              "na_reason": "受入基準未設定: 新版 schema 不適合の例外を観測する AC がない。"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（新版 schema 不適合の例外を観測する AC がない）"
             }
           ],
           "pure": false,
@@ -753,12 +801,25 @@
               "clause_refs": [
                 "API-DU02-06-POST-01"
               ]
+            },
+            {
+              "nodeid": "test_kernel_orchestrator.py::test_supersede_strategic_brief_invalid_chain_rejected",
+              "clause_refs": [
+                "API-DU02-06-RAISE-01"
+              ]
+            },
+            {
+              "nodeid": "test_kernel_orchestrator.py::test_supersede_strategic_brief_schema_violation_rejected",
+              "clause_refs": [
+                "API-DU02-06-RAISE-02"
+              ]
             }
           ]
         },
         {
           "api_id": "API-DU02-07",
           "signature": "def validate_strategic_brief(conn: Connection, brief_id: int, held_digest: str, clock: Clock) -> ValidBrief",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU02-07-PRE-01",
@@ -774,7 +835,7 @@
             {
               "clause_id": "API-DU02-07-POST-02",
               "text": "検証は read-only で DB を変更しない",
-              "na_reason": "受入基準未設定: read-only 性を直接観測する AC がない。"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（read-only 性を直接観測する AC がない。）"
             }
           ],
           "raises": [
@@ -804,6 +865,7 @@
         {
           "api_id": "API-DU02-08",
           "signature": "def generate_tactical_learning_packet(conn: Connection, loop_run_id: int, packet: TlpDraft, clock: Clock) -> int",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU02-08-PRE-01",
@@ -831,13 +893,13 @@
               "clause_id": "API-DU02-08-RAISE-01",
               "type": "GateRejected",
               "when": "非 lower run・非終端 run・brief/digest 不整合・既存 packet ありへの生成要求",
-              "na_reason": "受入基準未設定: kernel の GateRejected ではなく DDL 拒否を観測している。"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（kernel の GateRejected ではなく DDL 拒否を観測している。）"
             },
             {
               "clause_id": "API-DU02-08-RAISE-02",
               "type": "SchemaVerificationFailed",
               "when": "TlpDraft の schema 不適合・kind 別必須フィールド欠落",
-              "na_reason": "受入基準未設定: kernel の SchemaVerificationFailed を観測する AC がない。"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（kernel の SchemaVerificationFailed を観測する AC がない。）"
             }
           ],
           "pure": false,
@@ -876,6 +938,9 @@
         {
           "api_id": "API-DU02-09",
           "signature": "def get_tactical_learning_packet(conn: Connection, loop_run_id: int) -> TlpRecord | None",
+          "verification_level": "unit",
+          "internal_reason_code": "read-only-accessor",
+          "internal_reason": "tactical_learning_packets の読取専用アクセサで、DB を変更しない。還流の受入基準は TLP 生成側（AC-SR-03／AC-SR-09 系）が観測し、この読取口は割当 UT が契約節を直接検証する",
           "precondition": [
             {
               "clause_id": "API-DU02-09-PRE-01",
@@ -887,7 +952,7 @@
             {
               "clause_id": "API-DU02-09-POST-01",
               "text": "該当行があれば TlpRecord、なければ None（read-only・DB 不変）",
-              "na_reason": "受入基準未設定: get API の返却値を観測する受入 AC がない。"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（get API の返却値を観測する受入 AC がない。）"
             }
           ],
           "raises": [],
@@ -953,10 +1018,15 @@
       ],
       "trace": {
         "ac": [
+          "AC-11-5",
+          "AC-11-6",
           "AC-12-1",
           "AC-12-2",
           "AC-12-3",
           "AC-12-4",
+          "AC-13-7",
+          "AC-13-8",
+          "AC-13-9",
           "AC-27-1",
           "AC-27-2",
           "AC-27-3",
@@ -993,10 +1063,15 @@
           "STC-I-04",
           "STC-I-05",
           "STC-I-06",
+          "TCC-11-5",
+          "TCC-11-6",
           "TCC-12-1",
           "TCC-12-2",
           "TCC-12-3",
           "TCC-12-4",
+          "TCC-13-7",
+          "TCC-13-8",
+          "TCC-13-9",
           "TCC-27-1",
           "TCC-27-2",
           "TCC-27-3",
@@ -1059,7 +1134,13 @@
           "test_kernel_orchestrator.py::test_generate_tlp_brief_digest_mismatch_rejected",
           "test_kernel_orchestrator.py::test_generate_tlp_atomic_with_terminal_transition",
           "test_kernel_orchestrator.py::test_get_tactical_learning_packet_returns_record_or_none",
-          "test_kernel_orchestrator.py::test_downstream_paths_cannot_write_strategic_briefs"
+          "test_kernel_orchestrator.py::test_downstream_paths_cannot_write_strategic_briefs",
+          "test_kernel_orchestrator.py::test_run_microloop_self_review_or_missing_evidence_rejected",
+          "test_kernel_orchestrator.py::test_run_microloop_executor_transient_failure_retryable",
+          "test_kernel_orchestrator.py::test_resume_delegates_transition_to_state_machine",
+          "test_kernel_orchestrator.py::test_supersede_strategic_brief_invalid_chain_rejected",
+          "test_kernel_orchestrator.py::test_supersede_strategic_brief_schema_violation_rejected",
+          "test_kernel_orchestrator.py::test_issue_task_same_principal_pair_rejected"
         ],
         "feature_design": [
           "docs/L6-feature-design/S0/state-machine.md",
@@ -1155,6 +1236,7 @@
         {
           "api_id": "API-DU03-01",
           "signature": "def assign(conn: Connection, author_role: str, verifier_role: str) -> Assignment",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU03-01-PRE-01",
@@ -1171,17 +1253,17 @@
             {
               "clause_id": "API-DU03-01-POST-01",
               "text": "active かつ principal の異なる agent の組（agents.principal 比較）を返す",
-              "na_reason": "受入基準未設定: ACはassignが返す組のactive・principal条件を観測しない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（ACはassignが返す組のactive・principal条件を観測しない）"
             },
             {
               "clause_id": "API-DU03-01-POST-02",
               "text": "T-REVIEW の verifier は critic 以外を割り当てる（tasks.verifier_agent_id は全タスク必須 — NULL の三値論理に委ねない）",
-              "na_reason": "受入基準未設定: ACはDB制約のみでverifier除外のassign結果を観測しない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（ACはDB制約のみでverifier除外のassign結果を観測しない）"
             },
             {
               "clause_id": "API-DU03-01-POST-03",
               "text": "read-only（tasks への書込みは呼出し側 issue_task）",
-              "na_reason": "受入基準未設定: 呼出側のtasks書込み責務分離でありAC対象外"
+              "na_reason": "他 API で検証: tasks への書込みは issue_task（API-DU02-01-POST-01）が担い、assign 側の read-only はその API の DB delta で観測される"
             }
           ],
           "raises": [
@@ -1194,7 +1276,7 @@
               "clause_id": "API-DU03-01-RAISE-02",
               "type": "TaskIssuanceRejected",
               "when": "役割該当の active agent が不足し組を構成できない",
-              "na_reason": "受入基準未設定: 役割別候補不足を個別に観測するACがない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（役割別候補不足を個別に観測する AC がない）"
             }
           ],
           "pure": false,
@@ -1227,6 +1309,12 @@
               "nodeid": "test_kernel_assigner.py::test_assign_inactive_agents_excluded",
               "clause_refs": [
                 "API-DU03-01-POST-01"
+              ]
+            },
+            {
+              "nodeid": "test_kernel_assigner.py::test_assign_insufficient_role_candidates_rejected",
+              "clause_refs": [
+                "API-DU03-01-RAISE-02"
               ]
             }
           ]
@@ -1269,7 +1357,8 @@
           "test_kernel_assigner.py::test_assign_same_agent_pair_rejected",
           "test_kernel_assigner.py::test_assign_distinct_agents_same_principal_rejected",
           "test_kernel_assigner.py::test_assign_review_verifier_excludes_critic",
-          "test_kernel_assigner.py::test_assign_inactive_agents_excluded"
+          "test_kernel_assigner.py::test_assign_inactive_agents_excluded",
+          "test_kernel_assigner.py::test_assign_insufficient_role_candidates_rejected"
         ],
         "feature_design": [
           "docs/L6-feature-design/S0/state-machine.md"
@@ -1307,6 +1396,7 @@
         {
           "api_id": "API-DU04-01",
           "signature": "def load(conn: Connection, workflow_key: str, version: int | None = None) -> WorkflowDef",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU04-01-PRE-01",
@@ -1317,21 +1407,18 @@
           "postcondition": [
             {
               "clause_id": "API-DU04-01-POST-01",
-              "text": "definition_json / required_evidence_json を schema 検証して WorkflowDef を返す（read-only）",
-              "na_reason": "受入基準未設定: 定義スキーマ検証と読取専用性は、このDUの受入基準で観測されない"
+              "text": "definition_json / required_evidence_json を schema 検証して WorkflowDef を返す（read-only）"
             },
             {
               "clause_id": "API-DU04-01-POST-02",
-              "text": "required_evidence_json の kind は evidence enum 内であることを検証する",
-              "na_reason": "受入基準未設定: evidence kind enum検証は、このDUの受入基準で観測されない"
+              "text": "required_evidence_json の kind は evidence enum 内であることを検証する"
             }
           ],
           "raises": [
             {
               "clause_id": "API-DU04-01-RAISE-01",
               "type": "FatalError",
-              "when": "定義行不在・definition_json/required_evidence_json の schema 破損（壊れた定義で実行を開始しない — fail-close）",
-              "na_reason": "受入基準未設定: 壊れた定義のfail-closeは、このDUの受入基準で観測されない"
+              "when": "定義行不在・definition_json/required_evidence_json の schema 破損（壊れた定義で実行を開始しない — fail-close）"
             }
           ],
           "pure": false,
@@ -1360,6 +1447,7 @@
         {
           "api_id": "API-DU04-02",
           "signature": "def run_step(conn: Connection, task_id: int, step: WorkflowStep, ctx: StepContext) -> StepOutcome",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU04-02-PRE-01",
@@ -1376,7 +1464,7 @@
             {
               "clause_id": "API-DU04-02-POST-01",
               "text": "ステップ出力の証跡保存は DU-09 record() 経由のみ（evidence 直 INSERT しない）",
-              "na_reason": "受入基準未設定: DU-09経由の証跡保存は、このDUの受入基準で直接観測されない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（DU-09経由の証跡保存は、このDUの受入基準で直接観測されない）"
             },
             {
               "clause_id": "API-DU04-02-POST-02",
@@ -1385,7 +1473,7 @@
             {
               "clause_id": "API-DU04-02-POST-03",
               "text": "失敗は RetryableError/FatalError/GateRejected の 3 系へ正規化して返し、遷移判断は呼出し側（DU-02）に委ねる — 勝手に done へ進めない",
-              "na_reason": "受入基準未設定: エラー正規化の返却と遷移委譲は、受入基準で直接観測されない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（エラー正規化の返却と遷移委譲は、受入基準で直接観測されない）"
             }
           ],
           "raises": [
@@ -1393,7 +1481,7 @@
               "clause_id": "API-DU04-02-RAISE-01",
               "type": "RetryableError",
               "when": "ステップ実行の一時失敗（コネクタ境界 ConnectorError の retryable kind を含む）",
-              "na_reason": "受入基準未設定: 一時失敗のRetryableError分類は、受入基準で直接観測されない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（一時失敗のRetryableError分類は、受入基準で直接観測されない）"
             },
             {
               "clause_id": "API-DU04-02-RAISE-02",
@@ -1404,7 +1492,7 @@
               "clause_id": "API-DU04-02-RAISE-03",
               "type": "GateRejected",
               "when": "ゲート不通過のステップ前提違反（状態・DB 不変で拒否）",
-              "na_reason": "受入基準未設定: ゲート前提違反のGateRejectedは、受入基準で直接観測されない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（ゲート前提違反のGateRejectedは、受入基準で直接観測されない）"
             }
           ],
           "pure": false,
@@ -1493,6 +1581,8 @@
           "AC-12-2",
           "AC-12-3",
           "AC-12-4",
+          "AC-12-5",
+          "AC-12-6",
           "AC-42-1",
           "AC-42-2",
           "AC-42-3"
@@ -1502,6 +1592,8 @@
           "TCC-12-2",
           "TCC-12-3",
           "TCC-12-4",
+          "TCC-12-5",
+          "TCC-12-6",
           "TCC-42-1",
           "TCC-42-2",
           "TCC-42-3",
@@ -1571,6 +1663,7 @@
         {
           "api_id": "API-DU05-01",
           "signature": "def establish(conn: Connection, plan_id: int, review_task_id: int, review_evidence_id: int, clock: Clock) -> PairPass",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU05-01-PRE-01",
@@ -1596,7 +1689,7 @@
             {
               "clause_id": "API-DU05-01-POST-02",
               "text": "PairPass は内部 sentinel token 付きで構築される（生成関数は establish/require_pair のみ）",
-              "na_reason": "受入基準未設定: 内部 sentinel の構築制約で受入シナリオは観測しない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（内部 sentinel の構築制約で受入シナリオは観測しない）"
             }
           ],
           "raises": [
@@ -1604,13 +1697,13 @@
               "clause_id": "API-DU05-01-RAISE-01",
               "type": "CommitHashMismatch",
               "when": "review_pass の hash と制作 commit hash の不一致（pair 不成立・公開拒否）",
-              "na_reason": "受入基準未設定: hash 不一致の成立拒否を観測する受入基準がない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（hash 不一致の成立拒否を観測する受入基準がない）"
             },
             {
               "clause_id": "API-DU05-01-RAISE-02",
               "type": "GateRejected",
               "when": "review_pass 証跡不在・result 非 PASS・重複成立要求（UNIQUE(plan_id, review_evidence_id)）",
-              "na_reason": "受入基準未設定: 証跡不備・重複成立拒否を観測する受入基準がない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（証跡不備・重複成立拒否を観測する受入基準がない）"
             }
           ],
           "pure": false,
@@ -1639,6 +1732,7 @@
         {
           "api_id": "API-DU05-02",
           "signature": "def revoke_if_changed(conn: Connection, plan_id: int, current_commit_hash: str) -> bool",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU05-02-PRE-01",
@@ -1650,7 +1744,7 @@
             {
               "clause_id": "API-DU05-02-POST-01",
               "text": "企画又は commit の変更検知時に該当 pair を status=revoked へ更新し True を返す（変更なしは False・DB 不変）",
-              "na_reason": "受入基準未設定: 変更検知によるrevoked更新と戻り値を実行後の期待結果として観測するACがない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（変更検知によるrevoked更新と戻り値を実行後の期待結果として観測するACがない）"
             },
             {
               "clause_id": "API-DU05-02-POST-02",
@@ -1677,6 +1771,7 @@
         {
           "api_id": "API-DU05-03",
           "signature": "def require_pair(conn: Connection, plan_id: int) -> PairPass",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU05-03-PRE-01",
@@ -1813,6 +1908,7 @@
         {
           "api_id": "API-DU06-01",
           "signature": "def check_publishable(conn: Connection, plan_id: int, commit_hash: str) -> PairPass",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU06-01-PRE-01",
@@ -1845,13 +1941,13 @@
               "clause_id": "API-DU06-01-RAISE-02",
               "type": "CommitHashMismatch",
               "when": "pair 成立時の hash と公開対象 commit_hash の不一致（版ずれ公開の拒否）",
-              "na_reason": "受入基準未設定: commit hash不一致を観測する受入基準がこのDUにない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（commit hash不一致を観測する受入基準がこのDUにない）"
             },
             {
               "clause_id": "API-DU06-01-RAISE-03",
               "type": "EvidenceIncomplete",
               "when": "公開前必須証跡（review_pass/commit_hash）の欠落・kind 規則違反",
-              "na_reason": "受入基準未設定: 必須証跡欠落を観測する受入基準がこのDUにない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（必須証跡欠落を観測する受入基準がこのDUにない）"
             }
           ],
           "pure": false,
@@ -1977,6 +2073,7 @@
         {
           "api_id": "API-DU07-01",
           "signature": "def check_metric_type(metric_type: str) -> None",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU07-01-PRE-01",
@@ -2027,6 +2124,7 @@
         {
           "api_id": "API-DU07-02",
           "signature": "def check_domain(url_or_domain: str, denylist: list[str]) -> None",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU07-02-PRE-01",
@@ -2144,6 +2242,7 @@
         {
           "api_id": "API-DU08-01",
           "signature": "def check_complete(conn: Connection, task_id: int) -> None",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU08-01-PRE-01",
@@ -2163,8 +2262,7 @@
             },
             {
               "clause_id": "API-DU08-01-POST-02",
-              "text": "read-only（evidence を追加・変更しない）",
-              "na_reason": "受入基準未設定: read-only条件を直接検証するACが存在しない"
+              "text": "read-only（evidence を追加・変更しない）"
             }
           ],
           "raises": [
@@ -2290,6 +2388,7 @@
         {
           "api_id": "API-DU09-01",
           "signature": "def record(conn: Connection, task_id: int, kind: str, value: str, payload: dict, clock: Clock, *, asset_id: int | None = None, commit_hash: str | None = None, external_operation_id: str | None = None, file_path: str | None = None, file_hash: str | None = None, created_by_agent_id: int | None = None) -> int",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU09-01-PRE-01",
@@ -2319,7 +2418,7 @@
             {
               "clause_id": "API-DU09-01-POST-03",
               "text": "created_at は clock から供給",
-              "na_reason": "受入基準未設定: clock由来時刻は受入基準の観測対象外の内部保証"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（clock由来時刻は受入基準の観測対象外の内部保証）"
             }
           ],
           "raises": [
@@ -2327,13 +2426,13 @@
               "clause_id": "API-DU09-01-RAISE-01",
               "type": "GateRejected",
               "when": "kind 別必須キー欠落・列整合違反・PASS 値不正・桁数不正・approvals 相互整合違反（SchemaVerificationFailed 相当 — INSERT しない・DB 不変）",
-              "na_reason": "受入基準未設定: GateRejectedの個別入力拒否を直接観測する受入基準がない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（GateRejectedの個別入力拒否を直接観測する受入基準がない）"
             },
             {
               "clause_id": "API-DU09-01-RAISE-02",
               "type": "SelfReviewRejected",
               "when": "review_pass の reviewer が author と同一 agent/principal",
-              "na_reason": "受入基準未設定: 自己審査拒否を直接観測する受入基準がない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（自己審査拒否を直接観測する受入基準がない）"
             },
             {
               "clause_id": "API-DU09-01-RAISE-03",
@@ -2426,6 +2525,9 @@
         {
           "api_id": "API-DU09-02",
           "signature": "def for_task(conn: Connection, task_id: int, kind: str | None = None) -> list[Evidence]",
+          "verification_level": "unit",
+          "internal_reason_code": "read-only-accessor",
+          "internal_reason": "evidence の読取専用アクセサで、DB を変更しない。証跡の受入基準は記録側（AC-28／AC-47／AC-54 系）が観測し、この読取口は割当 UT が契約節を直接検証する",
           "precondition": [
             {
               "clause_id": "API-DU09-02-PRE-01",
@@ -2437,7 +2539,7 @@
             {
               "clause_id": "API-DU09-02-POST-01",
               "text": "該当 task の証跡行（kind 指定時は絞込み）を返す（read-only・DB 不変）",
-              "na_reason": "受入基準未設定: for_task読取結果を直接観測する受入基準がない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（for_task読取結果を直接観測する受入基準がない）"
             }
           ],
           "raises": [],
@@ -2454,6 +2556,9 @@
         {
           "api_id": "API-DU09-03",
           "signature": "def exists(conn: Connection, task_id: int, kind: str, value: str) -> bool",
+          "verification_level": "unit",
+          "internal_reason_code": "read-only-accessor",
+          "internal_reason": "UNIQUE キーによる存在照会だけを行う読取専用アクセサで、DB を変更しない。冪等性の受入基準は記録側（AC-28 系）が観測し、この照会口は割当 UT が契約節を直接検証する",
           "precondition": [
             {
               "clause_id": "API-DU09-03-PRE-01",
@@ -2465,7 +2570,7 @@
             {
               "clause_id": "API-DU09-03-POST-01",
               "text": "UNIQUE(task_id, kind, value) キーでの存在照会結果を返す（read-only）",
-              "na_reason": "受入基準未設定: exists照会結果を直接観測する受入基準がない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（exists照会結果を直接観測する受入基準がない）"
             }
           ],
           "raises": [],
@@ -2610,6 +2715,7 @@
         {
           "api_id": "API-DU10-01",
           "signature": "def connect(path: str | Path) -> Connection",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU10-01-PRE-01",
@@ -2625,7 +2731,7 @@
             {
               "clause_id": "API-DU10-01-POST-02",
               "text": "保護トリガ（config/evidence/state_transitions/strategic_briefs/tactical_learning_packets の append-only／整合トリガ 16 本）の存在を確認してから返す",
-              "na_reason": "受入基準未設定: 全ACはDDLトリガ自体を観測し、connectの事前確認を観測しない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（全ACはDDLトリガ自体を観測し、connectの事前確認を観測しない）"
             }
           ],
           "raises": [
@@ -2633,7 +2739,7 @@
               "clause_id": "API-DU10-01-RAISE-01",
               "type": "FatalError",
               "when": "保護トリガ未適用・PRAGMA 設定不能・スキーマ未適用 DB（不正な実行環境として接続を返さない — fail-close）",
-              "na_reason": "受入基準未設定: 全ACはDU-11またはDDLの拒否を観測し、connect失敗を観測しない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（全ACはDU-11またはDDLの拒否を観測し、connect失敗を観測しない）"
             }
           ],
           "pure": false,
@@ -2749,6 +2855,7 @@
         {
           "api_id": "API-DU11-01",
           "signature": "def apply_all(conn: Connection, migrations_dir: Path, clock: Clock, applied_by: str) -> list[Applied]",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU11-01-PRE-01",
@@ -2779,7 +2886,7 @@
               "clause_id": "API-DU11-01-RAISE-01",
               "type": "FatalError",
               "when": "同 version 既存（重複適用）・非連番・SQL 適用失敗（当該版ごと rollback し停止 — MigrationChecksumMismatch/SchemaVerificationFailed を包含する正規化先）",
-              "na_reason": "受入基準未設定: 重複・非連番・SQL失敗の停止を観測するACがない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（重複・非連番・SQL失敗の停止を観測するACがない）"
             },
             {
               "clause_id": "API-DU11-01-RAISE-02",
@@ -2854,6 +2961,7 @@
         {
           "api_id": "API-DU11-02",
           "signature": "def verify(conn: Connection) -> None",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU11-02-PRE-01",
@@ -2869,7 +2977,7 @@
             {
               "clause_id": "API-DU11-02-POST-02",
               "text": "検査はすべて read-only（何度でも安全・自動修復しない）",
-              "na_reason": "受入基準未設定: read-only性を観測する受入基準がない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（read-only性を観測する受入基準がない）"
             }
           ],
           "raises": [
@@ -2882,7 +2990,7 @@
               "clause_id": "API-DU11-02-RAISE-02",
               "type": "FatalError",
               "when": "TLP 孤児検出（packet なし終端 lower run > 0 件 → escalate。自動修復しない — fail-close）",
-              "na_reason": "受入基準未設定: TLP孤児検出の異常系を観測するACがない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（TLP孤児検出の異常系を観測するACがない）"
             }
           ],
           "pure": false,
@@ -3050,6 +3158,7 @@
         {
           "api_id": "API-DU12-01",
           "signature": "def set(conn: Connection, key: str, value: object, value_type: str, reason: str, agent_id: int | None, clock: Clock) -> int",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU12-01-PRE-01",
@@ -3086,7 +3195,7 @@
               "clause_id": "API-DU12-01-RAISE-02",
               "type": "GateRejected",
               "when": "同一 key 同一 changed_at の INSERT（UNIQUE(key, changed_at) と二重防御）・value_type 不整合な value",
-              "na_reason": "受入基準未設定: ACはDBのIntegrityErrorを観測しGateRejectedは観測しない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（ACはDBのIntegrityErrorを観測しGateRejectedは観測しない）"
             }
           ],
           "pure": false,
@@ -3123,6 +3232,7 @@
         {
           "api_id": "API-DU12-02",
           "signature": "def get(conn: Connection, key: str, default: object | None = None) -> object",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU12-02-PRE-01",
@@ -3246,6 +3356,7 @@
         {
           "api_id": "API-DU13-01",
           "signature": "def resolve(conn: Connection, service: str, operation: str) -> Route",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU13-01-PRE-01",
@@ -3275,7 +3386,7 @@
             {
               "clause_id": "API-DU13-01-POST-03",
               "text": "X（x.com）への書込み系 operation は browser 経路を返さない（BR-M-X-4 — 解決段階で遮断）",
-              "na_reason": "受入基準未設定: 登録時拒否 AC は解決時の返却禁止を観測しない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（登録時拒否 AC は解決時の返却禁止を観測しない）"
             },
             {
               "clause_id": "API-DU13-01-POST-04",
@@ -3298,7 +3409,7 @@
               "clause_id": "API-DU13-01-RAISE-03",
               "type": "ProhibitedMediaWrite",
               "when": "X へのブラウザ書込み経路の解決要求（kind=blocked — バイパスなし）",
-              "na_reason": "受入基準未設定: 登録時の例外は別種であり本例外を AC は観測しない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（登録時の例外は別種であり本例外を AC は観測しない）"
             }
           ],
           "pure": false,
@@ -3339,6 +3450,7 @@
         {
           "api_id": "API-DU13-02",
           "signature": "def list_declared(conn: Connection, service: str | None = None) -> list[RegistryRow]",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU13-02-PRE-01",
@@ -3355,12 +3467,12 @@
             {
               "clause_id": "API-DU13-02-POST-01",
               "text": "レジストリ宣言行を読取専用で返す（診断・ヘルスチェック用。DB を変更しない）",
-              "na_reason": "受入基準未設定: 診断用読取返却を観測する AC が存在しない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（診断用読取返却を観測する AC が存在しない）"
             },
             {
               "clause_id": "API-DU13-02-POST-02",
               "text": "宣言 JSON が schema 不適合の行は結果に含めず不正行として報告する（fail-close）",
-              "na_reason": "受入基準未設定: list_declared の不正行除外を観測する AC が存在しない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（list_declared の不正行除外を観測する AC が存在しない）"
             }
           ],
           "raises": [],
@@ -3459,6 +3571,7 @@
         {
           "api_id": "API-DU14-01",
           "signature": "def get_credential(name: str, scope: Literal['test', 'prod']) -> Secret",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU14-01-PRE-01",
@@ -3484,7 +3597,7 @@
             {
               "clause_id": "API-DU14-01-POST-02",
               "text": "Secret の repr/str は常に伏字であり、例外メッセージ・トレースバック経由でも平文が漏れない",
-              "na_reason": "受入基準未設定: Secretのrepr・例外経路を直接観測するACがない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（Secretのrepr・例外経路を直接観測するACがない）"
             },
             {
               "clause_id": "API-DU14-01-POST-03",
@@ -3514,6 +3627,7 @@
         {
           "api_id": "API-DU14-02",
           "signature": "def check_endpoint(secret: Secret, endpoint_url: str) -> None",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU14-02-PRE-01",
@@ -3558,6 +3672,7 @@
         {
           "api_id": "API-DU14-03",
           "signature": "def scan(targets: list[Path], conn: Connection) -> list[Finding]",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU14-03-PRE-01",
@@ -3582,7 +3697,7 @@
             {
               "clause_id": "API-DU14-03-POST-03",
               "text": "Finding は位置・パターン名のみを持ち、マッチした平文値そのものを含めない",
-              "na_reason": "受入基準未設定: Findingの平文非保持を直接観測するACがない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（Findingの平文非保持を直接観測するACがない）"
             }
           ],
           "raises": [],
@@ -3607,6 +3722,7 @@
         {
           "api_id": "API-DU14-04",
           "signature": "def mask(text: str) -> str",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU14-04-PRE-01",
@@ -3622,7 +3738,7 @@
             {
               "clause_id": "API-DU14-04-POST-02",
               "text": "入力を変更しない（新文字列を返す純関数）",
-              "na_reason": "受入基準未設定: 入力不変性を受入シナリオとして直接観測するACがない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（入力不変性を受入シナリオとして直接観測するACがない）"
             }
           ],
           "raises": [],
@@ -3746,6 +3862,7 @@
         {
           "api_id": "API-DU15-01",
           "signature": "def launch(headed: bool, scope: ScopeContext, storage_state_path: Path | None = None) -> BrowserSession",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU15-01-PRE-01",
@@ -3775,13 +3892,13 @@
               "clause_id": "API-DU15-01-RAISE-01",
               "type": "RetryableError",
               "when": "ブラウザ起動失敗（一時的環境要因 — retryable_failure として再試行可）",
-              "na_reason": "受入基準未設定: 起動失敗の再試行可能性を観測するACが存在しないため"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（起動失敗の再試行可能性を観測するACが存在しないため）"
             },
             {
               "clause_id": "API-DU15-01-RAISE-02",
               "type": "CrossProfileAccessDenied",
               "when": "scope と異なるプロファイルの storage_state_path を指定（ログイン混線の遮断 — fail-close）",
-              "na_reason": "受入基準未設定: クロスプロファイル拒否を観測するACが存在しないため"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（クロスプロファイル拒否を観測するACが存在しないため）"
             }
           ],
           "pure": false,
@@ -3804,6 +3921,7 @@
         {
           "api_id": "API-DU15-02",
           "signature": "def screenshot(session: BrowserSession, url: str, out_path: Path) -> Path",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU15-02-PRE-01",
@@ -3820,7 +3938,7 @@
             {
               "clause_id": "API-DU15-02-POST-01",
               "text": "URL 到達確認（最終 URL 一致）つきで capture を out_path へ保存しパスを返す",
-              "na_reason": "受入基準未設定: スクリーンショット保存を観測するACが本DUに存在しないため"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（スクリーンショット保存を観測するACが本DUに存在しないため）"
             },
             {
               "clause_id": "API-DU15-02-POST-02",
@@ -3833,7 +3951,7 @@
               "clause_id": "API-DU15-02-RAISE-01",
               "type": "UrlDenied",
               "when": "遷移先が要求 URL と不一致・許可リスト外へリダイレクト（kind=blocked — deny-by-default）",
-              "na_reason": "受入基準未設定: URL不一致拒否を観測するACが本DUに存在しないため"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（URL不一致拒否を観測するACが本DUに存在しないため）"
             },
             {
               "clause_id": "API-DU15-02-RAISE-02",
@@ -3856,6 +3974,7 @@
         {
           "api_id": "API-DU15-03",
           "signature": "def run_playbook(conn: Connection, session: BrowserSession, playbook: Playbook, intent: ConnectorIntent, rng: Rng, clock: Clock) -> BrowserResult",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU15-03-PRE-01",
@@ -4066,6 +4185,7 @@
         {
           "api_id": "API-DU16-01",
           "signature": "def get(conn: Connection, service: str, operation: str, route_type: str) -> Playbook",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU16-01-PRE-01",
@@ -4086,7 +4206,7 @@
             {
               "clause_id": "API-DU16-01-POST-02",
               "text": "procedure_json・selector_json は schema 検証済みで返る（壊れた JSON は FatalError）",
-              "na_reason": "受入基準未設定: schema検証済みJSONの返却を直接観測するACがない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（schema検証済みJSONの返却を直接観測するACがない）"
             },
             {
               "clause_id": "API-DU16-01-POST-03",
@@ -4099,19 +4219,19 @@
               "clause_id": "API-DU16-01-RAISE-01",
               "type": "PlaybookMissing",
               "when": "該当行なし（kind=absent — 自己修復は FR-43/S2 へ委譲。拒否して書込みを開始しない）",
-              "na_reason": "受入基準未設定: 該当行なし時のget拒否を直接観測するACがない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（該当行なし時のget拒否を直接観測するACがない）"
             },
             {
               "clause_id": "API-DU16-01-RAISE-02",
               "type": "PlaybookBroken",
               "when": "status=broken の行参照（kind=absent — 書込みを開始しない）。status=retired も修復・使用対象外として同様に拒否",
-              "na_reason": "受入基準未設定: getによるbroken・retired拒否を直接観測するACがない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（getによるbroken・retired拒否を直接観測するACがない）"
             },
             {
               "clause_id": "API-DU16-01-RAISE-03",
               "type": "FatalError",
               "when": "procedure_json/selector_json の schema 不適合（壊れた地図定義の fail-close）",
-              "na_reason": "受入基準未設定: 壊れたJSONのFatalErrorを直接観測するACがない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（壊れたJSONのFatalErrorを直接観測するACがない）"
             }
           ],
           "pure": false,
@@ -4147,6 +4267,7 @@
         {
           "api_id": "API-DU16-02",
           "signature": "def record_success(conn: Connection, playbook_id: int, agent_id: int, clock: Clock) -> None",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU16-02-PRE-01",
@@ -4184,6 +4305,7 @@
         {
           "api_id": "API-DU16-03",
           "signature": "def record_failure(conn: Connection, playbook_id: int, clock: Clock) -> None",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU16-03-PRE-01",
@@ -4200,17 +4322,17 @@
             {
               "clause_id": "API-DU16-03-POST-01",
               "text": "consecutive_failures を 1 加算し last_failure_at を clock から更新する",
-              "na_reason": "受入基準未設定: 失敗記録の加算・時刻更新を直接観測するACがない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（失敗記録の加算・時刻更新を直接観測するACがない）"
             },
             {
               "clause_id": "API-DU16-03-POST-02",
               "text": "加算後に閾値到達なら同一 transaction 内で status を broken へ降格する（以後の get は PlaybookBroken で拒否）",
-              "na_reason": "受入基準未設定: 閾値到達時のbroken降格を直接観測するACがない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（閾値到達時のbroken降格を直接観測するACがない）"
             },
             {
               "clause_id": "API-DU16-03-POST-03",
               "text": "降格の事実を構造化ログへ記録する（escalate 誘導は呼出元）",
-              "na_reason": "受入基準未設定: 降格の構造化ログ記録を直接観測するACがない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（降格の構造化ログ記録を直接観測するACがない）"
             }
           ],
           "raises": [],
@@ -4314,6 +4436,7 @@
         {
           "api_id": "API-DU17-01",
           "signature": "def create_draft(conn: Connection, task_id: int, pair_pass: PairPass, html: str, idempotency_key: str, clock: Clock) -> DraftRef",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU17-01-PRE-01",
@@ -4402,6 +4525,7 @@
         {
           "api_id": "API-DU17-02",
           "signature": "def publish(conn: Connection, task_id: int, pair_pass: PairPass, approval_pass: ApprovalPass, draft_ref: DraftRef, idempotency_key: str, clock: Clock) -> PublishedRef",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU17-02-PRE-01",
@@ -4439,7 +4563,7 @@
               "clause_id": "API-DU17-02-RAISE-01",
               "type": "ApprovalRequired",
               "when": "ApprovalPass 未提示・無効での公開要求（kind=blocked — 外部送信 0 回で拒否し 拒否理由を構造化ログ（FN-704）へ記録）",
-              "na_reason": "受入基準未設定: 承認なし公開の拒否を直接観測するACがこの入力にはない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（承認なし公開の拒否を直接観測するACがこの入力にはない）"
             },
             {
               "clause_id": "API-DU17-02-RAISE-02",
@@ -4461,7 +4585,7 @@
               "clause_id": "API-DU17-02-RAISE-05",
               "type": "OperationUnverifiable",
               "when": "公開状態が sent のまま照合不能（unknown → escalated。再送しない）",
-              "na_reason": "受入基準未設定: 公開sent照合不能はUTのみで、受入ACが直接観測しない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（公開sent照合不能はUTのみで、受入ACが直接観測しない）"
             }
           ],
           "pure": false,
@@ -4508,6 +4632,7 @@
         {
           "api_id": "API-DU17-03",
           "signature": "def upload_media(conn: Connection, task_id: int, pair_pass: PairPass, media_path: Path, idempotency_key: str, clock: Clock) -> MediaRef",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU17-03-PRE-01",
@@ -4570,6 +4695,7 @@
         {
           "api_id": "API-DU17-04",
           "signature": "def register_asset(conn: Connection, task_id: int, published: PublishedRef, clock: Clock) -> int",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU17-04-PRE-01",
@@ -4741,6 +4867,7 @@
         {
           "api_id": "API-DU18-01",
           "signature": "def request(conn: Connection, task_id: int, binding: Binding, transport: ApprovalTransport, clock: Clock) -> int",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU18-01-PRE-01",
@@ -4770,7 +4897,7 @@
             {
               "clause_id": "API-DU18-01-POST-03",
               "text": "同一 (task_id, binding_subject, binding_operation, binding_at) の重複要求は UNIQUE 制約で既存行に照合し新規行を作らない（冪等）",
-              "na_reason": "受入基準未設定: 同一要求の冪等性を直接観測するACがない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（同一要求の冪等性を直接観測するACがない）"
             },
             {
               "clause_id": "API-DU18-01-POST-04",
@@ -4806,6 +4933,7 @@
         {
           "api_id": "API-DU18-02",
           "signature": "def poll(conn: Connection, approval_id: int, transport: ApprovalTransport, clock: Clock) -> Decision",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU18-02-PRE-01",
@@ -4834,7 +4962,7 @@
             {
               "clause_id": "API-DU18-02-POST-04",
               "text": "decision の書換え・削除は行わない（approvals は証跡 — 変更は新規要求の別行）",
-              "na_reason": "受入基準未設定: append-onlyはDBトリガ検証でAPI呼出を観測しない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（append-onlyはDBトリガ検証でAPI呼出を観測しない）"
             }
           ],
           "raises": [],
@@ -4864,6 +4992,7 @@
         {
           "api_id": "API-DU18-03",
           "signature": "def rerequest_on_expired(conn: Connection, approval_id: int, transport: ApprovalTransport, clock: Clock) -> int",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU18-03-PRE-01",
@@ -5021,6 +5150,7 @@
         {
           "api_id": "API-DU19-01",
           "signature": "def generate(plan: PlanInput, workspace: Path, rng_seed: int) -> GeneratedSource",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU19-01-PRE-01",
@@ -5051,7 +5181,7 @@
             {
               "clause_id": "API-DU19-01-POST-02",
               "text": "生成物は workspace 配下のファイルとしてのみ書き出され、DB・外部サービスへは一切書かない",
-              "na_reason": "受入基準未設定: 生成APIのDB・外部非書込みを直接観測するACは存在しない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（生成APIのDB・外部非書込みを直接観測するACは存在しない）"
             },
             {
               "clause_id": "API-DU19-01-POST-03",
@@ -5061,7 +5191,7 @@
             {
               "clause_id": "API-DU19-01-POST-04",
               "text": "失敗時は部分出力を残さない（temp へ生成→完成後に rename）",
-              "na_reason": "受入基準未設定: 生成失敗時の部分出力不在を直接観測するACは存在しない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（生成失敗時の部分出力不在を直接観測するACは存在しない）"
             }
           ],
           "raises": [
@@ -5186,6 +5316,7 @@
         {
           "api_id": "API-DU20-01",
           "signature": "def commit_workspace(workspace: Path, repo: Path, message: str) -> str",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU20-01-PRE-01",
@@ -5202,12 +5333,12 @@
             {
               "clause_id": "API-DU20-01-POST-01",
               "text": "commit を実行し、40 又は 64 桁の 16 進 hash を検証して返す",
-              "na_reason": "受入基準未設定: commit hashの返却はUTのみが検証し、ACはこのAPIを実行しない。"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（commit hashの返却はUTのみが検証し、ACはこのAPIを実行しない。）"
             },
             {
               "clause_id": "API-DU20-01-POST-02",
               "text": "commit 後の workspace 内容と hash は一対一（後続の review_pass はこの hash に束縛される）",
-              "na_reason": "受入基準未設定: commit後内容とhashの対応はUTのみが検証し、ACはこのAPIを実行しない。"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（commit後内容とhashの対応はUTのみが検証し、ACはこのAPIを実行しない。）"
             }
           ],
           "raises": [
@@ -5238,6 +5369,7 @@
         {
           "api_id": "API-DU20-02",
           "signature": "def link(conn: Connection, task_id: int, repository: str, commit_hash: str, paths: list[str], clock: Clock) -> int",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU20-02-PRE-01",
@@ -5298,6 +5430,7 @@
         {
           "api_id": "API-DU20-03",
           "signature": "def restore(repo: Path, commit_hash: str, dest: Path) -> Path",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU20-03-PRE-01",
@@ -5318,7 +5451,7 @@
             {
               "clause_id": "API-DU20-03-POST-02",
               "text": "repo 本体の作業ツリーを変更しない（read-only 抽出）",
-              "na_reason": "受入基準未設定: repo作業ツリー不変はUTのみが検証し、ACは直接観測しない。"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（repo作業ツリー不変はUTのみが検証し、ACは直接観測しない。）"
             }
           ],
           "raises": [
@@ -5435,6 +5568,7 @@
         {
           "api_id": "API-DU21-01",
           "signature": "def create_node(conn: Connection, node: KpiNodeInput) -> int",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU21-01-PRE-01",
@@ -5513,6 +5647,7 @@
         {
           "api_id": "API-DU21-02",
           "signature": "def tree(conn: Connection, business_profile_id: int) -> list[KpiNode]",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU21-02-PRE-01",
@@ -5524,12 +5659,12 @@
             {
               "clause_id": "API-DU21-02-POST-01",
               "text": "当該プロファイルの親子解決済みツリー（layer×medium の断面クエリ可能な形）を返す",
-              "na_reason": "受入基準未設定: ACは横断集計を観測しtree APIの戻り値を観測しない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（ACは横断集計を観測しtree APIの戻り値を観測しない）"
             },
             {
               "clause_id": "API-DU21-02-POST-02",
               "text": "最小ツリー（根ノードのみ）でも決定的に返る（AC-61-3）。他プロファイルのノードは含まれない",
-              "na_reason": "受入基準未設定: ACは集計結果を観測しtree APIの戻り値を観測しない"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（ACは集計結果を観測しtree APIの戻り値を観測しない）"
             }
           ],
           "raises": [],
@@ -5547,6 +5682,7 @@
         {
           "api_id": "API-DU21-03",
           "signature": "def archive_node(conn: Connection, node_id: int) -> None",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU21-03-PRE-01",
@@ -5668,6 +5804,7 @@
         {
           "api_id": "API-DU22-01",
           "signature": "def fetch(conn: Connection, task_id: int, route: Route, property_id: str, period: Period, out_dir: Path, clock: Clock) -> FetchResult",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU22-01-PRE-01",
@@ -5702,12 +5839,12 @@
             {
               "clause_id": "API-DU22-01-POST-03",
               "text": "ブラウザフォールバック時は screenshot 証跡も取得する（DU-15 経由）。いずれの経路も同一の evidence 契約に収束",
-              "na_reason": "受入基準未設定: ブラウザ時スクリーンショットは経路固有補助証跡で直接観測されないため"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（ブラウザ時スクリーンショットは経路固有補助証跡で直接観測されないため）"
             },
             {
               "clause_id": "API-DU22-01-POST-04",
               "text": "読取り系のためレート節度（NFR-7）の対象外・external_operations 行は作らない。mock/dry-run は fixture を返し予定 request の fingerprint を operation_log に残す",
-              "na_reason": "受入基準未設定: dry-run予定指紋とレート対象外は受入基準が直接観測しないため"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（dry-run予定指紋とレート対象外は受入基準が直接観測しないため）"
             },
             {
               "clause_id": "API-DU22-01-POST-05",
@@ -5720,7 +5857,7 @@
               "clause_id": "API-DU22-01-RAISE-01",
               "type": "GateRejected",
               "when": "書込み系 operation の組立要求・property 不一致（read-only 保証の fail-close — 外部呼出 0 回）",
-              "na_reason": "受入基準未設定: fetchでの接続前拒否は受入基準が直接観測していないため"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（fetchでの接続前拒否は受入基準が直接観測していないため）"
             },
             {
               "clause_id": "API-DU22-01-RAISE-02",
@@ -5903,6 +6040,7 @@
         {
           "api_id": "API-DU23-01",
           "signature": "def parse(raw: Path, schema: SourceSchema) -> ParseResult",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU23-01-PRE-01",
@@ -5963,6 +6101,7 @@
         {
           "api_id": "API-DU23-02",
           "signature": "def ingest(conn: Connection, rows: list[MeasurementRow], raw: Path, expected_hash: str, kpi_node_id: int, task_id: int, evidence_id: int, clock: Clock) -> int",
+          "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU23-02-PRE-01",
@@ -5989,7 +6128,7 @@
             {
               "clause_id": "API-DU23-02-POST-01",
               "text": "投入前に raw の SHA-256 を再計算し expected_hash と一致する場合のみ投入する（改竄・取り違えの fail-close）",
-              "na_reason": "受入基準未設定: hash再計算一致による投入条件を観測するACがない。"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（hash再計算一致による投入条件を観測するACがない。）"
             },
             {
               "clause_id": "API-DU23-02-POST-02",
@@ -6009,13 +6148,13 @@
               "clause_id": "API-DU23-02-RAISE-01",
               "type": "FatalError",
               "when": "raw の再計算 hash が expected_hash と不一致（証跡固定値との乖離 — 投入せず拒否）",
-              "na_reason": "受入基準未設定: hash不一致fail-closeを観測するACがこのDUにはない。"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（hash不一致fail-closeを観測するACがこのDUにはない。）"
             },
             {
               "clause_id": "API-DU23-02-RAISE-02",
               "type": "GateRejected",
               "when": "FK 不能（kpi_node/task/evidence 不在）・有料指標ノードへの投入要求（投入前拒否 — DB 不変）",
-              "na_reason": "受入基準未設定: FK・有料指標の投入前拒否を観測するACがない。"
+              "na_reason": "単体検証: 割当 UT が本節を直接検証する（FK・有料指標の投入前拒否を観測するACがない。）"
             }
           ],
           "pure": false,
@@ -6155,5 +6294,5 @@
     "ARCHIVE-UT-LEGACY",
     "docs/L5-detailed-design/canonical/detailed-design_v0.1.md §3（API 正本宣言）"
   ],
-  "approval_digest": "5964e05d821a"
+  "approval_digest": "d2c7b73dd280"
 }

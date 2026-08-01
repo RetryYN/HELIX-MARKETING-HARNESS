@@ -61,15 +61,16 @@
     "review_log_digest": {
       "type": "string",
       "pattern": "^[0-9a-f]{16}$",
-      "description": "review_log_path の sha256[:16]。実在ログと一致しなければ separation_status=verified を名乗れない"
+      "description": "review_log_path の sha256[:16]。実在ログと一致しなければ self_attested／ci_attested を名乗れない"
     },
     "separation_status": {
       "type": "string",
       "enum": [
-        "verified",
-        "unverified"
+        "unverified",
+        "self_attested",
+        "ci_attested"
       ],
-      "description": "verified = 主体分離が実行証跡で確認済み。unverified = 証跡を取得できず『独立レビュー済み』と宣言しない（PO 判断へ送る）"
+      "description": "unverified = 分離の実行証跡を取得できず独立性を主張しない（PO 判断へ送る）。self_attested = 別 principal・別 execution の実行ログがリポジトリ内に存在し digest まで一致するが、ログはレビュー実行者自身が生成したローカル成果物であり第三者署名ではない。ci_attested = GitHub Actions の run ID・ログ URL・artifact digest へ束縛され、第三者（CI）が実行を記録している場合のみ名乗れる"
     },
     "model": {
       "type": "string",
@@ -172,6 +173,31 @@
       "type": "string",
       "pattern": "^[0-9a-f]{40}$",
       "description": "レビュー対象コミットのルートツリー sha。`git rev-parse <target_commit>^{tree}` と厳密一致でなければならない（dangling tree は push されず clone 先で解決できない）。"
+    },
+    "ci_run_id": {
+      "type": "string",
+      "pattern": "^[0-9]{6,}$",
+      "description": "ci_attested のときに必須。レビューを実行した GitHub Actions の run ID"
+    },
+    "ci_run_url": {
+      "type": "string",
+      "pattern": "^https://github\\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/actions/runs/[0-9]{6,}$",
+      "description": "ci_attested のときに必須。ci_run_id と一致する Actions ログ URL"
+    },
+    "ci_log_digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "ci_attested のときに必須。CI が公開した実行ログ artifact の sha256"
+    },
+    "ci_workflow": {
+      "type": "string",
+      "pattern": "^[a-z0-9._-]+\\.ya?ml$",
+      "description": "ci_attested のときに必須。レビューを実行した .github/workflows のファイル名（attestation と一致）"
+    },
+    "ci_artifact_name": {
+      "type": "string",
+      "minLength": 3,
+      "description": "ci_attested のときに必須。CI が公開した実行ログ artifact 名（attestation と一致）"
     }
   }
 }

@@ -67,6 +67,18 @@ def main() -> int:
               "スタブ増加は設計追加（du-contracts の UT 追補）と同一コミットで、"
               "PO 承認 receipt を添えて baseline を更新すること")
         return 1
+    # 承認行の形式だけでは「承認行を書けば上限を上げられる」ことになる（独立レビュー R5-02）。
+    # 上限の増分は同一変更の UT 追加本数以内であることをゲート本体と同じ判定で要求する。
+    if recorded is not None and limit > recorded:
+        sys.path.insert(0, str(ROOT))
+        from tools.gates.baseline import committed_baseline, skip_raise_backing_faults
+        from tools.gates.common import CTX
+        from tools.gates.requirements import current_denominators
+        prev, _ = committed_baseline()
+        backing = skip_raise_backing_faults(prev or {}, current_denominators(CTX), recorded, limit)
+        if backing:
+            print(f"FAIL [SKIP-BUDGET] {backing[0]}")
+            return 1
     skipped = measured_skipped()
     if skipped > limit:
         print(f"FAIL [SKIP-BUDGET] skipped {skipped} > 上限 {limit} — "
