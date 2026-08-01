@@ -1,0 +1,48 @@
+{
+  "version": "0.1",
+  "note": "AC が 1 節も検証していない API の明示台帳。G-L6-IMPLEMENTATION-TRACE の責務被覆から除外される唯一の経路であり、追加・削除は必ずこの台帳の差分として現れる（na_reason だけで API を台帳から消せない）。resolution_update = 受入基準を新設して解消する S0 内の更新であり、DU 台帳の fn_ids → updates.json から機械導出する（G-UNCOVERED-API-UPDATE）。slice（いつ作るか）とは別軸なので混同しない。",
+  "items": [
+    {
+      "api_id": "API-DU13-02",
+      "du_id": "DU-13",
+      "function": "list_declared",
+      "reason": "この API の契約節を観測する受入基準が AC カタログに存在しない（S0 設計時点の穴）",
+      "resolution_update": "S0.2"
+    },
+    {
+      "api_id": "API-DU15-01",
+      "du_id": "DU-15",
+      "function": "launch",
+      "reason": "この API の契約節を観測する受入基準が AC カタログに存在しない（S0 設計時点の穴）",
+      "resolution_update": "S0.2"
+    },
+    {
+      "api_id": "API-DU15-02",
+      "du_id": "DU-15",
+      "function": "screenshot",
+      "reason": "この API の契約節を観測する受入基準が AC カタログに存在しない（S0 設計時点の穴）",
+      "resolution_update": "S0.2"
+    },
+    {
+      "api_id": "API-DU16-03",
+      "du_id": "DU-16",
+      "function": "record_failure",
+      "reason": "この API の契約節を観測する受入基準が AC カタログに存在しない（S0 設計時点の穴）",
+      "resolution_update": "S0.2"
+    },
+    {
+      "api_id": "API-DU20-01",
+      "du_id": "DU-20",
+      "function": "commit_workspace",
+      "reason": "この API の契約節を観測する受入基準が AC カタログに存在しない（S0 設計時点の穴）",
+      "resolution_update": "S0.2"
+    },
+    {
+      "api_id": "API-DU21-02",
+      "du_id": "DU-21",
+      "function": "tree",
+      "reason": "この API の契約節を観測する受入基準が AC カタログに存在しない（S0 設計時点の穴）",
+      "resolution_update": "S0.3"
+    }
+  ]
+}

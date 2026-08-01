@@ -1,0 +1,101 @@
+{
+  "doc": "strategy/ac-sr",
+  "version": "0.1",
+  "source": "docs/L3-system-requirements/canonical/strategy/strategy-loop-requirements_v0.1.md §6",
+  "note": "S0 実装分の SR（SR-06〜09/11/15）の受入条件。検証は STC-I-01〜06（strategy-tests.json）、実装は DU-01/02/10（detailed.json）。S0.1 完了ゲートに含む。",
+  "items": [
+    {
+      "id": "AC-SR-01",
+      "sr": [
+        "SR-06"
+      ],
+      "stc": [
+        "STC-I-04"
+      ],
+      "du": [
+        "DU-02"
+      ],
+      "given": "同一内容の brief draft",
+      "when": "issue_strategic_brief を 2 回実行（別プロセス可）",
+      "then": "正準化 JSON（キー昇順・区切り (\",\",\":\")・digest/status/created_at 除外）の SHA-256 が一致し、同一 digest が得られる（決定性）"
+    },
+    {
+      "id": "AC-SR-02",
+      "sr": [
+        "SR-07"
+      ],
+      "stc": [
+        "STC-I-03"
+      ],
+      "du": [
+        "DU-01",
+        "DU-02"
+      ],
+      "given": "brief なし／status=superseded／有効期間外／digest 不一致 の 4 状態",
+      "when": "下位 loop_run の start を試行",
+      "then": "4 状態すべてで GateRejected（DDL CHECK＋validate_strategic_brief）となり状態が変化しない"
+    },
+    {
+      "id": "AC-SR-03",
+      "sr": [
+        "SR-08"
+      ],
+      "stc": [
+        "STC-I-05"
+      ],
+      "du": [
+        "DU-02"
+      ],
+      "given": "終端状態（completed/failed/escalated/cancelled）に到達した lower run",
+      "when": "generate_tactical_learning_packet を実行",
+      "then": "learning（completed）又は failure（failed/escalated/cancelled）の packet が終端遷移と同一 transaction で 1 件生成され、観測・解釈・判定・推奨が分離フィールドに入る。非終端 run・upper run への生成は拒否。packet を持たない終端 lower run は verify()/ヘルスチェックが 0 件を検査（孤児検出時 escalate）"
+    },
+    {
+      "id": "AC-SR-04",
+      "sr": [
+        "SR-09"
+      ],
+      "stc": [
+        "STC-I-06"
+      ],
+      "du": [
+        "DU-02"
+      ],
+      "given": "下流実行経路・コネクタ層の公開 API 一覧",
+      "when": "上流正本（strategic_briefs）への書込み経路を静的・動的に探索",
+      "then": "書込みは issue/supersede_strategic_brief の 2 API のみで、下流・コネクタから到達不能"
+    },
+    {
+      "id": "AC-SR-05",
+      "sr": [
+        "SR-11"
+      ],
+      "stc": [
+        "STC-I-01",
+        "STC-I-02"
+      ],
+      "du": [
+        "DU-10"
+      ],
+      "given": "strategic_briefs／tactical_learning_packets の既存行",
+      "when": "内容列 UPDATE・DELETE を直接実行",
+      "then": "append-only トリガが IntegrityError（'append-only'）で拒否する（FK 等の別要因ではない）"
+    },
+    {
+      "id": "AC-SR-06",
+      "sr": [
+        "SR-07",
+        "SR-08"
+      ],
+      "stc": [
+        "STC-I-05"
+      ],
+      "du": [
+        "DU-10"
+      ],
+      "given": "run と brief の対応（TLP.brief_id=run.brief_id、TLP.digest=run.digest=brief.digest、UNIQUE(loop_run_id)）",
+      "when": "不一致 brief_id／不一致 digest／二重 TLP の INSERT を試行",
+      "then": "DDL 整合トリガ・UNIQUE 制約がすべて拒否する（run／brief／digest の整合）"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "doc": "mr/NOTION",
+  "version": "0.1",
+  "source": "docs/L3-system-requirements/canonical/functional/media-requirements_v0.1.md",
+  "generated": "2026-07-30",
+  "media": "NOTION",
+  "media_name": "11.1 Notion",
+  "items": [
+    {
+      "id": "MR-NOTION-1",
+      "media": "NOTION",
+      "media_name": "11.1 Notion",
+      "text": "Notion 障害時もループは SQLite のみで継続（判定に関与させない・FR-45）",
+      "trace": {
+        "upstream": [
+          "FR-45",
+          "BR-M-NOTION-1"
+        ],
+        "downstream": []
+      },
+      "actions": "行動計画読取り、レビュー結果書戻し。ネタ帳・スプリント参照",
+      "evidence": "同期ログ（読取り/書戻しの対象・時刻）",
+      "kpi_contribution": "N/A（内部基盤・計画 UI）",
+      "workflow": "N/A（FN-408 の同期処理のみ）",
+      "gate": "N/A（判定に関与しない）",
+      "safety": "低頻度同期のみ。MCP レート内"
+    },
+    {
+      "id": "MR-NOTION-2",
+      "media": "NOTION",
+      "media_name": "11.1 Notion",
+      "text": "（レート・BR-F5）: 公式 MCP のため N/A（API quota 準拠・低頻度同期のみ）",
+      "trace": {
+        "upstream": [
+          "BR-M-NOTION-2"
+        ],
+        "downstream": []
+      },
+      "actions": "行動計画読取り、レビュー結果書戻し。ネタ帳・スプリント参照",
+      "evidence": "同期ログ（読取り/書戻しの対象・時刻）",
+      "kpi_contribution": "N/A（内部基盤・計画 UI）",
+      "workflow": "N/A（FN-408 の同期処理のみ）",
+      "gate": "N/A（判定に関与しない）",
+      "safety": "低頻度同期のみ。MCP レート内"
+    }
+  ]
+}

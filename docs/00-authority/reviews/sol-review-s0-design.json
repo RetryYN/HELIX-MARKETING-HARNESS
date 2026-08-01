@@ -1,0 +1,48 @@
+{
+  "review_id": "REV-S0-DESIGN-01",
+  "reviewer_principal": "codex-sol（分離は実行証跡で未確認 — separation_status: unverified）",
+  "separation_status": "unverified",
+  "model": "gpt-5.6-sol",
+  "target_commit": "6751028671c07e2a6cc5ce19e9d6be895b27a38d",
+  "target_tree": "61f2b7bd7cc2f1592dbfe5dc5a34d52e57f9c8a6",
+  "scope": "S0 設計クロージャー（正本確定・意味整合・物理統一・DDL 一致・test-first 実体化）",
+  "reviewed_artifact_digests": {
+    "docs/requirements/json/br/br-contracts.json": "8b506583964daac8",
+    "docs/requirements/json/fr/fr-contracts.json": "e7af37b045c4a3fb",
+    "docs/requirements/json/strategy/sr-contracts.json": "90b5e89197c8a748",
+    "docs/requirements/json/nfr/nfr-contracts.json": "87d66081f191dc21",
+    "docs/requirements/json/ac/ac-contracts.json": "898498118ac3926b",
+    "docs/requirements/json/verification/tc-contracts.json": "a023c6335ecb5008",
+    "docs/design/json/cmp-contracts.json": "1f789a29dfaa34cc",
+    "docs/design/json/du-contracts.json": "a9624ded138762b1",
+    "docs/requirements/json/s0/ddl.sql": "ad296400fa318508",
+    "scripts/validate_requirements.py": "dd4295bafce050ad"
+  },
+  "findings": [
+    {
+      "severity": "blocker",
+      "summary": "レビュー成果物のコミット束縛枠組み（docs/governance/reviews/）が存在せず、Go を対象コミットへ機械的に束縛できない",
+      "status": "resolved",
+      "resolution": "review.schema.json とレビュー成果物を新設し、G-REVIEW-BINDING で target_commit の実在と成果物 digest の不変を検査するようにした"
+    },
+    {
+      "severity": "major",
+      "summary": "confirmed の NFR 正本が廃止済みパッケージ harness/ を測定方法に指定しており、物理統一が未閉鎖",
+      "status": "resolved",
+      "resolution": "NFR-1／NFR-8 の測定方法を src/helix/ へ更新し、receipt を再発行"
+    },
+    {
+      "severity": "major",
+      "summary": "README の末尾に『次: 全層再降下 → 完了後に S0.1 再開』という旧記述が残り、現在地が一意でない",
+      "status": "resolved",
+      "resolution": "旧記述を履歴と明示し、『次の一手』節で S0.1 実装＋HELIX 経路を単一の現在地として宣言"
+    }
+  ],
+  "resolution_commits": [
+    "e66b746384d3ec75eae87c7d6915b5e9b12fd3f4",
+    "3b626bd5a2d973adcacef7885565cb0c2667e918"
+  ],
+  "verdict": "No-Go",
+  "rounds": 1,
+  "completed_at": "2026-08-01"
+}

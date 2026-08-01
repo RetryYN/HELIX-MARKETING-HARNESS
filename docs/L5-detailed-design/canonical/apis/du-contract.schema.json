@@ -1,0 +1,408 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "du-contract",
+  "description": "詳細設計単位（DU）の実装契約。公開 API 署名・DbC・例外・状態遷移・DB read/write・transaction 境界・pure/副作用・冪等性・retry/resume・競合制御・ログ証跡・依存 API・AC/TC/UT 対応を必須化する（全層再降下 §7）。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "module",
+    "cmp",
+    "apis",
+    "dtos",
+    "state_transitions",
+    "db_read",
+    "db_write",
+    "transaction_boundary",
+    "purity",
+    "idempotency",
+    "retry_resume",
+    "concurrency",
+    "logging_evidence",
+    "depends_on_apis",
+    "trace",
+    "semantic_refs"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^DU-[0-9]{2}$"
+    },
+    "module": {
+      "type": "string",
+      "pattern": "^[a-z_/]+\\.py$"
+    },
+    "cmp": {
+      "type": "string",
+      "pattern": "^(CMP|SCM)-[0-9]{2}$"
+    },
+    "apis": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "api_id",
+          "signature",
+          "verification_level",
+          "precondition",
+          "postcondition",
+          "raises",
+          "pure",
+          "ut"
+        ],
+        "properties": {
+          "api_id": {
+            "type": "string",
+            "pattern": "^API-DU[0-9]{2}-[0-9]{2}$",
+            "description": "API の安定 ID。実装単位・AC・UT はこの ID で API を指す（署名や関数名の文字列一致で指さない）"
+          },
+          "signature": {
+            "type": "string",
+            "minLength": 10,
+            "pattern": "^def .+\\(.*\\) -> .+$",
+            "description": "Python 署名（def name(args: 型) -> 戻り型）"
+          },
+          "verification_level": {
+            "type": "string",
+            "enum": [
+              "acceptance",
+              "unit",
+              "integration"
+            ],
+            "description": "この API の検証水準。acceptance = 外部観測可能な振る舞いを AC／TCC が検証する。unit／integration = 内部 API で、契約節を UT／ITC が直接検証する（internal_reason 必須・未被覆 API 台帳の対象外 — G-L6-IMPLEMENTATION-TRACE）"
+          },
+          "internal_reason_code": {
+            "type": "string",
+            "enum": [
+              "startup-wiring",
+              "read-only-accessor",
+              "internal-delegation"
+            ],
+            "description": "verification_level が unit／integration のときに必須の**閉じた理由コード**。startup-wiring=起動時配線／read-only-accessor=読取専用アクセサ／internal-delegation=状態変更を他 API へ委譲する内部制御"
+          },
+          "internal_reason": {
+            "type": "string",
+            "minLength": 20,
+            "description": "verification_level が unit／integration のときに必須。なぜ外部観測可能な受入基準を持たない内部 API なのかを述べる（起動時配線・読取専用アクセサ等）"
+          },
+          "precondition": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "clause_id",
+                "text"
+              ],
+              "properties": {
+                "clause_id": {
+                  "type": "string",
+                  "pattern": "^API-DU[0-9]{2}-[0-9]{2}-PRE-[0-9]{2}$"
+                },
+                "text": {
+                  "type": "string",
+                  "minLength": 6
+                },
+                "na_reason": {
+                  "type": "string",
+                  "minLength": 10,
+                  "description": "AC を持たない契約節の分類付き理由。閉じた語彙（呼出側義務:／配線時保証:／他 API で検証:／単体検証:／受入基準未設定:）で始まる。AC 被覆とは排他 — G-L6-IMPLEMENTATION-TRACE"
+                }
+              }
+            }
+          },
+          "postcondition": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "clause_id",
+                "text"
+              ],
+              "properties": {
+                "clause_id": {
+                  "type": "string",
+                  "pattern": "^API-DU[0-9]{2}-[0-9]{2}-POST-[0-9]{2}$"
+                },
+                "text": {
+                  "type": "string",
+                  "minLength": 6
+                },
+                "na_reason": {
+                  "type": "string",
+                  "minLength": 10,
+                  "description": "AC を持たない契約節の分類付き理由。閉じた語彙（呼出側義務:／配線時保証:／他 API で検証:／単体検証:／受入基準未設定:）で始まる。AC 被覆とは排他 — G-L6-IMPLEMENTATION-TRACE"
+                }
+              }
+            }
+          },
+          "raises": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "clause_id",
+                "type",
+                "when"
+              ],
+              "properties": {
+                "clause_id": {
+                  "type": "string",
+                  "pattern": "^API-DU[0-9]{2}-[0-9]{2}-RAISE-[0-9]{2}$"
+                },
+                "type": {
+                  "type": "string",
+                  "minLength": 3
+                },
+                "when": {
+                  "type": "string",
+                  "minLength": 6
+                },
+                "na_reason": {
+                  "type": "string",
+                  "minLength": 10,
+                  "description": "AC を持たない契約節の分類付き理由。閉じた語彙（呼出側義務:／配線時保証:／他 API で検証:／単体検証:／受入基準未設定:）で始まる。AC 被覆とは排他 — G-L6-IMPLEMENTATION-TRACE"
+                }
+              }
+            },
+            "description": "raise する例外と条件（なし = 空配列）"
+          },
+          "pure": {
+            "type": "boolean",
+            "description": "true = 副作用なし（テスト注入可能）"
+          },
+          "ut": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "nodeid",
+                "clause_refs"
+              ],
+              "properties": {
+                "nodeid": {
+                  "type": "string",
+                  "minLength": 8,
+                  "pattern": "^test_[a-z0-9_]+\\.py::test_[a-z0-9_]+$"
+                },
+                "clause_refs": {
+                  "type": "array",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string",
+                    "pattern": "^API-DU[0-9]{2}-[0-9]{2}-(PRE|POST|RAISE)-[0-9]{2}$"
+                  },
+                  "description": "この UT が検証する当該 API の契約節。UT を nodeid だけで API へ吊るさない"
+                }
+              }
+            },
+            "description": "この API を検証する UT（各 API ≥1 — G-API-UT）"
+          }
+        }
+      }
+    },
+    "dtos": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 6
+      },
+      "description": "DTO・値オブジェクトの型定義（例: 'PairPass(pair_id: int, verified_at: str) — 検証済みペア通過の型強制'。なし = 空配列)"
+    },
+    "state_transitions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 6
+      },
+      "description": "この DU が実行する状態遷移（なし = 空配列）"
+    },
+    "db_read": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 2
+      }
+    },
+    "db_write": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 2
+      }
+    },
+    "transaction_boundary": {
+      "type": "string",
+      "minLength": 8,
+      "description": "BEGIN/COMMIT の位置（なし = 『なし（読み取りのみ/pure）』）"
+    },
+    "purity": {
+      "type": "string",
+      "minLength": 8,
+      "description": "pure 部と副作用端点の区分"
+    },
+    "idempotency": {
+      "type": "string",
+      "minLength": 8
+    },
+    "retry_resume": {
+      "type": "string",
+      "minLength": 8
+    },
+    "concurrency": {
+      "type": "string",
+      "minLength": 8,
+      "description": "競合制御（直列化・ロック・楽観検査）"
+    },
+    "logging_evidence": {
+      "type": "string",
+      "minLength": 8,
+      "description": "構造化ログと証跡（何をどこへ）"
+    },
+    "depends_on_apis": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 4
+      },
+      "description": "依存する他 DU の API（'DU-10: connect()' 形式。なし = 空配列）"
+    },
+    "trace": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ac",
+        "tc",
+        "ut"
+      ],
+      "properties": {
+        "ac": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^AC(-SR)?-[0-9]+(-[0-9]+)?$"
+          }
+        },
+        "tc": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^(TC|TCC|ITC|STC-[GI])-[A-Z0-9-]+$"
+          }
+        },
+        "ut": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 4
+          },
+          "description": "テスト関数名（tests/unit/test_<module>.py::test_*。S0 実装対象は非空必須 — G-API-UT）"
+        },
+        "feature_design": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 4
+          },
+          "description": "機能別詳細設計書への参照（該当時）"
+        }
+      }
+    },
+    "also_implements": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^(CMP|SCM)-[0-9]{2}$"
+      },
+      "description": "cmp に加えて実装するコンポーネント（戦略層 SCM 等。CMP↔DU の等号突合に参加 — G-CHAIN-BIDIR）"
+    },
+    "semantic_refs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "table_refs",
+        "column_refs",
+        "state_refs",
+        "event_refs",
+        "evidence_kind_refs",
+        "error_type_refs",
+        "api_refs"
+      ],
+      "description": "構造化参照（G-SEMANTIC-REF/G-COLUMN-REF/G-STATE-EVIDENCE-CONSISTENCY が正本と突合）。自由文でなくこの配列が意味整合の検査対象。",
+      "properties": {
+        "table_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          },
+          "description": "参照テーブル（ddl.sql と突合）"
+        },
+        "column_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z_]+\\.[a-z_]+$"
+          },
+          "description": "<table>.<column>（ddl.sql と突合）"
+        },
+        "state_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z_]+\\.[a-z_]+$"
+          },
+          "description": "<entity>.<state>（transitions.json と突合）"
+        },
+        "event_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          },
+          "description": "遷移イベント（transitions.json と突合）"
+        },
+        "evidence_kind_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          },
+          "description": "evidence kind（evidence-kinds.json と突合）"
+        },
+        "error_type_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          },
+          "description": "エラー型（error-taxonomy と突合）"
+        },
+        "api_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          },
+          "description": "公開 API 名（du-contracts と突合）"
+        }
+      }
+    }
+  }
+}

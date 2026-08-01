@@ -31,3 +31,9 @@ def test_assign_review_verifier_excludes_critic() -> None:
 def test_assign_inactive_agents_excluded() -> None:
     """du-contracts DU-03 の契約観点を検証する（実装スライスで red→green）。"""
     raise NotImplementedError
+
+
+@pytest.mark.skip(reason="test-first DU-03: assign")
+def test_assign_insufficient_role_candidates_rejected() -> None:
+    """du-contracts DU-03 の契約観点を検証する（実装スライスで red→green）。"""
+    raise NotImplementedError

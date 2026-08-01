@@ -1,0 +1,193 @@
+{
+  "doc": "s0/wf-contracts",
+  "version": "0.1",
+  "source": "docs/L3-system-requirements/canonical/s0-contract_v0.1.md",
+  "generated": "2026-07-30",
+  "items": [
+    {
+      "workflow": "WF-WP-1",
+      "title": "記事制作→審査",
+      "steps": [
+        {
+          "step": "1. 企画確定",
+          "input": "Notion ネタ又は手動投入、訴求・ターゲット・狙い",
+          "output": "action plan と T-PLAN",
+          "required_evidence": [
+            "plan_record"
+          ],
+          "gate": "倫理（S0 は fail-close のルールセット）",
+          "on_failure": "欠損は pending 継続、倫理 FAIL は failed"
+        },
+        {
+          "step": "2. 原稿制作",
+          "input": "承認済み企画、workflow 定義",
+          "output": "git workspace の記事ソース",
+          "required_evidence": [
+            "commit_hash"
+          ],
+          "gate": "入力型・決定性",
+          "on_failure": "制作失敗は in_progress のまま再試行"
+        },
+        {
+          "step": "3. commit 固定",
+          "input": "記事ソース、repository",
+          "output": "commit hash",
+          "required_evidence": [
+            "commit_hash"
+          ],
+          "gate": "hash が workspace に実在",
+          "on_failure": "commit 不可は failed"
+        },
+        {
+          "step": "4. 別 agent 審査",
+          "input": "記事、企画、commit hash",
+          "output": "PASS/FAIL と review task",
+          "required_evidence": [
+            "review_pass"
+          ],
+          "gate": "author != verifier、倫理",
+          "on_failure": "FAIL は理由を残し verify_fail、上限到達で escalated"
+        },
+        {
+          "step": "5. ペア成立",
+          "input": "action plan、PASS 証跡",
+          "output": "pair_plan_quality（passed）",
+          "required_evidence": [
+            "review_pass"
+          ],
+          "gate": "review_pass の hash が制作 hash と一致",
+          "on_failure": "不一致・証跡不足は公開を拒否"
+        }
+      ]
+    },
+    {
+      "workflow": "WF-WP-2",
+      "title": "WP 下書き→承認→公開",
+      "steps": [
+        {
+          "step": "1. 公開前検証",
+          "input": "pair_plan_quality、commit hash、記事",
+          "output": "公開可能判定",
+          "required_evidence": [
+            "review_pass",
+            "commit_hash"
+          ],
+          "gate": "pair = passed、hash 一致、証跡完備",
+          "on_failure": "拒否して T-PUB を failed。WP API を呼ばない"
+        },
+        {
+          "step": "2. 下書き作成",
+          "input": "記事 HTML、WP 接続、idempotency key",
+          "output": "WP draft ID",
+          "required_evidence": [
+            "operation_log"
+          ],
+          "gate": "ローカル Docker WP のみ書込み可",
+          "on_failure": "timeout は operation ID を照合して再開、照合不能は escalated"
+        },
+        {
+          "step": "3. 束縛承認",
+          "input": "draft URL/ID、対象、公開操作、時点",
+          "output": "approved approval",
+          "required_evidence": [
+            "approval"
+          ],
+          "gate": "channel = Claude Code アプリ、decision = approved、binding 3 項目完全一致",
+          "on_failure": "rejected は non_retryable_failure で failed。expired は承認再要求で待機継続し config.approval_retry_limit 到達で escalated。pending は waiting"
+        },
+        {
+          "step": "4. 公開",
+          "input": "approved approval、draft ID、idempotency key",
+          "output": "canonical URL、WP post ID",
+          "required_evidence": [
+            "published_url",
+            "operation_log"
+          ],
+          "gate": "承認・pair・証跡の再検証",
+          "on_failure": "再送前照合。公開状態不明は escalated"
+        },
+        {
+          "step": "5. 公開確認",
+          "input": "canonical URL",
+          "output": "capture",
+          "required_evidence": [
+            "screenshot"
+          ],
+          "gate": "URL 到達・URL 一致",
+          "on_failure": "スクショ失敗は retry、上限到達で escalated"
+        },
+        {
+          "step": "6. 資産登録と完了",
+          "input": "WP post/media ID、URL",
+          "output": "assets 行、done",
+          "required_evidence": [
+            "published_url",
+            "screenshot",
+            "approval"
+          ],
+          "gate": "required_evidence_json の全充足",
+          "on_failure": "欠落は done 拒否"
+        }
+      ]
+    },
+    {
+      "workflow": "WF-MEAS-1",
+      "title": "GA4 計測取り込み",
+      "steps": [
+        {
+          "step": "1. エクスポート取得",
+          "input": "GA4 property、期間、PV node",
+          "output": "CSV/xlsx 又は API 応答",
+          "required_evidence": [
+            "operation_log"
+          ],
+          "gate": "読取専用、対象 property 一致",
+          "on_failure": "mock/dry-run は fixture を返す。本番取得不能は failed（公開を巻き戻さない）"
+        },
+        {
+          "step": "2. ファイル固定",
+          "input": "取得物",
+          "output": "SHA-256 と capture",
+          "required_evidence": [
+            "file_hash",
+            "screenshot"
+          ],
+          "gate": "hash が再計算一致",
+          "on_failure": "不一致は failed、投入しない"
+        },
+        {
+          "step": "3. パース",
+          "input": "固定済み取得物",
+          "output": "正常行・隔離エラー",
+          "required_evidence": [
+            "measurement"
+          ],
+          "gate": "schema/type 検証、PV のみ",
+          "on_failure": "壊れた行は隔離し、正常行だけ継続"
+        },
+        {
+          "step": "4. 投入",
+          "input": "正常 PV 行、kpi node、取得証跡",
+          "output": "measurements 行",
+          "required_evidence": [
+            "measurement"
+          ],
+          "gate": "evidence_id と node の FK、有料指標型拒否",
+          "on_failure": "transaction 失敗は全投入を rollback"
+        },
+        {
+          "step": "5. 完了",
+          "input": "measurements 件数、証跡",
+          "output": "T-MEAS done",
+          "required_evidence": [
+            "measurement",
+            "file_hash",
+            "screenshot"
+          ],
+          "gate": "必須証跡完備",
+          "on_failure": "欠落は done 拒否"
+        }
+      ]
+    }
+  ]
+}

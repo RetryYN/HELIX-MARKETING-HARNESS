@@ -1,8 +1,8 @@
 {
   "note": "pytest skipped の上限ラチェット（scripts/check_skip_budget.py が python-ci で強制）。S0.1 実装で該当スタブを red→green 化するたびに理由付きで下げる。増加は設計追加（du-contracts の UT 追補）と同一コミットのみ許可。",
-  "max_skipped": 194,
-  "as_of": "2026-08-01",
-  "reason": "全層再降下 §8 — DU 23 契約の API 58 本に対する test-first スタブ 185 本＋⑥既存プレースホルダ（実装は S0.1 で再開）",
+  "max_skipped": 204,
+  "as_of": "2026-08-02",
+  "reason": "未被覆 API／更新境界最終是正 — S0.1 の契約節を UT へ直接接続するため test-first スタブを 10 本追加（API-DU01-01-RAISE-03／API-DU01-02-POST-02・RAISE-01／API-DU02-01-RAISE-02／API-DU02-03-RAISE-01・02／API-DU02-04-POST-02／API-DU02-06-RAISE-01・02／API-DU03-01-RAISE-02）。S0.1 実装で red→green 化して下げる",
   "s0_impl_started": false,
   "s0_impl_note": "S0.1 実装に着手したら true にする。以後、DU-01〜12 の API に対応する UT の skip は G-S0-TEST-REALITY が CI を落とす（実 red→green を強制）。着手は本クロージャー完了後。"
 }

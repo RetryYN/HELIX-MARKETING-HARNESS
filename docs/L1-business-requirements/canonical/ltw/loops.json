@@ -1,0 +1,136 @@
+{
+  "doc": "ltw/loops",
+  "version": "0.1",
+  "source": "docs/L1-business-requirements/canonical/loop-task-workflow_v0.1.md",
+  "generated": "2026-07-30",
+  "items": [
+    {
+      "id": "LP-U",
+      "type": "上位ループ（ブランド成長サイクル）",
+      "cycle": "月次 = 観測・戦略棚卸しの定期トリガー。戦略更新はイベントトリガー（ブランド成長状態変化・仮説棄却・市場環境変化・証拠閾値到達・複数 TLP 集積）",
+      "start_condition": "ブランド計画（brand_plans）が存在",
+      "feedback": "全媒体の tactical_learning_packet を集約し、strategy_revision で意味モデル（市場・セグメント・価値仮説・戦略判断）を更新 → strategic_brief を新版発行して下位ループへ再発行。KPI 乖離だけでは revision を発火せず、行動計画の微修正だけでは上流一周と数えない（SR-10/16）",
+      "trace": {
+        "upstream": [
+          "SR-10",
+          "SR-16"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "LP-OPS",
+      "type": "運用巡回（ヘルスチェック）",
+      "cycle": "日次",
+      "start_condition": "常時",
+      "feedback": "異常検知 → T-OPS タスク発火（WF-OPS-7）",
+      "trace": {
+        "upstream": [
+          "T-OPS",
+          "WF-OPS-7"
+        ],
+        "downstream": [
+          "T-OPS",
+          "WF-OPS-7"
+        ]
+      }
+    },
+    {
+      "id": "LP-D",
+      "type": "日次回転",
+      "cycle": "1 日",
+      "start_condition": "KPI 目標あり＋前日レビュー完了",
+      "feedback": "日次でエンゲージ実績を蓄積、週次で learnings 化",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      }
+    },
+    {
+      "id": "LP-W",
+      "type": "週次回転",
+      "cycle": "1 週",
+      "start_condition": "KPI 目標あり",
+      "feedback": "スプリントレビュー（計画↔計測ペア）で learnings 生成",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      }
+    },
+    {
+      "id": "LP-M",
+      "type": "月次回転",
+      "cycle": "2 週〜1 月",
+      "start_condition": "KPI 目標＋制作資産の充足",
+      "feedback": "同上",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      }
+    },
+    {
+      "id": "LP-E",
+      "type": "イベント駆動",
+      "cycle": "なし（トリガ発火）",
+      "start_condition": "上流イベント（記事公開・還流指示）",
+      "feedback": "発火元ループに帰属",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      }
+    },
+    {
+      "id": "LP-MEAS",
+      "type": "計測サイクル",
+      "cycle": "週次（全媒体横断）",
+      "start_condition": "常時",
+      "feedback": "measurements 投入→計画↔計測ペア成立判定",
+      "trace": {
+        "upstream": [],
+        "downstream": []
+      }
+    },
+    {
+      "id": "LP-R1",
+      "text": "各媒体ループは独立に回り、他媒体の遅延に影響されない（BR-A2）",
+      "trace": {
+        "upstream": [
+          "BR-A2"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "LP-R2",
+      "text": "ループ開始はペア条件（KPI 目標の存在）を満たすまでブロック（FR-14）",
+      "trace": {
+        "upstream": [
+          "FR-14"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "LP-R3",
+      "text": "サイクル長・回転数は config で媒体別に変更でき、コード変更を要しない（NFR-8）",
+      "trace": {
+        "upstream": [
+          "NFR-8"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "LP-R4",
+      "text": "下位ループは有効な strategic_brief（active・digest 一致・期間内）なしに開始できず、run に brief ID と digest を保持する。完了時に tactical_learning_packet を生成して還流し、下位・コネクタ・計測は上流戦略正本を直接更新しない（strategy-learning-contract）",
+      "trace": {
+        "upstream": [
+          "SR-07",
+          "SR-08",
+          "SR-09"
+        ],
+        "downstream": []
+      }
+    }
+  ]
+}

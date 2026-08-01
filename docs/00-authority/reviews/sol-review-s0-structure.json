@@ -1,0 +1,194 @@
+{
+  "review_id": "REV-S0-STRUCT-01",
+  "reviewer_principal": "codex-sol（分離は実行証跡で未確認 — separation_status: unverified）",
+  "separation_status": "unverified",
+  "model": "gpt-5.6-sol",
+  "target_commit": "2f3b0b3e332a466fbc20ad7fd2aaba3042784c02",
+  "target_tree": "bb219bdbb3a671afe2779b7cf7d3f602cb2aa741",
+  "scope": "物理構造・権威一意化 最終是正（PO 指示 §0〜§7）— L0〜L6 再配置・artifact manifest の権威正本化・旧体系の archive 隔離・現在地の一意化・越境書込み事故の監査記録化・brief 状態遷移と TLP 判定の DB 強制・S0.1 着手の自動検出・ゲート分割。束縛対象は契約正本・正準 DDL・ゲート実装・台帳・CI・規律文書・監査記録。artifact-manifest.json／baseline.json／approvals.md は本レビューの結果を受けてdigest が更新される派生台帳のため対象外（契約内容の改変は各契約 digest が直接検出する）",
+  "reviewed_artifact_digests": {
+    "docs/L1-business-requirements/canonical/br/br-contracts.json": "8b506583964daac8",
+    "docs/L3-system-requirements/canonical/functional/fr-contracts.json": "e7af37b045c4a3fb",
+    "docs/L3-system-requirements/canonical/strategy/sr-contracts.json": "90b5e89197c8a748",
+    "docs/L3-system-requirements/canonical/nonfunctional/nfr-contracts.json": "239d965c26beba9d",
+    "docs/L3-system-requirements/canonical/acceptance/ac-contracts.json": "b83bbbda4cf43764",
+    "docs/L3-system-requirements/verification/tc-contracts.json": "f9b462fc6d3722dc",
+    "docs/L4-basic-design/canonical/components/cmp-contracts.json": "fb39c1adaf48b15d",
+    "docs/L5-detailed-design/canonical/apis/du-contracts.json": "f5270072c593442f",
+    "docs/L3-system-requirements/canonical/schemas/s0/ddl.sql": "aa02b9d5a7a463e1",
+    "docs/00-authority/artifact-manifest.schema.json": "53dfd5f5a0dbfbdd",
+    "tools/gates/common.py": "f9a231db06571647",
+    "tools/gates/authority.py": "fbf445967988f624",
+    "tools/gates/requirements.py": "f8afe9256bf05374",
+    "tools/gates/traceability.py": "75934a6267531093",
+    "tools/gates/architecture.py": "c2a19ff9ebe21650",
+    "tools/gates/detailed_design.py": "294982eb52cd464d",
+    "tools/gates/test_pairing.py": "25cf471e131e797d",
+    "tools/gates/semantic_refs.py": "f7f8d189383b2fd6",
+    "tools/gates/review_binding.py": "3077353dba0deff3",
+    "tools/gates/baseline.py": "afa46f9936e868a9",
+    "tools/gates/run_all.py": "22df1ca4f8a8436a",
+    "scripts/validate_requirements.py": "0b6987900ebc9b70",
+    "scripts/check_skip_budget.py": "f157577da09fcb46",
+    "tools/coverage_floor.py": "22053ccf9ce79e8b",
+    "docs/00-authority/requirements-gates.md": "1bc61b5666367f0c",
+    ".github/workflows/docs-ci.yml": "a380bf447974e0dc",
+    ".github/workflows/python-ci.yml": "40f0186d65183ffb",
+    "CLAUDE.md": "e4d592a401e2677d",
+    "AGENTS.md": "3f08370bd0cf8027",
+    "README.md": "fbdb594d7512e132",
+    "docs/00-authority/audits/cross-repository-write-incident-2026-08-01.md": "2e8e2e4d88c5dc62"
+  },
+  "findings": [
+    {
+      "severity": "blocker",
+      "status": "resolved",
+      "summary": "第1次: artifact manifest の canonical 一意性検査が status=active を対象外にしており、active として登録すれば同一 canonical を重複主張できた（fail-open）",
+      "resolution": "LIVE_STATUSES（confirmed/active/draft）を対象化。archived のみ除外。全 status の重複注入 mutation test を追加"
+    },
+    {
+      "severity": "blocker",
+      "status": "resolved",
+      "summary": "第1次: G-UT-NO-ESCAPE が正規表現走査のため module-level skip・pytestmark・関数内 xfail()・定数 assert を素通りさせた",
+      "resolution": "AST ベースへ全面書換え。逃げ道 26 形の網羅表を mutation test 化"
+    },
+    {
+      "severity": "blocker",
+      "status": "resolved",
+      "summary": "第1次: G-HISTORICAL-COUNTS が 3 ファイルしか走査せず、現役 confirmed 設計書に旧分母（AC 19／TC 59／UTC 69）が残存していた",
+      "resolution": "detect_legacy_denominator_leaks() で現役 MD 全体を走査（監査・承認・レビューは append-only のため除外）。現役 9 箇所を現行分母へ改訂"
+    },
+    {
+      "severity": "blocker",
+      "status": "resolved",
+      "summary": "第1次: ラチェットが同一コミットの baseline を自己参照し、かつ baseline のパス移行で親比較が None に落ちて素通りしていた",
+      "resolution": "committed_baseline() を新設し親コミット比較＋旧パス遡及。解決不能時は fail-close"
+    },
+    {
+      "severity": "major",
+      "status": "resolved",
+      "summary": "第1次: __init__.py に実装を置けば S0.1 着手の自動検出を迂回できた",
+      "resolution": "has_implementation() を AST 判定にし、条件付き def・lambda 代入も実装として扱う"
+    },
+    {
+      "severity": "major",
+      "status": "resolved",
+      "summary": "第1次: manifest の網羅検査が docs/00-authority 全体を除外していた",
+      "resolution": "自己言及ファイル（manifest・baseline・approvals・reviews）のみ除外へ縮小。登録数 154→167"
+    },
+    {
+      "severity": "major",
+      "status": "resolved",
+      "summary": "第1次: baseline の mutation test が本番ロジックを再実装しており、G-GATE-UNITTEST は文字列の存在検査にすぎなかった",
+      "resolution": "detect_ratchet_faults() を本番から抽出してテストと共用。G-GATE-UNITTEST を AST 検査へ"
+    },
+    {
+      "severity": "major",
+      "status": "resolved",
+      "summary": "第2次: 空 assert の判定を assert 文の有無だけで行い、pytest.raises のみの拒否テストと mock の表明を偽陽性で落としていた（S0.1 対象 UT 118 本中 54 本が拒否系）",
+      "resolution": "_verification_actions() を新設し、検証行為＝実 assert／pytest.raises・warns／assert_* メソッド／pytest.fail に拡張"
+    },
+    {
+      "severity": "major",
+      "status": "resolved",
+      "summary": "第2次: from pytest import skip 形式の裸呼出しが skip 検出を素通りした",
+      "resolution": "_escape_call() でデコレータ側と同じ語彙・import 解決を共有"
+    },
+    {
+      "severity": "major",
+      "status": "resolved",
+      "summary": "第2次: 新設 3 検出関数（旧分母・現在地・ゲートテスト）に単体／mutation テストが存在せず、return [] に潰しても何も落ちなかった",
+      "resolution": "3 関数に mutation test を計 13 本追加"
+    },
+    {
+      "severity": "major",
+      "status": "resolved",
+      "summary": "第2次: G-GATE-UNITTEST が空の test_mutation_ 関数と無関係な属性参照 1 個で充足できた",
+      "resolution": "mutation 関数自身が本番を呼び実 assert を持つことを AST で束縛"
+    },
+    {
+      "severity": "major",
+      "status": "resolved",
+      "summary": "第3次: 別名 import した skip（from pytest import skip as s）が素通りした",
+      "resolution": "_origins() を局所名→フレームワーク起点の完全パスへ変更し、別名代入を固定点反復で畳み込み。star-import・タプル・注釈付き・セイウチ・多段別名・getattr も解決"
+    },
+    {
+      "severity": "minor",
+      "status": "resolved",
+      "summary": "第3次: skip 判定が pytest/unittest に束縛されず @custom.skip や sys.exit を誤検出した",
+      "resolution": "import 解決で TEST_FRAMEWORKS 由来に限定。偽陽性回帰テストを追加"
+    },
+    {
+      "severity": "minor",
+      "status": "resolved",
+      "summary": "第3次: coverage 下限の親比較が黙って None を返す fail-open だった",
+      "resolution": "committed_baseline() 経由に一本化し (値, 出所) を返す。親が解決できない場合は fail-close"
+    },
+    {
+      "severity": "minor",
+      "status": "resolved",
+      "summary": "第4次: 検証行為の計上が到達不能コード（入れ子関数・if False:・while False:・return/raise 後）を数えた",
+      "resolution": "reachable_nodes() を common.py に新設。逃げ道検出側は fail-close 優先で全走査のまま"
+    },
+    {
+      "severity": "minor",
+      "status": "resolved",
+      "summary": "第4次: G-GATE-UNITTEST の観測束縛がタプルの無関係要素で偽装でき、逆に正当な名前伝播を偽陽性で落とした",
+      "resolution": "_bound_names() を再帰化してタプルは位置対応・不一致は fail-close。名前伝播は固定点反復で解決"
+    },
+    {
+      "severity": "minor",
+      "status": "resolved",
+      "summary": "第4次: 監査記録が baseline のハッシュ束縛外にあり、追記・改変をどのゲートも検知しなかった",
+      "resolution": "ARTIFACT_GLOBS に docs/00-authority/audits/*.md を追加（artifacts 141→145）"
+    },
+    {
+      "severity": "minor",
+      "status": "resolved",
+      "summary": "第4次: 監査記録 §2.1 の文言が断定的で、自己申告である旨と git status の副作用が記載されていなかった",
+      "resolution": "自己申告の明示・git status の stat cache 書き戻しの留保・GC 予測と push 推論のヘッジを追加"
+    },
+    {
+      "severity": "minor",
+      "status": "resolved",
+      "summary": "第5次: 実行時 outcome 検査の申し送りが台帳の散文にすぎず、必要になる着手時点で忘却される",
+      "resolution": "plan-s0.1.json に preconditions を導入し、未充足のまま in_progress 化も着手もできない検査を G-PLAN-S0 に追加。preconditions の削除・空配列化も検出"
+    },
+    {
+      "severity": "minor",
+      "status": "accepted-as-is",
+      "summary": "動的 import（__import__／importlib.import_module）経由の skip は AST では原理的に検出できない",
+      "resolution": "静的検査の追加は収束しないため行わない。coverage 下限 80% と scripts/check_skip_budget.py の実測 skipped 件数ラチェットを集計レベルの backstop とし、根本解決は S0.1 着手の前提条件（runtime-ut-outcome-gate）として機械的に強制する"
+    },
+    {
+      "severity": "minor",
+      "status": "deferred",
+      "summary": "第6次: preconditions の要素が dict でない場合に AttributeError で異常終了する（fail-close だが G-PLAN-S0 の可読な違反にならない）",
+      "deferred_to": "次サイクル（isinstance ガードの追加）"
+    },
+    {
+      "severity": "minor",
+      "status": "deferred",
+      "summary": "第6次: precondition の description が未検証で、欠落・空文字を通す。met に met_by（充足ゲート ID／コミット）が必須化されていない",
+      "deferred_to": "次サイクル（description 長下限と met_by の必須化）"
+    },
+    {
+      "severity": "minor",
+      "status": "deferred",
+      "summary": "第6次: status=done は前提条件の充足検査の対象外で、planned→done の直行が検査を迂回する（コードを伴う場合は has_implementation が着手を検出するため実害は限定的）",
+      "deferred_to": "次サイクル（発火条件を status != planned へ拡張）"
+    }
+  ],
+  "resolution_commits": [
+    "e66b746384d3ec75eae87c7d6915b5e9b12fd3f4",
+    "3b626bd5a2d973adcacef7885565cb0c2667e918",
+    "ef4207dbf2a233f148a1575d8ed95c3688a00324",
+    "2f3b0b3e332a466fbc20ad7fd2aaba3042784c02"
+  ],
+  "verdict": "Go",
+  "rounds": 6,
+  "completed_at": "2026-08-01",
+  "supersedes_review": [
+    "REV-S0-DESIGN-02"
+  ]
+}

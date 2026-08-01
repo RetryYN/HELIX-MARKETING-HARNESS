@@ -1,0 +1,109 @@
+{
+  "review_id": "REV-S0-STRUCT-08",
+  "reviewer_principal": "codex-sol (gpt-5.6-sol / openai-codex-cli)",
+  "author_principal": "claude-code (claude-opus-5)",
+  "author_execution_id": "9230d21c-4589-4845-9488-a7b5a60cb46d",
+  "reviewer_execution_id": "019fbe1b-820c-7500-ba8e-37a21859e81f",
+  "review_run_id": "REV-S0-STRUCT-08-R8",
+  "reviewer_provider": "openai-codex-cli",
+  "review_log_path": "docs/00-authority/reviews/logs/REV-S0-STRUCT-08.jsonl",
+  "review_log_digest": "ca17998854a90fcb",
+  "separation_status": "self_attested",
+  "model": "gpt-5.6-sol",
+  "target_commit": "fda8c99bbf0901941c9439fdca16d80b38a21190",
+  "target_tree": "293dcfe7692cb123cb2b9fe91a4db6f6da54022a",
+  "scope": "構造的意味トレース最終是正の付随修正（secret scan allowlist の限定と G-BASE-ART-PATHS の新設）",
+  "supersedes_review": [
+    "REV-S0-STRUCT-07"
+  ],
+  "reviewed_artifact_digests": {
+    ".gitleaks.toml": "bd5ef0ff23d45638",
+    "CLAUDE.md": "14d663943dfeac0b",
+    "README.md": "aaaba2f8bc794bb4",
+    "docs/00-authority/approvals/approvals.md": "2012ac8f03a1be0d",
+    "docs/00-authority/artifact-manifest.json": "2822070b31cd175b",
+    "docs/00-authority/audits/structural-trace-remediation-2026-08-02.md": "8ce4869eeabe1e01",
+    "docs/00-authority/baselines/baseline.json": "083b716f5ad6bada",
+    "docs/00-authority/requirements-gates.md": "d4c2fbb6df394f29",
+    "docs/00-authority/reviews/logs/REV-S0-STRUCT-07.jsonl": "c380aa1b3d526575",
+    "docs/00-authority/reviews/logs/REV-S0-STRUCT-08.jsonl": "ca17998854a90fcb",
+    "docs/00-authority/reviews/review.schema.json": "f5c648bc52ba333c",
+    "docs/00-authority/reviews/sol-review-s0-design-02.json": "9f995f445903b606",
+    "docs/00-authority/reviews/sol-review-s0-design.json": "16701ab50c9dd0bb",
+    "docs/00-authority/reviews/sol-review-s0-structure-02.json": "7449729802111349",
+    "docs/00-authority/reviews/sol-review-s0-structure-03.json": "3a5188846ddd94ac",
+    "docs/00-authority/reviews/sol-review-s0-structure-04.json": "8dc573a5333afc04",
+    "docs/00-authority/reviews/sol-review-s0-structure-05.json": "e61ad39a9fb85852",
+    "docs/00-authority/reviews/sol-review-s0-structure-06.json": "bc8562359e9fe3e2",
+    "docs/00-authority/reviews/sol-review-s0-structure.json": "901965796540abd3",
+    "docs/L3-system-requirements/canonical/acceptance/ac-contract.schema.json": "827872cf4d4d1d82",
+    "docs/L3-system-requirements/canonical/acceptance/ac-contracts.json": "a4ba19831ff92bfe",
+    "docs/L3-system-requirements/views/ac-catalog_v0.1.md": "ba682845dfbe3e9a",
+    "docs/L5-detailed-design/canonical/apis/du-contract.schema.json": "de114a04035aad46",
+    "docs/L5-detailed-design/canonical/apis/du-contracts.json": "7acf97770927afd8",
+    "docs/L5-detailed-design/views/du-contracts_v0.1.md": "7cd190c08bd1807b",
+    "docs/L6-feature-design/S0/approval.md": "36da5dc77692bbf4",
+    "docs/L6-feature-design/S0/config-store.md": "e3648e3b6bf5e3eb",
+    "docs/L6-feature-design/S0/evidence.md": "1a69625b39a1f120",
+    "docs/L6-feature-design/S0/external-operations.md": "f058be14213c1790",
+    "docs/L6-feature-design/S0/implementation-unit.schema.json": "f82b0751a404690c",
+    "docs/L6-feature-design/S0/implementation-units.json": "5c53abe8ae6bce84",
+    "docs/L6-feature-design/S0/kpi-handoff.md": "0045ab37e7d15c41",
+    "docs/L6-feature-design/S0/migration.md": "229e4bf9845f557a",
+    "docs/L6-feature-design/S0/pair-gate.md": "51b27835f0d0c4be",
+    "docs/L6-feature-design/S0/state-machine.md": "2881b9a242270005",
+    "docs/L6-feature-design/S0/strategic-brief.md": "f43b947403098a0c",
+    "docs/L6-feature-design/S0/tlp.md": "86d4121e1c155434",
+    "docs/L6-feature-design/S0/uncovered-apis.json": "71152b83459846d8",
+    "scripts/render_views.py": "ec509167f0a57fb1",
+    "tests/gates/test_baseline.py": "70815140f0c9f10e",
+    "tests/gates/test_detailed_design.py": "5ab94726c6e5a05e",
+    "tests/gates/test_review_binding.py": "59e16e6da7abe932",
+    "tools/gates/authority.py": "5704c885545fb70d",
+    "tools/gates/baseline.py": "ef3f8b8cf1026967",
+    "tools/gates/common.py": "e421c990f4664278",
+    "tools/gates/detailed_design.py": "8500b42660edccd0",
+    "tools/gates/requirements.py": "ecc2c010e88c69ef",
+    "tools/gates/review_binding.py": "2457b223cbd97a48",
+    "tools/gates/test_pairing.py": "c9902e261cc27665",
+    "tools/gates/traceability.py": "d50705067a4f0c77"
+  },
+  "findings": [
+    {
+      "severity": "major",
+      "summary": "R6-01: gitleaks allowlist の paths と regexes が OR 評価で、意図より広範に検出を無効化していた",
+      "status": "resolved",
+      "resolution": "[[rules.allowlists]] へ移し condition=AND・regexTarget=line を明示"
+    },
+    {
+      "severity": "blocker",
+      "summary": "R9-01: allowlist の正規表現に否定先読みを使い、gitleaks（Go RE2）でコンパイルできない設定になっていた",
+      "status": "resolved",
+      "resolution": "先読みを廃し RE2 互換の構文へ書き換え"
+    },
+    {
+      "severity": "major",
+      "summary": "R7-01／R8-01／R9-02／R10-01: allowlist のキー側がパスであることを保証せず、api_key 等・`..`・空セグメント・パス風キーで迂回できた",
+      "status": "resolved",
+      "resolution": "セグメント単位の表現へ変更し最終セグメントに拡張子を必須化。残余（api_key.txt のようなファイル名）は G-BASE-ART-PATHS が『台帳のキーは git 追跡下かつ実在のパスのみ・値は sha256 64 桁』を保証して構造的に閉じた"
+    },
+    {
+      "severity": "major",
+      "summary": "R11-01: secret scanner の設定 .gitleaks.toml が baseline の改変検出対象外だった",
+      "status": "resolved",
+      "resolution": "ARTIFACT_GLOBS へ追加して hash 束縛し、束縛を検証するテストを追加"
+    },
+    {
+      "severity": "major",
+      "summary": "R11-02／R12-01: G-BASE-ART-PATHS が作業ツリーの実在を見ておらず、対応する mutation test も対象分岐へ到達していなかった",
+      "status": "resolved",
+      "resolution": "is_file() 検査を追加し、追跡判定を通過させたうえで当該分岐が赤化する mutation test と、本番 _baseline 経路で G-BASE-ART-PATHS が FAIL することを示すテストを追加"
+    }
+  ],
+  "resolution_commits": [
+    "fda8c99bbf09"
+  ],
+  "verdict": "Go",
+  "completed_at": "2026-08-02",
+  "rounds": 8
+}

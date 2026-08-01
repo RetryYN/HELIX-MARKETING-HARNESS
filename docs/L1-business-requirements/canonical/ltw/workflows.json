@@ -1,0 +1,648 @@
+{
+  "doc": "ltw/workflows",
+  "version": "0.1",
+  "source": "docs/L1-business-requirements/canonical/loop-task-workflow_v0.1.md",
+  "generated": "2026-07-30",
+  "items": [
+    {
+      "id": "WF-WP-1",
+      "purpose": "ブログ記事制作",
+      "steps": "seo-jp → copywriting → content-design → design-evidence-jp（審査）",
+      "trace": {
+        "upstream": [
+          "WF-WP-1"
+        ],
+        "downstream": []
+      },
+      "output": "記事ソース（commit）"
+    },
+    {
+      "id": "WF-WP-2",
+      "purpose": "記事公開",
+      "steps": "ペア検証 → REST 下書き → 束縛承認 → 公開 → スクショ",
+      "trace": {
+        "upstream": [
+          "WF-WP-2"
+        ],
+        "downstream": []
+      },
+      "output": "published_url"
+    },
+    {
+      "id": "WF-MEAS-1",
+      "purpose": "GA4 PV 取込",
+      "steps": "エクスポート取得 → hash → パース → measurements",
+      "trace": {
+        "upstream": [
+          "WF-MEAS-1"
+        ],
+        "downstream": []
+      },
+      "output": "計測行"
+    },
+    {
+      "id": "WF-DASH-1",
+      "purpose": "ダッシュボード生成",
+      "steps": "SQLite クエリ → HTML 生成 → 証跡保存",
+      "trace": {
+        "upstream": [
+          "WF-DASH-1"
+        ],
+        "downstream": []
+      },
+      "output": "HTML"
+    },
+    {
+      "id": "WF-NOTION-1",
+      "purpose": "計画同期",
+      "steps": "読取り → 差分検出 → 書戻し",
+      "trace": {
+        "upstream": [
+          "WF-NOTION-1"
+        ],
+        "downstream": []
+      },
+      "output": "同期ログ"
+    },
+    {
+      "id": "WF-X-1",
+      "purpose": "ポスト制作・attended 人手投稿支援（ブラウザ書込み prohibited・BR-M-X-4）",
+      "steps": "sns-jp → copywriting → 審査 → 束縛承認 → 人手投稿 → URL・画面値の証跡登録",
+      "trace": {
+        "upstream": [
+          "WF-X-1"
+        ],
+        "downstream": []
+      },
+      "poc": null
+    },
+    {
+      "id": "WF-X-2",
+      "purpose": "リプライ応答原稿支援（送出は人手）",
+      "steps": "engagement-reply-jp → 倫理ルール検査 → 人手送出 → 証跡登録",
+      "trace": {
+        "upstream": [
+          "WF-X-2"
+        ],
+        "downstream": []
+      },
+      "poc": null
+    },
+    {
+      "id": "WF-NOTE-1",
+      "purpose": "note 記事・有料記事",
+      "steps": "storytelling → sales-writing → 審査 → 投稿（価格は束縛承認）",
+      "trace": {
+        "upstream": [
+          "WF-NOTE-1",
+          "POC-05"
+        ],
+        "downstream": []
+      },
+      "poc": "POC-05"
+    },
+    {
+      "id": "WF-YT-1",
+      "purpose": "動画制作",
+      "steps": "video-script → VOICEVOX → 素材 → Remotion/ffmpeg 合成",
+      "trace": {
+        "upstream": [
+          "WF-YT-1",
+          "POC-08"
+        ],
+        "downstream": []
+      },
+      "poc": "POC-08"
+    },
+    {
+      "id": "WF-YT-2",
+      "purpose": "動画公開",
+      "steps": "審査 → アップロード → メタ設定 → AI 開示フラグ → スクショ",
+      "trace": {
+        "upstream": [
+          "WF-YT-2"
+        ],
+        "downstream": []
+      },
+      "poc": "YT 個別のブラウザ生存性 PoC（S2 で別途登録。POC-01 は rejected のため流用しない）"
+    },
+    {
+      "id": "WF-IG-1",
+      "purpose": "フィード/リール投稿",
+      "steps": "sns-jp → design-evidence 審査 → 投稿",
+      "trace": {
+        "upstream": [
+          "WF-IG-1",
+          "POC-02"
+        ],
+        "downstream": []
+      },
+      "poc": "POC-02"
+    },
+    {
+      "id": "WF-PC-1",
+      "purpose": "Podcast 派生配信",
+      "steps": "音声抽出 → mp3 → WP メディア → RSS 更新",
+      "trace": {
+        "upstream": [
+          "WF-PC-1",
+          "POC-08"
+        ],
+        "downstream": []
+      },
+      "poc": "POC-08"
+    },
+    {
+      "id": "WF-KDP-1",
+      "purpose": "EPUB 出版",
+      "steps": "WP 資産再編 → pandoc EPUB → 審査 → AI 申告 → 出版（価格は束縛承認）",
+      "trace": {
+        "upstream": [
+          "WF-KDP-1",
+          "POC-09"
+        ],
+        "downstream": []
+      },
+      "poc": "POC-09"
+    },
+    {
+      "id": "WF-HS-1",
+      "purpose": "メルマガ配信",
+      "steps": "messaging-design-jp → 法規要素検証（NFR-9）→ 審査 → MCP 配信",
+      "trace": {
+        "upstream": [
+          "WF-HS-1",
+          "NFR-9",
+          "POC-10"
+        ],
+        "downstream": []
+      },
+      "poc": "POC-10"
+    },
+    {
+      "id": "WF-LINE-1",
+      "purpose": "セグメント配信",
+      "steps": "セグメント抽出 → messaging-design-jp → 審査 → 配信",
+      "trace": {
+        "upstream": [
+          "WF-LINE-1",
+          "POC-11"
+        ],
+        "downstream": []
+      },
+      "poc": "POC-11"
+    },
+    {
+      "id": "WF-AFF-1",
+      "purpose": "提携・リンク埋込",
+      "steps": "案件選定 → 提携申請 → PR 表記付き記事（WF-WP-1 に合流） → 表記位置検証",
+      "trace": {
+        "upstream": [
+          "WF-AFF-1",
+          "WF-WP-1",
+          "POC-12"
+        ],
+        "downstream": []
+      },
+      "poc": "POC-12"
+    },
+    {
+      "id": "WF-ASSET-1",
+      "purpose": "素材調達",
+      "steps": "素材要求 → 取得（経路は POC-13）→ ライセンス台帳登録",
+      "trace": {
+        "upstream": [
+          "WF-ASSET-1",
+          "POC-13"
+        ],
+        "downstream": []
+      },
+      "poc": "POC-13"
+    },
+    {
+      "id": "WF-PLAN-1",
+      "purpose": "ブランド計画策定（初回・年次改訂）",
+      "steps": "事業前提充填（WF-FILL-1 呼出）→ 市場・媒体標準リサーチ → ブランド計画 draft（1 年地平・北極星 KPI）→ **人の承認（束縛）** → brand_plans 投入",
+      "trace": {
+        "upstream": [
+          "WF-PLAN-1",
+          "WF-FILL-1"
+        ],
+        "downstream": []
+      },
+      "human_involvement": "承認のみ"
+    },
+    {
+      "id": "WF-PLAN-2",
+      "purpose": "行動計画更新（上流改善工程の入口）",
+      "steps": "WF-STRAT-REVISE 呼出（TLP 集約→revision→意味モデル新版）→ WF-STRAT-BRIEF 呼出（brief 新版発行）→ Notion 書戻し。KPI 目標更新・媒体別作業一覧は戦略ではなく brief に従属",
+      "trace": {
+        "upstream": [
+          "WF-PLAN-2",
+          "WF-STRAT-REVISE",
+          "WF-STRAT-BRIEF",
+          "SR-10",
+          "SR-16"
+        ],
+        "downstream": []
+      },
+      "human_involvement": "なし（乖離が閾値超過時のみ通知）"
+    },
+    {
+      "id": "WF-PLAN-3",
+      "purpose": "KPI ツリー構築・改訂",
+      "steps": "媒体標準指標リサーチ（出典必須）→ ツリー draft（露出/マイクロCV/転換/関係/収益の 5 層）→ 有料指標の型拒否検証（FR-23）→ kpi_nodes 投入",
+      "trace": {
+        "upstream": [
+          "WF-PLAN-3",
+          "FR-23"
+        ],
+        "downstream": []
+      },
+      "human_involvement": "なし"
+    },
+    {
+      "id": "WF-PLAN-4",
+      "purpose": "媒体ポートフォリオ選定・スプリント計画",
+      "steps": "行動計画 → 媒体別リソース配分 → KPI 目標設定 → スプリント生成（目標なしは開始拒否 = FR-14）→ タスクキュー生成",
+      "trace": {
+        "upstream": [
+          "WF-PLAN-4",
+          "FR-14"
+        ],
+        "downstream": []
+      },
+      "human_involvement": "なし"
+    },
+    {
+      "id": "WF-PLAN-5",
+      "purpose": "スプリントレビュー・還流",
+      "steps": "計画↔計測ペア成立検証（FR-22）→ 達成/未達の要因分析 → tactical_learning_packet 生成（観測・解釈・因果・仮説判定・推奨判断を分離。learnings はその構成要素）→ 上位ループ入力キュー投入",
+      "trace": {
+        "upstream": [
+          "WF-PLAN-5",
+          "FR-22",
+          "SR-08"
+        ],
+        "downstream": []
+      },
+      "human_involvement": "なし"
+    },
+    {
+      "id": "WF-PLAN-6",
+      "purpose": "ネタ・企画の起票",
+      "steps": "Notion ネタ帳読取り＋リサーチ → 企画 draft（訴求・ターゲット・狙い）→ 倫理ゲート → 企画レコード確定",
+      "trace": {
+        "upstream": [
+          "WF-PLAN-6"
+        ],
+        "downstream": []
+      },
+      "human_involvement": "なし"
+    },
+    {
+      "id": "WF-FILL-1",
+      "purpose": "初回セットアップ（事業前提の充填）",
+      "steps": "スキーマ必須スロットの欠損検出（FR-31）→ 問診リスト生成 → **Claude Code 対話で人に照会** → 回答の型検証 → business_profiles / config 投入",
+      "trace": {
+        "upstream": [
+          "WF-FILL-1",
+          "FR-31"
+        ],
+        "downstream": []
+      },
+      "human_involvement": "回答（唯一の設計上の人手入力）"
+    },
+    {
+      "id": "WF-FILL-2",
+      "purpose": "config 変更",
+      "steps": "変更要求（理由付き）→ 影響範囲の確認（依存タスク列挙）→ INSERT 履歴充填（FR-33）→ 変更通知",
+      "trace": {
+        "upstream": [
+          "WF-FILL-2",
+          "FR-33"
+        ],
+        "downstream": []
+      },
+      "human_involvement": "安全側→危険側の変更のみ束縛承認"
+    },
+    {
+      "id": "WF-FILL-3",
+      "purpose": "リサーチ充填",
+      "steps": "不足スロット特定 → Web 検索 → 出典付き draft（出典なし値は拒否 = FR-32）→ 型検証 → スロット投入",
+      "trace": {
+        "upstream": [
+          "WF-FILL-3",
+          "FR-32"
+        ],
+        "downstream": []
+      },
+      "human_involvement": "なし"
+    },
+    {
+      "id": "WF-FILL-4",
+      "purpose": "別事業プロファイル追加",
+      "steps": "WF-FILL-1 再実行 → プロファイル分離検証（FR-34: 既存事業への影響ゼロ確認）→ 有効化",
+      "trace": {
+        "upstream": [
+          "WF-FILL-4",
+          "WF-FILL-1",
+          "FR-34"
+        ],
+        "downstream": []
+      },
+      "human_involvement": "回答＋有効化承認"
+    },
+    {
+      "id": "WF-PROD-TEXT",
+      "purpose": "記事・台本・コピー",
+      "steps": "企画（WF-PLAN-6 出力）→ 構成 → 執筆（seo-jp/copywriting/storytelling）→ 推敲 → commit",
+      "trace": {
+        "upstream": [
+          "WF-PROD-TEXT",
+          "WF-PLAN-6"
+        ],
+        "downstream": []
+      },
+      "poc": "—"
+    },
+    {
+      "id": "WF-PROD-IMG",
+      "purpose": "図解・OGP・バナー",
+      "steps": "構成案 → HTML/SVG 生成 → デザイントークン注入（FR-52）→ Playwright スクショ → design-evidence 審査。写実・イラスト系素材は Codex CLI image_gen（BR-M-GENAI-4）で生成し同審査へ",
+      "trace": {
+        "upstream": [
+          "WF-PROD-IMG",
+          "FR-52",
+          "BR-M-GENAI-4"
+        ],
+        "downstream": []
+      },
+      "poc": "—"
+    },
+    {
+      "id": "WF-PROD-SLIDE",
+      "purpose": "スライド・資料 PDF",
+      "steps": "構成 → HTML（slide テンプレート）→ トークン注入 → Playwright PDF → 審査",
+      "trace": {
+        "upstream": [
+          "WF-PROD-SLIDE"
+        ],
+        "downstream": []
+      },
+      "poc": "—"
+    },
+    {
+      "id": "WF-PROD-AUDIO",
+      "purpose": "音声（Podcast/stand.fm 用）",
+      "steps": "台本（WF-PROD-TEXT 出力）→ VOICEVOX 音声合成 → mp3 変換 → 音質機械検証（長さ・無音区間）",
+      "trace": {
+        "upstream": [
+          "WF-PROD-AUDIO",
+          "WF-PROD-TEXT",
+          "POC-08"
+        ],
+        "downstream": []
+      },
+      "poc": "POC-08"
+    },
+    {
+      "id": "WF-PROD-VIDEO",
+      "purpose": "動画",
+      "steps": "台本 → 音声（WF-PROD-AUDIO）→ 素材調達（WF-ASSET-1）→ Remotion 合成 → NVENC エンコード → 審査",
+      "trace": {
+        "upstream": [
+          "WF-PROD-VIDEO",
+          "WF-PROD-AUDIO",
+          "WF-ASSET-1",
+          "POC-08"
+        ],
+        "downstream": []
+      },
+      "poc": "POC-08"
+    },
+    {
+      "id": "WF-PROD-SHORT",
+      "purpose": "ショート派生（9:16）",
+      "steps": "元動画 → ハイライト抽出 → ffmpeg プロファイル変換 → 独自編集付与（BR-M-YT-3）→ 審査",
+      "trace": {
+        "upstream": [
+          "WF-PROD-SHORT",
+          "BR-M-YT-3",
+          "POC-08"
+        ],
+        "downstream": []
+      },
+      "poc": "POC-08"
+    },
+    {
+      "id": "WF-PROD-EPUB",
+      "purpose": "電子書籍",
+      "steps": "WP 資産のテーマ別選定 → 再編・加筆 → pandoc EPUB（決定的生成）→ 検証（hash 一致）",
+      "trace": {
+        "upstream": [
+          "WF-PROD-EPUB",
+          "POC-08"
+        ],
+        "downstream": []
+      },
+      "poc": "POC-08"
+    },
+    {
+      "id": "WF-PROD-APP",
+      "purpose": "診断ツール・シミュレータ",
+      "steps": "機能要件定義 → HTML/JS 実装 → 機能検証（テスト）→ Lighthouse → PWA 化（manifest+SW）",
+      "trace": {
+        "upstream": [
+          "WF-PROD-APP"
+        ],
+        "downstream": []
+      },
+      "poc": "—"
+    },
+    {
+      "id": "WF-PROD-REPURPOSE",
+      "purpose": "リパーパス計画・実行",
+      "steps": "元資産選定 → 派生先媒体の選定（KPI 目標照合）→ 各 WF-PROD-\\* を子タスクとして発火 → assets 系譜登録（FR-55）",
+      "trace": {
+        "upstream": [
+          "WF-PROD-REPURPOSE",
+          "WF-PROD-",
+          "FR-55"
+        ],
+        "downstream": []
+      },
+      "poc": "—"
+    },
+    {
+      "id": "WF-OPS-1",
+      "purpose": "環境構築（初回）",
+      "steps": "uv 依存解決 → DB 初期化（DDL）→ マイグレーション適用 → ヘルスチェック（全テーブル・設定検証）",
+      "trace": {
+        "upstream": [
+          "WF-OPS-1"
+        ],
+        "downstream": []
+      },
+      "human_involvement": "併走（初回のみ）"
+    },
+    {
+      "id": "WF-OPS-2",
+      "purpose": "アカウント接続",
+      "steps": "credential 登録（**人が入力**・暗号化ストア直行 = FR-47）→ attended ログイン/OAuth でセッション取得 → storage_state 暗号化保存 → 接続検証（read 操作）",
+      "trace": {
+        "upstream": [
+          "WF-OPS-2",
+          "FR-47"
+        ],
+        "downstream": []
+      },
+      "human_involvement": "credential 入力・初回ログイン"
+    },
+    {
+      "id": "WF-OPS-3",
+      "purpose": "媒体追加",
+      "steps": "接続レジストリ行追加 → WF-OPS-2（当該媒体）→ 攻略地図初期作成（WF-OPS-4）→ WF 定義投入 → KPI ノード追加 → 試験投稿（審査・承認付き）",
+      "trace": {
+        "upstream": [
+          "WF-OPS-3",
+          "WF-OPS-2",
+          "WF-OPS-4"
+        ],
+        "downstream": []
+      },
+      "human_involvement": "試験投稿の承認"
+    },
+    {
+      "id": "WF-OPS-4",
+      "purpose": "攻略地図の作成・修復",
+      "steps": "対象ページ解析 → 地図 draft（手順・セレクタ）→ 試行検証（read 操作で確認）→ playbooks 保存。破損時は再解析 1 回 → 失敗で escalate（FR-43）",
+      "trace": {
+        "upstream": [
+          "WF-OPS-4",
+          "FR-43"
+        ],
+        "downstream": []
+      },
+      "human_involvement": "なし"
+    },
+    {
+      "id": "WF-OPS-5",
+      "purpose": "バックアップ・復旧",
+      "steps": "日次 snapshot（SQLite・世代管理 = NFR-10）→ 完全性検証 → 月次で復元試験 → 結果を証跡化",
+      "trace": {
+        "upstream": [
+          "WF-OPS-5",
+          "NFR-10"
+        ],
+        "downstream": []
+      },
+      "human_involvement": "なし"
+    },
+    {
+      "id": "WF-OPS-6",
+      "purpose": "デザイントークン同期",
+      "steps": "DesignSync 取得 → 差分検証 → キャッシュ更新（取得不能時はキャッシュ継続 = MR-DS-1）",
+      "trace": {
+        "upstream": [
+          "WF-OPS-6",
+          "MR-DS-1"
+        ],
+        "downstream": []
+      },
+      "human_involvement": "なし"
+    },
+    {
+      "id": "WF-OPS-7",
+      "purpose": "異常対応",
+      "steps": "escalated 検知（LP-OPS/FR-16）→ 診断（分類: 地図破損/レート/認証切れ/予算/その他）→ 自動復旧可なら該当 WF-OPS 発火 → 不能なら通知＋安全停止",
+      "trace": {
+        "upstream": [
+          "WF-OPS-7",
+          "LP-OPS",
+          "FR-16",
+          "WF-OPS"
+        ],
+        "downstream": []
+      },
+      "human_involvement": "通知への応答（不能時のみ）"
+    },
+    {
+      "id": "WF-OPS-8",
+      "purpose": "セッション保守",
+      "steps": "有効期限・失効の定期検査（LP-OPS 内）→ 失効検知 → attended 再ログイン要求を通知",
+      "trace": {
+        "upstream": [
+          "WF-OPS-8",
+          "LP-OPS"
+        ],
+        "downstream": []
+      },
+      "human_involvement": "再ログインのみ"
+    },
+    {
+      "id": "WF-STRAT-OBSERVE",
+      "purpose": "市場観測の取込",
+      "steps": "出典付き観測収集 → market_observation 化（事実のみ・解釈禁止・信頼度/失効付与）→ schema 検証 → 観測ストア投入",
+      "slice": "S1",
+      "trace": {
+        "upstream": [
+          "SR-02"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "WF-STRAT-ANALYZE",
+      "purpose": "市場分析の更新",
+      "steps": "観測統合 → market_model／segment_context／problem_model の新版 draft（supersedes）→ ペルソナ型拒否検証 → 投入",
+      "slice": "S1",
+      "trace": {
+        "upstream": [
+          "SR-03",
+          "SR-04"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "WF-STRAT-COMPOSE",
+      "purpose": "戦略仮説の構成",
+      "steps": "VH／CAT／POS／CA／strategic_choice 生成（棄却案＋反証条件必須）→ schema 検証 → 投入",
+      "slice": "S1",
+      "trace": {
+        "upstream": [
+          "SR-05"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "WF-STRAT-REVISE",
+      "purpose": "戦略改訂",
+      "steps": "TLP 集約（learning/failure 別）→ 観測と解釈の分離検証 → 仮説判定 → strategy_revision 起案（単一 KPI・重複根拠の accept 不可）→ accepted なら新版 INSERT と旧版 supersede を単一 transaction で実行",
+      "slice": "S1",
+      "trace": {
+        "upstream": [
+          "SR-10",
+          "SR-11",
+          "SR-16"
+        ],
+        "downstream": []
+      }
+    },
+    {
+      "id": "WF-STRAT-BRIEF",
+      "purpose": "brief 発行",
+      "steps": "strategic_choice から strategic_brief 新版発行（正準化 JSON の SHA-256 digest・supersedes・有効期間）→ 下流次回転へ適用",
+      "slice": "S0/S1",
+      "trace": {
+        "upstream": [
+          "SR-06",
+          "SR-07"
+        ],
+        "downstream": []
+      }
+    }
+  ]
+}

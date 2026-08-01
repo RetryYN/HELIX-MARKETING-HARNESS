@@ -1,0 +1,130 @@
+{
+  "review_id": "REV-S0-STRUCT-06",
+  "reviewer_principal": "codex-sol（分離は実行証跡で未確認 — separation_status: unverified）",
+  "separation_status": "unverified",
+  "model": "gpt-5.6-sol",
+  "target_commit": "b4b5e258900888a47f5b64bc76aa5642de4a067d",
+  "target_tree": "40930f7767baa652f3790689080315eb2227948a",
+  "scope": "意味トレース最終是正（L6 責務の API 単位接続・ブランド隔離 S0 責務の実契約整合・保護トリガ数の実 DDL 統一・confirmed 再凍結）",
+  "supersedes_review": [
+    "REV-S0-STRUCT-05"
+  ],
+  "reviewed_artifact_digests": {
+    "CLAUDE.md": "42cf5e27e6dbd82b",
+    "README.md": "ad6023dec5206997",
+    "docs/00-authority/approvals/approvals.md": "310bc041458a5664",
+    "docs/00-authority/artifact-manifest.json": "3d916d0c49530ee3",
+    "docs/00-authority/artifact-manifest.schema.json": "6829678e7ba29f2b",
+    "docs/00-authority/audits/cross-repository-write-incident-2026-08-01.md": "161f44e6daf848db",
+    "docs/00-authority/audits/s0-design-input-audit-2026-08-01.md": "9192be6705b4047b",
+    "docs/00-authority/baselines/baseline.json": "dc8c17f8fdcab9ab",
+    "docs/00-authority/requirements-gates.md": "f5167debba951916",
+    "docs/00-authority/reviews/review.schema.json": "0ec098a38658e63a",
+    "docs/00-authority/reviews/sol-review-s0-structure-03.json": "372536b0e9de74ce",
+    "docs/L1-business-requirements/canonical/br/br-contracts.json": "3212ec489312dac2",
+    "docs/L3-system-requirements/canonical/acceptance/ac-contracts.json": "4112143560653da8",
+    "docs/L3-system-requirements/canonical/functional/fr-contracts.json": "00285001a1c043de",
+    "docs/L3-system-requirements/canonical/nonfunctional/nfr-contracts.json": "3a5a3fc25b2102dc",
+    "docs/L3-system-requirements/canonical/schemas/s0/ddl.sql": "aa02b9d5a7a463e1",
+    "docs/L3-system-requirements/canonical/schemas/s0/updates.json": "cd369b88edc272b3",
+    "docs/L3-system-requirements/canonical/strategy/sr-contracts.json": "5a93999dc8a34db9",
+    "docs/L3-system-requirements/verification/tc-contracts.json": "1b3873d3185144a0",
+    "docs/L3-system-requirements/views/ac-catalog_v0.1.md": "04255f9c7f7667a1",
+    "docs/L3-system-requirements/views/tc-catalog_v0.1.md": "fe1b90c54470a596",
+    "docs/L4-basic-design/canonical/approval/approval-design_v0.1.md": "21ffffed51cb6af5",
+    "docs/L4-basic-design/canonical/brand-isolation/brand-isolation-design_v0.1.md": "67f81ffaf39b2927",
+    "docs/L4-basic-design/canonical/components/cmp-contracts.json": "b0839d037f515449",
+    "docs/L4-basic-design/canonical/components/strategy-loop-design_v0.1.md": "a71d08d3eeb4b638",
+    "docs/L4-basic-design/canonical/data/db-design_v0.1.md": "1db73b60d65d644e",
+    "docs/L4-basic-design/canonical/external-if/external-if-design_v0.1.md": "dc208278b9c79b69",
+    "docs/L4-basic-design/canonical/state-machine/state-machine-design_v0.1.md": "8ed39879623a92e5",
+    "docs/L4-basic-design/views/cmp-contracts_v0.1.md": "a46ad309a05c9df9",
+    "docs/L5-detailed-design/canonical/apis/du-contracts.json": "9159d06f35491163",
+    "docs/L5-detailed-design/canonical/errors/error-taxonomy_v0.1.md": "6b3457b339460de7",
+    "docs/L5-detailed-design/views/du-contracts_v0.1.md": "91e64e3cd8c60525",
+    "docs/L6-feature-design/S0/approval.md": "0fbb79605a513836",
+    "docs/L6-feature-design/S0/brand-isolation-foundation.md": "9c3a6f189045b317",
+    "docs/L6-feature-design/S0/config-store.md": "9bb9a6bac766a33c",
+    "docs/L6-feature-design/S0/evidence.md": "6d055ecbc9d09d82",
+    "docs/L6-feature-design/S0/external-operations.md": "a853aa7a8520827f",
+    "docs/L6-feature-design/S0/implementation-units.json": "c163f8ac030e5b88",
+    "docs/L6-feature-design/S0/kpi-handoff.md": "007e970453f9389d",
+    "docs/L6-feature-design/S0/migration.md": "549b596478ac8a4a",
+    "docs/L6-feature-design/S0/pair-gate.md": "455a9403061de5ba",
+    "docs/L6-feature-design/S0/plan-s0.1.json": "980bf19ba7440535",
+    "docs/L6-feature-design/S0/state-machine.md": "5a31447f650859cc",
+    "docs/L6-feature-design/S0/strategic-brief.md": "abd8face2173a8fa",
+    "docs/L6-feature-design/S0/tlp.md": "b74cfbb782939620",
+    "docs/L6-feature-design/S1/brand-isolation-completion.md": "4a63d50375fa0e02",
+    "docs/L6-feature-design/S1/campaign.md": "94b3089045ba87fc",
+    "docs/L6-feature-design/S1/strategic-revision.md": "c2af6e4d891e1fcf",
+    "pyproject.toml": "df596330c79f894b",
+    "scripts/validate_requirements.py": "0b6987900ebc9b70",
+    "tests/gates/test_architecture.py": "bcb20a35469ed5d0",
+    "tests/gates/test_authority.py": "15a9c39dc1e46242",
+    "tests/gates/test_baseline.py": "dc3133748c41ebe0",
+    "tests/gates/test_detailed_design.py": "198c195005691705",
+    "tests/gates/test_review_binding.py": "e213b0f7b64ebe15",
+    "tests/gates/test_test_pairing.py": "61f674b38f761d9b",
+    "tools/gates/architecture.py": "ae6c8691ec3a0ed2",
+    "tools/gates/authority.py": "c1060c089f17a3a1",
+    "tools/gates/baseline.py": "206c2eb4c4175ec8",
+    "tools/gates/common.py": "8c16c44dfa82b2a1",
+    "tools/gates/detailed_design.py": "9a6edb146954c9eb",
+    "tools/gates/requirements.py": "19a6cb03c2d78bdd",
+    "tools/gates/review_binding.py": "6a6b7fc4404a2ecc",
+    "tools/gates/run_all.py": "3a819a4e42f61b9c",
+    "tools/gates/test_pairing.py": "ddd417ef65f2f28f",
+    "tools/gates/traceability.py": "d8c1858d0db44923"
+  },
+  "findings": [
+    {
+      "severity": "major",
+      "summary": "R1-02/R1-03: ac-contracts/tc-contracts に化石表記『25 テーブル・トリガ 11』が残り、新設の物理数ゲートは単位語のない本数主張を検出できなかった",
+      "status": "resolved",
+      "resolution": "当該表記を 16 へ是正し生成ビューを再生成。TRIGGER_CLAIM を単位語・助詞・表記ゆれに依らない形へ拡張し、節番号（§2／3.2）を数と読まない偽陽性回帰テストを追加"
+    },
+    {
+      "severity": "major",
+      "summary": "R1-04: G-L6-IMPLEMENTATION-TRACE が ID グラフの所属しか見ておらず、振る舞いの一致を検証していなかった",
+      "status": "resolved",
+      "resolution": "(a) 各 ac_ref が API 契約とドメイン語を共有するか当該文書の trace 先要求に属することを**個別に**要求、(b) ut_refs のいずれかが API 名の構成語を含むことを要求。これに伴い IU-PAIRGATE-02/03 の AC 割当と 3 文書の traces を実態へ是正"
+    },
+    {
+      "severity": "major",
+      "summary": "R1-05: S1 の機能設計に『準用』が残り、代替表現の走査が S0 だけだった",
+      "status": "resolved",
+      "resolution": "走査を L6 全体へ広げ、brand-isolation-completion／campaign の借用行を『S1 で AC／TC 新設』へ書き換え"
+    },
+    {
+      "severity": "major",
+      "summary": "R2-01: identifiers() が単語境界なしで部分文字列（GateRejected→ejected）を共有語として拾い、意味検査を素通りさせられた",
+      "status": "resolved",
+      "resolution": "単語境界つき抽出＋CamelCase の構成語分割＋汎用語の除外へ変更し、ac_refs を 1 件でも通れば可から**全件個別**判定へ強化"
+    },
+    {
+      "severity": "major",
+      "summary": "R2-02: 意味検査の mutation test が既存の所属検査のエラーでも green になり、新検査の削除を検出できなかった",
+      "status": "resolved",
+      "resolution": "DU の trace.ac には属するが API と語を共有しない AC（DU-09 exists × AC-47-1）で変異させ、意味検査固有のメッセージのみを assert する形へ書き直し、複製ツリーで実測して赤化を確認"
+    },
+    {
+      "severity": "major",
+      "summary": "R2-03: トリガ本数の主張が表記ゆれ（トリガーは 11 本／11 基のトリガ）で検出を逃れられた",
+      "status": "resolved",
+      "resolution": "前置・後置の両形へ助詞と単位語のゆれを織り込み、4 種の表記ゆれを負例テストへ追加（節番号の誤検出も回帰テストで固定）"
+    },
+    {
+      "severity": "major",
+      "summary": "R2-04: trace 代替表現の禁止語が 3 語のみで、同義の借用表現が素通りした",
+      "status": "resolved",
+      "resolution": "禁止語を 12 語（準じる・踏襲・流用・借用・同様に扱う 等）へ拡充し、語ごとの負例テストを parametrize で追加"
+    }
+  ],
+  "resolution_commits": [
+    "b4b5e2589008"
+  ],
+  "verdict": "Go",
+  "completed_at": "2026-08-01",
+  "rounds": 2
+}

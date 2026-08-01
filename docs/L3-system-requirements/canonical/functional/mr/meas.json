@@ -1,0 +1,65 @@
+{
+  "doc": "mr/MEAS",
+  "version": "0.1",
+  "source": "docs/L3-system-requirements/canonical/functional/media-requirements_v0.1.md",
+  "generated": "2026-07-30",
+  "media": "MEAS",
+  "media_name": "10.1 GA4 / Search Console / GTM",
+  "items": [
+    {
+      "id": "MR-MEAS-1",
+      "media": "MEAS",
+      "media_name": "10.1 GA4 / Search Console / GTM",
+      "text": "エクスポートファイルの hash と取得スクショを証跡化（BR-E2）",
+      "trace": {
+        "upstream": [
+          "BR-M-MEAS-1"
+        ],
+        "downstream": []
+      },
+      "actions": "GA4 Data API / Search Console API で取得 → パース → SQLite 時系列。GTM と API 阻害時のみブラウザエクスポート（一時フォールバック）",
+      "evidence": "API レスポンス/エクスポートファイルの hash、（ブラウザ時のみ）取得スクショ",
+      "kpi_contribution": "露出（PV・検索順位・流入）の一次データ源",
+      "workflow": "N/A（計測取得は FN-602/603 の共通パイプライン）",
+      "gate": "N/A（読取専用・公開系操作なし）",
+      "safety": "レート節度（NFR-7）。取得のみでサイト状態を変更しない"
+    },
+    {
+      "id": "MR-MEAS-2",
+      "media": "MEAS",
+      "media_name": "10.1 GA4 / Search Console / GTM",
+      "text": "パース失敗は隔離し部分投入を許す（FR-62）",
+      "trace": {
+        "upstream": [
+          "FR-62",
+          "BR-M-MEAS-2"
+        ],
+        "downstream": []
+      },
+      "actions": "GA4 Data API / Search Console API で取得 → パース → SQLite 時系列。GTM と API 阻害時のみブラウザエクスポート（一時フォールバック）",
+      "evidence": "API レスポンス/エクスポートファイルの hash、（ブラウザ時のみ）取得スクショ",
+      "kpi_contribution": "露出（PV・検索順位・流入）の一次データ源",
+      "workflow": "N/A（計測取得は FN-602/603 の共通パイプライン）",
+      "gate": "N/A（読取専用・公開系操作なし）",
+      "safety": "レート節度（NFR-7）。取得のみでサイト状態を変更しない"
+    },
+    {
+      "id": "MR-MEAS-3",
+      "media": "MEAS",
+      "media_name": "10.1 GA4 / Search Console / GTM",
+      "text": "（レート・BR-F5）正規 API は quota 準拠（ランダム間隔 N/A）。フォールバックのブラウザエクスポート時のみ間隔 1〜3 秒目安・20 件/日（C: rate.meas.*）",
+      "trace": {
+        "upstream": [
+          "BR-M-MEAS-3"
+        ],
+        "downstream": []
+      },
+      "actions": "GA4 Data API / Search Console API で取得 → パース → SQLite 時系列。GTM と API 阻害時のみブラウザエクスポート（一時フォールバック）",
+      "evidence": "API レスポンス/エクスポートファイルの hash、（ブラウザ時のみ）取得スクショ",
+      "kpi_contribution": "露出（PV・検索順位・流入）の一次データ源",
+      "workflow": "N/A（計測取得は FN-602/603 の共通パイプライン）",
+      "gate": "N/A（読取専用・公開系操作なし）",
+      "safety": "レート節度（NFR-7）。取得のみでサイト状態を変更しない"
+    }
+  ]
+}

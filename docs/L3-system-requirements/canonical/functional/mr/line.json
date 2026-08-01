@@ -1,0 +1,68 @@
+{
+  "doc": "mr/LINE",
+  "version": "0.1",
+  "source": "docs/L3-system-requirements/canonical/functional/media-requirements_v0.1.md",
+  "generated": "2026-07-30",
+  "media": "LINE",
+  "media_name": "6.2 LINE 公式アカウント",
+  "items": [
+    {
+      "id": "MR-LINE-1",
+      "media": "LINE",
+      "media_name": "6.2 LINE 公式アカウント",
+      "text": "配信対象は必ずセグメント抽出（見込み度スコア）を経る。無差別一斉配信を構造的に禁止",
+      "trace": {
+        "upstream": [
+          "BR-M-LINE-1"
+        ],
+        "downstream": []
+      },
+      "connection": "ブラウザ（管理画面）。Messaging API は使わない",
+      "actions": "セグメント配信、リッチメッセージ、友だち管理、配信結果取得",
+      "evidence": "配信スクショ、到達/開封/ブロック数",
+      "kpi_contribution": "関係（開封・クリック・ブロック率）、転換",
+      "workflow": "messaging-design-jp, psych-nudge-jp",
+      "gate": "企画↔品質、倫理（プッシュの節度）",
+      "safety": "月 200 通上限のため**全体一斉禁止・セグメント配信専用**。見込み度判定は SQLite/HubSpot データ"
+    },
+    {
+      "id": "MR-LINE-2",
+      "media": "LINE",
+      "media_name": "6.2 LINE 公式アカウント",
+      "text": "配信は友だち登録（オプトイン）済みのみ。ブロック率を関係 KPI で監視し、 閾値（C）超過で当該セグメント配信を停止する（NFR-9）",
+      "trace": {
+        "upstream": [
+          "NFR-9",
+          "BR-M-LINE-2"
+        ],
+        "downstream": []
+      },
+      "connection": "ブラウザ（管理画面）。Messaging API は使わない",
+      "actions": "セグメント配信、リッチメッセージ、友だち管理、配信結果取得",
+      "evidence": "配信スクショ、到達/開封/ブロック数",
+      "kpi_contribution": "関係（開封・クリック・ブロック率）、転換",
+      "workflow": "messaging-design-jp, psych-nudge-jp",
+      "gate": "企画↔品質、倫理（プッシュの節度）",
+      "safety": "月 200 通上限のため**全体一斉禁止・セグメント配信専用**。見込み度判定は SQLite/HubSpot データ"
+    },
+    {
+      "id": "MR-LINE-3",
+      "media": "LINE",
+      "media_name": "6.2 LINE 公式アカウント",
+      "text": "（レート・BR-F5）: 管理画面のブラウザ操作は間隔 2〜8 秒の一様乱数。配信は月 200 通の 無料枠から逆算し週 1 回・1 セグメント以内を既定とする（C: `rate.line.*`）",
+      "trace": {
+        "upstream": [
+          "BR-M-LINE-3"
+        ],
+        "downstream": []
+      },
+      "connection": "ブラウザ（管理画面）。Messaging API は使わない",
+      "actions": "セグメント配信、リッチメッセージ、友だち管理、配信結果取得",
+      "evidence": "配信スクショ、到達/開封/ブロック数",
+      "kpi_contribution": "関係（開封・クリック・ブロック率）、転換",
+      "workflow": "messaging-design-jp, psych-nudge-jp",
+      "gate": "企画↔品質、倫理（プッシュの節度）",
+      "safety": "月 200 通上限のため**全体一斉禁止・セグメント配信専用**。見込み度判定は SQLite/HubSpot データ"
+    }
+  ]
+}

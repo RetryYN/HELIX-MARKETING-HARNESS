@@ -38,15 +38,26 @@ def main() -> int:
     # ラチェット: 上限は baseline に記録した値を超えて増やせない（減少方向のみ許可）
     # 比較対象は git HEAD にコミット済みの baseline（作業ツリーの同時改変では回避できない）
     # 比較元は **親コミット**（CI では検査対象コミット自身が HEAD になるため）
+    # 親コミットが無い（初回コミット）場合のみラチェット非適用。親があるのに baseline を
+    # 解決できない場合は fail-close（物理移行で移動しても旧パスまで遡る）。
+    has_parent = subprocess.run(  # noqa: S603
+        ["git", "rev-parse", "--verify", "HEAD^"],  # noqa: S607
+        capture_output=True, text=True, check=False, cwd=ROOT).returncode == 0
     recorded = None
-    for rev in ("HEAD^", "HEAD"):
-        proc = subprocess.run(  # noqa: S603
-            ["git", "show", f"{rev}:docs/governance/baseline.json"],  # noqa: S607
-            capture_output=True, text=True, check=False, cwd=ROOT)
-        if proc.returncode == 0:
-            recorded = json.loads(proc.stdout).get("max_skipped")
-            break
-    approvals = (ROOT / "docs/governance/approvals.md").read_text()
+    resolved = False
+    if has_parent:
+        for path in ("docs/00-authority/baselines/baseline.json", "docs/governance/baseline.json"):
+            proc = subprocess.run(  # noqa: S603
+                ["git", "show", f"HEAD^:{path}"],  # noqa: S607
+                capture_output=True, text=True, check=False, cwd=ROOT)
+            if proc.returncode == 0:
+                recorded = json.loads(proc.stdout).get("max_skipped")
+                resolved = True
+                break
+        if not resolved:
+            print("FAIL [SKIP-BUDGET] 親コミットの baseline を解決できない（旧パス含む） — fail-close")
+            return 1
+    approvals = (ROOT / "docs/00-authority/approvals/approvals.md").read_text()
     pat = re.compile(
         rf"^\|[^|]*\|\s*skip-budget\s*\|[^|]*{recorded}→{limit}[^|]*\|\s*approved\s*\|\s*PO\s*\|",
         re.MULTILINE)
@@ -56,6 +67,18 @@ def main() -> int:
               "スタブ増加は設計追加（du-contracts の UT 追補）と同一コミットで、"
               "PO 承認 receipt を添えて baseline を更新すること")
         return 1
+    # 承認行の形式だけでは「承認行を書けば上限を上げられる」ことになる（独立レビュー R5-02）。
+    # 上限の増分は同一変更の UT 追加本数以内であることをゲート本体と同じ判定で要求する。
+    if recorded is not None and limit > recorded:
+        sys.path.insert(0, str(ROOT))
+        from tools.gates.baseline import committed_baseline, skip_raise_backing_faults
+        from tools.gates.common import CTX
+        from tools.gates.requirements import current_denominators
+        prev, _ = committed_baseline()
+        backing = skip_raise_backing_faults(prev or {}, current_denominators(CTX), recorded, limit)
+        if backing:
+            print(f"FAIL [SKIP-BUDGET] {backing[0]}")
+            return 1
     skipped = measured_skipped()
     if skipped > limit:
         print(f"FAIL [SKIP-BUDGET] skipped {skipped} > 上限 {limit} — "

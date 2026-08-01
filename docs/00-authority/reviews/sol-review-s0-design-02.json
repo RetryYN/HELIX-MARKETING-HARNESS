@@ -1,0 +1,37 @@
+{
+  "review_id": "REV-S0-DESIGN-02",
+  "reviewer_principal": "codex-sol（分離は実行証跡で未確認 — separation_status: unverified）",
+  "separation_status": "unverified",
+  "model": "gpt-5.6-sol",
+  "target_commit": "ef4207dbf2a233f148a1575d8ed95c3688a00324",
+  "target_tree": "000732d2596783cdf1168f4e03dd5c34f63bd019",
+  "scope": "S0 設計クロージャー（正本確定・意味整合・物理統一・DDL 一致・test-first 実体化・レビュー成果物化）— PO 完了条件 1〜8。束縛対象は設計成果物（契約 JSON・DDL・validator）。baseline.json は receipt 追加に伴い更新される派生台帳のため対象外（§8 が許す『レビュー後のレビュー成果物・承認 receipt の追加』に該当。契約内容の改変は各契約ファイルの digest が直接検出する）",
+  "reviewed_artifact_digests": {
+    "docs/requirements/json/br/br-contracts.json": "8b506583964daac8",
+    "docs/requirements/json/fr/fr-contracts.json": "e7af37b045c4a3fb",
+    "docs/requirements/json/strategy/sr-contracts.json": "90b5e89197c8a748",
+    "docs/requirements/json/nfr/nfr-contracts.json": "239d965c26beba9d",
+    "docs/requirements/json/ac/ac-contracts.json": "898498118ac3926b",
+    "docs/requirements/json/verification/tc-contracts.json": "a023c6335ecb5008",
+    "docs/design/json/cmp-contracts.json": "1f789a29dfaa34cc",
+    "docs/design/json/du-contracts.json": "a9624ded138762b1",
+    "docs/requirements/json/s0/ddl.sql": "ad296400fa318508",
+    "scripts/validate_requirements.py": "2c51e800c740933d"
+  },
+  "findings": [
+    {
+      "severity": "minor",
+      "summary": "review.schema.json の必須項目に rounds が含まれず、Go 成果物から削除しても検査を通る",
+      "status": "resolved",
+      "resolution": "schema の required へ rounds を追加し、本成果物にも rounds=2 を記録"
+    }
+  ],
+  "resolution_commits": [
+    "e66b746384d3ec75eae87c7d6915b5e9b12fd3f4",
+    "3b626bd5a2d973adcacef7885565cb0c2667e918",
+    "ef4207dbf2a233f148a1575d8ed95c3688a00324"
+  ],
+  "verdict": "Go",
+  "rounds": 2,
+  "completed_at": "2026-08-01"
+}

@@ -4,50 +4,89 @@
 
 - **正本**: このリポジトリ（RetryYN/HELIX-MARKETING-HARNESS）
 - **機能ソース**: [TAKUMI_CMO-Claude_Cowark](https://github.com/RetryYN/TAKUMI_CMO-Claude_Cowark)（read-only 参照）
-- **北極星**: [docs/L0-charter/marketing-harness-charter_v0.4.md](docs/L0-charter/marketing-harness-charter_v0.4.md)（status=confirmed。v0.4 = 上流戦略インフィニティループ再強化）
+- **北極星**: [charter v0.4](docs/L0-charter/canonical/marketing-harness-charter_v0.4.md)（status=confirmed）
+- **成果物の権威正本**: [artifact-manifest.json](docs/00-authority/artifact-manifest.json)
+  — 全現役成果物の artifact ID・階層・slice・正本形式（`authority_format`）・現役位置（`authority_status`）・
+  内容成熟度（`lifecycle_status`）・canonical／view パス・ペア・承認 digest を一意に登録する
 
-## ドキュメント
+## 現在地
 
-- [BR 背骨](docs/requirements/br-backbone_v0.1.md) — 業務要求 38 項目（confirmed）
-- [BR 構造化契約](docs/requirements/br-contracts_v0.1.md) — 全 BR の目的・価値・制約・禁止・証跡ほか 12 観点（生成ビュー）
-- [媒体別業務要求](docs/requirements/br-media_v0.1.md) — BR-M・21 媒体の構造調査値と PO 判断 8 件（confirmed）
-- [要求一覧](docs/requirements/requirement-list_v0.1.md) — REQ 52 項目・優先度・対応 FR 付き（confirmed）
-- [要件定義書](docs/requirements/requirements_v0.1.md) — FR 36 / NFR 10・AC・S0 受入基準・トレース（confirmed）
-- [機能一覧](docs/requirements/function-list_v0.1.md) — FN 61 機能・スライス配分（confirmed）
-- [媒体・手法別詳細要件](docs/requirements/media-requirements_v0.1.md) — 19 媒体を 7 観点で（confirmed）
-- [ループ・タスク・ワークフロー要件](docs/requirements/loop-task-workflow_v0.1.md) — 業務全体の実行モデル 3 分解（計画/充填/制作/運用含む）＋PoC 登録簿（confirmed）
-- [S0 契約書](docs/requirements/s0-contract_v0.1.md) — 正準 DDL・状態遷移表・WF 実行契約・環境契約・S0.1〜S0.3 分割（confirmed）
-- [上流戦略ループ要件](docs/requirements/strategy-loop-requirements_v0.1.md) — SR 16・意味モデル 12・ペルソナ禁止・S0 境界（confirmed）
-- [戦略学習契約](docs/requirements/strategy-learning-contract_v0.1.md) — brief／TLP／revision の 3 契約＋コンテンツ 5 宣言（confirmed）
-- [戦略層 JSON 正本](docs/requirements/json/strategy/) — 12 schema・媒体役割台帳・コンテンツ企画契約・fixture（ゲートの negative test 入力）
-- [FR 実行契約](docs/requirements/fr-contracts_v0.1.md)／[SR 実行契約](docs/requirements/sr-contracts_v0.1.md) — 18 観点（入出力・DbC・拒否・境界・復旧・冪等性・証跡）（生成ビュー）
-- [NFR 計測契約](docs/requirements/nfr-contracts_v0.1.md) — 測定対象・方法・閾値・環境・違反時動作（生成ビュー）
-- [AC カタログ](docs/requirements/ac-catalog_v0.1.md) — AC 211（fixture・観測点・DB 差分・証跡・禁止副作用・エラー型）（生成ビュー）
-- [TC カタログ](docs/requirements/tc-catalog_v0.1.md) — TCC 217（正常/拒否/境界/強制終了/競合/再開）（生成ビュー）
-- [検証設計書](docs/requirements/verification-design_v0.1.md) — 要件定義との対（pair）。TC 59・全 AC カバー・拒否系 27（confirmed）
-- [JSON 正本](docs/requirements/json/) — 要件エンティティの機械可読正本（実装・変換の入力。MD と同期）
-- [技術・ツール選定書](docs/requirements/tech-stack_v0.1.md) — スタック集約と再検討トリガー（confirmed）
-- [用語集](docs/requirements/glossary_v0.1.md) — 独自語の正本（confirmed）
-- [基本設計書](docs/design/basic-design_v0.1.md) — ②。CMP 13 コンポーネント・S0 25 FN 完全被覆（confirmed）
-- [総合テスト設計書](docs/design/integration-test-design_v0.1.md) — ④。基本設計との対（pair）。ITC 16・拒否系 7・E2E 含む（confirmed）
-- [詳細設計書](docs/design/detailed-design_v0.1.md) — ⑤。DU 23 モジュール・公開 API 仕様（confirmed）
-- [CMP 設計契約](docs/design/cmp-contracts_v0.1.md)／[DU 実装契約](docs/design/du-contracts_v0.1.md) — 11 観点／14 観点（API 58 本の署名・DbC・例外・tx・冪等性）（生成ビュー）
-- 独立設計書: [外部 IF](docs/design/external-if-design_v0.1.md)／[DB](docs/design/db-design_v0.1.md)／[状態機械](docs/design/state-machine-design_v0.1.md)／[エラー分類](docs/design/error-taxonomy_v0.1.md)／[承認](docs/design/approval-design_v0.1.md)／[ブランド隔離](docs/design/brand-isolation-design_v0.1.md)
-- [機能別詳細設計](docs/design/features/) — 11 本（戦略改訂・brief・TLP・証跡・migration・状態機械・ブランド隔離・KPI handoff・キャンペーン・外部操作・承認）
-- [単体テスト設計書](docs/design/unit-test-design_v0.1.md) — ⑥。詳細設計との対（pair）。TC 59 全割当＋UT 10（confirmed）
-- [戦略ループ設計](docs/design/strategy-loop-design_v0.1.md) — SCM 10・S0 最小変更／S1 上流スライス配分（confirmed）
-- [戦略層テスト設計](docs/design/strategy-loop-test-design_v0.1.md) — STC（ゲート×fixture 常設＋S0.1/S1 pytest）（confirmed）
-- [設計 JSON 正本](docs/design/json/) — CMP/ITC/DU/UTC/SCM/STC 台帳の機械可読正本（MD と同期）
-- [TAKUMI 素材カタログ](docs/design/takumi-catalog_v0.1.md) — スライスが引くプル型カタログ
+- 構造・権威移行完了（L0〜L6 の正本と機械ゲートを確定）
+- S0.1 設計クロージャー完了（未被覆 API 0）
+- S0.2 設計クロージャー未了（planned・未被覆 API 5）
+- S0.3 設計クロージャー未了（planned・未被覆 API 1）
+- S0.1 実装未着手
+- HELIX-HARNESS 取込は未実施・PO 判断待ち
 
-### ガバナンス
+判定の正本は [レビュー成果物](docs/00-authority/reviews/)（対象コミットと成果物 digest に束縛され、
+G-REVIEW-BINDING が検証する）。散文で判定を宣言しない。
+S0.1 の進行方法（本リポジトリ内か他経路か）は PO が決定する。
 
-- [ADR](docs/governance/adr/) — 大局判断 6 本（言語・接続原則・ブラウザ三段構え・データ正本・WP REST 直・公式 API 経路）
-- [リスク登録簿](docs/governance/risk-register_v0.1.md) — RSK-01〜09・緩和策・撤退条件
-- [要件定義ギャップ監査](docs/governance/requirements-gap-audit-2026-07-30.md) — HELIX 品質バー突合と是正記録
-- [要件整合ゲート台帳](docs/governance/requirements-gates.md) — CI で毎 push 実行される fail-close ゲート群
-  （件数の正本は [baseline.json](docs/governance/baseline.json) の gate_count）
-- [承認ログ](docs/governance/approvals.md)
+## 文書構造（L 工程）
+
+物理構造は L0〜L6 の工程階層で分離する。`canonical/` は正本、`views/` は生成ビュー（手編集禁止）、
+`docs/archive/` と `docs/00-authority/superseded/` は凍結（実装入力にできない）。
+
+| 階層 | 内容 | 主な成果物 |
+|---|---|---|
+| [00-authority](docs/00-authority/) | 権威層 | artifact manifest・[承認ログ](docs/00-authority/approvals/approvals.md)・[baseline](docs/00-authority/baselines/baseline.json)・[レビュー](docs/00-authority/reviews/)・[監査](docs/00-authority/audits/)・[ゲート台帳](docs/00-authority/requirements-gates.md)・[ADR](docs/00-authority/adr/)・[リスク登録簿](docs/00-authority/risk-register_v0.1.md) |
+| [L0-charter](docs/L0-charter/) | 北極星 | [charter v0.4](docs/L0-charter/canonical/marketing-harness-charter_v0.4.md) |
+| [L1-business-requirements](docs/L1-business-requirements/) | 業務要求 | [BR 背骨 38](docs/L1-business-requirements/canonical/br-backbone_v0.1.md)・[媒体別業務要求 70](docs/L1-business-requirements/canonical/br-media_v0.1.md)・[要求一覧 52](docs/L1-business-requirements/canonical/requirement-list_v0.1.md)・[ループ/タスク/WF](docs/L1-business-requirements/canonical/loop-task-workflow_v0.1.md)・[用語集](docs/L1-business-requirements/canonical/glossary_v0.1.md)・[BR 契約ビュー](docs/L1-business-requirements/views/br-contracts_v0.1.md) |
+| [L2-prototypes](docs/L2-prototypes/) | プロトタイプ | 未着手（workflows／screens／operating-scenarios の枠のみ） |
+| [L3-system-requirements](docs/L3-system-requirements/) | システム要件 | [要件定義 FR36/NFR10](docs/L3-system-requirements/canonical/functional/requirements_v0.1.md)・[機能一覧 61](docs/L3-system-requirements/canonical/functional/function-list_v0.1.md)・[媒体別詳細要件](docs/L3-system-requirements/canonical/functional/media-requirements_v0.1.md)・[S0 契約](docs/L3-system-requirements/canonical/s0-contract_v0.1.md)・[上流戦略ループ要件](docs/L3-system-requirements/canonical/strategy/strategy-loop-requirements_v0.1.md)・[戦略学習契約](docs/L3-system-requirements/canonical/strategy/strategy-learning-contract_v0.1.md)・[検証設計](docs/L3-system-requirements/verification/verification-design_v0.1.md)・[AC カタログ](docs/L3-system-requirements/views/ac-catalog_v0.1.md)・[TC カタログ](docs/L3-system-requirements/views/tc-catalog_v0.1.md) |
+| [L4-basic-design](docs/L4-basic-design/) | 基本設計 | [基本設計](docs/L4-basic-design/canonical/basic-design_v0.1.md)・[戦略ループ設計](docs/L4-basic-design/canonical/components/strategy-loop-design_v0.1.md)・独立設計書（[外部 IF](docs/L4-basic-design/canonical/external-if/external-if-design_v0.1.md)／[DB](docs/L4-basic-design/canonical/data/db-design_v0.1.md)／[状態機械](docs/L4-basic-design/canonical/state-machine/state-machine-design_v0.1.md)／[承認](docs/L4-basic-design/canonical/approval/approval-design_v0.1.md)／[ブランド隔離](docs/L4-basic-design/canonical/brand-isolation/brand-isolation-design_v0.1.md)）・[技術選定](docs/L4-basic-design/canonical/tech-stack_v0.1.md)・[総合テスト設計](docs/L4-basic-design/integration-tests/integration-test-design_v0.1.md)・[CMP 契約ビュー](docs/L4-basic-design/views/cmp-contracts_v0.1.md) |
+| [L5-detailed-design](docs/L5-detailed-design/) | 詳細設計 | [詳細設計](docs/L5-detailed-design/canonical/detailed-design_v0.1.md)・[エラー分類](docs/L5-detailed-design/canonical/errors/error-taxonomy_v0.1.md)・[migration 規則](docs/L5-detailed-design/canonical/migrations/migration-rules.json)・[単体テスト設計](docs/L5-detailed-design/unit-tests/unit-test-design_v0.1.md)・[DU 契約ビュー](docs/L5-detailed-design/views/du-contracts_v0.1.md) |
+| [L6-feature-design](docs/L6-feature-design/) | 機能別設計 | [S0 の 11 本](docs/L6-feature-design/S0/)（brief・TLP・証跡・migration・状態機械・ペア判定・設定管理・ブランド隔離基盤・KPI handoff・外部操作・承認 — すべて confirmed）＋[実装単位 48 件](docs/L6-feature-design/S0/implementation-units.json)＋[未被覆 API 台帳](docs/L6-feature-design/S0/uncovered-apis.json)＋[更新別クロージャー](docs/L6-feature-design/S0/update-closure.json)＋[S0.1 計画](docs/L6-feature-design/S0/plan-s0.1.json)、[S1 の 3 本](docs/L6-feature-design/S1/)（ブランド隔離完成・キャンペーン・戦略改訂 — planned）。later は空 |
+
+## 実装入力（契約正本 9 本）
+
+実装・検証の入力は **JSON 契約正本**だけを用いる（MD は生成ビュー、または人が読む正本文書）。
+
+| 種別 | 正本 |
+|---|---|
+| L6 責務/API/契約節/AC/TC/UT | [implementation-units.json](docs/L6-feature-design/S0/implementation-units.json) |
+| BR | [br-contracts.json](docs/L1-business-requirements/canonical/br/br-contracts.json) |
+| FR | [fr-contracts.json](docs/L3-system-requirements/canonical/functional/fr-contracts.json) |
+| SR | [sr-contracts.json](docs/L3-system-requirements/canonical/strategy/sr-contracts.json) |
+| NFR | [nfr-contracts.json](docs/L3-system-requirements/canonical/nonfunctional/nfr-contracts.json) |
+| AC | [ac-contracts.json](docs/L3-system-requirements/canonical/acceptance/ac-contracts.json) |
+| TC | [tc-contracts.json](docs/L3-system-requirements/verification/tc-contracts.json) |
+| CMP/SCM | [cmp-contracts.json](docs/L4-basic-design/canonical/components/cmp-contracts.json) |
+| DU/API/UT | [du-contracts.json](docs/L5-detailed-design/canonical/apis/du-contracts.json) |
+
+現行分母は **AC=218 ／ TCC=224 ／ API=58 ／ API_UT=199**（件数の正本は
+[baseline.json](docs/00-authority/baselines/baseline.json)）。旧体系の分母は `historical_counts` にのみ保持する。
+
+第 9 正本の implementation-units.json は **手編集の confirmed 正本**であり、DU 契約や L6 文書からの
+生成物ではない。責務は `api_ref`（API の安定 ID 1 件）と `clause_refs`（その API の契約節 ID）で
+接続し、`ac_refs` の AC と `ut_refs` の UT が**同じ契約節**を参照していることを
+G-L6-IMPLEMENTATION-TRACE が検査する（API 名・テスト名・語彙の部分一致は接続の根拠にしない）。
+API の安定 ID は `API-DU01-01`、契約節は `API-DU01-01-POST-01` の形式で du-contracts.json が持つ。
+API は `verification_level` で **acceptance 54 本／内部（unit）4 本**に分かれ、内部 API は
+`internal_reason` を持ち UT が契約節を直接検証する。接続の実数は 責務 48 ／ 契約節 356（AC 被覆 133・
+単体検証 69・呼出側義務 101・配線時保証 14・他 API で検証 1・**受入基準未設定 38**）／
+UT→契約節 308 件。受入基準未設定は N/A ではなく**未解決 gap**であり、AC が 1 節も検証していない
+acceptance API 6 本は [uncovered-apis.json](docs/L6-feature-design/S0/uncovered-apis.json) に
+`resolution_update`（DU→FN→updates.json から機械導出）付きで登録される。経緯は
+[構造トレース是正](docs/00-authority/audits/structural-trace-remediation-2026-08-02.md)と
+[更新境界是正](docs/00-authority/audits/update-boundary-remediation-2026-08-02.md)が正本。
+
+レビュー成果物の主体分離は `separation_status`（`unverified`／`self_attested`／`ci_attested`）で表す。
+**過去 8 件は実行証跡を取得できないため `unverified`**、REV-S0-STRUCT-07／08 は別 principal・別 execution の
+実行ログへ digest 束縛された **`self_attested`** である。そのログはレビュー実行者自身が生成したローカル成果物で
+あり第三者署名ではないため、`ci_attested`（GitHub Actions の run ID・ログ URL・artifact digest へ束縛）だけが
+第三者検証を名乗れる（G-REVIEW-SEPARATION）。
+
+## 機械ゲート
+
+要件整合ゲートは [tools/gates/](tools/gates/) の工程別モジュールへ分割され、
+`tools/gates/run_all.py` が入口（`scripts/validate_requirements.py` は互換ラッパー）。
+CI（Docs CI / Python CI）で push・PR ごとに fail-close 実行する。
+台帳は [requirements-gates.md](docs/00-authority/requirements-gates.md)、件数の正本は baseline.json の `gate_count`。
+
+```bash
+python3 tools/gates/run_all.py
+```
 
 ## 実装エージェント
 
@@ -55,52 +94,9 @@ Codex CLI を実装エージェントとして登録済み（`.claude/agents/`�
 設計判断・レビュー）／ **codex-terra**（中位・medium — 実装主力）／ **codex-luna**（軽量・high —
 定型・変換）／ **codex-imagen**（image_gen — 静的画像生成、BR-M-GENAI-4）。性能順は Sol＞Terra＞Luna。
 
-## 現在地
-
-スライス駆動で構築中（L0 charter confirmed 2026-07-30）。
-
-### 完了しているもの（S0 スコープ）
-
-- **S0 ウォーキングスケルトンの設計**（要求・要件・検証契約の再降下、S0 基本設計・詳細設計・単体テスト設計）
-- 契約 JSON 正本 8 本が **confirmed**（内容束縛 receipt つき — [承認ログ](docs/governance/approvals.md)）
-
-### 完了していないもの
-
-- **S1 以降**: AC→TC→CMP/SCM→DU→API→UT の再降下が未完のため **planned**
-  （S1 対象の FR/SR には AC/TC を割当済みだが、DU→API→UT の降下と実装は未着手）
-- **S0.1 実装**: 未着手（本クロージャー完了後に HELIX-HARNESS の工程で開始）
-
-**2026-08-01 全層再降下（粒度是正）完了 — S0 スコープに限定** — HELIX-HARNESS 本体基準への粒度是正を
-要求定義から単体テスト設計まで実施（[粒度ギャップ監査](docs/governance/granularity-gap-audit-v0.1.md)）。
-BR 38（12 観点の構造化契約）／FR 36・SR 16（18 観点の実行契約）／NFR 10（計測契約）／
-AC 211・TCC 217（fixture・DB 差分・証跡・禁止副作用・エラー型つき）／CMP・SCM 23（11 観点の設計契約）／
-DU 23（API 58 本の署名・DbC・例外・tx・冪等性）＋独立設計書 6 本＋機能別設計 11 本。
-ゲートは 105 本（BR→REQ→FR/SR→AC→TC→CMP→DU→API→UT の全区間双方向突合、mutation 自己検査つき）。
-独立ブラインドレビュー（HELIX 基準）を実施 — **判定の正本は [レビュー成果物](docs/governance/reviews/)**（対象コミットと成果物 digest に束縛され、G-REVIEW-BINDING が検証する）。散文で判定を宣言しない。
-
-**2026-08-01 クロージャー完了** — 契約正本の confirmed 化・旧正本（ac.json/verification.json/utest.json）の
-superseded 化・実装パッケージの `src/helix/` 統一・意味整合ゲート（構造化参照）・DDL トリガ 14 本
-（brief 不変・TLP 種別と終端状態の一致）。以降の工程は HELIX-HARNESS の Gate/PR 経路で進める。
-
-要件定義＋基本設計＋詳細設計 一次完了・全文書 confirmed（2026-07-31 PO 承認）— §99 全 8 判断クローズ、
-整合ゲート CI 常時実行（件数の正本 = baseline.json の gate_count）、①↔③（TC 59）・②↔④（ITC 16）・
-⑤↔⑥（DU 23／UTC 69）の HELIX 式文書ペア 3 層成立。
-**2026-08-01 外部レビュー対応（P0 是正）完遂** — 状態機械の決定性、DDL の lease/attempt/external_operations、
-承認 digest 束縛、X ブラウザ書込みの事前禁止ほか（[是正台帳](docs/governance/review-remediation-2026-08-01.md)）。
-**2026-08-01 上流戦略インフィニティループ再強化 完遂** — charter v0.4、SR 16／意味モデル 12 schema、
-brief／TLP／revision の 3 契約、strategic_briefs・TLP テーブル（DDL 25 テーブル）、
-戦略ゲート群を追加（fixture negative test 常設）。
-**2026-08-01 戦略ループ最終統合是正 完遂** — LP-U のイベントトリガー化、WF-STRAT-OBSERVE〜BRIEF 5 本（WF 49）、
-SR→AC-SR→STC-I→DU の一本線トレース、TLP の learning/failure 二分と DDL 整合トリガ、revision 原子性、
-全戦略 schema 閉鎖（additionalProperties: false・正準化 digest 規則）、python-ci 実働化
-（pytest/ruff/mypy/import-linter/shellcheck/actionlint/gitleaks — charter は v0.4 が唯一の北極星、v0.3 superseded）。
-（以上は 2026-08-01 クロージャー以前の履歴。**現在地は本節冒頭の「完了しているもの／完了していないもの」が正**。）
-
 ## 次の一手
 
 **S0.1 実装**（DB・状態機械・ゲート・証跡 — s0-contract §7 の更新分割、CMP-01〜06＝DU-01〜12 が対象）。
-着手時に `tests/skip-budget.json` の `s0_impl_started` を true にし、以降は
-[G-S0-TEST-REALITY](docs/governance/requirements-gates.md) が S0.1 対象 UT の skip を CI で落とす。
-**HELIX-HARNESS への Reverse 取込は未実施**（PO 判断待ち — 取込先への書き込みは明示指示があるまで行わない。
-経緯は [helix-intake-2026-08-01.md](docs/governance/helix-intake-2026-08-01.md)）。
-S0.1 の進行方法（本リポジトリ内か HELIX 経路か）も併せて PO が決定する。
+着手は自動検出される（`src/helix/` への実装追加・S0.1 PLAN の `in_progress` 化・DU-01〜12 の API 実装の
+いずれか）。着手後は対象 UT の skip／xfail／NotImplementedError／空 assert が CI で落ち、
+coverage 下限が 80% へ引き上がる。

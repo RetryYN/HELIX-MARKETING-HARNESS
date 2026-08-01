@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parent.parent
-DDL = (ROOT / "docs/requirements/json/s0/ddl.sql").read_text(encoding="utf-8")
+DDL = (ROOT / "docs/L3-system-requirements/canonical/schemas/s0/ddl.sql").read_text(encoding="utf-8")
 DG = "a" * 64
 
 
