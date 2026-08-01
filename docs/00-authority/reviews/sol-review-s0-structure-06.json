@@ -2,8 +2,8 @@
   "review_id": "REV-S0-STRUCT-06",
   "reviewer_principal": "codex-sol (別 principal)",
   "model": "gpt-5.6-sol",
-  "target_commit": "bd3c1773e8da169560641db76edc6c18a8f889d8",
-  "target_tree": "99d690e917ae8fe47499efafdd8e426213a7f607",
+  "target_commit": "b4b5e258900888a47f5b64bc76aa5642de4a067d",
+  "target_tree": "40930f7767baa652f3790689080315eb2227948a",
   "scope": "意味トレース最終是正（L6 責務の API 単位接続・ブランド隔離 S0 責務の実契約整合・保護トリガ数の実 DDL 統一・confirmed 再凍結）",
   "supersedes_review": [
     "REV-S0-STRUCT-05"
@@ -121,7 +121,7 @@
     }
   ],
   "resolution_commits": [
-    "bd3c1773e8da"
+    "b4b5e2589008"
   ],
   "verdict": "Go",
   "completed_at": "2026-08-01",
