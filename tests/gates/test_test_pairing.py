@@ -341,13 +341,21 @@ def test_mutation_escape_matrix(tmp_path, label: str, should_flag: bool, body: s
 DESC = "pytest の outcome レポートで対象 UT が individually executed かつ passed であることを検査する実行時ゲートを追加する"
 
 
+def _required_unmet() -> list[dict]:
+    """PO 指定の S0.1 開始条件（4 件）を unmet で持つ最小の preconditions。"""
+    return [{"id": pid, "status": "unmet", "description": DESC, "source": "…"}
+            for pid in test_pairing.REQUIRED_PRECONDITIONS]
+
+
 def _plan(tmp_path, **over) -> Path:
     data = {
         "plan_id": "PLAN-S0.1", "slice": "S0", "update": "S0.1", "status": "planned",
-        "preconditions": [{"id": "runtime-ut-outcome-gate", "status": "unmet",
-                           "description": DESC, "source": "…"}],
+        "preconditions": _required_unmet(),
         "targets": [f"DU-{i:02d}" for i in range(1, test_pairing.S0_DU_MAX + 1)],
     }
+    # 個別の変異は**必須 4 件に足す**形で与える（必須欠落の違反と混ざらないように）
+    if "preconditions" in over and not over.pop("raw", False):
+        over["preconditions"] = [*_required_unmet(), *over["preconditions"]]
     data.update(over)
     p = tmp_path / "plan-s0.1.json"
     p.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
@@ -372,12 +380,72 @@ def test_mutation_flipping_status_to_in_progress_with_unmet_precondition_is_dete
     assert any("未充足の前提条件" in f for f in faults)
 
 
-def test_met_preconditions_allow_starting(tmp_path) -> None:
-    """前提条件を met＋met_by（実在ゲート ID）にすれば着手できる（偽陽性回帰）。"""
-    plan = _plan(tmp_path, status="in_progress",
-                 preconditions=[{"id": "runtime-ut-outcome-gate", "status": "met",
-                                 "description": DESC, "met_by": "G-UT-NO-ESCAPE"}])
+def _patch_ledger(monkeypatch) -> None:
+    """専用ゲートが**実装された後**の世界を模す（met を許す唯一の条件）。"""
+    ids = test_pairing.ledger_gate_ids() | set(test_pairing.REQUIRED_PRECONDITIONS.values())
+    monkeypatch.setattr(test_pairing, "ledger_gate_ids", lambda: ids)
+
+
+def test_met_preconditions_allow_starting(tmp_path, monkeypatch) -> None:
+    """4 件すべてを専用ゲートの実装で met にすれば着手できる（偽陽性回帰）。"""
+    _patch_ledger(monkeypatch)
+    plan = _plan(tmp_path, status="in_progress", raw=True,
+                 preconditions=[{"id": pid, "status": "met", "description": DESC, "met_by": g}
+                                for pid, g in test_pairing.REQUIRED_PRECONDITIONS.items()])
     assert test_pairing.detect_plan_faults(started=True, plan_path=plan) == []
+
+
+def test_mutation_dropping_a_required_precondition_is_detected(tmp_path) -> None:
+    """変異: PO 指定の開始条件を導入コミット内で消しても検出される（独立レビュー R1-02）。
+
+    baseline ラチェットは**親コミット**との差分しか見ないため、初導入と同時に消す経路が残る。
+    必須集合はコード側が持つ。
+    """
+    plan = _plan(tmp_path, raw=True,
+                 preconditions=[p for p in _required_unmet()
+                                if p["id"] != "per-ut-executed-and-passed"])
+    faults = test_pairing.detect_plan_faults(started=False, plan_path=plan)
+    assert any("開始条件が欠落" in f and "per-ut-executed-and-passed" in f for f in faults)
+
+
+@pytest.mark.parametrize("bogus", ["G-UT-NO-ESCAPE", "G-BASE-HASH", "G-MANIFEST-DOMAIN"])
+def test_mutation_unrelated_gate_cannot_meet_a_required_precondition(
+        tmp_path, monkeypatch, bogus) -> None:
+    """変異: 無関係な既存ゲート ID を貼って必須前提条件を met に偽装できない（R1-01）。"""
+    _patch_ledger(monkeypatch)
+    plan = _plan(tmp_path, raw=True,
+                 preconditions=[{"id": "runtime-ut-outcome-gate", "status": "met",
+                                 "description": DESC, "met_by": bogus},
+                                *[p for p in _required_unmet()
+                                  if p["id"] != "runtime-ut-outcome-gate"]])
+    faults = test_pairing.detect_plan_faults(started=False, plan_path=plan)
+    assert any("この前提条件専用の新設ゲート" in f for f in faults), bogus
+
+
+def test_mutation_commit_sha_cannot_meet_a_required_precondition(tmp_path) -> None:
+    """変異: 任意の実在 commit SHA では必須前提条件を met にできない（R1-01）。"""
+    import subprocess
+    head = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True,
+                          check=True, cwd=test_pairing.ROOT).stdout.strip()
+    plan = _plan(tmp_path, raw=True,
+                 preconditions=[{"id": "dynamic-import-skip-detection", "status": "met",
+                                 "description": DESC, "met_by": head},
+                                *[p for p in _required_unmet()
+                                  if p["id"] != "dynamic-import-skip-detection"]])
+    faults = test_pairing.detect_plan_faults(started=False, plan_path=plan)
+    assert any("この前提条件専用の新設ゲート" in f for f in faults)
+
+
+def test_mutation_declaring_the_dedicated_gate_without_implementing_it_is_detected(
+        tmp_path) -> None:
+    """変異: 専用ゲート ID を書くだけ（本番が emit していない）では met にできない。"""
+    plan = _plan(tmp_path, raw=True,
+                 preconditions=[{"id": "runtime-ut-outcome-gate", "status": "met",
+                                 "description": DESC, "met_by": "G-UT-RUNTIME-OUTCOME"},
+                                *[p for p in _required_unmet()
+                                  if p["id"] != "runtime-ut-outcome-gate"]])
+    faults = test_pairing.detect_plan_faults(started=False, plan_path=plan)
+    assert any("本番ゲートが emit していない" in f for f in faults)
 
 
 def test_mutation_removing_preconditions_is_detected(tmp_path) -> None:

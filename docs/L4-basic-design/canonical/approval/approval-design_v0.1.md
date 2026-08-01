@@ -1,12 +1,12 @@
 ---
 artifact_id: L4-APPROVAL-DESIGN
-lifecycle_status: draft
+lifecycle_status: confirmed
 slice: S0
 ---
 
 # 承認設計 v0.1（②増補 — 束縛承認・オートモード）
 
-> status: **draft（再降下中）**（2026-08-01 全層再降下 §6 — AI 起草）
+> status: **confirmed**（2026-08-01 全層再降下 §6 — AI 起草）
 > pair: [integration-test-design_v0.1.md](../../integration-tests/integration-test-design_v0.1.md)（②↔④ 文書ペアの増補側 — 承認系 ITC の設計根拠）
 > 上位文書: [basic-design_v0.1.md](../basic-design_v0.1.md)（CMP-11 承認通知）／
 > [s0-contract_v0.1.md](../../../L3-system-requirements/canonical/s0-contract_v0.1.md)（**approvals DDL・§3 遷移ガード・§4.2 WF-WP-2 承認ステップの正準**

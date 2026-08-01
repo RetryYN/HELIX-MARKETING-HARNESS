@@ -19,6 +19,7 @@ from tools.gates.common import (
     L3,
     L4,
     L5,
+    L6,
     ROOT,
     SKIP_BUDGET,
     Ctx,
@@ -31,6 +32,8 @@ from tools.gates.common import (
     sha256_file,
 )
 from tools.gates.requirements import current_denominators
+
+S0_PLAN = L6 / "S0/plan-s0.1.json"
 
 # baseline が束縛する実装入力（archive は含めない）
 ARTIFACT_GLOBS = [
@@ -281,7 +284,19 @@ def detect_ratchet_faults(prev: dict, counts: dict[str, int], contract_counts: d
     cur_cov = load(COVERAGE_FLOOR)["fail_under"]
     if prev_cov is not None and cur_cov < prev_cov:
         bad.append(f"coverage 下限の引き下げ:{prev_cov}→{cur_cov}")
+    # S0.1 の着手前提条件は「消して満たす」ことができない（met にして残すのが唯一の解消）
+    dropped = sorted(set(prev.get("plan_preconditions", [])) - set(plan_precondition_ids()))
+    if dropped:
+        bad.append(f"S0.1 前提条件の削除:{dropped}")
     return bad
+
+
+def plan_precondition_ids() -> list[str]:
+    """S0.1 PLAN が持つ前提条件 ID の一覧（ラチェットの保護対象）。"""
+    if not S0_PLAN.exists():
+        return []
+    pres = load(S0_PLAN).get("preconditions", [])
+    return sorted(p["id"] for p in pres if isinstance(p, dict) and "id" in p)
 
 
 def skip_raise_approved(prev: int | None, new: int) -> bool:
@@ -304,6 +319,7 @@ def build_baseline(ctx: Ctx) -> dict:
         "contract_counts": current_denominators(ctx),
         "historical_counts": HISTORICAL_COUNTS,
         "confirmed_docs": confirmed_docs(),
+        "plan_preconditions": plan_precondition_ids(),
         "artifacts": artifact_hashes(),
     }
 

@@ -1,6 +1,6 @@
 ---
 artifact_id: L6-S0-PAIR-GATE
-lifecycle_status: draft
+lifecycle_status: confirmed
 slice: S0
 traces: [FR-21]
 forward_refs: []
@@ -9,7 +9,7 @@ dus: [DU-05, DU-06]
 
 # 機能設計: 企画↔品質ペア判定（PairPass の成立・失効・バイパス不在）
 
-> status: **draft**（2026-08-01 構造分類是正で新設 — DU-05／AC-21-1〜5 の機能設計が不在だったため）
+> status: **confirmed**（2026-08-01 構造分類是正で新設 — DU-05／AC-21-1〜5 の機能設計が不在だったため）
 > 正準参照: 要求 = FR-21（企画↔品質ペア判定）。DDL（`pair_plan_quality`）と evidence 型
 > （`review_pass`）の正準は [s0-contract_v0.1.md §2・§2.1](../../L3-system-requirements/canonical/s0-contract_v0.1.md)。
 > API 署名の正本は [detailed-design_v0.1.md DU-05](../../L5-detailed-design/canonical/detailed-design_v0.1.md)

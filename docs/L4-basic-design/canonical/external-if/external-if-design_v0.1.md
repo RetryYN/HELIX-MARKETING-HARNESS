@@ -1,12 +1,12 @@
 ---
 artifact_id: L4-EXTERNAL-IF-DESIGN
-lifecycle_status: draft
+lifecycle_status: confirmed
 slice: S0
 ---
 
 # 外部 IF 詳細設計 v0.1（②増補 — コネクタ境界契約）
 
-> status: **draft（再降下中）**（2026-08-01 全層再降下 §6 — AI 起草）
+> status: **confirmed**（2026-08-01 全層再降下 §6 — AI 起草）
 > pair: [integration-test-design_v0.1.md](../../integration-tests/integration-test-design_v0.1.md)（②↔④ 文書ペアの増補側 — 結合観測点は④に従属）
 > 上位文書: [basic-design_v0.1.md](../basic-design_v0.1.md)（CMP-07〜11・横断設計 §4）／
 > [s0-contract_v0.1.md](../../../L3-system-requirements/canonical/s0-contract_v0.1.md)（**DDL・状態遷移・external_operations・環境契約の正準** — 本書は重複記述せず参照で書く）

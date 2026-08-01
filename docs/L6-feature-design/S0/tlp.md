@@ -1,6 +1,6 @@
 ---
 artifact_id: L6-S0-TLP
-lifecycle_status: draft
+lifecycle_status: confirmed
 slice: S0
 traces: [SR-06, SR-08, SR-09]
 forward_refs: [SR-01, SR-02, SR-03, SR-05]
@@ -9,7 +9,7 @@ dus: [DU-01, DU-02, DU-11]
 
 # 機能別詳細設計 — tactical_learning_packet（学習／失敗 packet）
 
-> status: **draft（再降下中）**（2026-08-01 全層再降下 §7 — AI 起草）
+> status: **confirmed**（2026-08-01 全層再降下 §7 — AI 起草）
 > 正準参照: 還流契約の正準は
 > [strategy-learning-contract_v0.1.md §2](../../L3-system-requirements/canonical/strategy/strategy-learning-contract_v0.1.md)、
 > DDL・CHECK・整合トリガは [s0-contract_v0.1.md §2](../../L3-system-requirements/canonical/s0-contract_v0.1.md)、

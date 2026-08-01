@@ -1,12 +1,12 @@
 ---
 artifact_id: L5-ERROR-TAXONOMY
-lifecycle_status: draft
+lifecycle_status: confirmed
 slice: S0
 ---
 
 # エラー分類正本 v0.1（②増補 — エラー台帳）
 
-> status: **draft（再降下中）**（2026-08-01 全層再降下 §6 — AI 起草）
+> status: **confirmed**（2026-08-01 全層再降下 §6 — AI 起草）
 > pair: [integration-test-design_v0.1.md](../../../L4-basic-design/integration-tests/integration-test-design_v0.1.md)（②↔④ 文書ペアの増補側 — 拒否系 ITC/TC の分類根拠）
 > 上位文書: [basic-design_v0.1.md](../../../L4-basic-design/canonical/basic-design_v0.1.md)（§4 エラー 3 系正規化）／
 > [s0-contract_v0.1.md](../../../L3-system-requirements/canonical/s0-contract_v0.1.md)（**状態遷移表・イベント分類の正準** — 本書は重複記述せず参照で書く）

@@ -398,6 +398,17 @@ def ledger_gate_ids() -> set[str]:
     return script_gate_ids()
 
 
+# PO が S0.1 開始条件として残した前提条件と、それを解消する**専用ゲート**の対応（PO 指示 §6）。
+# baseline のラチェットだけだと「導入コミット内で消す」抜け道が残るため、必須集合をコードで持つ
+# （独立レビュー R1-02）。met_by はここに書かれたゲート ID 以外を受け付けない（R1-01）。
+REQUIRED_PRECONDITIONS = {
+    "runtime-ut-outcome-gate": "G-UT-RUNTIME-OUTCOME",
+    "dynamic-import-skip-detection": "G-UT-DYNAMIC-SKIP",
+    "impl-start-detect-indirect-binding": "G-IMPL-START-BINDING",
+    "per-ut-executed-and-passed": "G-UT-PER-TEST-OUTCOME",
+}
+
+
 def _precondition_faults(index: int, p: object) -> list[str]:
     """preconditions の 1 要素を検査する（非 dict でも例外にせず違反として返す）。"""
     if not isinstance(p, dict):
@@ -414,17 +425,37 @@ def _precondition_faults(index: int, p: object) -> list[str]:
         bad.append(f"{label}: description が {PRECONDITION_MIN_DESC} 文字未満"
                    "（何を満たせば met なのかを書く）")
     if p.get("status") == "met":
-        mb = p.get("met_by")
-        if not isinstance(mb, str) or not (MET_BY_GATE.match(mb) or MET_BY_COMMIT.match(mb)):
-            bad.append(f"{label}: status=met には met_by（ゲート ID または commit SHA）が必須:{mb!r}")
-        elif MET_BY_GATE.match(mb):
-            # 部分文字列一致だと実在 ID の接頭辞（G-BASE 等）が素通りするため、
-            # 本番モジュールが emit する ID 集合への完全一致所属を要求する
-            if mb not in ledger_gate_ids():
-                bad.append(f"{label}: met_by のゲート {mb} がゲート台帳に存在しない")
-        elif git("cat-file", "-e", f"{mb}^{{commit}}").returncode != 0:
-            bad.append(f"{label}: met_by の commit {mb} がリポジトリに存在しない")
+        bad += _met_by_faults(label, pid if isinstance(pid, str) else "", p.get("met_by"))
     return bad
+
+
+def _met_by_faults(label: str, pid: str, mb: object) -> list[str]:
+    """`status=met` の根拠（met_by）が**その前提条件そのもの**へ束縛されているか検査する。
+
+    汎用の「実在するゲート ID か実在する commit SHA」だけでは、無関係な既存ゲート
+    （`G-BASE-HASH` 等）や任意の過去 commit を貼るだけで全条件を met に偽装できる
+    （独立レビュー R1-01）。PO が残した前提条件は、**それを解消するために新設される
+    専用ゲート**の ID でしか met にできない。
+    """
+    required = REQUIRED_PRECONDITIONS.get(pid)
+    if required is not None:
+        if mb != required:
+            return [f"{label}: status=met には met_by={required}（この前提条件専用の新設ゲート）が必須"
+                    f"だが {mb!r} — 無関係なゲート ID・commit SHA では met にできない"]
+        if required not in ledger_gate_ids():
+            return [f"{label}: met_by の {required} を本番ゲートが emit していない"
+                    "（前提条件の解消はゲートの実装をもって行う）"]
+        return []
+    if not isinstance(mb, str) or not (MET_BY_GATE.match(mb) or MET_BY_COMMIT.match(mb)):
+        return [f"{label}: status=met には met_by（ゲート ID または commit SHA）が必須:{mb!r}"]
+    if MET_BY_GATE.match(mb):
+        # 部分文字列一致だと実在 ID の接頭辞（G-BASE 等）が素通りするため、
+        # 本番モジュールが emit する ID 集合への完全一致所属を要求する
+        if mb not in ledger_gate_ids():
+            return [f"{label}: met_by のゲート {mb} がゲート台帳に存在しない"]
+    elif git("cat-file", "-e", f"{mb}^{{commit}}").returncode != 0:
+        return [f"{label}: met_by の commit {mb} がリポジトリに存在しない"]
+    return []
 
 
 def detect_plan_faults(started: bool, plan_path: Path = S0_PLAN,
@@ -451,6 +482,11 @@ def detect_plan_faults(started: bool, plan_path: Path = S0_PLAN,
         return bad
     for i, p in enumerate(pres):
         bad += _precondition_faults(i, p)
+    # 必須の前提条件を「導入したコミット内で消す」抜け道を塞ぐ（baseline ラチェットの前段）
+    have = {p.get("id") for p in pres if isinstance(p, dict)}
+    missing = sorted(set(REQUIRED_PRECONDITIONS) - have)
+    if missing:
+        bad.append(f"PO 指定の S0.1 開始条件が欠落:{missing}")
     unmet = [p.get("id") for p in pres
              if isinstance(p, dict) and p.get("status") != "met"]
     # `planned` 以外は「着手済み」とみなす（done への直行も前提条件検査の対象）

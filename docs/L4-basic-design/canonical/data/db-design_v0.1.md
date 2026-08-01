@@ -1,12 +1,12 @@
 ---
 artifact_id: L4-DB-DESIGN
-lifecycle_status: draft
+lifecycle_status: confirmed
 slice: S0
 ---
 
 # DB 設計書 v0.1（基本設計増補 — DB）
 
-> status: **draft（再降下中）**（2026-08-01 全層再降下 §6 — AI 起草）
+> status: **confirmed**（2026-08-01 全層再降下 §6 — AI 起草）
 > 正準参照: DDL・トリガ・evidence 型契約の正準は
 > [s0-contract_v0.1.md §2](../../../L3-system-requirements/canonical/s0-contract_v0.1.md)（JSON 正本 =
 > [json/s0/ddl.sql](../../../L3-system-requirements/canonical/schemas/s0/ddl.sql)）。migration 規則の正準は同 §5、

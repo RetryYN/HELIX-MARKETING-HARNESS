@@ -276,3 +276,24 @@ def test_mutation_non_git_tree_is_not_treated_as_first_commit(monkeypatch) -> No
     prev, source = baseline.committed_baseline()
     assert prev is None
     assert "git リポジトリではない" in source
+
+
+# --- S0.1 前提条件のラチェット（PO 指示 §6） ---
+
+def test_plan_preconditions_are_recorded_and_nonempty() -> None:
+    ids = baseline.plan_precondition_ids()
+    assert ids, "S0.1 の着手前提条件が空（着手条件が消えている）"
+    assert "runtime-ut-outcome-gate" in ids
+
+
+def test_mutation_dropping_a_plan_precondition_is_detected() -> None:
+    """変異: 前提条件を消して『満たした』ことにできない（met にして残すのが唯一の解消）。"""
+    prev = {**PREV, "plan_preconditions": [*baseline.plan_precondition_ids(), "ghost-precondition"]}
+    faults = baseline.detect_ratchet_faults(prev, CUR_COUNTS, CUR_CC, 118, 194, False)
+    assert any("S0.1 前提条件の削除" in f and "ghost-precondition" in f for f in faults)
+
+
+def test_current_plan_preconditions_do_not_regress_against_baseline() -> None:
+    prev = {**PREV, "plan_preconditions": load(BASELINE).get("plan_preconditions", [])}
+    faults = baseline.detect_ratchet_faults(prev, CUR_COUNTS, CUR_CC, 118, 194, False)
+    assert not [f for f in faults if "前提条件" in f]

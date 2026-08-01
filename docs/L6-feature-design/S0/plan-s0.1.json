@@ -3,13 +3,31 @@
   "slice": "S0",
   "update": "S0.1",
   "status": "planned",
-  "note": "S0.1 実装計画。着手時に status を in_progress にする（G-IMPL-START-DETECT が自動検出のトリガに使う）。進行方法は PO 判断待ち。",
+  "note": "S0.1 実装計画。着手時に status を in_progress にする（G-IMPL-START-DETECT が自動検出のトリガに使う）。preconditions が全て met になるまで planned 以外の status（in_progress・done）と着手の自動検出は G-PLAN-S0 が fail-close で落とす。各前提条件を met にできるのは met_by に書いた**専用ゲート**を本番が emit した場合だけであり、無関係な既存ゲート ID や commit SHA では met にできない。前提条件の欠落は G-PLAN-S0 が、親コミット比の削除は G-BASE-RATCHET が拒否する。進行方法は PO 判断待ち。",
   "preconditions": [
     {
       "id": "runtime-ut-outcome-gate",
       "status": "unmet",
-      "description": "pytest の outcome レポート（junit xml／json-report）で S0.1 対象 UT 189 参照・118 関数が individually executed かつ passed であることを検査する実行時ゲートを追加する。G-UT-NO-ESCAPE の AST 検査は動的 import（__import__／importlib.import_module）経由の skip を原理的に検出できないため、着手と同時にこの実行時検査で class 全体を閉じる。",
+      "description": "pytest の outcome レポート（junit xml／json-report）を CI 成果物として取り込み、S0.1 対象 UT の実行結果をゲートの入力にする実行時検査を新設する。AST 検査だけでは『実行されたか』を原理的に判定できないため、着手と同時にこの経路を用意する。",
       "source": "独立レビュー REV-S0-STRUCT-01（第 4・5 次）の申し送り"
+    },
+    {
+      "id": "dynamic-import-skip-detection",
+      "status": "unmet",
+      "description": "__import__／importlib.import_module 経由で組み立てた skip・xfail マーカーを実行時 outcome で検出する。G-UT-NO-ESCAPE の AST 検査は動的 import を辿れないため、静的検査を素通りした skip がこの経路で必ず赤になることを負例テストで実証する。",
+      "source": "独立レビュー REV-S0-STRUCT-01（第 5 次）・REV-S0-STRUCT-04 の申し送り"
+    },
+    {
+      "id": "impl-start-detect-indirect-binding",
+      "status": "unmet",
+      "description": "functools.partial・デコレータ・別名代入・クラス属性束縛だけで実装本体を与えた場合も『実装着手』として検出する。現在の has_implementation は関数定義本体の実体だけを見るため、束縛のみの実装が着手検出とラチェット（skip 上限・coverage 下限の引上げ）を回避しうる。",
+      "source": "独立レビュー REV-S0-STRUCT-04 の R7-03（deferred）"
+    },
+    {
+      "id": "per-ut-executed-and-passed",
+      "status": "unmet",
+      "description": "du-contracts の apis[].ut が指す S0.1 対象 UT（189 参照・118 関数）について、個別に executed かつ passed であることを outcome レポートの nodeid 単位で突合する。集計 pass 件数ではなく対象 UT の個別成立を要求し、別テストの通過で埋め合わせられないようにする。",
+      "source": "PO 指示（S0 設計クロージャー最終是正 §6）"
     }
   ],
   "targets": ["DU-01", "DU-02", "DU-03", "DU-04", "DU-05", "DU-06", "DU-07", "DU-08", "DU-09", "DU-10", "DU-11", "DU-12"]

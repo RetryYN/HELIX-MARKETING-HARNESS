@@ -1,6 +1,6 @@
 ---
 artifact_id: L6-S0-EVIDENCE
-lifecycle_status: draft
+lifecycle_status: confirmed
 slice: S0
 traces: [FR-28, FR-54]
 forward_refs: []
@@ -9,7 +9,7 @@ dus: [DU-04, DU-08, DU-09, DU-17, DU-20, DU-23]
 
 # 機能別詳細設計 — 証跡（evidence）
 
-> status: **draft（再降下中）**（2026-08-01 全層再降下 §7 — AI 起草）
+> status: **confirmed**（2026-08-01 全層再降下 §7 — AI 起草）
 > 正準参照: 要求 = FR-28（証跡完備検証）・FR-54（版と証跡）。evidence 型契約（kind 10 種・必須キー・列整合）の正準は
 > [s0-contract_v0.1.md §2.1](../../L3-system-requirements/canonical/s0-contract_v0.1.md)、外部操作の順序契約は同 §1（NFR-3）、
 > テーブル所有・append-only トリガは [db-design_v0.1.md §2〜3](../../L4-basic-design/canonical/data/db-design_v0.1.md)。

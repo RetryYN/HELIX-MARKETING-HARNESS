@@ -1,6 +1,6 @@
 ---
 artifact_id: L6-S0-KPI-HANDOFF
-lifecycle_status: draft
+lifecycle_status: confirmed
 slice: S0
 traces: [FR-61, FR-62]
 forward_refs: [FR-15, FR-22, SR-03, SR-04, SR-10, SR-12]
@@ -9,7 +9,7 @@ dus: [DU-07, DU-21, DU-22, DU-23]
 
 # 機能設計: KPI 交差点（計画↔計測ハンドオフ）
 
-> status: **draft（再降下中）**（2026-08-01 全層再降下 §7 — AI 起草）
+> status: **confirmed**（2026-08-01 全層再降下 §7 — AI 起草）
 > 正準参照: 要求 = FR-22（計画↔計測ペア判定）・FR-15（還流）・FR-61/62（KPI ツリー・計測取り込み）・
 > SR-12（[sr-contracts.json](../../L3-system-requirements/canonical/strategy/sr-contracts.json) — 観測背骨と戦略正本の分離）。
 > スキーマ = [s0-contract_v0.1.md §2](../../L3-system-requirements/canonical/s0-contract_v0.1.md)

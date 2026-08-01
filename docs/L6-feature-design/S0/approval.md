@@ -1,6 +1,6 @@
 ---
 artifact_id: L6-S0-APPROVAL
-lifecycle_status: draft
+lifecycle_status: confirmed
 slice: S0
 traces: [FR-46]
 forward_refs: [FR-26, FR-73]
@@ -9,7 +9,7 @@ dus: [DU-18]
 
 # 機能設計: 承認（approvals 行・遷移ガード接続・束縛承認の実装）
 
-> status: **draft（再降下中）**（2026-08-01 全層再降下 §7 — AI 起草）
+> status: **confirmed**（2026-08-01 全層再降下 §7 — AI 起草）
 > 上位設計: [approval-design_v0.1.md](../../L4-basic-design/canonical/approval/approval-design_v0.1.md)（承認設計正本 — decision→分類写像・オートモード基準は同書 §3/§5。本書は再掲しない）
 > 正準参照: 要求 = BR-C4/H1/H2（[br-contracts.json](../../L1-business-requirements/canonical/br/br-contracts.json)）・FR-26/46。
 > スキーマ・遷移 = [s0-contract_v0.1.md](../../L3-system-requirements/canonical/s0-contract_v0.1.md) §2（approvals DDL）・§2.1（approval evidence 型）・§3（遷移ガード）・§4.2（WF-WP-2 ステップ 3 — DDL 再掲禁止）。

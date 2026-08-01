@@ -1,6 +1,6 @@
 ---
 artifact_id: L6-S0-STRATEGIC-BRIEF
-lifecycle_status: draft
+lifecycle_status: confirmed
 slice: S0
 traces: [SR-06, SR-07, SR-11, SR-15]
 forward_refs: [SR-01, SR-02, SR-04, SR-05, SR-14]
@@ -9,7 +9,7 @@ dus: [DU-01, DU-02, DU-11]
 
 # 機能別詳細設計 — strategic_brief の発行・失効・検証
 
-> status: **draft（再降下中）**（2026-08-01 全層再降下 §7 — AI 起草）
+> status: **confirmed**（2026-08-01 全層再降下 §7 — AI 起草）
 > 正準参照: 発注契約の正準は
 > [strategy-learning-contract_v0.1.md §1](../../L3-system-requirements/canonical/strategy/strategy-learning-contract_v0.1.md)
 > （§1.2bis = digest 算出規則）、DDL・保護トリガは

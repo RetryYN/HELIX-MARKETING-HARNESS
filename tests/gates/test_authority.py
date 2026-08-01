@@ -1,5 +1,7 @@
 """authority ゲートの単体テストと mutation test（検出能力の証明）。"""
 
+import pytest
+
 from tools.gates import authority
 from tools.gates.common import CTX, MANIFEST, ROOT
 
@@ -354,3 +356,103 @@ def test_mutation_s1_feature_design_on_s0_du_is_detected(tmp_path, monkeypatch) 
     monkeypatch.setattr(type(CTX), "duc", property(lambda self: duc))
     faults = authority.detect_slice_faults(CTX, root=Path(root))
     assert any("後続スライスの機能設計" in b for b in faults)
+
+
+# --- 継承関係（PO 指示 §3）の検出能力 ---
+
+def test_relations_are_clean_on_real_tree() -> None:
+    assert authority.detect_relation_faults(_items()) == []
+
+
+def test_mutation_dangling_relation_reference_is_detected() -> None:
+    """変異: 存在しない旧 artifact ID を supersedes に残せない（分割前の ID の置き去り）。"""
+    items = _items()
+    items[0]["supersedes"] = ["L6-S0-BRAND-ISOLATION"]
+    assert any("参照先 L6-S0-BRAND-ISOLATION が manifest に存在しない" in b
+               for b in authority.detect_relation_faults(items))
+
+
+def test_mutation_superseding_a_live_artifact_is_detected() -> None:
+    """変異: 現役成果物を supersedes に書けない（拡張を置換と偽れない）。"""
+    items = _items()
+    victim = next(i for i in items if i["artifact_id"] == "L6-S1-BRAND-ISOLATION-COMPLETION")
+    victim["supersedes"] = ["L6-S0-BRAND-ISOLATION-FOUNDATION"]
+    victim["extends_artifact_ids"] = []
+    faults = authority.detect_relation_faults(items)
+    assert any("現役成果物は置換対象にできない" in b for b in faults)
+
+
+def test_mutation_self_reference_is_detected() -> None:
+    items = _items()
+    aid = items[0]["artifact_id"]
+    items[0]["extends_artifact_ids"] = [aid]
+    assert any("自己参照" in b for b in authority.detect_relation_faults(items))
+
+
+def test_mutation_duplicate_declaration_across_fields_is_detected() -> None:
+    """変異: 同じ相手を extends と depends_on の両方で宣言して関係を曖昧にできない。"""
+    items = _items()
+    victim = next(i for i in items if i["artifact_id"] == "L6-S1-BRAND-ISOLATION-COMPLETION")
+    victim["depends_on_artifact_ids"] = list(victim["extends_artifact_ids"])
+    assert any("の両方で宣言" in b for b in authority.detect_relation_faults(items))
+
+
+def test_mutation_relation_cycle_is_detected() -> None:
+    """変異: 拡張関係の循環（A→B→A）は検出される。"""
+    items = _items()
+    a = next(i for i in items if i["artifact_id"] == "L6-S1-BRAND-ISOLATION-COMPLETION")
+    b = next(i for i in items if i["artifact_id"] == "L6-S0-BRAND-ISOLATION-FOUNDATION")
+    b["depends_on_artifact_ids"] = [a["artifact_id"]]
+    assert any("循環参照" in x for x in authority.detect_relation_faults(items))
+
+
+def test_cycles_finds_longer_loops() -> None:
+    assert authority._cycles({"A": {"B"}, "B": {"C"}, "C": {"A"}})
+    assert authority._cycles({"A": {"B"}, "B": {"C"}}) == []
+
+
+# --- domain の語彙（PO 指示 §4）の検出能力 ---
+
+def test_domains_are_clean_on_real_tree() -> None:
+    assert authority.detect_domain_faults(_items()) == []
+
+
+def test_mutation_slice_name_as_domain_is_detected() -> None:
+    for bogus in ("S0", "S1", "later", "cross"):
+        items = _items()
+        items[0]["domain"] = bogus
+        faults = authority.detect_domain_faults(items)
+        assert any("slice" in b for b in faults), bogus
+
+
+def test_mutation_layer_name_as_domain_is_detected() -> None:
+    items = _items()
+    items[0]["domain"] = "l4"
+    assert any("階層名" in b for b in authority.detect_domain_faults(items))
+
+
+@pytest.mark.parametrize("compound", ["s0-design", "design-s1", "later-work", "cross-domain"])
+def test_mutation_slice_name_inside_a_compound_domain_is_detected(compound) -> None:
+    """変異: slice 名をハイフン複合語へ埋め込んでも検査を外せない（独立レビュー R1-04）。
+
+    全体一致だけの検査へ退行すると、この 4 件が素通りする。
+    """
+    items = _items()
+    items[0]["domain"] = compound
+    faults = authority.detect_domain_faults(items)
+    assert any("slice 名が含まれる" in b for b in faults), compound
+
+
+@pytest.mark.parametrize("compound", ["l4-design", "design-l6", "l0-charter"])
+def test_mutation_layer_name_inside_a_compound_domain_is_detected(compound) -> None:
+    """変異: 階層名をハイフン複合語へ埋め込んでも検査を外せない。"""
+    items = _items()
+    items[0]["domain"] = compound
+    faults = authority.detect_domain_faults(items)
+    assert any("階層名が含まれる" in b for b in faults), compound
+
+
+def test_mutation_non_kebab_domain_is_detected() -> None:
+    items = _items()
+    items[0]["domain"] = "Brand_Isolation"
+    assert any("kebab-case" in b for b in authority.detect_domain_faults(items))

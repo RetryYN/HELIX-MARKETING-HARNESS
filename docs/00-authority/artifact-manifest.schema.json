@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "artifact-manifest",
-  "description": "全現役成果物の権威正本。1 artifact ID につき active な canonical は 1 件のみ。canonical=正本／view=生成ビューを authority_format・view_generation で、現役位置と内容成熟度を authority_status・lifecycle_status で分離する。G-AUTHORITY-MANIFEST 系が fail-close 検査する。",
+  "description": "全現役成果物の権威正本。1 artifact ID につき active な canonical は 1 件のみ。canonical=正本／view=生成ビューを authority_format・view_generation で、現役位置と内容成熟度を authority_status・lifecycle_status で、置換（supersedes）と拡張（extends_artifact_ids）／依存（depends_on_artifact_ids）を別フィールドで分離する。G-AUTHORITY-MANIFEST 系が fail-close 検査する。",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -55,6 +55,8 @@
           "view_generation",
           "pair_artifact_id",
           "supersedes",
+          "extends_artifact_ids",
+          "depends_on_artifact_ids",
           "previous_paths",
           "approval_digest",
           "review_digest"
@@ -170,7 +172,22 @@
             "type": "array",
             "items": {
               "type": "string"
-            }
+            },
+            "description": "旧成果物を**完全置換**する場合だけに使う。置換先は authority_status=superseded／archived でなければならない（G-MANIFEST-RELATION）。"
+          },
+          "extends_artifact_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "現役の他成果物を置換せずに**拡張**する関係（例: S1 の完成文書が S0 の基盤文書を拡張する）。置換ではないので supersedes を使わない。"
+          },
+          "depends_on_artifact_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "実装入力として依存する現役成果物。拡張でも置換でもない参照関係を明示する。"
           },
           "previous_paths": {
             "type": "array",

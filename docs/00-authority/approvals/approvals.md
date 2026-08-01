@@ -204,3 +204,19 @@
 | 2026-08-01 | strategy-loop-test-design | v0.1 | confirmed | PO | 67759deee63a | 構造分類是正: 権威メタデータ frontmatter（artifact_id／lifecycle_status／slice）の付与に伴う内容束縛承認（本文の変更なし） |
 | 2026-08-01 | detailed-design | v0.1 | confirmed | PO | f8ec45abe930 | 構造分類是正: 権威メタデータ frontmatter（artifact_id／lifecycle_status／slice）の付与に伴う内容束縛承認（本文の変更なし） |
 | 2026-08-01 | unit-test-design | v0.1 | confirmed | PO | 5a1139af7be2 | 構造分類是正: 権威メタデータ frontmatter（artifact_id／lifecycle_status／slice）の付与に伴う内容束縛承認（本文の変更なし） |
+| 2026-08-01 | approval-design | v0.1 | confirmed | PO | 21ffffed51cb | S0 設計クロージャー最終是正 §1: 承認設計（DU-18・承認系 ITC の設計根拠）の内容束縛承認 |
+| 2026-08-01 | brand-isolation-design | v0.1 | confirmed | PO | 67f81ffaf39b | S0 設計クロージャー最終是正 §1: ブランド隔離設計（S0 基盤／S1 強制の段階表）の内容束縛承認 |
+| 2026-08-01 | db-design | v0.1 | confirmed | PO | c6c6d1b14a61 | S0 設計クロージャー最終是正 §1: DB 設計（DU-10／DU-11 の根拠）の内容束縛承認 |
+| 2026-08-01 | external-if-design | v0.1 | confirmed | PO | dc208278b9c7 | S0 設計クロージャー最終是正 §1: 外部 IF 境界契約（DU-13〜18 の根拠）の内容束縛承認 |
+| 2026-08-01 | state-machine-design | v0.1 | confirmed | PO | 8ed39879623a | S0 設計クロージャー最終是正 §1: 状態機械設計（DU-01〜03 の根拠）の内容束縛承認 |
+| 2026-08-01 | error-taxonomy | v0.1 | confirmed | PO | 6b3457b33946 | S0 設計クロージャー最終是正 §1: エラー分類台帳（拒否系 AC／TC の分類根拠）の内容束縛承認 |
+| 2026-08-01 | approval | - | confirmed | PO | c1d27ed43ec9 | S0 設計クロージャー最終是正 §1: S0 機能設計の確認・承認（FR／SR・DU・API・AC・TC・UT 接続の実在を機械監査） |
+| 2026-08-01 | brand-isolation-foundation | - | confirmed | PO | 15385a3aeb9a | S0 設計クロージャー最終是正 §1: S0 機能設計の確認・承認（FR／SR・DU・API・AC・TC・UT 接続の実在を機械監査） |
+| 2026-08-01 | evidence | - | confirmed | PO | 37f65232af98 | S0 設計クロージャー最終是正 §1: S0 機能設計の確認・承認（FR／SR・DU・API・AC・TC・UT 接続の実在を機械監査） |
+| 2026-08-01 | external-operations | - | confirmed | PO | 68caad8a8d36 | S0 設計クロージャー最終是正 §1: S0 機能設計の確認・承認（FR／SR・DU・API・AC・TC・UT 接続の実在を機械監査） |
+| 2026-08-01 | kpi-handoff | - | confirmed | PO | 96e0517c3a18 | S0 設計クロージャー最終是正 §1: S0 機能設計の確認・承認（FR／SR・DU・API・AC・TC・UT 接続の実在を機械監査） |
+| 2026-08-01 | migration | - | confirmed | PO | 6ab3c00f07bb | S0 設計クロージャー最終是正 §1: S0 機能設計の確認・承認（FR／SR・DU・API・AC・TC・UT 接続の実在を機械監査） |
+| 2026-08-01 | pair-gate | - | confirmed | PO | 35e104af0939 | S0 設計クロージャー最終是正 §1: S0 機能設計の確認・承認（FR／SR・DU・API・AC・TC・UT 接続の実在を機械監査） |
+| 2026-08-01 | state-machine | - | confirmed | PO | ca1faf629bf6 | S0 設計クロージャー最終是正 §1: S0 機能設計の確認・承認（FR／SR・DU・API・AC・TC・UT 接続の実在を機械監査） |
+| 2026-08-01 | strategic-brief | - | confirmed | PO | 878b8edc0a59 | S0 設計クロージャー最終是正 §1: S0 機能設計の確認・承認（FR／SR・DU・API・AC・TC・UT 接続の実在を機械監査） |
+| 2026-08-01 | tlp | - | confirmed | PO | 8905e1821b8d | S0 設計クロージャー最終是正 §1: S0 機能設計の確認・承認（FR／SR・DU・API・AC・TC・UT 接続の実在を機械監査） |

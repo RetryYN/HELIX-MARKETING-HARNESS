@@ -13,8 +13,11 @@
 
 - 北極星: docs/L0-charter/canonical/marketing-harness-charter_v0.4.md（confirmed）。進行はスライス駆動。
 - **成果物の権威正本 = docs/00-authority/artifact-manifest.json**。全現役成果物の artifact ID・階層・
-  slice・canonical／view パス・ペア・承認 digest をここで一意化する（G-AUTHORITY-MANIFEST 系が
-  fail-close 検査）。manifest に未登録の成果物を confirmed にできない。
+  slice・domain（業務領域のみ — slice 名・階層名の混同は G-MANIFEST-DOMAIN が拒否）・canonical／view
+  パス・ペア・継承関係・承認 digest をここで一意化する（G-AUTHORITY-MANIFEST 系が fail-close 検査）。
+  manifest に未登録の成果物を confirmed にできない。**置換は `supersedes`（対象は superseded／archived
+  でなければならない）、拡張は `extends_artifact_ids`、依存は `depends_on_artifact_ids`** と分け、
+  実在 ID・自己参照なし・循環なしを G-MANIFEST-RELATION が検査する。
 - 物理構造は L 工程で分離する: `docs/00-authority/`／`docs/L0-charter/`〜`docs/L6-feature-design/`／
   `docs/archive/`。`docs/archive/` と `docs/00-authority/superseded/` は**凍結**
   （実装入力・現役導線にできない）。
@@ -26,8 +29,8 @@
 - **status は 2 軸**（G-STATUS-CONSISTENCY）: `authority_status`（active／superseded／archived＝現役
   導線上の位置だけ）と `lifecycle_status`（draft／confirmed／planned／in_progress／completed＝内容
   成熟度だけ）。markdown 正本は YAML frontmatter に `artifact_id`／`lifecycle_status`／`slice` を持ち、
-  manifest と一致させる（生成ビューは frontmatter を持たない）。承認 digest は frontmatter を除く
-  **本文**に対して計算する。
+  manifest と一致させる（生成ビューは frontmatter を持たない）。承認 digest は frontmatter を**含む
+  全文**に対して計算する（ゲートが正本として読む slice／traces を承認束縛の外へ出さない）。
 - **L6 のスライスは 4 点一致**（G-SLICE-PLACEMENT）: 物理ディレクトリ（S0／S1／later）＝
   `manifest.slice` ＝ frontmatter の `slice` ＝ frontmatter `traces` の FR／SR のスライス。
   後続スライスの要求への言及は `forward_refs` に過不足なく宣言する（S0 文書は将来拡張点だけを
@@ -38,7 +41,7 @@
   strategy-loop-test-design のペア（SR 16／SCM 10／STC）。
   DDL・状態遷移・evidence 型・WF 契約の正準は docs/L3-system-requirements/canonical/s0-contract_v0.1.md。
 - 現在地（この 4 行が正本。他所へ現在地を書かない）:
-  - S0 設計クロージャー完了
+  - S0 設計クロージャー完了（S0 実装入力の設計正本を confirmed 化）
   - S1 以降は planned
   - S0.1 実装未着手
   - HELIX-HARNESS 取込は未実施・PO 判断待ち

@@ -1,12 +1,12 @@
 ---
 artifact_id: L4-STATE-MACHINE-DESIGN
-lifecycle_status: draft
+lifecycle_status: confirmed
 slice: S0
 ---
 
 # 状態機械設計書 v0.1（基本設計増補 — 状態機械）
 
-> status: **draft（再降下中）**（2026-08-01 全層再降下 §6 — AI 起草）
+> status: **confirmed**（2026-08-01 全層再降下 §6 — AI 起草）
 > 正準参照: 遷移表（許可される (entity, 現状態, イベント, ガード, 次状態) の全組合せ）の正準は
 > [json/s0/transitions.json](../../../L3-system-requirements/canonical/schemas/s0/transitions.json) ＋
 > [s0-contract_v0.1.md §3](../../../L3-system-requirements/canonical/s0-contract_v0.1.md)（§3.3 = 強制終了からの再開規則）。

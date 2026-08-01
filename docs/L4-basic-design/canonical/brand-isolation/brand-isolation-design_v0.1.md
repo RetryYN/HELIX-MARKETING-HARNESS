@@ -1,12 +1,12 @@
 ---
 artifact_id: L4-BRAND-ISOLATION-DESIGN
-lifecycle_status: draft
+lifecycle_status: confirmed
 slice: S0
 ---
 
 # ブランド隔離設計書 v0.1（基本設計増補 — BR-I1・REQ-046 の設計正本）
 
-> status: **draft（再降下中）**（2026-08-01 全層再降下 §6 — AI 起草）
+> status: **confirmed**（2026-08-01 全層再降下 §6 — AI 起草）
 > 正準参照: 要求の正準は BR-I1（[json/br/br-contracts.json](../../../L1-business-requirements/canonical/br/br-contracts.json)）・
 > REQ-046・FR-34（[json/fr/fr-contracts.json](../../../L3-system-requirements/canonical/functional/fr-contracts.json)）。
 > スキーマの正準は [s0-contract_v0.1.md §2](../../../L3-system-requirements/canonical/s0-contract_v0.1.md)

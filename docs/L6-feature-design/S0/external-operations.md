@@ -1,6 +1,6 @@
 ---
 artifact_id: L6-S0-EXTERNAL-OPERATIONS
-lifecycle_status: draft
+lifecycle_status: confirmed
 slice: S0
 traces: [FR-41]
 forward_refs: [FR-42, FR-44]
@@ -9,7 +9,7 @@ dus: [DU-02, DU-04, DU-06, DU-13, DU-14, DU-15, DU-16, DU-17, DU-18, DU-22]
 
 # 機能設計: 外部操作（external_operations ライフサイクル・冪等・レート節度）
 
-> status: **draft（再降下中）**（2026-08-01 全層再降下 §7 — AI 起草）
+> status: **confirmed**（2026-08-01 全層再降下 §7 — AI 起草）
 > 上位設計: [external-if-design_v0.1.md](../../L4-basic-design/canonical/external-if/external-if-design_v0.1.md)（コネクタ境界契約 — intent/結果/エラー型・写像表は同書が正本。本書は再掲しない）
 > 正準参照: 要求 = BR-I7・BR-F5（[br-contracts.json](../../L1-business-requirements/canonical/br/br-contracts.json)）・FR-41（接続レジストリ）・NFR-3/7。媒体別コネクタ（FR-44/42）は後続スライス。
 > スキーマ・遷移 = [s0-contract_v0.1.md](../../L3-system-requirements/canonical/s0-contract_v0.1.md) §1（external_operations 遷移順序）・§3.3（再開規則）・§6（環境契約 — DDL 再掲禁止）。

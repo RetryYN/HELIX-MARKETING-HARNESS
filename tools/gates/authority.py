@@ -35,9 +35,9 @@ from tools.gates.common import (
     split_frontmatter,
 )
 
-# 現在地の正本文（README.md / CLAUDE.md はこの 4 行以外の現在地表明を持たない — PO 指示 §3）
+# 現在地の正本文（README.md / CLAUDE.md はこの行以外の現在地表明を持たない — PO 指示 §3）
 CURRENT_STATE_LINES = [
-    "S0 設計クロージャー完了",
+    "S0 設計クロージャー完了（S0 実装入力の設計正本を confirmed 化）",
     "S1 以降は planned",
     "S0.1 実装未着手",
     "HELIX-HARNESS 取込は未実施・PO 判断待ち",
@@ -346,6 +346,113 @@ def detect_status_faults(items: list[dict], root: Path = ROOT) -> list[str]:
     return bad
 
 
+# ---------------------------------------------------------------- 継承関係（§3）
+RELATION_FIELDS = ("supersedes", "extends_artifact_ids", "depends_on_artifact_ids")
+# supersedes は「完全置換」専用。置換された側は現役導線から降りていなければならない。
+SUPERSEDED_STATUSES = frozenset({"superseded", "archived"})
+
+
+def detect_relation_faults(items: list[dict]) -> list[str]:
+    """artifact 間の置換・拡張・依存の参照整合を列挙する（PO 指示 §3）。
+
+    (a) 参照先 artifact ID が manifest に実在する（存在しない旧 ID の参照を残さない）
+    (b) supersedes の対象は authority_status ∈ {superseded, archived}
+        — 現役成果物を supersedes に書けない（拡張は extends_artifact_ids）
+    (c) 自己参照禁止（3 フィールドとも）
+    (d) 同一フィールド内の重複禁止・置換と拡張の二重宣言禁止
+    (e) 循環参照禁止（supersedes／extends／depends_on を辺とする有向グラフに閉路がない）
+    """
+    bad: list[str] = []
+    by_id = {it["artifact_id"]: it for it in items}
+    edges: dict[str, set[str]] = {}
+    for it in items:
+        aid = it["artifact_id"]
+        seen_any: dict[str, str] = {}
+        for f in RELATION_FIELDS:
+            refs = it.get(f)
+            if not isinstance(refs, list):
+                bad.append(f"{aid}:{f} が配列でない")
+                continue
+            if len(refs) != len(set(refs)):
+                bad.append(f"{aid}:{f} に重複した参照がある")
+            for r in refs:
+                if r == aid:
+                    bad.append(f"{aid}:{f} が自己参照")
+                    continue
+                if r not in by_id:
+                    bad.append(f"{aid}:{f} の参照先 {r} が manifest に存在しない")
+                    continue
+                if f == "supersedes" and by_id[r].get("authority_status") not in SUPERSEDED_STATUSES:
+                    bad.append(
+                        f"{aid}:supersedes の {r} は authority_status="
+                        f"{by_id[r].get('authority_status')}（現役成果物は置換対象にできない"
+                        "— 拡張なら extends_artifact_ids）")
+                if r in seen_any:
+                    bad.append(f"{aid}:{r} を {seen_any[r]} と {f} の両方で宣言している")
+                else:
+                    seen_any[r] = f
+                edges.setdefault(aid, set()).add(r)
+    bad += [f"循環参照:{c}" for c in _cycles(edges)]
+    return bad
+
+
+def _cycles(edges: dict[str, set[str]]) -> list[str]:
+    """有向グラフの閉路を列挙する（DFS の三色塗り分け）。"""
+    WHITE, GREY, BLACK = 0, 1, 2
+    color: dict[str, int] = {}
+    found: list[str] = []
+
+    def visit(n: str, path: list[str]) -> None:
+        color[n] = GREY
+        for m in sorted(edges.get(n, ())):
+            c = color.get(m, WHITE)
+            if c == GREY:
+                found.append("→".join([*path[path.index(m):], m]) if m in path else f"{n}→{m}")
+            elif c == WHITE:
+                visit(m, [*path, m])
+        color[n] = BLACK
+
+    for n in sorted(edges):
+        if color.get(n, WHITE) == WHITE:
+            visit(n, [n])
+    return sorted(set(found))
+
+
+# ---------------------------------------------------------------- domain の語彙（§4）
+SLICE_VOCAB = frozenset({"s0", "s1", "s2", "s3", "s3+", "later", "cross", "slice"})
+SLICE_LIKE = re.compile(r"^s[0-9]+(\.[0-9]+)?\+?$", re.I)
+DOMAIN_SHAPE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
+LAYER_VOCAB = frozenset({"00-authority", "l0", "l1", "l2", "l3", "l4", "l5", "l6"})
+
+
+def detect_domain_faults(items: list[dict]) -> list[str]:
+    """domain に slice 名・階層名が紛れ込んでいないかを列挙する（PO 指示 §4）。
+
+    domain は**業務領域**だけを表す。スライス（いつ作るか）と階層（どの工程か）は
+    それぞれ `slice`・`layer` が持つ軸であり、domain へ写すと分類軸が壊れる。
+    """
+    bad: list[str] = []
+    for it in items:
+        aid, d = it["artifact_id"], it.get("domain")
+        if not isinstance(d, str):
+            bad.append(f"{aid}:domain={d} が文字列でない")
+            continue
+        if not DOMAIN_SHAPE.fullmatch(d):
+            # 形式違反でも語彙検査は続ける（大文字にするだけで slice 名検査を外せないように）
+            bad.append(f"{aid}:domain={d} が小文字 kebab-case でない")
+        low = d.lower()
+        # 全体一致だけを見ると `s0-design` のような複合語で検査を外せる（独立レビュー R1-04）。
+        # ハイフン単位のトークンでも語彙を拒否する。
+        tokens = [low, *low.split("-")]
+        if any(t in SLICE_VOCAB or SLICE_LIKE.fullmatch(t) for t in tokens):
+            bad.append(f"{aid}:domain={d} に slice 名が含まれる（業務領域ではない）")
+        if low == str(it.get("slice", "")).lower():
+            bad.append(f"{aid}:domain={d} が slice と同値（分類軸の混同）")
+        if any(t in LAYER_VOCAB for t in tokens):
+            bad.append(f"{aid}:domain={d} に階層名が含まれる（layer が持つ軸）")
+    return bad
+
+
 # ---------------------------------------------------------------- スライス配置（§2・§5）
 SLICE_ORDER = {"S0": 0, "S1": 1, "S2": 2, "S3+": 3, "later": 9}
 L6_DIRS = ("S0", "S1", "later")
@@ -527,7 +634,7 @@ def _manifest(ctx: Ctx) -> None:
     schema = load(MANIFEST_SCHEMA)
     errs = schema_check(schema, ctx.manifest)
     gate("G-AUTHORITY-MANIFEST", not errs and bool(items),
-         f"artifact manifest が schema 適合（必須 16 項目・追加禁止）で 1 件以上登録 (err={errs[:4]}, n={len(items)})")
+         f"artifact manifest が schema 適合（必須 18 項目・追加禁止）で 1 件以上登録 (err={errs[:4]}, n={len(items)})")
 
     dup = detect_manifest_duplicates(items)
     gate("G-MANIFEST-UNIQUE", not dup,
@@ -539,6 +646,15 @@ def _manifest(ctx: Ctx) -> None:
 
     pair = detect_manifest_pair_faults(items)
     gate("G-MANIFEST-PAIR", not pair, f"pair_artifact_id の実在と対称性 (違反={pair[:4]})")
+
+    rel_bad = detect_relation_faults(items)
+    gate("G-MANIFEST-RELATION", not rel_bad,
+         "supersedes（完全置換・対象は superseded／archived）と extends／depends_on（拡張・依存）が"
+         f"実在 ID・自己参照なし・二重宣言なし・循環なしで整合 (違反={rel_bad[:4]})")
+
+    dom_bad = detect_domain_faults(items)
+    gate("G-MANIFEST-DOMAIN", not dom_bad,
+         f"domain は業務領域のみ（slice 名・階層名の混同を拒否） (違反={dom_bad[:4]})")
 
     appr = _approval_digests(ctx)
     st_bad: list[str] = []
@@ -718,5 +834,5 @@ def detect_current_state_faults(root: Path = ROOT) -> list[str]:
 def _current_state(ctx: Ctx) -> None:
     bad = detect_current_state_faults()
     gate("G-CURRENT-STATE-SINGLE", not bad,
-         "現在地は README／CLAUDE.md の 4 行のみ（他の現役文書に再掲・他経路の確定表現なし） "
+         "現在地は README／CLAUDE.md の正本行のみ（他の現役文書に再掲・他経路の確定表現なし） "
          f"(違反={bad[:5]})")
