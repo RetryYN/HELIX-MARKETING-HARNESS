@@ -10,8 +10,8 @@
   "review_log_digest": "c380aa1b3d526575",
   "separation_status": "verified",
   "model": "gpt-5.6-sol",
-  "target_commit": "402e87da8649341243c9af363fea7123c57db6db",
-  "target_tree": "34f3e2d7ec2d37ba4b982cc46c3f9d121b3a5651",
+  "target_commit": "5b13c4af9f34548c79f781714b10b8b367f82fcc",
+  "target_tree": "d025c60fbadd33cef52362fc44ab0945ddab1897",
   "scope": "構造的意味トレース最終是正（第 9 正本の確定・API 安定 ID／契約節 ID による構造参照への置換・語彙一致検査の廃止・レビュー主体の実行証跡束縛）",
   "supersedes_review": [
     "REV-S0-STRUCT-06"
@@ -128,7 +128,7 @@
     }
   ],
   "resolution_commits": [
-    "402e87da8649"
+    "5b13c4af9f34"
   ],
   "verdict": "Go",
   "completed_at": "2026-08-02",
