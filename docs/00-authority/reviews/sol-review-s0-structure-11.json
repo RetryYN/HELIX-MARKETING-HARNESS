@@ -10,8 +10,8 @@
   "review_log_digest": "bbca630055fd3ea7",
   "separation_status": "self_attested",
   "model": "gpt-5.6-sol",
-  "target_commit": "d958005452b85ce2751d5289edd13f9f97b6fa19",
-  "target_tree": "9f1d7921a5a6333696bcbc73aa6f237cfa931327",
+  "target_commit": "bc656de42f4f99a478dc7c57f55d840e9eda4615",
+  "target_tree": "6d65181e9c06565d6e1a823c1d1bc4b308ffbb19",
   "scope": "REV-S0-STRUCT-10 追加に伴う追随修正: separation_status の期待をレビュー ID の固定リストから構造（unverified は過去 8 件と完全一致・self_attested は上位集合・ci_attested は 0 件）へ書き換え",
   "supersedes_review": [
     "REV-S0-STRUCT-10"
@@ -23,7 +23,7 @@
     "tests/gates/test_review_binding.py": "475ab51d2ee97d87"
   },
   "resolution_commits": [
-    "d958005452b8"
+    "bc656de42f4f"
   ],
   "verdict": "Go",
   "completed_at": "2026-08-02",
