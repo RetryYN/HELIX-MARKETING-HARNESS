@@ -2,8 +2,8 @@
   "review_id": "REV-S0-STRUCT-03",
   "reviewer_principal": "codex-sol (別 principal)",
   "model": "gpt-5.6-sol",
-  "target_commit": "64eeff6acc838f9bc86ab81aab432257407f3c4e",
-  "target_tree": "1ba45224b2bb56899c2e6f8f40c14b927b2708fe",
+  "target_commit": "1a025e109c5dab10430180d9555f9b4162d694fb",
+  "target_tree": "2d142ec4ea5b445cde6b68c49250f1b18079acb0",
   "scope": "PR #1 マージ前・構造分類最終是正（canonical/view 形式・L6 スライス再分類・status 分離・残存 fail-close 穴）",
   "supersedes_review": [
     "REV-S0-STRUCT-01",
@@ -178,7 +178,7 @@
     }
   ],
   "resolution_commits": [
-    "64eeff6acc838f9bc86ab81aab432257407f3c4e"
+    "1a025e109c5dab10430180d9555f9b4162d694fb"
   ],
   "verdict": "Go",
   "completed_at": "2026-08-01",
