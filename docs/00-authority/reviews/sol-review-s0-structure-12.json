@@ -10,8 +10,8 @@
   "review_log_digest": "d1fd051c93914cf9",
   "separation_status": "self_attested",
   "model": "gpt-5.6-sol",
-  "target_commit": "d115f8b614a1cb99413a40c04514dec318cec19f",
-  "target_tree": "4dd188fa2a94b00f55659337e17b48231ba21270",
+  "target_commit": "b20583ff53a79842f161d0871f9a5aa337ae074b",
+  "target_tree": "a3f15e8abd1c1757517d03d0b76421c510b15102",
   "scope": "S0.1 着手前提条件 4 件の met 昇格（met_by = 各専用ゲート）。本番 emit・negative／mutation テスト green・CI green（Docs CI 30714560481／Python CI 30714560477）と CI 成果物 pytest-outcome の実在を根拠とする。plan の status は planned のまま・src/helix 未着手",
   "supersedes_review": [
     "REV-S0-STRUCT-11"
@@ -25,7 +25,7 @@
     "tools/gates/test_reality.py": "0f6d87cf2cb0c79d"
   },
   "resolution_commits": [
-    "d115f8b614a1"
+    "b20583ff53a7"
   ],
   "verdict": "Go",
   "completed_at": "2026-08-02",
