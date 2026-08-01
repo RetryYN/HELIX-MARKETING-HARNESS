@@ -175,6 +175,30 @@
       "summary": "__import__／importlib 経由の動的 skip は AST では原理的に検出できない",
       "status": "deferred",
       "deferred_to": "S0.1 着手前（plan-s0.1.json の preconditions[runtime-ut-outcome-gate] として機械化済み）"
+    },
+    {
+      "severity": "minor",
+      "summary": "第7次 R7-01: review_binding のコード注釈が『未コミットの猶予は設けない』と断言しており、直下の猶予実装・docstring・ゲート台帳と矛盾していた",
+      "status": "resolved",
+      "resolution": "注釈を docstring とゲート台帳の記述（猶予あり・出力へ明示）へ一本化した"
+    },
+    {
+      "severity": "minor",
+      "summary": "第7次 R7-02: コミット済みレビューに猶予が効かないことを主張するテストが猶予分岐を通っておらず、is_committed を常時 False にする変異では空振りしうる（同変異は他 2 テストが kill するため実効的な穴はない）",
+      "status": "accepted-as-is",
+      "resolution": "is_committed の変異は test_mutation_out_of_repo_path_is_not_granted_grace と test_mutation_other_commits_tree_is_detected が kill することを実測で確認済み"
+    },
+    {
+      "severity": "minor",
+      "summary": "第7次 R7-03: has_implementation が FunctionDef/ClassDef/Lambda のみを実装とみなすため、functools.partial 等の束縛だけで着手検出を回避しうる。DU API 検出も `^def <name>` のみで公開名の束縛を見ない",
+      "status": "deferred",
+      "deferred_to": "S0.1 着手前（plan-s0.1.json の preconditions と同時に対処）"
+    },
+    {
+      "severity": "minor",
+      "summary": "第7次 R7-04: 生成ビューの識別が GENERATED 宣言と manifest 登録の自己申告に依存する（未登録手書き MD・既存ビューの手編集は多重ゲートで塞がれており、残るのは作者自身が manifest・承認行・baseline を同時に偽装する経路のみ）",
+      "status": "deferred",
+      "deferred_to": "次周回（render_views の生成先集合と manifest・実在集合の三者一致検査）"
     }
   ],
   "resolution_commits": [

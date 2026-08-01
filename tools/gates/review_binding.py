@@ -126,8 +126,9 @@ def detect_review_faults(ctx: Ctx, notes: list[str] | None = None) -> list[str]:
             continue
         # target_tree は target_commit のルートツリーと**厳密一致**でなければならない。
         # `git write-tree` の dangling tree はローカルにしか無く push・clone 先で解決できない。
-        # 別コミットのツリーへの掏替えも同じ検査で落ちる。未コミットの猶予は設けない
-        # （レビュー成果物を書く時点で対象コミットは確定しているため猶予の必要がない）。
+        # 別コミットのツリーへの掏替えも同じ検査で落ちる。
+        # 唯一の例外は**未コミットのレビュー成果物**（docstring 参照 — 自己参照のブートストラップ）で、
+        # 猶予は notes に記録されゲート出力へ「CIで未検証」として必ず現れる。
         want = commit_tree(r["target_commit"])
         if r["target_tree"] != want:
             if is_committed(p):
