@@ -114,8 +114,11 @@ def test_mutation_missing_target_tree_is_detected(monkeypatch, tmp_path) -> None
 def test_mutation_dangling_target_tree_is_detected(monkeypatch, tmp_path) -> None:
     """変異: `git write-tree` の dangling tree（clone 先で解決できない）を束縛にできない。"""
     import subprocess
-    dangling = subprocess.run(["git", "write-tree"], capture_output=True, text=True,
-                              check=True, cwd=ROOT).stdout.strip()
+    w = subprocess.run(["git", "write-tree"], capture_output=True, text=True, cwd=ROOT)
+    # read-only な .git（CI のキャッシュ復元等）では write-tree できない。
+    # その場合は「実在するが対象コミットのルートではないツリー」で同じ分岐を検査する。
+    dangling = w.stdout.strip() if w.returncode == 0 else review_binding.commit_tree("HEAD")
+    assert dangling
     faults = _faults(monkeypatch, _review_dir(tmp_path, target_tree=dangling))
     assert any("target_tree" in f for f in faults), "dangling tree を素通りさせている"
 
@@ -184,3 +187,166 @@ def test_mutation_out_of_repo_path_is_not_granted_grace(tmp_path) -> None:
     """変異: リポジトリ外のパスを未コミット扱いにして猶予を得られない（fail-close）。"""
     assert review_binding.is_committed(tmp_path / "ghost.json") is True
     assert review_binding.is_committed(ROOT / "CLAUDE.md") is True
+
+
+# --- レビュー主体の分離を実行証跡へ束縛（PO 指示 §3）---
+
+def _sep(tmp_path, log_text=None, tracked=None, **over):
+    """verified なレビュー 1 件を組み立て、指定欄だけ変異させて検査する。"""
+    import hashlib
+    log = tmp_path / "docs/00-authority/reviews/logs/REV-TEST.jsonl"
+    log.parent.mkdir(parents=True, exist_ok=True)
+    if log_text is None:
+        log_text = ('{"type":"session_meta","payload":{"id":"run-id-EXEC-REVIEWER-0001"}}\n'
+                    '{"type":"turn_context","payload":{"model":"gpt-5.6-sol"}}\n')
+    log.write_text(log_text, encoding="utf-8")
+    r = {
+        "review_id": "REV-TEST",
+        "separation_status": "verified",
+        "author_principal": "claude-code",
+        "author_execution_id": "EXEC-AUTHOR-0001",
+        "reviewer_principal": "codex-sol",
+        "reviewer_execution_id": "run-id-EXEC-REVIEWER-0001",
+        "review_run_id": "RUN-1",
+        "reviewer_provider": "openai-codex-cli",
+        "review_log_path": "docs/00-authority/reviews/logs/REV-TEST.jsonl",
+        "review_log_digest": hashlib.sha256(log.read_bytes()).hexdigest()[:16],
+        "model": "gpt-5.6-sol",
+    }
+    r.update(over)
+    if tracked is None:
+        tracked = {"docs/00-authority/reviews/logs/REV-TEST.jsonl"}
+    return review_binding.detect_separation_faults([r], root=tmp_path, tracked=tracked)
+
+
+def test_separation_verified_case_is_clean(tmp_path) -> None:
+    assert _sep(tmp_path) == []
+
+
+def test_mutation_same_execution_id_is_detected(tmp_path) -> None:
+    """変異: 同一実行での自己レビューを『独立レビュー』と名乗れない。"""
+    faults = _sep(tmp_path, author_execution_id="run-id-EXEC-REVIEWER-0001")
+    assert any("同一" in f and "execution_id" in f for f in faults)
+
+
+def test_mutation_same_principal_is_detected(tmp_path) -> None:
+    faults = _sep(tmp_path, author_principal="codex-sol")
+    assert any("principal が同一" in f for f in faults)
+
+
+def test_mutation_forged_log_digest_is_detected(tmp_path) -> None:
+    """変異: 実在ログと一致しない digest では verified を名乗れない。"""
+    faults = _sep(tmp_path, review_log_digest="0" * 16)
+    assert any("実在ログと不一致" in f for f in faults)
+
+
+def test_mutation_missing_log_is_detected(tmp_path) -> None:
+    faults = _sep(tmp_path, review_log_path="docs/00-authority/reviews/logs/ghost.jsonl")
+    assert any("実在しない" in f for f in faults)
+
+
+def test_mutation_log_without_execution_id_is_detected(tmp_path) -> None:
+    """変異: ログがそのレビュー実行のものだと示せない（execution_id を含まない）。"""
+    faults = _sep(tmp_path,
+                  log_text='{"type":"session_meta","payload":{"id":"OTHER"}}\n'
+                           '{"type":"turn_context","payload":{"model":"gpt-5.6-sol"}}\n')
+    assert any("セッション ID として申告していない" in f for f in faults)
+
+
+def test_mutation_missing_evidence_fields_are_detected(tmp_path) -> None:
+    faults = _sep(tmp_path, review_run_id="")
+    assert any("verified なのに" in f for f in faults)
+
+
+def test_unverified_must_not_claim_separation_evidence(tmp_path) -> None:
+    """証跡を取得できないレビューは分離を主張しない（PO 判断へ送る）。"""
+    r = {"review_id": "REV-X", "separation_status": "unverified",
+         "reviewer_principal": "codex-sol", "author_execution_id": "EXEC-1"}
+    faults = review_binding.detect_separation_faults([r], root=tmp_path)
+    assert any("分離証跡欄" in f for f in faults)
+    assert review_binding.detect_separation_faults(
+        [{"review_id": "REV-X", "separation_status": "unverified",
+          "reviewer_principal": "codex-sol"}], root=tmp_path) == []
+
+
+def test_mutation_missing_separation_status_is_detected(tmp_path) -> None:
+    faults = review_binding.detect_separation_faults([{"review_id": "REV-Y"}], root=tmp_path)
+    assert any("separation_status" in f for f in faults)
+
+
+def test_real_reviews_declare_separation_status() -> None:
+    assert review_binding.detect_separation_faults(
+        [__import__("json").loads(p.read_text(encoding="utf-8"))
+         for p in sorted((ROOT / "docs/00-authority/reviews").glob("*.json"))
+         if p.name != "review.schema.json"]) == []
+
+
+def test_log_declarations_requires_typed_records(tmp_path) -> None:
+    """変異: 任意テキスト・任意の入れ子では実行証跡にならない（型付きレコードを要求）。"""
+    ok = ('{"type":"session_meta","payload":{"id":"S-1"}}\n'
+          '{"type":"turn_context","payload":{"model":"m-1"}}\n')
+    assert review_binding.log_declarations(ok) == ({"S-1"}, {"m-1"})
+    assert review_binding.log_declarations("session S-3 model m-1 のログ") == (set(), set())
+    faults = _sep(tmp_path,
+                  log_text="reviewer_execution_id=run-id-EXEC-REVIEWER-0001 model gpt-5.6-sol")
+    assert any("セッション ID として申告していない" in f for f in faults)
+
+
+def test_mutation_untyped_id_and_prose_model_forgery_is_detected(tmp_path) -> None:
+    """変異: 無関係な入れ子の id と本文のモデル名で証跡を偽装できない（R2-01）。"""
+    log = ('{"note":{"id":"run-id-EXEC-REVIEWER-0001"}}\n'
+           '{"type":"message","text":"gpt-5.6-sol でレビューしました"}\n')
+    faults = _sep(tmp_path, log_text=log)
+    assert any("セッション ID として申告していない" in f for f in faults), faults
+    assert any("turn_context" in f for f in faults), faults
+
+
+def test_mutation_model_declared_only_in_session_record_is_detected(tmp_path) -> None:
+    """変異: モデルを session_meta へ紛れ込ませても turn_context の申告としては数えない。"""
+    log = ('{"type":"session_meta","payload":{"id":"run-id-EXEC-REVIEWER-0001",'
+           '"model":"gpt-5.6-sol"}}\n')
+    faults = _sep(tmp_path, log_text=log)
+    assert any("turn_context" in f for f in faults), faults
+
+
+def test_mutation_untracked_log_is_detected(tmp_path) -> None:
+    """変異: git 未追跡のログでは clone 先で検証できないため verified を名乗れない。"""
+    faults = _sep(tmp_path, tracked=set())
+    assert any("git 未追跡" in f for f in faults)
+
+
+def test_mutation_unverified_review_claiming_independence_is_detected(tmp_path) -> None:
+    """変異: 証跡が無いレビューが散文で「独立レビュー」を名乗れない。"""
+    r = {"review_id": "REV-Z", "separation_status": "unverified",
+         "reviewer_principal": "codex-sol", "scope": "独立レビュー（S0 設計）"}
+    faults = review_binding.detect_separation_faults([r], root=tmp_path)
+    assert any("散文で独立性を主張" in f for f in faults)
+
+
+def test_real_unverified_reviews_do_not_claim_independence() -> None:
+    import json
+    for p in sorted((ROOT / "docs/00-authority/reviews").glob("*.json")):
+        if p.name == "review.schema.json":
+            continue
+        d = json.loads(p.read_text(encoding="utf-8"))
+        if d.get("separation_status") != "unverified":
+            continue
+        blob = json.dumps(d, ensure_ascii=False)
+        for w in review_binding.INDEPENDENCE_CLAIMS:
+            assert w not in blob, f"{p.name}: {w}"
+
+
+def test_mutation_top_level_declaration_without_payload_is_detected(tmp_path) -> None:
+    """変異: payload を伴わないトップレベル申告を証跡として受理しない（独立レビュー R3-01）。"""
+    log = ('{"type":"session_meta","id":"run-id-EXEC-REVIEWER-0001"}\n'
+           '{"type":"turn_context","model":"gpt-5.6-sol"}\n')
+    assert review_binding.log_declarations(log) == (set(), set())
+    faults = _sep(tmp_path, log_text=log)
+    assert any("セッション ID として申告していない" in f for f in faults), faults
+
+
+def test_mutation_scalar_payload_does_not_fall_back(tmp_path) -> None:
+    """変異: payload が辞書でないレコードでレコード全体を読ませない。"""
+    log = ('{"type":"session_meta","payload":null,"id":"run-id-EXEC-REVIEWER-0001"}\n'
+           '{"type":"turn_context","payload":"x","model":"gpt-5.6-sol"}\n')
+    assert review_binding.log_declarations(log) == (set(), set())

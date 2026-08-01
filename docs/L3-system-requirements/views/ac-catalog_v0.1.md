@@ -2,7 +2,7 @@
 
 # 受入条件 検証契約カタログ（AC contracts）v0.1
 
-> status: **confirmed**（2026-08-01 PO 承認 — receipt c1c38b721b01）。JSON 内容正本の生成ビュー（全層再降下 §4）
+> status: **confirmed**（2026-08-01 PO 承認 — receipt 2f2a0dccb82b）。JSON 内容正本の生成ビュー（全層再降下 §4）
 > 各 AC に GWT＋fixture・観測点・期待状態・DB 差分・証跡・禁止副作用・エラー型・対象更新を必須化
 > （G-AC-COVERAGE／G-AC-POLARITY）。旧体系の受入条件は historical 記録のみ（現行分母は本カタログ）。
 

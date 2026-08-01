@@ -40,7 +40,7 @@ L6 = ROOT / "docs/L6-feature-design"
 
 LAYER_DIRS = [AUTHORITY, L0, L1, L2, L3, L4, L5, L6, ARCHIVE]
 
-# 実装入力（契約正本 8 本 — PO 指示 §3）
+# 実装入力（契約正本 9 本 — PO 指示 §3・構造的意味トレース是正 §1）
 BR_CONTRACTS = L1 / "canonical/br/br-contracts.json"
 FR_CONTRACTS = L3 / "canonical/functional/fr-contracts.json"
 SR_CONTRACTS = L3 / "canonical/strategy/sr-contracts.json"
@@ -49,8 +49,11 @@ AC_CONTRACTS = L3 / "canonical/acceptance/ac-contracts.json"
 TC_CONTRACTS = L3 / "verification/tc-contracts.json"
 CMP_CONTRACTS = L4 / "canonical/components/cmp-contracts.json"
 DU_CONTRACTS = L5 / "canonical/apis/du-contracts.json"
+# 第 9 正本: L6 責務／API／契約節／AC／TC／UT の接続台帳（手編集の confirmed 正本）
+IMPL_UNITS_CONTRACTS = L6 / "S0/implementation-units.json"
 CANON_CONTRACTS = [BR_CONTRACTS, FR_CONTRACTS, SR_CONTRACTS, NFR_CONTRACTS,
-                   AC_CONTRACTS, TC_CONTRACTS, CMP_CONTRACTS, DU_CONTRACTS]
+                   AC_CONTRACTS, TC_CONTRACTS, CMP_CONTRACTS, DU_CONTRACTS,
+                   IMPL_UNITS_CONTRACTS]
 
 # 台帳・schema
 BR_LEDGER = L1 / "canonical/br/br.json"
@@ -147,6 +150,27 @@ def reset() -> None:
 def load(p: Path) -> Any:
     with open(p, encoding="utf-8") as f:
         return json.load(f)
+
+
+# ------------------------------------------------------- API 契約節アクセサ
+# du-contracts の pre/post/raises・ut は **構造化**（clause_id / nodeid）である。
+# 文字列としての読み出しはここに集約し、各ゲートが形を仮定しないようにする。
+def api_name(api: dict) -> str:
+    m = re.match(r"def (\w+)", api["signature"])
+    return m.group(1) if m else ""
+
+
+def ut_nodeids(api: dict) -> list[str]:
+    return [u["nodeid"] for u in api.get("ut", [])]
+
+
+def api_clauses(api: dict) -> list[dict]:
+    """API の全契約節（pre／post／raises）を宣言順に返す。"""
+    return [*api.get("precondition", []), *api.get("postcondition", []), *api.get("raises", [])]
+
+
+def clause_text(clause: dict) -> str:
+    return clause.get("text") or f"{clause.get('type', '')} {clause.get('when', '')}"
 
 
 def sha256_file(p: Path) -> str:

@@ -3,7 +3,7 @@ artifact_id: L6-S0-TLP
 lifecycle_status: confirmed
 slice: S0
 traces: [SR-06, SR-08, SR-09]
-forward_refs: [SR-01, SR-02, SR-03, SR-04, SR-05]
+forward_refs: [SR-01, SR-02, SR-03, SR-05]
 dus: [DU-02]
 ---
 
@@ -119,10 +119,15 @@ DDL（正準 = s0-contract §2）が INSERT 時に強制する 4 条件を、実
 [implementation-units.json](implementation-units.json)（`G-L6-IMPLEMENTATION-TRACE` が
 DU／API の実在・pre/post への責務の明記・AC／TC／UT の実在と対応を fail-close 検査する）。
 
-| unit_id | DU | API | 責務 | AC |
-|---|---|---|---|---|
-| IU-TLP-01 | DU-02 | `generate_tactical_learning_packet` | run 保持の strategic_brief_id/digest を写して INSERT（run/brief/digest 三… | AC-SR-03, AC-SR-06, AC-SR-08-1, AC-SR-08-2, AC-SR-09-2 |
-| IU-TLP-02 | DU-02 | `get_tactical_learning_packet` | 該当行があれば TlpRecord、なければ None（read-only・DB 不変） | AC-SR-09-2 |
-| IU-TLP-03 | DU-02 | `issue_task` | 同一 (loop_run_id, step_key) に非終端の既存 task があればその id を返す（新規発行しない — … | AC-SR-09-4 |
-| IU-TLP-04 | DU-02 | `supersede_strategic_brief` | 新版 INSERT（supersedes_id=old_brief_id・version+1・digest 決定計算）と旧版 s… | AC-SR-04 |
-| IU-TLP-05 | DU-02 | `validate_strategic_brief` | status=active・digest 一致・有効期間内（valid_from <= now < valid_until 又は… | AC-SR-08-3, AC-SR-09-1, AC-SR-09-3 |
+| unit_id | DU | API | 契約節 | 責務 | AC |
+|---|---|---|---|---|---|
+| IU-TLP-01 | DU-02 | API-DU02-08 | POST-01・POST-02 | `generate_tactical_learning_packet`・`loop_kind`: run 保持の strateg… | AC-SR-03, AC-SR-08-2, AC-SR-09-1, AC-SR-09-2 |
+
+本文書が担っていた次の責務は、**API 契約節を AC と UT の双方が検証している状態**を作れないため実装単位から外した（接続の穴は[監査記録](../../00-authority/audits/structural-trace-remediation-2026-08-02.md)が正本）。
+
+| 外した unit_id | 理由 |
+|---|---|
+| IU-TLP-02 | この API の契約節を AC と UT の双方で検証している節が無い（全節が理由付き N/A） |
+| IU-TLP-03 | 同 API の他責務が全契約節を正当に所有（重複責務） |
+| IU-TLP-04 | 同 API の他責務が全契約節を正当に所有（重複責務） |
+| IU-TLP-05 | 同 API の他責務が全契約節を正当に所有（重複責務） |

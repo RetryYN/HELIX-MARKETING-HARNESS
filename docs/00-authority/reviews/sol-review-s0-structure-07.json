@@ -1,0 +1,136 @@
+{
+  "review_id": "REV-S0-STRUCT-07",
+  "reviewer_principal": "codex-sol (gpt-5.6-sol / openai-codex-cli)",
+  "author_principal": "claude-code (claude-opus-5)",
+  "author_execution_id": "9230d21c-4589-4845-9488-a7b5a60cb46d",
+  "reviewer_execution_id": "019fbe0b-9426-71c1-90e0-5c2c52c609dd",
+  "review_run_id": "REV-S0-STRUCT-07-R5",
+  "reviewer_provider": "openai-codex-cli",
+  "review_log_path": "docs/00-authority/reviews/logs/REV-S0-STRUCT-07.jsonl",
+  "review_log_digest": "c380aa1b3d526575",
+  "separation_status": "verified",
+  "model": "gpt-5.6-sol",
+  "target_commit": "402e87da8649341243c9af363fea7123c57db6db",
+  "target_tree": "34f3e2d7ec2d37ba4b982cc46c3f9d121b3a5651",
+  "scope": "構造的意味トレース最終是正（第 9 正本の確定・API 安定 ID／契約節 ID による構造参照への置換・語彙一致検査の廃止・レビュー主体の実行証跡束縛）",
+  "supersedes_review": [
+    "REV-S0-STRUCT-06"
+  ],
+  "reviewed_artifact_digests": {
+    "CLAUDE.md": "14d663943dfeac0b",
+    "README.md": "aaaba2f8bc794bb4",
+    "docs/00-authority/approvals/approvals.md": "2012ac8f03a1be0d",
+    "docs/00-authority/artifact-manifest.json": "2822070b31cd175b",
+    "docs/00-authority/audits/structural-trace-remediation-2026-08-02.md": "8ce4869eeabe1e01",
+    "docs/00-authority/baselines/baseline.json": "de8a305b9da30706",
+    "docs/00-authority/requirements-gates.md": "0c68220b18092b20",
+    "docs/00-authority/reviews/logs/REV-S0-STRUCT-07.jsonl": "c380aa1b3d526575",
+    "docs/00-authority/reviews/review.schema.json": "f5c648bc52ba333c",
+    "docs/00-authority/reviews/sol-review-s0-design-02.json": "9f995f445903b606",
+    "docs/00-authority/reviews/sol-review-s0-design.json": "16701ab50c9dd0bb",
+    "docs/00-authority/reviews/sol-review-s0-structure-02.json": "7449729802111349",
+    "docs/00-authority/reviews/sol-review-s0-structure-03.json": "3a5188846ddd94ac",
+    "docs/00-authority/reviews/sol-review-s0-structure-04.json": "8dc573a5333afc04",
+    "docs/00-authority/reviews/sol-review-s0-structure-05.json": "e61ad39a9fb85852",
+    "docs/00-authority/reviews/sol-review-s0-structure-06.json": "bc8562359e9fe3e2",
+    "docs/00-authority/reviews/sol-review-s0-structure.json": "901965796540abd3",
+    "docs/L3-system-requirements/canonical/acceptance/ac-contract.schema.json": "827872cf4d4d1d82",
+    "docs/L3-system-requirements/canonical/acceptance/ac-contracts.json": "a4ba19831ff92bfe",
+    "docs/L3-system-requirements/views/ac-catalog_v0.1.md": "ba682845dfbe3e9a",
+    "docs/L5-detailed-design/canonical/apis/du-contract.schema.json": "de114a04035aad46",
+    "docs/L5-detailed-design/canonical/apis/du-contracts.json": "7acf97770927afd8",
+    "docs/L5-detailed-design/views/du-contracts_v0.1.md": "7cd190c08bd1807b",
+    "docs/L6-feature-design/S0/approval.md": "36da5dc77692bbf4",
+    "docs/L6-feature-design/S0/config-store.md": "e3648e3b6bf5e3eb",
+    "docs/L6-feature-design/S0/evidence.md": "1a69625b39a1f120",
+    "docs/L6-feature-design/S0/external-operations.md": "f058be14213c1790",
+    "docs/L6-feature-design/S0/implementation-unit.schema.json": "f82b0751a404690c",
+    "docs/L6-feature-design/S0/implementation-units.json": "5c53abe8ae6bce84",
+    "docs/L6-feature-design/S0/kpi-handoff.md": "0045ab37e7d15c41",
+    "docs/L6-feature-design/S0/migration.md": "229e4bf9845f557a",
+    "docs/L6-feature-design/S0/pair-gate.md": "51b27835f0d0c4be",
+    "docs/L6-feature-design/S0/state-machine.md": "2881b9a242270005",
+    "docs/L6-feature-design/S0/strategic-brief.md": "f43b947403098a0c",
+    "docs/L6-feature-design/S0/tlp.md": "86d4121e1c155434",
+    "docs/L6-feature-design/S0/uncovered-apis.json": "71152b83459846d8",
+    "scripts/render_views.py": "ec509167f0a57fb1",
+    "tests/gates/test_detailed_design.py": "5ab94726c6e5a05e",
+    "tests/gates/test_review_binding.py": "59e16e6da7abe932",
+    "tools/gates/authority.py": "5704c885545fb70d",
+    "tools/gates/baseline.py": "1b386fbacb516e26",
+    "tools/gates/common.py": "e421c990f4664278",
+    "tools/gates/detailed_design.py": "8500b42660edccd0",
+    "tools/gates/requirements.py": "ecc2c010e88c69ef",
+    "tools/gates/review_binding.py": "2457b223cbd97a48",
+    "tools/gates/test_pairing.py": "c9902e261cc27665",
+    "tools/gates/traceability.py": "d50705067a4f0c77"
+  },
+  "findings": [
+    {
+      "severity": "blocker",
+      "summary": "R1-01: 全ゲートが green でなく（G-REVIEW-BINDING 114 件・G-BASE-ART 1 件）、変更がレビュー束縛されていなかった",
+      "status": "resolved",
+      "resolution": "baseline を同一コミットで更新し G-BASE-ART を解消。G-REVIEW-BINDING は本レビュー（REV-S0-STRUCT-07）が supersedes_review で REV-S0-STRUCT-06 を引き継ぐことで解消する"
+    },
+    {
+      "severity": "blocker",
+      "summary": "R1-02: 任意の na_reason を書くだけで API 契約節・実装責務を被覆検査から消せた（65→45 と 13 API の無責務化がこの経路を通っていた）",
+      "status": "resolved",
+      "resolution": "na_reason を閉じた分類語彙（呼出側義務:／配線時保証:／他 API で検証:／受入基準未設定:）に限定し、AC が 1 節も検証していない API を uncovered-apis.json へ明示登録（登録集合と実態の厳密一致・台帳の重複／虚偽メタデータ／resolution_slice 語彙も検査）。baseline へ clause_ac_covered・implementation_units の縮小禁止と uncovered_apis の増加禁止のラチェットを追加"
+    },
+    {
+      "severity": "blocker",
+      "summary": "R1-03: レビュー実行証跡が任意ログの自己申告で偽装できた（digest 一致と部分文字列一致のみ）",
+      "status": "resolved",
+      "resolution": "ログを git 追跡下に置くことを必須化し、session_meta 系レコードの payload が reviewer_execution_id を、turn_context 系が model を型付きで申告していることを要求。部分文字列一致を廃止。保証が構造的整合までである限界を監査記録 §7 とゲート台帳へ明記"
+    },
+    {
+      "severity": "major",
+      "summary": "R1-04: unverified の過去レビューが reviewer_principal・scope で独立性を主張し続けていた",
+      "status": "resolved",
+      "resolution": "INDEPENDENCE_CLAIMS 検査を追加し、過去 8 件の文言から独立性の主張を除去"
+    },
+    {
+      "severity": "major",
+      "summary": "R1-05: api_id・clause_id の一意性が本番ゲートで検査されていなかった",
+      "status": "resolved",
+      "resolution": "detect_clause_coverage_faults で重複を検出し、mutation test 2 本を追加"
+    },
+    {
+      "severity": "major",
+      "summary": "R1-06: dangling tree の mutation test が read-only .git で失敗する設計だった",
+      "status": "resolved",
+      "resolution": "git write-tree 失敗時は実在する別ツリーへフォールバックする形へ変更"
+    },
+    {
+      "severity": "minor",
+      "summary": "R1-07: README の実装単位件数が 65 件のままだった",
+      "status": "resolved",
+      "resolution": "45 件へ更新し、接続の実数と監査記録への導線を追記"
+    },
+    {
+      "severity": "major",
+      "summary": "R2-01: model の一致検査が部分文字列のままで、任意階層の id と本文のモデル名で証跡を偽装できた",
+      "status": "resolved",
+      "resolution": "log_declarations を型付きレコード解析へ変更し、負例テスト 3 本を追加"
+    },
+    {
+      "severity": "minor",
+      "summary": "R2-02: uncovered-apis 台帳の重複登録・虚偽メタデータ・未定義 resolution_slice が検査されていなかった",
+      "status": "resolved",
+      "resolution": "重複・du_id/function の実契約一致・語彙を検査し、負例テスト 3 本を追加"
+    },
+    {
+      "severity": "major",
+      "summary": "R3-01: _payload がレコード全体へフォールバックし、payload を伴わないトップレベル申告で証跡を偽装できた",
+      "status": "resolved",
+      "resolution": "payload が辞書でなければ空を返す形へ変更し、負例テスト 2 本（トップレベル申告・scalar/null payload）を追加"
+    }
+  ],
+  "resolution_commits": [
+    "402e87da8649"
+  ],
+  "verdict": "Go",
+  "completed_at": "2026-08-02",
+  "rounds": 5
+}

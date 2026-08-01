@@ -122,7 +122,7 @@ slice: cross
 | G-DU-DBC | 全公開 API に precondition／postcondition | 契約なき API |
 | G-DU-ERROR | 全 API の raises 型がエラー分類正本に掲載 | 台帳外エラー型の発明 |
 | G-DU-DATA | 全 DU の DB read/write が DDL の実在テーブルのみ | 存在しないテーブルへの設計参照 |
-| G-L6-IMPLEMENTATION-TRACE | S0 L6 機能設計の責務（`docs/L6-feature-design/S0/implementation-units.json` の `implementation_units`）が **API 1 本**へ接続し、DU／API が実在し、responsibility の識別子が当該 API の pre／post／raises に現れ、`ac_refs` が DU の trace.ac に属し、`tc_refs` の各 TC がその AC を検証し、`ut_refs` が当該 API の UT 割当に属する。DU を指すだけ・同一 API に重なる AC を主張する重複責務・「準用」等による trace 代替を拒否し、S0 文書が機能設計を担う DU は全 API・全 AC が責務へ接続していることを要求する | 責務が API まで降りていない／AC・TC・UT が当該振る舞いを検証していない意味の断絶 |
+| G-L6-IMPLEMENTATION-TRACE | S0 L6 機能設計の責務（第 9 正本 `docs/L6-feature-design/S0/implementation-units.json`）が専用 schema（追加プロパティ禁止）に適合し、`api_ref`（API 安定 ID **1 件**・配列禁止）と `clause_refs`（当該 API の契約節 ID）で**構造接続**している。`ac_refs` の AC が `verifies_clause_refs` で、`ut_refs` の UT が`apis[].ut[].clause_refs` で、**同じ契約節**を参照していることを双方向に要求し、文書の trace 先や DU が同じだけではPASS にしない。API 名・テスト名・日本語語彙の部分一致は接続の根拠にしない（語彙一致検査は廃止）。同一 API の契約節を複数責務が重複主張することを禁止し、S0 文書が担う DU は全 API・全（契約節を検証する）AC が責務へ接続していることを要求する。さらに**全 API 契約節**が AC 被覆か理由付き `na_reason` のいずれかを持ち、AC 側も契約節を検証しない場合は`clause_na_reason` を要求する（被覆と理由は排他）。「準用」等の借用表現による trace 代替は L6 全体で拒否する。さらに `na_reason` は閉じた分類語彙（`呼出側義務:`／`配線時保証:`／`他 API で検証:`／`受入基準未設定:`）で始まることを要求し、AC が 1 節も検証していない API は `docs/L6-feature-design/S0/uncovered-apis.json` へ**明示登録**され（登録集合と実態が厳密一致）、その件数・AC 被覆節数・実装単位数は baseline のラチェットで保護する（自由記述の N/A だけで API や責務を台帳から消せない）。api_id・clause_id の一意性も本番で検査する | 責務が API 契約節まで降りていない／語彙の一致だけで意味接続を名乗る／契約節が誰にも検証されないまま残る |
 | G-API-UT | **API 単位**で UT ≥1・api.ut ⊆ trace.ut・宙吊り UT ゼロ・参照テスト関数が実在・スタブは設計リンク（DU＋API 名）を宣言 | UT なき API・匿名スタブ |
 | G-NO-HOLLOW-DESIGN | 全契約正本にプレースホルダ（TBD/TODO/仮置き等）が存在しない | 空洞設計の温存 |
 
@@ -161,6 +161,7 @@ slice: cross
 | ゲート | 検証内容 | 違反の意味 |
 |---|---|---|
 | G-REVIEW-BINDING | レビュー成果物が schema 適合し、(a) target_commit が実在 (b) `target_tree` が**必須**で `git rev-parse <target_commit>^{tree}` と厳密一致（キー欠落で検査ごとスキップさせない）（`git log --all` の到達可能性走査は使わない — ref 到達性・clone 深度に依存しないため。dangling tree と別コミットのツリーへの掏替えを同時に落とす） (c) 記録 digest が target_commit／target_tree の内容と一致 (d) Go 判定の現内容が未改変、または `supersedes_review` で引き継ぐ後続 Go レビューが存在。レビュー成果物が未コミットの間だけ (b) を猶予し、猶予はゲート出力へ「CIで未検証」と明示する。旧パスは manifest の previous_paths で解決する | コミットメッセージだけの Go 記録・レビュー後のすり替え・clone 先で解決できないツリーへの束縛 |
+| G-REVIEW-SEPARATION | レビュー成果物の主体分離を**実行証跡**へ束縛する。`separation_status: verified` は`author_principal`≠`reviewer_principal`・`author_execution_id`≠`reviewer_execution_id`・`review_log_digest` が **git 追跡下**の実在ログ（`review_log_path`）の sha256[:16] と一致・そのログの `session_meta` レコードが `reviewer_execution_id` を、`turn_context` レコードが `model` を型付きで申告している（本文の部分文字列一致は根拠にしない）、をすべて満たすときのみ名乗れる。証跡を取得できないレビューは `unverified` とし、分離を主張する欄を空にする（「独立レビュー済み」と宣言せず PO 判断へ送る） なお実行ログはレビュー実行者自身が生成するローカル成果物であり、本ゲートが保証するのは構造的整合（別実行・別 principal・ログとレビューの対応・git 追跡下での digest 一致）までである（第三者署名は範囲外 — 監査記録に明示） | 自己レビューを独立レビューと僭称する／実行証跡のない Go で confirmed を通す |
 
 ## baseline — デグレ検出と配線
 

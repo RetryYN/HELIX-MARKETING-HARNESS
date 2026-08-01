@@ -88,9 +88,9 @@ DU-05（`gates/pair.py`）が状態所有者（CMP-03）であり、公開系（
 [implementation-units.json](implementation-units.json)（`G-L6-IMPLEMENTATION-TRACE` が
 DU／API の実在・pre/post への責務の明記・AC／TC／UT の実在と対応を fail-close 検査する）。
 
-| unit_id | DU | API | 責務 | AC |
-|---|---|---|---|---|
-| IU-PAIRGATE-01 | DU-05 | `establish` | hash 一致時のみ pair_plan_quality(status=passed) を INSERT し PairPass … | AC-21-1, AC-21-2, AC-21-3 |
-| IU-PAIRGATE-02 | DU-05 | `require_pair` | status=passed の pair 行が存在する場合のみ PairPass を返す（read-only） | AC-21-4, AC-21-5 |
-| IU-PAIRGATE-03 | DU-05 | `revoke_if_changed` | 企画又は commit の変更検知時に該当 pair を status=revoked へ更新し True を返す（変更なしは … | AC-21-3 |
-| IU-PAIRGATE-04 | DU-06 | `check_publishable` | require_pair（passed 存在）＋ pair の review_pass hash と commit_hash の… | AC-21-1, AC-21-2, AC-21-3, AC-21-4, AC-21-5, AC-44-1, AC-44-2, AC-44-3 |
+| unit_id | DU | API | 契約節 | 責務 | AC |
+|---|---|---|---|---|---|
+| IU-PAIRGATE-01 | DU-05 | API-DU05-01 | POST-01 | `establish`・`review_evidence_id`: hash 一致時のみ pair_plan_quality(s… | AC-21-3 |
+| IU-PAIRGATE-02 | DU-05 | API-DU05-03 | POST-01・RAISE-01 | `require_pair`・`conn`: status=passed の pair 行が存在する場合のみ PairPass … | AC-21-1, AC-21-2, AC-21-3, AC-21-4 |
+| IU-PAIRGATE-03 | DU-05 | API-DU05-02 | POST-02 | `revoke_if_changed`・`plan_id`: 企画又は commit の変更検知時に該当 pair を stat… | AC-21-3 |
+| IU-PAIRGATE-04 | DU-06 | API-DU06-01 | POST-01・POST-02・RAISE-01 | `check_publishable`・`commit_hash`: require_pair（passed 存在）＋ pair… | AC-21-1, AC-21-2, AC-21-3, AC-21-4 |

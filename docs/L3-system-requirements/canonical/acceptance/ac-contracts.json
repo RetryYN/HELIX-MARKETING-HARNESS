@@ -42,7 +42,10 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU01-01-POST-01"
+      ]
     },
     {
       "id": "AC-11-2",
@@ -81,7 +84,11 @@
           "TransitionRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU01-01-POST-03",
+        "API-DU01-01-RAISE-01"
+      ]
     },
     {
       "id": "AC-11-3",
@@ -124,7 +131,12 @@
           "TransitionRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU01-01-POST-01",
+        "API-DU01-01-POST-03",
+        "API-DU01-01-RAISE-01"
+      ]
     },
     {
       "id": "AC-11-4",
@@ -161,7 +173,9 @@
           "TransitionRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "brief保持列のDDL保護トリガを観測し、API契約節を検証しない"
     },
     {
       "id": "AC-12-1",
@@ -202,7 +216,10 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU02-01-POST-02"
+      ]
     },
     {
       "id": "AC-12-2",
@@ -243,7 +260,11 @@
           "TaskIssuanceRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU02-01-PRE-03",
+        "API-DU02-01-RAISE-01"
+      ]
     },
     {
       "id": "AC-12-3",
@@ -275,7 +296,11 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU02-01-POST-01",
+        "API-DU02-01-POST-03"
+      ]
     },
     {
       "id": "AC-12-4",
@@ -308,7 +333,10 @@
           "TaskIssuanceRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU02-01-RAISE-01"
+      ]
     },
     {
       "id": "AC-13-1",
@@ -350,7 +378,10 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU01-01-POST-01"
+      ]
     },
     {
       "id": "AC-13-2",
@@ -390,7 +421,11 @@
           "TransitionRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU01-01-POST-03",
+        "API-DU01-01-RAISE-01"
+      ]
     },
     {
       "id": "AC-13-3",
@@ -432,7 +467,11 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU01-01-POST-01",
+        "API-DU01-01-POST-04"
+      ]
     },
     {
       "id": "AC-13-4",
@@ -472,7 +511,11 @@
           "SelfReviewRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU01-01-POST-03",
+        "API-DU01-01-RAISE-01"
+      ]
     },
     {
       "id": "AC-13-5",
@@ -509,7 +552,9 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "VerificationEvidenceMissingと副作用なしを観測し、該当契約節がない"
     },
     {
       "id": "AC-13-6",
@@ -539,7 +584,9 @@
           "GateRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "不変条件の安全性検査であり、個別API契約節を観測しない"
     },
     {
       "id": "AC-14-1",
@@ -573,7 +620,9 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-14-2",
@@ -617,7 +666,9 @@
           "TransitionRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-14-3",
@@ -650,7 +701,9 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-15-1",
@@ -689,7 +742,9 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-15-2",
@@ -724,7 +779,9 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-15-3",
@@ -755,7 +812,9 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-16-1",
@@ -803,7 +862,10 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU01-01-POST-01"
+      ]
     },
     {
       "id": "AC-16-2",
@@ -848,7 +910,12 @@
           "TransitionRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU01-01-POST-01",
+        "API-DU01-01-POST-03",
+        "API-DU01-01-RAISE-01"
+      ]
     },
     {
       "id": "AC-16-3",
@@ -888,7 +955,10 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU01-01-POST-01"
+      ]
     },
     {
       "id": "AC-16-4",
@@ -931,7 +1001,9 @@
           "TransitionRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "承認分類の拒否と副作用なしを観測し、拒否行契約とは一致しない"
     },
     {
       "id": "AC-16-5",
@@ -963,7 +1035,9 @@
           "GateRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "不変条件の安全性検査であり、個別API契約節を観測しない"
     },
     {
       "id": "AC-16-6",
@@ -993,7 +1067,9 @@
           "GateRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "終端不変条件の検査であり、個別API契約節を観測しない"
     },
     {
       "id": "AC-21-1",
@@ -1030,7 +1106,11 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU05-03-POST-01",
+        "API-DU06-01-POST-01"
+      ]
     },
     {
       "id": "AC-21-2",
@@ -1073,7 +1153,12 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU05-03-RAISE-01",
+        "API-DU06-01-POST-02",
+        "API-DU06-01-RAISE-01"
+      ]
     },
     {
       "id": "AC-21-3",
@@ -1105,7 +1190,15 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU05-01-POST-01",
+        "API-DU05-02-POST-02",
+        "API-DU05-03-POST-01",
+        "API-DU05-03-RAISE-01",
+        "API-DU06-01-POST-01",
+        "API-DU06-01-RAISE-01"
+      ]
     },
     {
       "id": "AC-21-4",
@@ -1138,7 +1231,11 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU05-03-RAISE-01",
+        "API-DU06-01-RAISE-01"
+      ]
     },
     {
       "id": "AC-21-5",
@@ -1168,7 +1265,9 @@
           "GateRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "人間バイパス不変条件の横断検査であり、特定 API 契約節を観測しない"
     },
     {
       "id": "AC-22-1",
@@ -1207,7 +1306,9 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-22-2",
@@ -1244,7 +1345,9 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-22-3",
@@ -1281,7 +1384,9 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-23-1",
@@ -1314,7 +1419,11 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU07-01-POST-01",
+        "API-DU07-02-POST-01"
+      ]
     },
     {
       "id": "AC-23-2",
@@ -1349,7 +1458,12 @@
           "PaidMetricRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU07-01-POST-02",
+        "API-DU07-01-RAISE-01",
+        "API-DU07-02-RAISE-01"
+      ]
     },
     {
       "id": "AC-23-3",
@@ -1381,7 +1495,11 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU07-02-POST-01",
+        "API-DU07-02-RAISE-01"
+      ]
     },
     {
       "id": "AC-23-4",
@@ -1414,7 +1532,10 @@
           "PaidMetricRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU07-01-RAISE-01"
+      ]
     },
     {
       "id": "AC-23-5",
@@ -1444,7 +1565,9 @@
           "GateRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "抽象的なバイパス不変条件でDU-07の具体的契約節を観測しない"
     },
     {
       "id": "AC-24-1",
@@ -1478,7 +1601,9 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-24-2",
@@ -1515,7 +1640,9 @@
           "PrLabelMissing"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-24-3",
@@ -1549,7 +1676,9 @@
           "PrLabelMissing"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-25-1",
@@ -1592,7 +1721,9 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-25-2",
@@ -1638,7 +1769,9 @@
           "EthicsViolation"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-25-3",
@@ -1682,7 +1815,9 @@
           "EthicsViolation"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-26-1",
@@ -1719,7 +1854,9 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-26-2",
@@ -1764,7 +1901,9 @@
           "ApprovalRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-26-3",
@@ -1808,7 +1947,9 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-27-1",
@@ -1849,7 +1990,13 @@
         "api_refs": [
           "claim"
         ]
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU02-01-POST-02",
+        "API-DU02-02-POST-01",
+        "API-DU02-02-POST-02",
+        "API-DU02-02-PRE-01"
+      ]
     },
     {
       "id": "AC-27-2",
@@ -1891,7 +2038,10 @@
         "api_refs": [
           "claim"
         ]
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU03-01-RAISE-01"
+      ]
     },
     {
       "id": "AC-27-3",
@@ -1932,7 +2082,12 @@
         "api_refs": [
           "claim"
         ]
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU02-02-POST-01",
+        "API-DU02-02-PRE-01",
+        "API-DU02-02-RAISE-01"
+      ]
     },
     {
       "id": "AC-27-4",
@@ -1968,7 +2123,9 @@
           "IntegrityError"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "NOT NULL 制約の直接 INSERT 拒否のみを観測する。"
     },
     {
       "id": "AC-27-5",
@@ -1998,7 +2155,9 @@
           "GateRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "principal 不変条件の汎用検査で API 契約節を観測しない。"
     },
     {
       "id": "AC-28-1",
@@ -2040,7 +2199,10 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU08-01-POST-01"
+      ]
     },
     {
       "id": "AC-28-2",
@@ -2085,7 +2247,10 @@
           "EvidenceIncomplete"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU08-01-RAISE-01"
+      ]
     },
     {
       "id": "AC-28-3",
@@ -2128,7 +2293,11 @@
           "EvidenceIncomplete"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU08-01-POST-01",
+        "API-DU08-01-RAISE-02"
+      ]
     },
     {
       "id": "AC-28-4",
@@ -2164,7 +2333,10 @@
           "EvidenceIncomplete"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU08-01-RAISE-01"
+      ]
     },
     {
       "id": "AC-28-5",
@@ -2194,7 +2366,9 @@
           "GateRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "INSERT時を含む二重検証の不変条件で、API節を直接観測しない"
     },
     {
       "id": "AC-28-6",
@@ -2224,7 +2398,9 @@
           "GateRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "拒否副作用の不変条件で、特定API節の入出力を直接観測しない"
     },
     {
       "id": "AC-31-1",
@@ -2255,7 +2431,9 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-31-2",
@@ -2293,7 +2471,9 @@
           "SlotUnfilledRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-31-3",
@@ -2323,7 +2503,9 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-32-1",
@@ -2356,7 +2538,9 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-32-2",
@@ -2386,7 +2570,9 @@
           "UnsourcedValueRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-32-3",
@@ -2418,7 +2604,9 @@
           "StaleSourceRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-33-1",
@@ -2448,7 +2636,11 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU12-01-POST-01",
+        "API-DU12-02-POST-01"
+      ]
     },
     {
       "id": "AC-33-2",
@@ -2482,7 +2674,11 @@
           "ConfigReasonMissing"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU12-01-PRE-02",
+        "API-DU12-01-RAISE-01"
+      ]
     },
     {
       "id": "AC-33-3",
@@ -2512,7 +2708,11 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU12-02-POST-02",
+        "API-DU12-02-RAISE-01"
+      ]
     },
     {
       "id": "AC-33-4",
@@ -2547,7 +2747,10 @@
           "IntegrityError"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU12-01-POST-02"
+      ]
     },
     {
       "id": "AC-33-5",
@@ -2579,7 +2782,11 @@
           "ConfigReasonMissing"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU12-01-PRE-02",
+        "API-DU12-01-RAISE-01"
+      ]
     },
     {
       "id": "AC-33-6",
@@ -2609,7 +2816,9 @@
           "GateRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "不変条件のゲート検証でありAPI契約節を直接観測しない"
     },
     {
       "id": "AC-34-1",
@@ -2640,7 +2849,9 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-34-2",
@@ -2673,7 +2884,9 @@
           "CrossProfileAccessDenied"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-34-3",
@@ -2705,7 +2918,9 @@
           "ArchivedProfileWriteDenied"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-41-1",
@@ -2738,7 +2953,11 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU13-01-POST-01",
+        "API-DU13-01-POST-02"
+      ]
     },
     {
       "id": "AC-41-2",
@@ -2773,7 +2992,11 @@
           "PaidRouteDenied"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU13-01-RAISE-01",
+        "API-DU13-01-RAISE-02"
+      ]
     },
     {
       "id": "AC-41-3",
@@ -2805,7 +3028,10 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU13-01-RAISE-01"
+      ]
     },
     {
       "id": "AC-41-4",
@@ -2837,7 +3063,9 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "登録時拒否を観測しており解決 API 契約節ではない"
     },
     {
       "id": "AC-41-5",
@@ -2873,7 +3101,9 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "媒体追加タスクと import 構造を観測し API 節ではない"
     },
     {
       "id": "AC-41-6",
@@ -2903,7 +3133,9 @@
           "GateRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "不変条件ゲートの拒否を観測し API 節ではない"
     },
     {
       "id": "AC-42-1",
@@ -2940,7 +3172,15 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU04-02-POST-02",
+        "API-DU15-03-POST-01",
+        "API-DU15-03-POST-02",
+        "API-DU15-03-POST-04",
+        "API-DU16-01-POST-01",
+        "API-DU16-02-POST-01"
+      ]
     },
     {
       "id": "AC-42-2",
@@ -2976,7 +3216,11 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU15-03-RAISE-01",
+        "API-DU15-03-RAISE-02"
+      ]
     },
     {
       "id": "AC-42-3",
@@ -3018,7 +3262,14 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU04-02-POST-02",
+        "API-DU04-02-RAISE-02",
+        "API-DU15-03-POST-01",
+        "API-DU15-03-POST-04",
+        "API-DU15-03-RAISE-04"
+      ]
     },
     {
       "id": "AC-43-1",
@@ -3054,7 +3305,9 @@
         "api_refs": [
           "screenshot"
         ]
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "自己修復の再生成結果を観測し、当該APIの契約呼出しはない"
     },
     {
       "id": "AC-43-2",
@@ -3096,7 +3349,9 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "自己修復失敗とescalateを観測し、当該API契約は対象外"
     },
     {
       "id": "AC-43-3",
@@ -3136,7 +3391,9 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "修復再開・retired時のescalateを観測し、get契約は呼ばない"
     },
     {
       "id": "AC-44-1",
@@ -3174,7 +3431,15 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU17-01-POST-01",
+        "API-DU17-01-PRE-02",
+        "API-DU17-02-POST-01",
+        "API-DU17-02-PRE-02",
+        "API-DU17-04-POST-01",
+        "API-DU17-04-POST-02"
+      ]
     },
     {
       "id": "AC-44-2",
@@ -3211,7 +3476,13 @@
           "ProductionWriteDenied"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU17-01-RAISE-01",
+        "API-DU17-01-RAISE-02",
+        "API-DU17-02-RAISE-02",
+        "API-DU17-02-RAISE-03"
+      ]
     },
     {
       "id": "AC-44-3",
@@ -3247,7 +3518,10 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU17-02-POST-01"
+      ]
     },
     {
       "id": "AC-45-1",
@@ -3284,7 +3558,9 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-45-2",
@@ -3321,7 +3597,9 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-45-3",
@@ -3356,7 +3634,9 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-46-1",
@@ -3397,7 +3677,13 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU18-01-POST-01",
+        "API-DU18-01-POST-02",
+        "API-DU18-01-POST-04",
+        "API-DU18-02-POST-01"
+      ]
     },
     {
       "id": "AC-46-2",
@@ -3441,7 +3727,11 @@
           "ApprovalBindingMismatch"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU18-02-POST-02",
+        "API-DU18-02-POST-03"
+      ]
     },
     {
       "id": "AC-46-3",
@@ -3485,7 +3775,12 @@
           "ApprovalRetryExhausted"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU18-03-POST-01",
+        "API-DU18-03-POST-02",
+        "API-DU18-03-RAISE-01"
+      ]
     },
     {
       "id": "AC-46-4",
@@ -3517,7 +3812,9 @@
           "IntegrityError"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "DB保護トリガの直接検証でありAPI契約節を観測しない"
     },
     {
       "id": "AC-47-1",
@@ -3550,7 +3847,12 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU14-01-POST-01",
+        "API-DU14-03-POST-01",
+        "API-DU14-03-POST-02"
+      ]
     },
     {
       "id": "AC-47-2",
@@ -3589,7 +3891,11 @@
           "CredentialLeakDetected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU14-01-RAISE-01",
+        "API-DU14-04-POST-01"
+      ]
     },
     {
       "id": "AC-47-3",
@@ -3630,7 +3936,13 @@
           "CredentialEndpointMismatch"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU14-01-RAISE-01",
+        "API-DU14-02-POST-01",
+        "API-DU14-02-POST-02",
+        "API-DU14-02-RAISE-01"
+      ]
     },
     {
       "id": "AC-47-4",
@@ -3662,7 +3974,12 @@
           "CredentialLeakDetected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU09-01-POST-02",
+        "API-DU09-01-RAISE-03",
+        "API-DU14-04-POST-01"
+      ]
     },
     {
       "id": "AC-47-5",
@@ -3696,7 +4013,9 @@
           "GateRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "秘匿情報非記録のFR不変条件検査で個別API節を観測しない"
     },
     {
       "id": "AC-47-6",
@@ -3728,7 +4047,9 @@
           "GateRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "秘匿ストア迂回経路の不在を検査し証跡API節ではない"
     },
     {
       "id": "AC-51-1",
@@ -3764,7 +4085,10 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU19-01-POST-01"
+      ]
     },
     {
       "id": "AC-51-2",
@@ -3801,7 +4125,10 @@
           "WpTargetDenied"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU19-01-RAISE-01"
+      ]
     },
     {
       "id": "AC-51-3",
@@ -3834,7 +4161,10 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU17-03-POST-02"
+      ]
     },
     {
       "id": "AC-51-4",
@@ -3870,7 +4200,9 @@
         "api_refs": [
           "publish"
         ]
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "例外型がWpTargetDeniedであり、本APIのProductionWriteDeniedと一致しない"
     },
     {
       "id": "AC-51-5",
@@ -3900,7 +4232,9 @@
           "GateRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "CI不変条件ゲートの検査であり、個別API契約節を直接観測しない"
     },
     {
       "id": "AC-52-1",
@@ -3932,7 +4266,9 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-52-2",
@@ -3966,7 +4302,9 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-52-3",
@@ -3998,7 +4336,9 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-53-1",
@@ -4032,7 +4372,9 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-53-2",
@@ -4067,7 +4409,9 @@
           "UnversionedSourceRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-53-3",
@@ -4100,7 +4444,9 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-54-1",
@@ -4134,7 +4480,12 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU09-01-POST-01",
+        "API-DU20-02-POST-01",
+        "API-DU20-03-POST-01"
+      ]
     },
     {
       "id": "AC-54-2",
@@ -4170,7 +4521,9 @@
           "CommitHashMismatch"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "既存hashとの照合とoperation_logの拒否を検証し対象外"
     },
     {
       "id": "AC-54-3",
@@ -4203,7 +4556,13 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU09-01-POST-01",
+        "API-DU20-02-POST-02",
+        "API-DU20-02-PRE-01",
+        "API-DU20-02-RAISE-01"
+      ]
     },
     {
       "id": "AC-54-4",
@@ -4233,7 +4592,9 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "公開時のPASS/hash対照を検証し証跡記録API節ではない"
     },
     {
       "id": "AC-54-5",
@@ -4263,7 +4624,9 @@
           "GateRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "PASS流用禁止のFR不変条件検査で個別API節を観測しない"
     },
     {
       "id": "AC-55-1",
@@ -4295,7 +4658,9 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "資産系譜の登録・検索を観測し、本DUのAPI節は検証しない。"
     },
     {
       "id": "AC-55-2",
@@ -4330,7 +4695,9 @@
           "ContentBodyRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "資産metadataと親参照の拒否を観測し、本DUのAPI節は検証しない。"
     },
     {
       "id": "AC-55-3",
@@ -4362,7 +4729,9 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "資産URL冪等性と循環拒否を観測し、本DUのAPI節は検証しない。"
     },
     {
       "id": "AC-55-4",
@@ -4392,7 +4761,9 @@
           "GateRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "派生資産の出自不変条件を観測し、本DUのAPI節は検証しない。"
     },
     {
       "id": "AC-61-1",
@@ -4425,7 +4796,11 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU21-01-POST-01",
+        "API-DU21-01-PRE-01"
+      ]
     },
     {
       "id": "AC-61-2",
@@ -4460,7 +4835,15 @@
           "PaidMetricRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU21-01-POST-02",
+        "API-DU21-01-POST-03",
+        "API-DU21-01-PRE-02",
+        "API-DU21-01-PRE-03",
+        "API-DU21-01-RAISE-01",
+        "API-DU21-01-RAISE-02"
+      ]
     },
     {
       "id": "AC-61-3",
@@ -4495,7 +4878,10 @@
           "IntegrityError"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU21-03-POST-01"
+      ]
     },
     {
       "id": "AC-61-4",
@@ -4529,7 +4915,9 @@
           "IntegrityError"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "append-only保護トリガは本DUのAPI契約節ではない"
     },
     {
       "id": "AC-61-5",
@@ -4559,7 +4947,9 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "要求例外KpiLayerRejectedは本API契約の例外型にない"
     },
     {
       "id": "AC-61-6",
@@ -4589,7 +4979,9 @@
           "GateRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "不変条件のゲート検査は本DUのAPI節を直接観測しない"
     },
     {
       "id": "AC-62-1",
@@ -4627,7 +5019,12 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU22-01-POST-01",
+        "API-DU22-01-POST-02",
+        "API-DU23-02-POST-03"
+      ]
     },
     {
       "id": "AC-62-2",
@@ -4661,7 +5058,12 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU22-01-POST-02",
+        "API-DU23-01-POST-01",
+        "API-DU23-01-RAISE-01"
+      ]
     },
     {
       "id": "AC-62-3",
@@ -4694,7 +5096,12 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU23-01-POST-02",
+        "API-DU23-02-POST-02",
+        "API-DU23-02-POST-04"
+      ]
     },
     {
       "id": "AC-62-4",
@@ -4724,7 +5131,10 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU23-02-POST-03"
+      ]
     },
     {
       "id": "AC-62-5",
@@ -4757,7 +5167,9 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "手入力値の投入拒否を観測し、fetch API 契約節は観測しない"
     },
     {
       "id": "AC-62-6",
@@ -4787,7 +5199,10 @@
           "GateRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU23-02-POST-03"
+      ]
     },
     {
       "id": "AC-62-7",
@@ -4817,7 +5232,9 @@
           "GateRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "手入力経路不存在の不変条件を観測し、fetch API 契約節は観測しない"
     },
     {
       "id": "AC-63-1",
@@ -4852,7 +5269,9 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-63-2",
@@ -4888,7 +5307,9 @@
           "ExternalReferenceDetected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-63-3",
@@ -4921,7 +5342,9 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-71-1",
@@ -4956,7 +5379,12 @@
         "api_refs": [
           "verify"
         ]
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU11-01-POST-01",
+        "API-DU11-01-POST-03",
+        "API-DU11-02-POST-01"
+      ]
     },
     {
       "id": "AC-71-2",
@@ -4988,7 +5416,11 @@
         "api_refs": [
           "verify"
         ]
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU11-02-POST-01",
+        "API-DU11-02-RAISE-01"
+      ]
     },
     {
       "id": "AC-71-3",
@@ -5021,7 +5453,11 @@
           "AppendOnlyViolation"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU11-01-POST-02",
+        "API-DU11-01-POST-03"
+      ]
     },
     {
       "id": "AC-71-4",
@@ -5057,7 +5493,11 @@
           "IntegrityError"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU10-01-POST-01",
+        "API-DU11-01-POST-03"
+      ]
     },
     {
       "id": "AC-72-1",
@@ -5089,7 +5529,11 @@
         "api_refs": [
           "verify"
         ]
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU11-01-POST-01",
+        "API-DU11-02-POST-01"
+      ]
     },
     {
       "id": "AC-72-2",
@@ -5121,7 +5565,11 @@
           "MigrationChecksumMismatch"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU11-01-PRE-02",
+        "API-DU11-01-RAISE-02"
+      ]
     },
     {
       "id": "AC-72-3",
@@ -5154,7 +5602,11 @@
         "api_refs": [
           "verify"
         ]
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU11-02-POST-01",
+        "API-DU11-02-RAISE-01"
+      ]
     },
     {
       "id": "AC-72-4",
@@ -5184,7 +5636,9 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "失敗版の改変・次版修正は本API契約節にない"
     },
     {
       "id": "AC-72-5",
@@ -5214,7 +5668,9 @@
           "GateRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "汎用不変条件ゲートであり本API節を観測しない"
     },
     {
       "id": "AC-73-1",
@@ -5249,7 +5705,9 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-73-2",
@@ -5281,7 +5739,9 @@
           "SpendRecordIncomplete"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-73-3",
@@ -5314,7 +5774,9 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-SR-01-1",
@@ -5344,7 +5806,9 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-SR-01-2",
@@ -5377,7 +5841,9 @@
           "LoopScopeViolation"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-SR-02-1",
@@ -5407,7 +5873,9 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-SR-02-2",
@@ -5440,7 +5908,9 @@
           "ObservationInterpretationRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-SR-02-3",
@@ -5474,7 +5944,9 @@
           "ObservationInterpretationMixRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-SR-03-1",
@@ -5502,7 +5974,9 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-SR-03-2",
@@ -5534,7 +6008,9 @@
           "ModelSchemaRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-SR-03-3",
@@ -5564,7 +6040,9 @@
           "ModelSchemaRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-SR-04-1",
@@ -5594,7 +6072,9 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-SR-04-2",
@@ -5626,7 +6106,9 @@
           "PersonaSegmentRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-SR-04-3",
@@ -5656,7 +6138,9 @@
           "PersonaSegmentRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-SR-05-1",
@@ -5684,7 +6168,9 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-SR-05-2",
@@ -5716,7 +6202,9 @@
           "IncompleteStrategyRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-SR-05-3",
@@ -5746,7 +6234,9 @@
           "IncompleteStrategyRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-SR-01",
@@ -5775,7 +6265,10 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU02-05-POST-01"
+      ]
     },
     {
       "id": "AC-SR-06-1",
@@ -5809,7 +6302,11 @@
           "BriefSchemaRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU02-05-PRE-01",
+        "API-DU02-05-RAISE-01"
+      ]
     },
     {
       "id": "AC-SR-06-2",
@@ -5845,7 +6342,10 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU02-06-POST-01"
+      ]
     },
     {
       "id": "AC-SR-06-3",
@@ -5878,7 +6378,11 @@
           "GateRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU02-05-POST-01",
+        "API-DU02-07-RAISE-01"
+      ]
     },
     {
       "id": "AC-SR-06-4",
@@ -5908,7 +6412,9 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "BriefSupersedesRequired はこの API 契約の raises にない。"
     },
     {
       "id": "AC-SR-06-5",
@@ -5938,7 +6444,9 @@
           "GateRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "改訂不変条件の汎用検査で API 契約節を観測しない。"
     },
     {
       "id": "AC-SR-02",
@@ -5971,7 +6479,10 @@
           "GateRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU02-07-RAISE-01"
+      ]
     },
     {
       "id": "AC-SR-07-1",
@@ -6007,7 +6518,11 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU01-01-POST-01",
+        "API-DU02-07-POST-01"
+      ]
     },
     {
       "id": "AC-SR-07-2",
@@ -6042,7 +6557,11 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU01-01-POST-01",
+        "API-DU01-01-POST-02"
+      ]
     },
     {
       "id": "AC-SR-03",
@@ -6079,7 +6598,11 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU02-08-POST-01",
+        "API-DU02-08-POST-02"
+      ]
     },
     {
       "id": "AC-SR-06",
@@ -6113,7 +6636,9 @@
           "IntegrityError"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "DDL 整合トリガと UNIQUE 制約の直接拒否を観測する。"
     },
     {
       "id": "AC-SR-08-1",
@@ -6151,7 +6676,9 @@
           "IntegrityError"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "DDL CHECK による transaction rollback を観測する。"
     },
     {
       "id": "AC-SR-08-2",
@@ -6188,7 +6715,11 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU02-08-POST-01",
+        "API-DU02-08-POST-02"
+      ]
     },
     {
       "id": "AC-SR-08-3",
@@ -6220,7 +6751,9 @@
           "IntegrityError"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "append-only トリガによる直接更新・削除拒否を観測する。"
     },
     {
       "id": "AC-SR-04",
@@ -6253,7 +6786,9 @@
           "IntegrityError"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "DDL トリガによる直接 UPDATE/DELETE 拒否を観測する。"
     },
     {
       "id": "AC-SR-09-1",
@@ -6284,7 +6819,10 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU02-08-POST-01"
+      ]
     },
     {
       "id": "AC-SR-09-2",
@@ -6315,7 +6853,10 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU02-08-POST-01"
+      ]
     },
     {
       "id": "AC-SR-09-3",
@@ -6348,7 +6889,9 @@
           "IntegrityError"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "計測経路の DDL 保護を観測し API 呼出しをしない。"
     },
     {
       "id": "AC-SR-09-4",
@@ -6381,7 +6924,9 @@
           "GateRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "書込み経路不在の汎用不変条件検査で API 節を観測しない。"
     },
     {
       "id": "AC-SR-10-1",
@@ -6409,7 +6954,9 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-SR-10-2",
@@ -6441,7 +6988,9 @@
           "RevisionEvidenceRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-SR-10-3",
@@ -6471,7 +7020,9 @@
           "RevisionEvidenceRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-SR-05",
@@ -6503,7 +7054,10 @@
           "IntegrityError"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU11-01-POST-03"
+      ]
     },
     {
       "id": "AC-SR-11-1",
@@ -6533,7 +7087,10 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU11-01-POST-03"
+      ]
     },
     {
       "id": "AC-SR-11-2",
@@ -6563,7 +7120,10 @@
           "IntegrityError"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU11-01-POST-03"
+      ]
     },
     {
       "id": "AC-SR-11-3",
@@ -6593,7 +7153,10 @@
           "IntegrityError"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU11-01-POST-03"
+      ]
     },
     {
       "id": "AC-SR-11-4",
@@ -6625,7 +7188,10 @@
           "IntegrityError"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [
+        "API-DU11-01-POST-03"
+      ]
     },
     {
       "id": "AC-SR-11-5",
@@ -6655,7 +7221,9 @@
           "GateRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "版連鎖の汎用不変条件で本API節を直接観測しない"
     },
     {
       "id": "AC-SR-11-6",
@@ -6685,7 +7253,9 @@
           "GateRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "履歴分母の汎用不変条件で本API節を直接観測しない"
     },
     {
       "id": "AC-SR-12-1",
@@ -6720,7 +7290,9 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-SR-12-2",
@@ -6750,7 +7322,9 @@
           "RevisionEvidenceRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-SR-12-3",
@@ -6783,7 +7357,9 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-SR-13-1",
@@ -6815,7 +7391,9 @@
         ],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-SR-13-2",
@@ -6850,7 +7428,9 @@
           "ContentValueDeclarationRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-SR-13-3",
@@ -6882,7 +7462,9 @@
           "ContentValueDeclarationRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-SR-14-1",
@@ -6913,7 +7495,9 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-SR-14-2",
@@ -6947,7 +7531,9 @@
           "MediaRoleRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-SR-14-3",
@@ -6979,7 +7565,9 @@
           "MediaRoleRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-SR-15-1",
@@ -7007,7 +7595,9 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "CI の総合 green を観測し個別 API 契約節を観測しない。"
     },
     {
       "id": "AC-SR-15-2",
@@ -7035,7 +7625,9 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "baseline ratchet の CI 失敗を観測し API 節を観測しない。"
     },
     {
       "id": "AC-SR-15-3",
@@ -7063,7 +7655,9 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "migration と既存 STC の維持を観測し API 節を観測しない。"
     },
     {
       "id": "AC-SR-15-4",
@@ -7091,7 +7685,9 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "整合ゲートの ratchet 検査を観測し API 節を観測しない。"
     },
     {
       "id": "AC-SR-15-5",
@@ -7121,7 +7717,9 @@
           "GateRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "S0/S1 構造不変条件の汎用検査で API 節を観測しない。"
     },
     {
       "id": "AC-SR-15-6",
@@ -7151,7 +7749,9 @@
           "GateRejected"
         ],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "ratchet 不変条件の汎用検査で API 節を観測しない。"
     },
     {
       "id": "AC-SR-16-1",
@@ -7179,7 +7779,9 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-SR-16-2",
@@ -7207,7 +7809,9 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     },
     {
       "id": "AC-SR-16-3",
@@ -7235,7 +7839,9 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
-      }
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "API 契約節ではなく DDL 保護・CI ratchet・上位手続きを観測する受入基準"
     }
   ],
   "status": "confirmed",
@@ -7244,5 +7850,5 @@
   "supersedes": [
     "ARCHIVE-AC-LEGACY"
   ],
-  "approval_digest": "c1c38b721b01"
+  "approval_digest": "2f2a0dccb82b"
 }

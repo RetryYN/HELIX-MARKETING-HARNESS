@@ -140,8 +140,8 @@ sequenceDiagram
 [implementation-units.json](implementation-units.json)（`G-L6-IMPLEMENTATION-TRACE` が
 DU／API の実在・pre/post への責務の明記・AC／TC／UT の実在と対応を fail-close 検査する）。
 
-| unit_id | DU | API | 責務 | AC |
-|---|---|---|---|---|
-| IU-APPROVAL-01 | DU-18 | `poll` | approved（binding 3 項目完全一致）は `_record_decision` で approval 証跡 INS… | AC-46-1, AC-46-2, AC-46-4 |
-| IU-APPROVAL-02 | DU-18 | `request` | approvals 行を decision=pending・channel='claude_code_app' で INSERT… | AC-46-1 |
-| IU-APPROVAL-03 | DU-18 | `rerequest_on_expired` | 同一 binding 3 項目の新規 approvals 行として再要求を INSERT し、系列（要求・再要求・応答の全履歴）… | AC-46-3 |
+| unit_id | DU | API | 契約節 | 責務 | AC |
+|---|---|---|---|---|---|
+| IU-APPROVAL-01 | DU-18 | API-DU18-02 | POST-01・POST-02・POST-03 | `poll`・`approvals`: approved（binding 3 項目完全一致）は `_record_decisio… | AC-46-1, AC-46-2 |
+| IU-APPROVAL-02 | DU-18 | API-DU18-01 | POST-01・POST-02・POST-04 | `request`・`binding`: approvals 行を decision=pending・channel='clau… | AC-46-1 |
+| IU-APPROVAL-03 | DU-18 | API-DU18-03 | POST-01・POST-02・RAISE-01 | `rerequest_on_expired`・`approvals`: 同一 binding 3 項目の新規 approvals… | AC-46-3 |

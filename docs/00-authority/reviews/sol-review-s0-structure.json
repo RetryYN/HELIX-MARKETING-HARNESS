@@ -1,6 +1,7 @@
 {
   "review_id": "REV-S0-STRUCT-01",
-  "reviewer_principal": "codex-sol（実装者と別 principal の独立ブラインドレビュー）",
+  "reviewer_principal": "codex-sol（分離は実行証跡で未確認 — separation_status: unverified）",
+  "separation_status": "unverified",
   "model": "gpt-5.6-sol",
   "target_commit": "2f3b0b3e332a466fbc20ad7fd2aaba3042784c02",
   "target_tree": "bb219bdbb3a671afe2779b7cf7d3f602cb2aa741",

@@ -20,7 +20,8 @@
     "error_type",
     "target_update",
     "tc",
-    "semantic_refs"
+    "semantic_refs",
+    "verifies_clause_refs"
   ],
   "properties": {
     "id": {
@@ -177,6 +178,20 @@
           "description": "公開 API 名（du-contracts と突合）"
         }
       }
+    },
+    "verifies_clause_refs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^API-DU[0-9]{2}-[0-9]{2}-(PRE|POST|RAISE)-[0-9]{2}$"
+      },
+      "description": "この AC が検証する API 契約節（du-contracts の clause_id）。どの節を検証しているかを構造参照で示し、語彙一致で代替しない（G-L6-IMPLEMENTATION-TRACE）"
+    },
+    "clause_na_reason": {
+      "type": "string",
+      "minLength": 10,
+      "description": "verifies_clause_refs が空である理由（API 契約節ではなく CI・ratchet・DDL 等を観測する AC）。空でないときは書けない"
     }
   }
 }

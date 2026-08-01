@@ -114,8 +114,8 @@ read-only の 4 検査。1 つでも不合格なら `FatalError`（SchemaVerific
 [implementation-units.json](implementation-units.json)（`G-L6-IMPLEMENTATION-TRACE` が
 DU／API の実在・pre/post への責務の明記・AC／TC／UT の実在と対応を fail-close 検査する）。
 
-| unit_id | DU | API | 責務 | AC |
-|---|---|---|---|---|
-| IU-MIGRATION-01 | DU-10 | `connect` | PRAGMA foreign_keys=ON・journal_mode=WAL・busy_timeout（config.sqli… | AC-71-1, AC-71-2, AC-71-3, AC-71-4 |
-| IU-MIGRATION-02 | DU-11 | `apply_all` | 未適用の連番 SQL を順に適用し、適用ごとに version・migration_name・checksum_sha256・a… | AC-71-1, AC-71-3, AC-71-4, AC-72-1, AC-72-2, AC-72-4, AC-72-5 |
-| IU-MIGRATION-03 | DU-11 | `verify` | PRAGMA foreign_key_check／integrity_check 違反 0 件・25 テーブルと保護トリガ 16… | AC-71-2, AC-72-3 |
+| unit_id | DU | API | 契約節 | 責務 | AC |
+|---|---|---|---|---|---|
+| IU-MIGRATION-01 | DU-10 | API-DU10-01 | POST-01 | `connect`・`path`: PRAGMA foreign_keys=ON・journal_mode=WAL・busy_t… | AC-71-4 |
+| IU-MIGRATION-02 | DU-11 | API-DU11-01 | POST-01・POST-02・PRE-02・RAISE-02 | `apply_all`・`migrations_dir`: 未適用の連番 SQL を順に適用し、適用ごとに version・mi… | AC-71-1, AC-71-3, AC-72-1, AC-72-2 |
+| IU-MIGRATION-03 | DU-11 | API-DU11-02 | POST-01・RAISE-01 | `verify`・`conn`: PRAGMA foreign_key_check／integrity_check 違反 0 件… | AC-71-1, AC-71-2, AC-72-1, AC-72-3 |

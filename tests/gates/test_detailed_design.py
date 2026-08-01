@@ -1,9 +1,11 @@
 """detailed_design ゲートの単体テストと mutation test。"""
 
+import json
+
 import pytest
 
 from tools.gates import detailed_design
-from tools.gates.common import CTX, DU_SCHEMA, load, schema_check
+from tools.gates.common import CTX, DU_SCHEMA, load, schema_check, ut_nodeids
 
 
 def test_api_ut_assignment_is_complete() -> None:
@@ -18,9 +20,9 @@ def test_mutation_api_without_ut_is_detected() -> None:
 
 
 def test_mutation_ut_pointing_at_missing_function_is_detected() -> None:
+    ghost = {"nodeid": "test_db_connect.py::test_does_not_exist", "clause_refs": []}
     victim = {**CTX.duc[0],
-              "apis": [{**CTX.duc[0]["apis"][0], "ut": ["test_db_connect.py::test_does_not_exist"]},
-                       *CTX.duc[0]["apis"][1:]]}
+              "apis": [{**CTX.duc[0]["apis"][0], "ut": [ghost]}, *CTX.duc[0]["apis"][1:]]}
     faults = detailed_design.detect_api_ut_faults([victim])
     assert faults, "存在しないテスト関数への参照が検出されない"
 
@@ -32,7 +34,7 @@ def test_mutation_empty_precondition_violates_dbc_schema() -> None:
 
 
 def test_every_api_declares_pre_and_post() -> None:
-    missing = [f"{d['id']}:{a['signature'][:24]}" for d in CTX.duc for a in d["apis"]
+    missing = [f"{d['id']}:{a['api_id']}" for d in CTX.duc for a in d["apis"]
                if not a["precondition"] or not a["postcondition"]]
     assert missing == []
 
@@ -43,11 +45,45 @@ def test_hollow_pattern_matches_placeholders() -> None:
     assert not detailed_design.HOLLOW.search("確定した設計")
 
 
-# --- L6 実装単位の意味接続（PO 指示 §1）の検出能力 ---
+# --- API 安定 ID・契約節 ID の構造（PO 指示 §2）---
+
+def test_every_api_and_clause_has_a_stable_id() -> None:
+    """api_id・clause_id が全 API・全契約節に付与され、リポジトリ全体で一意である。"""
+    api_ids = [a["api_id"] for d in CTX.duc for a in d["apis"]]
+    clause_ids = [c["clause_id"] for d in CTX.duc for a in d["apis"]
+                  for c in detailed_design.api_clauses(a)]
+    assert len(api_ids) == len(set(api_ids)) == 58
+    assert len(clause_ids) == len(set(clause_ids))
+    for d in CTX.duc:
+        for a in d["apis"]:
+            assert a["api_id"].startswith(f"API-{d['id'].replace('-', '')}-")
+            for c in detailed_design.api_clauses(a):
+                assert c["clause_id"].startswith(a["api_id"] + "-")
+
+
+def test_every_ut_declares_the_clauses_it_verifies() -> None:
+    """UT は nodeid だけでなく、自分が検証する契約節へ接続している。"""
+    for d in CTX.duc:
+        for a in d["apis"]:
+            own = {c["clause_id"] for c in detailed_design.api_clauses(a)}
+            for u in a["ut"]:
+                assert u["clause_refs"], f"{d['id']}:{u['nodeid']}"
+                assert set(u["clause_refs"]) <= own, f"{d['id']}:{u['nodeid']}"
+
+
+def test_ut_nodeids_accessor_matches_trace() -> None:
+    for d in CTX.duc:
+        assert {u for a in d["apis"] for u in ut_nodeids(a)} == set(d["trace"]["ut"])
+
+
+def test_every_clause_is_covered_by_ac_or_reasoned_na() -> None:
+    assert detailed_design.detect_clause_coverage_faults(CTX) == []
+
+
+# --- L6 実装単位の構造接続（PO 指示 §2）の検出能力 ---
 
 def _units(tmp_path, mutate=None):
     """実 implementation-units.json を複製し、1 件だけ変異させたファイルを返す。"""
-    import json
     src = json.loads(detailed_design.IMPL_UNITS.read_text(encoding="utf-8"))
     if mutate:
         mutate(src["items"])
@@ -61,30 +97,81 @@ def test_implementation_units_are_clean_on_real_tree() -> None:
 
 
 def test_mutation_unknown_api_ref_is_detected(tmp_path) -> None:
-    """変異: 実在しない API 名へ責務を接続できない。"""
-    def m(items): items[0]["api_refs"] = ["no_such_api"]
+    """変異: 実在しない API 安定 ID へ責務を接続できない。"""
+    def m(items):
+        items[0]["api_ref"] = "API-DU99-01"
     faults = detailed_design.detect_impl_unit_faults(CTX, _units(tmp_path, m))
-    assert any("API に存在しない" in f for f in faults)
+    assert any("API に存在しない" in f or "schema 違反" in f for f in faults)
 
 
-def test_mutation_du_only_reference_is_detected(tmp_path) -> None:
-    """変異: API を挙げず DU を指すだけでは責務の接続と認めない。"""
-    def m(items): items[0]["api_refs"] = []
+def test_mutation_api_ref_as_array_is_rejected_by_schema(tmp_path) -> None:
+    """変異: api_ref を配列に戻すと schema が拒否する（1 責務 1 API）。"""
+    def m(items):
+        items[0]["api_ref"] = [items[0]["api_ref"]]
     faults = detailed_design.detect_impl_unit_faults(CTX, _units(tmp_path, m))
-    assert any("api_refs が空" in f for f in faults)
+    assert any("schema 違反" in f for f in faults)
 
 
-def test_mutation_responsibility_not_in_api_contract_is_detected(tmp_path) -> None:
-    """変異: API の pre/post に無い語で責務を書くと検出される（契約に明記されていない責務）。"""
-    def m(items): items[0]["responsibility"] = "`ghost_symbol`・`another_ghost`: それらしい説明"
+def test_mutation_extra_property_is_rejected(tmp_path) -> None:
+    """変異: 専用 schema は追加プロパティを許さない。"""
+    def m(items):
+        items[0]["note"] = "後から足した自由記述"
     faults = detailed_design.detect_impl_unit_faults(CTX, _units(tmp_path, m))
-    assert any("pre/post に現れない" in f for f in faults)
+    assert any("schema 違反" in f for f in faults)
 
 
-def test_mutation_bare_responsibility_without_identifiers_is_detected(tmp_path) -> None:
-    def m(items): items[0]["responsibility"] = "承認まわりをよしなに処理する"
+def test_mutation_clause_of_another_api_is_detected(tmp_path) -> None:
+    """変異: 他 API の契約節を自分の責務として主張できない。"""
+    def m(items):
+        other = "API-DU01-02-POST-01" if items[0]["api_ref"] != "API-DU01-02" \
+            else "API-DU01-01-POST-01"
+        items[0]["clause_refs"] = [other]
     faults = detailed_design.detect_impl_unit_faults(CTX, _units(tmp_path, m))
-    assert any("識別子" in f for f in faults)
+    assert any("の契約節でない" in f for f in faults)
+
+
+def test_mutation_ac_not_verifying_the_clause_is_detected(tmp_path) -> None:
+    """変異: 同じ DU・同じ文書 trace 先の AC でも、**同じ契約節**を参照していなければ拒否。
+
+    語彙一致ではなく構造参照で落ちることを示すため、DU の trace.ac には属する AC を選ぶ。
+    """
+    victim = next(u for u in CTX_UNITS if len(u["ac_refs"]) >= 1)
+    du = next(d for d in CTX.duc if d["id"] == victim["du_id"])
+    ac_by_id = {a["id"]: a for a in CTX.acc}
+    mine = set(victim["clause_refs"])
+    alt = next((a for a in du["trace"]["ac"]
+                if a in ac_by_id and ac_by_id[a].get("verifies_clause_refs")
+                and not (set(ac_by_id[a]["verifies_clause_refs"]) & mine)), None)
+    assert alt, "検査対象に適した AC が見つからない"
+
+    def m(items):
+        u = next(x for x in items if x["unit_id"] == victim["unit_id"])
+        u["ac_refs"] = [alt]
+    faults = detailed_design.detect_impl_unit_faults(CTX, _units(tmp_path, m))
+    assert any("clause_refs のどの節も検証していない" in f for f in faults), faults
+    assert not any("trace.ac に無い" in f and victim["unit_id"] in f for f in faults), \
+        "所属検査で落ちており構造参照検査を実証できない"
+
+
+def test_mutation_ut_not_verifying_the_clause_is_detected(tmp_path) -> None:
+    """変異: 同じ API の UT でも、その契約節を検証していなければ責務の根拠にならない。"""
+    target = None
+    for u in CTX_UNITS:
+        du = next(d for d in CTX.duc if d["id"] == u["du_id"])
+        api = next(a for a in du["apis"] if a["api_id"] == u["api_ref"])
+        alt = [x["nodeid"] for x in api["ut"]
+               if not (set(x["clause_refs"]) & set(u["clause_refs"]))]
+        if alt:
+            target = (u["unit_id"], alt[:1])
+            break
+    assert target, "同一 API 内に非該当 UT を持つ責務が無い"
+
+    def m(items):
+        x = next(y for y in items if y["unit_id"] == target[0])
+        x["ut_refs"] = target[1]
+    faults = detailed_design.detect_impl_unit_faults(CTX, _units(tmp_path, m))
+    assert any("を検証する UT が ut_refs に無い" in f or
+               "clause_refs のどの節も検証していない" in f for f in faults), faults
 
 
 def test_mutation_trace_substitute_word_is_detected(tmp_path) -> None:
@@ -96,20 +183,24 @@ def test_mutation_trace_substitute_word_is_detected(tmp_path) -> None:
 
 
 def test_mutation_ac_outside_du_trace_is_detected(tmp_path) -> None:
-    def m(items): items[0]["ac_refs"] = ["AC-71-1"] if "AC-71-1" not in items[0]["ac_refs"] else ["AC-33-1"]
+    def m(items):
+        items[0]["ac_refs"] = ["AC-71-1"] if "AC-71-1" not in items[0]["ac_refs"] \
+            else ["AC-33-1"]
     faults = detailed_design.detect_impl_unit_faults(CTX, _units(tmp_path, m))
     assert any("trace.ac に無い" in f or "を担う責務が無い" in f for f in faults)
 
 
 def test_mutation_tc_not_verifying_the_ac_is_detected(tmp_path) -> None:
     """変異: 当該 AC を検証しない TC を貼っても接続とみなさない。"""
-    def m(items): items[0]["tc_refs"] = ["TCC-71-1"]
+    def m(items):
+        items[0]["tc_refs"] = ["TCC-71-1"]
     faults = detailed_design.detect_impl_unit_faults(CTX, _units(tmp_path, m))
     assert any("検証していない" in f or "検証する TC が tc_refs に無い" in f for f in faults)
 
 
 def test_mutation_ut_outside_api_assignment_is_detected(tmp_path) -> None:
-    def m(items): items[0]["ut_refs"] = ["test_db_connect.py::test_connect_sets_foreign_keys_on"]
+    def m(items):
+        items[0]["ut_refs"] = ["test_db_connect.py::test_connect_sets_foreign_keys_on"]
     faults = detailed_design.detect_impl_unit_faults(CTX, _units(tmp_path, m))
     assert any("UT 割当に無い" in f for f in faults)
 
@@ -117,19 +208,18 @@ def test_mutation_ut_outside_api_assignment_is_detected(tmp_path) -> None:
 def test_mutation_uncovered_api_is_detected(tmp_path) -> None:
     """変異: どの責務も担わない API が残ると検出される（被覆の穴）。"""
     def m(items):
-        victim = next(u for u in items if u["du_id"] == "DU-12")
-        items.remove(victim)
+        for victim in [u for u in items if u["du_id"] == "DU-12"]:
+            items.remove(victim)
     faults = detailed_design.detect_impl_unit_faults(CTX, _units(tmp_path, m))
     assert any("を担う責務が無い" in f for f in faults)
 
 
-def test_mutation_duplicate_responsibility_on_same_api_is_detected(tmp_path) -> None:
-    """変異: 同じ API に重なる AC を主張する責務を 2 本置けない（水増しの禁止）。"""
+def test_mutation_duplicate_clause_claim_on_same_api_is_detected(tmp_path) -> None:
+    """変異: 同じ API の同じ契約節を 2 本の責務が主張できない（水増しの禁止）。"""
     def m(items):
-        clone = dict(items[0], unit_id="IU-DUPLICATE-99")
-        items.append(clone)
+        items.append(dict(items[0], unit_id="IU-DUPLICATE-99"))
     faults = detailed_design.detect_impl_unit_faults(CTX, _units(tmp_path, m))
-    assert any("責務の重複" in f or "unit_id が規約外か重複" in f for f in faults)
+    assert any("重複して主張している" in f or "unit_id が重複" in f for f in faults)
 
 
 def test_mutation_missing_unit_id_in_document_is_detected(tmp_path) -> None:
@@ -138,21 +228,6 @@ def test_mutation_missing_unit_id_in_document_is_detected(tmp_path) -> None:
         items.append(dict(items[0], unit_id="IU-GHOSTUNIT-01"))
     faults = detailed_design.detect_impl_unit_faults(CTX, _units(tmp_path, m))
     assert any("unit_id が現れない" in f for f in faults)
-
-
-def test_mutation_ac_without_domain_link_is_detected(tmp_path) -> None:
-    """変異: **DU の trace.ac には属する**が、API 契約の語も文書の trace 先要求も共有しない AC。
-
-    独立レビュー R1-04／R2-02: ID グラフの所属だけでは「その振る舞いを検証している」ことに
-    ならない。既存の所属検査では落ちない AC を選び、意味検査**固有**のメッセージだけを assert する。
-    """
-    def m(items):
-        u = next(x for x in items if x["unit_id"] == "IU-EVIDENCE-02")   # DU-09 exists
-        u["ac_refs"] = ["AC-47-1"]      # DU-09 の trace.ac には属する（所属検査は通る）
-        u["tc_refs"] = ["TCC-47-1"]
-    faults = detailed_design.detect_impl_unit_faults(CTX, _units(tmp_path, m))
-    assert any("も共有しない" in f for f in faults), faults
-    assert not any("trace.ac に無い" in f for f in faults), "所属検査で落ちており意味検査を実証できない"
 
 
 @pytest.mark.parametrize("word", ["準用", "準じる", "踏襲", "流用", "借用", "同様に扱う"])
@@ -164,18 +239,132 @@ def test_mutation_trace_substitute_synonyms_are_detected(tmp_path, word) -> None
     assert any(word in f for f in faults), word
 
 
-def test_mutation_ut_not_naming_the_api_is_detected(tmp_path) -> None:
-    """変異: 別 API のテストを ut_refs に置いて「検証済み」を名乗れない。"""
-    def m(items):
-        u = next(x for x in items if x["unit_id"] == "IU-MIGRATION-02")   # apply_all
-        u["ut_refs"] = ["test_db_migrate.py::test_verify_complete_schema_passes"]
-    faults = detailed_design.detect_impl_unit_faults(CTX, _units(tmp_path, m))
-    assert any("API 名" in f and "含まない" in f for f in faults)
-
-
 def test_trace_substitute_scan_covers_s1_documents() -> None:
     """S1 の機能設計にも trace 代替表現を許さない（S0 だけの走査にしない）。"""
-    import pathlib
     for p in sorted(detailed_design.L6.rglob("*.md")):
         assert "準用" not in p.read_text(encoding="utf-8"), p.name
-    assert isinstance(pathlib.Path(detailed_design.IMPL_UNITS), pathlib.Path)
+
+
+CTX_UNITS = json.loads(detailed_design.IMPL_UNITS.read_text(encoding="utf-8"))["items"]
+
+
+# --- N/A を免罪符にしない（独立レビュー R1-02）---
+
+def _ctx_with(tmp_path, monkeypatch, mutate_du=None, mutate_ac=None):
+    """CTX の duc/acc だけを差し替えた検査用 context を返す。"""
+    import copy
+
+    from tools.gates.common import Ctx
+    ctx = Ctx()
+    duc = copy.deepcopy(CTX.duc)
+    acc = copy.deepcopy(CTX.acc)
+    if mutate_du:
+        mutate_du(duc)
+    if mutate_ac:
+        mutate_ac(acc)
+    monkeypatch.setattr(type(ctx), "duc", property(lambda self: duc))
+    monkeypatch.setattr(type(ctx), "acc", property(lambda self: acc))
+    return ctx
+
+
+def test_mutation_free_text_na_reason_is_detected(monkeypatch, tmp_path) -> None:
+    """変異: 分類語彙のない自由記述で契約節の未被覆を免除できない。"""
+    def m(duc):
+        for d in duc:
+            for a in d["apis"]:
+                for c in detailed_design.api_clauses(a):
+                    if c.get("na_reason"):
+                        c["na_reason"] = "とくに理由はないが受入基準は不要"
+                        return
+    ctx = _ctx_with(tmp_path, monkeypatch, mutate_du=m)
+    faults = detailed_design.detect_clause_coverage_faults(ctx)
+    assert any("分類語彙" in f for f in faults), faults
+
+
+def test_mutation_erasing_an_api_via_na_reason_is_detected(monkeypatch, tmp_path) -> None:
+    """変異: AC の節参照を落として na_reason を付けても、未登録 API として検出される。
+
+    「na_reason を書けば API ごと責務被覆から消せる」経路（独立レビュー R1-02）を塞ぐ検査。
+    """
+    victim = "API-DU05-01"
+    def m_ac(acc):
+        for a in acc:
+            a["verifies_clause_refs"] = [c for c in a["verifies_clause_refs"]
+                                         if not c.startswith(victim + "-")]
+    def m_du(duc):
+        for d in duc:
+            for a in d["apis"]:
+                if a["api_id"] != victim:
+                    continue
+                for c in detailed_design.api_clauses(a):
+                    c["na_reason"] = "受入基準未設定: あとで書く"
+    ctx = _ctx_with(tmp_path, monkeypatch, mutate_du=m_du, mutate_ac=m_ac)
+    faults = detailed_design.detect_clause_coverage_faults(ctx)
+    assert any(victim in f and "未登録" in f for f in faults), faults
+
+
+def test_mutation_stale_uncovered_api_entry_is_detected(monkeypatch, tmp_path) -> None:
+    """変異: 実際は AC 被覆がある API を台帳へ残しておけない（台帳と実態の厳密一致）。"""
+    import json
+    p = tmp_path / "uncovered-apis.json"
+    p.write_text(json.dumps({"items": [{"api_id": "API-DU05-01", "du_id": "DU-05",
+                                        "function": "establish", "reason": "x",
+                                        "resolution_slice": "S1"}]}), encoding="utf-8")
+    covered = {c for a in CTX.acc for c in (a.get("verifies_clause_refs") or [])}
+    faults = detailed_design.detect_uncovered_api_ledger_faults(CTX, covered, p)
+    assert any("実際は AC 被覆がある" in f for f in faults), faults
+
+
+def test_uncovered_api_ledger_matches_reality() -> None:
+    covered = {c for a in CTX.acc for c in (a.get("verifies_clause_refs") or [])}
+    assert detailed_design.detect_uncovered_api_ledger_faults(CTX, covered) == []
+
+
+def test_mutation_duplicate_api_id_is_detected(monkeypatch, tmp_path) -> None:
+    """変異: api_id・clause_id の重複を本番ゲートが落とす（独立レビュー R1-05）。"""
+    def m(duc):
+        duc[1]["apis"][0]["api_id"] = duc[0]["apis"][0]["api_id"]
+    ctx = _ctx_with(tmp_path, monkeypatch, mutate_du=m)
+    faults = detailed_design.detect_clause_coverage_faults(ctx)
+    assert any("api_id が重複" in f for f in faults), faults
+
+
+def test_mutation_duplicate_clause_id_is_detected(monkeypatch, tmp_path) -> None:
+    def m(duc):
+        a = duc[0]["apis"][0]
+        a["postcondition"][0]["clause_id"] = a["precondition"][0]["clause_id"]
+    ctx = _ctx_with(tmp_path, monkeypatch, mutate_du=m)
+    faults = detailed_design.detect_clause_coverage_faults(ctx)
+    assert any("clause_id が重複" in f for f in faults), faults
+
+
+def test_mutation_duplicate_ledger_entry_is_detected(tmp_path) -> None:
+    """変異: uncovered-apis.json の重複登録を黙って上書きしない（独立レビュー R2-02）。"""
+    src = json.loads(detailed_design.UNCOVERED_APIS.read_text(encoding="utf-8"))
+    src["items"].append(dict(src["items"][0]))
+    p = tmp_path / "uncovered-apis.json"
+    p.write_text(json.dumps(src, ensure_ascii=False), encoding="utf-8")
+    covered = {c for a in CTX.acc for c in (a.get("verifies_clause_refs") or [])}
+    faults = detailed_design.detect_uncovered_api_ledger_faults(CTX, covered, p)
+    assert any("重複登録" in f for f in faults), faults
+
+
+def test_mutation_ledger_metadata_mismatch_is_detected(tmp_path) -> None:
+    """変異: 台帳の du_id／function に虚偽を書けない。"""
+    src = json.loads(detailed_design.UNCOVERED_APIS.read_text(encoding="utf-8"))
+    src["items"][0]["function"] = "totally_other_function"
+    p = tmp_path / "uncovered-apis.json"
+    p.write_text(json.dumps(src, ensure_ascii=False), encoding="utf-8")
+    covered = {c for a in CTX.acc for c in (a.get("verifies_clause_refs") or [])}
+    faults = detailed_design.detect_uncovered_api_ledger_faults(CTX, covered, p)
+    assert any("実契約" in f and "不一致" in f for f in faults), faults
+
+
+def test_mutation_ledger_unknown_resolution_slice_is_detected(tmp_path) -> None:
+    src = json.loads(detailed_design.UNCOVERED_APIS.read_text(encoding="utf-8"))
+    src["items"][0]["resolution_slice"] = "いつか"
+    p = tmp_path / "uncovered-apis.json"
+    p.write_text(json.dumps(src, ensure_ascii=False), encoding="utf-8")
+    covered = {c for a in CTX.acc for c in (a.get("verifies_clause_refs") or [])}
+    faults = detailed_design.detect_uncovered_api_ledger_faults(CTX, covered, p)
+    assert any("resolution_slice" in f for f in faults), faults

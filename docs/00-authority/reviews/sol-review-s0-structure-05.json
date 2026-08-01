@@ -1,6 +1,7 @@
 {
   "review_id": "REV-S0-STRUCT-05",
-  "reviewer_principal": "codex-sol (別 principal)",
+  "reviewer_principal": "codex-sol（分離は実行証跡で未確認 — separation_status: unverified）",
+  "separation_status": "unverified",
   "model": "gpt-5.6-sol",
   "target_commit": "170c8db7c32738a8b627ef125bbd9f5415725e8b",
   "target_tree": "f386d8d7505ec9a6bf99ffe6650fca43245af41e",
@@ -89,7 +90,7 @@
     },
     {
       "severity": "major",
-      "summary": "R1-05: 独立レビュー未成立の時点で現在地を『L3〜L6 全成果物 confirmed』へ戻しており、draft 据え置きの成果物がある実状態と一致しなかった",
+      "summary": "R1-05: レビュー未成立の時点で現在地を『L3〜L6 全成果物 confirmed』へ戻しており、draft 据え置きの成果物がある実状態と一致しなかった",
       "status": "resolved",
       "resolution": "現在地を『S0 設計クロージャー完了（S0 実装入力の設計正本を confirmed 化）』へ修正し、draft 据え置きの成果物と理由を監査記録 §3 に列挙。判定は本レビュー成果物が正本"
     },

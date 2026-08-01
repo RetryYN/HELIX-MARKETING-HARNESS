@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 from pathlib import Path
 
 from tools.gates.common import (
@@ -171,6 +172,121 @@ def detect_review_faults(ctx: Ctx, notes: list[str] | None = None) -> list[str]:
     return bad
 
 
+SEPARATION_FIELDS = ("author_principal", "author_execution_id", "reviewer_principal",
+                     "reviewer_execution_id", "review_run_id", "reviewer_provider",
+                     "review_log_path", "review_log_digest")
+# unverified のレビューが散文で分離を主張していないか（値のどこにも現れてはならない語）
+INDEPENDENCE_CLAIMS = ("独立レビュー", "独立ブラインド", "別 principal", "別principal")
+
+
+ID_KEYS = ("id", "session_id", "conversation_id")
+MODEL_KEYS = ("model", "model_slug", "model_id")
+SESSION_TYPES = ("session_meta", "session_start", "session")
+TURN_TYPES = ("turn_context", "turn_start", "turn")
+
+
+def _payload(rec: dict) -> dict:
+    """レコードの payload。**辞書でなければ空**（レコード全体へ退避しない — 独立レビュー R3-01）。
+
+    退避を許すと `{"type":"session_meta","id":"..."}` のようなトップレベル申告が通り、
+    「型付きレコードの payload から読む」という強度が失われる。
+    """
+    p = rec.get("payload")
+    return p if isinstance(p, dict) else {}
+
+
+def log_declarations(text: str) -> tuple[set[str], set[str]]:
+    """実行ログ（JSONL）が**型付きレコード**として申告するセッション ID とモデルを返す。
+
+    部分文字列一致にしない（独立レビュー R1-03／R2-01）: セッション ID は `session_meta` 系、
+    モデルは `turn_context` 系レコードの payload フィールドから読む。本文へ ID やモデル名を
+    書いただけ・無関係な入れ子に `id` を置いただけでは申告として数えない。
+    """
+    ids: set[str] = set()
+    models: set[str] = set()
+    for line in text.splitlines():
+        line = line.strip()
+        if not line.startswith("{"):
+            continue
+        try:
+            rec = json.loads(line)
+        except ValueError:
+            continue
+        if not isinstance(rec, dict):
+            continue
+        kind = rec.get("type")
+        body = _payload(rec)
+        if kind in SESSION_TYPES:
+            ids |= {v for k, v in body.items() if k in ID_KEYS and isinstance(v, str)}
+        if kind in TURN_TYPES:
+            models |= {v for k, v in body.items() if k in MODEL_KEYS and isinstance(v, str)}
+    return ids, models
+
+
+def detect_separation_faults(reviews: list[dict], root: Path = ROOT,
+                             tracked: set[str] | None = None) -> list[str]:
+    """レビュー主体の分離が**実行証跡**で確認できるかを検査する（PO 指示 §3）。
+
+    `separation_status: verified` を名乗るには、作成側とレビュー側の principal・execution_id が
+    **別**であり、`review_log_digest` がリポジトリ内の実在ログ（git 追跡下）と一致し、そのログが
+    JSON レコードのフィールドとして `reviewer_execution_id` を申告し、レビュー成果物が記録する
+    `model` をも含んでいなければならない。証跡を取得できないレビューは `unverified` として宣言し、
+    分離を主張する欄を空にし、散文でも独立性を主張しない。
+
+    限界（PO 判断事項）: 実行ログはレビュー実行者自身が生成するローカル成果物であり、
+    本ゲートが保証するのは**構造的整合**（別実行・別 principal・ログとレビューの対応）までである。
+    第三者による署名・改竄検知は本リポジトリの範囲外であり、監査記録に明示する。
+    """
+    bad: list[str] = []
+    for r in reviews:
+        rid = r.get("review_id", "?")
+        status = r.get("separation_status")
+        if status not in ("verified", "unverified"):
+            bad.append(f"{rid}: separation_status が verified／unverified でない")
+            continue
+        if status == "unverified":
+            claimed = [f for f in SEPARATION_FIELDS
+                       if f != "reviewer_principal" and r.get(f)]
+            if claimed:
+                bad.append(f"{rid}: unverified なのに分離証跡欄 {claimed} を主張している")
+            blob = json.dumps(r, ensure_ascii=False)
+            said = [w for w in INDEPENDENCE_CLAIMS if w in blob]
+            if said:
+                bad.append(f"{rid}: 証跡が無いのに散文で独立性を主張している{said}")
+            continue
+        miss = [f for f in SEPARATION_FIELDS if not r.get(f)]
+        if miss:
+            bad.append(f"{rid}: verified なのに {miss} が無い")
+            continue
+        if r["author_execution_id"] == r["reviewer_execution_id"]:
+            bad.append(f"{rid}: author_execution_id と reviewer_execution_id が同一"
+                       "（同一実行での自己レビュー）")
+        if r["author_principal"] == r["reviewer_principal"]:
+            bad.append(f"{rid}: author_principal と reviewer_principal が同一")
+        rel_log = r["review_log_path"]
+        log = root / rel_log
+        if not log.exists():
+            bad.append(f"{rid}: review_log_path {rel_log} が実在しない")
+            continue
+        if tracked is not None and rel_log not in tracked:
+            bad.append(f"{rid}: 実行ログ {rel_log} が git 未追跡（clone 先で検証できない）")
+            continue
+        got = hashlib.sha256(log.read_bytes()).hexdigest()[:16]
+        if got != r["review_log_digest"]:
+            bad.append(f"{rid}: review_log_digest が実在ログと不一致（記録 {r['review_log_digest']}"
+                       f" / 実 {got}）")
+            continue
+        text = log.read_text(encoding="utf-8", errors="replace")
+        ids, models = log_declarations(text)
+        if r["reviewer_execution_id"] not in ids:
+            bad.append(f"{rid}: 実行ログの session_meta が reviewer_execution_id を"
+                       "セッション ID として申告していない（ログとレビュー実行が非束縛）")
+        if r.get("model") and r["model"] not in models:
+            bad.append(f"{rid}: 実行ログの turn_context がレビューモデル {r['model']} を"
+                       "申告していない")
+    return bad
+
+
 def run(ctx: Ctx) -> None:
     notes: list[str] = []
     bad = detect_review_faults(ctx, notes)
@@ -178,3 +294,13 @@ def run(ctx: Ctx) -> None:
     gate("G-REVIEW-BINDING", not bad,
          f"レビュー成果物が対象コミット・そのルートツリー・成果物 digest・後続レビュー"
          f"（supersedes_review）へ束縛 (欠陥 {len(bad)} 件={bad[:4]}){deferred}")
+
+    reviews = [load(p) for p in sorted(REVIEWS.glob("*.json")) if p.name != "review.schema.json"]
+    listed = git("ls-files", "docs/00-authority/reviews/logs")
+    tracked = {ln for ln in listed.stdout.splitlines() if ln}
+    sep = detect_separation_faults(reviews, tracked=tracked)
+    unverified = sorted(r["review_id"] for r in reviews
+                        if r.get("separation_status") == "unverified")
+    gate("G-REVIEW-SEPARATION", not sep,
+         "レビュー主体の分離が実行証跡へ束縛（author≠reviewer の principal／execution_id・"
+         f"実在ログとの digest 一致）(欠陥={sep[:3]}) ※証跡なし＝unverified: {unverified}")

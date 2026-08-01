@@ -20,6 +20,7 @@ from tools.gates.common import (
     L4,
     L5,
     L6,
+    REVIEWS,
     ROOT,
     SKIP_BUDGET,
     Ctx,
@@ -288,7 +289,48 @@ def detect_ratchet_faults(prev: dict, counts: dict[str, int], contract_counts: d
     dropped = sorted(set(prev.get("plan_preconditions", [])) - set(plan_precondition_ids()))
     if dropped:
         bad.append(f"S0.1 前提条件の削除:{dropped}")
+    # 構造接続の実数は縮められない（na_reason で契約節・責務を削って通す経路を塞ぐ）
+    for k, label in (("clause_ac_covered", "AC 被覆の契約節"), ("implementation_units", "実装単位")):
+        p0 = prev.get(k)
+        if p0 is not None and trace_counts().get(k, 0) < p0:
+            bad.append(f"{label}の縮小:{p0}→{trace_counts().get(k)}")
+    grown = sorted(set(uncovered_apis()) - set(prev.get("uncovered_apis", [])))
+    if prev.get("uncovered_apis") is not None and grown:
+        bad.append(f"AC 未被覆 API の増加:{grown}")
+    # 実行証跡で分離を確認したレビューは unverified へ落とせない（主体分離のラチェット）
+    lost = sorted(set(prev.get("separation_verified_reviews", [])) - set(verified_reviews()))
+    if lost:
+        bad.append(f"レビュー主体分離の verified 取消:{lost}")
     return bad
+
+
+def trace_counts() -> dict[str, int]:
+    """構造接続の実数（AC 被覆済み契約節・実装単位）。ラチェットの保護対象。"""
+    from tools.gates.common import AC_CONTRACTS, IMPL_UNITS_CONTRACTS
+    acc = load(AC_CONTRACTS)["items"]
+    covered = {c for a in acc for c in (a.get("verifies_clause_refs") or [])}
+    units = load(IMPL_UNITS_CONTRACTS).get("items", []) if IMPL_UNITS_CONTRACTS.exists() else []
+    return {"clause_ac_covered": len(covered), "implementation_units": len(units)}
+
+
+def uncovered_apis() -> list[str]:
+    """AC が 1 節も検証していない API の明示台帳（増加はラチェット違反）。"""
+    p = L6 / "S0/uncovered-apis.json"
+    if not p.exists():
+        return []
+    return sorted(i["api_id"] for i in load(p).get("items", []))
+
+
+def verified_reviews() -> list[str]:
+    """実行証跡で主体分離を確認済みのレビュー ID（ラチェットの保護対象）。"""
+    out = []
+    for p in sorted(REVIEWS.glob("*.json")):
+        if p.name == "review.schema.json":
+            continue
+        r = load(p)
+        if r.get("separation_status") == "verified":
+            out.append(r["review_id"])
+    return sorted(out)
 
 
 def plan_precondition_ids() -> list[str]:
@@ -320,6 +362,9 @@ def build_baseline(ctx: Ctx) -> dict:
         "historical_counts": HISTORICAL_COUNTS,
         "confirmed_docs": confirmed_docs(),
         "plan_preconditions": plan_precondition_ids(),
+        "separation_verified_reviews": verified_reviews(),
+        **trace_counts(),
+        "uncovered_apis": uncovered_apis(),
         "artifacts": artifact_hashes(),
     }
 

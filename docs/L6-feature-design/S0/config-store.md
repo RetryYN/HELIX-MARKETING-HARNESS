@@ -77,7 +77,7 @@ dus: [DU-12]
 [implementation-units.json](implementation-units.json)（`G-L6-IMPLEMENTATION-TRACE` が
 DU／API の実在・pre/post への責務の明記・AC／TC／UT の実在と対応を fail-close 検査する）。
 
-| unit_id | DU | API | 責務 | AC |
-|---|---|---|---|---|
-| IU-CONFIGSTORE-01 | DU-12 | `get` | key ごとに changed_at 最大の行を有効値とし、value_type に従って型変換して返す（read-only） | AC-33-3 |
-| IU-CONFIGSTORE-02 | DU-12 | `set` | 旧行を UPDATE/DELETE せず新行を INSERT し、supersedes_config_id に直前の有効行を連鎖… | AC-33-1, AC-33-2, AC-33-4, AC-33-5, AC-33-6 |
+| unit_id | DU | API | 契約節 | 責務 | AC |
+|---|---|---|---|---|---|
+| IU-CONFIGSTORE-01 | DU-12 | API-DU12-02 | POST-01・POST-02・RAISE-01 | `get`・`conn`: key ごとに changed_at 最大の行を有効値とし、value_type に従って型変換して… | AC-33-1, AC-33-3 |
+| IU-CONFIGSTORE-02 | DU-12 | API-DU12-01 | POST-01・POST-02・PRE-02・RAISE-01 | `set`・`value_type`: 旧行を UPDATE/DELETE せず新行を INSERT し、supersedes_… | AC-33-1, AC-33-2, AC-33-4, AC-33-5 |

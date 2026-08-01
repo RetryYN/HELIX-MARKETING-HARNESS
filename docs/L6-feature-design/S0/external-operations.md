@@ -165,23 +165,28 @@ class RatePacer:
 [implementation-units.json](implementation-units.json)（`G-L6-IMPLEMENTATION-TRACE` が
 DU／API の実在・pre/post への責務の明記・AC／TC／UT の実在と対応を fail-close 検査する）。
 
-| unit_id | DU | API | 責務 | AC |
-|---|---|---|---|---|
-| IU-EXTERNALOPERATIONS-01 | DU-04 | `load` | definition_json / required_evidence_json を schema 検証して WorkflowD… | AC-12-1, AC-12-2, AC-12-4, AC-42-1 |
-| IU-EXTERNALOPERATIONS-02 | DU-04 | `run_step` | ステップ出力の証跡保存は DU-09 record() 経由のみ（evidence 直 INSERT しない） | AC-12-3, AC-42-2, AC-42-3 |
-| IU-EXTERNALOPERATIONS-03 | DU-13 | `list_declared` | レジストリ宣言行を読取専用で返す（診断・ヘルスチェック用。DB を変更しない） | AC-41-3 |
-| IU-EXTERNALOPERATIONS-04 | DU-13 | `resolve` | 優先順 mcp → api → browser →（例外宣言時のみ）有償 の順で最初の有効経路を Route として返す | AC-41-1, AC-41-2, AC-41-3, AC-41-4, AC-41-5, AC-41-6 |
-| IU-EXTERNALOPERATIONS-05 | DU-14 | `check_endpoint` | scope×endpoint が正当（test→Docker/mock、prod→本番）の場合のみ正常復帰し、接続を許可する | AC-47-3 |
-| IU-EXTERNALOPERATIONS-06 | DU-14 | `get_credential` | 復号値はメモリ内の Secret ハンドルのみとして返り、SQLite・repo・ログ・evidence へは書かれない（参照ハ… | AC-47-1, AC-47-2, AC-47-4, AC-47-5 |
-| IU-EXTERNALOPERATIONS-07 | DU-14 | `mask` | config.secret.masking_patterns と本モジュールのパターン集合に一致する部分をすべて伏字化した文字列… | AC-47-2 |
-| IU-EXTERNALOPERATIONS-08 | DU-14 | `scan` | 平文 credential パターン（鍵語・トークン形状の正規表現集合 — 正本は本モジュール、DU-09 と共有・config… | AC-47-6 |
-| IU-EXTERNALOPERATIONS-09 | DU-15 | `launch` | Playwright セッションを起動し、storage_state をプロファイル別ファイルへ保存/再利用する | AC-42-1 |
-| IU-EXTERNALOPERATIONS-10 | DU-15 | `run_playbook` | 書込み系は external_operations を prepared→sent→confirmed の順で各々コミットして遷… | AC-42-1, AC-42-2, AC-42-3 |
-| IU-EXTERNALOPERATIONS-11 | DU-15 | `screenshot` | URL 到達確認（最終 URL 一致）つきで capture を out_path へ保存しパスを返す | AC-42-1 |
-| IU-EXTERNALOPERATIONS-12 | DU-16 | `get` | UNIQUE(service, operation, route_type) の行を status=active の場合のみ P… | AC-42-1, AC-42-2, AC-43-1, AC-43-2, AC-43-3 |
-| IU-EXTERNALOPERATIONS-13 | DU-16 | `record_failure` | consecutive_failures を 1 加算し last_failure_at を clock から更新する | AC-42-3 |
-| IU-EXTERNALOPERATIONS-14 | DU-16 | `record_success` | last_success_at を clock から更新し、consecutive_failures を 0 に戻し、last_… | AC-43-3 |
-| IU-EXTERNALOPERATIONS-15 | DU-17 | `create_draft` | external_operations 行を prepared→sent→confirmed で遷移させ（各々コミット）、con… | AC-44-2, AC-44-3, AC-51-1, AC-51-2, AC-51-4, AC-51-5 |
-| IU-EXTERNALOPERATIONS-16 | DU-17 | `publish` | external_operations 行を prepared→sent→confirmed で遷移させ、confirmed 後… | AC-44-1 |
-| IU-EXTERNALOPERATIONS-17 | DU-17 | `register_asset` | assets 行（wp_media_id・canonical_url・content_hash）をストア副層 `_assets_… | AC-44-1 |
-| IU-EXTERNALOPERATIONS-18 | DU-17 | `upload_media` | external_operations を prepared→sent→confirmed で遷移させ、wp_media_id … | AC-51-3 |
+| unit_id | DU | API | 契約節 | 責務 | AC |
+|---|---|---|---|---|---|
+| IU-EXTERNALOPERATIONS-02 | DU-04 | API-DU04-02 | POST-02・RAISE-02 | `run_step`・`task`: ステップ出力の証跡保存は DU-09 record() 経由のみ（evidence 直 I… | AC-42-1, AC-42-3 |
+| IU-EXTERNALOPERATIONS-04 | DU-13 | API-DU13-01 | POST-01・POST-02・RAISE-01・RAISE-02 | `resolve`・`conn`: 優先順 mcp → api → browser →（例外宣言時のみ）有償 の順で最初の有効経… | AC-41-1, AC-41-2, AC-41-3 |
+| IU-EXTERNALOPERATIONS-05 | DU-14 | API-DU14-02 | POST-01・POST-02・RAISE-01 | `check_endpoint`・`secret`: scope×endpoint が正当（test→Docker/mock、p… | AC-47-3 |
+| IU-EXTERNALOPERATIONS-06 | DU-14 | API-DU14-01 | POST-01・RAISE-01 | `get_credential`・`credential`: 復号値はメモリ内の Secret ハンドルのみとして返り、SQLi… | AC-47-1, AC-47-2, AC-47-3 |
+| IU-EXTERNALOPERATIONS-07 | DU-14 | API-DU14-04 | POST-01 | `mask`・`text`: config.secret.masking_patterns と本モジュールのパターン集合に一致す… | AC-47-2, AC-47-4 |
+| IU-EXTERNALOPERATIONS-08 | DU-14 | API-DU14-03 | POST-01・POST-02 | `scan`・`targets`: 平文 credential パターン（鍵語・トークン形状の正規表現集合 — 正本は本モジュー… | AC-47-1 |
+| IU-EXTERNALOPERATIONS-10 | DU-15 | API-DU15-03 | POST-01・POST-02・POST-04・RAISE-01・RAISE-02・RAISE-04 | `run_playbook`・`playbook`: 書込み系は external_operations を prepared→… | AC-42-1, AC-42-2, AC-42-3 |
+| IU-EXTERNALOPERATIONS-12 | DU-16 | API-DU16-01 | POST-01 | `get`・`conn`: UNIQUE(service, operation, route_type) の行を status=… | AC-42-1 |
+| IU-EXTERNALOPERATIONS-14 | DU-16 | API-DU16-02 | POST-01 | `record_success`・`playbook_id`: last_success_at を clock から更新し、co… | AC-42-1 |
+| IU-EXTERNALOPERATIONS-15 | DU-17 | API-DU17-01 | POST-01・PRE-02・RAISE-02 | `create_draft`・`pair_pass`: external_operations 行を prepared→sent… | AC-44-1, AC-44-2 |
+| IU-EXTERNALOPERATIONS-16 | DU-17 | API-DU17-02 | POST-01・PRE-02・RAISE-02・RAISE-03 | `publish`・`approval_pass`: external_operations 行を prepared→sent→… | AC-44-1, AC-44-2, AC-44-3 |
+| IU-EXTERNALOPERATIONS-17 | DU-17 | API-DU17-04 | POST-01・POST-02 | `register_asset`・`published`: assets 行（wp_media_id・canonical_url… | AC-44-1 |
+| IU-EXTERNALOPERATIONS-18 | DU-17 | API-DU17-03 | POST-02 | `upload_media`・`media_path`: external_operations を prepared→sent… | AC-51-3 |
+
+本文書が担っていた次の責務は、**API 契約節を AC と UT の双方が検証している状態**を作れないため実装単位から外した（接続の穴は[監査記録](../../00-authority/audits/structural-trace-remediation-2026-08-02.md)が正本）。
+
+| 外した unit_id | 理由 |
+|---|---|
+| IU-EXTERNALOPERATIONS-01 | この API の契約節を AC と UT の双方で検証している節が無い（全節が理由付き N/A） |
+| IU-EXTERNALOPERATIONS-03 | この API の契約節を AC と UT の双方で検証している節が無い（全節が理由付き N/A） |
+| IU-EXTERNALOPERATIONS-09 | この API の契約節を AC と UT の双方で検証している節が無い（全節が理由付き N/A） |
+| IU-EXTERNALOPERATIONS-11 | この API の契約節を AC と UT の双方で検証している節が無い（全節が理由付き N/A） |
+| IU-EXTERNALOPERATIONS-13 | この API の契約節を AC と UT の双方で検証している節が無い（全節が理由付き N/A） |

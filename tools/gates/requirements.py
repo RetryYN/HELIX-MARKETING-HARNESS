@@ -37,6 +37,7 @@ from tools.gates.common import (
     md_count,
     rel,
     schema_check,
+    ut_nodeids,
 )
 
 MANDATED_GROUPS = {
@@ -170,7 +171,7 @@ def current_denominators(ctx: Ctx) -> dict[str, int]:
         "AC_CONTRACT": len(ctx.acc),
         "TCC": len(ctx.tcc),
         "API": sum(len(x["apis"]) for x in ctx.duc),
-        "API_UT": len({u for x in ctx.duc for a in x["apis"] for u in a.get("ut", [])}),
+        "API_UT": len({u for x in ctx.duc for a in x["apis"] for u in ut_nodeids(a)}),
     }
 
 

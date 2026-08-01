@@ -784,7 +784,7 @@ def _confirmed(ctx: Ctx) -> None:
         elif f"| {p.name} | v0.1 | confirmed | PO | {want} |" not in ctx.approvals:
             canon_bad.append(f"{p.name}:approvals 行なし")
     gate("G-CANON-CONFIRMED", not canon_bad,
-         f"契約 JSON 正本 8 本が confirmed＋内容束縛 receipt (欠陥={canon_bad[:4]})")
+         f"契約 JSON 正本 9 本が confirmed＋内容束縛 receipt (欠陥={canon_bad[:4]})")
 
 
 def _legacy(ctx: Ctx) -> None:

@@ -148,13 +148,18 @@ invariant: 判定は**達成/未達を問わない** — 目標と実測の両�
 [implementation-units.json](implementation-units.json)（`G-L6-IMPLEMENTATION-TRACE` が
 DU／API の実在・pre/post への責務の明記・AC／TC／UT の実在と対応を fail-close 検査する）。
 
-| unit_id | DU | API | 責務 | AC |
-|---|---|---|---|---|
-| IU-KPIHANDOFF-01 | DU-07 | `check_domain` | denylist 非該当かつ判定可能な場合のみ返る。denylist/allowlist が取得不能・未設定の場合は fail-… | AC-23-3 |
-| IU-KPIHANDOFF-02 | DU-07 | `check_metric_type` | deny 型（cac/roas/ad_spend — 有料指標）でなければ何もせず返る（kpi_nodes の CHECK と二… | AC-23-1, AC-23-2, AC-23-4, AC-23-5 |
-| IU-KPIHANDOFF-03 | DU-21 | `archive_node` | status を archived へ更新し、measurements・子ノードからの参照整合を保ったまま集計対象から外す（AC… | AC-61-3, AC-61-4 |
-| IU-KPIHANDOFF-04 | DU-21 | `create_node` | 階層・媒体タグ・集計式（aggregation_formula の構文検証）を通過した kpi_nodes 行を INSERT … | AC-61-1, AC-61-2, AC-61-5, AC-61-6 |
-| IU-KPIHANDOFF-05 | DU-21 | `tree` | 当該プロファイルの親子解決済みツリー（layer×medium の断面クエリ可能な形）を返す | AC-61-1 |
-| IU-KPIHANDOFF-06 | DU-22 | `fetch` | 取得物（CSV/xlsx 又は API 応答）を out_dir へ保存し、即 SHA-256 で固定する（投入前の改竄検出基準… | AC-62-1, AC-62-2, AC-62-3, AC-62-4, AC-62-5, AC-62-6, AC-62-7 |
-| IU-KPIHANDOFF-07 | DU-23 | `ingest` | 投入前に raw の SHA-256 を再計算し expected_hash と一致する場合のみ投入する（改竄・取り違えの fa… | AC-62-1, AC-62-3, AC-62-4, AC-62-5 |
-| IU-KPIHANDOFF-08 | DU-23 | `parse` | schema/type 検証を通過した正常行と、壊れた行の隔離ファイル（正常行と分離）を返す（AC-62-2 — 部分破損は正常… | AC-62-2, AC-62-6, AC-62-7 |
+| unit_id | DU | API | 契約節 | 責務 | AC |
+|---|---|---|---|---|---|
+| IU-KPIHANDOFF-01 | DU-07 | API-DU07-02 | POST-01・RAISE-01 | `check_domain`・`denylist`: denylist 非該当かつ判定可能な場合のみ返る。denylist/al… | AC-23-1, AC-23-2, AC-23-3 |
+| IU-KPIHANDOFF-02 | DU-07 | API-DU07-01 | POST-01・POST-02・RAISE-01 | `check_metric_type`・`metric_type`: deny 型（cac/roas/ad_spend — 有料… | AC-23-1, AC-23-2, AC-23-4 |
+| IU-KPIHANDOFF-03 | DU-21 | API-DU21-03 | POST-01 | `archive_node`・`node_id`: status を archived へ更新し、measurements・子ノ… | AC-61-3 |
+| IU-KPIHANDOFF-04 | DU-21 | API-DU21-01 | POST-01・POST-02・POST-03・PRE-01・PRE-02・PRE-03・RAISE-01・RAISE-02 | `create_node`・`node`: 階層・媒体タグ・集計式（aggregation_formula の構文検証）を通過し… | AC-61-1, AC-61-2 |
+| IU-KPIHANDOFF-06 | DU-22 | API-DU22-01 | POST-01・POST-02 | `fetch`・`route`: 取得物（CSV/xlsx 又は API 応答）を out_dir へ保存し、即 SHA-256… | AC-62-1, AC-62-2 |
+| IU-KPIHANDOFF-07 | DU-23 | API-DU23-02 | POST-02・POST-03 | `ingest`・`expected_hash`: 投入前に raw の SHA-256 を再計算し expected_hash… | AC-62-1, AC-62-3, AC-62-4, AC-62-6 |
+| IU-KPIHANDOFF-08 | DU-23 | API-DU23-01 | POST-01・POST-02・RAISE-01 | `parse`・`schema`: schema/type 検証を通過した正常行と、壊れた行の隔離ファイル（正常行と分離）を返す… | AC-62-2, AC-62-3 |
+
+本文書が担っていた次の責務は、**API 契約節を AC と UT の双方が検証している状態**を作れないため実装単位から外した（接続の穴は[監査記録](../../00-authority/audits/structural-trace-remediation-2026-08-02.md)が正本）。
+
+| 外した unit_id | 理由 |
+|---|---|
+| IU-KPIHANDOFF-05 | この API の契約節を AC と UT の双方で検証している節が無い（全節が理由付き N/A） |

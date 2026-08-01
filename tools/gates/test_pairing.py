@@ -28,6 +28,7 @@ from tools.gates.common import (
     load,
     reachable_nodes,
     rel,
+    ut_nodeids,
 )
 
 # ①（要件定義側）↔③（検証設計側）の対称参照対象
@@ -117,7 +118,7 @@ def s0_target_uts(ctx: Ctx) -> list[tuple[str, str, str]]:
         if int(d["id"][3:]) > S0_DU_MAX:
             continue
         for a in d["apis"]:
-            for ref in a.get("ut", []):
+            for ref in ut_nodeids(a):
                 if "::" in ref:
                     fname, tname = ref.split("::", 1)
                     out.append((d["id"], fname, tname))
@@ -582,7 +583,7 @@ def _test_files(ctx: Ctx) -> None:
     du2files: dict[str, set[str]] = {}
     for d in ctx.duc:
         for a in d["apis"]:
-            for ref in a.get("ut", []):
+            for ref in ut_nodeids(a):
                 if "::" in ref:
                     du2files.setdefault(d["id"], set()).add(ref.split("::", 1)[0])
     multi = sorted(f"{du}:{sorted(fs)}" for du, fs in du2files.items() if len(fs) != 1)

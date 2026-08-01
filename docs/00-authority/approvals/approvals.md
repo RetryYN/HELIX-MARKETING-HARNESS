@@ -268,3 +268,24 @@
 | 2026-08-01 | tc-catalog | v0.1 | confirmed | PO | fe1b90c54470 | 意味トレース最終是正: 生成ビューの再生成（scripts/render_views.py — 手編集なし） |
 | 2026-08-01 | cmp-contracts | v0.1 | confirmed | PO | a46ad309a05c | 意味トレース最終是正: 生成ビューの再生成（scripts/render_views.py — 手編集なし） |
 | 2026-08-01 | du-contracts | v0.1 | confirmed | PO | 91e64e3cd8c6 | 意味トレース最終是正: 生成ビューの再生成（scripts/render_views.py — 手編集なし） |
+| 2026-08-02 | structural-trace-remediation-2026-08-02 | - | confirmed | PO | 1dfd64de8482 | 構造的意味トレース最終是正: API 安定 ID・契約節 ID による構造参照への置換と接続の実数の台帳化に伴う内容束縛承認 |
+| 2026-08-02 | approval | - | confirmed | PO | 36da5dc77692 | 構造的意味トレース最終是正: API 安定 ID・契約節 ID による構造参照への置換と接続の実数の台帳化に伴う内容束縛承認 |
+| 2026-08-02 | config-store | - | confirmed | PO | e3648e3b6bf5 | 構造的意味トレース最終是正: API 安定 ID・契約節 ID による構造参照への置換と接続の実数の台帳化に伴う内容束縛承認 |
+| 2026-08-02 | evidence | - | confirmed | PO | 1a69625b39a1 | 構造的意味トレース最終是正: API 安定 ID・契約節 ID による構造参照への置換と接続の実数の台帳化に伴う内容束縛承認 |
+| 2026-08-02 | external-operations | - | confirmed | PO | f058be14213c | 構造的意味トレース最終是正: API 安定 ID・契約節 ID による構造参照への置換と接続の実数の台帳化に伴う内容束縛承認 |
+| 2026-08-02 | kpi-handoff | - | confirmed | PO | 0045ab37e7d1 | 構造的意味トレース最終是正: API 安定 ID・契約節 ID による構造参照への置換と接続の実数の台帳化に伴う内容束縛承認 |
+| 2026-08-02 | migration | - | confirmed | PO | 229e4bf9845f | 構造的意味トレース最終是正: API 安定 ID・契約節 ID による構造参照への置換と接続の実数の台帳化に伴う内容束縛承認 |
+| 2026-08-02 | pair-gate | - | confirmed | PO | 51b27835f0d0 | 構造的意味トレース最終是正: API 安定 ID・契約節 ID による構造参照への置換と接続の実数の台帳化に伴う内容束縛承認 |
+| 2026-08-02 | state-machine | - | confirmed | PO | 2881b9a24227 | 構造的意味トレース最終是正: API 安定 ID・契約節 ID による構造参照への置換と接続の実数の台帳化に伴う内容束縛承認 |
+| 2026-08-02 | strategic-brief | - | confirmed | PO | f43b94740309 | 構造的意味トレース最終是正: API 安定 ID・契約節 ID による構造参照への置換と接続の実数の台帳化に伴う内容束縛承認 |
+| 2026-08-02 | tlp | - | confirmed | PO | 86d4121e1c15 | 構造的意味トレース最終是正: API 安定 ID・契約節 ID による構造参照への置換と接続の実数の台帳化に伴う内容束縛承認 |
+| 2026-08-02 | du-contracts | v0.1 | confirmed | PO | 19424a7f4d63 | 構造的意味トレース最終是正: 生成ビューの再生成（scripts/render_views.py — 手編集なし） |
+| 2026-08-02 | ac-contracts.json | v0.1 | confirmed | PO | 2f2a0dccb82b | 構造的意味トレース最終是正: API 安定 ID・契約節 ID による構造参照への置換と接続の実数の台帳化に伴う内容束縛承認 |
+| 2026-08-02 | du-contracts.json | v0.1 | confirmed | PO | 8a71cf41d4c0 | 構造的意味トレース最終是正: API 安定 ID・契約節 ID による構造参照への置換と接続の実数の台帳化に伴う内容束縛承認 |
+| 2026-08-02 | implementation-units.json | v0.1 | confirmed | PO | f7327bdfb57a | 構造的意味トレース最終是正: API 安定 ID・契約節 ID による構造参照への置換と接続の実数の台帳化に伴う内容束縛承認 |
+| 2026-08-02 | du-contracts | v0.1 | confirmed | PO | 379e4cc1ef26 | 構造的意味トレース最終是正: 生成ビューの再生成（scripts/render_views.py — 手編集なし） |
+| 2026-08-02 | ac-catalog | v0.1 | confirmed | PO | ba682845dfbe | 構造的意味トレース最終是正: 生成ビューの再生成（scripts/render_views.py — 手編集なし） |
+| 2026-08-02 | du-contracts.json | v0.1 | confirmed | PO | 5964e05d821a | 構造的意味トレース最終是正（レビュー R1-02 対応）: na_reason の分類語彙化に伴う内容束縛承認 |
+| 2026-08-02 | du-contracts | v0.1 | confirmed | PO | 7cd190c08bd1 | 構造的意味トレース最終是正: 生成ビューの再生成（scripts/render_views.py — 手編集なし） |
+| 2026-08-02 | structural-trace-remediation-2026-08-02 | - | confirmed | PO | 20d2e595c9e8 | 構造的意味トレース最終是正（レビュー R1-02／R1-03 対応）: N/A 拘束と実行証跡の限界の明記に伴う内容束縛承認 |
+| 2026-08-02 | structural-trace-remediation-2026-08-02 | - | confirmed | PO | 8ce4869eeabe | 構造的意味トレース最終是正（レビュー R2-01 対応）: 実行証跡を型付きレコード申告へ強化したことの反映 |

@@ -45,7 +45,7 @@
   - S1 以降は planned
   - S0.1 実装未着手
   - HELIX-HARNESS 取込は未実施・PO 判断待ち
-- 実装・検証の入力は **契約正本 8 本**（JSON）のみ:
+- 実装・検証の入力は **契約正本 9 本**（JSON）のみ:
   BR = docs/L1-business-requirements/canonical/br/br-contracts.json ／
   FR = docs/L3-system-requirements/canonical/functional/fr-contracts.json ／
   SR = docs/L3-system-requirements/canonical/strategy/sr-contracts.json ／
@@ -53,8 +53,15 @@
   AC = docs/L3-system-requirements/canonical/acceptance/ac-contracts.json ／
   TC = docs/L3-system-requirements/verification/tc-contracts.json ／
   CMP = docs/L4-basic-design/canonical/components/cmp-contracts.json ／
-  DU/API/UT = docs/L5-detailed-design/canonical/apis/du-contracts.json。
+  DU/API/UT = docs/L5-detailed-design/canonical/apis/du-contracts.json ／
+  L6 責務/API/AC/TC/UT = docs/L6-feature-design/S0/implementation-units.json。
   生成ビューは `python3 scripts/render_views.py`（手編集禁止）。
+- **第 9 正本 implementation-units.json は手編集の confirmed 正本**（生成物ではない。schema =
+  同ディレクトリの implementation-unit.schema.json・追加プロパティ禁止）。責務は `api_ref`
+  （API 安定 ID 1 件・配列禁止）と `clause_refs`（当該 API の契約節 ID）で接続し、`ac_refs` の AC
+  （`verifies_clause_refs`）と `ut_refs` の UT（`apis[].ut[].clause_refs`）が**同じ契約節**を
+  参照していなければならない。API 名・テスト名・日本語語彙の部分一致を接続の根拠にしない。
+  全 API 契約節は AC 被覆か理由付き `na_reason` のいずれかを持つ（G-L6-IMPLEMENTATION-TRACE）。
 - 現行分母は **AC=211 ／ TCC=217 ／ API=58 ／ API_UT=189** のみ。旧体系の分母は baseline.json の
   `historical_counts` にのみ保持し、現役導線では使わない。
 - 次 = **S0.1 実装**（DU-01〜12 の API を test-first。各 API の UT は du-contracts の `apis[].ut` が正本）。

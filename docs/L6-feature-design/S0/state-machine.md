@@ -142,12 +142,17 @@ details_json と例外の両方に載る:
 [implementation-units.json](implementation-units.json)（`G-L6-IMPLEMENTATION-TRACE` が
 DU／API の実在・pre/post への責務の明記・AC／TC／UT の実在と対応を fail-close 検査する）。
 
-| unit_id | DU | API | 責務 | AC |
-|---|---|---|---|---|
-| IU-STATEMACHINE-01 | DU-01 | `register_guard` | guard 登録簿に event→fn が登録され、以後の transition() が G1〜G5 の評価順序で呼び出す | AC-SR-07-2 |
-| IU-STATEMACHINE-02 | DU-01 | `transition` | 許可時: guard 評価→状態 UPDATE→state_transitions（guard_result=passed）IN… | AC-11-1, AC-11-2, AC-11-3, AC-11-4, AC-13-1, AC-13-2, AC-13-3, AC-13-4, AC-13-5, AC-13-6, AC-16-1, AC-16-2, AC-16-3, AC-16-4, AC-16-5, AC-16-6, AC-SR-02, AC-SR-07-1 |
-| IU-STATEMACHINE-03 | DU-02 | `claim` | lease_owner_execution_id・lease_expires_at（config.lease_ttl_sec）・… | AC-27-3 |
-| IU-STATEMACHINE-04 | DU-02 | `issue_task` | 同一 (loop_run_id, step_key) に非終端の既存 task があればその id を返す（新規発行しない — … | AC-12-1, AC-12-2, AC-12-3, AC-12-4, AC-27-1, AC-27-2, AC-27-4, AC-27-5 |
-| IU-STATEMACHINE-05 | DU-02 | `run_microloop` | submit→verify を反復し、FAIL ごとに verify_fail 遷移（retry_count 消費）を DU-0… | AC-27-1 |
-| IU-STATEMACHINE-06 | DU-02 | `validate_strategic_brief` | status=active・digest 一致・有効期間内（valid_from <= now < valid_until 又は… | AC-SR-02, AC-SR-07-1, AC-SR-07-2 |
-| IU-STATEMACHINE-07 | DU-03 | `assign` | active かつ principal の異なる agent の組（agents.principal 比較）を返す | AC-27-1, AC-27-2, AC-27-3, AC-27-4, AC-27-5 |
+| unit_id | DU | API | 契約節 | 責務 | AC |
+|---|---|---|---|---|---|
+| IU-STATEMACHINE-02 | DU-01 | API-DU01-01 | POST-01・POST-02・POST-03・POST-04・RAISE-01 | `transition`・`conn`: 許可時: guard 評価→状態 UPDATE→state_transitions（g… | AC-11-1, AC-11-2, AC-11-3, AC-13-1, AC-13-2, AC-13-3, AC-13-4, AC-16-1, AC-16-2, AC-16-3, AC-SR-07-1, AC-SR-07-2 |
+| IU-STATEMACHINE-03 | DU-02 | API-DU02-02 | POST-01・POST-02・PRE-01・RAISE-01 | `claim`・`task`: lease_owner_execution_id・lease_expires_at（config… | AC-27-1, AC-27-3 |
+| IU-STATEMACHINE-04 | DU-02 | API-DU02-01 | POST-01・POST-02・POST-03・PRE-03・RAISE-01 | `issue_task`・`loop_run`: 同一 (loop_run_id, step_key) に非終端の既存 task… | AC-12-1, AC-12-2, AC-12-3, AC-12-4, AC-27-1 |
+| IU-STATEMACHINE-06 | DU-02 | API-DU02-07 | POST-01・RAISE-01 | `validate_strategic_brief`・`held_digest`: status=active・digest 一… | AC-SR-02, AC-SR-06-3, AC-SR-07-1 |
+| IU-STATEMACHINE-07 | DU-03 | API-DU03-01 | RAISE-01 | `assign`・`agents`: active かつ principal の異なる agent の組（agents.prin… | AC-27-2 |
+
+本文書が担っていた次の責務は、**API 契約節を AC と UT の双方が検証している状態**を作れないため実装単位から外した（接続の穴は[監査記録](../../00-authority/audits/structural-trace-remediation-2026-08-02.md)が正本）。
+
+| 外した unit_id | 理由 |
+|---|---|
+| IU-STATEMACHINE-01 | この API の契約節を AC と UT の双方で検証している節が無い（全節が理由付き N/A） |
+| IU-STATEMACHINE-05 | この API の契約節を AC と UT の双方で検証している節が無い（全節が理由付き N/A） |

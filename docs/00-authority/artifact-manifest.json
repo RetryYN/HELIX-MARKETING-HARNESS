@@ -1094,7 +1094,7 @@
       "previous_paths": [
         "docs/requirements/json/ac/ac-contracts.json"
       ],
-      "approval_digest": "c1c38b721b01",
+      "approval_digest": "2f2a0dccb82b",
       "review_digest": null
     },
     {
@@ -3154,7 +3154,7 @@
       "previous_paths": [
         "docs/design/json/du-contracts.json"
       ],
-      "approval_digest": "87ea56915121",
+      "approval_digest": "5964e05d821a",
       "review_digest": null
     },
     {
@@ -3306,7 +3306,7 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [],
       "previous_paths": [],
-      "approval_digest": "0fbb79605a51",
+      "approval_digest": "36da5dc77692",
       "review_digest": null
     },
     {
@@ -3348,7 +3348,7 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [],
       "previous_paths": [],
-      "approval_digest": "6d055ecbc9d0",
+      "approval_digest": "1a69625b39a1",
       "review_digest": null
     },
     {
@@ -3368,7 +3368,7 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [],
       "previous_paths": [],
-      "approval_digest": "a853aa7a8520",
+      "approval_digest": "f058be14213c",
       "review_digest": null
     },
     {
@@ -3388,7 +3388,7 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [],
       "previous_paths": [],
-      "approval_digest": "007e970453f9",
+      "approval_digest": "0045ab37e7d1",
       "review_digest": null
     },
     {
@@ -3408,7 +3408,7 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [],
       "previous_paths": [],
-      "approval_digest": "549b596478ac",
+      "approval_digest": "229e4bf9845f",
       "review_digest": null
     },
     {
@@ -3428,7 +3428,7 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [],
       "previous_paths": [],
-      "approval_digest": "455a9403061d",
+      "approval_digest": "51b27835f0d0",
       "review_digest": null
     },
     {
@@ -3468,7 +3468,7 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [],
       "previous_paths": [],
-      "approval_digest": "5a31447f6508",
+      "approval_digest": "2881b9a24227",
       "review_digest": null
     },
     {
@@ -3488,7 +3488,7 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [],
       "previous_paths": [],
-      "approval_digest": "abd8face2173",
+      "approval_digest": "f43b94740309",
       "review_digest": null
     },
     {
@@ -3508,7 +3508,7 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [],
       "previous_paths": [],
-      "approval_digest": "b74cfbb78293",
+      "approval_digest": "86d4121e1c15",
       "review_digest": null
     },
     {
@@ -3594,7 +3594,7 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [],
       "previous_paths": [],
-      "approval_digest": "9bb9a6bac766",
+      "approval_digest": "e3648e3b6bf5",
       "review_digest": null
     },
     {
@@ -3614,7 +3614,71 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [],
       "previous_paths": [],
-      "approval_digest": "c163f8ac030e",
+      "approval_digest": "f7327bdfb57a",
+      "review_digest": null
+    },
+    {
+      "artifact_id": "L6-S0-UNCOVERED-APIS",
+      "layer": "L6",
+      "slice": "S0",
+      "domain": "implementation-units",
+      "artifact_type": "design-contract",
+      "authority_format": "json",
+      "authority_status": "active",
+      "lifecycle_status": "draft",
+      "canonical_path": "docs/L6-feature-design/S0/uncovered-apis.json",
+      "view_path": null,
+      "view_generation": "none",
+      "pair_artifact_id": null,
+      "supersedes": [],
+      "extends_artifact_ids": [],
+      "depends_on_artifact_ids": [
+        "L6-S0-IMPLEMENTATION-UNITS"
+      ],
+      "previous_paths": [],
+      "approval_digest": null,
+      "review_digest": null
+    },
+    {
+      "artifact_id": "L6-S0-IMPLEMENTATION-UNIT-SCHEMA",
+      "layer": "L6",
+      "slice": "S0",
+      "domain": "implementation-units",
+      "artifact_type": "schema",
+      "authority_format": "json",
+      "authority_status": "active",
+      "lifecycle_status": "draft",
+      "canonical_path": "docs/L6-feature-design/S0/implementation-unit.schema.json",
+      "view_path": null,
+      "view_generation": "none",
+      "pair_artifact_id": null,
+      "supersedes": [],
+      "extends_artifact_ids": [],
+      "depends_on_artifact_ids": [
+        "L6-S0-IMPLEMENTATION-UNITS"
+      ],
+      "previous_paths": [],
+      "approval_digest": null,
+      "review_digest": null
+    },
+    {
+      "artifact_id": "AUDIT-STRUCTURAL-TRACE-2026-08-02",
+      "layer": "00-authority",
+      "slice": "S0",
+      "domain": "audits",
+      "artifact_type": "audit-record",
+      "authority_format": "markdown",
+      "authority_status": "active",
+      "lifecycle_status": "confirmed",
+      "canonical_path": "docs/00-authority/audits/structural-trace-remediation-2026-08-02.md",
+      "view_path": null,
+      "view_generation": "none",
+      "pair_artifact_id": null,
+      "supersedes": [],
+      "extends_artifact_ids": [],
+      "depends_on_artifact_ids": [],
+      "previous_paths": [],
+      "approval_digest": "8ce4869eeabe",
       "review_digest": null
     }
   ]

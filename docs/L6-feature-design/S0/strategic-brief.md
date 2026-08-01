@@ -129,13 +129,18 @@ sequenceDiagram
 [implementation-units.json](implementation-units.json)（`G-L6-IMPLEMENTATION-TRACE` が
 DU／API の実在・pre/post への責務の明記・AC／TC／UT の実在と対応を fail-close 検査する）。
 
-| unit_id | DU | API | 責務 | AC |
-|---|---|---|---|---|
-| IU-STRATEGICBRIEF-01 | DU-02 | `generate_tactical_learning_packet` | run 保持の strategic_brief_id/digest を写して INSERT（run/brief/digest 三… | AC-SR-15-1, AC-SR-15-3 |
-| IU-STRATEGICBRIEF-02 | DU-02 | `issue_strategic_brief` | 正準化 JSON（キー昇順・区切り (",", ":")・UTF-8。digest/status/created_at を除外）… | AC-SR-01, AC-SR-06-1, AC-SR-06-3 |
-| IU-STRATEGICBRIEF-03 | DU-02 | `issue_task` | 同一 (loop_run_id, step_key) に非終端の既存 task があればその id を返す（新規発行しない — … | AC-SR-06-5, AC-SR-15-5, AC-SR-15-6 |
-| IU-STRATEGICBRIEF-04 | DU-02 | `resume` | s0-contract §3.3 の全行を実装: pending=再 claim 可／in_progress（外部操作前）=wo… | AC-SR-15-4 |
-| IU-STRATEGICBRIEF-05 | DU-02 | `supersede_strategic_brief` | 新版 INSERT（supersedes_id=old_brief_id・version+1・digest 決定計算）と旧版 s… | AC-SR-06-2, AC-SR-06-4 |
-| IU-STRATEGICBRIEF-06 | DU-02 | `validate_strategic_brief` | status=active・digest 一致・有効期間内（valid_from <= now < valid_until 又は… | AC-SR-15-2 |
-| IU-STRATEGICBRIEF-07 | DU-11 | `apply_all` | 未適用の連番 SQL を順に適用し、適用ごとに version・migration_name・checksum_sha256・a… | AC-SR-11-1, AC-SR-11-5, AC-SR-11-6 |
-| IU-STRATEGICBRIEF-08 | DU-11 | `verify` | PRAGMA foreign_key_check／integrity_check 違反 0 件・25 テーブルと保護トリガ 16… | AC-SR-05, AC-SR-11-2, AC-SR-11-3, AC-SR-11-4 |
+| unit_id | DU | API | 契約節 | 責務 | AC |
+|---|---|---|---|---|---|
+| IU-STRATEGICBRIEF-02 | DU-02 | API-DU02-05 | POST-01・PRE-01・RAISE-01 | `issue_strategic_brief`・`brief`: 正準化 JSON（キー昇順・区切り (",", ":")・UT… | AC-SR-01, AC-SR-06-1, AC-SR-06-3 |
+| IU-STRATEGICBRIEF-05 | DU-02 | API-DU02-06 | POST-01 | `supersede_strategic_brief`・`old_brief_id`: 新版 INSERT（supersedes… | AC-SR-06-2 |
+| IU-STRATEGICBRIEF-07 | DU-11 | API-DU11-01 | POST-03 | `apply_all`・`migrations_dir`: 未適用の連番 SQL を順に適用し、適用ごとに version・mi… | AC-71-1, AC-71-3, AC-71-4, AC-SR-05, AC-SR-11-1, AC-SR-11-2, AC-SR-11-3, AC-SR-11-4 |
+
+本文書が担っていた次の責務は、**API 契約節を AC と UT の双方が検証している状態**を作れないため実装単位から外した（接続の穴は[監査記録](../../00-authority/audits/structural-trace-remediation-2026-08-02.md)が正本）。
+
+| 外した unit_id | 理由 |
+|---|---|
+| IU-STRATEGICBRIEF-01 | 同 API の他責務が全契約節を正当に所有（重複責務） |
+| IU-STRATEGICBRIEF-03 | 同 API の他責務が全契約節を正当に所有（重複責務） |
+| IU-STRATEGICBRIEF-04 | この API の契約節を AC と UT の双方で検証している節が無い（全節が理由付き N/A） |
+| IU-STRATEGICBRIEF-06 | 同 API の他責務が全契約節を正当に所有（重複責務） |
+| IU-STRATEGICBRIEF-08 | 同 API の他責務が全契約節を正当に所有（重複責務） |

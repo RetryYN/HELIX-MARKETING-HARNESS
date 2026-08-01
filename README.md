@@ -34,14 +34,15 @@ S0.1 の進行方法（本リポジトリ内か他経路か）は PO が決定�
 | [L3-system-requirements](docs/L3-system-requirements/) | システム要件 | [要件定義 FR36/NFR10](docs/L3-system-requirements/canonical/functional/requirements_v0.1.md)・[機能一覧 61](docs/L3-system-requirements/canonical/functional/function-list_v0.1.md)・[媒体別詳細要件](docs/L3-system-requirements/canonical/functional/media-requirements_v0.1.md)・[S0 契約](docs/L3-system-requirements/canonical/s0-contract_v0.1.md)・[上流戦略ループ要件](docs/L3-system-requirements/canonical/strategy/strategy-loop-requirements_v0.1.md)・[戦略学習契約](docs/L3-system-requirements/canonical/strategy/strategy-learning-contract_v0.1.md)・[検証設計](docs/L3-system-requirements/verification/verification-design_v0.1.md)・[AC カタログ](docs/L3-system-requirements/views/ac-catalog_v0.1.md)・[TC カタログ](docs/L3-system-requirements/views/tc-catalog_v0.1.md) |
 | [L4-basic-design](docs/L4-basic-design/) | 基本設計 | [基本設計](docs/L4-basic-design/canonical/basic-design_v0.1.md)・[戦略ループ設計](docs/L4-basic-design/canonical/components/strategy-loop-design_v0.1.md)・独立設計書（[外部 IF](docs/L4-basic-design/canonical/external-if/external-if-design_v0.1.md)／[DB](docs/L4-basic-design/canonical/data/db-design_v0.1.md)／[状態機械](docs/L4-basic-design/canonical/state-machine/state-machine-design_v0.1.md)／[承認](docs/L4-basic-design/canonical/approval/approval-design_v0.1.md)／[ブランド隔離](docs/L4-basic-design/canonical/brand-isolation/brand-isolation-design_v0.1.md)）・[技術選定](docs/L4-basic-design/canonical/tech-stack_v0.1.md)・[総合テスト設計](docs/L4-basic-design/integration-tests/integration-test-design_v0.1.md)・[CMP 契約ビュー](docs/L4-basic-design/views/cmp-contracts_v0.1.md) |
 | [L5-detailed-design](docs/L5-detailed-design/) | 詳細設計 | [詳細設計](docs/L5-detailed-design/canonical/detailed-design_v0.1.md)・[エラー分類](docs/L5-detailed-design/canonical/errors/error-taxonomy_v0.1.md)・[migration 規則](docs/L5-detailed-design/canonical/migrations/migration-rules.json)・[単体テスト設計](docs/L5-detailed-design/unit-tests/unit-test-design_v0.1.md)・[DU 契約ビュー](docs/L5-detailed-design/views/du-contracts_v0.1.md) |
-| [L6-feature-design](docs/L6-feature-design/) | 機能別設計 | [S0 の 11 本](docs/L6-feature-design/S0/)（brief・TLP・証跡・migration・状態機械・ペア判定・設定管理・ブランド隔離基盤・KPI handoff・外部操作・承認 — すべて confirmed）＋[実装単位 65 件](docs/L6-feature-design/S0/implementation-units.json)＋[S0.1 計画](docs/L6-feature-design/S0/plan-s0.1.json)、[S1 の 3 本](docs/L6-feature-design/S1/)（ブランド隔離完成・キャンペーン・戦略改訂 — planned）。later は空 |
+| [L6-feature-design](docs/L6-feature-design/) | 機能別設計 | [S0 の 11 本](docs/L6-feature-design/S0/)（brief・TLP・証跡・migration・状態機械・ペア判定・設定管理・ブランド隔離基盤・KPI handoff・外部操作・承認 — すべて confirmed）＋[実装単位 45 件](docs/L6-feature-design/S0/implementation-units.json)＋[S0.1 計画](docs/L6-feature-design/S0/plan-s0.1.json)、[S1 の 3 本](docs/L6-feature-design/S1/)（ブランド隔離完成・キャンペーン・戦略改訂 — planned）。later は空 |
 
-## 実装入力（契約正本 8 本）
+## 実装入力（契約正本 9 本）
 
 実装・検証の入力は **JSON 契約正本**だけを用いる（MD は生成ビュー、または人が読む正本文書）。
 
 | 種別 | 正本 |
 |---|---|
+| L6 責務/API/契約節/AC/TC/UT | [implementation-units.json](docs/L6-feature-design/S0/implementation-units.json) |
 | BR | [br-contracts.json](docs/L1-business-requirements/canonical/br/br-contracts.json) |
 | FR | [fr-contracts.json](docs/L3-system-requirements/canonical/functional/fr-contracts.json) |
 | SR | [sr-contracts.json](docs/L3-system-requirements/canonical/strategy/sr-contracts.json) |
@@ -53,6 +54,18 @@ S0.1 の進行方法（本リポジトリ内か他経路か）は PO が決定�
 
 現行分母は **AC=211 ／ TCC=217 ／ API=58 ／ API_UT=189**（件数の正本は
 [baseline.json](docs/00-authority/baselines/baseline.json)）。旧体系の分母は `historical_counts` にのみ保持する。
+
+第 9 正本の implementation-units.json は **手編集の confirmed 正本**であり、DU 契約や L6 文書からの
+生成物ではない。責務は `api_ref`（API の安定 ID 1 件）と `clause_refs`（その API の契約節 ID）で
+接続し、`ac_refs` の AC と `ut_refs` の UT が**同じ契約節**を参照していることを
+G-L6-IMPLEMENTATION-TRACE が検査する（API 名・テスト名・語彙の部分一致は接続の根拠にしない）。
+API の安定 ID は `API-DU01-01`、契約節は `API-DU01-01-POST-01` の形式で du-contracts.json が持つ。
+接続の実数（責務 45／契約節 356 のうち AC 被覆 122／AC が 1 節も検証していない API 13 本）と、
+そこから外した 20 責務の理由は
+[監査記録](docs/00-authority/audits/structural-trace-remediation-2026-08-02.md)が正本。
+
+レビュー成果物の主体分離は `separation_status` で表す。**過去 8 件は実行証跡を取得できないため
+`unverified`** であり、「独立レビュー済み」とは宣言しない（PO 判断へ送る — G-REVIEW-SEPARATION）。
 
 ## 機械ゲート
 

@@ -21,68 +21,48 @@ from tools.gates.common import (
     TC_CONTRACTS,
     TESTS_UNIT,
     Ctx,
+    api_clauses,
+    api_name,
     gate,
     load,
     schema_check,
     split_frontmatter,
+    ut_nodeids,
 )
 
 IMPL_UNITS = L6 / "S0/implementation-units.json"
-UNIT_FIELDS = ("unit_id", "doc", "du_id", "responsibility", "api_refs", "ac_refs", "tc_refs", "ut_refs")
-UNIT_ID = re.compile(r"^IU-[A-Z0-9]+-\d{2}$")
-CODE_TOKEN = re.compile(r"`([^`\n]+)`")
-# 「準用」は「別の AC を借りてきて trace の代わりにする」書き方であり、意味接続の抜け穴になる
+IMPL_UNIT_SCHEMA = L6 / "S0/implementation-unit.schema.json"
 # trace を「借りて」済ませる言い回し。ID の代わりにこれらが立つと意味接続が空洞になる
 TRACE_SUBSTITUTES = ("準用", "準じる", "準ずる", "同等", "相当をもって", "に倣う", "に習う",
                      "同様に扱う", "踏襲", "流用", "借用", "代用")
 
 
-# どの契約にも現れる汎用語は「ドメイン語の共有」の根拠にしない（独立レビュー R2-01）
-GENERIC_TERMS = frozenset({
-    "raise", "raises", "return", "returns", "value", "values", "conn", "clock", "none",
-    "error", "errors", "result", "check", "state", "table", "insert", "update", "select",
-    "delete", "event", "entity", "input", "output", "param", "params",
-})
+def api_index(du: dict) -> dict[str, dict]:
+    return {a["api_id"]: a for a in du["apis"]}
 
 
-def identifiers(s: str) -> set[str]:
-    """ドメイン語（snake_case 識別子・例外型などの CamelCase）を抜き出す。
-
-    **単語境界つき**で拾う（`GateRejected` から `ejected` のような部分文字列を作らない —
-    独立レビュー R2-01）。CamelCase は語全体と構成語の両方を返し、汎用語は除く。
-    """
-    words = set(re.findall(r"\b[a-z][a-z_]{4,}\b", s))
-    for camel in re.findall(r"\b[A-Z][a-zA-Z]{5,}\b", s):
-        words.add(camel)
-        words |= {w.lower() for w in re.findall(r"[A-Z][a-z]{3,}", camel)}
-    return {w for w in words if w.lower() not in GENERIC_TERMS}
+def clause_ids(api: dict) -> list[str]:
+    return [c["clause_id"] for c in api_clauses(api)]
 
 
-AC_PROSE_FIELDS = ("given", "when", "then", "expected_state", "expected_db_delta",
-                   "expected_evidence", "error_type", "forbidden_side_effects")
+def ac_clause_map(acs: list[dict]) -> dict[str, set[str]]:
+    """AC → その AC が検証すると宣言した API 契約節。"""
+    return {a["id"]: set(a.get("verifies_clause_refs") or []) for a in acs}
 
 
-def ac_identifiers(ac: dict) -> set[str]:
-    return identifiers(" ".join(str(ac.get(k, "")) for k in AC_PROSE_FIELDS))
-
-
-def api_name(api: dict) -> str:
-    m = re.search(r"def (\w+)", api["signature"])
-    return m.group(1) if m else ""
-
-
-def api_text(api: dict) -> str:
-    """API 契約の全文（署名・pre・post・raises）。責務が明記されているかの照合対象。"""
-    return " ".join([api["signature"], *api.get("precondition", []), *api.get("postcondition", []),
-                     *[f"{r.get('type', '')} {r.get('when', '')}" for r in api.get("raises", [])]])
+def ut_clause_map(du: dict) -> dict[tuple[str, str], set[str]]:
+    """(api_id, nodeid) → その UT が検証すると宣言した契約節。"""
+    return {(a["api_id"], u["nodeid"]): set(u.get("clause_refs") or [])
+            for a in du["apis"] for u in a.get("ut", [])}
 
 
 def detect_impl_unit_faults(ctx: Ctx, units_path: Path = IMPL_UNITS) -> list[str]:
-    """L6 の責務が API・AC・TC・UT まで意味接続されているかを検査する（PO 指示 §1）。
+    """L6 の責務が API 契約節まで**構造参照**で接続されているかを検査する（PO 指示 §2）。
 
-    「同じ DU を指しているから接続済み」を PASS にしない: 責務は **API 1 本**へ接続し、
-    その API の pre／post に責務の識別子が現れ、AC／TC／UT が当該振る舞いを検証していることまでを
-    要求する。「準用」のような借用表現で trace を代替できない。
+    接続の根拠は ID だけである: 責務は `api_ref`（1 件）と `clause_refs`（当該 API の契約節）を
+    持ち、`ac_refs` の AC と `ut_refs` の UT が**同じ契約節**を参照していなければならない。
+    API 名・テスト名・日本語語彙の部分一致は根拠にしない（語彙一致検査は廃止した）。
+    全 API 契約節は AC 被覆か理由付き `na_reason` のいずれかを持つ。
     """
     bad: list[str] = []
     if not units_path.exists():
@@ -96,13 +76,13 @@ def detect_impl_unit_faults(ctx: Ctx, units_path: Path = IMPL_UNITS) -> list[str
     if not isinstance(items, list) or not items:
         return bad + ["implementation-units.json の items が空"]
 
+    schema = load(IMPL_UNIT_SCHEMA)
     du_by_id = {d["id"]: d for d in ctx.duc}
     ac_by_id = {a["id"]: a for a in ctx.acc}
-    ac_ids = set(ac_by_id)
-    doc_reqs: dict[str, set[str]] = {}
+    ac_clauses = ac_clause_map(ctx.acc)
     tc_by_id = {t["id"]: t for t in ctx.tcc}
     seen_ids: set[str] = set()
-    owned: dict[tuple[str, str], list[str]] = {}
+    owned: dict[str, list[str]] = {}
     doc_dus: dict[str, set[str]] = {}
     doc_bodies: dict[str, str] = {}
 
@@ -111,24 +91,22 @@ def detect_impl_unit_faults(ctx: Ctx, units_path: Path = IMPL_UNITS) -> list[str
             bad.append(f"items[{i}] が object でない")
             continue
         uid = u.get("unit_id", f"items[{i}]")
-        miss = [f for f in UNIT_FIELDS if f not in u]
-        if miss:
-            bad.append(f"{uid}: 必須項目の欠落 {miss}")
+        errs = schema_check(schema, u)
+        if errs:
+            bad.append(f"{uid}: schema 違反 {errs[:2]}")
             continue
-        if not UNIT_ID.match(u["unit_id"]) or u["unit_id"] in seen_ids:
-            bad.append(f"{uid}: unit_id が規約外か重複")
+        if u["unit_id"] in seen_ids:
+            bad.append(f"{uid}: unit_id が重複")
         seen_ids.add(u["unit_id"])
         doc = u["doc"]
         p = ctx_root(doc)
-        if not p.exists() or "/S0/" not in doc:
+        if not p.exists():
             bad.append(f"{uid}: doc {doc} が S0 の L6 機能設計として実在しない")
             continue
         if doc not in doc_bodies:
             fm, body = split_frontmatter(p.read_text(encoding="utf-8"))
             doc_bodies[doc] = body
             doc_dus[doc] = set((fm or {}).get("dus") or [])
-            doc_reqs[doc] = set(((fm or {}).get("traces") or [])
-                                + ((fm or {}).get("forward_refs") or []))
         du = du_by_id.get(u["du_id"])
         if du is None:
             bad.append(f"{uid}: du_id {u['du_id']} が DU 契約に存在しない")
@@ -137,101 +115,213 @@ def detect_impl_unit_faults(ctx: Ctx, units_path: Path = IMPL_UNITS) -> list[str
             bad.append(f"{uid}: {u['du_id']} の feature_design に {doc} が無い（DU↔文書の対応が非対称）")
         if u["du_id"] not in doc_dus[doc]:
             bad.append(f"{uid}: {doc} の frontmatter.dus に {u['du_id']} が無い")
-        names = {api_name(a): a for a in du["apis"]}
-        refs = u["api_refs"]
-        if not isinstance(refs, list) or not refs:
-            bad.append(f"{uid}: api_refs が空（DU 参照だけでは責務を接続したことにしない）")
+        api = api_index(du).get(u["api_ref"])
+        if api is None:
+            bad.append(f"{uid}: api_ref {u['api_ref']} が {u['du_id']} の API に存在しない")
             continue
-        unknown = [r for r in refs if r not in names]
-        if unknown:
-            bad.append(f"{uid}: api_refs {unknown} が {u['du_id']} の API に存在しない")
+        mine = set(clause_ids(api))
+        cls = list(u["clause_refs"])
+        stray_c = [c for c in cls if c not in mine]
+        if stray_c:
+            bad.append(f"{uid}: clause_refs {stray_c[:2]} が {u['api_ref']} の契約節でない")
             continue
-        text = " ".join(api_text(names[r]) for r in refs)
-        tokens = CODE_TOKEN.findall(u["responsibility"])
-        if len(tokens) < 2:
-            bad.append(f"{uid}: responsibility に識別子（`...`）が 2 個未満"
-                       "（何の振る舞いかを API 契約の語で書く）")
-        missing = [t for t in tokens if t not in text]
-        if missing:
-            bad.append(f"{uid}: responsibility の {missing} が API の pre/post に現れない"
-                       "（責務が API 契約に明記されていない）")
         for w in TRACE_SUBSTITUTES:
             if w in u["responsibility"]:
                 bad.append(f"{uid}: responsibility に trace 代替表現『{w}』")
-        acs = u["ac_refs"]
-        if not acs:
-            bad.append(f"{uid}: ac_refs が空")
+        acs = list(u["ac_refs"])
         for a in acs:
-            if a not in ac_ids:
+            if a not in ac_by_id:
                 bad.append(f"{uid}: ac_refs の {a} が AC 契約に存在しない")
             elif a not in du["trace"].get("ac", []):
                 bad.append(f"{uid}: ac_refs の {a} が {u['du_id']} の trace.ac に無い")
-        tcs = u["tc_refs"]
-        if not tcs:
-            bad.append(f"{uid}: tc_refs が空")
+        uts = list(u["ut_refs"])
+        umap = ut_clause_map(du)
+        stray_u = [t for t in uts if (u["api_ref"], t) not in umap]
+        if stray_u:
+            bad.append(f"{uid}: ut_refs {stray_u[:2]} が {u['api_ref']} の UT 割当に無い")
+        # 文書の trace 先が同じ・DU が同じ、では PASS にしない。**同じ契約節**を指していること
+        for c in cls:
+            if not any(c in ac_clauses.get(a, set()) for a in acs):
+                bad.append(f"{uid}: clause {c} を検証する AC が ac_refs に無い"
+                           "（AC が同じ契約節を参照していない）")
+            if not any(c in umap.get((u["api_ref"], t), set()) for t in uts):
+                bad.append(f"{uid}: clause {c} を検証する UT が ut_refs に無い"
+                           "（UT が同じ契約節を参照していない）")
+        for a in acs:
+            if a in ac_by_id and not (ac_clauses.get(a, set()) & set(cls)):
+                bad.append(f"{uid}: ac_refs の {a} が clause_refs のどの節も検証していない"
+                           "（AC の所属だけで接続を名乗っている）")
+        for t in uts:
+            if (u["api_ref"], t) in umap and not (umap[(u["api_ref"], t)] & set(cls)):
+                bad.append(f"{uid}: ut_refs の {t} が clause_refs のどの節も検証していない")
+        tcs = list(u["tc_refs"])
         for t in tcs:
             if t not in tc_by_id:
                 bad.append(f"{uid}: tc_refs の {t} が TC 契約に存在しない")
             elif not set(tc_by_id[t].get("ac", [])) & set(acs):
                 bad.append(f"{uid}: tc_refs の {t} が ac_refs のどれも検証していない")
         for a in acs:
-            if a in ac_ids and not any(a in tc_by_id.get(t, {}).get("ac", []) for t in tcs):
+            if a in ac_by_id and not any(a in tc_by_id.get(t, {}).get("ac", []) for t in tcs):
                 bad.append(f"{uid}: ac_refs の {a} を検証する TC が tc_refs に無い")
-        # ID の所属だけでは「その振る舞いを検証している」ことにならない（独立レビュー R1-04）。
-        # AC は (a) API 契約と**同じドメイン語**を共有するか、(b) 当該文書が trace する要求に属する。
-        want = doc_reqs[doc]
-        api_ids = identifiers(text)
-        # **1 件でも**繋がっていれば良い、にはしない（独立レビュー R2-01）。全 ac_ref を個別に問う
-        for a in acs:
-            if a not in ac_by_id:
-                continue
-            if not (ac_identifiers(ac_by_id[a]) & api_ids) and ac_by_id[a].get("target") not in want:
-                bad.append(f"{uid}: ac_refs の {a} が API 契約の語も文書の trace 先要求"
-                           f"（{sorted(want)}）も共有しない（ID の所属だけで意味接続を名乗っている）")
-        uts = u["ut_refs"]
-        if not uts:
-            bad.append(f"{uid}: ut_refs が空（API の振る舞いを検証する UT が無い）")
-        allowed = {t for r in refs for t in names[r].get("ut", [])}
-        stray = [t for t in uts if t not in allowed]
-        if stray:
-            bad.append(f"{uid}: ut_refs {stray[:2]} が api_refs の UT 割当に無い")
-        # UT 名が API を名指ししていること（割当表の所属だけを根拠にしない — 独立レビュー R1-04）
-        parts = {w for r in refs for w in r.split("_") if len(w) >= 4}
-        if uts and parts and not any(w in u2 for u2 in uts for w in parts):
-            bad.append(f"{uid}: ut_refs のどれも API 名（{sorted(parts)}）を含まない"
-                       "（別 API のテストで検証済みを名乗れない）")
         if u["unit_id"] not in doc_bodies[doc]:
             bad.append(f"{uid}: 文書 {doc} に unit_id が現れない（JSON と文書が接続していない）")
-        key = (u["du_id"], ",".join(sorted(refs)))
-        for prev in owned.get(key, []):
+        for prev in owned.get(u["api_ref"], []):
             pu = next(x for x in items if x["unit_id"] == prev)
-            if set(pu["ac_refs"]) & set(acs):
-                bad.append(f"{uid}: {prev} と同じ API・重なる AC を主張している（責務の重複）")
-        owned.setdefault(key, []).append(u["unit_id"])
+            dup = set(pu["clause_refs"]) & set(cls)
+            if dup:
+                bad.append(f"{uid}: {prev} と同じ API の契約節 {sorted(dup)[:2]} を重複して主張している")
+        owned.setdefault(u["api_ref"], []).append(u["unit_id"])
 
     # 被覆: S0 文書が機能設計を担う DU は、全 API・全 AC がどれかの責務へ接続している
     for did, du in du_by_id.items():
         if not any("/S0/" in f for f in du["trace"].get("feature_design", [])):
             continue
-        mine = [u for u in items if isinstance(u, dict) and u.get("du_id") == did]
-        covered_api = {r for u in mine for r in u.get("api_refs", [])}
+        mine_u = [u for u in items if isinstance(u, dict) and u.get("du_id") == did]
+        covered_api = {u["api_ref"] for u in mine_u if isinstance(u.get("api_ref"), str)}
+        ac_clauses_all = {c for a in ctx.acc for c in (a.get("verifies_clause_refs") or [])}
         for a in du["apis"]:
-            if api_name(a) not in covered_api:
-                bad.append(f"{did}: API {api_name(a)} を担う責務が無い")
-        covered_ac = {a for u in mine for a in u.get("ac_refs", [])}
+            # AC が 1 節も検証していない API は、全契約節が理由付き N/A である（別途検査）。
+            # 実装責務として主張できる振る舞いが無いので、責務の欠落として扱わない。
+            if not (set(clause_ids(a)) & ac_clauses_all):
+                continue
+            if a["api_id"] not in covered_api:
+                bad.append(f"{did}: API {a['api_id']} を担う責務が無い")
+        covered_ac = {a for u in mine_u for a in u.get("ac_refs", [])}
+        # 契約節を検証する AC（＝実装責務に落ちる AC）だけを被覆対象にする。
+        # CI・ratchet・DDL を観測する AC は clause_na_reason 付きで責務の外に置く。
+        ac_by_id_all = {a["id"]: a for a in ctx.acc}
+        own_clauses = {c for x in du["apis"] for c in clause_ids(x)}
         for a in du["trace"].get("ac", []):
+            # この DU の API 契約節を検証している AC だけが、この DU の責務へ落ちる。
+            # 他 DU の節だけを検証する AC は、その DU 側の責務が担う。
+            if not (set(ac_by_id_all.get(a, {}).get("verifies_clause_refs") or []) & own_clauses):
+                continue
             if a not in covered_ac:
                 bad.append(f"{did}: AC {a} を担う責務が無い")
     for doc, dus in doc_dus.items():
         got = {u["du_id"] for u in items if isinstance(u, dict) and u.get("doc") == doc}
         if got != dus:
             bad.append(f"{doc}: 責務の DU 集合 {sorted(got)} が frontmatter.dus {sorted(dus)} と不一致")
+    bad += detect_clause_coverage_faults(ctx)
     for p in sorted(L6.rglob("*.md")):   # S0 だけでなく L6 全体（S1 の trace 代替も拒否する）
         body = p.read_text(encoding="utf-8")
         for w in TRACE_SUBSTITUTES:
             if w in body:
                 bad.append(f"{p.name}: trace 代替表現『{w}』が本文にある")
     return bad
+
+
+def detect_clause_coverage_faults(ctx: Ctx) -> list[str]:
+    """全 API 契約節が AC 被覆か理由付き N/A のいずれかを持つことを検査する（PO 指示 §2）。
+
+    AC・UT の clause 参照は**自分が属する API の節**に限る（他 API の節を指して被覆を装えない）。
+    AC 被覆と `na_reason` は排他である（検証されているのに『AC 無し』の理由を書けない）。
+
+    N/A を自由記述の免罪符にしない（独立レビュー R1-02）: 理由は**閉じた語彙**の分類で始まり、
+    AC が 1 節も検証していない API は `uncovered-apis.json` へ**明示登録**されていなければならない
+    （登録集合と実際の集合が厳密一致 — 黙って API を台帳から消せない）。件数のラチェットは baseline。
+    """
+    bad: list[str] = []
+    ac_clauses = ac_clause_map(ctx.acc)
+    all_clauses: dict[str, str] = {}      # clause_id → api_id
+    du_of_api: dict[str, str] = {}
+    seen_api: set[str] = set()
+    seen_clause: set[str] = set()
+    for d in ctx.duc:
+        for a in d["apis"]:
+            if a["api_id"] in seen_api:
+                bad.append(f"{a['api_id']}: api_id が重複している（安定 ID の一意性違反）")
+            seen_api.add(a["api_id"])
+            for c in clause_ids(a):
+                if c in seen_clause:
+                    bad.append(f"{c}: clause_id が重複している（安定 ID の一意性違反）")
+                seen_clause.add(c)
+            du_of_api[a["api_id"]] = d["id"]
+            for c in clause_ids(a):
+                all_clauses[c] = a["api_id"]
+            for u in a.get("ut", []):
+                stray = [c for c in u.get("clause_refs", []) if c not in set(clause_ids(a))]
+                if stray:
+                    bad.append(f"{d['id']}:{u['nodeid']}: clause_refs {stray[:2]} が"
+                               f" {a['api_id']} の契約節でない")
+    du_ac = {d["id"]: set(d["trace"].get("ac", [])) for d in ctx.duc}
+    covered: set[str] = set()
+    for ac in ctx.acc:
+        refs = ac_clauses[ac["id"]]
+        for c in refs:
+            if c not in all_clauses:
+                bad.append(f"{ac['id']}: verifies_clause_refs の {c} が実在しない")
+                continue
+            owner = du_of_api[all_clauses[c]]
+            if ac["id"] not in du_ac.get(owner, set()):
+                bad.append(f"{ac['id']}: {c} は {owner} の節だが {owner} の trace.ac に無い")
+                continue
+            covered.add(c)
+        reason = ac.get("clause_na_reason")
+        if refs and reason:
+            bad.append(f"{ac['id']}: 契約節を検証しているのに clause_na_reason を持つ")
+        if not refs and any(ac["id"] in v for v in du_ac.values()) and not reason:
+            bad.append(f"{ac['id']}: DU に割当られているのに verifies_clause_refs が空"
+                       "（API 契約節でないものを検証するなら clause_na_reason を書く）")
+    for d in ctx.duc:
+        for a in d["apis"]:
+            for cl in api_clauses(a):
+                cid = cl["clause_id"]
+                na = cl.get("na_reason")
+                if cid in covered and na:
+                    bad.append(f"{cid}: AC 被覆があるのに na_reason を持つ")
+                elif cid not in covered and not na:
+                    bad.append(f"{cid}: 検証する AC も na_reason も無い（契約節が未被覆）")
+                elif na and not na.startswith(NA_CATEGORIES):
+                    bad.append(f"{cid}: na_reason が分類語彙 {NA_CATEGORIES} で始まっていない"
+                               "（自由記述で被覆欠落を免除しない）")
+    bad += detect_uncovered_api_ledger_faults(ctx, covered)
+    return bad
+
+
+# N/A 理由の閉じた語彙。自由記述で「AC が無い」を正当化させない（独立レビュー R1-02）
+NA_CATEGORIES = ("呼出側義務:", "配線時保証:", "他 API で検証:", "受入基準未設定:")
+UNCOVERED_APIS = L6 / "S0/uncovered-apis.json"
+
+
+def detect_uncovered_api_ledger_faults(ctx: Ctx, covered: set[str],
+                                       ledger_path: Path = UNCOVERED_APIS) -> list[str]:
+    """AC が 1 節も検証していない API の集合が、明示台帳と**厳密一致**しているかを検査する。
+
+    この集合は G-L6-IMPLEMENTATION-TRACE の責務被覆から除外される唯一の経路であり、
+    「na_reason を書けば API ごと消える」抜け道になり得る。台帳への登録（＝承認対象の変更）を
+    必須にして、追加・削除が必ず差分として見えるようにする。
+    """
+    if not ledger_path.exists():
+        return [f"{ledger_path.name} が無い（AC 未被覆 API の明示台帳が存在しない）"]
+    ledger = load(ledger_path)
+    items = ledger.get("items", [])
+    bad: list[str] = []
+    seen: set[str] = set()
+    for it in items:
+        if it.get("api_id") in seen:
+            bad.append(f"{it.get('api_id')}: uncovered-apis.json に重複登録がある")
+        seen.add(it.get("api_id"))
+    declared = {i["api_id"]: i for i in items}
+    real = {a["api_id"]: (d["id"], api_name(a)) for d in ctx.duc for a in d["apis"]}
+    actual = {a["api_id"] for d in ctx.duc for a in d["apis"]
+              if not (set(clause_ids(a)) & covered)}
+    for extra in sorted(actual - set(declared)):
+        bad.append(f"{extra}: AC が 1 節も検証していないのに uncovered-apis.json へ未登録")
+    for stale in sorted(set(declared) - actual):
+        bad.append(f"{stale}: uncovered-apis.json に登録されているが実際は AC 被覆がある")
+    for aid, it in sorted(declared.items()):
+        if not it.get("reason") or not it.get("resolution_slice"):
+            bad.append(f"{aid}: uncovered-apis.json の reason／resolution_slice が空")
+        elif it["resolution_slice"] not in RESOLUTION_SLICES:
+            bad.append(f"{aid}: resolution_slice が語彙 {RESOLUTION_SLICES} 外")
+        # 台帳のメタデータが実契約と食い違っていないか（虚偽の DU／関数名を置けない）
+        if aid in real and (it.get("du_id"), it.get("function")) != real[aid]:
+            bad.append(f"{aid}: uncovered-apis.json の du_id／function が実契約 {real[aid]} と不一致")
+    return bad
+
+
+RESOLUTION_SLICES = ("S0.1", "S1", "later")
 
 
 def ctx_root(rel_path: str) -> Path:
@@ -249,20 +339,20 @@ def detect_api_ut_faults(dus: list[dict], tests_dir: Path = TESTS_UNIT) -> list[
         uts = set(d["trace"]["ut"])
         api_uts: set[str] = set()
         for a in d["apis"]:
-            refs = a.get("ut") or []
+            refs = ut_nodeids(a)
             if not refs:
-                bad.append(f"{d['id']}:{a['signature'][:28]}:UTなし")
+                bad.append(f"{d['id']}:{a['api_id']}:UTなし")
                 continue
             api_uts |= set(refs)
             if not set(refs) <= uts:
-                bad.append(f"{d['id']}:{a['signature'][:28]}:trace外UT")
+                bad.append(f"{d['id']}:{a['api_id']}:trace外UT")
         if uts - api_uts:
             bad.append(f"{d['id']}:宙吊りUT{sorted(uts - api_uts)[:2]}")
         owner_apis: dict[str, set] = {}
         for a in d["apis"]:
             m0 = re.match(r"def (\w+)", a["signature"])
             if m0:
-                for u in a.get("ut", []):
+                for u in ut_nodeids(a):
                     owner_apis.setdefault(u, set()).add(m0.group(1))
         for ref in sorted(uts):
             if "::" not in ref:
@@ -293,8 +383,9 @@ def run(ctx: Ctx) -> None:
     _contracts(ctx)
     iu = detect_impl_unit_faults(ctx)
     gate("G-L6-IMPLEMENTATION-TRACE", not iu,
-         "L6 の責務が API 1 本へ接続し、その pre/post に責務が明記され、AC／TC／UT が当該振る舞いを"
-         f"検証している（DU 参照だけ・『準用』での代替を拒否） (違反={iu[:3]})")
+         "L6 の責務が api_ref 1 件＋契約節（clause_id）へ構造接続し、AC／UT が同じ節を参照し、"
+         "全契約節が AC 被覆か理由付き N/A を持つ（語彙一致・借用表現での代替を拒否） "
+         f"(違反={iu[:3]})")
 
 
 def _ledger(ctx: Ctx) -> None:
@@ -325,7 +416,7 @@ def _contracts(ctx: Ctx) -> None:
          f"DU 実装契約: schema 適合＋DU23 被覆＋module 一致 "
          f"(err={d_errs[:3]}, 差={sorted(duc_ids ^ set(ledger))}, module={mod_bad})")
 
-    dbc_bad = [f"{it['id']}:{a['signature'][:30]}" for it in duc for a in it["apis"]
+    dbc_bad = [f"{it['id']}:{a['api_id']}" for it in duc for a in it["apis"]
                if not a["precondition"] or not a["postcondition"]]
     gate("G-DU-DBC", not dbc_bad, f"全公開 API に pre/post (欠落={dbc_bad[:3]})")
 

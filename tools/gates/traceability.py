@@ -10,6 +10,7 @@ from tools.gates.common import (
     gate,
     load,
     schema_check,
+    ut_nodeids,
 )
 from tools.gates.detailed_design import detect_api_ut_faults
 from tools.gates.requirements import detect_invariant_gaps, detect_polarity_gaps
@@ -88,7 +89,7 @@ def detect_chain_asymmetry(brc: list[dict], req: list[dict], allc: list[dict],
             if t["slice"] == "S0" and set(t["ac"]) & s0_ac and t["id"] not in du_tcs:
                 bad.append(f"TC→DU:{t['id']}:未割当")
     for d in duc:
-        api_ut = {u for a in d["apis"] for u in a.get("ut", [])}
+        api_ut = {u for a in d["apis"] for u in ut_nodeids(a)}
         if api_ut != set(d["trace"]["ut"]):
             bad.append(f"DU↔API-UT:{d['id']}:{sorted(api_ut ^ set(d['trace']['ut']))[:2]}")
     return bad

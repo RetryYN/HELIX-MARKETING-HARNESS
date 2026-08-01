@@ -1,0 +1,97 @@
+{
+  "version": "0.1",
+  "note": "AC が 1 節も検証していない API の明示台帳。G-L6-IMPLEMENTATION-TRACE の責務被覆から除外される唯一の経路であり、追加・削除は必ずこの台帳の差分として現れる（na_reason だけで API を台帳から消せない）。resolution_slice = 受入基準を新設して解消する予定スライス。",
+  "items": [
+    {
+      "api_id": "API-DU01-02",
+      "du_id": "DU-01",
+      "function": "register_guard",
+      "reason": "この API の契約節を観測する受入基準が AC カタログに存在しない（S0 設計時点の穴）",
+      "resolution_slice": "S0.1"
+    },
+    {
+      "api_id": "API-DU02-03",
+      "du_id": "DU-02",
+      "function": "run_microloop",
+      "reason": "この API の契約節を観測する受入基準が AC カタログに存在しない（S0 設計時点の穴）",
+      "resolution_slice": "S0.1"
+    },
+    {
+      "api_id": "API-DU02-04",
+      "du_id": "DU-02",
+      "function": "resume",
+      "reason": "この API の契約節を観測する受入基準が AC カタログに存在しない（S0 設計時点の穴）",
+      "resolution_slice": "S0.1"
+    },
+    {
+      "api_id": "API-DU02-09",
+      "du_id": "DU-02",
+      "function": "get_tactical_learning_packet",
+      "reason": "この API の契約節を観測する受入基準が AC カタログに存在しない（S0 設計時点の穴）",
+      "resolution_slice": "S0.1"
+    },
+    {
+      "api_id": "API-DU04-01",
+      "du_id": "DU-04",
+      "function": "load",
+      "reason": "この API の契約節を観測する受入基準が AC カタログに存在しない（S0 設計時点の穴）",
+      "resolution_slice": "S0.1"
+    },
+    {
+      "api_id": "API-DU09-02",
+      "du_id": "DU-09",
+      "function": "for_task",
+      "reason": "この API の契約節を観測する受入基準が AC カタログに存在しない（S0 設計時点の穴）",
+      "resolution_slice": "S0.1"
+    },
+    {
+      "api_id": "API-DU09-03",
+      "du_id": "DU-09",
+      "function": "exists",
+      "reason": "この API の契約節を観測する受入基準が AC カタログに存在しない（S0 設計時点の穴）",
+      "resolution_slice": "S0.1"
+    },
+    {
+      "api_id": "API-DU13-02",
+      "du_id": "DU-13",
+      "function": "list_declared",
+      "reason": "この API の契約節を観測する受入基準が AC カタログに存在しない（S0 設計時点の穴）",
+      "resolution_slice": "S0.1"
+    },
+    {
+      "api_id": "API-DU15-01",
+      "du_id": "DU-15",
+      "function": "launch",
+      "reason": "この API の契約節を観測する受入基準が AC カタログに存在しない（S0 設計時点の穴）",
+      "resolution_slice": "S0.1"
+    },
+    {
+      "api_id": "API-DU15-02",
+      "du_id": "DU-15",
+      "function": "screenshot",
+      "reason": "この API の契約節を観測する受入基準が AC カタログに存在しない（S0 設計時点の穴）",
+      "resolution_slice": "S0.1"
+    },
+    {
+      "api_id": "API-DU16-03",
+      "du_id": "DU-16",
+      "function": "record_failure",
+      "reason": "この API の契約節を観測する受入基準が AC カタログに存在しない（S0 設計時点の穴）",
+      "resolution_slice": "S0.1"
+    },
+    {
+      "api_id": "API-DU20-01",
+      "du_id": "DU-20",
+      "function": "commit_workspace",
+      "reason": "この API の契約節を観測する受入基準が AC カタログに存在しない（S0 設計時点の穴）",
+      "resolution_slice": "S0.1"
+    },
+    {
+      "api_id": "API-DU21-02",
+      "du_id": "DU-21",
+      "function": "tree",
+      "reason": "この API の契約節を観測する受入基準が AC カタログに存在しない（S0 設計時点の穴）",
+      "resolution_slice": "S0.1"
+    }
+  ]
+}

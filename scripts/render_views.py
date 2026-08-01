@@ -225,11 +225,16 @@ def render_du_contracts() -> tuple[Path, str]:
     for it in data["items"]:
         out.append(f"## {it['id']} `{it['module']}`（{it['cmp']}）\n\n")
         for api in it["apis"]:
-            out.append(f"### `{api['signature']}`\n\n")
-            out.append(f"- **pre**: {'／'.join(api['precondition'])}\n")
-            out.append(f"- **post**: {'／'.join(api['postcondition'])}\n")
-            raises = "／".join(f"`{r['type']}`（{r['when']}）" for r in api["raises"]) or "なし"
-            out.append(f"- **raises**: {raises} ／ **pure**: {'yes' if api['pure'] else 'no'}\n\n")
+            out.append(f"### {api['api_id']} `{api['signature']}`\n\n")
+            pre = "／".join(f"[{c['clause_id']}] {c['text']}" for c in api["precondition"])
+            post = "／".join(f"[{c['clause_id']}] {c['text']}" for c in api["postcondition"])
+            out.append(f"- **pre**: {pre}\n")
+            out.append(f"- **post**: {post}\n")
+            raises = "／".join(f"[{r['clause_id']}] `{r['type']}`（{r['when']}）"
+                              for r in api["raises"]) or "なし"
+            out.append(f"- **raises**: {raises} ／ **pure**: {'yes' if api['pure'] else 'no'}\n")
+            uts = "／".join(f"{u['nodeid']}→{'・'.join(u['clause_refs'])}" for u in api["ut"])
+            out.append(f"- **UT→契約節**: {uts}\n\n")
         out.append(f"- **DTO・値オブジェクト**: {'／'.join(it['dtos']) or 'なし'}\n")
         out.append(f"- **状態遷移**: {'／'.join(it['state_transitions']) or 'なし'}\n")
         out.append(f"- **DB read**: {'／'.join(it['db_read']) or 'なし'} ／ **DB write**: {'／'.join(it['db_write']) or 'なし'}\n")

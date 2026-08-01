@@ -43,6 +43,7 @@
         "type": "object",
         "additionalProperties": false,
         "required": [
+          "api_id",
           "signature",
           "precondition",
           "postcondition",
@@ -51,6 +52,11 @@
           "ut"
         ],
         "properties": {
+          "api_id": {
+            "type": "string",
+            "pattern": "^API-DU[0-9]{2}-[0-9]{2}$",
+            "description": "API の安定 ID。実装単位・AC・UT はこの ID で API を指す（署名や関数名の文字列一致で指さない）"
+          },
           "signature": {
             "type": "string",
             "minLength": 10,
@@ -61,16 +67,53 @@
             "type": "array",
             "minItems": 1,
             "items": {
-              "type": "string",
-              "minLength": 6
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "clause_id",
+                "text"
+              ],
+              "properties": {
+                "clause_id": {
+                  "type": "string",
+                  "pattern": "^API-DU[0-9]{2}-[0-9]{2}-PRE-[0-9]{2}$"
+                },
+                "text": {
+                  "type": "string",
+                  "minLength": 6
+                },
+                "na_reason": {
+                  "type": "string",
+                  "minLength": 10,
+                  "description": "AC を持たない契約節の理由（呼出側義務・配線時保証など）。AC 被覆と排他 — G-L6-IMPLEMENTATION-TRACE"
+                }
+              }
             }
           },
           "postcondition": {
             "type": "array",
             "minItems": 1,
             "items": {
-              "type": "string",
-              "minLength": 6
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "clause_id",
+                "text"
+              ],
+              "properties": {
+                "clause_id": {
+                  "type": "string",
+                  "pattern": "^API-DU[0-9]{2}-[0-9]{2}-POST-[0-9]{2}$"
+                },
+                "text": {
+                  "type": "string",
+                  "minLength": 6
+                },
+                "na_reason": {
+                  "type": "string",
+                  "minLength": 10
+                }
+              }
             }
           },
           "raises": {
@@ -79,10 +122,15 @@
               "type": "object",
               "additionalProperties": false,
               "required": [
+                "clause_id",
                 "type",
                 "when"
               ],
               "properties": {
+                "clause_id": {
+                  "type": "string",
+                  "pattern": "^API-DU[0-9]{2}-[0-9]{2}-RAISE-[0-9]{2}$"
+                },
                 "type": {
                   "type": "string",
                   "minLength": 3
@@ -90,6 +138,10 @@
                 "when": {
                   "type": "string",
                   "minLength": 6
+                },
+                "na_reason": {
+                  "type": "string",
+                  "minLength": 10
                 }
               }
             },
@@ -102,11 +154,30 @@
           "ut": {
             "type": "array",
             "minItems": 1,
-            "uniqueItems": true,
             "items": {
-              "type": "string",
-              "minLength": 8,
-              "pattern": "^test_[a-z0-9_]+\\.py::test_[a-z0-9_]+$"
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "nodeid",
+                "clause_refs"
+              ],
+              "properties": {
+                "nodeid": {
+                  "type": "string",
+                  "minLength": 8,
+                  "pattern": "^test_[a-z0-9_]+\\.py::test_[a-z0-9_]+$"
+                },
+                "clause_refs": {
+                  "type": "array",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string",
+                    "pattern": "^API-DU[0-9]{2}-[0-9]{2}-(PRE|POST|RAISE)-[0-9]{2}$"
+                  },
+                  "description": "この UT が検証する当該 API の契約節。UT を nodeid だけで API へ吊るさない"
+                }
+              }
             },
             "description": "この API を検証する UT（各 API ≥1 — G-API-UT）"
           }

@@ -15,7 +15,8 @@
     "resolution_commits",
     "verdict",
     "completed_at",
-    "rounds"
+    "rounds",
+    "separation_status"
   ],
   "properties": {
     "review_id": {
@@ -26,6 +27,49 @@
       "type": "string",
       "minLength": 3,
       "description": "レビュー主体（実装者と別 principal であること）"
+    },
+    "author_principal": {
+      "type": "string",
+      "minLength": 3,
+      "description": "被レビュー成果物の作成主体。reviewer_principal と異なることを G-REVIEW-SEPARATION が検査する"
+    },
+    "author_execution_id": {
+      "type": "string",
+      "minLength": 8,
+      "description": "作成側の実行 ID（作業セッション識別子）。reviewer_execution_id と一致してはならない"
+    },
+    "reviewer_execution_id": {
+      "type": "string",
+      "minLength": 8,
+      "description": "レビュー側の実行 ID（レビュアのセッション識別子）。review_log_digest が指すログの中に実在すること"
+    },
+    "review_run_id": {
+      "type": "string",
+      "minLength": 4,
+      "description": "レビュー実行の一意 ID（ラウンドを跨ぐ 1 レビューの実行単位）"
+    },
+    "reviewer_provider": {
+      "type": "string",
+      "minLength": 3,
+      "description": "レビュー実行基盤（例: openai-codex-cli）。作成側と別基盤であることを示す"
+    },
+    "review_log_path": {
+      "type": "string",
+      "pattern": "^docs/00-authority/reviews/logs/[A-Za-z0-9._-]+$",
+      "description": "レビュー実行ログの実体（リポジトリ内。clone 先でも digest を検証できる位置に置く）"
+    },
+    "review_log_digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{16}$",
+      "description": "review_log_path の sha256[:16]。実在ログと一致しなければ separation_status=verified を名乗れない"
+    },
+    "separation_status": {
+      "type": "string",
+      "enum": [
+        "verified",
+        "unverified"
+      ],
+      "description": "verified = 主体分離が実行証跡で確認済み。unverified = 証跡を取得できず『独立レビュー済み』と宣言しない（PO 判断へ送る）"
     },
     "model": {
       "type": "string",
