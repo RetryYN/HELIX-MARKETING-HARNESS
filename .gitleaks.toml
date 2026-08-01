@@ -1,0 +1,31 @@
+# gitleaks 設定。既定ルールを継承し、**内容 digest の誤検知だけ**を除外する。
+#
+# baseline.json は現役 artifact の sha256 を「パス → 64 桁 hex」で持つ台帳であり、
+# パスに `apis` を含む行（例: docs/L6-feature-design/S0/uncovered-apis.json）が
+# generic-api-key ルールの誤検知になる。
+#
+# 除外は「baseline.json の artifacts 台帳行そのもの」に限定する。
+# `condition = "AND"` を明示しないと paths と regexes は **OR** で評価され、
+# (a) baseline.json 内の全 generic-api-key 検出、(b) 他ファイルでも 64 桁 hex を含む検出、
+# の両方を無効化してしまう（独立レビュー R6-01）。
+[extend]
+useDefault = true
+
+[[rules]]
+id = "generic-api-key"
+
+[[rules.allowlists]]
+condition = "AND"
+regexTarget = "line"
+paths = ['''^docs/00-authority/baselines/baseline\.json$''']
+# キー側は**リポジトリ相対パス**に限定する。任意のキー名を許すと `"api_key": "<64桁hex>"` の
+# ような実秘密まで除外される（独立レビュー R7-01）。ルート直下の台帳行は拡張子付きの
+# ファイル名だけを許す（`api_key` のような素のキー名は一致しない）。
+# セグメントは英数字・アンダースコア始まりに限り、`.`／`..`／空セグメント
+# （`docs//x`・`docs/../api_key`）を弾く（独立レビュー R8-01）。最終セグメントは
+# **拡張子付きファイル名**を必須にして `docs/api_key` のようなパス風キーを排除する（R9-02）。
+# gitleaks の正規表現エンジン（Go RE2）は先読みを持たないため、否定先読みは使わない（R9-01）。
+# 「`api_key.txt` のような**ファイル名**なら除外され得る」残余は、G-BASE-ART-PATHS が
+# 「台帳のキーは git 追跡下の実在パスのみ・値は sha256 64 桁」を fail-close で保証することで
+# 構造的に閉じている（実在しないキーは台帳に置けない — 独立レビュー R10-01）。
+regexes = ['''^\s*"(?:(?:docs|src|tools|scripts|tests|\.github)/(?:[A-Za-z0-9_][A-Za-z0-9._-]*/)*)?[A-Za-z0-9_][A-Za-z0-9._-]*\.[A-Za-z0-9]+":\s*"[0-9a-f]{64}",?\s*$''']

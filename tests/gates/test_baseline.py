@@ -297,3 +297,64 @@ def test_current_plan_preconditions_do_not_regress_against_baseline() -> None:
     prev = {**PREV, "plan_preconditions": load(BASELINE).get("plan_preconditions", [])}
     faults = baseline.detect_ratchet_faults(prev, CUR_COUNTS, CUR_CC, 118, 194, False)
     assert not [f for f in faults if "前提条件" in f]
+
+
+def test_baseline_artifact_keys_are_tracked_paths() -> None:
+    from tools.gates.common import BASELINE, load
+    assert baseline.detect_untracked_baseline_keys(load(BASELINE)) == []
+
+
+def test_mutation_secret_like_key_in_baseline_is_detected() -> None:
+    """変異: 台帳へ秘密らしきキーを混ぜて secret scan の allowlist を悪用できない。"""
+    faults = baseline.detect_untracked_baseline_keys({"artifacts": {"api_key.txt": "a" * 64}})
+    assert any("git 追跡下に無い" in f for f in faults), faults
+
+
+def test_mutation_non_digest_value_in_baseline_is_detected() -> None:
+    faults = baseline.detect_untracked_baseline_keys({"artifacts": {"README.md": "not-a-digest"}})
+    assert any("sha256 64 桁でない" in f for f in faults), faults
+
+
+def test_mutation_tracked_but_missing_path_is_detected(monkeypatch) -> None:
+    """変異: **追跡済みだが作業ツリーに無い**パスを実在扱いしない（独立レビュー R11-02／R12-01）。
+
+    追跡判定を通過させたうえで is_file() 分岐へ到達させる（追跡外エラーで早期に落ちると
+    この分岐を検証したことにならない）。
+    """
+    ghost = "docs/00-authority/reviews/logs/ghost.jsonl"
+
+    class _Tracked:
+        stdout = ghost + "\n"
+
+    monkeypatch.setattr(baseline, "git", lambda *a: _Tracked())
+    faults = baseline.detect_untracked_baseline_keys({"artifacts": {ghost: "a" * 64}})
+    assert any("作業ツリーに実在しない" in f for f in faults), faults
+    assert not any("git 追跡下に無い" in f for f in faults), "追跡判定で落ちており分岐を検証できていない"
+
+
+def test_gitleaks_allowlist_is_hash_bound() -> None:
+    """secret scanner の allowlist が baseline の改変検出対象に入っている（R11-01）。"""
+    assert ".gitleaks.toml" in baseline.artifact_hashes()
+
+
+def test_mutation_secret_like_key_reaches_production_gate(monkeypatch, capsys) -> None:
+    """変異: 秘密らしきキーを台帳へ注入すると **本番の run_all 経路**が赤化する。
+
+    helper 単体ではなく `_baseline` を通し、G-BASE-ART-PATHS が実際に FAIL することを示す
+    （独立レビュー R11-02）。
+    """
+    from tools.gates import common
+    from tools.gates.common import BASELINE, Ctx, load, reset, results
+
+    base = dict(load(BASELINE))
+    base["artifacts"] = {**base["artifacts"], "api_key.txt": "a" * 64}
+    monkeypatch.setattr(baseline, "load",
+                        lambda p: base if p == BASELINE else load(p))
+    reset()
+    try:
+        baseline._baseline(Ctx())
+        got = {g: ok for g, ok, _ in results()}
+    finally:
+        reset()
+    assert common is not None
+    assert got.get("G-BASE-ART-PATHS") is False, got

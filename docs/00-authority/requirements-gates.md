@@ -169,6 +169,7 @@ slice: cross
 |---|---|---|
 | G-BASE-EXIST/HASH/STATUS/RATCHET | baseline.json に対し confirmed 文書のハッシュ一致・降格なし・分母縮小/ゲート削減なし・pytest skip 上限の未承認引き上げなし・**S0.1 着手前提条件（plan-s0.1.json の preconditions[].id）の削除なし**（比較元は**親コミット**の baseline、引き上げには approvals.md の構造化 PO 承認行が必要） | デグレ：confirmed のサイレント改変・後退・スコープ縮小 |
 | G-BASE-ART | 実装入力（契約 JSON・DDL・manifest・ゲートモジュール・CI・規律文書・hook・skip/coverage 予算）のハッシュが baseline と一致・未登録なし | 実装入力のサイレント改変 |
+| G-BASE-ART-PATHS | baseline.json の `artifacts` が「**git 追跡下かつ作業ツリーに実在するパス** → sha256 64 桁」だけで構成される。この台帳は digest のみを持つため secret scanner（gitleaks）の allowlist で除外しているが、その除外が安全なのはキーが実在パスに限られることが機械保証されている場合だけであり、本ゲートがその保証を与える。allowlist の設定ファイル `.gitleaks.toml` 自体も baseline の改変検出対象に含める | 台帳に秘密らしきキー（`api_key.txt` 等）を紛れ込ませ、secret scan の allowlist を悪用する |
 | G-COUNT-SYNC | 手書きのゲート件数表記が実数と一致 | 散在する件数のドリフト |
 | G-WIRING | 全ゲート ID が本台帳に掲載され、CI が `tools/gates/run_all.py` を呼ぶ | ルールの配線漏れ・死蔵 |
 | G-GATE-MODULES | ゲートが tools/gates/ の 10 モジュールへ分割され、validate_requirements.py が薄い互換ラッパー（40 行以下・run_all 参照） | 巨大 validator への逆戻り |

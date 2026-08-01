@@ -14,7 +14,7 @@
     "ITC": 16,
     "DU": 23
   },
-  "gate_count": 128,
+  "gate_count": 129,
   "max_skipped": 194,
   "coverage_floor": 0,
   "contract_counts": {
@@ -84,7 +84,8 @@
     "runtime-ut-outcome-gate"
   ],
   "separation_verified_reviews": [
-    "REV-S0-STRUCT-07"
+    "REV-S0-STRUCT-07",
+    "REV-S0-STRUCT-08"
   ],
   "clause_ac_covered": 122,
   "implementation_units": 45,
@@ -106,6 +107,7 @@
   "artifacts": {
     ".github/workflows/docs-ci.yml": "a380bf447974e0dc480bb7331e765030520e535b511d354e3fda875a214a92b8",
     ".github/workflows/python-ci.yml": "40f0186d65183ffb1ac1952e02d40f89bbc125010a61b6d74068a6aef8a888a5",
+    ".gitleaks.toml": "bd5ef0ff23d45638fd05c87c6c8c856962111fc337468e2b3de119490e84aacb",
     "AGENTS.md": "3f08370bd0cf802747422f08bf80bc8f8744f18dfebe52b54c06fdc57df01eee",
     "CLAUDE.md": "14d663943dfeac0b07b713fd12b7415f8255becedfc4849211b78d889909959c",
     "docs/00-authority/artifact-manifest.json": "2822070b31cd175bf2bdfff5712c1200149a0d3a7a4955c96394e09ee4b6f837",
@@ -244,7 +246,7 @@
     "tools/gates/__init__.py": "8d138b1639d3824505398949db21a0b15ef9c9521c601b49de518f4ca0536005",
     "tools/gates/architecture.py": "ae6c8691ec3a0ed21d5d90ddbc843822605c451a6420860e83668b12268a4776",
     "tools/gates/authority.py": "5704c885545fb70dbc4bb4535badf6e2be1c3ef984b374485093f8b8b43cce1a",
-    "tools/gates/baseline.py": "1b386fbacb516e2607831ebbe37828329e2aea4a7751541e2e7d12a6525a1fc7",
+    "tools/gates/baseline.py": "ef3f8b8cf1026967fe1d5fbf03a4c7e05384632b0d843337e97415731c4c652b",
     "tools/gates/common.py": "e421c990f46642782d010685e73db6215c93d0814ff47499742451f4b2d0c6cd",
     "tools/gates/detailed_design.py": "8500b42660edccd0b2ff5f69490f2e8ceb3e74bb9bd0cf093535590f2ad619b5",
     "tools/gates/requirements.py": "ecc2c010e88c69ef7fe1925d4afab15d0e8ac1a3eb9f7b521f064d0c82ab33af",

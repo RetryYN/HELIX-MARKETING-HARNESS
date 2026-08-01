@@ -51,6 +51,9 @@ ARTIFACT_GLOBS = [
     "scripts/*.py",
     "scripts/hooks/*.sh",
     ".github/workflows/*.yml",
+    # secret scanner の allowlist は**セキュリティ制御の設定**であり、改変検出の対象にする
+    # （範囲を緩めても baseline drift が赤化しない状態を作らない — 独立レビュー R11-01）
+    ".gitleaks.toml",
     "CLAUDE.md",
     "AGENTS.md",
     # 監査記録は append-only の規律を掲げる以上、機械的にも改変検出の対象にする
@@ -205,6 +208,26 @@ def detect_gate_test_faults() -> tuple[list[str], list[str], list[str]]:
 def confirmed_docs() -> dict[str, str]:
     return {rel(p): sha256_file(p) for p in live_markdown()
             if re.search(r"status:\s*\*{0,2}confirmed\*{0,2}", p.read_text(encoding="utf-8")[:600])}
+
+
+def detect_untracked_baseline_keys(base: dict) -> list[str]:
+    """baseline の artifacts が「git 追跡下の実在パス → sha256」だけであることを検査する。
+
+    この台帳は digest だけを持つため secret scanner の allowlist で除外している。
+    除外が安全なのは**キーが実在パスに限られる**ことが機械保証されている場合だけであり、
+    その保証をここで与える（`"api_key.txt": "<64 桁 hex>"` のような行は台帳に存在し得ない）。
+    """
+    tracked = {ln for ln in git("ls-files").stdout.splitlines() if ln}
+    bad: list[str] = []
+    for k, v in (base.get("artifacts") or {}).items():
+        if k not in tracked:
+            bad.append(f"{k}: git 追跡下に無いキー")
+        elif not (ROOT / k).is_file():
+            # 追跡済みでも作業ツリーから消えたパスは「実在」ではない（独立レビュー R11-02）
+            bad.append(f"{k}: 追跡下だが作業ツリーに実在しない")
+        elif not re.fullmatch(r"[0-9a-f]{64}", str(v)):
+            bad.append(f"{k}: 値が sha256 64 桁でない")
+    return bad
 
 
 def artifact_hashes() -> dict[str, str]:
@@ -411,6 +434,11 @@ def _baseline(ctx: Ctx) -> None:
                         + [a for a in cur_art if a not in base.get("artifacts", {})]))
     gate("G-BASE-ART", "artifacts" in base and not adrift,
          f"実装入力 artifact の無断改変/未登録なし (差分={adrift[:5] or '[]'}; 意図的なら --update-baseline)")
+
+    ghost = detect_untracked_baseline_keys(base)
+    gate("G-BASE-ART-PATHS", not ghost,
+         "baseline の artifacts キーが**git 追跡下の実在パス**のみで、値が sha256 64 桁である"
+         f"（台帳へ秘密らしきキーを紛れ込ませられない） (違反={ghost[:5]})")
 
 
 def _count_sync(ctx: Ctx) -> None:
