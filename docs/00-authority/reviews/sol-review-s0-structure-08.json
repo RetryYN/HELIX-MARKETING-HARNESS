@@ -10,8 +10,8 @@
   "review_log_digest": "ca17998854a90fcb",
   "separation_status": "verified",
   "model": "gpt-5.6-sol",
-  "target_commit": "c17e08da3a8131e66522c11790915e907ef855cb",
-  "target_tree": "cb1b10f49bb96efc154c6401465b0d1bab171aec",
+  "target_commit": "fda8c99bbf0901941c9439fdca16d80b38a21190",
+  "target_tree": "293dcfe7692cb123cb2b9fe91a4db6f6da54022a",
   "scope": "構造的意味トレース最終是正の付随修正（secret scan allowlist の限定と G-BASE-ART-PATHS の新設）",
   "supersedes_review": [
     "REV-S0-STRUCT-07"
@@ -23,7 +23,7 @@
     "docs/00-authority/approvals/approvals.md": "2012ac8f03a1be0d",
     "docs/00-authority/artifact-manifest.json": "2822070b31cd175b",
     "docs/00-authority/audits/structural-trace-remediation-2026-08-02.md": "8ce4869eeabe1e01",
-    "docs/00-authority/baselines/baseline.json": "a9ffbfbce9199d50",
+    "docs/00-authority/baselines/baseline.json": "083b716f5ad6bada",
     "docs/00-authority/requirements-gates.md": "d4c2fbb6df394f29",
     "docs/00-authority/reviews/logs/REV-S0-STRUCT-07.jsonl": "c380aa1b3d526575",
     "docs/00-authority/reviews/logs/REV-S0-STRUCT-08.jsonl": "ca17998854a90fcb",
@@ -101,7 +101,7 @@
     }
   ],
   "resolution_commits": [
-    "5b13c4af9f34"
+    "fda8c99bbf09"
   ],
   "verdict": "Go",
   "completed_at": "2026-08-02",
