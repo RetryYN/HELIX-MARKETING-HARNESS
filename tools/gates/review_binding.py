@@ -41,7 +41,11 @@ def path_resolver(ctx: Ctx) -> dict[str, str]:
 
 
 def successors(reviews: dict[str, dict], review_id: str) -> list[dict]:
-    """review_id を supersedes_review に挙げる Go レビューを推移的に集める。"""
+    """review_id を supersedes_review に挙げる **Go レビュー**を推移的に集める。
+
+    No-Go を跨いだ継承は認めない（No-Go で止める）。No-Go の先の Go は「No-Go を引き継いだ
+    レビュー」であって、元レビューの判定を引き継ぐ鎖ではない（独立レビュー R4-05）。
+    """
     out: list[dict] = []
     frontier = [review_id]
     seen = {review_id}
@@ -50,28 +54,49 @@ def successors(reviews: dict[str, dict], review_id: str) -> list[dict]:
         for r in reviews.values():
             if cur in (r.get("supersedes_review") or []) and r["review_id"] not in seen:
                 seen.add(r["review_id"])
-                if r.get("verdict") == "Go":
-                    out.append(r)
+                if r.get("verdict") != "Go":
+                    continue  # No-Go で鎖を止める
+                out.append(r)
                 frontier.append(r["review_id"])
     return out
 
 
-def is_committed(path: Path) -> bool:
-    """ファイルが HEAD に存在する（＝コミット済み）か。"""
-    return git("cat-file", "-e", f"HEAD:{rel(path)}").returncode == 0
+def commit_tree(commit: str) -> str | None:
+    """コミットのルートツリー sha を返す（解決できなければ None）。
 
-
-def tree_is_reachable(tree: str) -> bool:
-    """ツリーがいずれかのコミットのルートツリーとして到達可能か。
-
-    `git write-tree` が作る dangling tree は**ローカルの object store にしか存在せず**、
-    push されないため clone 先（CI）で解決できない。ローカルだけ緑になる穴を塞ぐ。
+    `git log --all` による到達可能性の走査は使わない。`--all` は ref から辿れる範囲しか
+    見ないため detached HEAD や shallow clone で結果が変わり、CI の checkout 深度に暗黙依存する。
+    target_commit のルートツリーとの **O(1) 厳密一致** はこの依存を持たず、
+    「dangling tree（push されず clone 先で解決できない）」と「別コミットのツリーへの掏替え」を
+    同時に落とす（独立レビュー REV-S0-STRUCT-02 の deferred 対応）。
     """
-    out = git("log", "--all", "--format=%T")
-    return out.returncode == 0 and tree in out.stdout.split()
+    out = git("rev-parse", "--verify", "--quiet", f"{commit}^{{tree}}")
+    tree = out.stdout.strip()
+    return tree if out.returncode == 0 and tree else None
 
 
-def detect_review_faults(ctx: Ctx) -> list[str]:
+def is_committed(path: Path) -> bool:
+    """レビュー成果物が HEAD に存在する（＝コミット済み）か。
+
+    リポジトリ外のパス（検査用の複製）は「猶予しない」側へ倒す（fail-close）。
+    """
+    try:
+        r = rel(path)
+    except ValueError:
+        return True
+    return git("cat-file", "-e", f"HEAD:{r}").returncode == 0
+
+
+def detect_review_faults(ctx: Ctx, notes: list[str] | None = None) -> list[str]:
+    """レビュー成果物の束縛欠陥を列挙する。
+
+    唯一の猶予は**未コミットのレビュー成果物**に対する `target_tree` 一致検査である。
+    レビューはそれ自身を含むコミットを対象にするため、作成時点では対象コミットの sha が
+    決まらない（自己参照）。作成直後は `git write-tree` のツリーへ暫定束縛し、
+    対象コミットの確定後にコミット済みツリーへ再束縛する 2 段構成を取る。
+    猶予は `notes` へ記録され、ゲート出力に「CIで未検証」として必ず現れる。
+    CI は当該コミットを checkout するためレビュー成果物は常にコミット済みで、猶予は効かない。
+    """
     schema = load(REVIEWS / "review.schema.json")
     paths = sorted(p for p in REVIEWS.glob("*.json") if p.name != "review.schema.json")
     bad: list[str] = []
@@ -92,17 +117,25 @@ def detect_review_faults(ctx: Ctx) -> list[str]:
         if git("cat-file", "-e", f"{r['target_commit']}^{{commit}}").returncode != 0:
             bad.append(f"{p.name}: target_commit がリポジトリに存在しない")
             continue
-        if r.get("target_tree"):
-            if git("cat-file", "-e", f"{r['target_tree']}^{{tree}}").returncode != 0:
-                bad.append(f"{p.name}: target_tree がリポジトリに存在しない")
+        if not r.get("target_tree"):
+            # キー欠落で厳密一致検査ごとスキップさせない（束縛が amend 可能な commit 側へ退化する）
+            bad.append(f"{p.name}: target_tree がない（レビュー対象ツリーへ束縛されていない）")
+            continue
+        if git("cat-file", "-e", f"{r['target_tree']}^{{tree}}").returncode != 0:
+            bad.append(f"{p.name}: target_tree がリポジトリに存在しない")
+            continue
+        # target_tree は target_commit のルートツリーと**厳密一致**でなければならない。
+        # `git write-tree` の dangling tree はローカルにしか無く push・clone 先で解決できない。
+        # 別コミットのツリーへの掏替えも同じ検査で落ちる。未コミットの猶予は設けない
+        # （レビュー成果物を書く時点で対象コミットは確定しているため猶予の必要がない）。
+        want = commit_tree(r["target_commit"])
+        if r["target_tree"] != want:
+            if is_committed(p):
+                bad.append(f"{p.name}: target_tree が target_commit のルートツリーと不一致"
+                           f"（記録 {r['target_tree'][:12]} / 実 {(want or '解決不能')[:12]}）")
                 continue
-            # 成果物自体がコミット済みなら、target_tree も**コミットから到達可能**でなければならない。
-            # `git write-tree` の dangling tree はローカルにしか無く、push・clone 先で解決できない
-            # （作成直後＝未コミットの間は dangling で正常なので、その間は検査しない）。
-            if is_committed(p) and not tree_is_reachable(r["target_tree"]):
-                bad.append(f"{p.name}: target_tree {r['target_tree'][:12]} がコミットから到達不可"
-                           "（dangling tree は clone 先で解決できない — コミット済みツリーへ束縛し直す）")
-                continue
+            if notes is not None:
+                notes.append(f"{p.name}: 未コミットのため target_tree 一致検査を猶予")
         succ = successors(reviews, r["review_id"])
         # 凍結対象: target_tree があればツリー（amend で動かせない）、無ければ target_commit
         frozen = r.get("target_tree") or r["target_commit"]
@@ -127,14 +160,20 @@ def detect_review_faults(ctx: Ctx) -> list[str]:
             now = hashlib.sha256(fp.read_bytes()).hexdigest()[:16]
             if now == dg:
                 continue
-            if not any(now in n.get("reviewed_artifact_digests", {}).values() for n in succ):
+            # digest 値の集合ではなく **artifact キーに束縛**して照合する
+            # （別 artifact に同一 digest があるだけで通る偽陰性を塞ぐ — 独立レビュー R4-04）
+            if not any(n.get("reviewed_artifact_digests", {}).get(art) == now
+                       or n.get("reviewed_artifact_digests", {}).get(current) == now
+                       for n in succ):
                 bad.append(f"{p.name}: {art} がレビュー後に改変（{dg}→{now}）— "
                            "supersedes_review で引き継ぐ後続 Go レビューがない")
     return bad
 
 
 def run(ctx: Ctx) -> None:
-    bad = detect_review_faults(ctx)
+    notes: list[str] = []
+    bad = detect_review_faults(ctx, notes)
+    deferred = f" ※CIで未検証（未コミット猶予）: {notes}" if notes else ""
     gate("G-REVIEW-BINDING", not bad,
-         f"レビュー成果物が対象コミット・成果物 digest・後続レビュー（supersedes_review）へ束縛 "
-         f"(欠陥={bad[:4]})")
+         f"レビュー成果物が対象コミット・そのルートツリー・成果物 digest・後続レビュー"
+         f"（supersedes_review）へ束縛 (欠陥 {len(bad)} 件={bad[:4]}){deferred}")

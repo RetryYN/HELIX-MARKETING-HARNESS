@@ -236,6 +236,9 @@ def committed_baseline() -> tuple[dict | None, str]:
     親コミットが存在するのに baseline がどのパスでも解決できない場合は fail-close
     （None ではなく理由を返し、呼び出し側がゲートを落とす）。
     """
+    if git("rev-parse", "--is-inside-work-tree").returncode != 0:
+        # 非 git ツリーを「初回コミット」と混同するとラチェットが一律に素通りする（独立レビュー N-07）
+        return None, "git リポジトリではない（比較元を解決できない — fail-close）"
     if git("rev-parse", "--verify", "HEAD^").returncode != 0:
         return None, "親コミットなし（初回コミット）"
     for path in [rel(BASELINE), *BASELINE_PREVIOUS_PATHS]:

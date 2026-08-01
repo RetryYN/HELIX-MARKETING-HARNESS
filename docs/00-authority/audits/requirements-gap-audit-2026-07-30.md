@@ -1,3 +1,9 @@
+---
+artifact_id: AUTH-AUDIT-REQUIREMENTS-GAP-AUDIT-2026-07-30
+lifecycle_status: completed
+slice: cross
+---
+
 # 要件定義ギャップ監査 — HELIX 品質バー突合（2026-07-30）
 
 - status: remediated（是正記録 §8 参照。承認は PO 未実施）

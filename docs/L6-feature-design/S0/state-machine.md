@@ -1,7 +1,16 @@
+---
+artifact_id: L6-S0-STATE-MACHINE
+lifecycle_status: draft
+slice: S0
+traces: [FR-11, SR-07]
+forward_refs: [SR-02, SR-03]
+dus: [DU-01, DU-02, DU-03]
+---
+
 # 機能別詳細設計 — 状態機械の実装詳細
 
 > status: **draft（再降下中）**（2026-08-01 全層再降下 §7 — AI 起草）
-> 正準参照: 遷移表の正準は [json/s0/transitions.json](../../L3-system-requirements/canonical/schemas/s0/transitions.json) ＋
+> 正準参照: 要求 = FR-11（ループ状態機械）。遷移表の正準は [json/s0/transitions.json](../../L3-system-requirements/canonical/schemas/s0/transitions.json) ＋
 > [s0-contract_v0.1.md §3](../../L3-system-requirements/canonical/s0-contract_v0.1.md)。状態図・ガード 6 分類・発火権限・
 > 競合制御の設計層は [state-machine-design_v0.1.md](../../L4-basic-design/canonical/state-machine/state-machine-design_v0.1.md)（本書の上位 —
 > 本書は同書 §2〜§4 を実装レベルへ降下する）。API 署名の正本は

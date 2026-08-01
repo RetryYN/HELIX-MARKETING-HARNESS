@@ -1,3 +1,9 @@
+---
+artifact_id: L3-STRATEGY-LEARNING-CONTRACT
+lifecycle_status: confirmed
+slice: cross
+---
+
 # 戦略学習契約（brief／TLP／revision）v0.1
 
 > status: **confirmed**（2026-08-01 PO 承認 — 上流戦略インフィニティループ再強化指示。AI 起草）

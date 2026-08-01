@@ -103,10 +103,10 @@
 | 2026-08-01 | ac-contracts.json | v0.1 | confirmed | PO | f45a142308b6 | 211 |
 | 2026-08-01 | tc-contracts.json | v0.1 | confirmed | PO | a95a47ea1980 | 217 |
 | 2026-08-01 | cmp-contracts.json | v0.1 | confirmed | PO | 87b382a4a724 | 23 |
-| 2026-08-01 | du-contracts.json | v0.1 | confirmed | PO | df3c3c5eac2e | 23 |
+| 2026-08-01 | du-contracts.json | v0.1 | confirmed | PO | 32c2ca8c6db9 | 23 |
 | 2026-08-01 | ac.json / verification.json / utest.json | v0.1 | superseded | PO | — | 旧 AC19／TC59／UTC69 体系を実装入力から除外（履歴保持） |
 | 2026-08-01 | cmp-contracts | v0.1 | confirmed | PO | 0c0730cc4fc5 | 生成ビュー（JSON 正本の confirmed に従属） |
-| 2026-08-01 | du-contracts | v0.1 | confirmed | PO | 572efedf3606 | 生成ビュー（JSON 正本の confirmed に従属） |
+| 2026-08-01 | du-contracts | v0.1 | confirmed | PO | 50df157fc48a | 生成ビュー（JSON 正本の confirmed に従属） |
 | 2026-08-01 | ac-catalog | v0.1 | confirmed | PO | 54b525b6e255 | 生成ビュー（JSON 正本の confirmed に従属） |
 | 2026-08-01 | br-contracts | v0.1 | confirmed | PO | a26fb25be728 | 生成ビュー（JSON 正本の confirmed に従属） |
 | 2026-08-01 | fr-contracts | v0.1 | confirmed | PO | 9bc48f64fe85 | 生成ビュー（JSON 正本の confirmed に従属） |
@@ -115,8 +115,8 @@
 | 2026-08-01 | tc-catalog | v0.1 | confirmed | PO | bad31952bafb | 生成ビュー（JSON 正本の confirmed に従属） |
 | 2026-08-01 | requirements | v0.1 | confirmed | PO | 812e44db8158 | クロージャー改訂（DDL トリガ追加・実装正本パス） |
 | 2026-08-01 | s0-contract | v0.1 | confirmed | PO | ddc3780ddf60 | クロージャー改訂（DDL トリガ追加・実装正本パス） |
-| 2026-08-01 | du-contracts.json | v0.1 | confirmed | PO | 4d1ef4b6c613 | クロージャー確定版（semantic_refs 導入後の内容束縛 receipt） |
-| 2026-08-01 | du-contracts | v0.1 | confirmed | PO | 58d5dfd18042 | 生成ビュー（クロージャー確定版 — トリガ 14 本・semantic_refs 反映） |
+| 2026-08-01 | du-contracts.json | v0.1 | confirmed | PO | 32c2ca8c6db9 | クロージャー確定版（semantic_refs 導入後の内容束縛 receipt） |
+| 2026-08-01 | du-contracts | v0.1 | confirmed | PO | 50df157fc48a | 生成ビュー（クロージャー確定版 — トリガ 14 本・semantic_refs 反映） |
 | 2026-08-01 | nfr-contracts.json | v0.1 | confirmed | PO | 943b990d788e | クロージャー是正版（src/helix 統一の反映） |
 | 2026-08-01 | nfr-contracts | v0.1 | confirmed | PO | f77f7f3fd715 | 生成ビュー（src/helix 統一の反映） |
 
@@ -144,8 +144,8 @@
 | 2026-08-01 | cmp-contracts | v0.1 | confirmed | PO | f2463a3e2290 | 物理構造移行（L0〜L6 再配置）に伴う内容束縛承認 |
 | 2026-08-01 | cmp-contracts.json | v0.1 | confirmed | PO | 83dbd38d8ec7 | 物理構造移行に伴う参照パス更新の内容束縛承認 |
 | 2026-08-01 | detailed-design | v0.1 | confirmed | PO | ec4f88ff9bc1 | 物理構造移行（L0〜L6 再配置）に伴う内容束縛承認 |
-| 2026-08-01 | du-contracts | v0.1 | confirmed | PO | 3f782f792d85 | 物理構造移行（L0〜L6 再配置）に伴う内容束縛承認 |
-| 2026-08-01 | du-contracts.json | v0.1 | confirmed | PO | e03cd9a7999f | 物理構造移行に伴う参照パス更新の内容束縛承認 |
+| 2026-08-01 | du-contracts | v0.1 | confirmed | PO | 50df157fc48a | 物理構造移行（L0〜L6 再配置）に伴う内容束縛承認 |
+| 2026-08-01 | du-contracts.json | v0.1 | confirmed | PO | 32c2ca8c6db9 | 物理構造移行に伴う参照パス更新の内容束縛承認 |
 | 2026-08-01 | fr-contracts | v0.1 | confirmed | PO | 562f9839a594 | 物理構造移行（L0〜L6 再配置）に伴う内容束縛承認 |
 | 2026-08-01 | function-list | v0.1 | confirmed | PO | 4cf98399a186 | 物理構造移行（L0〜L6 再配置）に伴う内容束縛承認 |
 | 2026-08-01 | integration-test-design | v0.1 | confirmed | PO | 8a7ddabdff56 | 物理構造移行（L0〜L6 再配置）に伴う内容束縛承認 |
@@ -167,18 +167,40 @@
 | 2026-08-01 | ac-catalog | v0.1 | confirmed | PO | 539d458eb434 | 物理構造移行（L0〜L6 再配置）に伴う内容束縛承認 |
 | 2026-08-01 | ac-contracts.json | v0.1 | confirmed | PO | a69edfaf2881 | 物理構造移行に伴う参照パス更新の内容束縛承認 |
 | 2026-08-01 | cmp-contracts | v0.1 | confirmed | PO | 42bec6d131e3 | 物理構造移行（L0〜L6 再配置）に伴う内容束縛承認 |
-| 2026-08-01 | du-contracts | v0.1 | confirmed | PO | 25feb6706b2f | 物理構造移行（L0〜L6 再配置）に伴う内容束縛承認 |
-| 2026-08-01 | du-contracts.json | v0.1 | confirmed | PO | 40cd2db60be3 | 物理構造移行に伴う参照パス更新の内容束縛承認 |
+| 2026-08-01 | du-contracts | v0.1 | confirmed | PO | 50df157fc48a | 物理構造移行（L0〜L6 再配置）に伴う内容束縛承認 |
+| 2026-08-01 | du-contracts.json | v0.1 | confirmed | PO | 32c2ca8c6db9 | 物理構造移行に伴う参照パス更新の内容束縛承認 |
 | 2026-08-01 | tc-catalog | v0.1 | confirmed | PO | 78002e32e54f | 物理構造移行（L0〜L6 再配置）に伴う内容束縛承認 |
 | 2026-08-01 | tc-contracts.json | v0.1 | confirmed | PO | f7d415686eb5 | 物理構造移行に伴う参照パス更新の内容束縛承認 |
 | 2026-08-01 | requirements | v0.1 | confirmed | PO | 51b1351dfa0b | 物理構造移行（L0〜L6 再配置）に伴う内容束縛承認 |
 | 2026-08-01 | unit-test-design | v0.1 | confirmed | PO | 92618a027083 | 物理構造移行（L0〜L6 再配置）に伴う内容束縛承認 |
 | 2026-08-01 | verification-design | v0.1 | confirmed | PO | 7dec3031ee2f | 物理構造移行（L0〜L6 再配置）に伴う内容束縛承認 |
-| 2026-08-01 | du-contracts | v0.1 | confirmed | PO | 693efe6b4220 | 物理構造移行（L0〜L6 再配置）に伴う内容束縛承認 |
-| 2026-08-01 | du-contracts.json | v0.1 | confirmed | PO | 53c7575f7a3c | 物理構造移行に伴う参照パス更新の内容束縛承認 |
+| 2026-08-01 | du-contracts | v0.1 | confirmed | PO | 50df157fc48a | 物理構造移行（L0〜L6 再配置）に伴う内容束縛承認 |
+| 2026-08-01 | du-contracts.json | v0.1 | confirmed | PO | 32c2ca8c6db9 | 物理構造移行に伴う参照パス更新の内容束縛承認 |
 | 2026-08-01 | basic-design | v0.1 | confirmed | PO | 88f50be04fb2 | 物理構造移行（L0〜L6 再配置）に伴う内容束縛承認 |
 | 2026-08-01 | function-list | v0.1 | confirmed | PO | 118cb2f99077 | 物理構造移行（L0〜L6 再配置）に伴う内容束縛承認 |
 | 2026-08-01 | integration-test-design | v0.1 | confirmed | PO | b5d86daeb953 | 物理構造移行（L0〜L6 再配置）に伴う内容束縛承認 |
 | 2026-08-01 | strategy-loop-test-design | v0.1 | confirmed | PO | dc9646d7ebf3 | 物理構造移行（L0〜L6 再配置）に伴う内容束縛承認 |
 | 2026-08-01 | unit-test-design | v0.1 | confirmed | PO | f23d35109496 | 物理構造移行（L0〜L6 再配置）に伴う内容束縛承認 |
 | 2026-08-01 | verification-design | v0.1 | confirmed | PO | e9f3cdee65c2 | 物理構造移行（L0〜L6 再配置）に伴う内容束縛承認 |
+| 2026-08-01 | du-contracts.json | v0.1 | confirmed | PO | 32c2ca8c6db9 | 構造分類是正: trace.feature_design の旧パス（features/）を L6 実パスへ是正し、S0 DU が S1 専用機能設計を入力にしないよう付替え。API・UT・AC/TC 割当の変更なし |
+| 2026-08-01 | du-contracts | v0.1 | confirmed | PO | 50df157fc48a | 上記 du-contracts.json の再生成ビュー（scripts/render_views.py — 手編集なし） |
+| 2026-08-01 | marketing-harness-charter | v0.4 | confirmed | PO | 5fadaee9f132 | 構造分類是正: 権威メタデータ frontmatter（artifact_id／lifecycle_status／slice）の付与に伴う内容束縛承認（本文の変更なし） |
+| 2026-08-01 | br-backbone | v0.1 | confirmed | PO | 1d4d9354805b | 構造分類是正: 権威メタデータ frontmatter（artifact_id／lifecycle_status／slice）の付与に伴う内容束縛承認（本文の変更なし） |
+| 2026-08-01 | br-media | v0.1 | confirmed | PO | be52caaecd9e | 構造分類是正: 権威メタデータ frontmatter（artifact_id／lifecycle_status／slice）の付与に伴う内容束縛承認（本文の変更なし） |
+| 2026-08-01 | glossary | v0.1 | confirmed | PO | 5230f086b655 | 構造分類是正: 権威メタデータ frontmatter（artifact_id／lifecycle_status／slice）の付与に伴う内容束縛承認（本文の変更なし） |
+| 2026-08-01 | loop-task-workflow | v0.1 | confirmed | PO | 83f2152e18c2 | 構造分類是正: 権威メタデータ frontmatter（artifact_id／lifecycle_status／slice）の付与に伴う内容束縛承認（本文の変更なし） |
+| 2026-08-01 | requirement-list | v0.1 | confirmed | PO | d2394ab820cb | 構造分類是正: 権威メタデータ frontmatter（artifact_id／lifecycle_status／slice）の付与に伴う内容束縛承認（本文の変更なし） |
+| 2026-08-01 | function-list | v0.1 | confirmed | PO | 7819bed6e726 | 構造分類是正: 権威メタデータ frontmatter（artifact_id／lifecycle_status／slice）の付与に伴う内容束縛承認（本文の変更なし） |
+| 2026-08-01 | media-requirements | v0.1 | confirmed | PO | 36b8565661da | 構造分類是正: 権威メタデータ frontmatter（artifact_id／lifecycle_status／slice）の付与に伴う内容束縛承認（本文の変更なし） |
+| 2026-08-01 | requirements | v0.1 | confirmed | PO | 03eb6e9996e0 | 構造分類是正: 権威メタデータ frontmatter（artifact_id／lifecycle_status／slice）の付与に伴う内容束縛承認（本文の変更なし） |
+| 2026-08-01 | s0-contract | v0.1 | confirmed | PO | 5cc07fd4cce7 | 構造分類是正: 権威メタデータ frontmatter（artifact_id／lifecycle_status／slice）の付与に伴う内容束縛承認（本文の変更なし） |
+| 2026-08-01 | strategy-learning-contract | v0.1 | confirmed | PO | 4b17e1fc97d2 | 構造分類是正: 権威メタデータ frontmatter（artifact_id／lifecycle_status／slice）の付与に伴う内容束縛承認（本文の変更なし） |
+| 2026-08-01 | strategy-loop-requirements | v0.1 | confirmed | PO | 9646272aab5a | 構造分類是正: 権威メタデータ frontmatter（artifact_id／lifecycle_status／slice）の付与に伴う内容束縛承認（本文の変更なし） |
+| 2026-08-01 | verification-design | v0.1 | confirmed | PO | 775e21c5cb36 | 構造分類是正: 権威メタデータ frontmatter（artifact_id／lifecycle_status／slice）の付与に伴う内容束縛承認（本文の変更なし） |
+| 2026-08-01 | basic-design | v0.1 | confirmed | PO | f591bd8f83cb | 構造分類是正: 権威メタデータ frontmatter（artifact_id／lifecycle_status／slice）の付与に伴う内容束縛承認（本文の変更なし） |
+| 2026-08-01 | strategy-loop-design | v0.1 | confirmed | PO | fbd993f518e3 | 構造分類是正: 権威メタデータ frontmatter（artifact_id／lifecycle_status／slice）の付与に伴う内容束縛承認（本文の変更なし） |
+| 2026-08-01 | tech-stack | v0.1 | confirmed | PO | 2cd72197b54f | 構造分類是正: 権威メタデータ frontmatter（artifact_id／lifecycle_status／slice）の付与に伴う内容束縛承認（本文の変更なし） |
+| 2026-08-01 | integration-test-design | v0.1 | confirmed | PO | 6e65b3fb05c6 | 構造分類是正: 権威メタデータ frontmatter（artifact_id／lifecycle_status／slice）の付与に伴う内容束縛承認（本文の変更なし） |
+| 2026-08-01 | strategy-loop-test-design | v0.1 | confirmed | PO | 67759deee63a | 構造分類是正: 権威メタデータ frontmatter（artifact_id／lifecycle_status／slice）の付与に伴う内容束縛承認（本文の変更なし） |
+| 2026-08-01 | detailed-design | v0.1 | confirmed | PO | f8ec45abe930 | 構造分類是正: 権威メタデータ frontmatter（artifact_id／lifecycle_status／slice）の付与に伴う内容束縛承認（本文の変更なし） |
+| 2026-08-01 | unit-test-design | v0.1 | confirmed | PO | 5a1139af7be2 | 構造分類是正: 権威メタデータ frontmatter（artifact_id／lifecycle_status／slice）の付与に伴う内容束縛承認（本文の変更なし） |

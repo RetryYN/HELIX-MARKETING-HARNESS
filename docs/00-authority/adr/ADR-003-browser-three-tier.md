@@ -1,3 +1,9 @@
+---
+artifact_id: AUTH-ADR-ADR-003-BROWSER-THREE-TIER
+lifecycle_status: draft
+slice: cross
+---
+
 # ADR-003: ブラウザ自動化は三段構え（Playwright → Camoufox → ビジョン）
 
 - status: accepted

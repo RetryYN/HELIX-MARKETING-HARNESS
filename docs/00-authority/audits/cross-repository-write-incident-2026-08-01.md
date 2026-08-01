@@ -1,3 +1,9 @@
+---
+artifact_id: AUTH-AUDIT-CROSS-REPOSITORY-WRITE-INCIDENT-2026-08-01
+lifecycle_status: completed
+slice: cross
+---
+
 # 監査記録 — 越境書込み事故（2026-08-01）
 
 > status: **withdrawn**

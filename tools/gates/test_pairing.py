@@ -18,11 +18,13 @@ from tools.gates.common import (
     L6,
     ROOT,
     S0_CONTRACT,
+    S0_DU_MAX,
     TESTS_UNIT,
     UNIT_TEST_DESIGN,
     VERIFICATION_DESIGN,
     Ctx,
     gate,
+    git,
     load,
     reachable_nodes,
     rel,
@@ -38,7 +40,6 @@ PAIRED_L3_DOCS = [
 ]
 S0_PLAN = L6 / "S0/plan-s0.1.json"
 SRC_PKG = ROOT / "src/helix"
-S0_DU_MAX = 12  # S0.1 対象 = DU-01〜12
 COVERAGE_STARTED_FLOOR = 80
 
 
@@ -71,8 +72,13 @@ def impl_start_signals(ctx: Ctx) -> list[str]:
     extra = sorted(_display(p) for p in SRC_PKG.rglob("*.py") if has_implementation(p))
     if extra:
         sig.append(f"src-impl:{extra[:3]}")
-    if S0_PLAN.exists() and load(S0_PLAN).get("status") == "in_progress":
-        sig.append("plan:in_progress")
+    if S0_PLAN.exists():
+        # `done` も着手済みとして扱う。in_progress を飛ばして done を書けば
+        # G-UT-NO-ESCAPE・coverage 下限・G-S0-TEST-REALITY を全部迂回できてしまう
+        # （独立レビュー R4-01 の fail-open）。
+        st = load(S0_PLAN).get("status")
+        if st in ("in_progress", "done"):
+            sig.append(f"plan:{st}")
     api_impl = detect_du_api_implementations(ctx)
     if api_impl:
         sig.append(f"du-api:{api_impl[:3]}")
@@ -357,12 +363,12 @@ def detect_ut_escapes(ctx: Ctx, tests_dir: Path = TESTS_UNIT) -> list[str]:
                 cache[fname] = (tree, origins, _module_level_escapes(tree, origins))
             except SyntaxError as e:
                 cache[fname] = (None, {}, [f"構文エラー:{e}"])
-        tree, origins, mod_escapes = cache[fname]
+        cached, origins, mod_escapes = cache[fname]
         for label in mod_escapes:
             bad.append(f"{du}:{fname}:{label}")
-        if tree is None:
+        if cached is None:
             continue
-        fn = next((n for n in ast.walk(tree)
+        fn = next((n for n in ast.walk(cached)
                    if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)) and n.name == tname), None)
         if fn is None:
             bad.append(f"{du}:{fname}::{tname}:def 不在")
@@ -374,21 +380,68 @@ def detect_ut_escapes(ctx: Ctx, tests_dir: Path = TESTS_UNIT) -> list[str]:
 
 PLAN_STATUSES = ("planned", "in_progress", "done")
 PRECONDITION_STATUSES = ("unmet", "met")
+# 前提条件が「一語の申し送り」に退化するのを防ぐ最小記述量（何を満たせば met なのかが読める長さ）
+PRECONDITION_MIN_DESC = 40
+# met の根拠は機械が辿れる形（ゲート ID／commit SHA）に束縛する
+MET_BY_GATE = re.compile(r"^G-[A-Z0-9]+(?:-[A-Z0-9]+)*$")
+MET_BY_COMMIT = re.compile(r"^[0-9a-f]{7,40}$")
 
 
-def detect_plan_faults(started: bool, plan_path: Path = S0_PLAN) -> list[str]:
+def ledger_gate_ids() -> set[str]:
+    """**実際に emit されるゲート ID** の集合（完全一致照合用）。
+
+    台帳散文からの抽出は使わない。台帳は `G-CNT-BR/REQ/FR` のような圧縮表記や廃止 ID の
+    説明行を含むため、素朴な正規表現では実在しない ID を受理し（偽陰性）、実在する
+    `G-BASE-HASH` 等を拒否する（偽陽性）。本番モジュールの `gate(...)` 呼出しが正本。
+    """
+    from tools.gates.baseline import script_gate_ids
+    return script_gate_ids()
+
+
+def _precondition_faults(index: int, p: object) -> list[str]:
+    """preconditions の 1 要素を検査する（非 dict でも例外にせず違反として返す）。"""
+    if not isinstance(p, dict):
+        return [f"preconditions[{index}] が object でない:{type(p).__name__}"]
+    bad: list[str] = []
+    pid = p.get("id")
+    label = pid if isinstance(pid, str) and pid else f"preconditions[{index}]"
+    if not isinstance(pid, str) or not pid:
+        bad.append(f"{label}: id が非空文字列でない")
+    if p.get("status") not in PRECONDITION_STATUSES:
+        bad.append(f"{label}: status 語彙外:{p.get('status')}")
+    desc = p.get("description")
+    if not isinstance(desc, str) or len(desc.strip()) < PRECONDITION_MIN_DESC:
+        bad.append(f"{label}: description が {PRECONDITION_MIN_DESC} 文字未満"
+                   "（何を満たせば met なのかを書く）")
+    if p.get("status") == "met":
+        mb = p.get("met_by")
+        if not isinstance(mb, str) or not (MET_BY_GATE.match(mb) or MET_BY_COMMIT.match(mb)):
+            bad.append(f"{label}: status=met には met_by（ゲート ID または commit SHA）が必須:{mb!r}")
+        elif MET_BY_GATE.match(mb):
+            # 部分文字列一致だと実在 ID の接頭辞（G-BASE 等）が素通りするため、
+            # 本番モジュールが emit する ID 集合への完全一致所属を要求する
+            if mb not in ledger_gate_ids():
+                bad.append(f"{label}: met_by のゲート {mb} がゲート台帳に存在しない")
+        elif git("cat-file", "-e", f"{mb}^{{commit}}").returncode != 0:
+            bad.append(f"{label}: met_by の commit {mb} がリポジトリに存在しない")
+    return bad
+
+
+def detect_plan_faults(started: bool, plan_path: Path = S0_PLAN,
+                       ctx: Ctx | None = None) -> list[str]:
     """S0.1 PLAN の妥当性と**着手前提条件の充足**を検査する。
 
     前提条件を散文の申し送りで持つと、必要になる瞬間（＝着手時）にちょうど忘れられる。
-    `preconditions[].status` が `met` でない限り、`in_progress` への遷移も着手の自動検出も
-    fail-close で落とす（独立レビュー REV-S0-STRUCT-01 の申し送りを機械可読化したもの）。
+    `preconditions[].status` が `met` でない限り、`planned` 以外の全 status（in_progress・done）
+    と着手の自動検出を fail-close で落とす（`planned → done` 直行による迂回も塞ぐ）。
     """
     bad: list[str] = []
     if not plan_path.exists():
         return ["S0.1 PLAN が存在しない（着手自動検出の入力が欠ける）"]
     plan = load(plan_path)
-    if plan.get("status") not in PLAN_STATUSES:
-        bad.append(f"status 語彙外:{plan.get('status')}")
+    status = plan.get("status")
+    if status not in PLAN_STATUSES:
+        bad.append(f"status 語彙外:{status}")
     want = {f"DU-{i:02d}" for i in range(1, S0_DU_MAX + 1)}
     if set(plan.get("targets", [])) != want:
         bad.append(f"targets が DU-01〜{S0_DU_MAX:02d} と不一致")
@@ -396,13 +449,28 @@ def detect_plan_faults(started: bool, plan_path: Path = S0_PLAN) -> list[str]:
     if not isinstance(pres, list) or not pres:
         bad.append("preconditions が未定義（着手前提条件を散文に置かない）")
         return bad
-    for p in pres:
-        if not p.get("id") or p.get("status") not in PRECONDITION_STATUSES:
-            bad.append(f"precondition の形式不正:{p}")
-    unmet = [p["id"] for p in pres if p.get("status") != "met" and p.get("id")]
-    if unmet and (started or plan.get("status") == "in_progress"):
-        bad.append(f"未充足の前提条件があるまま着手:{unmet}")
+    for i, p in enumerate(pres):
+        bad += _precondition_faults(i, p)
+    unmet = [p.get("id") for p in pres
+             if isinstance(p, dict) and p.get("status") != "met"]
+    # `planned` 以外は「着手済み」とみなす（done への直行も前提条件検査の対象）
+    if unmet and (started or status != "planned"):
+        bad.append(f"未充足の前提条件があるまま着手（status={status}）:{unmet}")
+    if status == "done":
+        bad += _done_completion_faults(plan, ctx)
     return bad
+
+
+def _done_completion_faults(plan: dict, ctx: Ctx | None) -> list[str]:
+    """`done` を名乗るための完了条件（対象 DU の API が実装済み）を検査する。
+
+    実装ゼロのまま `done` を書いて S0.1 完了を宣言できないようにする（独立レビュー R4-01）。
+    """
+    if ctx is None:
+        return []
+    implemented = {s.split(":")[0] for s in detect_du_api_implementations(ctx)}
+    missing = sorted(set(plan.get("targets", [])) - implemented)
+    return [f"status=done だが API 未実装の対象がある:{missing[:5]}"] if missing else []
 
 
 def coverage_floor(ctx: Ctx) -> int:
@@ -520,7 +588,7 @@ def _impl_start(ctx: Ctx) -> None:
          f"coverage 下限は着手後 {COVERAGE_STARTED_FLOOR}% 以上・以後低下禁止 "
          f"(宣言={declared_floor}, 必要={required}, 親コミット={prev}／{cov_source})")
 
-    plan_bad = detect_plan_faults(started)
+    plan_bad = detect_plan_faults(started, ctx=ctx)
     gate("G-PLAN-S0", not plan_bad,
          f"S0.1 PLAN が実在し status 語彙・対象 DU（01〜{S0_DU_MAX:02d}）・着手前提条件が正しい "
          f"(違反={plan_bad})")

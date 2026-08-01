@@ -13,11 +13,25 @@
 
 - 北極星: docs/L0-charter/canonical/marketing-harness-charter_v0.4.md（confirmed）。進行はスライス駆動。
 - **成果物の権威正本 = docs/00-authority/artifact-manifest.json**。全現役成果物の artifact ID・階層・
-  canonical／view パス・ペア・承認 digest をここで一意化する（G-AUTHORITY-MANIFEST 系が fail-close 検査）。
-  manifest に未登録の成果物を confirmed にできない。
+  slice・canonical／view パス・ペア・承認 digest をここで一意化する（G-AUTHORITY-MANIFEST 系が
+  fail-close 検査）。manifest に未登録の成果物を confirmed にできない。
 - 物理構造は L 工程で分離する: `docs/00-authority/`／`docs/L0-charter/`〜`docs/L6-feature-design/`／
-  `docs/archive/`。`canonical/` は正本、`views/` は生成 MD（**手編集禁止**）、
-  `docs/archive/` と `docs/00-authority/superseded/` は**凍結**（実装入力・現役導線にできない）。
+  `docs/archive/`。`docs/archive/` と `docs/00-authority/superseded/` は**凍結**
+  （実装入力・現役導線にできない）。
+- **正本の形式は `authority_format` が決める**（G-CANONICAL-FORMAT）: 機械実装入力・台帳・schema・
+  DDL は `canonical/` の JSON／SQL、自動生成された人間向け表現は `views/` の Markdown（**手編集禁止**）。
+  canonical Markdown は**人間承認そのものが正本の文書**（charter／policy／adr／audit-record／
+  design-doc／requirement-doc／test-design）に限る。FR／SR／NFR／AC／TC／CMP／DU など JSON 正本を
+  持つ成果物の Markdown は必ず `views/` に置く。
+- **status は 2 軸**（G-STATUS-CONSISTENCY）: `authority_status`（active／superseded／archived＝現役
+  導線上の位置だけ）と `lifecycle_status`（draft／confirmed／planned／in_progress／completed＝内容
+  成熟度だけ）。markdown 正本は YAML frontmatter に `artifact_id`／`lifecycle_status`／`slice` を持ち、
+  manifest と一致させる（生成ビューは frontmatter を持たない）。承認 digest は frontmatter を除く
+  **本文**に対して計算する。
+- **L6 のスライスは 4 点一致**（G-SLICE-PLACEMENT）: 物理ディレクトリ（S0／S1／later）＝
+  `manifest.slice` ＝ frontmatter の `slice` ＝ frontmatter `traces` の FR／SR のスライス。
+  後続スライスの要求への言及は `forward_refs` に過不足なく宣言する（S0 文書は将来拡張点だけを
+  持ち、強制実装は S1 側の文書が正本）。
 - 文書ペア（HELIX 式・片肺禁止）3 層: ①要件定義↔③検証設計、②基本設計↔④総合テスト設計（ITC 16）、
   ⑤詳細設計↔⑥単体テスト設計（DU 23）。ペアの正本は manifest の `pair_artifact_id`。
   戦略層は strategy-loop-requirements／strategy-learning-contract ↔ strategy-loop-design／
@@ -56,8 +70,8 @@
 2. ゲートの追加・変更は tools/gates/ のモジュールと docs/00-authority/requirements-gates.md を
    同時更新（G-WIRING が検査）。ゲート本体を scripts/validate_requirements.py に書かない（互換ラッパー）。
 3. 分母（BR/REQ/FR/FN/CMP/ITC/DU…）の縮小・confirmed の降格・ゲート削減は禁止（ラチェット）。
-4. status: confirmed を書く前に docs/00-authority/approvals/approvals.md に承認行を追加（G-CONFIRM）し、
-   manifest の `approval_digest` を内容に一致させる（G-MANIFEST-STATUS）。
+4. `lifecycle_status: confirmed` を書く前に docs/00-authority/approvals/approvals.md に承認行を追加
+   （G-CONFIRM）し、manifest の `approval_digest` を内容に一致させる（G-MANIFEST-STATUS）。
 5. push 前に `python3 tools/gates/run_all.py`（全ゲート — 件数の正本は
    docs/00-authority/baselines/baseline.json の gate_count。散文に件数をハードコードしない）と
    markdownlint・pytest を通す。

@@ -3,6 +3,7 @@
   "reviewer_principal": "codex-sol（実装者と別 principal のブラインドレビュー）",
   "model": "gpt-5.6-sol",
   "target_commit": "6751028671c07e2a6cc5ce19e9d6be895b27a38d",
+  "target_tree": "61f2b7bd7cc2f1592dbfe5dc5a34d52e57f9c8a6",
   "scope": "S0 設計クロージャー（正本確定・意味整合・物理統一・DDL 一致・test-first 実体化）",
   "reviewed_artifact_digests": {
     "docs/requirements/json/br/br-contracts.json": "8b506583964daac8",

@@ -338,11 +338,14 @@ def test_mutation_escape_matrix(tmp_path, label: str, should_flag: bool, body: s
 
 # --- 着手前提条件の機械化（REV-S0-STRUCT-01 第 5 次 minor 対応） ---
 
+DESC = "pytest の outcome レポートで対象 UT が individually executed かつ passed であることを検査する実行時ゲートを追加する"
+
+
 def _plan(tmp_path, **over) -> Path:
     data = {
         "plan_id": "PLAN-S0.1", "slice": "S0", "update": "S0.1", "status": "planned",
         "preconditions": [{"id": "runtime-ut-outcome-gate", "status": "unmet",
-                           "description": "…", "source": "…"}],
+                           "description": DESC, "source": "…"}],
         "targets": [f"DU-{i:02d}" for i in range(1, test_pairing.S0_DU_MAX + 1)],
     }
     data.update(over)
@@ -370,9 +373,10 @@ def test_mutation_flipping_status_to_in_progress_with_unmet_precondition_is_dete
 
 
 def test_met_preconditions_allow_starting(tmp_path) -> None:
-    """前提条件を met にすれば着手できる（偽陽性回帰）。"""
+    """前提条件を met＋met_by（実在ゲート ID）にすれば着手できる（偽陽性回帰）。"""
     plan = _plan(tmp_path, status="in_progress",
-                 preconditions=[{"id": "runtime-ut-outcome-gate", "status": "met"}])
+                 preconditions=[{"id": "runtime-ut-outcome-gate", "status": "met",
+                                 "description": DESC, "met_by": "G-UT-NO-ESCAPE"}])
     assert test_pairing.detect_plan_faults(started=True, plan_path=plan) == []
 
 
@@ -384,3 +388,89 @@ def test_mutation_removing_preconditions_is_detected(tmp_path) -> None:
     plan.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
     faults = test_pairing.detect_plan_faults(started=False, plan_path=plan)
     assert any("preconditions が未定義" in f for f in faults)
+
+
+# --- deferred だった fail-close 穴（PO 指示 §4-1〜4-4）の負例 ---
+
+def test_mutation_non_dict_precondition_is_a_readable_violation(tmp_path) -> None:
+    """変異: 前提条件を文字列に潰しても AttributeError で異常終了せず、違反として出る。"""
+    plan = _plan(tmp_path, preconditions=["runtime-ut-outcome-gate"])
+    faults = test_pairing.detect_plan_faults(started=False, plan_path=plan)
+    assert any("object でない" in f for f in faults)
+
+
+def test_mutation_stub_description_is_detected(tmp_path) -> None:
+    """変異: description を一語に潰して前提条件を骨抜きにできない。"""
+    plan = _plan(tmp_path, preconditions=[{"id": "x", "status": "unmet", "description": "後で"}])
+    faults = test_pairing.detect_plan_faults(started=False, plan_path=plan)
+    assert any("description が" in f for f in faults)
+
+
+def test_mutation_met_without_met_by_is_detected(tmp_path) -> None:
+    """変異: 根拠なしに met へ書き換えて前提条件を消せない。"""
+    plan = _plan(tmp_path, preconditions=[{"id": "x", "status": "met", "description": DESC}])
+    faults = test_pairing.detect_plan_faults(started=False, plan_path=plan)
+    assert any("met_by" in f for f in faults)
+
+
+@pytest.mark.parametrize("fake", ["G-DOES-NOT-EXIST", "G-BASE", "G-UNIQ", "G-UT-NO", "G-CNT"])
+def test_mutation_met_by_unknown_gate_is_detected(tmp_path, fake) -> None:
+    """変異: 実在しないゲート ID を met_by に書いて偽装できない。
+
+    `G-BASE`／`G-UNIQ` は実在 ID の**接頭辞**・台帳の圧縮表記断片であり、部分文字列一致へ
+    退行すると素通りする（独立レビュー F-05）。
+    """
+    plan = _plan(tmp_path, preconditions=[{"id": "x", "status": "met", "description": DESC,
+                                           "met_by": fake}])
+    faults = test_pairing.detect_plan_faults(started=False, plan_path=plan)
+    assert any("ゲート台帳に存在しない" in f for f in faults), fake
+
+
+@pytest.mark.parametrize("real", ["G-BASE-HASH", "G-UT-NO-ESCAPE", "G-SLICE-PLACEMENT"])
+def test_real_gate_ids_are_accepted_as_met_by(tmp_path, real) -> None:
+    """実在ゲート ID は met_by として通る（偽陽性回帰）。"""
+    plan = _plan(tmp_path, preconditions=[{"id": "x", "status": "met", "description": DESC,
+                                           "met_by": real}])
+    assert test_pairing.detect_plan_faults(started=False, plan_path=plan) == [], real
+
+
+def test_mutation_met_by_unknown_commit_is_detected(tmp_path) -> None:
+    """変異: 実在しない commit SHA を met_by に書いて偽装できない。"""
+    plan = _plan(tmp_path, preconditions=[{"id": "x", "status": "met", "description": DESC,
+                                           "met_by": "0" * 40}])
+    faults = test_pairing.detect_plan_faults(started=False, plan_path=plan)
+    assert any("リポジトリに存在しない" in f for f in faults)
+
+
+def test_met_by_real_commit_is_accepted(tmp_path) -> None:
+    """実在 commit SHA による束縛は通る（偽陽性回帰）。"""
+    import subprocess
+    sha = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True,
+                         check=True, cwd=test_pairing.ROOT).stdout.strip()
+    plan = _plan(tmp_path, preconditions=[{"id": "x", "status": "met", "description": DESC,
+                                           "met_by": sha}])
+    assert test_pairing.detect_plan_faults(started=False, plan_path=plan) == []
+
+
+def test_mutation_planned_to_done_shortcut_is_detected(tmp_path) -> None:
+    """変異: in_progress を飛ばして done へ直行しても前提条件検査は発火する。"""
+    plan = _plan(tmp_path, status="done")
+    faults = test_pairing.detect_plan_faults(started=False, plan_path=plan)
+    assert any("未充足の前提条件" in f for f in faults)
+
+
+def test_mutation_plan_done_triggers_start_detection(tmp_path, monkeypatch) -> None:
+    """変異: status=done でも着手扱いにする（in_progress を飛ばした迂回を塞ぐ — R4-01）。"""
+    plan = tmp_path / "plan-s0.1.json"
+    plan.write_text('{"status": "done", "targets": []}', encoding="utf-8")
+    monkeypatch.setattr(test_pairing, "S0_PLAN", plan)
+    assert "plan:done" in test_pairing.impl_start_signals(CTX)
+
+
+def test_mutation_done_without_implementation_is_detected(tmp_path) -> None:
+    """変異: 実装ゼロのまま done を名乗って S0.1 完了を宣言できない（R4-01）。"""
+    plan = _plan(tmp_path, status="done",
+                 preconditions=[{"id": "x", "status": "met", "description": DESC,
+                                 "met_by": "G-UT-NO-ESCAPE"}])
+    faults = test_pairing.detect_plan_faults(started=True, plan_path=plan, ctx=CTX)
+    assert any("API 未実装の対象がある" in f for f in faults)

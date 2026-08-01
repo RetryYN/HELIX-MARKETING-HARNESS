@@ -1,3 +1,12 @@
+---
+artifact_id: L6-S0-KPI-HANDOFF
+lifecycle_status: draft
+slice: S0
+traces: [FR-61, FR-62]
+forward_refs: [FR-15, FR-22, SR-03, SR-04, SR-10, SR-12]
+dus: [DU-07, DU-21, DU-22, DU-23]
+---
+
 # 機能設計: KPI 交差点（計画↔計測ハンドオフ）
 
 > status: **draft（再降下中）**（2026-08-01 全層再降下 §7 — AI 起草）
@@ -130,4 +139,5 @@ invariant: 判定は**達成/未達を問わない** — 目標と実測の両�
 | 還流の冪等再実行 | DU-02 | AC-15-3 | TCC-15-3 | 同一 source_pair_id の重複生成なし |
 | KPI ノード登録・ツリー解決 | DU-21 | AC-61-1 | TCC-61-1 | 5 階層接地・非有料指標のみ |
 | 計測投入の冪等・証跡 FK | DU-22・DU-23 | AC-62-1 | TCC-62-1 | 観測背骨側の前提 |
+| 非有料指標の入口検査（ゼロ広告費ゲート） | DU-07 | AC-23-1 | TCC-23-1 | KPI ツリーへ入る指標種別・ドメインの fail-close 検査（FR-23） |
 | TLP metrics の KPI ノード参照・分離 | DU-02・DU-10 | AC-SR-03・AC-SR-04 | STC-I-05・STC-I-06 | SR-12 の実装固定（自動書込み経路の不在） |

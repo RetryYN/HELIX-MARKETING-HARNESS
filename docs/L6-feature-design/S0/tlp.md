@@ -1,3 +1,12 @@
+---
+artifact_id: L6-S0-TLP
+lifecycle_status: draft
+slice: S0
+traces: [SR-06, SR-08, SR-09]
+forward_refs: [SR-01, SR-02, SR-03, SR-05]
+dus: [DU-01, DU-02, DU-11]
+---
+
 # 機能別詳細設計 — tactical_learning_packet（学習／失敗 packet）
 
 > status: **draft（再降下中）**（2026-08-01 全層再降下 §7 — AI 起草）

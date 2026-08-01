@@ -1,3 +1,9 @@
+---
+artifact_id: AUTH-AUDIT-REVIEW-REMEDIATION-2026-08-01
+lifecycle_status: draft
+slice: cross
+---
+
 # 外部レビュー是正台帳 2026-08-01
 
 > status: active。2026-07-31 受領の外部レビュー（総合 76/100・S0.1 実装 NO-GO 判定）への対応記録。

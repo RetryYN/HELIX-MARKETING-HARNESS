@@ -1,3 +1,9 @@
+---
+artifact_id: AUTH-REQUIREMENTS-GATES
+lifecycle_status: draft
+slice: cross
+---
+
 # 要件整合ゲート台帳 v0.2
 
 > status: **active**（2026-08-01 分割改訂）。実体は [tools/gates/](../../tools/gates/) の工程別モジュール、
@@ -26,16 +32,19 @@
 
 | ゲート | 検証内容 | 違反の意味 |
 |---|---|---|
-| G-AUTHORITY-MANIFEST | artifact-manifest.json が schema 適合（必須 13 項目・追加禁止）で 1 件以上を登録 | 権威正本の不在・野良フィールド |
+| G-AUTHORITY-MANIFEST | artifact-manifest.json が schema 適合（必須 16 項目・追加禁止）で 1 件以上を登録 | 権威正本の不在・野良フィールド |
 | G-MANIFEST-UNIQUE | artifact ID が一意で、同一 canonical_path を複数 artifact が主張しない | 正本の多重主張（どれが正か決まらない） |
-| G-MANIFEST-PATHS | canonical_path／view_path／previous_paths が実在し、view は `views/` 配下、旧パスは残存しない | 幽霊参照・移行漏れ・生成物の混在 |
+| G-MANIFEST-PATHS | canonical_path／view_path／previous_paths が実在**かつ git 管理下**で、view は `views/` 配下、旧パスは残存しない | 幽霊参照・移行漏れ・生成物の混在 |
 | G-MANIFEST-PAIR | pair_artifact_id が実在し双方向に対称 | 片肺ペア（HELIX pair gate 違反） |
-| G-MANIFEST-STATUS | confirmed artifact は内容束縛 digest を持ち、その digest が approvals.md に実在 | 内容に束縛されない confirmed 僭称 |
+| G-MANIFEST-STATUS | lifecycle_status=confirmed の artifact は内容束縛 digest を持ち、その digest が approvals.md に実在（Markdown は frontmatter を除く本文 digest） | 内容に束縛されない confirmed 僭称 |
 | G-MANIFEST-DIGEST | review_digest が現内容とレビュー成果物の両方に一致 | レビュー済みを名乗るすり替え |
 | G-MANIFEST-COVERAGE | 現役階層（L0〜L6）の全成果物が manifest に登録済み | 未登録成果物の confirmed 化（権威の外での正本化） |
 | G-MANIFEST-ARCHIVE | archive／superseded を現役 artifact の canonical にできない | 凍結物の実装入力化 |
 | G-LAYER-PLACEMENT | docs 直下は 00-authority／L0〜L6／archive のみ（旧階層・野良ファイルの残存なし） | 工程階層の崩壊 |
 | G-VIEWS-GENERATED | `views/` は生成 MD のみ（GENERATED 宣言必須）、生成物が views 外に出ない | 手編集ビュー・正本と生成物の混在 |
+| G-CANONICAL-FORMAT | authority_format が canonical の形式と一致し、canonical Markdown は人間承認正本型（charter／policy／adr／audit-record／design-doc／requirement-doc／test-design）に限られ、生成 MD の canonical 混入・canonical と view の二枚看板・未登録の生成 MD・GENERATED 宣言のない登録済み view がない | JSON 正本を持つ成果物の MD 正本化（どちらが正本か決まらない） |
+| G-STATUS-CONSISTENCY | authority_status（現役位置）と lifecycle_status（内容成熟度）が分離され、confirmed のみ approval_digest を持ち、markdown 正本の frontmatter・本文 status 行が manifest と一致（生成ビューは frontmatter を持たない） | draft 文書の confirmed 相当扱い・status の意味衝突 |
+| G-SLICE-PLACEMENT | L6 機能設計の物理ディレクトリ・manifest.slice・frontmatter.slice・traces 先 FR／SR のスライスが一致し、本文の要求参照が実在し、後続スライスへの言及が forward_refs に過不足なく宣言され（コードフェンス内は走査対象外）、S0 の DU が後続スライスの機能設計を入力にせず、機能設計 frontmatter の `dus` が du-contracts の feature_design と**双方向**一致し、S0 の DU については当該文書の本文が その DU か AC を実際に扱う（S1 以降の DU は⑤改訂で採番し直す段階のため内容突合の対象外） | 本文と配置のスライス不一致・S0 への S1 実装の混入 |
 | G-CANONICAL-UNIQUE | 現役階層に内容が同一のファイルが 2 箇所以上存在しない | 同一正本の二重配置 |
 | G-ARCHIVE-ISOLATION | 現役導線（README/CLAUDE/AGENTS/CI/スクリプト/現役 MD リンク/現役 JSON 値）が archive・superseded を入力として参照しない | 旧体系の復活・二重正本 |
 | G-CONFIRM | status: confirmed を名乗る文書が approvals.md に承認行を持つ | freeze 偽装 |
@@ -140,14 +149,14 @@
 | G-IMPL-START-DETECT | S0.1 着手の**自動検出**（src/helix への実装追加・S0.1 PLAN の in_progress・DU-01〜12 の API 実装）と宣言（skip-budget）が一致。実装の有無は AST 判定（`__init__.py`・条件付き def・lambda 代入も実装とみなす） | 宣言を false のままにした着手（手動フラグ依存の逃げ） |
 | G-UT-NO-ESCAPE | 着手後は対象 UT に skip／xfail／NotImplementedError／空 assert を残せない。AST 判定（module-level skip・`pytestmark`・関数内 `pytest.skip()`／`xfail()`・別名 import／モジュール再代入／`getattr` 経由の呼出し・定数 assert）。skip 判定は import 解決＋別名代入の固定点でフレームワーク起点の完全パスへ解決し、pytest／unittest 由来に限定する。**空 assert = 検証行為ゼロ**であり、`pytest.raises`／`pytest.warns`／`assert_*` メソッド／`pytest.fail()` は検証行為として通す（計上は到達しうる文のみ — 入れ子関数内・`if False:` 配下は数えない）。別名は star import・タプル／注釈付き／セイウチ代入・多段再代入まで固定点で解決する。残る限界は `__import__`／`importlib` の動的 import のみで、着手後の coverage 下限 80% と `scripts/check_skip_budget.py` の実測 skipped 件数ラチェットを backstop とする（S0.1 着手前に pytest の実行結果で対象 UT の executed／passed を検査する実行時ゲートへ移行することを推奨） | skip を red と称する test-first の形骸化／逆に正当な拒否テストを落とす偽陽性 |
 | G-COVERAGE-RATCHET | coverage 下限が着手後 80% 以上・親コミット比で低下しない。比較元は `committed_baseline()`（親コミットの baseline・旧パス遡及）に一本化し、親を解決できない場合は fail-close | 網羅率の静かな引き下げ／比較元不能を素通りさせる fail-open |
-| G-PLAN-S0 | S0.1 PLAN が実在し status 語彙・対象 DU（01〜12）が正しく、`preconditions[].status` が全て `met` でない限り `in_progress` 化も着手も許さない（申し送りを散文でなく機械可読な前提条件として保持する） | 着手前提条件の忘却／前提未充足のままの着手／preconditions の削除 |
+| G-PLAN-S0 | S0.1 PLAN が実在し status 語彙・対象 DU（01〜12）が正しく、`preconditions[]` の各要素が object・`description` 40 字以上・`status=met` は実在ゲート ID（本番モジュールが emit する ID 集合への完全一致）か実在 commit SHA の `met_by` 必須。`status` が `planned` 以外（in_progress／done）と着手の自動検出は、前提条件が全て `met` でない限り落ちる（`planned → done` 直行も塞ぐ）。`done` は対象 DU の API が実装済みであることを併せて要求する（実装ゼロの完了宣言を拒否） | 着手前提条件の忘却／前提未充足のままの着手／preconditions の削除・骨抜き |
 | G-S0-TEST-REALITY | 着手後に skip を残したまま green を名乗れない（G-UT-NO-ESCAPE と連動） | 実 red→green の回避 |
 
 ## review_binding — レビュー束縛
 
 | ゲート | 検証内容 | 違反の意味 |
 |---|---|---|
-| G-REVIEW-BINDING | レビュー成果物が schema 適合し、(a) target_commit が実在 (b) 記録 digest が target_commit の内容と一致 (c) Go 判定の現内容が未改変、または `supersedes_review` で引き継ぐ後続 Go レビューが存在。旧パスは manifest の previous_paths で解決する | コミットメッセージだけの Go 記録・レビュー後のすり替え |
+| G-REVIEW-BINDING | レビュー成果物が schema 適合し、(a) target_commit が実在 (b) `target_tree` が**必須**で `git rev-parse <target_commit>^{tree}` と厳密一致（キー欠落で検査ごとスキップさせない）（`git log --all` の到達可能性走査は使わない — ref 到達性・clone 深度に依存しないため。dangling tree と別コミットのツリーへの掏替えを同時に落とす） (c) 記録 digest が target_commit／target_tree の内容と一致 (d) Go 判定の現内容が未改変、または `supersedes_review` で引き継ぐ後続 Go レビューが存在。レビュー成果物が未コミットの間だけ (b) を猶予し、猶予はゲート出力へ「CIで未検証」と明示する。旧パスは manifest の previous_paths で解決する | コミットメッセージだけの Go 記録・レビュー後のすり替え・clone 先で解決できないツリーへの束縛 |
 
 ## baseline — デグレ検出と配線
 

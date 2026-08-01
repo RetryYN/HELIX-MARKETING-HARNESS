@@ -1,3 +1,9 @@
+---
+artifact_id: L4-STRATEGY-LOOP-DESIGN
+lifecycle_status: confirmed
+slice: S0
+---
+
 # 戦略ループ設計 v0.1
 
 > status: **confirmed**（2026-08-01 PO 承認 — 上流戦略インフィニティループ再強化指示。AI 起草）

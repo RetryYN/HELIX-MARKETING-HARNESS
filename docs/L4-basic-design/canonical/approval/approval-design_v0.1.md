@@ -1,3 +1,9 @@
+---
+artifact_id: L4-APPROVAL-DESIGN
+lifecycle_status: draft
+slice: S0
+---
+
 # 承認設計 v0.1（②増補 — 束縛承認・オートモード）
 
 > status: **draft（再降下中）**（2026-08-01 全層再降下 §6 — AI 起草）

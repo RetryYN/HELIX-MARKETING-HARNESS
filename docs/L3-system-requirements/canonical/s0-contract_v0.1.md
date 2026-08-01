@@ -1,3 +1,9 @@
+---
+artifact_id: L3-S0-CONTRACT
+lifecycle_status: confirmed
+slice: S0
+---
+
 # S0 実行契約 v0.1
 
 > status: **confirmed**（2026-07-31 PO 承認 — 要件定義完遂指示。AI 起草）

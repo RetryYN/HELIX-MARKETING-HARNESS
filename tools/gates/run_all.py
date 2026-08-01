@@ -36,11 +36,11 @@ from tools.gates.common import (  # noqa: E402
     BASELINE,
     CTX,
     SKIP_BUDGET,
+    doc_body_digest,
     failures,
     live_markdown,
     load,
     rel,
-    sha12,
 )
 
 MODULES = [
@@ -75,7 +75,7 @@ def update_baseline() -> int:
         base = re.sub(r"_v[\d.]+$", "", p.stem)
         m = re.search(r"_v([\d.]+)$", p.stem)
         ver = f"v{m.group(1)}" if m else "-"
-        if sha12(p) not in idx.get((base, ver), set()):
+        if doc_body_digest(p) not in idx.get((base, ver), set()):
             no_receipt.append(rel(p))
     if no_receipt:
         print(f"REFUSED: 承認 receipt（digest 行）のない confirmed 文書があるため baseline を更新しない: {no_receipt}")

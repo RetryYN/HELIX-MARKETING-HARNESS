@@ -1,3 +1,9 @@
+---
+artifact_id: L4-STATE-MACHINE-DESIGN
+lifecycle_status: draft
+slice: S0
+---
+
 # 状態機械設計書 v0.1（基本設計増補 — 状態機械）
 
 > status: **draft（再降下中）**（2026-08-01 全層再降下 §6 — AI 起草）

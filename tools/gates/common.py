@@ -11,6 +11,7 @@ import hashlib
 import json
 import re
 import subprocess
+from collections.abc import Iterator
 from dataclasses import dataclass, field
 from functools import cached_property
 from pathlib import Path
@@ -113,6 +114,9 @@ LEGACY_ARCHIVED = {
     "utest.json": ARCHIVE / "pre-structure-migration-2026-08-01/utest.json",
 }
 
+# S0.1 の対象詳細設計単位（DU-01〜12）。スライス判定の共有定数
+S0_DU_MAX = 12
+
 # 現行分母（PO 指示 §3 — 旧 AC19／TC59／UTC69 は historical_counts のみ）
 HISTORICAL_COUNTS = {"AC_LEGACY": 19, "AC_DEFERRED_LEGACY": 17, "TC_LEGACY": 59, "UTC_LEGACY": 69}
 
@@ -158,6 +162,57 @@ def canonical_json_digest(data: dict, exclude: str = "approval_digest") -> str:
     body = json.dumps({k: v for k, v in data.items() if k != exclude},
                       ensure_ascii=False, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(body.encode("utf-8")).hexdigest()[:12]
+
+
+# ---------------------------------------------------------------- frontmatter
+# 終端 `---` の直後の空行 1 行までを frontmatter の一部として食う
+# （本文 digest が frontmatter の書式差で動かないようにするため）
+FRONTMATTER = re.compile(r"\A---\n(.*?)\n---\n\n?", re.S)
+
+
+def parse_frontmatter(block: str) -> dict[str, Any]:
+    """`key: value` と `key: [a, b]` だけを解する最小 YAML パーサ（外部依存なし）。
+
+    権威メタデータ（artifact_id・lifecycle_status・slice・traces）はこの平坦形で書く。
+    入れ子を許すと「どこが正本か」が曖昧になるため、意図的に平坦形しか受け付けない。
+    """
+    out: dict[str, Any] = {}
+    for line in block.splitlines():
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+        if ":" not in line or line.startswith((" ", "\t")):
+            out.setdefault("__malformed__", []).append(line)
+            continue
+        key, _, val = line.partition(":")
+        val = val.strip()
+        if val.startswith("[") and val.endswith("]"):
+            inner = val[1:-1].strip()
+            out[key.strip()] = [x.strip() for x in inner.split(",") if x.strip()]
+        else:
+            out[key.strip()] = val
+    return out
+
+
+def split_frontmatter(text: str) -> tuple[dict[str, Any] | None, str]:
+    """先頭 YAML frontmatter と本文を分離する（無ければ `(None, 全文)`）。"""
+    m = FRONTMATTER.match(text)
+    if not m:
+        return None, text
+    return parse_frontmatter(m.group(1)), text[m.end():]
+
+
+def frontmatter_of(p: Path) -> dict[str, Any] | None:
+    return split_frontmatter(p.read_text(encoding="utf-8"))[0]
+
+
+def doc_body_digest(p: Path) -> str:
+    """承認・digest 束縛の対象となる内容の digest（**frontmatter を含む全文**）。
+
+    frontmatter には `slice`／`traces`／`forward_refs` のように**ゲートが正本として読む**
+    意味情報が入る。これを digest から外すと「承認された trace」を承認束縛の外で
+    書き換えられるため、承認対象は常に全文とする（独立レビュー F-03）。
+    """
+    return sha12(p)
 
 
 def md_count(path: Path, pattern: str) -> int:
@@ -224,7 +279,7 @@ def _reachable_children(node: ast.AST) -> list:
     return out
 
 
-def reachable_nodes(node: ast.AST):  # noqa: ANN201
+def reachable_nodes(node: ast.AST) -> Iterator[ast.AST]:
     """到達しうるノードのみを走査する（入れ子定義・定数偽の分岐／ループ・死コードを刈る）。
 
     `ast.walk` は入れ子関数の中身も `if False:` 配下も `return` 後も数えてしまうため、

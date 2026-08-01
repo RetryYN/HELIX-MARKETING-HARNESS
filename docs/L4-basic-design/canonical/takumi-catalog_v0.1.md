@@ -1,3 +1,9 @@
+---
+artifact_id: L4-TAKUMI-CATALOG
+lifecycle_status: draft
+slice: S0
+---
+
 # TAKUMI 素材カタログ — ループスクラム・マッピング v0.1
 
 > status: reference ／ 目的: TAKUMI の skills / procedures / agents の棚卸しと二重ループへの配置対応表。

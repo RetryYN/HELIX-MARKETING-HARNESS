@@ -264,3 +264,15 @@ def test_positional_tuple_binding_is_accepted(tmp_path, monkeypatch) -> None:
         "    assert a != b\n"
     )
     assert _fake_gate_tests(tmp_path, monkeypatch, positional) == ([], [], [])
+
+
+def test_mutation_non_git_tree_is_not_treated_as_first_commit(monkeypatch) -> None:
+    """変異: 非 git ツリーを「初回コミット」と混同するとラチェットが一律素通りする（R4-03）。"""
+    class _R:
+        returncode = 128
+        stdout = ""
+
+    monkeypatch.setattr(baseline, "git", lambda *a: _R())
+    prev, source = baseline.committed_baseline()
+    assert prev is None
+    assert "git リポジトリではない" in source

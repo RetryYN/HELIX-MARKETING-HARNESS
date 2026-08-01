@@ -1,6 +1,15 @@
+---
+artifact_id: L6-S1-STRATEGIC-REVISION
+lifecycle_status: planned
+slice: S1
+traces: [SR-10, SR-16]
+forward_refs: []
+dus: []
+---
+
 # 機能別詳細設計 — 上流戦略改訂（strategy_revision）
 
-> status: **draft（再降下中）**（2026-08-01 全層再降下 §7 — AI 起草）
+> status: **planned**（2026-08-01 全層再降下 §7 — AI 起草。構造分類是正で S1 へ再配置）
 > 正準参照: 改訂契約の正準は
 > [strategy-learning-contract_v0.1.md §3](../../L3-system-requirements/canonical/strategy/strategy-learning-contract_v0.1.md)、
 > フィールド正準は [json/strategy/strategy-revision.schema.json](../../L3-system-requirements/canonical/schemas/strategy/strategy-revision.schema.json)、
@@ -86,14 +95,14 @@ S0 は schema 確定と docs ゲート（G-REVISION-EVIDENCE の fixture negativ
 （[strategy-loop-design_v0.1.md §3](../../L4-basic-design/canonical/components/strategy-loop-design_v0.1.md)）。S1 の実装順:
 
 1. **strategy-store 拡張**（SCM-01）: 意味モデル 12 種の版付き永続化（strategic_briefs と同型の
-   append-only 規約・保護トリガを expand migration で追加 — [migration.md](migration.md) の規律に従う）。
+   append-only 規約・保護トリガを expand migration で追加 — [migration.md](../S0/migration.md) の規律に従う）。
 2. **judge() 実装**（SCM-08）: 本書 §3〜§4 のアルゴリズム。`RevisionEvidenceRejected` は
    GateRejected 系（状態不変）として実装し、STC-I-07 を test-first で赤 → green。
 3. **TLP 集約 → 提案生成**（SCM-08）: `get_tactical_learning_packet`（DU-02）を唯一の還流読取り口
    として複数 TLP・時間差・反証を集約し revision 案を生成。**提案生成と受理判定は別工程**
    （生成器は accepted を書けない）。
 4. **affected_brief_ids の下り接続**: accepted 時に brief 再発行対象を列挙し、
-   [strategic-brief.md](strategic-brief.md) の supersede API へ引き渡す（自動発行はしない —
+   [strategic-brief.md](../S0/strategic-brief.md) の supersede API へ引き渡す（自動発行はしない —
    行動計画工程の判断を挟む）。
 
 ## 7. trace 表

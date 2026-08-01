@@ -1,3 +1,9 @@
+---
+artifact_id: L4-EXTERNAL-IF-DESIGN
+lifecycle_status: draft
+slice: S0
+---
+
 # 外部 IF 詳細設計 v0.1（②増補 — コネクタ境界契約）
 
 > status: **draft（再降下中）**（2026-08-01 全層再降下 §6 — AI 起草）

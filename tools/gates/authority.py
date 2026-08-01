@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import os
 import re
+import subprocess
 from pathlib import Path
 
 from tools.gates.common import (
@@ -20,16 +21,18 @@ from tools.gates.common import (
     MANIFEST,
     MANIFEST_SCHEMA,
     ROOT,
+    S0_DU_MAX,
     Ctx,
     canonical_json_digest,
+    doc_body_digest,
     gate,
     is_frozen,
     live_markdown,
     load,
     rel,
     schema_check,
-    sha12,
     sha256_file,
+    split_frontmatter,
 )
 
 # 現在地の正本文（README.md / CLAUDE.md はこの 4 行以外の現在地表明を持たない — PO 指示 §3）
@@ -81,50 +84,76 @@ def _approval_digests(ctx: Ctx) -> set[str]:
 
 
 def artifact_content_digest(path: Path) -> str:
-    """成果物の内容 digest。契約 JSON は正準化 digest、それ以外はファイル sha256[:12]。"""
+    """成果物の内容 digest。
+
+    契約 JSON は正準化 digest、それ以外は**frontmatter を含む全文**の sha256[:12]。
+    frontmatter には slice／traces のようにゲートが正本として読む情報が入るため、承認束縛から外さない。
+    """
     if path.suffix == ".json":
         data = load(path)
         if isinstance(data, dict) and "approval_digest" in data:
             return canonical_json_digest(data)
-    return sha12(path)
+    return doc_body_digest(path)
 
 
 # ---------------------------------------------------------------- 検出関数（mutation test が共用）
-# 現役（凍結でない）status。canonical の一意性はこの全てに効かせる（active の迂回を塞ぐ）
-LIVE_STATUSES = ("confirmed", "active", "draft")
+# 現役（凍結でない）authority_status。canonical の一意性は現役の全てに効かせる
+LIVE_STATUSES = ("active",)
 
 
 def detect_manifest_duplicates(items: list[dict]) -> list[str]:
     """artifact_id の重複と、同一 canonical_path を複数 artifact が主張する箇所を列挙する。
 
-    一意性は **全ての現役 status**（confirmed/active/draft）に効かせる。status=active を
-    経由した重複主張の迂回を許さない（独立レビュー blocker 対応）。
+    一意性は **現役（authority_status=active）の全て**に効かせる。内容成熟度
+    （lifecycle_status）による例外は設けない — draft を経由した重複主張の迂回を許さない。
     """
     bad: list[str] = []
     seen_ids: dict[str, int] = {}
     seen_canon: dict[str, list[str]] = {}
     for it in items:
         seen_ids[it["artifact_id"]] = seen_ids.get(it["artifact_id"], 0) + 1
-        if it.get("status") in LIVE_STATUSES:
+        if it.get("authority_status") in LIVE_STATUSES:
             seen_canon.setdefault(it["canonical_path"], []).append(it["artifact_id"])
     bad += [f"artifact_id 重複:{k}" for k, n in seen_ids.items() if n > 1]
     bad += [f"canonical 重複主張:{p}={sorted(ids)}" for p, ids in seen_canon.items() if len(ids) > 1]
     return bad
 
 
+def tracked_files(root: Path = ROOT) -> set[str] | None:
+    """git 管理下のパス集合。取得できない場合は **None**（呼び側で違反にする）。
+
+    空集合を返すと `elif tracked and ...` のような短絡ガードで検査そのものが消え、
+    非 git ツリーや dubious ownership で fail-open になる（独立レビュー F-10）。
+    """
+    out = subprocess.run(["git", "ls-files"], capture_output=True, text=True,  # noqa: S603, S607
+                         check=False, cwd=root)
+    return set(out.stdout.split("\n")) if out.returncode == 0 else None
+
+
 def detect_manifest_path_faults(items: list[dict], root: Path = ROOT) -> list[str]:
-    """canonical_path／view_path／previous_paths の実在・凍結領域混入を列挙する。"""
+    """canonical_path／view_path／previous_paths の実在・git 管理・凍結領域混入を列挙する。
+
+    実在するだけでは足りない: untracked のまま登録された成果物は、ローカルだけ緑で
+    CI の clone 先には存在しない（独立レビュー F-10）。
+    """
     bad: list[str] = []
+    tracked = tracked_files(root)
+    if tracked is None:
+        return ["git 管理下のファイル一覧を取得できない（git リポジトリでない／取得失敗 — fail-close）"]
     for it in items:
         cp = it["canonical_path"]
         if not (root / cp).exists():
             bad.append(f"{it['artifact_id']}:canonical 不在 {cp}")
-        elif cp.startswith(FROZEN_PREFIXES) and it.get("status") not in ("archived", "superseded"):
+        elif cp not in tracked:
+            bad.append(f"{it['artifact_id']}:canonical が git 未追跡 {cp}（clone 先に存在しない）")
+        elif cp.startswith(FROZEN_PREFIXES) and it.get("authority_status") == "active":
             bad.append(f"{it['artifact_id']}:現役 artifact の canonical が凍結領域 {cp}")
         vp = it.get("view_path")
         if vp is not None:
             if not (root / vp).exists():
                 bad.append(f"{it['artifact_id']}:view 不在 {vp}")
+            elif vp not in tracked:
+                bad.append(f"{it['artifact_id']}:view が git 未追跡 {vp}（clone 先に存在しない）")
             elif "/views/" not in vp:
                 bad.append(f"{it['artifact_id']}:view が views/ 外 {vp}")
         for pp in it.get("previous_paths", []):
@@ -180,6 +209,249 @@ def detect_duplicate_canonical_content(root: Path = ROOT) -> list[str]:
             continue
         seen.setdefault(sha256_file(p), []).append(rel(p))
     return [f"{h[:8]}:{sorted(v)}" for h, v in seen.items() if len(v) > 1]
+
+
+# ---------------------------------------------------------------- canonical／view の形式規律（§1）
+# 「人間承認そのものが正本の文書」だけが canonical Markdown を名乗れる。
+# JSON 正本（契約・台帳・schema・DDL）を持つ成果物の Markdown は必ず views/ の生成ビューになる。
+MD_AUTHORITY_TYPES = frozenset({
+    "charter",          # 憲章
+    "policy",           # 方針・ゲート台帳・リスク登録簿
+    "adr",              # 設計判断記録
+    "audit-record",     # 監査・事故記録
+    "design-doc",       # 設計判断文書
+    "requirement-doc",  # 人間承認を伴う本文正本
+    "test-design",      # 同上（検証設計）
+})
+FORMAT_BY_SUFFIX = {".md": "markdown", ".json": "json", ".sql": "sql"}
+GENERATED_MARK = "GENERATED FILE"
+GENERATED_WINDOW = 400  # 生成宣言はファイル先頭に置く（全ゲートで同一窓を使う）
+
+
+def is_generated_view(p: Path) -> bool:
+    """生成 MD か（先頭に GENERATED 宣言がある、又は本文のどこかに紛れている）。
+
+    窓の外へ宣言を追い出して検査を外す迂回を塞ぐため、全文も見る。
+    """
+    txt = p.read_text(encoding="utf-8")
+    return GENERATED_MARK in txt
+
+
+def detect_format_faults(items: list[dict], root: Path = ROOT) -> list[str]:
+    """canonical／view の形式規律違反を列挙する（PO 指示 §1）。
+
+    (a) authority_format が canonical_path の拡張子と一致する
+    (b) markdown 正本は MD_AUTHORITY_TYPES に限る（JSON 正本を持つ型の MD 登録を拒否）
+    (c) view_generation と view_path の整合、view は views/ 配下の生成 MD
+    (d) canonical に生成 MD（GENERATED 宣言つき）を登録しない
+    (e) canonical と view の集合が交わらない（同一 MD の二枚看板を禁止）
+    (f) 現役階層の生成 MD は必ずどれかの view_path として登録されている
+    """
+    bad: list[str] = []
+    canon = {it["canonical_path"] for it in items}
+    views = {it["view_path"] for it in items if it.get("view_path")}
+    for it in items:
+        aid, cp = it["artifact_id"], it["canonical_path"]
+        want = FORMAT_BY_SUFFIX.get(Path(cp).suffix)
+        fmt = it.get("authority_format")
+        if want is None:
+            bad.append(f"{aid}:canonical の拡張子が正本形式になりえない {cp}")
+        elif fmt != want:
+            bad.append(f"{aid}:authority_format={fmt} が canonical {cp} と不一致（想定 {want}）")
+        if fmt == "markdown" and it["artifact_type"] not in MD_AUTHORITY_TYPES:
+            bad.append(f"{aid}:artifact_type={it['artifact_type']} は canonical Markdown を持てない"
+                       "（JSON 正本を持つ成果物の MD は views/ へ）")
+        if fmt != "markdown" and Path(cp).suffix == ".md":
+            bad.append(f"{aid}:MD を非 markdown 正本として登録 {cp}")
+        if "/views/" in cp:
+            bad.append(f"{aid}:canonical が views/ 配下 {cp}")
+        vp = it.get("view_path")
+        gen = it.get("view_generation")
+        if (vp is not None) != (gen == "generated"):
+            bad.append(f"{aid}:view_generation={gen} と view_path={vp} が不整合")
+        p = root / cp
+        if p.exists() and p.suffix == ".md" and is_generated_view(p):
+            bad.append(f"{aid}:生成 MD を canonical に登録 {cp}")
+    for it in items:
+        vp = it.get("view_path")
+        if vp and (root / vp).exists() \
+                and GENERATED_MARK not in (root / vp).read_text(encoding="utf-8")[:GENERATED_WINDOW]:
+            bad.append(f"{it['artifact_id']}:登録された view に GENERATED 宣言がない {vp}")
+    for both in sorted(canon & views):
+        bad.append(f"{both}:canonical と view の二枚看板")
+    for p in sorted(root.glob("docs/**/*.md")):
+        if is_frozen(p) or not is_generated_view(p):
+            continue
+        if rel(p) not in views:
+            bad.append(f"{rel(p)}:生成 MD が view_path として未登録")
+    return bad
+
+
+# ---------------------------------------------------------------- status の意味分離（§3）
+LIFECYCLE_PROSE = re.compile(r"^>\s*status:\s*\*{0,2}([a-z_]+)", re.M)
+# 記録文書が本文で使う語 → lifecycle_status。ここに無い語は「語彙外」として落とす
+# （本文で好きな status を名乗って manifest との突合を逃れることを許さない）
+PROSE_TO_LIFECYCLE = {
+    "draft": "draft", "confirmed": "confirmed", "planned": "planned",
+    "in_progress": "in_progress", "completed": "completed",
+    "active": "draft", "open": "draft", "reference": "draft",  # 進行中の記録・方針・参照表
+    "closed": "completed", "withdrawn": "completed",  # 終了した記録
+}
+
+
+def detect_status_faults(items: list[dict], root: Path = ROOT) -> list[str]:
+    """authority_status／lifecycle_status の規律と frontmatter 整合を列挙する（PO 指示 §3）。
+
+    `authority_status` は現役導線上の位置だけを、`lifecycle_status` は内容成熟度だけを表す。
+    markdown 正本は frontmatter に artifact_id／lifecycle_status を持ち、manifest と一致する。
+    生成ビューは manifest 側の成熟度に従うため frontmatter を持たない。
+    """
+    bad: list[str] = []
+    for it in items:
+        aid, cp = it["artifact_id"], it["canonical_path"]
+        auth, life = it.get("authority_status"), it.get("lifecycle_status")
+        if (life == "confirmed") != (it.get("approval_digest") is not None):
+            bad.append(f"{aid}:lifecycle_status={life} と approval_digest={it['approval_digest']} が不整合"
+                       "（confirmed のみ承認 digest を持つ）")
+        frozen = cp.startswith(FROZEN_PREFIXES)
+        if frozen and auth == "active":
+            bad.append(f"{aid}:凍結領域なのに authority_status=active")
+        if not frozen and auth != "active":
+            bad.append(f"{aid}:authority_status={auth} なのに現役階層に置かれている {cp}")
+        if it.get("authority_format") != "markdown":
+            continue
+        p = root / cp
+        if not p.exists():
+            continue
+        fm, body = split_frontmatter(p.read_text(encoding="utf-8"))
+        if fm is None:
+            bad.append(f"{aid}:markdown 正本に frontmatter がない {cp}")
+            continue
+        if fm.get("__malformed__"):
+            bad.append(f"{aid}:frontmatter が平坦な key: value 形式でない {fm['__malformed__'][:1]}")
+        if fm.get("artifact_id") != aid:
+            bad.append(f"{aid}:frontmatter.artifact_id={fm.get('artifact_id')} が manifest と不一致")
+        if fm.get("lifecycle_status") != life:
+            bad.append(f"{aid}:frontmatter.lifecycle_status={fm.get('lifecycle_status')}"
+                       f" が manifest の {life} と不一致")
+        m = LIFECYCLE_PROSE.search(body)
+        if m and PROSE_TO_LIFECYCLE.get(m.group(1)) != life:
+            bad.append(f"{aid}:本文の status 行『{m.group(1)}』が lifecycle_status={life} と不一致"
+                       "（語彙外か、manifest と食い違っている）")
+    for it in items:
+        vp = it.get("view_path")
+        if vp and (root / vp).exists() and split_frontmatter(
+                (root / vp).read_text(encoding="utf-8"))[0] is not None:
+            bad.append(f"{it['artifact_id']}:生成ビューに frontmatter がある {vp}")
+    return bad
+
+
+# ---------------------------------------------------------------- スライス配置（§2・§5）
+SLICE_ORDER = {"S0": 0, "S1": 1, "S2": 2, "S3+": 3, "later": 9}
+L6_DIRS = ("S0", "S1", "later")
+REQ_REF = re.compile(r"\b(FR|SR)-(\d+(?:/\d+)*)")
+CODE_SPAN = re.compile(r"```.*?```|`[^`\n]*`", re.S)
+
+
+def _mentioned_requirements(body: str) -> set[str]:
+    """本文（散文）が言及する FR／SR を列挙する（`FR-26/46` のような連記も展開する）。
+
+    コードフェンス・インラインコードは走査から除く（識別子や例示コード中の ID を
+    「後続スライスの実装を混ぜた」と誤検出しないため — 独立レビュー F-08）。
+    """
+    prose = CODE_SPAN.sub(" ", body)
+    out: set[str] = set()
+    for prefix, nums in REQ_REF.findall(prose):
+        for n in nums.split("/"):
+            out.add(f"{prefix}-{int(n):02d}")
+    return out
+
+
+def detect_slice_faults(ctx: Ctx, root: Path = ROOT) -> list[str]:
+    """L6 機能設計の物理パス・manifest・本文・trace 先のスライス不一致を列挙する（PO 指示 §2）。
+
+    (a) 物理ディレクトリ ＝ manifest.slice ＝ frontmatter.slice
+    (b) frontmatter.traces は非空で、全て**同一スライス**の実在 FR／SR
+    (c) 本文が言及する**後続スライス**の FR／SR は過不足なく forward_refs に宣言されている
+        （S0 文書に S1 の強制実装を混ぜると、宣言漏れとして必ず落ちる）
+    (d) DU の feature_design が実在し、S0 の DU が後続スライスの機能設計を入力にしない
+    """
+    bad: list[str] = []
+    req_slice = {i["id"]: i["slice"] for i in ctx.allc}
+    by_path = {it["canonical_path"]: it for it in ctx.manifest_items}
+
+    l6 = root / "docs/L6-feature-design"
+    stray = sorted(str(p.relative_to(root)) for p in l6.iterdir()
+                   if p.name not in L6_DIRS and p.name != ".gitkeep")
+    bad += [f"{s}:L6 直下は S0／S1／later のみ" for s in stray]
+
+    doc_slice: dict[str, str] = {}
+    declared_dus: dict[str, list] = {}
+    bodies: dict[str, str] = {}
+    for p in sorted(l6.rglob("*.md")):
+        r = str(p.relative_to(root))
+        phys = p.relative_to(l6).parts[0]
+        doc_slice[r] = phys
+        it = by_path.get(r)
+        if it is None:
+            bad.append(f"{r}:manifest 未登録")
+            continue
+        if it["slice"] != phys:
+            bad.append(f"{r}:manifest.slice={it['slice']} が物理ディレクトリ {phys} と不一致")
+        fm, body = split_frontmatter(p.read_text(encoding="utf-8"))
+        if fm is None:
+            bad.append(f"{r}:frontmatter がない")
+            continue
+        if fm.get("slice") != phys:
+            bad.append(f"{r}:frontmatter.slice={fm.get('slice')} が物理ディレクトリ {phys} と不一致")
+        traces = fm.get("traces")
+        if not isinstance(traces, list) or not traces:
+            bad.append(f"{r}:traces が空（機能設計は根拠 FR／SR を持つ）")
+            traces = []
+        for t in traces:
+            if t not in req_slice:
+                bad.append(f"{r}:traces の {t} が FR／SR 契約に存在しない")
+            elif req_slice[t] != phys:
+                bad.append(f"{r}:traces の {t} は slice={req_slice[t]}"
+                           f"（本書は {phys} — 別スライスの要求を根拠にできない）")
+        declared_dus[r] = fm.get("dus") or []
+        bodies[r] = body  # 突合は本文に対して行う（frontmatter の宣言自身を根拠にしない）
+        declared = set(fm.get("forward_refs") or [])
+        mentioned = _mentioned_requirements(body)
+        # 本文の要求参照も実在性を fail-close 検査する（frontmatter だけ厳しく本文は素通り、を作らない）
+        bad += [f"{r}:本文が実在しない要求 {i} を参照" for i in sorted(mentioned - set(req_slice))]
+        actual = {i for i in mentioned
+                  if i in req_slice and i not in traces
+                  and SLICE_ORDER.get(req_slice[i], 9) > SLICE_ORDER.get(phys, 9)}
+        if declared != actual:
+            bad.append(f"{r}:forward_refs が本文の後続スライス言及と不一致"
+                       f"（宣言={sorted(declared)} / 実際={sorted(actual)}）")
+    # DU → 機能設計 の写像と、機能設計 frontmatter の `dus` 宣言を**双方向**に突き合わせる。
+    # 片方向（DU 側だけ）だと、付替え先の文書が当該 DU を扱っていなくても通ってしまう。
+    from_du: dict[str, set[str]] = {r: set() for r in doc_slice}
+    for d in ctx.duc:
+        du_slice = "S0" if int(d["id"][3:]) <= S0_DU_MAX else "S1"
+        for f in d["trace"].get("feature_design", []):
+            if f not in doc_slice:
+                bad.append(f"{d['id']}:feature_design {f} が L6 機能設計として実在しない")
+                continue
+            from_du.setdefault(f, set()).add(d["id"])
+            if SLICE_ORDER.get(doc_slice.get(f, ""), 9) > SLICE_ORDER.get(du_slice, 9):
+                bad.append(f"{d['id']}({du_slice}):feature_design {f} が後続スライスの機能設計")
+    for r, dus in sorted(from_du.items()):
+        declared = set(declared_dus.get(r, []))
+        if declared != dus:
+            bad.append(f"{r}:frontmatter.dus が du-contracts の feature_design と不一致"
+                       f"（宣言={sorted(declared)} / 実際={sorted(dus)}）")
+        txt = bodies.get(r, "")
+        # 内容の突合は S0 の DU に限る（test-first の対象＝実装が始まる単位）。
+        # S1 以降の DU は⑤改訂で採番し直す段階にあり、機能設計側の記述粒度が揃っていない。
+        for du in sorted(d for d in dus if int(d[3:]) <= S0_DU_MAX):
+            acs: list[str] = next(
+                (c["trace"].get("ac", []) for c in ctx.duc if c["id"] == du), [])
+            if du not in txt and not any(a in txt for a in acs):
+                bad.append(f"{r}:宣言した {du} も その AC も本文が扱っていない")
+    return bad
 
 
 MD_LINK = re.compile(r"\]\(([^)]+)\)")
@@ -255,7 +527,7 @@ def _manifest(ctx: Ctx) -> None:
     schema = load(MANIFEST_SCHEMA)
     errs = schema_check(schema, ctx.manifest)
     gate("G-AUTHORITY-MANIFEST", not errs and bool(items),
-         f"artifact manifest が schema 適合（必須 11 項目・追加禁止）で 1 件以上登録 (err={errs[:4]}, n={len(items)})")
+         f"artifact manifest が schema 適合（必須 16 項目・追加禁止）で 1 件以上登録 (err={errs[:4]}, n={len(items)})")
 
     dup = detect_manifest_duplicates(items)
     gate("G-MANIFEST-UNIQUE", not dup,
@@ -271,7 +543,7 @@ def _manifest(ctx: Ctx) -> None:
     appr = _approval_digests(ctx)
     st_bad: list[str] = []
     for it in items:
-        if it["status"] == "confirmed":
+        if it["lifecycle_status"] == "confirmed":
             want = artifact_content_digest(ROOT / it["canonical_path"])
             if it["approval_digest"] != want:
                 st_bad.append(f"{it['artifact_id']}:digest 不一致({it['approval_digest']}!={want})")
@@ -299,10 +571,25 @@ def _manifest(ctx: Ctx) -> None:
          f"現役階層の全成果物が manifest に登録（未登録の confirmed 化を禁止） (未登録={unreg[:5]})")
 
     frozen_claim = [it["artifact_id"] for it in items
-                    if it["status"] in ("confirmed", "draft")
+                    if it["authority_status"] == "active"
                     and it["canonical_path"].startswith(FROZEN_PREFIXES)]
     gate("G-MANIFEST-ARCHIVE", not frozen_claim,
          f"archive／superseded を現役 artifact の canonical にできない (違反={frozen_claim})")
+
+    fmt_bad = detect_format_faults(items)
+    gate("G-CANONICAL-FORMAT", not fmt_bad,
+         "canonical=正本形式（JSON／SQL／人間承認 MD のみ）・views=生成 MD で一意"
+         f"（生成 MD の canonical 混入と JSON 正本を持つ MD の canonical 登録を拒否） (違反={fmt_bad[:4]})")
+
+    slice_bad = detect_slice_faults(ctx)
+    gate("G-SLICE-PLACEMENT", not slice_bad,
+         "L6 機能設計の物理パス・manifest.slice・frontmatter.slice・trace 先 FR／SR のスライスが一致し、"
+         f"後続スライスへの言及が forward_refs に宣言されている (違反={slice_bad[:4]})")
+
+    st2_bad = detect_status_faults(items)
+    gate("G-STATUS-CONSISTENCY", not st2_bad,
+         "authority_status（現役位置）と lifecycle_status（内容成熟度）が分離され、"
+         f"markdown 正本の frontmatter・本文 status 行と manifest が一致 (違反={st2_bad[:4]})")
 
 
 def _structure(ctx: Ctx) -> None:
@@ -318,7 +605,7 @@ def _structure(ctx: Ctx) -> None:
             continue
         if p.suffix != ".md":
             view_bad.append(f"{rel(p)}:MD 以外")
-        elif "GENERATED FILE" not in p.read_text(encoding="utf-8")[:200]:
+        elif GENERATED_MARK not in p.read_text(encoding="utf-8")[:GENERATED_WINDOW]:
             view_bad.append(f"{rel(p)}:GENERATED 宣言なし")
     generated = {it["view_path"] for it in ctx.manifest_items if it.get("view_path")}
     misplaced = sorted(v for v in generated if "/views/" not in v)
@@ -357,9 +644,9 @@ def _confirmed(ctx: Ctx) -> None:
         base = re.sub(r"_v[\d.]+$", "", p.stem)
         m = re.search(r"_v([\d.]+)$", p.stem)
         ver = f"v{m.group(1)}" if m else "-"
-        return sha12(p) in receipt_index.get((base, ver), set())
+        return doc_body_digest(p) in receipt_index.get((base, ver), set())
 
-    unbound = [f"{p.name}:{sha12(p)}" for p in live_markdown()
+    unbound = [f"{p.name}:{doc_body_digest(p)}" for p in live_markdown()
                if not p.samefile(APPROVALS)
                and re.search(r"status:\s*\*{0,2}confirmed\*{0,2}", p.read_text(encoding="utf-8")[:600])
                and not has_receipt(p)]

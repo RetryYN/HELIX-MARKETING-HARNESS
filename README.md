@@ -6,7 +6,8 @@
 - **機能ソース**: [TAKUMI_CMO-Claude_Cowark](https://github.com/RetryYN/TAKUMI_CMO-Claude_Cowark)（read-only 参照）
 - **北極星**: [charter v0.4](docs/L0-charter/canonical/marketing-harness-charter_v0.4.md)（status=confirmed）
 - **成果物の権威正本**: [artifact-manifest.json](docs/00-authority/artifact-manifest.json)
-  — 全現役成果物の artifact ID・階層・canonical／view パス・ペア・承認 digest を一意に登録する
+  — 全現役成果物の artifact ID・階層・slice・正本形式（`authority_format`）・現役位置（`authority_status`）・
+  内容成熟度（`lifecycle_status`）・canonical／view パス・ペア・承認 digest を一意に登録する
 
 ## 現在地
 
@@ -33,7 +34,7 @@ S0.1 の進行方法（本リポジトリ内か他経路か）は PO が決定�
 | [L3-system-requirements](docs/L3-system-requirements/) | システム要件 | [要件定義 FR36/NFR10](docs/L3-system-requirements/canonical/functional/requirements_v0.1.md)・[機能一覧 61](docs/L3-system-requirements/canonical/functional/function-list_v0.1.md)・[媒体別詳細要件](docs/L3-system-requirements/canonical/functional/media-requirements_v0.1.md)・[S0 契約](docs/L3-system-requirements/canonical/s0-contract_v0.1.md)・[上流戦略ループ要件](docs/L3-system-requirements/canonical/strategy/strategy-loop-requirements_v0.1.md)・[戦略学習契約](docs/L3-system-requirements/canonical/strategy/strategy-learning-contract_v0.1.md)・[検証設計](docs/L3-system-requirements/verification/verification-design_v0.1.md)・[AC カタログ](docs/L3-system-requirements/views/ac-catalog_v0.1.md)・[TC カタログ](docs/L3-system-requirements/views/tc-catalog_v0.1.md) |
 | [L4-basic-design](docs/L4-basic-design/) | 基本設計 | [基本設計](docs/L4-basic-design/canonical/basic-design_v0.1.md)・[戦略ループ設計](docs/L4-basic-design/canonical/components/strategy-loop-design_v0.1.md)・独立設計書（[外部 IF](docs/L4-basic-design/canonical/external-if/external-if-design_v0.1.md)／[DB](docs/L4-basic-design/canonical/data/db-design_v0.1.md)／[状態機械](docs/L4-basic-design/canonical/state-machine/state-machine-design_v0.1.md)／[承認](docs/L4-basic-design/canonical/approval/approval-design_v0.1.md)／[ブランド隔離](docs/L4-basic-design/canonical/brand-isolation/brand-isolation-design_v0.1.md)）・[技術選定](docs/L4-basic-design/canonical/tech-stack_v0.1.md)・[総合テスト設計](docs/L4-basic-design/integration-tests/integration-test-design_v0.1.md)・[CMP 契約ビュー](docs/L4-basic-design/views/cmp-contracts_v0.1.md) |
 | [L5-detailed-design](docs/L5-detailed-design/) | 詳細設計 | [詳細設計](docs/L5-detailed-design/canonical/detailed-design_v0.1.md)・[エラー分類](docs/L5-detailed-design/canonical/errors/error-taxonomy_v0.1.md)・[migration 規則](docs/L5-detailed-design/canonical/migrations/migration-rules.json)・[単体テスト設計](docs/L5-detailed-design/unit-tests/unit-test-design_v0.1.md)・[DU 契約ビュー](docs/L5-detailed-design/views/du-contracts_v0.1.md) |
-| [L6-feature-design](docs/L6-feature-design/) | 機能別設計 | [S0 の 11 本](docs/L6-feature-design/S0/)（戦略改訂・brief・TLP・証跡・migration・状態機械・ブランド隔離・KPI handoff・キャンペーン・外部操作・承認）＋[S0.1 計画](docs/L6-feature-design/S0/plan-s0.1.json)。S1／later は空 |
+| [L6-feature-design](docs/L6-feature-design/) | 機能別設計 | [S0 の 9 本](docs/L6-feature-design/S0/)（brief・TLP・証跡・migration・状態機械・ブランド隔離基盤・KPI handoff・外部操作・承認）＋[S0.1 計画](docs/L6-feature-design/S0/plan-s0.1.json)、[S1 の 3 本](docs/L6-feature-design/S1/)（ブランド隔離完成・キャンペーン・戦略改訂）。later は空 |
 
 ## 実装入力（契約正本 8 本）
 

@@ -1,3 +1,9 @@
+---
+artifact_id: AUTH-ADR-ADR-005-WP-REST-DIRECT
+lifecycle_status: draft
+slice: cross
+---
+
 # ADR-005: WordPress は REST 直（専用連携プラグインを開発しない）
 
 - status: accepted

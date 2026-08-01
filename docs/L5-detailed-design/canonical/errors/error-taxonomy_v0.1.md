@@ -1,3 +1,9 @@
+---
+artifact_id: L5-ERROR-TAXONOMY
+lifecycle_status: draft
+slice: S0
+---
+
 # エラー分類正本 v0.1（②増補 — エラー台帳）
 
 > status: **draft（再降下中）**（2026-08-01 全層再降下 §6 — AI 起草）

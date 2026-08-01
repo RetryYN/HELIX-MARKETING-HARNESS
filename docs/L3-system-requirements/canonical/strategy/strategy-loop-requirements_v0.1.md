@@ -1,3 +1,9 @@
+---
+artifact_id: L3-STRATEGY-LOOP-REQUIREMENTS
+lifecycle_status: confirmed
+slice: cross
+---
+
 # 上流戦略ループ要件定義 v0.1
 
 > status: **confirmed**（2026-08-01 PO 承認 — 上流戦略インフィニティループ再強化指示。AI 起草）

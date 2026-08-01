@@ -1,3 +1,9 @@
+---
+artifact_id: AUTH-AUDIT-GRANULARITY-GAP-AUDIT-V0-1
+lifecycle_status: completed
+slice: cross
+---
+
 # 粒度ギャップ監査 v0.1（HELIX-HARNESS 基準）
 
 > status: **closed**（2026-08-01 — 全 12 GAP を是正し Sol ブラインドレビューで Go。§3 に完了記録）

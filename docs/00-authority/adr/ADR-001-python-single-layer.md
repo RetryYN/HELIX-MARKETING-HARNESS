@@ -1,3 +1,9 @@
+---
+artifact_id: AUTH-ADR-ADR-001-PYTHON-SINGLE-LAYER
+lifecycle_status: draft
+slice: cross
+---
+
 # ADR-001: 実装言語は Python 単層
 
 - status: accepted

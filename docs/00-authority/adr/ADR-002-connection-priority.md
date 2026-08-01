@@ -1,3 +1,9 @@
+---
+artifact_id: AUTH-ADR-ADR-002-CONNECTION-PRIORITY
+lifecycle_status: draft
+slice: cross
+---
+
 # ADR-002: 外部接続の優先順は MCP → ブラウザ → 有償 API
 
 - status: accepted

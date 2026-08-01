@@ -237,11 +237,16 @@ def _transitions(ctx: Ctx) -> None:
     titems = ctx.transitions
     ents = {t["entity"] for t in titems}
     gate("G-TRN-ENT", ents == {"loop_runs", "tasks"}, f"遷移 entity = loop_runs/tasks ({ents})")
+    def _states(pattern: str) -> set[str]:
+        """DDL の CHECK 句から状態語彙を抜く（見つからなければ空集合 = fail-close 側）。"""
+        m = re.search(pattern, ctx.ddl)
+        return set(re.findall(r"'(\w+)'", m.group(1))) if m else set()
+
     enum = {
-        "loop_runs": set(re.findall(r"'(\w+)'", re.search(
-            r"loop_runs[\s\S]*?state TEXT NOT NULL CHECK \(state IN \(([^)]*)\)", ctx.ddl).group(1))),
-        "tasks": set(re.findall(r"'(\w+)'", re.search(
-            r"CREATE TABLE tasks[\s\S]*?state TEXT NOT NULL CHECK \(state IN \(([^)]*)\)", ctx.ddl).group(1))),
+        "loop_runs": _states(
+            r"loop_runs[\s\S]*?state TEXT NOT NULL CHECK \(state IN \(([^)]*)\)"),
+        "tasks": _states(
+            r"CREATE TABLE tasks[\s\S]*?state TEXT NOT NULL CHECK \(state IN \(([^)]*)\)"),
     }
     badst = [f"{t['entity']}:{s}" for t in titems for s in (t.get("from"), t.get("to"))
              if s and s not in enum[t["entity"]]]
@@ -345,9 +350,14 @@ def _design_substance(ctx: Ctx) -> None:
         L4 / "canonical/brand-isolation/brand-isolation-design_v0.1.md",
         L5 / "canonical/errors/error-taxonomy_v0.1.md",
     ]
-    feature_docs = sorted((L6 / "S0").glob("*.md"))
-    if len(feature_docs) < 11:
-        thin.append(f"features 不足:{len(feature_docs)}<11")
+    # スライス横断で数える（S0 → S1 への再配置が「分母の縮小」に見えないようにする — ラチェット）。
+    # スライス単位の下限も併せて持つ（総数だけだと S0 の設計が消えても通ってしまう）。
+    feature_docs = sorted(L6.rglob("*.md"))
+    if len(feature_docs) < 13:
+        thin.append(f"features 不足:{len(feature_docs)}<13")
+    s0_docs = sorted((L6 / "S0").glob("*.md"))
+    if len(s0_docs) < 10:
+        thin.append(f"S0 features 不足:{len(s0_docs)}<10")
     for p in design_docs + feature_docs:
         txt = p.read_text(encoding="utf-8")
         if txt.count("\n") < 50 or txt.count("## ") < 3:

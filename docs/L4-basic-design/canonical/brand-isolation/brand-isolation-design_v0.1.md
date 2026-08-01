@@ -1,3 +1,9 @@
+---
+artifact_id: L4-BRAND-ISOLATION-DESIGN
+lifecycle_status: draft
+slice: S0
+---
+
 # ブランド隔離設計書 v0.1（基本設計増補 — BR-I1・REQ-046 の設計正本）
 
 > status: **draft（再降下中）**（2026-08-01 全層再降下 §6 — AI 起草）

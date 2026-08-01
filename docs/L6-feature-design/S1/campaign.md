@@ -1,6 +1,15 @@
+---
+artifact_id: L6-S1-CAMPAIGN
+lifecycle_status: planned
+slice: S1
+traces: [SR-14]
+forward_refs: []
+dus: [DU-19, DU-20]
+---
+
 # 機能設計: 複数媒体キャンペーン（BR-I5・S1+）
 
-> status: **draft（再降下中）**（2026-08-01 全層再降下 §7 — AI 起草）
+> status: **planned**（2026-08-01 全層再降下 §7 — AI 起草。構造分類是正で S1 へ再配置）
 > 正準参照: 要求 = BR-I5（[br-contracts.json](../../L1-business-requirements/canonical/br/br-contracts.json)）・REQ-050・
 > SR-06/SR-14（[sr-contracts.json](../../L3-system-requirements/canonical/strategy/sr-contracts.json)）。
 > 役割語彙 = [media-roles.json](../../L3-system-requirements/canonical/strategy/media-roles.json)（12 役割台帳）。
@@ -48,7 +57,7 @@ flowchart TB
 
 | 列 | 契約 |
 |---|---|
-| business_profile_id | 直接スコープ列（ブランド隔離 — [brand-isolation.md](brand-isolation.md) の直接帰属方式に従う） |
+| business_profile_id | 直接スコープ列（ブランド隔離 — [brand-isolation-completion.md](brand-isolation-completion.md) の直接帰属方式に従う） |
 | campaign_key・version | UNIQUE(campaign_key, version)。改訂は brief と同じく supersedes による新版 INSERT（append-only 側へ倒す） |
 | desired_recognition_change | **共通認識変化目標**（キャンペーンの束ねの根拠。空は発行拒否） |
 | period_start・period_end | キャンペーン期間。構成 brief の valid_from/valid_until はこの期間に包含される |
@@ -89,7 +98,7 @@ flowchart TB
   append-only — 不変）。
 - **単純合算のみの評価は禁止**（BR-I5 prohibition）: 横断評価の出力は「媒体別数値の合算表」では
   なく、(a) 役割ごとの仮説判定（各 TLP の hypothesis_result の並置）、(b) 媒体間の送客・参照
-  関係の観測（KPI 交差点 — [kpi-handoff.md](kpi-handoff.md) の観測背骨を campaign 断面で読む）、
+  関係の観測（KPI 交差点 — [kpi-handoff.md](../S0/kpi-handoff.md) の観測背骨を campaign 断面で読む）、
   (c) 共通認識変化目標に対する評価レビュー、の 3 部構成とする。
 - **評価もレビュー証跡**: 横断評価は T-REVIEW 系 task として実行し、review 証跡（BR-I5
   completion_evidence「横断評価のレビュー証跡」）を evidence に残した場合のみ campaign を
@@ -120,4 +129,4 @@ flowchart TB
 | issue_campaign 発行検証・役割台帳照合 | S1 採番 DU（SR-14 照合器は brief 発行と共用） | AC-SR-01（brief 発行決定性の準用） | STC-I-04（準用） | MediaRoleRejected は既存 G-MEDIA-ROLE |
 | brief 束ね発注（campaign_id） | DU-02（issue_strategic_brief 拡張） | AC-SR-01・AC-SR-02 | STC-I-03・STC-I-04 | lower run 開始ガードは S0 と不変 |
 | TLP 集約参照・横断評価 | DU-02（TLP 読取り）＋ S1 採番 DU | AC-SR-03（TLP 生成の前提） | STC-I-05（前提） | 合算のみ評価の禁止を review チェック項目化 |
-| ブランド隔離交差 | [brand-isolation.md](brand-isolation.md) §4 に追従 | AC-34-2（準用） | TCC-34-2（準用） | campaigns は直接スコープ列 |
+| ブランド隔離交差 | [brand-isolation-completion.md](brand-isolation-completion.md) §3 に追従 | AC-34-2（準用） | TCC-34-2（準用） | campaigns は直接スコープ列 |

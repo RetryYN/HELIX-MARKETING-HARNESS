@@ -1,3 +1,12 @@
+---
+artifact_id: L6-S0-APPROVAL
+lifecycle_status: draft
+slice: S0
+traces: [FR-46]
+forward_refs: [FR-26, FR-73]
+dus: [DU-18]
+---
+
 # 機能設計: 承認（approvals 行・遷移ガード接続・束縛承認の実装）
 
 > status: **draft（再降下中）**（2026-08-01 全層再降下 §7 — AI 起草）

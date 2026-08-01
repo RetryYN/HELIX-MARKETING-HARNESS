@@ -9,6 +9,7 @@
     "reviewer_principal",
     "model",
     "target_commit",
+    "target_tree",
     "reviewed_artifact_digests",
     "findings",
     "resolution_commits",
@@ -126,7 +127,7 @@
     "target_tree": {
       "type": "string",
       "pattern": "^[0-9a-f]{40}$",
-      "description": "レビュー対象の凍結ツリー（git tree SHA）。指定時は成果物 digest をこのツリーに対して検証する（commit と違い amend で動かせないため、コミット前レビューの束縛に用いる）。この場合 target_commit はレビューの基点コミットを表す"
+      "description": "レビュー対象コミットのルートツリー sha。`git rev-parse <target_commit>^{tree}` と厳密一致でなければならない（dangling tree は push されず clone 先で解決できない）。"
     }
   }
 }

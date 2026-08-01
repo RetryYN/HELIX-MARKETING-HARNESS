@@ -1,3 +1,9 @@
+---
+artifact_id: AUTH-ADR-ADR-006-OFFICIAL-API-ROUTES
+lifecycle_status: draft
+slice: cross
+---
+
 # ADR-006: 無料公式 API が存在する接続はブラウザ突破より API 経路を採用
 
 - status: accepted

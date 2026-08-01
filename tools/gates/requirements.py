@@ -7,6 +7,7 @@ import datetime
 import re
 import subprocess
 import sys
+from pathlib import Path
 
 from tools.gates.common import (
     AC_SCHEMA,
@@ -87,10 +88,11 @@ def detect_invariant_gaps(contracts: list[dict], acs: list[dict]) -> list[str]:
             continue
         used_neg: set[str] = set()
         for i, grp in enumerate(imap):
-            refs = [by_id.get(a) for a in grp]
-            if any(r is None for r in refs):
+            maybe = [by_id.get(a) for a in grp]
+            if any(r is None for r in maybe):
                 bad.append(f"{c['id']}[{i}]:AC不在")
                 continue
+            refs = [r for r in maybe if r is not None]
             if any(r["target"] != c["id"] for r in refs):
                 bad.append(f"{c['id']}[{i}]:target不一致")
                 continue
@@ -146,7 +148,7 @@ HISTORICAL_DIRS = (
 )
 
 
-def detect_legacy_denominator_leaks(root=ROOT) -> list[str]:
+def detect_legacy_denominator_leaks(root: Path = ROOT) -> list[str]:
     """現役文書（root 3 ファイル＋L0〜L6＋権威層の非監査文書）に旧分母表記が残る箇所を列挙する。"""
     from tools.gates.common import live_markdown
 

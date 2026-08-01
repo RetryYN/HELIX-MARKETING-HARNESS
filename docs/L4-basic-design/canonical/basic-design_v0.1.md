@@ -1,3 +1,9 @@
+---
+artifact_id: L4-BASIC-DESIGN
+lifecycle_status: confirmed
+slice: S0
+---
+
 # 基本設計書 v0.1（②）
 
 > status: **confirmed**（2026-07-31 PO 承認 — 基本設計完遂指示。AI 起草）

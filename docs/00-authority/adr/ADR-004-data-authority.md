@@ -1,3 +1,9 @@
+---
+artifact_id: AUTH-ADR-ADR-004-DATA-AUTHORITY
+lifecycle_status: draft
+slice: cross
+---
+
 # ADR-004: データ正本は SQLite、コンテンツ実体は WordPress、Notion は非判定の同期先
 
 - status: accepted

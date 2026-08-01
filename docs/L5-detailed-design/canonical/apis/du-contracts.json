@@ -172,9 +172,9 @@
           "test_kernel_state.py::test_lower_terminal_transition_includes_tlp_same_tx"
         ],
         "feature_design": [
-          "features/state-machine.md",
-          "features/strategic-brief.md",
-          "features/tlp.md"
+          "docs/L6-feature-design/S0/state-machine.md",
+          "docs/L6-feature-design/S0/strategic-brief.md",
+          "docs/L6-feature-design/S0/tlp.md"
         ]
       },
       "also_implements": [
@@ -624,10 +624,10 @@
           "test_kernel_orchestrator.py::test_downstream_paths_cannot_write_strategic_briefs"
         ],
         "feature_design": [
-          "features/state-machine.md",
-          "features/strategic-brief.md",
-          "features/tlp.md",
-          "features/external-operations.md"
+          "docs/L6-feature-design/S0/state-machine.md",
+          "docs/L6-feature-design/S0/strategic-brief.md",
+          "docs/L6-feature-design/S0/tlp.md",
+          "docs/L6-feature-design/S0/external-operations.md"
         ]
       },
       "also_implements": [
@@ -786,7 +786,7 @@
           "test_kernel_assigner.py::test_assign_inactive_agents_excluded"
         ],
         "feature_design": [
-          "features/state-machine.md"
+          "docs/L6-feature-design/S0/state-machine.md"
         ]
       },
       "semantic_refs": {
@@ -939,8 +939,8 @@
           "test_kernel_workflow.py::test_draft_and_publish_use_distinct_idempotency_keys"
         ],
         "feature_design": [
-          "features/external-operations.md",
-          "features/campaign.md"
+          "docs/L6-feature-design/S0/external-operations.md",
+          "docs/L6-feature-design/S0/evidence.md"
         ]
       },
       "semantic_refs": {
@@ -1103,8 +1103,7 @@
           "test_gates_pair.py::test_pairpass_forgery_without_sentinel_raises_fatal"
         ],
         "feature_design": [
-          "features/campaign.md",
-          "features/evidence.md"
+          "docs/L6-feature-design/S0/pair-gate.md"
         ]
       },
       "semantic_refs": {
@@ -1226,7 +1225,8 @@
           "test_gates_publish.py::test_check_publishable_rejection_precedes_connector_call"
         ],
         "feature_design": [
-          "features/campaign.md"
+          "docs/L6-feature-design/S0/pair-gate.md",
+          "docs/L6-feature-design/S0/external-operations.md"
         ]
       },
       "semantic_refs": {
@@ -1343,7 +1343,7 @@
           "test_gates_zero_ad.py::test_check_domain_empty_allowlist_fail_close"
         ],
         "feature_design": [
-          "features/kpi-handoff.md"
+          "docs/L6-feature-design/S0/kpi-handoff.md"
         ]
       },
       "semantic_refs": {
@@ -1445,7 +1445,7 @@
           "test_gates_evidence_check.py::test_check_complete_unknown_required_kind_fail_close"
         ],
         "feature_design": [
-          "features/evidence.md"
+          "docs/L6-feature-design/S0/evidence.md"
         ]
       },
       "semantic_refs": {
@@ -1632,7 +1632,7 @@
           "test_evidence_store.py::test_no_update_delete_api_and_trigger_blocks_mutation"
         ],
         "feature_design": [
-          "features/evidence.md"
+          "docs/L6-feature-design/S0/evidence.md"
         ]
       },
       "semantic_refs": {
@@ -1739,7 +1739,7 @@
           "test_db_connect.py::test_connected_db_append_only_trigger_blocks_update_delete"
         ],
         "feature_design": [
-          "features/migration.md"
+          "docs/L6-feature-design/S0/migration.md"
         ]
       },
       "also_implements": [
@@ -1916,9 +1916,9 @@
           "test_db_migrate.py::test_tlp_integrity_trigger_rejects_mismatched_insert"
         ],
         "feature_design": [
-          "features/migration.md",
-          "features/tlp.md",
-          "features/strategic-brief.md"
+          "docs/L6-feature-design/S0/migration.md",
+          "docs/L6-feature-design/S0/tlp.md",
+          "docs/L6-feature-design/S0/strategic-brief.md"
         ]
       },
       "also_implements": [
@@ -2060,7 +2060,7 @@
           "test_config_store.py::test_direct_update_delete_blocked_by_trigger"
         ],
         "feature_design": [
-          "features/brand-isolation.md"
+          "docs/L6-feature-design/S0/brand-isolation-foundation.md"
         ]
       },
       "semantic_refs": {
@@ -2187,7 +2187,7 @@
           "test_registry_resolver.py::test_list_declared_readonly_and_schema_failclose"
         ],
         "feature_design": [
-          "external-operations.md"
+          "docs/L6-feature-design/S0/external-operations.md"
         ]
       },
       "semantic_refs": {
@@ -2355,8 +2355,8 @@
           "test_registry_secrets.py::test_mask_patterns_from_config"
         ],
         "feature_design": [
-          "external-operations.md",
-          "brand-isolation.md"
+          "docs/L6-feature-design/S0/external-operations.md",
+          "docs/L6-feature-design/S1/brand-isolation-completion.md"
         ]
       },
       "semantic_refs": {
@@ -2547,8 +2547,8 @@
           "test_connectors_browser.py::test_sent_unverifiable_marked_unknown_no_resend"
         ],
         "feature_design": [
-          "external-operations.md",
-          "brand-isolation.md"
+          "docs/L6-feature-design/S0/external-operations.md",
+          "docs/L6-feature-design/S1/brand-isolation-completion.md"
         ]
       },
       "semantic_refs": {
@@ -2712,7 +2712,7 @@
           "test_connectors_playbooks.py::test_broken_schema_json_fatal"
         ],
         "feature_design": [
-          "external-operations.md"
+          "docs/L6-feature-design/S0/external-operations.md"
         ]
       },
       "semantic_refs": {
@@ -2958,8 +2958,8 @@
           "test_connectors_wp.py::test_register_asset_before_published_url_evidence"
         ],
         "feature_design": [
-          "external-operations.md",
-          "evidence.md"
+          "docs/L6-feature-design/S0/external-operations.md",
+          "docs/L6-feature-design/S0/evidence.md"
         ]
       },
       "semantic_refs": {
@@ -3136,9 +3136,9 @@
           "test_connectors_approval.py::test_rerequest_limit_reached_escalates"
         ],
         "feature_design": [
-          "approval.md",
-          "external-operations.md",
-          "brand-isolation.md"
+          "docs/L6-feature-design/S0/approval.md",
+          "docs/L6-feature-design/S0/external-operations.md",
+          "docs/L6-feature-design/S1/brand-isolation-completion.md"
         ]
       },
       "semantic_refs": {
@@ -3263,7 +3263,7 @@
           "test_content_generate.py::test_crash_leaves_no_partial_output"
         ],
         "feature_design": [
-          "campaign.md"
+          "docs/L6-feature-design/S1/campaign.md"
         ]
       },
       "semantic_refs": {
@@ -3422,8 +3422,8 @@
           "test_content_versioning.py::test_restore_reproduces_reviewed_source"
         ],
         "feature_design": [
-          "evidence.md",
-          "campaign.md"
+          "docs/L6-feature-design/S0/evidence.md",
+          "docs/L6-feature-design/S1/campaign.md"
         ]
       },
       "semantic_refs": {
@@ -3572,8 +3572,8 @@
           "test_measure_kpi.py::test_archive_keeps_reference_integrity"
         ],
         "feature_design": [
-          "kpi-handoff.md",
-          "brand-isolation.md"
+          "docs/L6-feature-design/S0/kpi-handoff.md",
+          "docs/L6-feature-design/S1/brand-isolation-completion.md"
         ]
       },
       "semantic_refs": {
@@ -3712,8 +3712,8 @@
           "test_measure_fetch.py::test_dry_run_records_fingerprint_only"
         ],
         "feature_design": [
-          "kpi-handoff.md",
-          "external-operations.md"
+          "docs/L6-feature-design/S0/kpi-handoff.md",
+          "docs/L6-feature-design/S0/external-operations.md"
         ]
       },
       "semantic_refs": {
@@ -3878,8 +3878,8 @@
           "test_measure_parse.py::test_imported_at_supplied_by_clock"
         ],
         "feature_design": [
-          "kpi-handoff.md",
-          "evidence.md"
+          "docs/L6-feature-design/S0/kpi-handoff.md",
+          "docs/L6-feature-design/S0/evidence.md"
         ]
       },
       "semantic_refs": {
@@ -3922,5 +3922,5 @@
     "ARCHIVE-UT-LEGACY",
     "docs/L5-detailed-design/canonical/detailed-design_v0.1.md §3（API 正本宣言）"
   ],
-  "approval_digest": "53c7575f7a3c"
+  "approval_digest": "32c2ca8c6db9"
 }

@@ -1,3 +1,9 @@
+---
+artifact_id: L1-LOOP-TASK-WORKFLOW
+lifecycle_status: confirmed
+slice: cross
+---
+
 # ループ・タスク・ワークフロー要件定義 v0.1
 
 > status: **confirmed**（2026-07-31 PO 承認 — 要件定義完遂指示。AI 起草）

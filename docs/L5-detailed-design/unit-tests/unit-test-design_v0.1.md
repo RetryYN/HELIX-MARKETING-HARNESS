@@ -1,3 +1,9 @@
+---
+artifact_id: L5-UNIT-TEST-DESIGN
+lifecycle_status: confirmed
+slice: S0
+---
+
 # 単体テスト設計書 v0.1（⑥）
 
 > status: **confirmed**（2026-07-31 PO 承認 — 詳細設計完遂指示。AI 起草）

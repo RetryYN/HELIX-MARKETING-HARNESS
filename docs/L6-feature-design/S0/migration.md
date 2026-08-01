@@ -1,7 +1,16 @@
+---
+artifact_id: L6-S0-MIGRATION
+lifecycle_status: draft
+slice: S0
+traces: [FR-72]
+forward_refs: [SR-03]
+dus: [DU-10, DU-11]
+---
+
 # 機能別詳細設計 — DB マイグレーション
 
 > status: **draft（再降下中）**（2026-08-01 全層再降下 §7 — AI 起草）
-> 正準参照: migration 規則（expand/backfill/contract・昇格手順）の正準は
+> 正準参照: 要求 = FR-72（マイグレーション — 前方参照のみの昇格）。migration 規則（expand/backfill/contract・昇格手順）の正準は
 > [s0-contract_v0.1.md §5](../../L3-system-requirements/canonical/s0-contract_v0.1.md)、設計判断の上位は
 > [db-design_v0.1.md §4・§6](../../L4-basic-design/canonical/data/db-design_v0.1.md)。API 署名の正本は
 > [detailed-design_v0.1.md DU-11](../../L5-detailed-design/canonical/detailed-design_v0.1.md)。本書は規則を再掲しない —

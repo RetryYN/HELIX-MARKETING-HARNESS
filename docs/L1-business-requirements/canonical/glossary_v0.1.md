@@ -1,3 +1,9 @@
+---
+artifact_id: L1-GLOSSARY
+lifecycle_status: confirmed
+slice: cross
+---
+
 # 用語集 v0.1
 
 > status: **confirmed**（2026-07-31 PO 承認 — 要件定義完遂指示。AI 起草）

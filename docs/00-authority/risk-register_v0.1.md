@@ -1,3 +1,9 @@
+---
+artifact_id: AUTH-RISK-REGISTER
+lifecycle_status: draft
+slice: cross
+---
+
 # リスク登録簿 v0.1
 
 > status: **draft**（AI 起草 2026-07-30。監査 Important-1 対応）

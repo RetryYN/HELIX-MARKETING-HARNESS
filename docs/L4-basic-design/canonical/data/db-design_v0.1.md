@@ -1,3 +1,9 @@
+---
+artifact_id: L4-DB-DESIGN
+lifecycle_status: draft
+slice: S0
+---
+
 # DB 設計書 v0.1（基本設計増補 — DB）
 
 > status: **draft（再降下中）**（2026-08-01 全層再降下 §6 — AI 起草）

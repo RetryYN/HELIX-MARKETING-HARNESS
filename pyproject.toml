@@ -48,7 +48,18 @@ ignore = ["S101"]  # pytest の assert
 python_version = "3.14"
 strict = true
 mypy_path = "src"
-packages = ["helix"]
+# ゲート実装も型検査の対象にする（set[str] | None の取り違えのような fail-open を型で落とす）。
+# strict は実装パッケージ（helix）に限り、ゲート側は段階的に厳格化する。
+files = ["src/helix", "tools/gates"]
+
+[[tool.mypy.overrides]]
+module = ["tools.*", "tools.gates.*"]
+strict = false
+disallow_untyped_defs = false
+disallow_untyped_calls = false
+disallow_any_generics = false
+warn_return_any = false
+check_untyped_defs = true
 
 [tool.importlinter]
 root_package = "helix"

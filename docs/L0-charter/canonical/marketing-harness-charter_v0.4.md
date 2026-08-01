@@ -1,3 +1,9 @@
+---
+artifact_id: L0-MARKETING-HARNESS-CHARTER
+lifecycle_status: confirmed
+slice: cross
+---
+
 # HELIX-MARKETING-HARNESS — L0 企画書（Charter）v0.4
 
 - status: **confirmed**（承認 2026-08-01）
