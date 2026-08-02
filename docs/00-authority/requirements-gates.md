@@ -22,7 +22,8 @@ slice: cross
 | `traceability.py` | AC↔TC 双方向・全区間 trace・粒度ゲートの mutation 自己検査 |
 | `architecture.py` | DDL 同期／適用・状態機械の決定性・戦略正本の DB 強制・CMP/ITC 台帳・設計書実体 |
 | `detailed_design.py` | DU 台帳・API 実装契約・DbC・エラー型・DB 参照・API 単位 UT・空洞禁止 |
-| `test_pairing.py` | 文書ペア・テストファイル対応・S0.1 着手の自動検出・skip/coverage の逃げ道封じ |
+| `test_pairing.py` | 文書ペア・テストファイル対応・S0.1 着手の自動検出・skip/coverage の逃げ道封じ（静的 AST） |
+| `test_reality.py` | pytest 実行結果（outcome）の取り込み・動的 skip の検出・間接束縛の着手検出・対象 UT の nodeid 単位突合 |
 | `semantic_refs.py` | 構造化参照（table/column/state/event/kind/error/api）の実在検査 |
 | `review_binding.py` | レビュー成果物の対象コミット・digest・後続レビュー束縛 |
 | `baseline.py` | デグレ検出（ラチェット）・件数表記の同期・ゲート配線と分割規律 |
@@ -153,10 +154,24 @@ slice: cross
 | G-UT-FILE-UNIQ | DU↔テストファイルが 1 対 1・衝突なし | テストファイル混線 |
 | G-UT-FILE-EXIST | du-contracts／STC-I（S0.1）が宣言する test_file が実在 | 宣言だけのテストファイル |
 | G-IMPL-START-DETECT | S0.1 着手の**自動検出**（src/helix への実装追加・S0.1 PLAN の in_progress・DU-01〜12 の API 実装）と宣言（skip-budget）が一致。実装の有無は AST 判定（`__init__.py`・条件付き def・lambda 代入も実装とみなす） | 宣言を false のままにした着手（手動フラグ依存の逃げ） |
-| G-UT-NO-ESCAPE | 着手後は対象 UT に skip／xfail／NotImplementedError／空 assert を残せない。AST 判定（module-level skip・`pytestmark`・関数内 `pytest.skip()`／`xfail()`・別名 import／モジュール再代入／`getattr` 経由の呼出し・定数 assert）。skip 判定は import 解決＋別名代入の固定点でフレームワーク起点の完全パスへ解決し、pytest／unittest 由来に限定する。**空 assert = 検証行為ゼロ**であり、`pytest.raises`／`pytest.warns`／`assert_*` メソッド／`pytest.fail()` は検証行為として通す（計上は到達しうる文のみ — 入れ子関数内・`if False:` 配下は数えない）。別名は star import・タプル／注釈付き／セイウチ代入・多段再代入まで固定点で解決する。残る限界は `__import__`／`importlib` の動的 import のみで、着手後の coverage 下限 80% と `scripts/check_skip_budget.py` の実測 skipped 件数ラチェットを backstop とする（S0.1 着手前に pytest の実行結果で対象 UT の executed／passed を検査する実行時ゲートへ移行することを推奨） | skip を red と称する test-first の形骸化／逆に正当な拒否テストを落とす偽陽性 |
+| G-UT-NO-ESCAPE | 着手後は対象 UT に skip／xfail／NotImplementedError／空 assert を残せない。AST 判定（module-level skip・`pytestmark`・関数内 `pytest.skip()`／`xfail()`・別名 import／モジュール再代入／`getattr` 経由の呼出し・定数 assert）。skip 判定は import 解決＋別名代入の固定点でフレームワーク起点の完全パスへ解決し、pytest／unittest 由来に限定する。**空 assert = 検証行為ゼロ**であり、`pytest.raises`／`pytest.warns`／`assert_*` メソッド／`pytest.fail()` は検証行為として通す（計上は到達しうる文のみ — 入れ子関数内・`if False:` 配下は数えない）。別名は star import・タプル／注釈付き／セイウチ代入・多段再代入まで固定点で解決する。残る限界は `__import__`／`importlib` の動的 import のみで、着手後の coverage 下限 80% と `scripts/check_skip_budget.py` の実測 skipped 件数ラチェットを backstop とする。**動的 import の限界は test_reality の実行時ゲート（G-UT-DYNAMIC-SKIP／G-UT-PER-TEST-OUTCOME）が実行結果で塞ぐ**（本ゲートは静的側の検査として残す — 二重化であって代替ではない） | skip を red と称する test-first の形骸化／逆に正当な拒否テストを落とす偽陽性 |
 | G-COVERAGE-RATCHET | coverage 下限が着手後 80% 以上・親コミット比で低下しない。比較元は `committed_baseline()`（親コミットの baseline・旧パス遡及）に一本化し、親を解決できない場合は fail-close | 網羅率の静かな引き下げ／比較元不能を素通りさせる fail-open |
 | G-PLAN-S0 | S0.1 PLAN が実在し status 語彙・対象 DU（01〜12）が正しく、`preconditions[]` の各要素が object・`description` 40 字以上・`status=met` は実在ゲート ID（本番モジュールが emit する ID 集合への完全一致）か実在 commit SHA の `met_by` 必須。**PO 指定の 4 前提条件（`runtime-ut-outcome-gate`／`dynamic-import-skip-detection`／`impl-start-detect-indirect-binding`／`per-ut-executed-and-passed`）は必ず存在し、`met` にできるのは対応する専用ゲート（G-UT-RUNTIME-OUTCOME／G-UT-DYNAMIC-SKIP／G-IMPL-START-BINDING／G-UT-PER-TEST-OUTCOME）を本番が emit した場合だけ**（無関係な既存ゲート ID・任意の commit SHA では met にできない）。`status` が `planned` 以外（in_progress／done）と着手の自動検出は、前提条件が全て `met` でない限り落ちる（`planned → done` 直行も塞ぐ）。`done` は対象 DU の API が実装済みであることを併せて要求する（実装ゼロの完了宣言を拒否） | 着手前提条件の忘却／前提未充足のままの着手／preconditions の削除・骨抜き |
 | G-S0-TEST-REALITY | 着手後に skip を残したまま green を名乗れない（G-UT-NO-ESCAPE と連動） | 実 red→green の回避 |
+
+## test_reality — 実行時テスト実体（S0.1 着手前提条件 4 件）
+
+> 入力は `scripts/collect_test_outcome.py` が `pytest --junitxml` から正規化した
+> `reports/test-outcome.json`（HEAD へ束縛・CI 成果物 `pytest-outcome` として保存）。
+> AST 検査が原理的に判定できない「実際に実行されたか」を実測で補う層であり、
+> test_pairing の静的ゲートを**置き換えない**（二重化）。
+
+| ゲート | 検証内容 | 違反の意味 |
+|---|---|---|
+| G-UT-RUNTIME-OUTCOME | pytest の実行結果が CI 成果物として生成され、ゲートの入力になっている。レポートは schema（`helix.test-outcome/v1`）・生成元（固定パス `reports/junit.xml` の実在と sha256 一致）・**HEAD への commit 束縛**・nodeid の非重複・outcome 語彙を満たし、さらに**収集スクリプトを同じ junit で再実行した結果と nodeid→outcome・totals が完全一致**する（手書き JSON を拒否）。`reports/` は git 追跡下に置けない（レポートの有無に関係なく検査）。CI 配線は YAML を構造解析し、同一 job の**実行されるコマンド列**が `pytest --junitxml` → 収集 → `run_all.py` の順であること（コメント・`echo`・`if: false` は配線と認めない）、python-ci は両ファイルを `if-no-files-found: error` で upload することを要求する。`xfail_strict = true`（TOML 解析で真偽値まで検査）と、S0.1 着手後のレポート存在も必須 | 別コミットの outcome の貼り付け・手書きレポート・成果物の commit による固定化・収集を CI から外して実行時ゲートを空にする逃げ・xpass の passed 誤認 |
+| G-UT-DYNAMIC-SKIP | 対象 UT の skip／xfail／xpass を**実行結果**で検出する（`__import__`／`importlib` 経由の動的 skip・実行時条件による skip を含む）。AST 側（G-UT-NO-ESCAPE）が検出していない skip は「静的に不可視」として別枠で報告する。着手後は 1 件も残せない（未着手は猶予するが実測件数を常に出力する）。収集自体からの除外（outcome に現れない）は G-UT-PER-TEST-OUTCOME の欠落判定が担う | 静的検査を素通りする skip で test-first を形骸化する |
+| G-IMPL-START-BINDING | `def` を書かない**間接束縛**による S0.1 実装着手を検出する（`functools.partial`／`partialmethod`・デコレータ適用の代入・別名代入・import の再エクスポート・属性代入・添字（レジストリ）登録・`globals()` 注入・辞書一括登録・2 引数の登録関数・`setattr(obj, "name", impl)`）。実装を指す名前は固定点で伝播し、多段束縛（`tmp = partial(real)` → `<API> = tmp`）も辿る。シグナルにするのは **DU-01〜12 の API 名への束縛**だけで（非 API の内部別名は偽陽性として除外）、`impl_start_signals` へ合流して skip 上限・coverage 下限・G-UT-NO-ESCAPE のラチェットを同時に発火させる | 関数定義を書かない実装でラチェットと着手検出を回避する |
+| G-UT-PER-TEST-OUTCOME | du-contracts の `apis[].ut` が指す対象 UT が **nodeid 単位で** executed かつ passed であることを outcome レポートと突合する（パラメータ化は基底 nodeid へ最悪値優先で畳む）。レポートに現れない nodeid は「未実行・改名・収集除外」として違反にする。集計 pass 件数・別テストの通過では代替できない。着手後に強制 | 「全体は green」で対象 UT の未実行・失敗を覆い隠す |
 
 ## review_binding — レビュー束縛
 
@@ -174,7 +189,7 @@ slice: cross
 | G-BASE-ART-PATHS | baseline.json の `artifacts` が「**git 追跡下かつ作業ツリーに実在するパス** → sha256 64 桁」だけで構成される。この台帳は digest のみを持つため secret scanner（gitleaks）の allowlist で除外しているが、その除外が安全なのはキーが実在パスに限られることが機械保証されている場合だけであり、本ゲートがその保証を与える。allowlist の設定ファイル `.gitleaks.toml` 自体も baseline の改変検出対象に含める | 台帳に秘密らしきキー（`api_key.txt` 等）を紛れ込ませ、secret scan の allowlist を悪用する |
 | G-COUNT-SYNC | 手書きのゲート件数表記が実数と一致 | 散在する件数のドリフト |
 | G-WIRING | 全ゲート ID が本台帳に掲載され、CI が `tools/gates/run_all.py` を呼ぶ | ルールの配線漏れ・死蔵 |
-| G-GATE-MODULES | ゲートが tools/gates/ の 10 モジュールへ分割され、validate_requirements.py が薄い互換ラッパー（40 行以下・run_all 参照） | 巨大 validator への逆戻り |
+| G-GATE-MODULES | ゲートが tools/gates/ の工程別モジュール（`common.GATE_MODULES` が正本）へ分割され、validate_requirements.py が薄い互換ラッパー（40 行以下・run_all 参照） | 巨大 validator への逆戻り |
 | G-GATE-UNITTEST | 各ゲートモジュールに単体テスト（tests/gates/test_<module>.py）が存在し、`test_mutation_*` 関数**それ自身**が当該モジュールの関数を到達しうる位置で呼び、その**結果を観測する** assert を持つ（assert 式が呼出しを含むか、呼出し結果に束縛された名前を参照する。タプル代入は位置対応、名前伝播は固定点で解決） | 検査されないゲート実装／`def test_mutation_x(): pass`・結果を捨てる・到達しない位置に置く形骸 mutation |
 
 ## 運用

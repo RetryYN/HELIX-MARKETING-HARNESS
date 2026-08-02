@@ -83,6 +83,13 @@ def impl_start_signals(ctx: Ctx) -> list[str]:
     api_impl = detect_du_api_implementations(ctx)
     if api_impl:
         sig.append(f"du-api:{api_impl[:3]}")
+    # `def` を書かない間接束縛（partial・デコレータ適用・別名・setattr）も着手として扱う。
+    # ここに載せることで skip 上限・coverage 下限・G-UT-NO-ESCAPE のラチェットが同時に発火する
+    # （遅延 import — test_reality は s0_target_uts のために本モジュールを参照する）。
+    from tools.gates.test_reality import binding_signals
+    bindings = binding_signals(ctx)
+    if bindings:
+        sig.append(f"bind:{bindings[:3]}")
     return sig
 
 

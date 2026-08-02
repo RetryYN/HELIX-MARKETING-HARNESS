@@ -1,0 +1,182 @@
+{
+  "review_id": "REV-S0-STRUCT-10",
+  "reviewer_principal": "codex-sol (gpt-5.6-sol / openai-codex-cli)",
+  "author_principal": "claude-code (claude-opus-5)",
+  "author_execution_id": "9230d21c-4589-4845-9488-a7b5a60cb46d",
+  "reviewer_execution_id": "019fbeb8-d11e-71e3-aec1-5f6ed3699765",
+  "review_run_id": "REV-S0-STRUCT-10-R9",
+  "reviewer_provider": "openai-codex-cli",
+  "review_log_path": "docs/00-authority/reviews/logs/REV-S0-STRUCT-10.jsonl",
+  "review_log_digest": "d0e8f2d4d175956d",
+  "separation_status": "self_attested",
+  "model": "gpt-5.6-sol",
+  "target_commit": "bc1bd6732d5015aa87ea698c55c6166b8010e8a0",
+  "target_tree": "e7e7540aff0428444d8b9fc0bf6ce958b702f9a6",
+  "scope": "S0.1 着手前提条件 4 件の実装（G-UT-RUNTIME-OUTCOME／G-UT-DYNAMIC-SKIP／G-IMPL-START-BINDING／G-UT-PER-TEST-OUTCOME）: pytest outcome の CI 成果物化と再導出照合・動的 skip の実行時検出・間接束縛の着手検出・対象 UT の nodeid 単位 executed+passed 突合",
+  "supersedes_review": [
+    "REV-S0-STRUCT-09"
+  ],
+  "reviewed_artifact_digests": {
+    "AGENTS.md": "ef17790fc39ffe4e",
+    "docs/00-authority/baselines/baseline.json": "d12cc4294247e31c",
+    "docs/00-authority/requirements-gates.md": "abbcf70c2565a670",
+    "docs/00-authority/reviews/logs/REV-S0-STRUCT-10.jsonl": "d0e8f2d4d175956d",
+    "pyproject.toml": "5beb479982b9ee18",
+    "uv.lock": "e616a567978fce4c",
+    "scripts/collect_test_outcome.py": "6a03eb6f3258f738",
+    "tools/gates/test_reality.py": "0f6d87cf2cb0c79d",
+    "tools/gates/test_pairing.py": "4f703b0c9929d116",
+    "tools/gates/common.py": "9d16fa335a6d8788",
+    "tools/gates/run_all.py": "d1fd09181c72ae91",
+    "tools/gates/baseline.py": "a00f42a7a8f0f05b",
+    "tests/gates/test_test_reality.py": "f9da6076e84370d5",
+    "tests/gates/test_test_pairing.py": "7ca551c1e9d92c34",
+    "tests/gates/test_run_all.py": "9e036b7b2e4cf09e",
+    ".github/workflows/python-ci.yml": "1553c2621c26dc02",
+    ".github/workflows/docs-ci.yml": "aee4cb5ba27b8663",
+    ".gitignore": "561d87e3b9511066",
+    "docs/L6-feature-design/S0/plan-s0.1.json": "980bf19ba7440535",
+    "tests/skip-budget.json": "75ab4edd8b338a7b",
+    "tests/coverage-floor.json": "0071cce81b8844ea"
+  },
+  "resolution_commits": [
+    "bc1bd6732d50"
+  ],
+  "verdict": "Go",
+  "completed_at": "2026-08-02",
+  "rounds": 9,
+  "findings": [
+    {
+      "severity": "blocker",
+      "summary": "R1-01 outcome レポートを手書きで偽造できる（source/source_digest が任意で、既知文字列だけで通る）",
+      "status": "resolved",
+      "resolution": "source を reports/junit.xml 固定・junit の実在と sha256 一致を必須化し、収集スクリプトを同じ junit で再実行した結果と nodeid→outcome・totals の完全一致を要求（_rederivation_faults）"
+    },
+    {
+      "severity": "major",
+      "summary": "R1-02 xpass が junit 上で passed と区別できず、動的 xfail で実行時ゲートを通過できる",
+      "status": "resolved",
+      "resolution": "pyproject の [tool.pytest.ini_options] に xfail_strict = true を追加し、ゲートが TOML 解析で真偽値まで検査する"
+    },
+    {
+      "severity": "major",
+      "summary": "R1-03 CI 配線検査が文字列の存在だけを見ており、コメント・無効 job に語を残して実体を外せる",
+      "status": "resolved",
+      "resolution": "PyYAML で構造解析し、同一 job の実行される step 群でコマンド順序を評価する方式へ置換"
+    },
+    {
+      "severity": "major",
+      "summary": "R1-04 間接束縛検出が Name 代入しか扱わず、属性・添字・globals・setattr 経由で着手検出を回避できる",
+      "status": "resolved",
+      "resolution": "代入先を _target_name で正規化し、辞書一括登録・2 引数登録・kwarg も追跡。シグナルは DU-01〜12 の API 名への束縛に限定して偽陽性を排除"
+    },
+    {
+      "severity": "major",
+      "summary": "R1-05 動的 skip の mutation test が本番経路を通らず、結果を monkeypatch で注入していた",
+      "status": "resolved",
+      "resolution": "一時テストを実際に pytest --junitxml で実行し、収集スクリプトの実出力を runtime_skips／statically_invisible_skips／per_test_faults へ通す統合テストへ置換"
+    },
+    {
+      "severity": "major",
+      "summary": "R2-01 CI 配線検査が run の中身を部分文字列として扱い、echo や 1 step 内の順序入替を配線と誤認する",
+      "status": "resolved",
+      "resolution": "run をコマンド行へ分解（コメント除去・&&/;/| 分割・echo 等の除外）し、step を跨いでも step 内でも実行コマンド列の順序として評価"
+    },
+    {
+      "severity": "major",
+      "summary": "R2-02 別名を固定点伝播しないため、多段束縛（tmp = partial(real); API = tmp）で着手検出を回避できる",
+      "status": "resolved",
+      "resolution": "file_bindings を収束するまでの反復にし、束縛された名前自身を次段の実装名として伝播"
+    },
+    {
+      "severity": "major",
+      "summary": "R2-03 reports/ の git 追跡検査がレポート不在時に早期 return で素通りする",
+      "status": "resolved",
+      "resolution": "tracked_reports_faults() を分離し、レポートの有無に関係なく無条件で検査"
+    },
+    {
+      "severity": "minor",
+      "summary": "R2-04 xfail_strict の検査が TOML のセクションを見ず、別セクションの同名キーで通る",
+      "status": "resolved",
+      "resolution": "tomllib で解析し tool.pytest.ini_options.xfail_strict が真偽値 true であることを要求"
+    },
+    {
+      "severity": "minor",
+      "summary": "R2-05 台帳の記述と実装が不一致（収集除外の検出主体）",
+      "status": "resolved",
+      "resolution": "収集除外は G-UT-PER-TEST-OUTCOME の欠落判定が担当する旨へ台帳・ゲートメッセージ・docstring を統一"
+    },
+    {
+      "severity": "blocker",
+      "summary": "R3-01 1 つの非実行コマンドの引数へ 3 語を並べるだけで CI 配線を偽装できる（位置の再利用）",
+      "status": "resolved",
+      "resolution": "_match/_invokes/_runs_pytest を追加して実行形のみを一致とみなし、3 要件を別コマンド・前段より後方に要求"
+    },
+    {
+      "severity": "major",
+      "summary": "R3-02 多段束縛の反復が 5 回打切りで、長い連鎖が fail-open になる",
+      "status": "resolved",
+      "resolution": "収束するまでの while ループ（上限は保険）へ変更し、2/6/12 段と逆順記述の負例を追加"
+    },
+    {
+      "severity": "minor",
+      "summary": "R3-03 upload 検査が最初の upload-artifact だけを見て、正当な複数 upload 構成を偽陽性で落とす",
+      "status": "resolved",
+      "resolution": "全 upload step を評価し、1 つでも両 path と if-no-files-found: error を満たせば PASS"
+    },
+    {
+      "severity": "minor",
+      "summary": "R3-04 statically_invisible_skips の docstring が収集除外を自分の検出対象と記述していた",
+      "status": "resolved",
+      "resolution": "docstring を per_test_faults 担当へ修正"
+    },
+    {
+      "severity": "blocker",
+      "summary": "R4-01 false pytest／python3 -c／uv --help／false && pytest などの非実行形をなお受理する",
+      "status": "resolved",
+      "resolution": "shlex 解析と _entry_point でランナ列を剥がし、非実行フラグ・ランナ連鎖・guard を含む行を配線から除外"
+    },
+    {
+      "severity": "major",
+      "summary": "R4-02 pytest と収集の間に別コマンドを挟んで junit を差し替えられる",
+      "status": "resolved",
+      "resolution": "pytest と収集の隣接（positions[1] == positions[0] + 1）を構造要件にした"
+    },
+    {
+      "severity": "major",
+      "summary": "R4-03 Subscript・IfExp など任意の式で実装を API 名へ運べる",
+      "status": "resolved",
+      "resolution": "_binding_kind に汎用フォールバックを追加し、実装名・import 由来の名前を運ぶ式を束縛として扱う"
+    },
+    {
+      "severity": "major",
+      "summary": "R5-01 環境変数代入・--help 後置・ランナ二重連鎖で配線検査を迂回できる",
+      "status": "resolved",
+      "resolution": "_strip_env で環境変数と env を正規化し、argv 全体の非実行フラグとランナ連鎖を拒否"
+    },
+    {
+      "severity": "minor",
+      "summary": "R5-02 環境変数付き実行や tee へのパイプを偽陽性で落とす",
+      "status": "resolved",
+      "resolution": "env 記法を正規化し、tee を NOOP_HEADS へ追加。正例テストを追加"
+    },
+    {
+      "severity": "major",
+      "summary": "R6-01 env の値付きオプションの陰に guard を隠せる",
+      "status": "resolved",
+      "resolution": "env の解析を厳密化（-- で打切り、値付きオプションは値ごと消費）"
+    },
+    {
+      "severity": "major",
+      "summary": "R7-01 env -C/--chdir のように解析対象外のオプションで guard を隠せる",
+      "status": "resolved",
+      "resolution": "オプションを個別に追う方式をやめ、解析を保証できない env 形は行ごと配線から除外する fail-close へ統一"
+    },
+    {
+      "severity": "major",
+      "summary": "R8-01 env -u の値が欠落した形で解析が崩れ、guard を見落とす",
+      "status": "resolved",
+      "resolution": "値が無い場合は即 ok=False（配線不成立）とし、負例を追加"
+    }
+  ]
+}

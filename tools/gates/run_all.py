@@ -29,6 +29,7 @@ from tools.gates import (  # noqa: E402
     review_binding,
     semantic_refs,
     test_pairing,
+    test_reality,
     traceability,
 )
 from tools.gates.common import (  # noqa: E402
@@ -51,6 +52,7 @@ MODULES = [
     traceability,
     semantic_refs,
     test_pairing,
+    test_reality,
     review_binding,
     baseline,
 ]

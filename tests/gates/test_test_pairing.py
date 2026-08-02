@@ -437,8 +437,16 @@ def test_mutation_commit_sha_cannot_meet_a_required_precondition(tmp_path) -> No
 
 
 def test_mutation_declaring_the_dedicated_gate_without_implementing_it_is_detected(
-        tmp_path) -> None:
-    """変異: 専用ゲート ID を書くだけ（本番が emit していない）では met にできない。"""
+        tmp_path, monkeypatch) -> None:
+    """変異: 専用ゲート ID を書くだけ（本番が emit していない）では met にできない。
+
+    4 つの専用ゲートは prep/s0.1-test-reality で実装済みのため、「未実装のまま宣言した」
+    状態は本番の emit 集合から当該 ID を落として再現する（束縛そのものは本番の関数が判定）。
+    """
+    emitted = test_pairing.ledger_gate_ids()
+    assert "G-UT-RUNTIME-OUTCOME" in emitted  # 実装済みであること自体を先に確かめる
+    monkeypatch.setattr(test_pairing, "ledger_gate_ids",
+                        lambda: emitted - {"G-UT-RUNTIME-OUTCOME"})
     plan = _plan(tmp_path, raw=True,
                  preconditions=[{"id": "runtime-ut-outcome-gate", "status": "met",
                                  "description": DESC, "met_by": "G-UT-RUNTIME-OUTCOME"},

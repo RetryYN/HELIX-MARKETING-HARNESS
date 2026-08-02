@@ -12,6 +12,8 @@ dev = [
     "ruff>=0.9",
     "mypy>=1.14",
     "import-linter>=2.1",
+    "pyyaml>=6.0.3",
+    "types-pyyaml>=6.0.12.20260724",
 ]
 
 [build-system]
@@ -24,6 +26,9 @@ packages = ["src/helix"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q --strict-markers"
+# xpass（xfail が実は通った）を failure にする。非 strict だと junit 上でただの成功として
+# 現れ、実行時ゲート（G-UT-DYNAMIC-SKIP／G-UT-PER-TEST-OUTCOME）が passed と誤認する
+xfail_strict = true
 pythonpath = ["src", "."]
 
 [tool.coverage.run]
