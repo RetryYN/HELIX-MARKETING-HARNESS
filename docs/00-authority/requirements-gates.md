@@ -24,6 +24,7 @@ slice: cross
 | `detailed_design.py` | DU 台帳・API 実装契約・DbC・エラー型・DB 参照・API 単位 UT・空洞禁止 |
 | `test_pairing.py` | 文書ペア・テストファイル対応・S0.1 着手の自動検出・skip/coverage の逃げ道封じ（静的 AST） |
 | `test_reality.py` | pytest 実行結果（outcome）の取り込み・動的 skip の検出・間接束縛の着手検出・対象 UT の nodeid 単位突合 |
+| `worksets.py` | S0.1 原子 Workset の分割・依存導出・スコープ一致・Workset 単位の着手強制とラチェット |
 | `semantic_refs.py` | 構造化参照（table/column/state/event/kind/error/api）の実在検査 |
 | `review_binding.py` | レビュー成果物の対象コミット・digest・後続レビュー束縛 |
 | `baseline.py` | デグレ検出（ラチェット）・件数表記の同期・ゲート配線と分割規律 |
@@ -172,6 +173,26 @@ slice: cross
 | G-UT-DYNAMIC-SKIP | 対象 UT の skip／xfail／xpass を**実行結果**で検出する（`__import__`／`importlib` 経由の動的 skip・実行時条件による skip を含む）。AST 側（G-UT-NO-ESCAPE）が検出していない skip は「静的に不可視」として別枠で報告する。着手後は 1 件も残せない（未着手は猶予するが実測件数を常に出力する）。収集自体からの除外（outcome に現れない）は G-UT-PER-TEST-OUTCOME の欠落判定が担う | 静的検査を素通りする skip で test-first を形骸化する |
 | G-IMPL-START-BINDING | `def` を書かない**間接束縛**による S0.1 実装着手を検出する（`functools.partial`／`partialmethod`・デコレータ適用の代入・別名代入・import の再エクスポート・属性代入・添字（レジストリ）登録・`globals()` 注入・辞書一括登録・2 引数の登録関数・`setattr(obj, "name", impl)`）。実装を指す名前は固定点で伝播し、多段束縛（`tmp = partial(real)` → `<API> = tmp`）も辿る。シグナルにするのは **DU-01〜12 の API 名への束縛**だけで（非 API の内部別名は偽陽性として除外）、`impl_start_signals` へ合流して skip 上限・coverage 下限・G-UT-NO-ESCAPE のラチェットを同時に発火させる | 関数定義を書かない実装でラチェットと着手検出を回避する |
 | G-UT-PER-TEST-OUTCOME | du-contracts の `apis[].ut` が指す対象 UT が **nodeid 単位で** executed かつ passed であることを outcome レポートと突合する（パラメータ化は基底 nodeid へ最悪値優先で畳む）。レポートに現れない nodeid は「未実行・改名・収集除外」として違反にする。集計 pass 件数・別テストの通過では代替できない。着手後に強制 | 「全体は green」で対象 UT の未実行・失敗を覆い隠す |
+
+## worksets — S0.1 原子 Workset（着手・完了の単位）
+
+> 正本は `docs/L6-feature-design/S0/s0.1-worksets.json`（schema = 同ディレクトリの
+> `s0.1-workset.schema.json`・追加プロパティ禁止）。S0.1（DU-01〜12）を依存方向に沿って
+> **WS-S0.1-A 基盤 → WS-S0.1-B ゲートと WF 定義 → WS-S0.1-C カーネル**の 3 つへ分割し、
+> 着手・完了・ラチェットを Workset 単位で判定する。従来の「最初の実装追加で S0.1 対象 UT
+> 全 127 件を一斉に強制」する all-or-nothing は廃止し、**着手済み（in_progress／done）
+> Workset だけ**へ強制する（未着手 Workset のスタブは猶予）。
+> 正本が無い・壊れている・DU-01〜12 を過不足なく覆っていない場合は強制範囲を
+> **S0.1 全 DU** へ倒す（正本を消せば強制が消える fail-open を作らない）。
+
+| ゲート | 検証内容 | 違反の意味 |
+|---|---|---|
+| G-WORKSET-SCHEMA | Workset 正本が schema 準拠（`workset_id`／`status`／`du_ids`／`api_ids`／`ut_nodeids`／`itc_ids`／`modules`／`depends_on`／`coverage_floor`／`red_receipt`）で、DU-01〜12 を**重複なく過不足なく**分割し（原子分割）、`status` は planned／in_progress／done の 3 値、`coverage_floor` は 80 以上、`done` は `red_receipt` を持つ | 分割の穴・DU の二重計上・証跡なしの完了宣言 |
+| G-WORKSET-DEPENDENCY | `depends_on` が du-contracts の `depends_on_apis` から機械導出した Workset 間依存と**完全一致**し、Workset 依存グラフが非循環で、DU 単位の相互依存（SCC）が Workset を跨がない。原案の A→B→C と実契約が食い違う場合は**契約側が正本** | 宣言だけの依存順・循環した分割・分断された相互依存 |
+| G-WORKSET-SCOPE | `api_ids`／`ut_nodeids`／`itc_ids`／`modules` が DU／API／UT／ITC 正本からの導出と完全一致する（手入力での加除を拒否）。ITC は cmp→DU→Workset で写像し依存順で最後に成立する Workset へ 1 回だけ割り当てる。さらに**着手済み Workset に属さないモジュールへ製品実装が無い**ことを要求する | 台帳の手書きによるスコープ僭称・他 Workset の製品コード混入 |
+| G-WORKSET-TEST-REALITY | 着手済み Workset **だけ**に、対象 UT の skip／xfail／NotImplementedError／空 assert = 0（AST）・対象 UT が nodeid 単位で executed かつ passed（実行結果）・依存 Workset が done・`done` の `red_receipt`（40 桁 SHA の red_commit が HEAD の祖先・nodeids が Workset 内・green_commit も祖先）を強制する | 依存を飛ばした着手・skip を残した完了・実在しない red→green の主張 |
+| G-WORKSET-COVERAGE | coverage 80% を `helix` 全体ではなく **active＋done Workset の対象モジュール集合**へ適用し、その解決（`tools/coverage_scope.py`）と下限（`tools/coverage_floor.py`）の結果が CI の pytest へ実際に引き渡されていることを YAML＋argv 構造で検査する | 未着手 Workset の空モジュールで分母を薄める／逆に達成不能な下限で着手を塞ぐ |
+| G-WORKSET-RATCHET | 親コミット比で Workset の削除・`du_ids`／`api_ids`／`ut_nodeids`／`itc_ids`／`depends_on` の縮小・status 後退（done→in_progress／planned）・`coverage_floor` 低下・記録済み `red_receipt.red_commit` の改変が無い。`done` へ進めた Workset は、その Workset の UT 件数以上を `tests/skip-budget.json` の `max_skipped` から減らす | 完了の後退・依存の緩和・skip 上限を据え置いたままの完了宣言 |
 
 ## review_binding — レビュー束縛
 

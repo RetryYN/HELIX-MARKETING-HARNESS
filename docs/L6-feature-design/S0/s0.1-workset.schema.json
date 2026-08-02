@@ -1,0 +1,213 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "S0.1 原子 Workset 正本 schema",
+  "description": "docs/L6-feature-design/S0/s0.1-worksets.json の構造。G-WORKSET-SCHEMA が検査する。api_ids／ut_nodeids／itc_ids／modules／depends_on は du-contracts・itest.json から機械導出した値と完全一致でなければならない（G-WORKSET-SCOPE／G-WORKSET-DEPENDENCY）。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "doc",
+    "version",
+    "slice",
+    "update",
+    "note",
+    "derivation",
+    "worksets"
+  ],
+  "properties": {
+    "doc": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "slice": {
+      "type": "string",
+      "enum": [
+        "S0"
+      ]
+    },
+    "update": {
+      "type": "string",
+      "enum": [
+        "S0.1"
+      ]
+    },
+    "note": {
+      "type": "string"
+    },
+    "derivation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "du_dependency_source",
+        "itc_source",
+        "ut_source",
+        "deviation"
+      ],
+      "properties": {
+        "du_dependency_source": {
+          "type": "string"
+        },
+        "itc_source": {
+          "type": "string"
+        },
+        "ut_source": {
+          "type": "string"
+        },
+        "deviation": {
+          "type": "string"
+        }
+      }
+    },
+    "worksets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "workset_id",
+          "title",
+          "status",
+          "du_ids",
+          "api_ids",
+          "ut_nodeids",
+          "itc_ids",
+          "itc_evidence",
+          "modules",
+          "depends_on",
+          "coverage_floor",
+          "red_receipt"
+        ],
+        "properties": {
+          "workset_id": {
+            "type": "string",
+            "pattern": "^WS-S0\\.1-[A-Z]$"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "planned",
+              "in_progress",
+              "done"
+            ]
+          },
+          "du_ids": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "pattern": "^DU-(0[1-9]|1[0-2])$"
+            }
+          },
+          "api_ids": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "pattern": "^API-DU\\d{2}-\\d{2}$"
+            }
+          },
+          "ut_nodeids": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "pattern": "^tests/unit/test_[a-z0-9_]+\\.py::test_[a-z0-9_]+$"
+            }
+          },
+          "itc_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^ITC-\\d{2}$"
+            }
+          },
+          "itc_evidence": {
+            "description": "done を名乗るときの ITC 実行証跡。ITC ID → pytest nodeid。キー集合は itc_ids と完全一致し、各 nodeid は outcome レポート上 passed でなければならない（G-WORKSET-TEST-REALITY）。",
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "object",
+                "minProperties": 1,
+                "propertyNames": {
+                  "pattern": "^ITC-\\d{2}$"
+                },
+                "additionalProperties": {
+                  "type": "string",
+                  "pattern": "^tests/[a-z0-9_/]+\\.py::test_[a-z0-9_]+$"
+                }
+              }
+            ]
+          },
+          "modules": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "pattern": "^src/helix/[a-z0-9_/]+\\.py$"
+            }
+          },
+          "depends_on": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^WS-S0\\.1-[A-Z]$"
+            }
+          },
+          "coverage_floor": {
+            "type": "integer",
+            "minimum": 80,
+            "maximum": 100
+          },
+          "red_receipt": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "red_commit",
+                  "nodeids",
+                  "green_commit"
+                ],
+                "properties": {
+                  "red_commit": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{40}$"
+                  },
+                  "nodeids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "string",
+                      "pattern": "^tests/unit/test_[a-z0-9_]+\\.py::test_[a-z0-9_]+$"
+                    }
+                  },
+                  "green_commit": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{40}$"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

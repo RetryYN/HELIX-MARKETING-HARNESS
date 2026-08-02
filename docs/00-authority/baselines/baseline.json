@@ -14,7 +14,7 @@
     "ITC": 16,
     "DU": 23
   },
-  "gate_count": 135,
+  "gate_count": 141,
   "max_skipped": 204,
   "coverage_floor": 0,
   "contract_counts": {
@@ -89,7 +89,8 @@
     "REV-S0-STRUCT-08",
     "REV-S0-STRUCT-09",
     "REV-S0-STRUCT-10",
-    "REV-S0-STRUCT-11"
+    "REV-S0-STRUCT-11",
+    "REV-S0-STRUCT-12"
   ],
   "separation_statuses": {
     "REV-S0-DESIGN-02": "unverified",
@@ -104,6 +105,7 @@
     "REV-S0-STRUCT-09": "self_attested",
     "REV-S0-STRUCT-10": "self_attested",
     "REV-S0-STRUCT-11": "self_attested",
+    "REV-S0-STRUCT-12": "self_attested",
     "REV-S0-STRUCT-01": "unverified"
   },
   "api_verification_levels": {
@@ -205,11 +207,11 @@
   ],
   "artifacts": {
     ".github/workflows/docs-ci.yml": "aee4cb5ba27b8663ea643113676f04e04c3d3ac0e8f0af0571cb744536bf2412",
-    ".github/workflows/python-ci.yml": "1553c2621c26dc0286ab6fd964f8ffae6ceda18588039f2742ef86dc652bbd89",
+    ".github/workflows/python-ci.yml": "38310d95b94112ca51d253377e6e8764691210ba497821d6f7506708278d776a",
     ".gitleaks.toml": "bd5ef0ff23d45638fd05c87c6c8c856962111fc337468e2b3de119490e84aacb",
     "AGENTS.md": "ef17790fc39ffe4ecad25812c04a8d85df38e19adb9483b7e94d7185c7eb2894",
     "CLAUDE.md": "4ffcc7aa5ed89e8631ce0f5cdaae1a0f922cab89d59cb4c0bbae0b00c879f136",
-    "docs/00-authority/artifact-manifest.json": "0b51cbe0f14d4acb09a7096c65249772a45d169ca42c83d8a1b242ddc4056221",
+    "docs/00-authority/artifact-manifest.json": "7792f686201e7fa7f5dcffbfb9fba6ca0cc493b79a49c4562ba51c1ffe09a261",
     "docs/00-authority/artifact-manifest.schema.json": "6829678e7ba29f2b68bebe11f15b22c4bf2b0bde5cca679b94244ac4220b6559",
     "docs/00-authority/audits/cross-repository-write-incident-2026-08-01.md": "161f44e6daf848dbcf3032f6fef175286c6996918f07ab8b0a7bc8df2fc601c4",
     "docs/00-authority/audits/granularity-gap-audit-v0.1.md": "9fd648fd36a5f8f93a22fe5fc234924ee6742bffc1bf1161cfd2ecb9543e905c",
@@ -333,6 +335,8 @@
     "docs/L6-feature-design/S0/implementation-unit.schema.json": "f82b0751a404690cebe66dbbd71d69b4a09611019b487a67b3090cb165c96cbd",
     "docs/L6-feature-design/S0/implementation-units.json": "249ad9431f22bc03a82af4aedcca68767961454e8190ac8db3adf5b1ddff9abd",
     "docs/L6-feature-design/S0/plan-s0.1.json": "eb69df5f3b581d32cee5bda306a2e8a41f8b00543a024fa2c2a1bb87acb32c80",
+    "docs/L6-feature-design/S0/s0.1-workset.schema.json": "65177ddc756f88a6602a2b9af31c6061d9e09d50d53faff11de44648c00123c7",
+    "docs/L6-feature-design/S0/s0.1-worksets.json": "98a8b6b3fa2d825ab1b4d8fb11f08e5017c4fb0a1e77b7a65b2f19a379aafdb1",
     "docs/L6-feature-design/S0/uncovered-apis.json": "a72dff249526696748011d1fb52c4dab607ff469d7c13aba0c9ea46280c896a6",
     "docs/L6-feature-design/S0/update-closure.json": "19a73979a5f53f84dd5abcd69c0f86f62dd92b5cc76b1d748d9f50cbcbf23c12",
     "pyproject.toml": "5beb479982b9ee1866212c9aece006bf123fb2f8125a4fb2c2f6ca3c2a0bbd33",
@@ -344,20 +348,22 @@
     "tests/coverage-floor.json": "0071cce81b8844ea787f3ba8e07278f3eb632eff5905836efe23f7c9b9124020",
     "tests/skip-budget.json": "75ab4edd8b338a7b55adf494fd7a8979a2d0921b767b76009d6dcaf96ef8dcd5",
     "tools/__init__.py": "92756f24a0c2c7da2fe3e9c4d6a7c6140643dcc28984943495f993e5736ecece",
-    "tools/coverage_floor.py": "22053ccf9ce79e8b2603c318be5016d5e47d83ab65ef38ba243f97b050dbed18",
+    "tools/coverage_floor.py": "b5ae99db10257b628518ec1c46c80a012aca048c92a6ba13b133904289833689",
+    "tools/coverage_scope.py": "2e8af00f28ef3d1c40fdc2c3d8194d20bd8584af61b4dfcb061a8c429caf89cd",
     "tools/gates/__init__.py": "8d138b1639d3824505398949db21a0b15ef9c9521c601b49de518f4ca0536005",
     "tools/gates/architecture.py": "ae6c8691ec3a0ed21d5d90ddbc843822605c451a6420860e83668b12268a4776",
     "tools/gates/authority.py": "b92f73c0db4a768f1bbb82605fd294468330c609b44cf61e887cd481988ec638",
     "tools/gates/baseline.py": "a00f42a7a8f0f05bbc8289b48d15b9f3ecc8ae9495bd6424a553fc3aa6bfd632",
-    "tools/gates/common.py": "9d16fa335a6d8788c8e6cc3fce5244113abc7ca3675fb3f47e07b7332d777764",
+    "tools/gates/common.py": "3ad80e28fff35811ff38cd711a3b039b5ee09e558bb59ccf012191d6067e9d62",
     "tools/gates/detailed_design.py": "30f41cf92af51e959f5304cc511d4b2bed8ce94a1512686797d45af1b7b33fb1",
     "tools/gates/requirements.py": "fcde0fecae3e05ab2f30b6e4ea2329b57163cfd5a77ab4ecaebadb4a88167161",
     "tools/gates/review_binding.py": "49bda166c233c84a9dd085d00dffac49eca515121f7e6a9ff527be57600315a4",
-    "tools/gates/run_all.py": "d1fd09181c72ae91a31ff2b6275be824e7f0d89cb3bf75a983528e1cdcc72d2e",
+    "tools/gates/run_all.py": "9c5844be5e3261bbca618ac88be65dc4b775c0b54eea6b07224b6a1c54aca990",
     "tools/gates/semantic_refs.py": "f7f8d189383b2fd68b62aeeae64a7001039f41ac5f4dd24733f2e7fb48994a40",
-    "tools/gates/test_pairing.py": "4f703b0c9929d116039ea24e763ba2673b5ef709e83c7b79a51bbf9cdc2bd326",
-    "tools/gates/test_reality.py": "0f6d87cf2cb0c79df6df6d5b656f763e78bc21bd117b6678591f83b6f465d145",
+    "tools/gates/test_pairing.py": "44e21030f621cd413ded152de5e7de475443bbe0912b349ebb72f22b7e6553d0",
+    "tools/gates/test_reality.py": "35756e1df83dc78d5820cd7baba1f2a4b6767379c077c58d6f9e457e458ac812",
     "tools/gates/traceability.py": "d50705067a4f0c77bb6ec381ea6c51d08d6a23eff1160d394d5e92c43e683bb9",
+    "tools/gates/worksets.py": "f6ed44e261fbcd92025f4e25de247424ba8228ca0a31e83e44574c223e937e2f",
     "uv.lock": "e616a567978fce4c23769525228dee355b6c86a8ceafbb556176094dd5ed4862"
   }
 }

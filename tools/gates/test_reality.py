@@ -64,6 +64,11 @@ GUARD_HEADS = ("false", "exit", "test", "[")
 # ランナの前置語として素通りさせてよいトークン（これ以外のフラグが挟まれば実行形と認めない）
 RUNNER_PREFIXES = ("run", "exec", "-m")
 UPLOAD_WORKFLOW = ".github/workflows/python-ci.yml"
+# 解析不能な step の占位マーカー（どの配線 needle にも一致しない）
+UNANALYZABLE = "#helix-unanalyzable-step"
+# `run` を実行するシェルとして認める値。カスタム shell（`bash -c "bash {0}; exit 0"` 等）は
+# run 本文を変えずに exit code を握り潰せる（独立レビュー R13-19・R13-21）
+ALLOWED_SHELLS = ("bash", "sh")
 PYPROJECT = ROOT / "pyproject.toml"
 
 
@@ -223,14 +228,25 @@ def s0_target_nodeids(ctx: Ctx) -> list[str]:
     return sorted(set(out))
 
 
-def runtime_skips(ctx: Ctx, data: dict | None) -> list[str]:
+def enforced_nodeids(ctx: Ctx) -> list[str]:
+    """強制対象の UT nodeid（着手済み Workset のもの。正本が壊れていれば全 S0.1 UT）。
+
+    Workset 単位化（PO 指示 §4）により、未着手 Workset のスタブは猶予される。
+    強制範囲の決定そのものは `tools.gates.worksets` が fail-close で担う。
+    """
+    from tools.gates.worksets import enforced_nodeids as scoped
+    return scoped(ctx)
+
+
+def runtime_skips(ctx: Ctx, data: dict | None, nodeids: list[str] | None = None) -> list[str]:
     """対象 UT のうち**実行時に** skip／xfail された nodeid（実測）。"""
     idx = outcome_index(data)
-    return [n for n in s0_target_nodeids(ctx)
+    return [n for n in (s0_target_nodeids(ctx) if nodeids is None else nodeids)
             if idx.get(n) in ("skipped", "xfailed", "xpassed")]
 
 
-def statically_invisible_skips(ctx: Ctx, data: dict | None) -> list[str]:
+def statically_invisible_skips(ctx: Ctx, data: dict | None,
+                               nodeids: list[str] | None = None) -> list[str]:
     """静的検査（AST）では見えないのに実行時に skip／xfail された対象 UT。
 
     これが動的 import 経由 skip・実行時条件による skip の検出点であり、G-UT-NO-ESCAPE の
@@ -248,14 +264,15 @@ def statically_invisible_skips(ctx: Ctx, data: dict | None) -> list[str]:
             flagged.add(f"{TESTS_UNIT_REL}/{fname}::{tname}" if tname
                         else f"{TESTS_UNIT_REL}/{fname}")
     out = []
-    for n in runtime_skips(ctx, data):
+    for n in runtime_skips(ctx, data, nodeids):
         if n in flagged or n.split("::", 1)[0] in flagged:
             continue
         out.append(n)
     return out
 
 
-def per_test_faults(ctx: Ctx, data: dict | None) -> list[str]:
+def per_test_faults(ctx: Ctx, data: dict | None,
+                    nodeids: list[str] | None = None) -> list[str]:
     """対象 UT が **nodeid 単位で** executed かつ passed であることを突合する。
 
     集計 pass 件数では「別のテストが通ったので green」を許してしまう。ここは
@@ -263,7 +280,7 @@ def per_test_faults(ctx: Ctx, data: dict | None) -> list[str]:
     """
     idx = outcome_index(data)
     bad: list[str] = []
-    for n in s0_target_nodeids(ctx):
+    for n in (s0_target_nodeids(ctx) if nodeids is None else nodeids):
         outcome = idx.get(n)
         if outcome is None:
             bad.append(f"{n}: outcome レポートに存在しない（未実行・改名・収集除外）")
@@ -299,17 +316,39 @@ def _command_lines(step: dict) -> list[str]:  # noqa: C901 — 分解規則を 1
     if isinstance(run, str):
         # シェルの行継続（末尾 `\`）は 1 コマンドとして繋ぐ
         joined = re.sub(r"\\\s*\n\s*", " ", run)
+        # 同名のシェル関数・alias を定義してから呼ぶと、実行主体の判定が実体を指さない
+        # （`pytest() { return 0; }` → `pytest --junitxml=...`）。errexit の解除も同様に
+        # 「実行はされるが失敗が伝わらない」を作れるため、これらを含む run は
+        # 解析不能として**丸ごと配線と認めない**（独立レビュー R13-18）。
+        # heredoc の本文は実行されない（`cat <<EOF` の中に配線コマンドを並べる偽装）
+        if "<<" in joined or _shadowing(joined):
+            # 「不可視」にすると pytest→収集の隣接判定を素通りできてしまうため、
+            # 位置を占める解析不能マーカーを返す（どの needle にも一致しない）
+            return [UNANALYZABLE]
         for raw in joined.splitlines():
             line = raw.split("#", 1)[0].strip()
             if not line:
                 continue
-            segments = [s.strip() for s in re.split(r"&&|\|\||;|\|", line) if s.strip()]
+            # `||`／`;`／パイプ／バックグラウンドは「実行はされるが exit code が伝わらない」を
+            # 作れる（`run_all.py || true`）。`&&` 連結だけを配線として認め、他は解析不能に倒す
+            # （独立レビュー R13-24）
+            probe = _without_expressions(line)
+            if probe is None or re.search(r"\|\||;|(?<!\|)\|(?!\|)|&\s*$", probe) \
+                    or re.search(r"\$\(|`|<\(|>\(", probe):
+                # コマンド置換は当該コマンドの**実行前**に走るため、隣接判定を保ったまま
+                # junit を差し替える窓になる。GHA 式が `$` や引用符を生む形（`${{ \'$\' }}(...)`）も
+                # 展開後にシェル構文を合成できるため解析不能に倒す（独立レビュー R13-26・R13-28）
+                out.append(UNANALYZABLE)
+                continue
+            segments = [s.strip() for s in re.split(r"&&", line) if s.strip()]
             # 条件付き実行の左辺に必ず失敗するコマンドを置く偽装（`false && pytest ...`）は、
             # その行全体を配線として認めない（独立レビュー R4-01）
             stripped = [_strip_env(_argv(s)) for s in segments]
             heads = [(toks or [""])[0] for toks, _ in stripped]
-            # guard（必ず失敗するコマンド）を含む行、および実行対象を特定できない行は捨てる
+            # guard（必ず失敗するコマンド）を含む行、および実行対象を特定できない行は捨てる。
+            # ただし「捨てた」ことを占位マーカーで残す（消すと隣接判定を素通りできる — R13-22）
             if any(Path(h).name in GUARD_HEADS for h in heads) or not all(ok for _, ok in stripped):
+                out.append(UNANALYZABLE)
                 continue
             for cmd, head in zip(segments, heads, strict=True):
                 if Path(head).name in NOOP_HEADS:
@@ -321,6 +360,21 @@ def _command_lines(step: dict) -> list[str]:  # noqa: C901 — 分解規則を 1
         args = " ".join(f"{k}={v}" for k, v in with_.items()) if isinstance(with_, dict) else ""
         out.append(f"uses:{uses} {args}")
     return out
+
+
+def _load_yaml(p: Path) -> dict | None:
+    """ワークフローを YAML 構造として読む（解析器が無い・壊れている場合は None＝fail-close）。"""
+    try:
+        import yaml
+    except ImportError:
+        return None
+    if not p.is_file():
+        return None
+    try:
+        doc = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+    except yaml.YAMLError:
+        return None
+    return doc if isinstance(doc, dict) else None
 
 
 def ci_wiring_faults() -> list[str]:
@@ -367,12 +421,20 @@ def ci_wiring_faults() -> list[str]:
             # pytest と収集の間に別コマンドを挟ませない（junit を差し替える隙を作らない
             # — 独立レビュー R4-02。CI を書き換えられる主体を完全には排除できないが、
             # 「pytest の直後に収集」を構造要件にして差し替えの余地を最小化する）
+            # 配線の**前段**に解析不能コマンドがあれば、そこで実行主体を差し替えられる
+            # （同一 run 内で定義した関数は後続行に効く — 独立レビュー R13-32）
+            if len(positions) == len(CI_STEP_ORDER) \
+                    and UNANALYZABLE in cmds[:positions[0]]:
+                bad.append(f"{wf}[{jname}]: 配線コマンドの前段に解析不能なコマンドがある"
+                           "（実行主体を差し替える隙になる）")
+                break
             if len(positions) == len(CI_STEP_ORDER) and positions[1] != positions[0] + 1:
                 bad.append(f"{wf}[{jname}]: pytest と outcome 収集の間に別コマンドがある"
                            "（生成された junit を差し替える隙になる）")
                 break
             if len(positions) == len(CI_STEP_ORDER):
                 wired = True
+                bad += _shell_faults(wf, str(jname), doc, job)
                 if wf == UPLOAD_WORKFLOW:
                     bad += _upload_faults(wf, jname, cmds)
                 break
@@ -382,6 +444,101 @@ def ci_wiring_faults() -> list[str]:
     if not COLLECTOR.is_file():
         bad.append("scripts/collect_test_outcome.py が存在しない")
     bad += _xfail_strict_faults()
+    return bad
+
+
+# GHA 式として認めるのは、値がリポジトリ内定義に閉じる参照だけ（`steps.*.outputs.*`・
+# `env.*`・`vars.*`・`needs.*`）。`github.event.*`／`inputs.*` は外部制御の文字列を
+# そのままコマンド行へ差し込めるため認めない（独立レビュー R13-31）
+SAFE_EXPRESSION = re.compile(r"^(steps|env|vars|needs)\.[\w.\-\[\]]+$")
+
+
+def _without_expressions(line: str) -> str | None:
+    """GHA 式を取り除いた判定用の文字列（解析不能な式が混じっていれば None）。"""
+    unsafe = False
+
+    def repl(m: re.Match) -> str:
+        nonlocal unsafe
+        if not SAFE_EXPRESSION.match(m.group(1).strip()):
+            unsafe = True
+        return ""
+
+    probe = re.sub(r"\$\{\{([^}]*)\}\}", repl, line)
+    return None if unsafe else probe
+
+
+# 別ファイル・文字列から実行主体を注入できるコマンド（解析不能として扱う）
+SHADOWING_HEADS = ("alias", "function", "eval", "source", ".", "builtin", "shopt", "declare")
+
+
+def _shadowing(run: str) -> bool:
+    """実行主体の詐称・errexit 解除を含む run か。
+
+    `&&` の右辺や env 前置に置かれても検出できるよう、**segment 単位**で
+    `_strip_env` 後に判定する（独立レビュー R13-27・R13-29）。
+    """
+    for raw in run.splitlines():
+        line = raw.split("#", 1)[0].strip()
+        for segment in (s.strip() for s in re.split(r"&&|\|\||;|\|", line) if s.strip()):
+            if re.match(r"^(alias\s|function\s|\w+\s*\(\s*\)\s*\{)", segment):
+                return True
+            raw_tokens = _argv(segment)
+            # `BASH_ENV=./evil.sh` は環境変数として剥がれるため剥がす前に見る
+            if any(tok.startswith("BASH_ENV=") for tok in raw_tokens):
+                return True
+            tokens, _ = _strip_env(raw_tokens)
+            if not tokens:
+                continue
+            # `.`（dot-source）は Path 正規化で空文字になるため先に見る
+            head = tokens[0] if tokens[0] == "." else Path(tokens[0]).name
+            if head in SHADOWING_HEADS \
+                    or (head == "set" and any(tok.startswith("+") for tok in tokens[1:])) \
+                    or (head == "export" and "-f" in tokens[1:]):
+                return True
+    return False
+
+
+def _soft_failure(node: dict) -> bool:
+    """`continue-on-error` で失敗が CI へ伝播しない job／step か（独立レビュー R13-25）。"""
+    soft = node.get("continue-on-error")
+    return soft is True or (isinstance(soft, str) and soft.strip().lower() != "false")
+
+
+def _effective_shell(doc: dict, job: dict, step: dict) -> object:
+    """step へ実際に適用される shell（step → job defaults → workflow defaults の順）。"""
+    for node in (step, job, doc):
+        if not isinstance(node, dict):
+            continue
+        if node is step:
+            shell = node.get("shell")
+        else:
+            run = (node.get("defaults") or {}).get("run")
+            shell = run.get("shell") if isinstance(run, dict) else None
+        if shell is not None:
+            return shell
+    return None
+
+
+def _shell_faults(wf: str, jname: str, doc: dict, job: dict) -> list[str]:
+    """配線 job が「失敗を CI へ伝播する」形であることを要求する。
+
+    `shell: bash -c "bash {0}; exit 0"` のようなカスタム shell も
+    `continue-on-error: true` も、run 本文を正準に保ったまま pytest・収集・ゲートの
+    失敗を成功へ変換できる（独立レビュー R13-21・R13-25）。
+    """
+    bad = []
+    if _soft_failure(job):
+        bad.append(f"{wf}[{jname}]: 配線 job が continue-on-error（失敗が CI へ伝播しない）")
+    for step in _steps(job):
+        if not isinstance(step.get("run"), str):
+            continue
+        shell = _effective_shell(doc, job, step)
+        if shell is not None and str(shell).strip() not in ALLOWED_SHELLS:
+            bad.append(f"{wf}[{jname}]: 配線 job の step が非正準シェル（shell: {shell!r}）"
+                       " — exit code を握り潰せる")
+        if _soft_failure(step):
+            bad.append(f"{wf}[{jname}]: 配線 job の step が continue-on-error"
+                       "（失敗が CI へ伝播しない）")
     return bad
 
 
@@ -460,9 +617,17 @@ def _entry_point(tokens: list[str]) -> str | None:
 
 
 def _runs_pytest(cmd: str) -> bool:
-    """コマンドが pytest の実行かを判定する（`--junitxml` を引数に持つだけの語を弾く）。"""
+    """コマンドが pytest の実行かを判定する（`--junitxml` を引数に持つだけの語を弾く）。
+
+    前方一致にすると `pytest-fake` のような別名スクリプトを置くだけで実行主体を
+    詐称できるため、basename の**完全一致**だけを認める。展開後にしか実体が決まらない
+    トークン（`pytest${SUFFIX}`・コマンド置換）は解析不能として fail-close で落とす
+    （独立レビュー R13-15）。
+    """
     entry = _entry_point(_argv(cmd))
-    return entry is not None and Path(entry).name.startswith("pytest")
+    if entry is None or any(ch in entry for ch in "$`"):
+        return False
+    return Path(entry).name == "pytest"
 
 
 def _invokes(cmd: str, script: str) -> bool:
@@ -766,14 +931,18 @@ def run(ctx: Ctx) -> None:
          f"(配線={wiring}, 形式違反={faults[:3]}, レポート={'あり' if present else 'なし'}, "
          f"着手={started})")
 
-    skips = runtime_skips(ctx, data)
-    invisible = statically_invisible_skips(ctx, data)
-    gate("G-UT-DYNAMIC-SKIP", not (started and skips) and not (started and invisible),
-         "対象 UT の skip／xfail を**実行結果**で検出する（動的 import・条件付き skip を含む。"
-         "収集除外は G-UT-PER-TEST-OUTCOME が担当）。"
-         "着手後は 1 件も残せない（未着手は猶予） "
-         f"(着手={started}, 実行時 skip={len(skips)} 件, うち AST 不可視={len(invisible)} 件"
-         f"{'' if not invisible else f':{invisible[:3]}'})")
+    # 強制範囲は着手済み Workset に限る（未着手 Workset のスタブは猶予 — PO 指示 §4）。
+    scoped = enforced_nodeids(ctx)
+    all_skips = runtime_skips(ctx, data)
+    skips = runtime_skips(ctx, data, scoped)
+    invisible = statically_invisible_skips(ctx, data, scoped)
+    gate("G-UT-DYNAMIC-SKIP", not skips and not invisible,
+         "着手済み Workset の対象 UT の skip／xfail を**実行結果**で検出する（動的 import・"
+         "条件付き skip を含む。収集除外は G-UT-PER-TEST-OUTCOME が担当）。"
+         "強制範囲では 1 件も残せない（未着手 Workset は猶予） "
+         f"(強制対象={len(scoped)} 件, 強制範囲の実行時 skip={len(skips)} 件, "
+         f"うち AST 不可視={len(invisible)} 件"
+         f"{'' if not invisible else f':{invisible[:3]}'}, S0.1 全体の実行時 skip={len(all_skips)} 件)")
 
     auto = binding_signals(ctx)
     declared = bool(ctx.skip_budget.get("s0_impl_started"))
@@ -783,10 +952,10 @@ def run(ctx: Ctx) -> None:
          "検出し、宣言と一致させる "
          f"(束縛={auto[:3]}, 宣言={declared})")
 
-    per = per_test_faults(ctx, data) if present else []
-    unresolved = started and not present
-    gate("G-UT-PER-TEST-OUTCOME", not (started and (per or unresolved)),
+    per = per_test_faults(ctx, data, scoped) if present else []
+    unresolved = bool(scoped) and not present
+    gate("G-UT-PER-TEST-OUTCOME", not per and not unresolved,
          "du-contracts の apis[].ut が指す対象 UT が **nodeid 単位で** executed かつ passed "
-         "（集計 pass 件数では代替できない・着手後に強制） "
-         f"(着手={started}, 対象={len(s0_target_nodeids(ctx))} 件, 未成立={len(per)} 件"
-         f"{'' if not per else f':{per[:3]}'})")
+         "（集計 pass 件数では代替できない・着手済み Workset に対して強制） "
+         f"(着手={started}, 強制対象={len(scoped)} 件／S0.1 全体={len(s0_target_nodeids(ctx))} 件, "
+         f"未成立={len(per)} 件{'' if not per else f':{per[:3]}'})")

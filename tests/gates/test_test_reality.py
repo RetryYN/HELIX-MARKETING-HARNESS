@@ -245,9 +245,10 @@ def test_statically_visible_skip_is_not_double_counted(monkeypatch) -> None:
     target = _targets(1)[0]
     fname = target.split("/")[-1].split("::")[0]
     tname = target.split("::")[1]
-    monkeypatch.setattr(test_reality, "runtime_skips", lambda ctx, data: [target])
+    monkeypatch.setattr(test_reality, "runtime_skips",
+                        lambda ctx, data, nodeids=None: [target])
     monkeypatch.setattr(test_pairing, "detect_ut_escapes",
-                        lambda ctx: [f"DU-01:{fname}::{tname}:skip"])
+                        lambda ctx, du_ids=None: [f"DU-01:{fname}::{tname}:skip"])
     assert test_reality.statically_invisible_skips(CTX, {}) == []
 
 
@@ -532,6 +533,26 @@ def test_mutation_non_executing_command_forms_are_rejected(tmp_path, monkeypatch
     assert any("実行順序が無い" in f for f in test_reality.ci_wiring_faults())
 
 
+@pytest.mark.parametrize("needle", ["pytest --junitxml=reports/junit.xml",
+                                   "python3 scripts/collect_test_outcome.py",
+                                   "python3 tools/gates/run_all.py"])
+def test_mutation_control_operators_cannot_swallow_wiring_exit_codes(
+        tmp_path, monkeypatch, needle: str) -> None:
+    """変異: 配線 step に `|| true`／パイプを付けて失敗を成功へ変える（独立レビュー R13-24）。
+
+    `&&` 連結だけを配線として認め、`||`・`;`・パイプ・バックグラウンドを含む行は
+    解析不能に倒す。3 つの配線コマンドのどれに付けても配線が成立しなくなる。
+    """
+    base = ["pytest --junitxml=reports/junit.xml",
+            "python3 scripts/collect_test_outcome.py",
+            "python3 tools/gates/run_all.py"]
+    steps = "".join(f"      - run: {c} || true\n" if c == needle else f"      - run: {c}\n"
+                    for c in base) + UPLOAD_STEP
+    _wire(tmp_path, monkeypatch, steps)
+    assert any("実行順序が無い" in f or "間に別コマンド" in f
+               for f in test_reality.ci_wiring_faults())
+
+
 def test_mutation_injecting_a_command_between_pytest_and_collection_is_detected(
         tmp_path, monkeypatch) -> None:
     """変異: pytest と収集の間にコマンドを挟み、生成された junit を差し替える。"""
@@ -546,13 +567,12 @@ def test_mutation_injecting_a_command_between_pytest_and_collection_is_detected(
 @pytest.mark.parametrize("pytest_cmd", [
     "PYTHONWARNINGS=error pytest --junitxml=reports/junit.xml",
     "env PYTHONWARNINGS=error pytest --junitxml=reports/junit.xml",
-    "pytest --junitxml=reports/junit.xml | tee reports/pytest.log",
     "uv run --frozen pytest --junitxml=reports/junit.xml",
     "env -u CI pytest --junitxml=reports/junit.xml",
     "env -- pytest --junitxml=reports/junit.xml",
 ])
 def test_legitimate_pytest_invocations_are_accepted(tmp_path, monkeypatch, pytest_cmd) -> None:
-    """偽陽性: 環境変数付き・env 経由・tee への出力・uv のオプション付きも配線として認める。"""
+    """偽陽性: 環境変数付き・env 経由・uv のオプション付きも配線として認める。"""
     steps = (f"      - run: {pytest_cmd}\n"
              "      - run: python3 scripts/collect_test_outcome.py\n"
              "      - run: python3 tools/gates/run_all.py\n") + UPLOAD_STEP
@@ -622,3 +642,100 @@ def test_all_four_preconditions_gates_are_emitted(gate_id: str) -> None:
     """PO 指定の 4 前提条件に対応する専用ゲートが**本番で** emit されている。"""
     from tools.gates.baseline import script_gate_ids
     assert gate_id in script_gate_ids()
+
+
+@pytest.mark.parametrize("suffix", ["$(python3 tools/forge.py)", "`python3 tools/forge.py`"])
+def test_mutation_command_substitution_in_wiring_is_rejected(tmp_path, monkeypatch, suffix) -> None:
+    """変異: 引数のコマンド置換で収集の直前に junit を差し替える（独立レビュー R13-26）。"""
+    steps = ("      - run: pytest --junitxml=reports/junit.xml\n"
+             f"      - run: python3 scripts/collect_test_outcome.py {suffix}\n"
+             "      - run: python3 tools/gates/run_all.py\n") + UPLOAD_STEP
+    _wire(tmp_path, monkeypatch, steps)
+    assert any("実行順序が無い" in f for f in test_reality.ci_wiring_faults())
+
+
+def test_mutation_env_prefixed_set_plus_e_is_rejected(tmp_path, monkeypatch) -> None:
+    """変異: `X=1 set +e` で errexit を解除してゲート失敗を握り潰す（独立レビュー R13-27）。"""
+    assert test_reality._shadowing("X=1 set +e\npython3 tools/gates/run_all.py") is True
+    assert test_reality._shadowing("set -euo pipefail\npytest") is False
+    steps = ("      - run: pytest --junitxml=reports/junit.xml\n"
+             "      - run: python3 scripts/collect_test_outcome.py\n"
+             "      - run: |\n          X=1 set +e\n          python3 tools/gates/run_all.py\n"
+             ) + UPLOAD_STEP
+    _wire(tmp_path, monkeypatch, steps)
+    assert any("実行順序が無い" in f for f in test_reality.ci_wiring_faults())
+
+
+@pytest.mark.parametrize("where", ["step", "job"])
+def test_mutation_continue_on_error_breaks_the_wiring(tmp_path, monkeypatch, where) -> None:
+    """変異: `continue-on-error: true` でゲート失敗を CI へ伝播させない（R13-25）。"""
+    soft = "        continue-on-error: true\n" if where == "step" else ""
+    job_soft = "    continue-on-error: true\n" if where == "job" else ""
+    steps = ("      - run: pytest --junitxml=reports/junit.xml\n"
+             "      - run: python3 scripts/collect_test_outcome.py\n"
+             f"      - run: python3 tools/gates/run_all.py\n{soft}") + UPLOAD_STEP
+    ci = tmp_path / "wf.yml"
+    ci.write_text(f"jobs:\n  python:\n{job_soft}    steps:\n{steps}", encoding="utf-8")
+    monkeypatch.setattr(test_reality, "CI_WORKFLOWS", (str(ci),))
+    monkeypatch.setattr(test_reality, "ROOT", tmp_path)
+    monkeypatch.setattr(test_reality, "UPLOAD_WORKFLOW", str(ci))
+    assert any("continue-on-error" in f for f in test_reality.ci_wiring_faults())
+
+
+def test_mutation_expression_forged_command_substitution_is_rejected(tmp_path, monkeypatch) -> None:
+    """変異: GHA 式で `$` を作り、展開後にコマンド置換を合成する（独立レビュー R13-28）。"""
+    forged = "python3 scripts/collect_test_outcome.py ${{ '$' }}(python3 forge.py)"
+    assert test_reality._command_lines({"run": forged}) == [test_reality.UNANALYZABLE]
+    assert test_reality._without_expressions("a ${{ steps.cov.outputs.floor }}") == "a "
+    assert test_reality._without_expressions("a ${{ '$' }}") is None
+
+
+def test_mutation_heredoc_body_is_not_wiring(tmp_path, monkeypatch) -> None:
+    """変異: heredoc の中に配線コマンドを並べて実行せずに配線を偽装する（R13-30）。"""
+    body = ("cat <<'EOF'\\npytest --junitxml=reports/junit.xml\\n"
+            "python3 scripts/collect_test_outcome.py\\npython3 tools/gates/run_all.py\\nEOF")
+    assert test_reality._command_lines({"run": body.replace("\\n", "\n")}) == [
+        test_reality.UNANALYZABLE]
+
+
+def test_mutation_shadowing_detects_segments_and_env_prefixes() -> None:
+    """変異: `&&` の右辺・env 前置に関数定義／alias を置く（独立レビュー R13-29）。"""
+    assert test_reality._shadowing("true && pytest() {\n  return 0\n}") is True
+    assert test_reality._shadowing("X=1 alias pytest=true") is True
+    assert test_reality._shadowing("true && X=1 set +e") is True
+    assert test_reality._shadowing("set -euo pipefail\nuv run pytest") is False
+
+
+def test_mutation_externally_controlled_expressions_are_rejected() -> None:
+    """変異: 外部制御の GHA コンテキストを配線行へ差し込む（独立レビュー R13-31）。"""
+    assert test_reality._without_expressions("pytest ${{ github.event.pull_request.title }}") is None
+    assert test_reality._without_expressions("pytest ${{ inputs.args }}") is None
+    assert test_reality._without_expressions("pytest ${{ steps.cov.outputs.floor }}") == "pytest "
+    assert test_reality._command_lines(
+        {"run": "pytest --junitxml=reports/junit.xml ${{ github.event.issue.body }}"}) == [
+        test_reality.UNANALYZABLE]
+
+
+def test_mutation_shadowing_covers_eval_source_and_export_f() -> None:
+    """変異: eval／source／export -f で偽 pytest を注入する（独立レビュー R13-32）。"""
+    assert test_reality._shadowing("eval 'pytest() { return 0; }'") is True
+    assert test_reality._shadowing("source ./evil.sh") is True
+    assert test_reality._shadowing("export -f pytest") is True
+    assert test_reality._shadowing("BASH_ENV=./evil.sh uv run pytest") is True
+    # `.` は source と等価。Path 正規化で空文字に潰れて素通りしないこと（R13-33）
+    assert test_reality._shadowing(". ./evil.sh\nuv run pytest -q") is True
+    assert test_reality._command_lines(
+        {"run": ". ./ci-helpers.sh\nuv run pytest -q --junitxml=reports/junit.xml"}) == [
+        test_reality.UNANALYZABLE]
+    assert test_reality._shadowing("uv run pytest --junitxml=reports/junit.xml") is False
+
+
+def test_mutation_unanalyzable_before_the_wiring_is_rejected(tmp_path, monkeypatch) -> None:
+    """変異: 配線の前段で実行主体を差し替える（同一 run の関数定義は後続に効く）。"""
+    steps = ("      - run: |\n          eval 'pytest() { return 0; }'\n"
+             "          uv run pytest --junitxml=reports/junit.xml\n"
+             "      - run: python3 scripts/collect_test_outcome.py\n"
+             "      - run: python3 tools/gates/run_all.py\n") + UPLOAD_STEP
+    _wire(tmp_path, monkeypatch, steps)
+    assert any("前段に解析不能" in f or "実行順序が無い" in f
+               for f in test_reality.ci_wiring_faults())
