@@ -3685,6 +3685,52 @@
       "review_digest": null
     },
     {
+      "artifact_id": "L6-S0-WORKSETS",
+      "layer": "L6",
+      "slice": "S0",
+      "domain": "implementation-plan",
+      "artifact_type": "plan",
+      "authority_format": "json",
+      "authority_status": "active",
+      "lifecycle_status": "planned",
+      "canonical_path": "docs/L6-feature-design/S0/s0.1-worksets.json",
+      "view_path": null,
+      "view_generation": "none",
+      "pair_artifact_id": null,
+      "supersedes": [],
+      "extends_artifact_ids": [
+        "L6-S0-PLAN-S0-1"
+      ],
+      "depends_on_artifact_ids": [
+        "L6-S0-IMPLEMENTATION-UNITS"
+      ],
+      "previous_paths": [],
+      "approval_digest": null,
+      "review_digest": null
+    },
+    {
+      "artifact_id": "L6-S0-WORKSET-SCHEMA",
+      "layer": "L6",
+      "slice": "S0",
+      "domain": "implementation-plan",
+      "artifact_type": "schema",
+      "authority_format": "json",
+      "authority_status": "active",
+      "lifecycle_status": "draft",
+      "canonical_path": "docs/L6-feature-design/S0/s0.1-workset.schema.json",
+      "view_path": null,
+      "view_generation": "none",
+      "pair_artifact_id": null,
+      "supersedes": [],
+      "extends_artifact_ids": [],
+      "depends_on_artifact_ids": [
+        "L6-S0-WORKSETS"
+      ],
+      "previous_paths": [],
+      "approval_digest": null,
+      "review_digest": null
+    },
+    {
       "artifact_id": "AUDIT-STRUCTURAL-TRACE-2026-08-02",
       "layer": "00-authority",
       "slice": "S0",

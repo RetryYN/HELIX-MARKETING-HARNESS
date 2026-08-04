@@ -1,0 +1,244 @@
+{
+ "review_id": "REV-S0-STRUCT-13",
+ "reviewer_principal": "codex-sol (gpt-5.6-sol / openai-codex-cli)",
+ "author_principal": "claude-code (claude-opus-5)",
+ "author_execution_id": "9230d21c-4589-4845-9488-a7b5a60cb46d",
+ "reviewer_execution_id": "019fc2ef-9058-72d1-be47-44f70cd27bd7",
+ "review_run_id": "REV-S0-STRUCT-13-R13",
+ "reviewer_provider": "openai-codex-cli",
+ "review_log_path": "docs/00-authority/reviews/logs/REV-S0-STRUCT-13.jsonl",
+ "review_log_digest": "a8b478170a0b9b42",
+ "separation_status": "self_attested",
+ "model": "gpt-5.6-sol",
+ "target_commit": "19a96d79a2b32650a8abbad44b0afc01290338d9",
+ "target_tree": "a8d4a5d5a9410cb5b381b982c410555cbdbce503",
+ "scope": "S0.1 原子 Workset 分割（WS-S0.1-A/B/C）と Workset 単位の着手・完了・ラチェット。tools/gates/worksets.py の 6 ゲート（G-WORKSET-SCHEMA／DEPENDENCY／SCOPE／TEST-REALITY／COVERAGE／RATCHET）、既存ゲートの Workset スコープ化、CI 配線検査の強化。src/helix への製品実装ゼロ・plan-s0.1.json は planned・skip 上限 204 据置き",
+ "supersedes_review": [
+  "REV-S0-STRUCT-12"
+ ],
+ "reviewed_artifact_digests": {
+  ".github/workflows/python-ci.yml": "38310d95b94112ca",
+  "docs/00-authority/artifact-manifest.json": "7792f686201e7fa7",
+  "docs/00-authority/baselines/baseline.json": "403f74220677ce3f",
+  "docs/00-authority/requirements-gates.md": "7d58e621d6fb416b",
+  "docs/00-authority/reviews/logs/REV-S0-STRUCT-13.jsonl": "a8b478170a0b9b42",
+  "docs/L6-feature-design/S0/s0.1-workset.schema.json": "65177ddc756f88a6",
+  "docs/L6-feature-design/S0/s0.1-worksets.json": "98a8b6b3fa2d825a",
+  "tests/gates/test_run_all.py": "7f3ea5372384f3d3",
+  "tests/gates/test_test_reality.py": "fd80b58e9d8ec8b7",
+  "tests/gates/test_worksets.py": "7b3fe87a0ca5070f",
+  "tools/coverage_floor.py": "b5ae99db10257b62",
+  "tools/coverage_scope.py": "2e8af00f28ef3d1c",
+  "tools/gates/common.py": "3ad80e28fff35811",
+  "tools/gates/run_all.py": "9c5844be5e3261bb",
+  "tools/gates/test_pairing.py": "44e21030f621cd41",
+  "tools/gates/test_reality.py": "35756e1df83dc78d",
+  "tools/gates/worksets.py": "f6ed44e261fbcd92"
+ },
+ "resolution_commits": [
+  "19a96d79a2b3"
+ ],
+ "verdict": "Go",
+ "completed_at": "2026-08-02",
+ "rounds": 13,
+ "findings": [
+  {
+   "severity": "blocker",
+   "status": "resolved",
+   "summary": "R13-01 Workset ラチェットの比較元が HEAD（CI では作業ツリーと同一）で全ラチェットが空回りする",
+   "resolution": "_committed() を新設し baseline.committed_baseline() と同じ HEAD^ 解決規約へ統一"
+  },
+  {
+   "severity": "blocker",
+   "status": "resolved",
+   "summary": "R13-02 比較元解決の fail-close が弱く、非 git ツリー・skip-budget 欠損でラチェットが無効化される",
+   "resolution": "_benign() で良性 source を 2 種に限定し、committed_skip_budget を (値, 出所) タプル化して解決不能を fault にした"
+  },
+  {
+   "severity": "blocker",
+   "status": "resolved",
+   "summary": "R13-09 直前コミットで正本を削除し次のコミットで改変版を再追加すると全ラチェットを回避できる",
+   "resolution": "_last_committed_blob() で履歴を遡り削除前の最新版を比較元にし、良性 source から『親に存在しない』を外した"
+  },
+  {
+   "severity": "major",
+   "status": "resolved",
+   "summary": "R13-03 itc_ids が導出・ラチェットされるだけで done の完了条件として強制されていない",
+   "resolution": "itc_evidence（ITC→nodeid）を schema と正本へ追加し、_itc_faults が done Workset の ITC 全件 passed を要求"
+  },
+  {
+   "severity": "major",
+   "status": "resolved",
+   "summary": "R13-04 複数 Workset を同時 done 化すると skip 上限の必要引下げが合算されない",
+   "resolution": "_skip_reduction_faults で newly_done の ut_nodeids を和集合にして 1 回だけ検査"
+  },
+  {
+   "severity": "major",
+   "status": "resolved",
+   "summary": "R13-05 impl_started が真でも全 Workset を planned に据え置けば強制範囲が空になる",
+   "resolution": "enforced_du_ids が S0.1 全 DU へ倒し、scope_faults が『着手先 Workset 未宣言』を違反にする"
+  },
+  {
+   "severity": "major",
+   "status": "resolved",
+   "summary": "R13-06 red_receipt が祖先 SHA 1 つと nodeid 1 件で偽造できる",
+   "resolution": "割当 UT の全件包含・red→green→HEAD の祖先順序・red 時点で対象モジュールが未実装であることを要求"
+  },
+  {
+   "severity": "major",
+   "status": "resolved",
+   "summary": "R13-09b worksets 正本が新設のとき skip 引下げ要求まで打ち切られる",
+   "resolution": "_skip_reduction_faults を良性経路でも実行する"
+  },
+  {
+   "severity": "major",
+   "status": "resolved",
+   "summary": "R13-10 done で green_commit が null だと順序検査が発動しない",
+   "resolution": "done の green_commit を非 null かつ 40 桁 SHA に限定"
+  },
+  {
+   "severity": "major",
+   "status": "resolved",
+   "summary": "R13-11 CI 配線検査が最初の job/step で打ち切り、条件付き resolver を検出しない",
+   "resolution": "全 job・全 step を検査して fault を蓄積し、resolver の条件付き実行を違反にした"
+  },
+  {
+   "severity": "major",
+   "status": "resolved",
+   "summary": "R13-13 coverage 引数を持つ非 pytest ダミーで配線検査を通せる",
+   "resolution": "_runs_pytest を必須化し、job 単位でも実行主体が pytest であることを要求"
+  },
+  {
+   "severity": "major",
+   "status": "resolved",
+   "summary": "R13-14 coverage job／pytest step の条件付き実行が無検査",
+   "resolution": "_conditional を job・pytest step・resolver step の 3 か所へ適用"
+  },
+  {
+   "severity": "major",
+   "status": "resolved",
+   "summary": "R13-15 pytest* 前方一致で実行主体を詐称できる",
+   "resolution": "basename の完全一致に変更し、$／バッククォートを含む実行主体は解析不能に倒す"
+  },
+  {
+   "severity": "major",
+   "status": "resolved",
+   "summary": "R13-16 || true・パイプ・set +e で coverage の失敗を握り潰せる",
+   "resolution": "coverage step を正準コマンド 1 行に限定し、連結・パイプ・コマンド置換を拒否"
+  },
+  {
+   "severity": "major",
+   "status": "resolved",
+   "summary": "R13-17 continue-on-error が無検査（条件付き実行と同等の無効化）",
+   "resolution": "_conditional／_soft_failure が continue-on-error を無条件実行と認めない"
+  },
+  {
+   "severity": "major",
+   "status": "resolved",
+   "summary": "R13-19 step／job／workflow の shell 指定が無検査でカスタム shell が exit code を捨てる",
+   "resolution": "_effective_shell／_shell_faults を新設し bash／sh 以外を違反にした"
+  },
+  {
+   "severity": "major",
+   "status": "resolved",
+   "summary": "R13-20 解析不能 step が不可視になり pytest→収集の隣接判定を素通りする",
+   "resolution": "UNANALYZABLE マーカーで位置を占有させた"
+  },
+  {
+   "severity": "major",
+   "status": "resolved",
+   "summary": "R13-21 shell 検査が coverage 系 3 step 限定で collector／run_all が無防備",
+   "resolution": "配線成立 job の全 run step へ適用"
+  },
+  {
+   "severity": "major",
+   "status": "resolved",
+   "summary": "R13-22 解析不能オプション経路の step が空リストで不可視のまま",
+   "resolution": "guard／解析不能セグメントでも UNANALYZABLE を積む"
+  },
+  {
+   "severity": "major",
+   "status": "resolved",
+   "summary": "R13-23 planned Workset のモジュールへ間接束縛で実装を持ち込むと stray 検出も強制も外れる",
+   "resolution": "implemented_modules が binding_signals の du-api-bind をモジュール別に取り込む"
+  },
+  {
+   "severity": "major",
+   "status": "resolved",
+   "summary": "R13-24 配線 step に || true を付けて全ゲートの失敗を無効化できる",
+   "resolution": "&& 連結のみを配線として認め、||・;・パイプ・末尾 & を解析不能に倒す"
+  },
+  {
+   "severity": "major",
+   "status": "resolved",
+   "summary": "R13-25 配線 job／step の continue-on-error が無検査",
+   "resolution": "_soft_failure を配線 job 本体と全 run step へ適用"
+  },
+  {
+   "severity": "major",
+   "status": "resolved",
+   "summary": "R13-26 引数のコマンド置換で収集直前に junit を差し替えられる",
+   "resolution": "$(・バッククォート・<(・>( を含む行を解析不能に倒す"
+  },
+  {
+   "severity": "major",
+   "status": "resolved",
+   "summary": "R13-27 env 前置の set +e が errexit 解除検査を素通りする",
+   "resolution": "_shadowing を segment 単位＋_strip_env 後の判定へ変更"
+  },
+  {
+   "severity": "major",
+   "status": "resolved",
+   "summary": "R13-28 GHA 式で $ を生成しコマンド置換を合成できる",
+   "resolution": "_without_expressions と SAFE_EXPRESSION で式の中身を検査し、危険な式を解析不能に倒す"
+  },
+  {
+   "severity": "major",
+   "status": "resolved",
+   "summary": "R13-29 && 右辺・env 前置の alias／function が未検出",
+   "resolution": "_shadowing を segment 単位化し alias／function を head としても検出"
+  },
+  {
+   "severity": "major",
+   "status": "resolved",
+   "summary": "R13-30 heredoc 本文が実行コマンドとして配線に数えられる",
+   "resolution": "<< を含む run を step ごと解析不能に倒す"
+  },
+  {
+   "severity": "major",
+   "status": "resolved",
+   "summary": "R13-31 外部制御の GHA コンテキスト（github.event.*／inputs.*）を配線行へ差し込める",
+   "resolution": "SAFE_EXPRESSION を steps／env／vars／needs のホワイトリストへ変更"
+  },
+  {
+   "severity": "major",
+   "status": "resolved",
+   "summary": "R13-32 eval／source／export -f／BASH_ENV による実行主体注入と配線前段の無防備",
+   "resolution": "SHADOWING_HEADS を追加し、配線前段に UNANALYZABLE があれば配線とみなさない"
+  },
+  {
+   "severity": "major",
+   "status": "resolved",
+   "summary": "R13-33 dot-source が Path('.').name の空文字化で素通りする",
+   "resolution": "tokens[0] == '.' を Path 正規化前に判定"
+  },
+  {
+   "severity": "minor",
+   "status": "accepted-as-is",
+   "summary": "CI 定義とゲート実装を同時に書き換えられる主体はリポジトリ内 Python では排除できない",
+   "resolution": "残る限界として記録（branch protection・required checks・CODEOWNERS で補完する）"
+  },
+  {
+   "severity": "minor",
+   "status": "accepted-as-is",
+   "summary": "GitHub Actions の設定・実行環境（reusable workflow・composite action・self-hosted runner・uses 経由の注入）は静的検査の管理外",
+   "resolution": "残る限界として記録（外部 action の SHA pin と runner 管理で補完する）"
+  },
+  {
+   "severity": "minor",
+   "status": "accepted-as-is",
+   "summary": "tox／nox 等のラッパー経由の pytest 実行は配線として認めない",
+   "resolution": "設計上の制約として記録（導入時に許可リストを明示拡張する）"
+  }
+ ]
+}

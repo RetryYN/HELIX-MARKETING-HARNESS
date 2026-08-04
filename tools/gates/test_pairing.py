@@ -44,18 +44,27 @@ SRC_PKG = ROOT / "src/helix"
 COVERAGE_STARTED_FLOOR = 80
 
 
+def has_implementation_source(source: str) -> bool:
+    """ソース文字列が実体（関数・クラス・lambda）を持つかを AST で判定する。
+
+    ファイルを介さない純関数にしてあるのは、`git show <sha>:<path>` の出力を
+    一時ファイルへ書かずにそのまま判定できるようにするため（独立レビュー R13-12）。
+    """
+    try:
+        tree = ast.parse(source)
+    except SyntaxError:
+        return True  # 解析不能は fail-close（実装ありとみなす）
+    return any(isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda))
+               for n in ast.walk(tree))
+
+
 def has_implementation(path: Path) -> bool:
     """再エクスポート・docstring 以外の実体（関数・クラス・lambda）を持つかを AST で判定する。
 
     `__init__.py` に実装を置く迂回を塞ぐ。トップレベル直下だけでなく `ast.walk` で全階層を
     見るため、`if` ブロック内の条件付き定義や `f = lambda ...` も実装として扱う。
     """
-    try:
-        tree = ast.parse(path.read_text(encoding="utf-8"))
-    except SyntaxError:
-        return True  # 解析不能は fail-close（実装ありとみなす）
-    return any(isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda))
-               for n in ast.walk(tree))
+    return has_implementation_source(path.read_text(encoding="utf-8"))
 
 
 def _display(p: Path) -> str:
@@ -350,16 +359,22 @@ def _function_escapes(fn: ast.FunctionDef | ast.AsyncFunctionDef,
     return out
 
 
-def detect_ut_escapes(ctx: Ctx, tests_dir: Path = TESTS_UNIT) -> list[str]:
+def detect_ut_escapes(ctx: Ctx, tests_dir: Path = TESTS_UNIT,
+                      du_ids: list[str] | None = None) -> list[str]:
     """S0.1 対象 UT に残る skip／xfail／NotImplementedError／空 assert を AST で列挙する。
 
     module-level skip・`pytestmark`・関数内 `pytest.xfail()`・`from pytest import skip` 経由の
     裸呼出し・定数 assert まで検出する（正規表現走査では素通りしていた）。
     逆に `pytest.raises` のみの拒否テストや mock の表明は検証行為として通す。
+
+    `du_ids` を渡すとその DU の UT だけを対象にする（Workset 単位の強制 — PO 指示 §4）。
     """
     bad: list[str] = []
     cache: dict[str, tuple[ast.Module | None, dict[str, str], list[str]]] = {}
+    scope = None if du_ids is None else set(du_ids)
     for du, fname, tname in s0_target_uts(ctx):
+        if scope is not None and du not in scope:
+            continue
         fp = tests_dir / fname
         if not fp.exists():
             bad.append(f"{du}:{fname}:ファイル不在")
@@ -616,10 +631,15 @@ def _impl_start(ctx: Ctx) -> None:
          f"tests/skip-budget.json の宣言が一致（自動検出のみで着手扱い） (自動={auto}, 宣言={declared})")
 
     started = detect_impl_started(ctx)
-    escapes = detect_ut_escapes(ctx) if started else []
+    # 強制範囲は着手済み Workset の DU に限る（未着手 Workset のスタブは猶予 — PO 指示 §4）。
+    # Workset 正本が壊れている場合は enforced_du_ids が S0.1 全 DU へ倒す（fail-close）。
+    from tools.gates.worksets import enforced_du_ids
+    scoped_dus = enforced_du_ids(ctx)
+    escapes = detect_ut_escapes(ctx, du_ids=scoped_dus) if scoped_dus else []
     gate("G-UT-NO-ESCAPE", not escapes,
-         "S0.1 着手後は対象 UT に skip／xfail／NotImplementedError／空 assert を残せない"
-         f"（未着手時は猶予） (着手={started}, 違反={escapes[:5]})")
+         "着手済み Workset の対象 UT に skip／xfail／NotImplementedError／空 assert を残せない"
+         f"（未着手 Workset は猶予） (着手={started}, 強制 DU={len(scoped_dus)} 件, "
+         f"違反={escapes[:5]})")
 
     cfg = load(COVERAGE_FLOOR)
     declared_floor = int(cfg["fail_under"])

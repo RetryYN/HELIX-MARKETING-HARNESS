@@ -11,7 +11,7 @@ def test_all_modules_are_registered_in_execution_order() -> None:
     names = [m.__name__.rsplit(".", 1)[-1] for m in run_all.MODULES]
     assert names == ["authority", "requirements", "architecture", "detailed_design",
                      "traceability", "semantic_refs", "test_pairing", "test_reality",
-                     "review_binding", "baseline"]
+                     "worksets", "review_binding", "baseline"]
     for m in run_all.MODULES:
         assert callable(m.run)
 
