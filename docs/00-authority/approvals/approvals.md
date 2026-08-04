@@ -92,6 +92,7 @@
 | 日付 | 対象 | 版 | 判断 | 承認者 | digest | 備考 |
 |---|---|---|---|---|---|---|
 | 2026-08-05 | marketing-harness-charter | v0.4 | confirmed | PO | db974edfd358 | 開発方式 HELIX V-model と製品 runtime Kanban-first + Scrum cadence の分離 |
+| 2026-08-05 | marketing-harness-charter | v0.4 | confirmed | PO | 9dcb3a1c1529 | HELIX development 正本と配布 surface の区別、組込み互換の否定、複数 domain runtime workspace の標準 tree・隔離契約を明示 |
 | 2026-08-05 | br-backbone | v0.1 | confirmed | PO | 9e775f3f5173 | BR-J1〜J3（Kanban／bounded domain／media binding）追加 |
 | 2026-08-05 | requirement-list | v0.1 | confirmed | PO | 1e84b520a4bf | REQ-053〜055 追加 |
 | 2026-08-05 | requirements | v0.1 | confirmed | PO | 7c2d6ec07e55 | FR-17／35／48 の要求ビュー・trace 追加 |
