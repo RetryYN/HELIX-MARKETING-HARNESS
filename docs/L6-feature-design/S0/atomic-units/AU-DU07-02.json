@@ -1,0 +1,33 @@
+{
+  "atomic_unit_id": "AU-DU07-02",
+  "workset_id": "WS-S0.1-B",
+  "title": "check_domain（zero_ad.py）",
+  "status": "planned",
+  "api_ids": [
+    "API-DU07-02"
+  ],
+  "clause_ids": [
+    "API-DU07-02-POST-01",
+    "API-DU07-02-PRE-01",
+    "API-DU07-02-PRE-02",
+    "API-DU07-02-RAISE-01"
+  ],
+  "implementation_unit_ids": [
+    "IU-KPIHANDOFF-01"
+  ],
+  "ut_nodeids": [
+    "tests/unit/test_gates_zero_ad.py::test_check_domain_clean_domain_passes",
+    "tests/unit/test_gates_zero_ad.py::test_check_domain_denylist_hit_rejected",
+    "tests/unit/test_gates_zero_ad.py::test_check_domain_empty_allowlist_fail_close"
+  ],
+  "modules": [
+    "src/helix/gates/zero_ad.py"
+  ],
+  "depends_on_atomic_units": [],
+  "coverage_floor": 80,
+  "merge_reason": null,
+  "workset_itc_ids": [],
+  "itc_evidence": null,
+  "red_receipt": null,
+  "green_receipt": null
+}

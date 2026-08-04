@@ -1,0 +1,45 @@
+{
+  "atomic_unit_id": "AU-DU11-01",
+  "workset_id": "WS-S0.1-A",
+  "title": "apply_all（migrate.py）",
+  "status": "planned",
+  "api_ids": [
+    "API-DU11-01"
+  ],
+  "clause_ids": [
+    "API-DU11-01-POST-01",
+    "API-DU11-01-POST-02",
+    "API-DU11-01-POST-03",
+    "API-DU11-01-PRE-01",
+    "API-DU11-01-PRE-02",
+    "API-DU11-01-RAISE-01",
+    "API-DU11-01-RAISE-02"
+  ],
+  "implementation_unit_ids": [
+    "IU-MIGRATION-02",
+    "IU-STRATEGICBRIEF-07"
+  ],
+  "ut_nodeids": [
+    "tests/unit/test_db_migrate.py::test_append_only_triggers_reject_update_and_delete",
+    "tests/unit/test_db_migrate.py::test_apply_all_checksum_mismatch_stops_before_apply",
+    "tests/unit/test_db_migrate.py::test_apply_all_crash_mid_migration_rolls_back_whole_version",
+    "tests/unit/test_db_migrate.py::test_apply_all_duplicate_version_stops_fatal",
+    "tests/unit/test_db_migrate.py::test_apply_all_empty_db_creates_25_tables_and_16_triggers",
+    "tests/unit/test_db_migrate.py::test_apply_all_records_version_checksum_applied_at_by",
+    "tests/unit/test_db_migrate.py::test_apply_all_skips_applied_versions_idempotent",
+    "tests/unit/test_db_migrate.py::test_strategic_briefs_content_update_rejected_status_transition_allowed",
+    "tests/unit/test_db_migrate.py::test_tlp_integrity_trigger_rejects_mismatched_insert"
+  ],
+  "modules": [
+    "src/helix/db/migrate.py"
+  ],
+  "depends_on_atomic_units": [
+    "AU-DU10-01"
+  ],
+  "coverage_floor": 80,
+  "merge_reason": null,
+  "workset_itc_ids": [],
+  "itc_evidence": null,
+  "red_receipt": null,
+  "green_receipt": null
+}

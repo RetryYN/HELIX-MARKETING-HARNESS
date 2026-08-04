@@ -25,6 +25,7 @@ slice: cross
 | `test_pairing.py` | 文書ペア・テストファイル対応・S0.1 着手の自動検出・skip/coverage の逃げ道封じ（静的 AST） |
 | `test_reality.py` | pytest 実行結果（outcome）の取り込み・動的 skip の検出・間接束縛の着手検出・対象 UT の nodeid 単位突合 |
 | `worksets.py` | S0.1 依存 Workset（実装レーン）の分割・依存導出・スコープ一致・Workset 単位の着手強制とラチェット |
+| `atomic_units.py` | S0.1 原子単位（1 製品 PR の単位）の機械導出・PR スコープ強制・原子単位ごとの red→green とラチェット |
 | `semantic_refs.py` | 構造化参照（table/column/state/event/kind/error/api）の実在検査 |
 | `review_binding.py` | レビュー成果物の対象コミット・digest・後続レビュー束縛 |
 | `baseline.py` | デグレ検出（ラチェット）・件数表記の同期・ゲート配線と分割規律 |
@@ -154,7 +155,7 @@ slice: cross
 | G-PAIR-MANIFEST | ②↔④・⑤↔⑥ のペアが manifest（pair_artifact_id）と文書ヘッダの両方で双方向 | ペアの正本が二重化・非対称 |
 | G-UT-FILE-UNIQ | DU↔テストファイルが 1 対 1・衝突なし | テストファイル混線 |
 | G-UT-FILE-EXIST | du-contracts／STC-I（S0.1）が宣言する test_file が実在 | 宣言だけのテストファイル |
-| G-IMPL-START-DETECT | S0.1 着手の**自動検出**（src/helix への実装追加・S0.1 PLAN の in_progress・DU-01〜12 の API 実装）と宣言（skip-budget）が一致。実装の有無は AST 判定（`__init__.py`・条件付き def・lambda 代入も実装とみなす） | 宣言を false のままにした着手（手動フラグ依存の逃げ） |
+| G-IMPL-START-DETECT | S0.1 着手の**自動検出**（src/helix への実装追加・S0.1 PLAN の in_progress・DU-01〜12 の API 実装・**原子単位の in_progress／done 宣言**）と宣言（skip-budget）が一致。実装の有無は AST 判定（`__init__.py`・条件付き def・lambda 代入も実装とみなす） | 宣言を false のままにした着手（手動フラグ依存の逃げ） |
 | G-UT-NO-ESCAPE | 着手後は対象 UT に skip／xfail／NotImplementedError／空 assert を残せない。AST 判定（module-level skip・`pytestmark`・関数内 `pytest.skip()`／`xfail()`・別名 import／モジュール再代入／`getattr` 経由の呼出し・定数 assert）。skip 判定は import 解決＋別名代入の固定点でフレームワーク起点の完全パスへ解決し、pytest／unittest 由来に限定する。**空 assert = 検証行為ゼロ**であり、`pytest.raises`／`pytest.warns`／`assert_*` メソッド／`pytest.fail()` は検証行為として通す（計上は到達しうる文のみ — 入れ子関数内・`if False:` 配下は数えない）。別名は star import・タプル／注釈付き／セイウチ代入・多段再代入まで固定点で解決する。残る限界は `__import__`／`importlib` の動的 import のみで、着手後の coverage 下限 80% と `scripts/check_skip_budget.py` の実測 skipped 件数ラチェットを backstop とする。**動的 import の限界は test_reality の実行時ゲート（G-UT-DYNAMIC-SKIP／G-UT-PER-TEST-OUTCOME）が実行結果で塞ぐ**（本ゲートは静的側の検査として残す — 二重化であって代替ではない） | skip を red と称する test-first の形骸化／逆に正当な拒否テストを落とす偽陽性 |
 | G-COVERAGE-RATCHET | coverage 下限が着手後 80% 以上・親コミット比で低下しない。比較元は `committed_baseline()`（親コミットの baseline・旧パス遡及）に一本化し、親を解決できない場合は fail-close | 網羅率の静かな引き下げ／比較元不能を素通りさせる fail-open |
 | G-PLAN-S0 | S0.1 PLAN が実在し status 語彙・対象 DU（01〜12）が正しく、`preconditions[]` の各要素が object・`description` 40 字以上・`status=met` は実在ゲート ID（本番モジュールが emit する ID 集合への完全一致）か実在 commit SHA の `met_by` 必須。**PO 指定の 4 前提条件（`runtime-ut-outcome-gate`／`dynamic-import-skip-detection`／`impl-start-detect-indirect-binding`／`per-ut-executed-and-passed`）は必ず存在し、`met` にできるのは対応する専用ゲート（G-UT-RUNTIME-OUTCOME／G-UT-DYNAMIC-SKIP／G-IMPL-START-BINDING／G-UT-PER-TEST-OUTCOME）を本番が emit した場合だけ**（無関係な既存ゲート ID・任意の commit SHA では met にできない）。`status` が `planned` 以外（in_progress／done）と着手の自動検出は、前提条件が全て `met` でない限り落ちる（`planned → done` 直行も塞ぐ）。`done` は対象 DU の API が実装済みであることを併せて要求する（実装ゼロの完了宣言を拒否） | 着手前提条件の忘却／前提未充足のままの着手／preconditions の削除・骨抜き |
@@ -189,12 +190,39 @@ slice: cross
 
 | ゲート | 検証内容 | 違反の意味 |
 |---|---|---|
-| G-WORKSET-SCHEMA | Workset 正本が schema 準拠（`workset_id`／`status`／`du_ids`／`api_ids`／`ut_nodeids`／`itc_ids`／`modules`／`depends_on`／`coverage_floor`／`red_receipt`）で、DU-01〜12 を**重複なく過不足なく**分割し（重複なき完全分割）、`status` は planned／in_progress／done の 3 値、`coverage_floor` は 80 以上、`done` は `red_receipt` を持つ | 分割の穴・DU の二重計上・証跡なしの完了宣言 |
+| G-WORKSET-SCHEMA | Workset 正本が schema 準拠（`workset_id`／`status`／`du_ids`／`api_ids`／`ut_nodeids`／`itc_ids`／`modules`／`depends_on`／`coverage_floor`）で、DU-01〜12 を**重複なく過不足なく**分割し（重複なき完全分割）、`status` は planned／in_progress／done の 3 値かつ**所属原子単位からの導出と一致**し、`coverage_floor` は 80 以上（red→green 証跡は原子単位が持つ） | 分割の穴・DU の二重計上・原子単位より先に進めた完了宣言 |
 | G-WORKSET-DEPENDENCY | `depends_on` が du-contracts の `depends_on_apis` から機械導出した Workset 間依存と**完全一致**し、Workset 依存グラフが非循環で、DU 単位の相互依存（SCC）が Workset を跨がない。原案の A→B→C と実契約が食い違う場合は**契約側が正本** | 宣言だけの依存順・循環した分割・分断された相互依存 |
-| G-WORKSET-SCOPE | `api_ids`／`ut_nodeids`／`itc_ids`／`modules` が DU／API／UT／ITC 正本からの導出と完全一致する（手入力での加除を拒否）。ITC は cmp→DU→Workset で写像し依存順で最後に成立する Workset へ 1 回だけ割り当てる。さらに**着手済み Workset に属さないモジュールへ製品実装が無い**ことを要求する | 台帳の手書きによるスコープ僭称・他 Workset の製品コード混入 |
-| G-WORKSET-TEST-REALITY | 着手済み Workset **だけ**に、対象 UT の skip／xfail／NotImplementedError／空 assert = 0（AST）・対象 UT が nodeid 単位で executed かつ passed（実行結果）・依存 Workset が done・`done` の `red_receipt`（40 桁 SHA の red_commit が HEAD の祖先・nodeids が Workset 内・green_commit も祖先）を強制する | 依存を飛ばした着手・skip を残した完了・実在しない red→green の主張 |
+| G-WORKSET-SCOPE | `api_ids`／`ut_nodeids`／`itc_ids`／`modules` が DU／API／UT／ITC 正本からの導出と完全一致する（手入力での加除を拒否）。ITC は cmp→DU→Workset で写像し依存順で最後に成立する Workset へ 1 回だけ割り当てる。さらに**着手済み Workset に属さないモジュールへ製品実装が無い**ことを `src/helix/**/*.py` 全走査（`__init__.py` を含む）で要求する。判定述語は G-ATOMIC-PR-SCOPE と共通（実体・再エクスポート・間接束縛・動的ロード） | 台帳の手書きによるスコープ僭称・他 Workset の製品コード混入 |
+| G-WORKSET-TEST-REALITY | 着手済み Workset **のうち着手済み原子単位が持つ nodeid だけ**に、skip／xfail／NotImplementedError／空 assert = 0（AST）・nodeid 単位で executed かつ passed（実行結果）を強制し、依存 Workset の done と、`done` のレーンで所属原子単位が全て done であることを要求する。原子単位正本が使えない場合はレーン全体（さらに壊れていれば S0.1 全 DU）へ**広げて**倒す | 依存を飛ばした着手・skip を残した完了・原子単位を跨いだ完了僭称 |
 | G-WORKSET-COVERAGE | coverage 80% を `helix` 全体ではなく **active＋done Workset の対象モジュール集合**へ適用し、その解決（`tools/coverage_scope.py`）と下限（`tools/coverage_floor.py`）の結果が CI の pytest へ実際に引き渡されていることを YAML＋argv 構造で検査する | 未着手 Workset の空モジュールで分母を薄める／逆に達成不能な下限で着手を塞ぐ |
-| G-WORKSET-RATCHET | 親コミット比で Workset の削除・`du_ids`／`api_ids`／`ut_nodeids`／`itc_ids`／`depends_on` の縮小・status 後退（done→in_progress／planned）・`coverage_floor` 低下・記録済み `red_receipt.red_commit` の改変が無い。`done` へ進めた Workset は、その Workset の UT 件数以上を `tests/skip-budget.json` の `max_skipped` から減らす | 完了の後退・依存の緩和・skip 上限を据え置いたままの完了宣言 |
+| G-WORKSET-RATCHET | 親コミット比で Workset の削除・`du_ids`／`api_ids`／`ut_nodeids`／`itc_ids`／`depends_on` の縮小・status 後退（done→in_progress／planned）・`coverage_floor` 低下が無く、`tests/skip-budget.json` の `max_skipped` が増えていない（比較元を解決できない場合は fail-close）。**done 化に伴う「解除 skip 件数以上の引下げ」要求は原子単位（G-ATOMIC-RATCHET）が持つ**（同じ UT を二重に数えない） | 完了の後退・依存の緩和・skip 上限の引上げ |
+
+## atomic_units — S0.1 原子単位（1 製品 PR の単位）
+
+> 正本は `docs/L6-feature-design/S0/atomic-units/index.json` と同ディレクトリの `AU-*.json`
+> （schema = `atomic-unit.schema.json`／`index.schema.json`・追加プロパティ禁止）。
+> **レーン（Workset A/B/C）は PR の単位ではない**。PR の単位はこの原子単位である。
+> 原則は**公開 API 1 本＝1 原子単位**で、S0.1 の 29 API を 28 単位へ分割している
+> （唯一の結合 `AU-DU01-02` は `register_guard()`↔`validate_strategic_brief()` の SCC）。
+> 複数 API の任意結合は禁止で、結合が許されるのは上流の `depends_on_apis` から独立導出した
+> SCC だけである。結合は `same_scc` と、当該 `atomic_unit_id` を
+> **使われる値として扱い、本番のゲート関数を到達可能な位置で呼んでその結果を assert する**
+> negative test の両方を要求する（自己参照・`if False:`・未使用変数のトートロジーは根拠に
+> ならない）。原子単位自身の宣言を導出入力へ戻さず、非 SCC の結合は常に拒否する。
+> レーンの `status` は原子単位から導出する（全 planned → planned／1 件以上 in_progress か
+> done → in_progress／全 done かつレーン ITC green → done）。red→green 証跡は原子単位が持ち、
+> Workset ITC は**レーン終端の原子単位**で green を要求する。
+> 正本が無い・壊れている・S0.1 の API を過不足なく覆っていない・着手が検出されたのに全単位が
+> planned のいずれでも、強制範囲を **S0.1 全 API** へ倒す（正本を消せば強制が消える fail-open を作らない）。
+
+| ゲート | 検証内容 | 違反の意味 |
+|---|---|---|
+| G-ATOMIC-SCHEMA | 索引と `AU-*.json` の集合が一致し、schema 準拠（`atomic_unit_id`／`workset_id`／`status`／`api_ids`／`clause_ids`／`implementation_unit_ids`／`ut_nodeids`／`modules`／`depends_on_atomic_units`／`coverage_floor`／`merge_reason`／`workset_itc_ids`／`itc_evidence`／`red_receipt`／`green_receipt`）で、S0.1 の全 API を**重複なく過不足なく**分割し、`coverage_floor` は 80 以上、`done` は red／green 双方の receipt を持ち、レーン ITC は終端単位だけが持つ。複数 API の結合には `merge_reason`（`same_scc`・detail・**当該 `atomic_unit_id` を値として扱い本番のゲート関数を呼ぶ実在の negative test**）を要し、上流依存グラフから独立導出した SCC との完全一致を機械検証する | 分割の穴・API の二重計上・証跡なしの完了宣言・理由なき任意結合 |
+| G-ATOMIC-DEPENDENCY | `api_ids`／`clause_ids`／`implementation_unit_ids`／`ut_nodeids`／`modules`／`depends_on_atomic_units`／`workset_id` が du-contracts・implementation-units・Workset 正本からの導出と**完全一致**し、原子単位の依存が非循環で、API の相互依存（SCC）が原子単位を跨がず、レーン依存と矛盾しない | 台帳の手書きによるスコープ僭称・循環した分割・分断された相互依存・レーン順序の迂回 |
+| G-ATOMIC-PR-SCOPE | 1 製品 PR で `in_progress` にできる原子単位は **1 件だけ**で、`main` との分岐点から HEAD ＋作業ツリーまでの変更が、その単位の `modules` と割当 UT のテストファイルに閉じている（他の `AU-*.json` を同じ PR で書き換えることもできない）。製品コードの判定は**実体（def／class／lambda）・パッケージ内シンボルの再エクスポート・間接束縛（partial／デコレータ／別名）・動的ロード（exec／eval／compile／`importlib`／`__import__`／`sys.path` 操作／`src.helix` 経由 import）のいずれか**で、`__init__.py` もこの判定を免れない。`in_progress` が 0 件なら製品コード（`src/helix/**.py`）を変更できない | 複数単位の同時着手・別単位／別レーンの製品コード混入・単位を宣言しない実装 |
+| G-ATOMIC-TEST-REALITY | 着手済み原子単位**だけ**に、依存単位の done・割当 UT の nodeid 単位 executed+passed・契約節の被覆（UT の `clause_refs` か `na_reason`）・`done` の red→green 証跡（40 桁 SHA が HEAD の祖先・red 時点で当該モジュールが未実装・nodeid が割当 UT を網羅・red→green の順序）・レーン終端での Workset ITC green（かつ終端はレーンの他の単位が全て done になるまで done にできない）を強制する | 依存を飛ばした着手・skip を残した完了・実在しない red→green の主張・ITC 未検証のレーン完了 |
+| G-ATOMIC-COVERAGE | coverage 80% を `helix` 全体ではなく**着手済み原子単位のモジュール集合**へ適用し、その解決（`tools/coverage_scope.py`）と下限（`tools/coverage_floor.py`）が CI の pytest へ実際に引き渡されていることを YAML＋argv 構造で検査する | 未着手単位の空モジュールで分母を薄める／宣言 `coverage_floor` が効いていない |
+| G-ATOMIC-RATCHET | 親コミット比で原子単位の削除・`api_ids`／`clause_ids`／`implementation_unit_ids`／`ut_nodeids`／`modules`／`depends_on_atomic_units` の縮小・status 後退・`coverage_floor` 低下・記録済み `red_commit`／`green_commit` の改変が無く、`done` 化には**その単位で解除した skip 件数以上**を `tests/skip-budget.json` の `max_skipped` から減らす | 完了の後退・依存の緩和・skip 上限を据え置いたままの完了宣言 |
 
 ## review_binding — レビュー束縛
 

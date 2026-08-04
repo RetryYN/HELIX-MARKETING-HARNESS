@@ -231,33 +231,52 @@ def enforced_du_ids(ctx: Ctx, data: dict | None = None) -> list[str]:
 
 
 def enforced_nodeids(ctx: Ctx, data: dict | None = None) -> list[str]:
-    """強制の対象になる UT nodeid（着手済み Workset のもの）。"""
+    """強制の対象になる UT nodeid。
+
+    原子単位（1 製品 PR の単位）正本が使えるならそちらが正確な範囲を持つので委譲する。
+    使えない場合は Workset の範囲（さらに壊れていれば S0.1 全 DU）へ**広げて**倒す。
+    """
+    from tools.gates import atomic_units as au
+    scoped = au.enforced_nodeids(ctx)
+    if scoped is not None:
+        return scoped
     return derive_scope(ctx, enforced_du_ids(ctx, data))["ut_nodeids"]
 
 
 def enforced_modules(ctx: Ctx, data: dict | None = None) -> list[str]:
-    """coverage を強制する対象モジュール（active＋done Workset のもの）。"""
+    """coverage を強制する対象モジュール（着手済み原子単位。無ければ Workset 範囲）。"""
+    from tools.gates import atomic_units as au
+    scoped = au.enforced_modules(ctx)
+    if scoped is not None:
+        return scoped
     return derive_scope(ctx, enforced_du_ids(ctx, data))["modules"]
 
 
 def implemented_modules(ctx: Ctx) -> list[str]:
-    """S0.1 対象モジュールのうち **実装実体を持つ**もの。
+    """**実装実体を持つ** `src/helix` 配下のモジュール（DU 割当の有無を問わない）。
 
     `def`／`class`／`lambda` の実体だけでなく、**S0.1 の API 名への間接束縛**
     （再エクスポート・partial・デコレータ適用・setattr・レジストリ登録）も実装として扱う。
     これが無いと planned Workset のモジュールへ `from ._impl import f as api_f` と書くだけで
     stray 検出も強制範囲も外れる（独立レビュー R13-23）。
+    走査対象を DU 割当モジュールに限らないのは、`__init__.py` や DU に割り当てられていない
+    新規ファイルへ実装を置けば stray 検出を素通りできたためである（独立レビュー R15-01）。
     """
-    from tools.gates.test_pairing import has_implementation
+    from tools.gates.test_pairing import carries_product_code
     from tools.gates.test_reality import binding_signals
     bound = {sig.split(":")[2] for sig in binding_signals(ctx)
              if sig.startswith("du-api-bind:") and len(sig.split(":")) > 2}
-    out = []
-    for du in s0_du_ids():
-        mod = du_module(ctx, du)
-        p = ROOT / mod
-        if mod and (mod in bound or (p.is_file() and has_implementation(p))):
-            out.append(mod)
+    out = set(bound)
+    pkg = ROOT / SRC_PKG_REL
+    if pkg.is_dir():
+        for p in pkg.rglob("*"):
+            if not p.is_file() or "__pycache__" in p.parts:
+                continue
+            rel_path = str(p.relative_to(ROOT))
+            # `.py` 以外（`.pyc`・`.so` 等）は中身を解析できないので無条件に実装として扱う
+            # （ソースレス import で実装本体を持ち込める — 独立レビュー R15-13）。
+            if p.suffix != ".py" or carries_product_code(p):
+                out.add(rel_path)
     return sorted(out)
 
 
@@ -284,10 +303,30 @@ def schema_faults(data: dict | None) -> list[str]:
         extra = sorted(set(covered) - set(s0_du_ids()))
         bad.append(f"S0.1 の DU を過不足なく覆っていない（欠落={missing}, 範囲外={extra}）")
     for w in items:
-        if w["status"] == "done" and not w["red_receipt"]:
-            bad.append(f"{w['workset_id']}: done だが red_receipt が無い（red→green 証跡なし）")
         if w["coverage_floor"] < WORKSET_FLOOR:
             bad.append(f"{w['workset_id']}: coverage_floor={w['coverage_floor']} < {WORKSET_FLOOR}")
+    bad += derived_status_faults(data)
+    return bad
+
+
+def derived_status_faults(data: dict | None) -> list[str]:
+    """レーンの status が所属原子単位からの導出と一致することを要求する（PO 指示 §3）。
+
+    レーンは実装順・依存閉包・統合完了を管理する単位であって、着手・完了を**宣言**する
+    単位ではない。宣言が原子単位より先に進めば、レーン単位で完了を僭称できてしまう。
+    原子単位正本が読めない場合は導出できないので、この検査は行わない
+    （その状態は G-ATOMIC-SCHEMA が fail-close で落とす）。
+    """
+    from tools.gates import atomic_units as au
+    units = au.load_units(au.load_index())
+    if units is None:
+        return []
+    bad = []
+    for w in worksets_of(data):
+        wid = str(w["workset_id"])
+        want = au.derived_workset_status(units, wid, au.workset_itc_green(units, wid))
+        if str(w.get("status")) != want:
+            bad.append(f"{wid}: status={w.get('status')} が原子単位からの導出（{want}）と不一致")
     return bad
 
 
@@ -361,6 +400,21 @@ def scope_faults(ctx: Ctx, data: dict | None) -> list[str]:
     return bad
 
 
+def _lane_enforced_nodeids(ctx: Ctx, w: dict) -> list[str]:
+    """このレーンで強制対象になる UT nodeid（原子単位で着手済みのものだけ）。
+
+    レーンの status は「1 件でも原子単位が着手されれば in_progress」なので、レーン全体の
+    UT を要求すると原子単位化の意味が消える（着手した 1 単位のために同レーンの残り全部が
+    赤になる）。原子単位正本が使えない場合だけレーン全体へ倒す（fail-close）。
+    """
+    from tools.gates import atomic_units as au
+    lane = {str(n) for n in (w.get("ut_nodeids") or [])}
+    scoped = au.enforced_nodeids(ctx)
+    if scoped is None:
+        return sorted(lane)
+    return sorted(lane & set(scoped))
+
+
 def test_reality_faults(ctx: Ctx, data: dict | None) -> list[str]:
     """着手済み Workset に対してのみ skip 解除・nodeid 単位 green・依存 done を強制する。"""
     from tools.gates.test_pairing import detect_ut_escapes
@@ -374,14 +428,15 @@ def test_reality_faults(ctx: Ctx, data: dict | None) -> list[str]:
     for w in started_worksets(data):
         wid = str(w.get("workset_id"))
         dus = [du for du in (w.get("du_ids") or []) if isinstance(du, str)]
-        escapes = detect_ut_escapes(ctx, du_ids=dus)
+        lane_nodeids = _lane_enforced_nodeids(ctx, w)
+        escapes = detect_ut_escapes(ctx, du_ids=dus, nodeids=lane_nodeids)
         if escapes:
             bad.append(f"{wid}: 対象 UT に skip／xfail／NotImplementedError／空 assert "
                        f"{len(escapes)} 件:{escapes[:3]}")
         if not report:
             bad.append(f"{wid}: outcome レポートが無い（executed+passed を実測できない）")
         else:
-            for nid in derive_scope(ctx, dus)["ut_nodeids"]:
+            for nid in lane_nodeids:
                 got = idx.get(nid)
                 if got != "passed":
                     bad.append(f"{wid}: {nid} が {got or '未実行（レポートに無い）'}")
@@ -389,101 +444,27 @@ def test_reality_faults(ctx: Ctx, data: dict | None) -> list[str]:
             if str((by_id.get(dep) or {}).get("status")) != "done":
                 bad.append(f"{wid}: 依存 Workset {dep} が done でない")
         if w.get("status") == "done":
-            bad += _receipt_faults(wid, w)
-            bad += _itc_faults(wid, w, idx)
+            # red→green 証跡と ITC green は**原子単位**が持つ（PO 指示 §4 で移設）。
+            # レーンの done は「所属原子単位が全て done かつレーン ITC green」の導出結果で、
+            # G-ATOMIC-TEST-REALITY と derived_status_faults が実体を検査する。
+            bad += _lane_completion_faults(wid, w)
     return bad
 
 
-def _itc_faults(wid: str, w: dict, idx: dict[str, str]) -> list[str]:
-    """done を名乗る Workset の ITC（②↔④の統合テスト）が実際に green かを突合する。
-
-    ITC を Workset へ割り当てても、完了条件として突き合わせなければ飾りにしかならない
-    （独立レビュー R13-03）。`itc_evidence` が ITC ID → 実 nodeid を宣言し、その nodeid が
-    outcome レポート上 passed であることを要求する。
-    """
-    declared = {str(i) for i in (w.get("itc_ids") or [])}
-    evidence = w.get("itc_evidence")
-    if not declared:
-        return []
-    if not isinstance(evidence, dict):
-        return [f"{wid}: done だが itc_evidence が無い（割当 ITC={sorted(declared)}）"]
-    bad: list[str] = []
-    missing = sorted(declared - set(map(str, evidence)))
-    extra = sorted(set(map(str, evidence)) - declared)
-    if missing:
-        bad.append(f"{wid}: itc_evidence に未記載の ITC:{missing}")
-    if extra:
-        bad.append(f"{wid}: itc_evidence に割当外の ITC:{extra}")
-    for itc, nid in sorted((str(k), str(v)) for k, v in evidence.items()):
-        got = idx.get(nid)
-        if got != "passed":
-            bad.append(f"{wid}: {itc} の {nid} が {got or '未実行（レポートに無い）'}")
-    return bad
+def _lane_completion_faults(wid: str, w: dict) -> list[str]:
+    """レーンが done を名乗るとき、所属原子単位が全て done であることを要求する。"""
+    from tools.gates import atomic_units as au
+    units = au.load_units(au.load_index())
+    if units is None:
+        return [f"{wid}: done だが原子単位正本を読めない（完了の実体を確認できない）"]
+    mine = [u for u in units if str(u.get("workset_id")) == wid]
+    if not mine:
+        return [f"{wid}: done だが所属する原子単位が 1 件も無い"]
+    open_ = sorted(str(u.get("atomic_unit_id")) for u in mine if u.get("status") != "done")
+    return [f"{wid}: done だが未完了の原子単位が残っている:{open_[:5]}"] if open_ else []
 
 
-def _receipt_faults(wid: str, w: dict) -> list[str]:
-    """done を名乗る Workset の red→green 証跡を検査する。
 
-    「祖先の SHA を 1 つと nodeid を 1 件」書けば done を名乗れる状態は証跡ではない
-    （独立レビュー R13-06）。ここでは (a) 割当 UT の**全件**が red 時に列挙されている
-    (b) red_commit → green_commit → HEAD の祖先順序 (c) red_commit の時点で
-    当該 Workset のモジュールに**実装実体が無い**（＝実装前に赤を踏んでいる）を要求する。
-    """
-    receipt = w.get("red_receipt")
-    if not isinstance(receipt, dict):
-        return [f"{wid}: done だが red_receipt が無い"]
-    bad: list[str] = []
-    sha = str(receipt.get("red_commit") or "")
-    if not re.fullmatch(r"[0-9a-f]{40}", sha):
-        bad.append(f"{wid}: red_commit が 40 桁 SHA でない")
-    elif git("merge-base", "--is-ancestor", sha, "HEAD").returncode != 0:
-        bad.append(f"{wid}: red_commit {sha[:8]} が HEAD の祖先でない（実在しない red）")
-    else:
-        bad += _red_precedes_implementation(wid, sha, w)
-    nodeids = {str(n) for n in (receipt.get("nodeids") or [])}
-    assigned = {str(n) for n in (w.get("ut_nodeids") or [])}
-    outside = sorted(nodeids - assigned)
-    lacking = sorted(assigned - nodeids)
-    if not nodeids:
-        bad.append(f"{wid}: red_receipt.nodeids が空")
-    if outside:
-        bad.append(f"{wid}: red_receipt.nodeids に Workset 外の nodeid:{outside[:3]}")
-    if lacking:
-        bad.append(f"{wid}: red_receipt.nodeids が割当 UT を網羅していない"
-                   f"（{len(lacking)} 件不足:{lacking[:3]}）")
-    green = receipt.get("green_commit")
-    if green is None:
-        # done で green_commit が null なら、順序検査そのものが発動しない（R13-10）
-        bad.append(f"{wid}: done だが green_commit が null（red→green の到達点が無い）")
-    else:
-        g = str(green)
-        if not re.fullmatch(r"[0-9a-f]{40}", g):
-            bad.append(f"{wid}: green_commit が 40 桁 SHA でない")
-        elif git("merge-base", "--is-ancestor", g, "HEAD").returncode != 0:
-            bad.append(f"{wid}: green_commit が HEAD の祖先でない")
-        elif g == sha:
-            bad.append(f"{wid}: red_commit と green_commit が同一（red→green になっていない）")
-        elif re.fullmatch(r"[0-9a-f]{40}", sha) \
-                and git("merge-base", "--is-ancestor", sha, g).returncode != 0:
-            bad.append(f"{wid}: red_commit が green_commit の祖先でない（順序が逆）")
-    return bad
-
-
-def _red_precedes_implementation(wid: str, sha: str, w: dict) -> list[str]:
-    """red_commit の時点で当該 Workset のモジュールが未実装であることを確かめる。
-
-    実装後の任意の祖先コミットを red と称する偽装を落とす（test-first の機械的裏付け）。
-    """
-    from tools.gates.test_pairing import has_implementation_source
-    bad = []
-    for mod in sorted(str(m) for m in (w.get("modules") or [])):
-        shown = git("show", f"{sha}:{mod}")
-        if shown.returncode != 0:
-            continue  # red 時点でファイルが無い = 未実装（正しい）
-        if has_implementation_source(shown.stdout):
-            bad.append(f"{wid}: red_commit {sha[:8]} の時点で {mod} が既に実装済み"
-                       "（実装後のコミットを red と称している）")
-    return bad
 
 
 def coverage_faults(ctx: Ctx, data: dict | None) -> list[str]:
@@ -754,15 +735,13 @@ def ratchet_faults(data: dict | None, prev: dict | None, source: str,
                    skip_source: str = "") -> list[str]:
     """親コミット比で縮小・後退・緩和が無いことを検査する。"""
     bad: list[str] = []
-    newly_done: list[dict] = []
     if prev is None:
         # 「壊れている」「非 git」は fail-close、「新設・初回」は保護すべき値が無いので正常。
         # ただし正本ごと新設して最初から done を書く経路があるため、skip 引下げ要求だけは
         # 打ち切らずに続ける（worksets 側の比較元不在で skip ラチェットまで消さない — R13-09）。
         if not _benign(source):
             return [source]
-        newly_done = [w for w in worksets_of(data) if str(w.get("status")) == "done"]
-        return bad + _skip_reduction_faults(newly_done, skip_now, skip_prev, skip_source)
+        return bad + _skip_ceiling_faults(skip_now, skip_prev, skip_source)
     now = {str(w.get("workset_id")): w for w in worksets_of(data)}
     old = {str(w.get("workset_id")): w for w in worksets_of(prev)}
     for wid, o in sorted(old.items()):
@@ -783,33 +762,25 @@ def ratchet_faults(data: dict | None, prev: dict | None, source: str,
                            f"（{o.get('coverage_floor')}→{n.get('coverage_floor')}）")
         except (TypeError, ValueError):
             bad.append(f"{wid}: coverage_floor が数値でない")
-        old_receipt = o.get("red_receipt")
-        if isinstance(old_receipt, dict):
-            new_receipt = n.get("red_receipt")
-            if not isinstance(new_receipt, dict) \
-                    or new_receipt.get("red_commit") != old_receipt.get("red_commit"):
-                bad.append(f"{wid}: 記録済みの red_receipt.red_commit が改変・削除された")
-        if str(o.get("status")) != "done" and str(n.get("status")) == "done":
-            newly_done.append(n)
-    return bad + _skip_reduction_faults(newly_done, skip_now, skip_prev, skip_source)
+    # red→green 証跡の改変検査と「解除 skip 件数以上の上限引下げ」は原子単位が持つ
+    # （PO 指示 §4・§5 の移設）。ここで二重に課すと同じ UT を 2 回減算することになる。
+    return bad + _skip_ceiling_faults(skip_now, skip_prev, skip_source)
 
 
-def _skip_reduction_faults(newly_done: list[dict], skip_now: int | None,
-                           skip_prev: int | None, skip_source: str) -> list[str]:
-    """done へ進めた Workset は、解除した skip 件数以上を上限から減らす（PO 指示 §5）。
+def _skip_ceiling_faults(skip_now: int | None, skip_prev: int | None,
+                         skip_source: str) -> list[str]:
+    """全体 skip 上限（`tests/skip-budget.json` の max_skipped）を増やさせない（PO 指示 §5）。
 
-    複数を同時に done 化した場合は**和集合**で要求する（個別比較だと片方分の引下げで
-    両方の判定を満たせてしまう — 独立レビュー R13-04）。
+    「done 化した分だけ引き下げる」要求は原子単位（G-ATOMIC-RATCHET）が持つ。ここで同じ
+    UT を Workset 単位でもう一度数えると、同一の解除に対して二重の引下げを課すことになる。
+    上限そのものの単調性はレーン側にも残す（比較元を解決できない場合は fail-close）。
     """
-    if not newly_done:
-        return []
-    released = {str(x) for w in newly_done for x in (w.get("ut_nodeids") or [])}
-    ids = sorted(str(w.get("workset_id")) for w in newly_done)
-    if skip_now is None or skip_prev is None:
-        return [f"{ids}: done 化したが skip 上限の比較元を解決できない（{skip_source}）"]
-    if skip_prev - skip_now < len(released):
-        return [f"{ids}: done 化に伴う skip 上限の引下げが不足"
-                f"（{skip_prev}→{skip_now}, 必要={len(released)} 件以上）"]
+    if skip_now is None:
+        return ["skip 上限を読めない（ラチェット検査不能）"]
+    if skip_prev is None:
+        return [] if _benign(skip_source) else [f"skip 上限の比較元を解決できない（{skip_source}）"]
+    if skip_now > skip_prev:
+        return [f"skip 上限が増加（{skip_prev}→{skip_now}）"]
     return []
 
 
@@ -822,7 +793,7 @@ def run(ctx: Ctx) -> None:
     schema = schema_faults(data)
     gate("G-WORKSET-SCHEMA", not schema,
          "S0.1 Workset 正本が schema 準拠で、DU-01〜12 を重複なく過不足なく分割し、"
-         "status 語彙・coverage_floor・done の red_receipt を満たす "
+         "status 語彙・coverage_floor を満たし、status が原子単位からの導出と一致する "
          f"(Workset={len(items)} 件, 違反={schema[:3]})")
 
     deps = dependency_faults(ctx, data)
@@ -841,7 +812,7 @@ def run(ctx: Ctx) -> None:
     gate("G-WORKSET-TEST-REALITY", not reality,
          "着手済み（in_progress／done）Workset だけに、対象 UT の skip／xfail／"
          "NotImplementedError／空 assert = 0・nodeid 単位 executed+passed・依存 Workset の done・"
-         "done の red→green 証跡を強制（未着手 Workset のスタブは猶予） "
+         "done のレーンで所属原子単位が全て done であることを強制（未着手のスタブは猶予） "
          f"(着手={[str(w.get('workset_id')) for w in started]}, 違反={len(reality)} 件"
          f"{'' if not reality else f':{reality[:3]}'})")
 
@@ -858,6 +829,6 @@ def run(ctx: Ctx) -> None:
                              skip_prev=skip_prev, skip_source=skip_source)
     gate("G-WORKSET-RATCHET", not ratchet,
          "親コミット比で Workset の削除・DU／API／UT／ITC／依存の縮小・status 後退"
-         "（done→in_progress 等）・coverage_floor 低下・red_receipt 改変が無く、"
-         "done 化には解除 skip 件数以上の上限引下げを伴う "
+         "（done→in_progress 等）・coverage_floor 低下が無く、全体 skip 上限が増えていない"
+         "（done 化に伴う引下げ要求は原子単位が持つ） "
          f"(比較元={source}, 違反={ratchet[:3]})")

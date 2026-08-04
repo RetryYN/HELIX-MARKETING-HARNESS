@@ -1,0 +1,36 @@
+{
+  "atomic_unit_id": "AU-DU04-01",
+  "workset_id": "WS-S0.1-B",
+  "title": "load（workflow.py）",
+  "status": "planned",
+  "api_ids": [
+    "API-DU04-01"
+  ],
+  "clause_ids": [
+    "API-DU04-01-POST-01",
+    "API-DU04-01-POST-02",
+    "API-DU04-01-PRE-01",
+    "API-DU04-01-RAISE-01"
+  ],
+  "implementation_unit_ids": [
+    "IU-EXTERNALOPERATIONS-01"
+  ],
+  "ut_nodeids": [
+    "tests/unit/test_kernel_workflow.py::test_load_active_definition_schema_validated",
+    "tests/unit/test_kernel_workflow.py::test_load_broken_definition_raises_fatal",
+    "tests/unit/test_kernel_workflow.py::test_load_version_pinned_lookup"
+  ],
+  "modules": [
+    "src/helix/kernel/workflow.py"
+  ],
+  "depends_on_atomic_units": [
+    "AU-DU10-01",
+    "AU-DU12-02"
+  ],
+  "coverage_floor": 80,
+  "merge_reason": null,
+  "workset_itc_ids": [],
+  "itc_evidence": null,
+  "red_receipt": null,
+  "green_receipt": null
+}

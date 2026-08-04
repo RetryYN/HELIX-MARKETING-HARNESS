@@ -58,6 +58,94 @@ def has_implementation_source(source: str) -> bool:
                for n in ast.walk(tree))
 
 
+def has_reexport_source(source: str) -> bool:
+    """パッケージ内シンボルの**再エクスポート**を持つかを AST で判定する。
+
+    `def` を 1 つも書かなくても `from helix.kernel.state import transition` と
+    `__init__.py` に書けば実装は外から呼べる。実体判定（`has_implementation`）だけでは
+    この持ち込みが素通りするため、`helix` 由来の import／相対 import／`__all__` 宣言を
+    製品コードの変更として扱う（独立レビュー R15-06）。
+    """
+    try:
+        tree = ast.parse(source)
+    except SyntaxError:
+        return True  # 解析不能は fail-close
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom):
+            if node.level and node.level > 0:
+                return True
+            if str(node.module or "").split(".")[0] == "helix":
+                return True
+        elif isinstance(node, ast.Import):
+            if any(a.name.split(".")[0] == "helix" for a in node.names):
+                return True
+        elif isinstance(node, (ast.Assign, ast.AnnAssign)):
+            targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+            if any(isinstance(t, ast.Name) and t.id == "__all__" for t in targets):
+                return True
+    return False
+
+
+DYNAMIC_LOADERS = ("exec", "eval", "compile", "import_module", "__import__",
+                   "load_module", "exec_module", "spec_from_file_location",
+                   "run_path", "run_module", "module_from_spec", "ModuleType",
+                   "loads", "load", "interact", "runcode", "runsource")
+
+
+def has_dynamic_load_source(source: str) -> bool:
+    """実行時にコードを持ち込む記述（exec／eval／compile／動的 import／sys.path 操作）を検出する。
+
+    `exec("def transition(): ...")` と 1 行書けば、AST 上に `def` を一切残さずに実装を
+    定義できる。静的な実体判定・再エクスポート判定だけでは素通りするため、動的ロードは
+    **内容を問わず** fail-close で製品コード扱いにする（独立レビュー R15-09）。
+    `src.helix` 経由の import（sys.path 操作つきの別名参照）も同様に扱う。
+    """
+    try:
+        tree = ast.parse(source)
+    except SyntaxError:
+        return True
+    for node in ast.walk(tree):
+        # 危険 callable は「呼ばれた形」だけでなく**名前として現れた時点**で製品コード扱いにする。
+        # `_x = exec` や `getattr(builtins, "exec")`、`from importlib import import_module as g`
+        # のような別名束縛・間接取得で回避できてしまうためである（独立レビュー R15-12）。
+        if isinstance(node, ast.Name) and node.id in DYNAMIC_LOADERS:
+            return True
+        if isinstance(node, ast.Attribute):
+            if node.attr in DYNAMIC_LOADERS:
+                return True
+            if isinstance(node.value, ast.Attribute) and node.value.attr == "path":
+                return True
+            if isinstance(node.value, ast.Name) and node.value.id == "sys" \
+                    and node.attr == "path":
+                return True
+        if isinstance(node, ast.Constant) and isinstance(node.value, str) \
+                and node.value in DYNAMIC_LOADERS:
+            return True                      # getattr(builtins, "exec") 形
+        if isinstance(node, ast.ImportFrom):
+            if str(node.module or "").split(".")[:2] == ["src", "helix"]:
+                return True
+            if any(a.name in DYNAMIC_LOADERS for a in node.names):
+                return True
+        if isinstance(node, ast.Import):
+            if any(a.name.split(".")[:2] == ["src", "helix"] for a in node.names):
+                return True
+    return False
+
+
+def carries_product_code(path: Path) -> bool:
+    """実体（def／class／lambda）・再エクスポート・間接束縛・動的ロードのいずれかを持つか。
+
+    PR スコープ（G-ATOMIC-PR-SCOPE）と stray 検出（G-WORKSET-SCOPE）で**同じ述語**を
+    使うためのもの。片方が弱い述語だと、partial 束縛やデコレータ適用による持ち込みが
+    一方だけ素通りする（独立レビュー R15-06）。動的ロードも含めるのは、`exec` で実体を
+    実行時に定義すれば静的判定を全部抜けられるため（同 R15-09）。
+    """
+    from tools.gates.test_reality import file_bindings
+    source = path.read_text(encoding="utf-8")
+    return (has_implementation_source(source) or has_reexport_source(source)
+            or has_dynamic_load_source(source) or bool(file_bindings(path)))
+
+
 def has_implementation(path: Path) -> bool:
     """再エクスポート・docstring 以外の実体（関数・クラス・lambda）を持つかを AST で判定する。
 
@@ -99,6 +187,13 @@ def impl_start_signals(ctx: Ctx) -> list[str]:
     bindings = binding_signals(ctx)
     if bindings:
         sig.append(f"bind:{bindings[:3]}")
+    # 原子単位を in_progress／done にした時点で着手である。宣言だけ先に立てて
+    # coverage 下限・skip ラチェットを 0 のままにしておく経路を塞ぐ（PO 指示 §4）。
+    from tools.gates import atomic_units as au
+    started = [str(u.get("atomic_unit_id"))
+               for u in au.started_units(au.load_units(au.load_index()))]
+    if started:
+        sig.append(f"atomic:{sorted(started)[:3]}")
     return sig
 
 
@@ -360,20 +455,25 @@ def _function_escapes(fn: ast.FunctionDef | ast.AsyncFunctionDef,
 
 
 def detect_ut_escapes(ctx: Ctx, tests_dir: Path = TESTS_UNIT,
-                      du_ids: list[str] | None = None) -> list[str]:
+                      du_ids: list[str] | None = None,
+                      nodeids: list[str] | None = None) -> list[str]:
     """S0.1 対象 UT に残る skip／xfail／NotImplementedError／空 assert を AST で列挙する。
 
     module-level skip・`pytestmark`・関数内 `pytest.xfail()`・`from pytest import skip` 経由の
     裸呼出し・定数 assert まで検出する（正規表現走査では素通りしていた）。
     逆に `pytest.raises` のみの拒否テストや mock の表明は検証行為として通す。
 
-    `du_ids` を渡すとその DU の UT だけを対象にする（Workset 単位の強制 — PO 指示 §4）。
+    `du_ids` を渡すとその DU の UT だけを、`nodeids` を渡すとその nodeid だけを対象にする
+    （原子単位＝1 製品 PR 単位の強制 — PO 指示 §4）。両方渡した場合は積集合になる。
     """
     bad: list[str] = []
     cache: dict[str, tuple[ast.Module | None, dict[str, str], list[str]]] = {}
     scope = None if du_ids is None else set(du_ids)
+    wanted = None if nodeids is None else {str(n).split("/")[-1] for n in nodeids}
     for du, fname, tname in s0_target_uts(ctx):
         if scope is not None and du not in scope:
+            continue
+        if wanted is not None and f"{fname}::{tname}" not in wanted:
             continue
         fp = tests_dir / fname
         if not fp.exists():
@@ -627,18 +727,25 @@ def _impl_start(ctx: Ctx) -> None:
     auto = impl_start_signals(ctx)
     declared = bool(ctx.skip_budget.get("s0_impl_started"))
     gate("G-IMPL-START-DETECT", not (auto and not declared),
-         "S0.1 着手の自動検出（src/helix の実装ファイル・S0.1 PLAN in_progress・DU-01〜12 API 実装）と "
+         "S0.1 着手の自動検出（src/helix の実装ファイル・S0.1 PLAN in_progress・DU-01〜12 API 実装・"
+         "原子単位の in_progress／done 宣言）と "
          f"tests/skip-budget.json の宣言が一致（自動検出のみで着手扱い） (自動={auto}, 宣言={declared})")
 
     started = detect_impl_started(ctx)
     # 強制範囲は着手済み Workset の DU に限る（未着手 Workset のスタブは猶予 — PO 指示 §4）。
     # Workset 正本が壊れている場合は enforced_du_ids が S0.1 全 DU へ倒す（fail-close）。
+    from tools.gates import atomic_units as au
     from tools.gates.worksets import enforced_du_ids
     scoped_dus = enforced_du_ids(ctx)
-    escapes = detect_ut_escapes(ctx, du_ids=scoped_dus) if scoped_dus else []
+    # 原子単位正本が使えるなら nodeid 単位まで絞る。使えなければ Workset（さらに壊れていれば
+    # S0.1 全 DU）へ倒す。範囲を**広げる**方向にしか倒さないのが fail-close の要点である。
+    scoped_nodeids = au.enforced_nodeids(ctx)
+    escapes = detect_ut_escapes(ctx, du_ids=scoped_dus, nodeids=scoped_nodeids) \
+        if scoped_dus else []
     gate("G-UT-NO-ESCAPE", not escapes,
-         "着手済み Workset の対象 UT に skip／xfail／NotImplementedError／空 assert を残せない"
-         f"（未着手 Workset は猶予） (着手={started}, 強制 DU={len(scoped_dus)} 件, "
+         "着手済み原子単位の対象 UT に skip／xfail／NotImplementedError／空 assert を残せない"
+         f"（未着手は猶予） (着手={started}, 強制 DU={len(scoped_dus)} 件, "
+         f"強制 UT={'全 DU 分' if scoped_nodeids is None else len(scoped_nodeids)}, "
          f"違反={escapes[:5]})")
 
     cfg = load(COVERAGE_FLOOR)

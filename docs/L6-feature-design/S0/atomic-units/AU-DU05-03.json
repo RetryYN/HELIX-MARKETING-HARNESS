@@ -1,0 +1,36 @@
+{
+  "atomic_unit_id": "AU-DU05-03",
+  "workset_id": "WS-S0.1-B",
+  "title": "require_pair（pair.py）",
+  "status": "planned",
+  "api_ids": [
+    "API-DU05-03"
+  ],
+  "clause_ids": [
+    "API-DU05-03-POST-01",
+    "API-DU05-03-PRE-01",
+    "API-DU05-03-RAISE-01"
+  ],
+  "implementation_unit_ids": [
+    "IU-PAIRGATE-02"
+  ],
+  "ut_nodeids": [
+    "tests/unit/test_gates_pair.py::test_pairpass_forgery_without_sentinel_raises_fatal",
+    "tests/unit/test_gates_pair.py::test_require_pair_missing_or_revoked_rejected",
+    "tests/unit/test_gates_pair.py::test_require_pair_passed_returns_pairpass"
+  ],
+  "modules": [
+    "src/helix/gates/pair.py"
+  ],
+  "depends_on_atomic_units": [
+    "AU-DU09-02",
+    "AU-DU09-03",
+    "AU-DU10-01"
+  ],
+  "coverage_floor": 80,
+  "merge_reason": null,
+  "workset_itc_ids": [],
+  "itc_evidence": null,
+  "red_receipt": null,
+  "green_receipt": null
+}

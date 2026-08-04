@@ -1,0 +1,54 @@
+{
+  "atomic_unit_id": "AU-DU01-01",
+  "workset_id": "WS-S0.1-C",
+  "title": "transition（state.py）",
+  "status": "planned",
+  "api_ids": [
+    "API-DU01-01"
+  ],
+  "clause_ids": [
+    "API-DU01-01-POST-01",
+    "API-DU01-01-POST-02",
+    "API-DU01-01-POST-03",
+    "API-DU01-01-POST-04",
+    "API-DU01-01-PRE-01",
+    "API-DU01-01-PRE-02",
+    "API-DU01-01-PRE-03",
+    "API-DU01-01-PRE-04",
+    "API-DU01-01-RAISE-01",
+    "API-DU01-01-RAISE-02",
+    "API-DU01-01-RAISE-03"
+  ],
+  "implementation_unit_ids": [
+    "IU-STATEMACHINE-02"
+  ],
+  "ut_nodeids": [
+    "tests/unit/test_kernel_state.py::test_lower_start_without_valid_brief_rejected",
+    "tests/unit/test_kernel_state.py::test_lower_terminal_transition_includes_tlp_same_tx",
+    "tests/unit/test_kernel_state.py::test_transition_allowed_commits_state_and_passed_log",
+    "tests/unit/test_kernel_state.py::test_transition_begin_immediate_serializes_concurrent_write",
+    "tests/unit/test_kernel_state.py::test_transition_busy_timeout_normalized_to_retryable",
+    "tests/unit/test_kernel_state.py::test_transition_crash_mid_tx_leaves_no_partial_state",
+    "tests/unit/test_kernel_state.py::test_transition_double_fire_rejected_by_stale_from_state",
+    "tests/unit/test_kernel_state.py::test_transition_rejected_records_rejected_row_only",
+    "tests/unit/test_kernel_state.py::test_transition_terminal_state_request_rejected",
+    "tests/unit/test_kernel_state.py::test_transition_undefined_combination_rejected_db_unchanged",
+    "tests/unit/test_kernel_state.py::test_transition_verify_fail_retry_boundary_switches_to_exhausted"
+  ],
+  "modules": [
+    "src/helix/kernel/state.py"
+  ],
+  "depends_on_atomic_units": [
+    "AU-DU01-02",
+    "AU-DU02-08",
+    "AU-DU08-01",
+    "AU-DU10-01",
+    "AU-DU12-02"
+  ],
+  "coverage_floor": 80,
+  "merge_reason": null,
+  "workset_itc_ids": [],
+  "itc_evidence": null,
+  "red_receipt": null,
+  "green_receipt": null
+}

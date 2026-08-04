@@ -1,0 +1,36 @@
+{
+  "atomic_unit_id": "AU-DU10-01",
+  "workset_id": "WS-S0.1-A",
+  "title": "connect（connect.py）",
+  "status": "planned",
+  "api_ids": [
+    "API-DU10-01"
+  ],
+  "clause_ids": [
+    "API-DU10-01-POST-01",
+    "API-DU10-01-POST-02",
+    "API-DU10-01-PRE-01",
+    "API-DU10-01-RAISE-01"
+  ],
+  "implementation_unit_ids": [
+    "IU-MIGRATION-01"
+  ],
+  "ut_nodeids": [
+    "tests/unit/test_db_connect.py::test_connect_configures_row_factory",
+    "tests/unit/test_db_connect.py::test_connect_missing_protection_trigger_fatal",
+    "tests/unit/test_db_connect.py::test_connect_sets_foreign_keys_on",
+    "tests/unit/test_db_connect.py::test_connect_sets_wal_and_busy_timeout",
+    "tests/unit/test_db_connect.py::test_connect_unmigrated_db_fatal",
+    "tests/unit/test_db_connect.py::test_connected_db_append_only_trigger_blocks_update_delete"
+  ],
+  "modules": [
+    "src/helix/db/connect.py"
+  ],
+  "depends_on_atomic_units": [],
+  "coverage_floor": 80,
+  "merge_reason": null,
+  "workset_itc_ids": [],
+  "itc_evidence": null,
+  "red_receipt": null,
+  "green_receipt": null
+}

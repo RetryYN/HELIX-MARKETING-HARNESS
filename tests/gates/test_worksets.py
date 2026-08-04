@@ -4,7 +4,7 @@ import copy
 import json
 from types import SimpleNamespace
 
-from tools.gates import worksets
+from tools.gates import atomic_units, worksets
 from tools.gates.common import CTX
 from tools.gates.test_pairing import has_implementation_source
 
@@ -27,7 +27,6 @@ def _all_planned() -> dict:
     data = _doc()
     for item in data["worksets"]:
         item["status"] = "planned"
-        item["red_receipt"] = None
     return data
 
 
@@ -66,14 +65,19 @@ def test_mutation_schema_rejects_invalid_status_and_duplicate_id() -> None:
     assert any("workset_id 重複" in f for f in worksets.schema_faults(data))
 
 
-def test_mutation_schema_rejects_low_coverage_and_done_without_receipt() -> None:
-    """変異: coverage 下限を緩め、証跡なしで done を名乗る。"""
+def test_mutation_schema_rejects_low_coverage_and_derived_status_mismatch(monkeypatch) -> None:
+    """変異: coverage 下限を緩め、原子単位から導出できない status を名乗る。"""
     data = _doc()
     data["worksets"][0]["coverage_floor"] = 79
     assert worksets.schema_faults(data)
     data = _doc()
-    data["worksets"][0]["status"] = "done"
-    assert any("red_receipt" in f for f in worksets.schema_faults(data))
+    data["worksets"][0]["status"] = "in_progress"
+    units = [{"atomic_unit_id": "AU-TEST", "workset_id": "WS-S0.1-A",
+              "status": "planned", "workset_itc_ids": []}]
+    monkeypatch.setattr(atomic_units, "load_index", lambda: {"units": []})
+    monkeypatch.setattr(atomic_units, "load_units", lambda index: units)
+    assert any("原子単位からの導出（planned）と不一致" in f
+               for f in worksets.schema_faults(data))
 
 
 def test_dependency_faults_accepts_the_canonical_worksets() -> None:
@@ -152,14 +156,26 @@ def test_test_reality_all_planned_defers_unstarted_stubs() -> None:
 
 
 def test_mutation_test_reality_rejects_skipped_ut_for_started_a(tmp_path, monkeypatch) -> None:
-    """変異: A 着手後も outcome 上 skip の UT を残す。"""
+    """変異: A 着手後も outcome 上 skip の UT を残す。
+
+    強制範囲は**原子単位**まで絞られるので、レーンを in_progress にするだけでなく
+    当該 UT を持つ原子単位も着手済みにする（原子単位がどれも未着手なら、その UT は
+    まだ誰も書くと宣言していない＝猶予対象である）。
+    """
     root = tmp_path / "root"
     (root / "reports").mkdir(parents=True)
     (root / "reports/test-outcome.json").write_text("{}", encoding="utf-8")
     monkeypatch.setattr(worksets, "ROOT", root)
     target = _ws()["ut_nodeids"][0]
+    monkeypatch.setattr(atomic_units, "enforced_nodeids", lambda ctx: [target])
     monkeypatch.setattr("tools.gates.test_reality.load_outcome",
                         lambda: {"tests": [{"nodeid": target, "outcome": "skipped"}]})
+    from tools.gates import atomic_units as au
+    units = au.load_units(au.load_index())
+    for unit in units:
+        if target in unit["ut_nodeids"]:
+            unit["status"] = "in_progress"
+    monkeypatch.setattr(au, "load_units", lambda index=None: units)
     data = _all_planned()
     data["worksets"][0]["status"] = "in_progress"
     assert any(target in f and "skipped" in f for f in worksets.test_reality_faults(CTX, data))
@@ -173,18 +189,12 @@ def test_mutation_test_reality_requires_done_dependencies() -> None:
                for f in worksets.test_reality_faults(CTX, data))
 
 
-def test_mutation_receipt_faults_reject_invalid_sha_empty_and_outside_nodeids() -> None:
-    """変異: done 証跡の SHA・nodeid 境界を壊す。"""
-    w = _ws()
-    w["red_receipt"] = {"red_commit": "not-a-sha", "nodeids": [], "green_commit": None}
-    assert any("40 桁 SHA" in f for f in worksets._receipt_faults("WS", w))
-    w["red_receipt"] = {"red_commit": "0" * 40, "nodeids": [], "green_commit": None}
-    faults = worksets._receipt_faults("WS", w)
-    assert any("実在しない red" in f for f in faults)
-    assert any("nodeids が空" in f for f in faults)
-    w["red_receipt"] = {"red_commit": "0" * 40,
-                        "nodeids": ["tests/unit/test_outside.py::test_x"], "green_commit": None}
-    assert any("Workset 外" in f for f in worksets._receipt_faults("WS", w))
+def test_mutation_skip_ceiling_rejects_growth_and_missing_current() -> None:
+    """変異: 全体 skip 上限の増加と現在値を読めない状態を許さない。"""
+    assert any("skip 上限が増加" in f
+               for f in worksets._skip_ceiling_faults(101, 100, "skip-budget: HEAD^"))
+    assert any("skip 上限を読めない" in f
+               for f in worksets._skip_ceiling_faults(None, 100, "skip-budget: HEAD^"))
 
 
 def test_coverage_faults_and_ci_wiring_accept_current_repository() -> None:
@@ -220,50 +230,55 @@ def test_mutation_ci_wiring_rejects_pytest_without_scope_or_floor(tmp_path, monk
 
 
 def test_ratchet_faults_accept_identical_parent() -> None:
-    """親正本と同一ならラチェット違反はない。"""
+    """親正本と同一で skip 上限も不変ならラチェット違反はない。"""
     data = worksets.load_worksets()
-    assert worksets.ratchet_faults(data, copy.deepcopy(data), "HEAD") == []
+    assert worksets.ratchet_faults(data, copy.deepcopy(data), "HEAD", 100, 100,
+                                  "skip-budget: HEAD^") == []
 
 
-def test_mutation_ratchet_rejects_removal_shrink_regression_floor_and_receipt_change() -> None:
-    """変異: Workset／UT を縮小し、status・coverage・既存 red 証跡を後退させる。"""
+def test_mutation_ratchet_rejects_removal_all_scope_shrinks_and_regressions() -> None:
+    """変異: Workset と全スコープ列を縮小し、status・coverage を後退させる。"""
     prev = _doc()
     prev["worksets"][0]["status"] = "done"
-    prev["worksets"][0]["red_receipt"] = {
-        "red_commit": "a" * 40,
-        "nodeids": [prev["worksets"][0]["ut_nodeids"][0]],
-        "green_commit": None,
-    }
+    prev["worksets"][1]["depends_on"] = ["WS-S0.1-A"]
     now = copy.deepcopy(prev)
     now["worksets"].pop()
+    now["worksets"][0]["du_ids"].pop()
+    now["worksets"][0]["api_ids"].pop()
     now["worksets"][0]["ut_nodeids"].pop()
+    now["worksets"][0]["itc_ids"].pop()
+    now["worksets"][1]["depends_on"] = []
     now["worksets"][0]["status"] = "in_progress"
     now["worksets"][0]["coverage_floor"] = 70
-    now["worksets"][0]["red_receipt"]["red_commit"] = "b" * 40
-    faults = worksets.ratchet_faults(now, prev, "HEAD")
+    faults = worksets.ratchet_faults(now, prev, "HEAD", 100, 100,
+                                     "skip-budget: HEAD^")
     assert any("Workset が削除" in f for f in faults)
+    assert any("du_ids が縮小" in f for f in faults)
+    assert any("api_ids が縮小" in f for f in faults)
     assert any("ut_nodeids が縮小" in f for f in faults)
+    assert any("itc_ids が縮小" in f for f in faults)
+    assert any("depends_on が縮小" in f for f in faults)
     assert any("status が後退" in f for f in faults)
     assert any("coverage_floor が低下" in f for f in faults)
-    assert any("red_receipt.red_commit" in f for f in faults)
 
 
-def test_mutation_ratchet_requires_skip_reduction_when_done() -> None:
-    """変異: planned から done へ進めても skip 上限を十分に引き下げない。"""
-    prev, now = _doc(), _doc()
-    now["worksets"][0]["status"] = "done"
-    released = len(now["worksets"][0]["ut_nodeids"])
-    assert any("skip 上限の引下げが不足" in f
-               for f in worksets.ratchet_faults(now, prev, "HEAD", 100, 100))
-    assert not any("skip 上限の引下げが不足" in f
-                   for f in worksets.ratchet_faults(now, prev, "HEAD", 100 - released, 100))
+def test_mutation_skip_ceiling_rejects_unresolved_previous_unless_benign() -> None:
+    """変異: skip 上限の比較元不在を、良性 source 以外では fail-close にする。"""
+    assert any("比較元を解決できない" in f
+               for f in worksets._skip_ceiling_faults(100, None, "skip-budget: 壊れた親"))
+    assert worksets._skip_ceiling_faults(
+        100, None, "skip-budget: 親コミットなし（初回コミット）") == []
+    assert worksets._skip_ceiling_faults(
+        100, None, "skip-budget: 履歴に一度も存在しない（新設）") == []
 
 
 def test_ratchet_fail_closed_only_for_broken_parent() -> None:
     """親正本が壊れた場合だけ fail-close、初回コミットは比較対象なしとして通す。"""
     data = _doc()
     assert worksets.ratchet_faults(data, None, "HEAD の Workset 正本が壊れている")
-    assert worksets.ratchet_faults(data, None, "worksets: 親コミットなし（初回コミット）") == []
+    assert worksets.ratchet_faults(
+        data, None, "worksets: 親コミットなし（初回コミット）", 100, 100,
+        "skip-budget: 親コミットなし（初回コミット）") == []
 
 
 def test_enforced_scopes_follow_started_worksets_and_fail_closed(monkeypatch) -> None:
@@ -356,55 +371,44 @@ def test_mutation_committed_sources_fail_closed_and_skip_budget_is_typed(monkeyp
     now["worksets"][0]["status"] = "done"
     assert any("比較元を解決できない" in f
                for f in worksets.ratchet_faults(now, prev, "HEAD", 1, None, "max_skipped 不在"))
-    assert not any("比較元を解決できない" in f
-                   for f in worksets.ratchet_faults(prev, prev, "HEAD", 1, None, "max_skipped 不在"))
+    assert any("比較元を解決できない" in f
+               for f in worksets.ratchet_faults(prev, prev, "HEAD", 1, None, "max_skipped 不在"))
 
 
-def test_mutation_itc_faults_require_exact_evidence_and_passing_outcomes() -> None:
-    """変異: ITC 証跡の欠落・余剰・failed・未実行を拒否する。"""
-    w = {"itc_ids": ["ITC-1", "ITC-2"], "itc_evidence": None}
-    assert any("itc_evidence が無い" in f for f in worksets._itc_faults("WS", w, {}))
-    w["itc_evidence"] = {"ITC-1": "it::one"}
-    assert any("未記載" in f for f in worksets._itc_faults("WS", w, {"it::one": "passed"}))
-    w["itc_evidence"] = {"ITC-1": "it::one", "ITC-X": "it::extra"}
-    assert any("割当外" in f for f in worksets._itc_faults("WS", w, {"it::one": "passed"}))
-    w["itc_evidence"] = {"ITC-1": "it::one", "ITC-2": "it::two"}
-    assert any("failed" in f for f in worksets._itc_faults(
-        "WS", w, {"it::one": "passed", "it::two": "failed"}))
-    assert any("未実行" in f for f in worksets._itc_faults("WS", w, {"it::one": "passed"}))
-    assert worksets._itc_faults("WS", w, {"it::one": "passed", "it::two": "passed"}) == []
-
-
-def test_mutation_test_reality_propagates_done_itc_fault(tmp_path, monkeypatch) -> None:
-    """変異: done Workset の ITC failed を実行時ゲートまで伝播させる。"""
+def test_mutation_lane_completion_rejects_unfinished_atomic_units(tmp_path, monkeypatch) -> None:
+    """変異: done Workset に未完了の所属原子単位を残す。"""
     root = tmp_path / "root"
     (root / "reports").mkdir(parents=True)
     (root / "reports/test-outcome.json").write_text("{}", encoding="utf-8")
     monkeypatch.setattr(worksets, "ROOT", root)
     monkeypatch.setattr("tools.gates.test_pairing.detect_ut_escapes", lambda *a, **k: [])
-    monkeypatch.setattr(worksets, "_receipt_faults", lambda *a: [])
     data = _all_planned()
     w = data["worksets"][0]
     w["status"] = "done"
-    w["itc_evidence"] = {itc: f"it::{itc}" for itc in w["itc_ids"]}
     outcomes = [{"nodeid": nid, "outcome": "passed"} for nid in w["ut_nodeids"]]
-    outcomes.append({"nodeid": f"it::{w['itc_ids'][0]}", "outcome": "failed"})
-    outcomes.append({"nodeid": f"it::{w['itc_ids'][1]}", "outcome": "passed"})
-    monkeypatch.setattr("tools.gates.test_reality.load_outcome", lambda: {"tests": outcomes})
-    assert any("failed" in f for f in worksets.test_reality_faults(CTX, data))
+    monkeypatch.setattr("tools.gates.test_reality.load_outcome",
+                        lambda: {"tests": outcomes})
+    units = [{"atomic_unit_id": "AU-TEST", "workset_id": w["workset_id"],
+              "status": "in_progress"}]
+    monkeypatch.setattr(atomic_units, "load_index", lambda: {"units": []})
+    monkeypatch.setattr(atomic_units, "load_units", lambda index: units)
+    assert any("done だが未完了の原子単位が残っている" in f
+               for f in worksets.test_reality_faults(CTX, data))
 
 
-def test_mutation_ratchet_aggregates_skip_reduction_for_simultaneous_done() -> None:
-    """変異: A/B 同時 done の skip 引下げは UT 和集合で要求する。"""
-    prev, now = _doc(), _doc()
-    a, b = now["worksets"][:2]
-    a["status"] = b["status"] = "done"
-    released = len(set(a["ut_nodeids"]) | set(b["ut_nodeids"]))
-    only_a = len(a["ut_nodeids"])
-    assert any("skip 上限の引下げが不足" in f
-               for f in worksets.ratchet_faults(now, prev, "HEAD", 100 - only_a, 100))
-    assert not any("skip 上限の引下げが不足" in f
-                   for f in worksets.ratchet_faults(now, prev, "HEAD", 100 - released, 100))
+def test_mutation_lane_completion_rejects_unreadable_atomic_units(monkeypatch) -> None:
+    """変異: done Workset の原子単位正本を読めない状態にする。"""
+    data = _all_planned()
+    wid = data["worksets"][0]["workset_id"]
+    monkeypatch.setattr(atomic_units, "load_index", lambda: None)
+    monkeypatch.setattr(atomic_units, "load_units", lambda index: None)
+    assert any("done だが原子単位正本を読めない" in f
+               for f in worksets._lane_completion_faults(wid, {"status": "done"}))
+
+
+def test_mutation_skip_ceiling_accepts_a_decrease_without_double_counting() -> None:
+    """変異: Workset 側の skip ceiling は上限の減少を受理し、解除件数を二重計上しない。"""
+    assert worksets._skip_ceiling_faults(99, 100, "skip-budget: HEAD^") == []
 
 
 def test_mutation_all_planned_after_start_forces_all_du_and_declared_workset(monkeypatch) -> None:
@@ -420,38 +424,17 @@ def test_mutation_all_planned_after_start_forces_all_du_and_declared_workset(mon
                    for f in worksets.scope_faults(_ctx(True), data))
 
 
-def test_mutation_receipt_faults_require_complete_ordered_test_first_history(tmp_path, monkeypatch) -> None:
-    """変異: receipt の全 UT、red→green 順序、red 時点の未実装を要求する。"""
-    sha, green = "a" * 40, "b" * 40
-    w = _ws(red_receipt={"red_commit": sha, "green_commit": green,
-                         "nodeids": [_ws()["ut_nodeids"][0]]})
-
-    def ancestor(*args: str) -> SimpleNamespace:
-        return SimpleNamespace(returncode=0, stdout="")
-
-    monkeypatch.setattr(worksets, "git", ancestor)
-    monkeypatch.setattr(worksets, "_red_precedes_implementation", lambda *a: [])
-    assert any("網羅していない" in f for f in worksets._receipt_faults("WS", w))
-    w["red_receipt"]["nodeids"] = list(w["ut_nodeids"])
-    w["red_receipt"]["green_commit"] = sha
-    assert any("同一" in f for f in worksets._receipt_faults("WS", w))
-    w["red_receipt"]["green_commit"] = green
-
-    def reverse_only(*args: str) -> SimpleNamespace:
-        return SimpleNamespace(returncode=1 if args[-2:] == (sha, green) else 0, stdout="")
-
-    monkeypatch.setattr(worksets, "git", reverse_only)
-    assert any("順序が逆" in f for f in worksets._receipt_faults("WS", w))
-
-    monkeypatch.undo()
-    root = tmp_path / "root"
-    (root / ".git").mkdir(parents=True)
-    monkeypatch.setattr(worksets, "ROOT", root)
-    monkeypatch.setattr(worksets, "git", lambda *args: SimpleNamespace(
-        returncode=0, stdout="def f():\n    return 1\n"))
-    assert any("既に実装済み" in f for f in worksets._red_precedes_implementation("WS", sha, w))
-    monkeypatch.setattr(worksets, "git", lambda *args: SimpleNamespace(returncode=1, stdout=""))
-    assert worksets._red_precedes_implementation("WS", sha, w) == []
+def test_mutation_derived_status_rejects_status_ahead_of_atomic_units(monkeypatch) -> None:
+    """変異: 原子単位が planned のまま Workset だけを in_progress に進める。"""
+    data = _doc()
+    data["worksets"][0]["status"] = "in_progress"
+    units = [{"atomic_unit_id": "AU-TEST", "workset_id": "WS-S0.1-A",
+              "status": "planned", "workset_itc_ids": []}]
+    monkeypatch.setattr(atomic_units, "load_index", lambda: {"units": []})
+    monkeypatch.setattr(atomic_units, "load_units", lambda index: units)
+    faults = worksets.derived_status_faults(data)
+    assert any("WS-S0.1-A" in f and "status=in_progress" in f
+               and "導出（planned）と不一致" in f for f in faults)
 
 
 def test_mutation_ci_wiring_requires_resolver_ids_and_order(tmp_path, monkeypatch) -> None:
@@ -541,31 +524,17 @@ def test_mutation_benign_sources_excludes_missing_parent_phrase() -> None:
     )
 
 
-def test_mutation_new_worksets_still_require_skip_reduction_when_done() -> None:
-    """変異: 新設正本でも done 化した UT 分の skip 引下げを要求する。"""
-    data = _all_planned()
-    data["worksets"][0]["status"] = "done"
-    released = len(data["worksets"][0]["ut_nodeids"])
+def test_mutation_new_worksets_allow_benign_missing_skip_source() -> None:
+    """変異: 新設正本では比較元 skip 上限の不在に猶予を与える。"""
     source = "worksets: 履歴に一度も存在しない（新設）"
-    faults = worksets.ratchet_faults(data, None, source, 100, 100, "skip-budget: HEAD^")
-    assert any("skip 上限の引下げが不足" in fault for fault in faults)
-    assert worksets.ratchet_faults(data, None, source, 100 - released, 100, "skip-budget: HEAD^") == []
-    assert worksets.ratchet_faults(_all_planned(), None, source, 100, 100, "skip-budget: HEAD^") == []
+    assert worksets.ratchet_faults(_all_planned(), None, source, 100, None,
+                                  "skip-budget: 履歴に一度も存在しない（新設）") == []
 
 
-def test_mutation_receipt_faults_require_non_null_valid_green_commit(monkeypatch) -> None:
-    """変異: done 証跡の green_commit は null や不正 SHA を許さない。"""
-    red, green = "a" * 40, "b" * 40
-    w = _ws(red_receipt={"red_commit": red, "green_commit": None,
-                         "nodeids": list(_ws()["ut_nodeids"])})
-    monkeypatch.setattr(worksets, "git", lambda *args: SimpleNamespace(returncode=0, stdout=""))
-    monkeypatch.setattr(worksets, "_red_precedes_implementation", lambda *args: [])
-    assert any("green_commit が null" in fault for fault in worksets._receipt_faults("WS", w))
-    w["red_receipt"]["green_commit"] = "xyz"
-    assert any("green_commit が 40 桁 SHA でない" in fault
-               for fault in worksets._receipt_faults("WS", w))
-    w["red_receipt"]["green_commit"] = green
-    assert worksets._receipt_faults("WS", w) == []
+def test_mutation_skip_ceiling_rejects_non_benign_missing_source() -> None:
+    """変異: 良性でない source の比較元不在を猶予しない。"""
+    faults = worksets._skip_ceiling_faults(1, None, "skip-budget: max_skipped 不在")
+    assert any("比較元を解決できない" in fault for fault in faults)
 
 
 def test_mutation_ci_wiring_checks_every_coverage_job_and_step(tmp_path, monkeypatch) -> None:
@@ -647,19 +616,13 @@ def test_mutation_has_implementation_source_is_pure_and_fail_closed() -> None:
     assert has_implementation_source("def (")
 
 
-def test_mutation_red_precedes_implementation_never_writes_git_entries(monkeypatch) -> None:
-    """変異: red 時点の実装判定は一時ファイルを作らず git 出力だけで行う。"""
-    before = {path.name for path in (worksets.ROOT / ".git").iterdir()}
-    w = _ws(modules=["src/helix/example.py"])
-    sha = "a" * 40
-    monkeypatch.setattr(worksets, "git", lambda *args: SimpleNamespace(
-        returncode=0, stdout="def f(): return 1"))
-    assert any("既に実装済み" in fault
-               for fault in worksets._red_precedes_implementation("WS", sha, w))
-    assert {path.name for path in (worksets.ROOT / ".git").iterdir()} == before
-    monkeypatch.setattr(worksets, "git", lambda *args: SimpleNamespace(returncode=1, stdout=""))
-    assert worksets._red_precedes_implementation("WS", sha, w) == []
-    assert {path.name for path in (worksets.ROOT / ".git").iterdir()} == before
+def test_mutation_lane_completion_rejects_workset_without_atomic_units(monkeypatch) -> None:
+    """変異: done Workset に所属する原子単位を 1 件も用意しない。"""
+    monkeypatch.setattr(atomic_units, "load_index", lambda: {"units": []})
+    monkeypatch.setattr(atomic_units, "load_units", lambda index: [])
+    assert any("done だが所属する原子単位が 1 件も無い" in fault
+               for fault in worksets._lane_completion_faults(
+                   "WS-S0.1-A", {"status": "done"}))
 
 
 def test_mutation_ci_wiring_rejects_non_pytest_coverage_command(tmp_path, monkeypatch) -> None:

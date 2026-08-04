@@ -1,0 +1,3 @@
+{"type":"session_meta","payload":{"session_id":"019fcd7b-cfb4-7001-aba9-01aef4aa90af"}}
+{"type":"turn_context","payload":{"model":"gpt-5.6-sol"}}
+{"type":"review_result","payload":{"review_id":"REV-S0-STRUCT-15","round":3,"verdict":"Go","findings":[{"severity":"major","status":"resolved","summary":"非SCC APIの自己申告による結合を拒否し、上流依存グラフから独立導出したSCCに限定"},{"severity":"minor","status":"resolved","summary":"正本・schema・ゲート台帳・実装の結合方針をSCC限定へ統一"},{"severity":"major","status":"resolved","summary":"baselineを新規ゲートとAtomic Unit正本へ同期"}],"validation":"run_allはレビュー成果物未登録に由来するG-REVIEW-BINDING以外PASS、git diff --check PASS"}}

@@ -22,6 +22,7 @@ if __package__ in (None, ""):  # 直接実行時にリポジトリルートを i
 
 from tools.gates import (  # noqa: E402
     architecture,
+    atomic_units,
     authority,
     baseline,
     detailed_design,
@@ -55,6 +56,7 @@ MODULES = [
     test_pairing,
     test_reality,
     worksets,
+    atomic_units,
     review_binding,
     baseline,
 ]

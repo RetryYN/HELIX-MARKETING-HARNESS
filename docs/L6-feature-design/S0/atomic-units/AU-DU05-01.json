@@ -1,0 +1,39 @@
+{
+  "atomic_unit_id": "AU-DU05-01",
+  "workset_id": "WS-S0.1-B",
+  "title": "establish（pair.py）",
+  "status": "planned",
+  "api_ids": [
+    "API-DU05-01"
+  ],
+  "clause_ids": [
+    "API-DU05-01-POST-01",
+    "API-DU05-01-POST-02",
+    "API-DU05-01-PRE-01",
+    "API-DU05-01-PRE-02",
+    "API-DU05-01-PRE-03",
+    "API-DU05-01-RAISE-01",
+    "API-DU05-01-RAISE-02"
+  ],
+  "implementation_unit_ids": [
+    "IU-PAIRGATE-01"
+  ],
+  "ut_nodeids": [
+    "tests/unit/test_gates_pair.py::test_establish_duplicate_pair_rejected",
+    "tests/unit/test_gates_pair.py::test_establish_hash_match_creates_passed_pair_and_pairpass",
+    "tests/unit/test_gates_pair.py::test_establish_hash_mismatch_rejected_no_row"
+  ],
+  "modules": [
+    "src/helix/gates/pair.py"
+  ],
+  "depends_on_atomic_units": [
+    "AU-DU09-02",
+    "AU-DU09-03"
+  ],
+  "coverage_floor": 80,
+  "merge_reason": null,
+  "workset_itc_ids": [],
+  "itc_evidence": null,
+  "red_receipt": null,
+  "green_receipt": null
+}

@@ -1,0 +1,49 @@
+{
+  "atomic_unit_id": "AU-DU02-02",
+  "workset_id": "WS-S0.1-C",
+  "title": "claim（orchestrator.py）",
+  "status": "planned",
+  "api_ids": [
+    "API-DU02-02"
+  ],
+  "clause_ids": [
+    "API-DU02-02-POST-01",
+    "API-DU02-02-POST-02",
+    "API-DU02-02-PRE-01",
+    "API-DU02-02-PRE-02",
+    "API-DU02-02-RAISE-01"
+  ],
+  "implementation_unit_ids": [
+    "IU-STATEMACHINE-03"
+  ],
+  "ut_nodeids": [
+    "tests/unit/test_kernel_orchestrator.py::test_claim_after_lease_expiry_author_new_execution_only",
+    "tests/unit/test_kernel_orchestrator.py::test_claim_before_lease_expiry_by_other_execution_rejected",
+    "tests/unit/test_kernel_orchestrator.py::test_claim_by_author_execution_acquires_lease",
+    "tests/unit/test_kernel_orchestrator.py::test_claim_by_unrelated_agent_execution_rejected",
+    "tests/unit/test_kernel_orchestrator.py::test_claim_by_verifier_execution_rejected",
+    "tests/unit/test_kernel_orchestrator.py::test_claim_row_version_mismatch_rejected"
+  ],
+  "modules": [
+    "src/helix/kernel/orchestrator.py"
+  ],
+  "depends_on_atomic_units": [
+    "AU-DU01-01",
+    "AU-DU01-02",
+    "AU-DU04-01",
+    "AU-DU04-02",
+    "AU-DU08-01",
+    "AU-DU09-01",
+    "AU-DU10-01",
+    "AU-DU12-02"
+  ],
+  "coverage_floor": 80,
+  "merge_reason": null,
+  "workset_itc_ids": [
+    "ITC-02",
+    "ITC-06"
+  ],
+  "itc_evidence": null,
+  "red_receipt": null,
+  "green_receipt": null
+}
