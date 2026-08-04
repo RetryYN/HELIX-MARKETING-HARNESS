@@ -1,4 +1,4 @@
-"""S0.1 原子 Workset ゲートの単体テスト・負例・mutation test。"""
+"""S0.1 依存 Workset（実装レーン）ゲートの単体テスト・負例・mutation test。"""
 
 import copy
 import json
@@ -37,7 +37,7 @@ def _ctx(impl_started: bool) -> SimpleNamespace:
 
 
 def test_schema_faults_accepts_the_canonical_worksets() -> None:
-    """正例: 実正本は schema と S0.1 全 DU の原子分割を満たす。"""
+    """正例: 実正本は schema と S0.1 全 DU の重複なき完全分割を満たす。"""
     assert worksets.schema_faults(worksets.load_worksets()) == []
 
 

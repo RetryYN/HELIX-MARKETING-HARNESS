@@ -90,7 +90,9 @@
     "REV-S0-STRUCT-09",
     "REV-S0-STRUCT-10",
     "REV-S0-STRUCT-11",
-    "REV-S0-STRUCT-12"
+    "REV-S0-STRUCT-12",
+    "REV-S0-STRUCT-13",
+    "REV-S0-STRUCT-14"
   ],
   "separation_statuses": {
     "REV-S0-DESIGN-02": "unverified",
@@ -106,6 +108,8 @@
     "REV-S0-STRUCT-10": "self_attested",
     "REV-S0-STRUCT-11": "self_attested",
     "REV-S0-STRUCT-12": "self_attested",
+    "REV-S0-STRUCT-13": "self_attested",
+    "REV-S0-STRUCT-14": "self_attested",
     "REV-S0-STRUCT-01": "unverified"
   },
   "api_verification_levels": {
@@ -335,8 +339,8 @@
     "docs/L6-feature-design/S0/implementation-unit.schema.json": "f82b0751a404690cebe66dbbd71d69b4a09611019b487a67b3090cb165c96cbd",
     "docs/L6-feature-design/S0/implementation-units.json": "249ad9431f22bc03a82af4aedcca68767961454e8190ac8db3adf5b1ddff9abd",
     "docs/L6-feature-design/S0/plan-s0.1.json": "eb69df5f3b581d32cee5bda306a2e8a41f8b00543a024fa2c2a1bb87acb32c80",
-    "docs/L6-feature-design/S0/s0.1-workset.schema.json": "65177ddc756f88a6602a2b9af31c6061d9e09d50d53faff11de44648c00123c7",
-    "docs/L6-feature-design/S0/s0.1-worksets.json": "98a8b6b3fa2d825ab1b4d8fb11f08e5017c4fb0a1e77b7a65b2f19a379aafdb1",
+    "docs/L6-feature-design/S0/s0.1-workset.schema.json": "8f3283dc52b60cb15635982d3a53cf29ed25cdd705db795446fcdd2b98c0818b",
+    "docs/L6-feature-design/S0/s0.1-worksets.json": "bb2af64bb193548801b38b62707d42cd761c54364d2591a660fd7b866ca2af57",
     "docs/L6-feature-design/S0/uncovered-apis.json": "a72dff249526696748011d1fb52c4dab607ff469d7c13aba0c9ea46280c896a6",
     "docs/L6-feature-design/S0/update-closure.json": "19a73979a5f53f84dd5abcd69c0f86f62dd92b5cc76b1d748d9f50cbcbf23c12",
     "pyproject.toml": "5beb479982b9ee1866212c9aece006bf123fb2f8125a4fb2c2f6ca3c2a0bbd33",
@@ -363,7 +367,7 @@
     "tools/gates/test_pairing.py": "44e21030f621cd413ded152de5e7de475443bbe0912b349ebb72f22b7e6553d0",
     "tools/gates/test_reality.py": "35756e1df83dc78d5820cd7baba1f2a4b6767379c077c58d6f9e457e458ac812",
     "tools/gates/traceability.py": "d50705067a4f0c77bb6ec381ea6c51d08d6a23eff1160d394d5e92c43e683bb9",
-    "tools/gates/worksets.py": "f6ed44e261fbcd92025f4e25de247424ba8228ca0a31e83e44574c223e937e2f",
+    "tools/gates/worksets.py": "f05f1ba365aa709a0a8049bbd89a240e49b06d91a9091f19d116817fa103466c",
     "uv.lock": "e616a567978fce4c23769525228dee355b6c86a8ceafbb556176094dd5ed4862"
   }
 }

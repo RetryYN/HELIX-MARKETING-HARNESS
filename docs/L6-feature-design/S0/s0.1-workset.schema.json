@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "S0.1 原子 Workset 正本 schema",
-  "description": "docs/L6-feature-design/S0/s0.1-worksets.json の構造。G-WORKSET-SCHEMA が検査する。api_ids／ut_nodeids／itc_ids／modules／depends_on は du-contracts・itest.json から機械導出した値と完全一致でなければならない（G-WORKSET-SCOPE／G-WORKSET-DEPENDENCY）。",
+  "title": "S0.1 依存 Workset（実装レーン）正本 schema",
+  "description": "docs/L6-feature-design/S0/s0.1-worksets.json の構造。G-WORKSET-SCHEMA が検査する。Workset は PR の単位ではなく、実装順・依存閉包・統合完了を管理する上位レーンである。api_ids／ut_nodeids／itc_ids／modules／depends_on は du-contracts・itest.json から機械導出した値と完全一致でなければならない（G-WORKSET-SCOPE／G-WORKSET-DEPENDENCY）。",
   "type": "object",
   "additionalProperties": false,
   "required": [

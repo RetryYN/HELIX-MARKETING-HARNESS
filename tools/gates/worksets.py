@@ -1,5 +1,8 @@
-"""S0.1 原子 Workset ゲート: 実装単位を依存方向に沿った Workset へ分割し、着手・完了・
-ラチェットを **Workset 単位**で強制する（PO 指示 §2〜§6）。
+"""S0.1 依存 Workset（実装レーン）ゲート: 実装単位を依存方向に沿った Workset へ分割し、
+着手・完了・ラチェットを **Workset 単位**で強制する（PO 指示 §2〜§6）。
+
+Workset A／B／C は **PR の単位ではない**。実装順・依存閉包・統合完了（Workset ITC）を
+管理する上位レーンであり、1 レーンは複数の実装 PR に分かれてよい。
 
 従来は「最初の実装追加で S0.1 対象 UT 127 件を一斉に強制」する all-or-nothing だった。
 それでは最初の Workset に着手した瞬間に、まだ書きようのない後続 Workset のスタブまで赤になる。
@@ -275,7 +278,7 @@ def schema_faults(data: dict | None) -> list[str]:
     covered = [du for w in items for du in w["du_ids"]]
     dup = sorted({d for d in covered if covered.count(d) > 1})
     if dup:
-        bad.append(f"DU が複数 Workset に属する（原子分割でない）:{dup}")
+        bad.append(f"DU が複数 Workset に属する（レーンが重複している）:{dup}")
     if sorted(set(covered)) != s0_du_ids():
         missing = sorted(set(s0_du_ids()) - set(covered))
         extra = sorted(set(covered) - set(s0_du_ids()))
