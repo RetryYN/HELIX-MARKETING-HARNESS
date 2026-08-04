@@ -1,0 +1,120 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "S0.1 原子単位（1 製品 PR の単位）正本 schema",
+  "description": "docs/L6-feature-design/S0/atomic-units/AU-*.json の構造。G-ATOMIC-SCHEMA が検査する。原則は公開 API 1 本＝1 原子単位で、複数 API の結合は上流依存グラフから独立導出した SCC に限り、merge_reason（same_scc）と実在する negative test を伴う場合だけ許される。api_ids／clause_ids／implementation_unit_ids／ut_nodeids／modules／depends_on_atomic_units／workset_id は du-contracts・implementation-units・s0.1-worksets からの機械導出値と完全一致でなければならない（G-ATOMIC-DEPENDENCY）。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "atomic_unit_id",
+    "workset_id",
+    "title",
+    "status",
+    "api_ids",
+    "clause_ids",
+    "implementation_unit_ids",
+    "ut_nodeids",
+    "modules",
+    "depends_on_atomic_units",
+    "coverage_floor",
+    "merge_reason",
+    "workset_itc_ids",
+    "itc_evidence",
+    "red_receipt",
+    "green_receipt"
+  ],
+  "properties": {
+    "atomic_unit_id": {"type": "string", "pattern": "^AU-DU[0-9]{2}-[0-9]{2}$"},
+    "workset_id": {"type": "string", "pattern": "^WS-S0\\.1-[ABC]$"},
+    "title": {"type": "string", "minLength": 1},
+    "status": {"type": "string", "enum": ["planned", "in_progress", "done"]},
+    "api_ids": {
+      "type": "array", "minItems": 1, "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^API-DU[0-9]{2}-[0-9]{2}$"}
+    },
+    "clause_ids": {
+      "type": "array", "minItems": 1, "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^API-DU[0-9]{2}-[0-9]{2}-(PRE|POST|RAISE)-[0-9]{2}$"}
+    },
+    "implementation_unit_ids": {
+      "type": "array", "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^IU-[A-Z0-9-]+$"}
+    },
+    "ut_nodeids": {
+      "type": "array", "minItems": 1, "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^tests/unit/test_[a-z0-9_]+\\.py::test_[a-z0-9_]+$"}
+    },
+    "modules": {
+      "type": "array", "minItems": 1, "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^src/helix/[a-z0-9_/]+\\.py$"}
+    },
+    "depends_on_atomic_units": {
+      "type": "array", "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^AU-DU[0-9]{2}-[0-9]{2}$"}
+    },
+    "coverage_floor": {"type": "integer", "minimum": 80, "maximum": 100},
+    "merge_reason": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["code", "detail", "negative_test_nodeids"],
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": ["same_scc"]
+            },
+            "detail": {"type": "string", "minLength": 1},
+            "negative_test_nodeids": {
+              "type": "array", "minItems": 1, "uniqueItems": true,
+              "items": {"type": "string", "pattern": "^tests/gates/test_[a-z0-9_]+\\.py::test_[a-z0-9_]+$"}
+            }
+          }
+        }
+      ]
+    },
+    "workset_itc_ids": {
+      "type": "array", "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^ITC-[0-9]{2}$"}
+    },
+    "itc_evidence": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {"type": "string", "pattern": "^tests/[a-z0-9_/]+\\.py::test_[a-z0-9_]+$"},
+          "propertyNames": {"pattern": "^ITC-[0-9]{2}$"}
+        }
+      ]
+    },
+    "red_receipt": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["red_commit", "nodeids"],
+          "properties": {
+            "red_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+            "nodeids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}}
+          }
+        }
+      ]
+    },
+    "green_receipt": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["green_commit", "nodeids"],
+          "properties": {
+            "green_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+            "nodeids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}}
+          }
+        }
+      ]
+    }
+  }
+}

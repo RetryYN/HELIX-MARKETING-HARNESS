@@ -1,0 +1,43 @@
+{
+  "atomic_unit_id": "AU-DU08-01",
+  "workset_id": "WS-S0.1-B",
+  "title": "check_complete（evidence_check.py）",
+  "status": "planned",
+  "api_ids": [
+    "API-DU08-01"
+  ],
+  "clause_ids": [
+    "API-DU08-01-POST-01",
+    "API-DU08-01-POST-02",
+    "API-DU08-01-PRE-01",
+    "API-DU08-01-PRE-02",
+    "API-DU08-01-RAISE-01",
+    "API-DU08-01-RAISE-02"
+  ],
+  "implementation_unit_ids": [
+    "IU-EVIDENCE-01"
+  ],
+  "ut_nodeids": [
+    "tests/unit/test_gates_evidence_check.py::test_check_complete_all_required_kinds_pass",
+    "tests/unit/test_gates_evidence_check.py::test_check_complete_kind_rule_violation_rejected",
+    "tests/unit/test_gates_evidence_check.py::test_check_complete_missing_kind_rejected",
+    "tests/unit/test_gates_evidence_check.py::test_check_complete_unknown_required_kind_fail_close"
+  ],
+  "modules": [
+    "src/helix/gates/evidence_check.py"
+  ],
+  "depends_on_atomic_units": [
+    "AU-DU04-01",
+    "AU-DU09-02",
+    "AU-DU10-01"
+  ],
+  "coverage_floor": 80,
+  "merge_reason": null,
+  "workset_itc_ids": [
+    "ITC-03",
+    "ITC-05"
+  ],
+  "itc_evidence": null,
+  "red_receipt": null,
+  "green_receipt": null
+}

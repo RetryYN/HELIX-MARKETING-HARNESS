@@ -3,7 +3,7 @@
   "version": "0.1",
   "slice": "S0",
   "update": "S0.1",
-  "note": "WS-S0.1-A（基盤）／WS-S0.1-B（ゲート・workflow）／WS-S0.1-C（kernel）は **PR の単位ではなく、実装順・依存閉包・統合完了（Workset ITC）を管理する上位レーン**である。1 レーンは複数の実装 PR に分かれてよく、レーンの done は所属実装単位がすべて完了し Workset ITC が green になった時点で成立する。S0.1（DU-01〜12）を依存方向に沿って 3 つの依存 Workset（実装レーン）へ分割した正本（PO 指示 §2・§3）。着手・完了・ラチェットは Workset 単位で判定する（G-WORKSET-* が fail-close で検査）。api_ids／ut_nodeids／itc_ids／modules／depends_on は du-contracts.json・itest.json からの機械導出値と完全一致でなければならず、手入力での加除は G-WORKSET-SCOPE／G-WORKSET-DEPENDENCY が拒否する。status を in_progress にした Workset だけが対象 UT の skip 解除・nodeid 単位 executed+passed・対象モジュール coverage 80% を強制され、未着手 Workset のスタブは猶予される。done へ進めるには依存 Workset が done であること、red_receipt に実失敗 commit と割当 UT 全件の nodeid が記録されていること、itc_evidence が当該 Workset の ITC を実 nodeid へ結び付けて green であること、その Workset で解除した skip 件数以上を tests/skip-budget.json の max_skipped から減らすことを要する。",
+  "note": "WS-S0.1-A（基盤）／WS-S0.1-B（ゲート・workflow）／WS-S0.1-C（kernel）は **PR の単位ではなく、実装順・依存閉包・統合完了（Workset ITC）を管理する上位レーン**である。1 レーンは複数の実装 PR に分かれてよく、レーンの done は所属実装単位がすべて完了し Workset ITC が green になった時点で成立する。S0.1（DU-01〜12）を依存方向に沿って 3 つの依存 Workset（実装レーン）へ分割した正本（PO 指示 §2・§3）。着手・完了・ラチェットは Workset 単位で判定する（G-WORKSET-* が fail-close で検査）。api_ids／ut_nodeids／itc_ids／modules／depends_on は du-contracts.json・itest.json からの機械導出値と完全一致でなければならず、手入力での加除は G-WORKSET-SCOPE／G-WORKSET-DEPENDENCY が拒否する。status を in_progress にした Workset だけが対象 UT の skip 解除・nodeid 単位 executed+passed・対象モジュール coverage 80% を強制され、未着手 Workset のスタブは猶予される。status は所属原子単位（docs/L6-feature-design/S0/atomic-units/）から導出する（全 planned → planned／1 件以上 in_progress か done → in_progress／全 done かつレーン ITC green → done）。red→green 証跡（red_receipt／green_receipt）と ITC 証跡はレーンではなく原子単位が持ち、解除した skip 件数以上の上限引下げも原子単位ごとに要求する（PO 指示 §4 で移設）。",
   "derivation": {
     "du_dependency_source": "docs/L5-detailed-design/canonical/apis/du-contracts.json の items[].depends_on_apis（先頭の DU-XX を DU 依存として解釈）",
     "itc_source": "docs/L4-basic-design/integration-tests/itest.json の update=S0.1 の項目を cmp→DU→Workset で写像し、依存順で最後に成立する Workset へ割り当てる",
@@ -76,7 +76,6 @@
         "ITC-01",
         "ITC-04"
       ],
-      "itc_evidence": null,
       "modules": [
         "src/helix/config/store.py",
         "src/helix/db/connect.py",
@@ -84,8 +83,7 @@
         "src/helix/evidence/store.py"
       ],
       "depends_on": [],
-      "coverage_floor": 80,
-      "red_receipt": null
+      "coverage_floor": 80
     },
     {
       "workset_id": "WS-S0.1-B",
@@ -147,7 +145,6 @@
         "ITC-03",
         "ITC-05"
       ],
-      "itc_evidence": null,
       "modules": [
         "src/helix/gates/evidence_check.py",
         "src/helix/gates/pair.py",
@@ -158,8 +155,7 @@
       "depends_on": [
         "WS-S0.1-A"
       ],
-      "coverage_floor": 80,
-      "red_receipt": null
+      "coverage_floor": 80
     },
     {
       "workset_id": "WS-S0.1-C",
@@ -246,7 +242,6 @@
         "ITC-02",
         "ITC-06"
       ],
-      "itc_evidence": null,
       "modules": [
         "src/helix/kernel/assigner.py",
         "src/helix/kernel/orchestrator.py",
@@ -256,8 +251,7 @@
         "WS-S0.1-A",
         "WS-S0.1-B"
       ],
-      "coverage_floor": 80,
-      "red_receipt": null
+      "coverage_floor": 80
     }
   ]
 }

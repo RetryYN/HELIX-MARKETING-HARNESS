@@ -1,0 +1,49 @@
+{
+  "atomic_unit_id": "AU-DU02-01",
+  "workset_id": "WS-S0.1-C",
+  "title": "issue_task（orchestrator.py）",
+  "status": "planned",
+  "api_ids": [
+    "API-DU02-01"
+  ],
+  "clause_ids": [
+    "API-DU02-01-POST-01",
+    "API-DU02-01-POST-02",
+    "API-DU02-01-POST-03",
+    "API-DU02-01-PRE-01",
+    "API-DU02-01-PRE-02",
+    "API-DU02-01-PRE-03",
+    "API-DU02-01-RAISE-01",
+    "API-DU02-01-RAISE-02"
+  ],
+  "implementation_unit_ids": [
+    "IU-STATEMACHINE-04"
+  ],
+  "ut_nodeids": [
+    "tests/unit/test_kernel_orchestrator.py::test_issue_task_attempt_increments_after_terminal_rows",
+    "tests/unit/test_kernel_orchestrator.py::test_issue_task_inserts_with_deterministic_idempotency_key",
+    "tests/unit/test_kernel_orchestrator.py::test_issue_task_pair_not_established_tpub_rejected",
+    "tests/unit/test_kernel_orchestrator.py::test_issue_task_reuses_nonterminal_existing_task",
+    "tests/unit/test_kernel_orchestrator.py::test_issue_task_same_principal_pair_rejected",
+    "tests/unit/test_kernel_orchestrator.py::test_issue_task_unique_collision_rereads_existing"
+  ],
+  "modules": [
+    "src/helix/kernel/orchestrator.py"
+  ],
+  "depends_on_atomic_units": [
+    "AU-DU01-02",
+    "AU-DU03-01",
+    "AU-DU04-01",
+    "AU-DU04-02",
+    "AU-DU08-01",
+    "AU-DU09-01",
+    "AU-DU10-01",
+    "AU-DU12-02"
+  ],
+  "coverage_floor": 80,
+  "merge_reason": null,
+  "workset_itc_ids": [],
+  "itc_evidence": null,
+  "red_receipt": null,
+  "green_receipt": null
+}

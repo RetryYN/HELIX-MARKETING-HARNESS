@@ -73,11 +73,9 @@
           "api_ids",
           "ut_nodeids",
           "itc_ids",
-          "itc_evidence",
           "modules",
           "depends_on",
-          "coverage_floor",
-          "red_receipt"
+          "coverage_floor"
         ],
         "properties": {
           "workset_id": {
@@ -126,25 +124,6 @@
               "pattern": "^ITC-\\d{2}$"
             }
           },
-          "itc_evidence": {
-            "description": "done を名乗るときの ITC 実行証跡。ITC ID → pytest nodeid。キー集合は itc_ids と完全一致し、各 nodeid は outcome レポート上 passed でなければならない（G-WORKSET-TEST-REALITY）。",
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "type": "object",
-                "minProperties": 1,
-                "propertyNames": {
-                  "pattern": "^ITC-\\d{2}$"
-                },
-                "additionalProperties": {
-                  "type": "string",
-                  "pattern": "^tests/[a-z0-9_/]+\\.py::test_[a-z0-9_]+$"
-                }
-              }
-            ]
-          },
           "modules": {
             "type": "array",
             "minItems": 1,
@@ -164,49 +143,9 @@
             "type": "integer",
             "minimum": 80,
             "maximum": 100
-          },
-          "red_receipt": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "red_commit",
-                  "nodeids",
-                  "green_commit"
-                ],
-                "properties": {
-                  "red_commit": {
-                    "type": "string",
-                    "pattern": "^[0-9a-f]{40}$"
-                  },
-                  "nodeids": {
-                    "type": "array",
-                    "minItems": 1,
-                    "items": {
-                      "type": "string",
-                      "pattern": "^tests/unit/test_[a-z0-9_]+\\.py::test_[a-z0-9_]+$"
-                    }
-                  },
-                  "green_commit": {
-                    "oneOf": [
-                      {
-                        "type": "null"
-                      },
-                      {
-                        "type": "string",
-                        "pattern": "^[0-9a-f]{40}$"
-                      }
-                    ]
-                  }
-                }
-              }
-            ]
           }
-        }
+        },
+        "description": "原子単位（atomic-units/AU-*.json）が red→green 証跡と ITC 証跡を持つ。レーンは実装順・依存閉包・統合完了を管理する単位で、status は原子単位から導出する。"
       }
     }
   }

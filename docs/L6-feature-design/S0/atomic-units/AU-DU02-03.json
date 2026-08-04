@@ -1,0 +1,43 @@
+{
+  "atomic_unit_id": "AU-DU02-03",
+  "workset_id": "WS-S0.1-C",
+  "title": "run_microloop（orchestrator.py）",
+  "status": "planned",
+  "api_ids": [
+    "API-DU02-03"
+  ],
+  "clause_ids": [
+    "API-DU02-03-POST-01",
+    "API-DU02-03-POST-02",
+    "API-DU02-03-PRE-01",
+    "API-DU02-03-PRE-02",
+    "API-DU02-03-RAISE-01",
+    "API-DU02-03-RAISE-02"
+  ],
+  "implementation_unit_ids": [
+    "IU-STATEMACHINE-05"
+  ],
+  "ut_nodeids": [
+    "tests/unit/test_kernel_orchestrator.py::test_run_microloop_executor_transient_failure_retryable",
+    "tests/unit/test_kernel_orchestrator.py::test_run_microloop_self_review_or_missing_evidence_rejected",
+    "tests/unit/test_kernel_orchestrator.py::test_run_microloop_verify_fail_consumes_retry_until_escalated"
+  ],
+  "modules": [
+    "src/helix/kernel/orchestrator.py"
+  ],
+  "depends_on_atomic_units": [
+    "AU-DU01-02",
+    "AU-DU04-01",
+    "AU-DU04-02",
+    "AU-DU08-01",
+    "AU-DU09-01",
+    "AU-DU10-01",
+    "AU-DU12-02"
+  ],
+  "coverage_floor": 80,
+  "merge_reason": null,
+  "workset_itc_ids": [],
+  "itc_evidence": null,
+  "red_receipt": null,
+  "green_receipt": null
+}

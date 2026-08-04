@@ -1,0 +1,29 @@
+{
+  "atomic_unit_id": "AU-DU09-03",
+  "workset_id": "WS-S0.1-A",
+  "title": "exists（store.py）",
+  "status": "planned",
+  "api_ids": [
+    "API-DU09-03"
+  ],
+  "clause_ids": [
+    "API-DU09-03-POST-01",
+    "API-DU09-03-PRE-01"
+  ],
+  "implementation_unit_ids": [],
+  "ut_nodeids": [
+    "tests/unit/test_evidence_store.py::test_exists_reflects_unique_key_presence"
+  ],
+  "modules": [
+    "src/helix/evidence/store.py"
+  ],
+  "depends_on_atomic_units": [
+    "AU-DU10-01"
+  ],
+  "coverage_floor": 80,
+  "merge_reason": null,
+  "workset_itc_ids": [],
+  "itc_evidence": null,
+  "red_receipt": null,
+  "green_receipt": null
+}

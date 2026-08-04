@@ -108,7 +108,8 @@ SKIP_BUDGET = ROOT / "tests/skip-budget.json"
 COVERAGE_FLOOR = ROOT / "tests/coverage-floor.json"
 GATE_PKG = ROOT / "tools/gates"
 GATE_MODULES = ["authority", "requirements", "traceability", "architecture", "detailed_design",
-                "test_pairing", "test_reality", "worksets", "semantic_refs", "review_binding",
+                "test_pairing", "test_reality", "worksets", "atomic_units", "semantic_refs",
+                "review_binding",
                 "baseline",
                 "run_all"]
 
@@ -331,14 +332,36 @@ TMAP: dict[str, Any] = {"string": str, "integer": int, "number": (int, float), "
 
 
 def schema_check(schema: dict, doc: Any, path: str = "$") -> list[str]:
-    """最小 JSON Schema 検証器（外部依存なし）。"""
+    """最小 JSON Schema 検証器（外部依存なし）。
+
+    `oneOf`／`propertyNames`／schema 形式の `additionalProperties`／`minProperties` にも
+    対応する。未対応のキーワードを schema に書くと「宣言はあるのに検査されない」
+    見かけ倒しになるためである（独立レビュー R15-05）。
+    """
     errs: list[str] = []
+    if "oneOf" in schema:
+        matched = [i for i, sub in enumerate(schema["oneOf"])
+                   if not schema_check(sub, doc, path)]
+        if len(matched) != 1:
+            return [f"{path}: oneOf に {len(matched)} 件しか一致しない（1 件でなければならない）"]
+        return errs
     if schema.get("type") == "object" or "properties" in schema or "required" in schema:
         if not isinstance(doc, dict):
             return [f"{path}: object でない"]
         errs += [f"{path}.{k}: 必須欠落" for k in schema.get("required", []) if k not in doc]
         if schema.get("additionalProperties") is False:
             errs += [f"{path}.{k}: 未定義フィールド" for k in doc if k not in schema.get("properties", {})]
+        if len(doc) < schema.get("minProperties", 0):
+            errs.append(f"{path}: minProperties")
+        if isinstance(schema.get("propertyNames"), dict):
+            for k in doc:
+                errs += [f"{path}.{k}: プロパティ名が propertyNames に反する（{e}）"
+                         for e in schema_check(schema["propertyNames"], k, f"{path}.{k}")]
+        extra = schema.get("additionalProperties")
+        if isinstance(extra, dict):
+            for k, v in doc.items():
+                if k not in schema.get("properties", {}):
+                    errs += schema_check(extra, v, f"{path}.{k}")
         for k, sub in schema.get("properties", {}).items():
             if k in doc:
                 errs += schema_check(sub, doc[k], f"{path}.{k}")

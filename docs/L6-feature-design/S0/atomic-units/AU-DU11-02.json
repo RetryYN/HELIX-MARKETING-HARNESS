@@ -1,0 +1,37 @@
+{
+  "atomic_unit_id": "AU-DU11-02",
+  "workset_id": "WS-S0.1-A",
+  "title": "verify（migrate.py）",
+  "status": "planned",
+  "api_ids": [
+    "API-DU11-02"
+  ],
+  "clause_ids": [
+    "API-DU11-02-POST-01",
+    "API-DU11-02-POST-02",
+    "API-DU11-02-PRE-01",
+    "API-DU11-02-RAISE-01",
+    "API-DU11-02-RAISE-02"
+  ],
+  "implementation_unit_ids": [
+    "IU-MIGRATION-03"
+  ],
+  "ut_nodeids": [
+    "tests/unit/test_db_migrate.py::test_verify_complete_schema_passes",
+    "tests/unit/test_db_migrate.py::test_verify_foreign_key_violation_fails",
+    "tests/unit/test_db_migrate.py::test_verify_missing_table_or_trigger_fails",
+    "tests/unit/test_db_migrate.py::test_verify_tlp_orphan_detected_fatal"
+  ],
+  "modules": [
+    "src/helix/db/migrate.py"
+  ],
+  "depends_on_atomic_units": [
+    "AU-DU10-01"
+  ],
+  "coverage_floor": 80,
+  "merge_reason": null,
+  "workset_itc_ids": [],
+  "itc_evidence": null,
+  "red_receipt": null,
+  "green_receipt": null
+}

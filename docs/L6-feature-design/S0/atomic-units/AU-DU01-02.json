@@ -1,0 +1,57 @@
+{
+  "atomic_unit_id": "AU-DU01-02",
+  "workset_id": "WS-S0.1-C",
+  "title": "register_guard＋validate_strategic_brief（orchestrator.py, state.py）",
+  "status": "planned",
+  "api_ids": [
+    "API-DU01-02",
+    "API-DU02-07"
+  ],
+  "clause_ids": [
+    "API-DU01-02-POST-01",
+    "API-DU01-02-POST-02",
+    "API-DU01-02-PRE-01",
+    "API-DU01-02-PRE-02",
+    "API-DU01-02-RAISE-01",
+    "API-DU02-07-POST-01",
+    "API-DU02-07-POST-02",
+    "API-DU02-07-PRE-01",
+    "API-DU02-07-RAISE-01"
+  ],
+  "implementation_unit_ids": [
+    "IU-STATEMACHINE-06"
+  ],
+  "ut_nodeids": [
+    "tests/unit/test_kernel_orchestrator.py::test_validate_strategic_brief_active_digest_period_passes",
+    "tests/unit/test_kernel_orchestrator.py::test_validate_strategic_brief_invalid_status_digest_period_rejected",
+    "tests/unit/test_kernel_state.py::test_register_guard_duplicate_or_unknown_event_fatal",
+    "tests/unit/test_kernel_state.py::test_register_guard_is_startup_only_no_runtime_swap",
+    "tests/unit/test_kernel_state.py::test_register_guard_unregistered_event_allowed_transition_fatal",
+    "tests/unit/test_kernel_state.py::test_register_guard_wires_event_guard"
+  ],
+  "modules": [
+    "src/helix/kernel/orchestrator.py",
+    "src/helix/kernel/state.py"
+  ],
+  "depends_on_atomic_units": [
+    "AU-DU04-01",
+    "AU-DU04-02",
+    "AU-DU08-01",
+    "AU-DU09-01",
+    "AU-DU10-01",
+    "AU-DU12-02"
+  ],
+  "coverage_floor": 80,
+  "merge_reason": {
+    "code": "same_scc",
+    "detail": "API 依存グラフ上の相互依存（SCC）。DU-01 register_guard() はガード実体を配線し、DU-02 validate_strategic_brief() はその配線先ガード本体である（lower start ガード G3）。契約上どちらも他方を前提とするため単独では成立せず、分割すると片方が常に未成立になる。",
+    "negative_test_nodeids": [
+      "tests/gates/test_atomic_units.py::test_mutation_scc_apis_cannot_be_split_across_units",
+      "tests/gates/test_atomic_units.py::test_mutation_merge_without_reason_is_rejected"
+    ]
+  },
+  "workset_itc_ids": [],
+  "itc_evidence": null,
+  "red_receipt": null,
+  "green_receipt": null
+}

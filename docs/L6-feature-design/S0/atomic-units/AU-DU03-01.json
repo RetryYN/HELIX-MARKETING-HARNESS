@@ -1,0 +1,41 @@
+{
+  "atomic_unit_id": "AU-DU03-01",
+  "workset_id": "WS-S0.1-C",
+  "title": "assign（assigner.py）",
+  "status": "planned",
+  "api_ids": [
+    "API-DU03-01"
+  ],
+  "clause_ids": [
+    "API-DU03-01-POST-01",
+    "API-DU03-01-POST-02",
+    "API-DU03-01-POST-03",
+    "API-DU03-01-PRE-01",
+    "API-DU03-01-PRE-02",
+    "API-DU03-01-RAISE-01",
+    "API-DU03-01-RAISE-02"
+  ],
+  "implementation_unit_ids": [
+    "IU-STATEMACHINE-07"
+  ],
+  "ut_nodeids": [
+    "tests/unit/test_kernel_assigner.py::test_assign_active_different_principal_pair",
+    "tests/unit/test_kernel_assigner.py::test_assign_distinct_agents_same_principal_rejected",
+    "tests/unit/test_kernel_assigner.py::test_assign_inactive_agents_excluded",
+    "tests/unit/test_kernel_assigner.py::test_assign_insufficient_role_candidates_rejected",
+    "tests/unit/test_kernel_assigner.py::test_assign_review_verifier_excludes_critic",
+    "tests/unit/test_kernel_assigner.py::test_assign_same_agent_pair_rejected"
+  ],
+  "modules": [
+    "src/helix/kernel/assigner.py"
+  ],
+  "depends_on_atomic_units": [
+    "AU-DU10-01"
+  ],
+  "coverage_floor": 80,
+  "merge_reason": null,
+  "workset_itc_ids": [],
+  "itc_evidence": null,
+  "red_receipt": null,
+  "green_receipt": null
+}

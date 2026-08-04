@@ -1,0 +1,46 @@
+{
+  "atomic_unit_id": "AU-DU02-04",
+  "workset_id": "WS-S0.1-C",
+  "title": "resume（orchestrator.py）",
+  "status": "planned",
+  "api_ids": [
+    "API-DU02-04"
+  ],
+  "clause_ids": [
+    "API-DU02-04-POST-01",
+    "API-DU02-04-POST-02",
+    "API-DU02-04-PRE-01",
+    "API-DU02-04-PRE-02",
+    "API-DU02-04-RAISE-01"
+  ],
+  "implementation_unit_ids": [
+    "IU-STATEMACHINE-08"
+  ],
+  "ut_nodeids": [
+    "tests/unit/test_kernel_orchestrator.py::test_resume_delegates_transition_to_state_machine",
+    "tests/unit/test_kernel_orchestrator.py::test_resume_in_progress_before_external_reloads_state",
+    "tests/unit/test_kernel_orchestrator.py::test_resume_pending_reclaimable",
+    "tests/unit/test_kernel_orchestrator.py::test_resume_sent_remote_match_confirms_without_resend",
+    "tests/unit/test_kernel_orchestrator.py::test_resume_sent_unverifiable_unknown_escalates",
+    "tests/unit/test_kernel_orchestrator.py::test_resume_verifying_reuses_existing_verdict_no_double_count",
+    "tests/unit/test_kernel_orchestrator.py::test_resume_waiting_rechecks_satisfaction"
+  ],
+  "modules": [
+    "src/helix/kernel/orchestrator.py"
+  ],
+  "depends_on_atomic_units": [
+    "AU-DU01-02",
+    "AU-DU04-01",
+    "AU-DU04-02",
+    "AU-DU08-01",
+    "AU-DU09-01",
+    "AU-DU10-01",
+    "AU-DU12-02"
+  ],
+  "coverage_floor": 80,
+  "merge_reason": null,
+  "workset_itc_ids": [],
+  "itc_evidence": null,
+  "red_receipt": null,
+  "green_receipt": null
+}

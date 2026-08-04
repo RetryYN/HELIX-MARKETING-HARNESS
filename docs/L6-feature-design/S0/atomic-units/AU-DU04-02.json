@@ -1,0 +1,45 @@
+{
+  "atomic_unit_id": "AU-DU04-02",
+  "workset_id": "WS-S0.1-B",
+  "title": "run_step（workflow.py）",
+  "status": "planned",
+  "api_ids": [
+    "API-DU04-02"
+  ],
+  "clause_ids": [
+    "API-DU04-02-POST-01",
+    "API-DU04-02-POST-02",
+    "API-DU04-02-POST-03",
+    "API-DU04-02-PRE-01",
+    "API-DU04-02-PRE-02",
+    "API-DU04-02-RAISE-01",
+    "API-DU04-02-RAISE-02",
+    "API-DU04-02-RAISE-03"
+  ],
+  "implementation_unit_ids": [
+    "IU-EXTERNALOPERATIONS-02"
+  ],
+  "ut_nodeids": [
+    "tests/unit/test_kernel_workflow.py::test_draft_and_publish_use_distinct_idempotency_keys",
+    "tests/unit/test_kernel_workflow.py::test_external_operation_prepared_sent_confirmed_each_committed",
+    "tests/unit/test_kernel_workflow.py::test_external_operation_sent_crash_resume_no_resend",
+    "tests/unit/test_kernel_workflow.py::test_external_operation_unverifiable_marked_unknown_escalates",
+    "tests/unit/test_kernel_workflow.py::test_run_step_failure_normalized_to_three_kinds",
+    "tests/unit/test_kernel_workflow.py::test_run_step_never_transitions_task_to_done",
+    "tests/unit/test_kernel_workflow.py::test_run_step_output_saved_via_evidence_api"
+  ],
+  "modules": [
+    "src/helix/kernel/workflow.py"
+  ],
+  "depends_on_atomic_units": [
+    "AU-DU09-01",
+    "AU-DU10-01",
+    "AU-DU12-02"
+  ],
+  "coverage_floor": 80,
+  "merge_reason": null,
+  "workset_itc_ids": [],
+  "itc_evidence": null,
+  "red_receipt": null,
+  "green_receipt": null
+}

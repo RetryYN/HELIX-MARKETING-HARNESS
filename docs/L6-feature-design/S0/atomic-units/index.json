@@ -1,0 +1,156 @@
+{
+  "doc": "S0.1 原子単位（1 製品 PR の単位）索引",
+  "version": "0.1",
+  "slice": "S0",
+  "update": "S0.1",
+  "note": "依存 Workset（実装レーン A←B←C）は実装順・依存閉包・統合完了を管理する上位レーンであり、PR の単位ではない。PR の単位は本索引が並べる原子単位である（PO 指示 §2〜§4）。原則は公開 API 1 本＝1 原子単位で、複数 API の結合は上流依存グラフから独立導出した SCC に限り、merge_reason（same_scc）と実在する negative test を伴う場合だけ許される。1 製品 PR で in_progress にできる原子単位は 1 件だけで、変更範囲はその単位のmodules・割当 UT・receipt・生成ビューに閉じる（G-ATOMIC-PR-SCOPE）。red→green 証跡は原子単位が持ち、Workset ITC はレーン終端の原子単位で green を要求する。",
+  "derivation": {
+    "api_source": "docs/L5-detailed-design/canonical/apis/du-contracts.json の DU-01〜12 の items[].apis[]（29 API）",
+    "dependency_source": "同 items[].depends_on_apis（DU 単位の宣言を被参照関数名で API へ解決）",
+    "attribution": "参照側は当該関数名を契約節本文で名指ししている API へ帰属させ、名指しが無い場合だけその DU の全 API へ倒す（fail-close の過大近似 — 依存を落として着手順を緩めない）",
+    "merge_policy": "結合は API 依存グラフの SCC のみ。AU-DU01-02 が唯一の結合単位で、API-DU01-02 register_guard() と API-DU02-07 validate_strategic_brief() の相互依存に対応する",
+    "workset_status": "レーンの status は所属原子単位から導出する（全 planned → planned／1 件以上 in_progress か done → in_progress／全 done かつレーン ITC green → done）"
+  },
+  "units": [
+    {
+      "atomic_unit_id": "AU-DU01-01",
+      "file": "AU-DU01-01.json",
+      "workset_id": "WS-S0.1-C"
+    },
+    {
+      "atomic_unit_id": "AU-DU01-02",
+      "file": "AU-DU01-02.json",
+      "workset_id": "WS-S0.1-C"
+    },
+    {
+      "atomic_unit_id": "AU-DU02-01",
+      "file": "AU-DU02-01.json",
+      "workset_id": "WS-S0.1-C"
+    },
+    {
+      "atomic_unit_id": "AU-DU02-02",
+      "file": "AU-DU02-02.json",
+      "workset_id": "WS-S0.1-C"
+    },
+    {
+      "atomic_unit_id": "AU-DU02-03",
+      "file": "AU-DU02-03.json",
+      "workset_id": "WS-S0.1-C"
+    },
+    {
+      "atomic_unit_id": "AU-DU02-04",
+      "file": "AU-DU02-04.json",
+      "workset_id": "WS-S0.1-C"
+    },
+    {
+      "atomic_unit_id": "AU-DU02-05",
+      "file": "AU-DU02-05.json",
+      "workset_id": "WS-S0.1-C"
+    },
+    {
+      "atomic_unit_id": "AU-DU02-06",
+      "file": "AU-DU02-06.json",
+      "workset_id": "WS-S0.1-C"
+    },
+    {
+      "atomic_unit_id": "AU-DU02-08",
+      "file": "AU-DU02-08.json",
+      "workset_id": "WS-S0.1-C"
+    },
+    {
+      "atomic_unit_id": "AU-DU02-09",
+      "file": "AU-DU02-09.json",
+      "workset_id": "WS-S0.1-C"
+    },
+    {
+      "atomic_unit_id": "AU-DU03-01",
+      "file": "AU-DU03-01.json",
+      "workset_id": "WS-S0.1-C"
+    },
+    {
+      "atomic_unit_id": "AU-DU04-01",
+      "file": "AU-DU04-01.json",
+      "workset_id": "WS-S0.1-B"
+    },
+    {
+      "atomic_unit_id": "AU-DU04-02",
+      "file": "AU-DU04-02.json",
+      "workset_id": "WS-S0.1-B"
+    },
+    {
+      "atomic_unit_id": "AU-DU05-01",
+      "file": "AU-DU05-01.json",
+      "workset_id": "WS-S0.1-B"
+    },
+    {
+      "atomic_unit_id": "AU-DU05-02",
+      "file": "AU-DU05-02.json",
+      "workset_id": "WS-S0.1-B"
+    },
+    {
+      "atomic_unit_id": "AU-DU05-03",
+      "file": "AU-DU05-03.json",
+      "workset_id": "WS-S0.1-B"
+    },
+    {
+      "atomic_unit_id": "AU-DU06-01",
+      "file": "AU-DU06-01.json",
+      "workset_id": "WS-S0.1-B"
+    },
+    {
+      "atomic_unit_id": "AU-DU07-01",
+      "file": "AU-DU07-01.json",
+      "workset_id": "WS-S0.1-B"
+    },
+    {
+      "atomic_unit_id": "AU-DU07-02",
+      "file": "AU-DU07-02.json",
+      "workset_id": "WS-S0.1-B"
+    },
+    {
+      "atomic_unit_id": "AU-DU08-01",
+      "file": "AU-DU08-01.json",
+      "workset_id": "WS-S0.1-B"
+    },
+    {
+      "atomic_unit_id": "AU-DU09-01",
+      "file": "AU-DU09-01.json",
+      "workset_id": "WS-S0.1-A"
+    },
+    {
+      "atomic_unit_id": "AU-DU09-02",
+      "file": "AU-DU09-02.json",
+      "workset_id": "WS-S0.1-A"
+    },
+    {
+      "atomic_unit_id": "AU-DU09-03",
+      "file": "AU-DU09-03.json",
+      "workset_id": "WS-S0.1-A"
+    },
+    {
+      "atomic_unit_id": "AU-DU10-01",
+      "file": "AU-DU10-01.json",
+      "workset_id": "WS-S0.1-A"
+    },
+    {
+      "atomic_unit_id": "AU-DU11-01",
+      "file": "AU-DU11-01.json",
+      "workset_id": "WS-S0.1-A"
+    },
+    {
+      "atomic_unit_id": "AU-DU11-02",
+      "file": "AU-DU11-02.json",
+      "workset_id": "WS-S0.1-A"
+    },
+    {
+      "atomic_unit_id": "AU-DU12-01",
+      "file": "AU-DU12-01.json",
+      "workset_id": "WS-S0.1-A"
+    },
+    {
+      "atomic_unit_id": "AU-DU12-02",
+      "file": "AU-DU12-02.json",
+      "workset_id": "WS-S0.1-A"
+    }
+  ]
+}
