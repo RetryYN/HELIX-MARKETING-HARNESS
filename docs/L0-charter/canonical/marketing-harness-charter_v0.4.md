@@ -330,7 +330,8 @@ SNS（X / note / Instagram / YouTube …）の投稿・計測は **API 契約で
 ### 非スコープ
 
 - 広告運用（変数として 0 に固定）
-- 人間チームの staffing／velocity 管理（replenishment・review・retrospective の runtime cadence はスコープ内）
+- 人間チームの staffing／velocity 管理（replenishment・review・retrospective は system/AI が Kanban を
+  継続運転する cadence としてスコープ内。人間は別途定義された承認・判断 gate だけに関与する）
 - HELIX 本体（開発ハーネス）の変更
 
 ## §7 進め方 — HELIX V-model × スライス駆動
@@ -397,6 +398,9 @@ HELIX-MARKETING-HARNESS/
 - domain 間の共有は明示された export/import 契約だけで行い、相対 path や共通 directory による暗黙共有を禁止する。
 - `strategy/` は上流戦略の投影、`backlog/` と `work/` は下流 Kanban の作業面、`evidence/` は検証証跡、
   `exports/` は境界外へ渡す不変成果物とし、互いの責務を混在させない。
+- ID・状態・版・拒否条件の L3 正本は
+  [FR-17／FR-35／FR-48 契約](../../L3-system-requirements/canonical/functional/fr-contracts.json) と
+  [要件一覧](../../L3-system-requirements/canonical/functional/requirements_v0.1.md) とする。
 
 ### 保留（検討済み・現段階で不採用）
 
