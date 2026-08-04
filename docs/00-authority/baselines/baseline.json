@@ -32,7 +32,7 @@
   "confirmed_docs": {
     "docs/00-authority/audits/structural-trace-remediation-2026-08-02.md": "8ce4869eeabe1e018484d969e33710ffb7d3cd88a061ebfe81e26690a06da77b",
     "docs/00-authority/audits/update-boundary-remediation-2026-08-02.md": "02e867564eb47f0ddd8dfa632bc2eeb14ad9c5abcebb06c54d7e978adfdf5964",
-    "docs/L0-charter/canonical/marketing-harness-charter_v0.4.md": "db974edfd358e064fd2491985e7a9676f7b7b2067d75cabaecf18e4f5f590e21",
+    "docs/L0-charter/canonical/marketing-harness-charter_v0.4.md": "28d40aeec638c89c784e008ce12ec23b49dcf56d5ced1c19208c4bb4f888710a",
     "docs/L1-business-requirements/canonical/br-backbone_v0.1.md": "9e775f3f5173fe121e3c59fccb14ad519ed3427c0418746793caa82fc6a87928",
     "docs/L1-business-requirements/canonical/br-media_v0.1.md": "be52caaecd9e57da755689b277de295172b2cf8d8e6463655bc4821644b1b50d",
     "docs/L1-business-requirements/canonical/glossary_v0.1.md": "5230f086b655b6b4d2aa61dd00b298a45bcd75c25edfb49cfa7c53628249c046",
@@ -217,7 +217,7 @@
     ".gitleaks.toml": "bd5ef0ff23d45638fd05c87c6c8c856962111fc337468e2b3de119490e84aacb",
     "AGENTS.md": "d0194fed736aca3639eac74a82662e748d4f40681abb6afc6ccb421589c2c74b",
     "CLAUDE.md": "3c9b1994682bd9bb5b3babdf1194869032241f9ed45c0af4296c19ccef28e663",
-    "docs/00-authority/artifact-manifest.json": "7f4300dcc8f1c6ab3d0e54956b835358cd21c94997599598350be07a6dfd4d7a",
+    "docs/00-authority/artifact-manifest.json": "5c46ecd5ea21ebe7e2f93be0bf7e27fea0c3d3092246e1078638efbb4893f9b9",
     "docs/00-authority/artifact-manifest.schema.json": "6829678e7ba29f2b68bebe11f15b22c4bf2b0bde5cca679b94244ac4220b6559",
     "docs/00-authority/audits/cross-repository-write-incident-2026-08-01.md": "161f44e6daf848dbcf3032f6fef175286c6996918f07ab8b0a7bc8df2fc601c4",
     "docs/00-authority/audits/granularity-gap-audit-v0.1.md": "9fd648fd36a5f8f93a22fe5fc234924ee6742bffc1bf1161cfd2ecb9543e905c",
