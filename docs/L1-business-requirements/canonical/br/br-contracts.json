@@ -53,6 +53,164 @@
       "fill": "—"
     },
     {
+      "id": "BR-J1",
+      "group": "J. Kanban-first 戦術運転・可変ドメイン",
+      "title": "下流戦術 OS の Kanban pull 運転",
+      "purpose": "下流戦術 OS を連続 pull system として運転し、WIP 制限・blocked 管理・flow 指標によって滞留と過負荷を制御する。Scrum は補充・レビュー・振り返りの cadence に限定する。",
+      "actor": "戦術 OS kernel／作業エージェント／flow reviewer",
+      "trigger": "ready item の pull、作業状態変更、blocked/unblocked、定期 replenishment/review/retrospective",
+      "problem": "期間単位で仕事を一括投入すると、AI ワーカーの同時進行が膨張し、媒体ごとの速度差と突発的な戦略変更を吸収できない。",
+      "value": "能力が空いた時だけ次の eligible item を引き、過負荷を防ぎながら媒体・domain ごとの流動性と滞留を測定できる。",
+      "scope_in": [
+        "pull eligibility と明示的な ready policy",
+        "lane/domain ごとの WIP limit",
+        "blocked reason・blocked_since・unblock 条件",
+        "lead time・cycle time・throughput・work item age",
+        "replenishment/review/retrospective cadence"
+      ],
+      "scope_out": [
+        "人間チームの velocity 管理・ceremony",
+        "上流戦略内容の自動決定"
+      ],
+      "constraints": [
+        "push による in_progress 直接投入は禁止し claim は pull gate を通す",
+        "WIP limit と service policy は config の版付き値である",
+        "cadence 境界で進行中 item を強制終了しない"
+      ],
+      "prohibitions": [
+        "WIP 上限を超える claim",
+        "blocked 理由なしの滞留",
+        "sprint backlog 全件の一括開始"
+      ],
+      "human_judgement": "replenishment での優先順位・service policy 変更、恒常 blocked の解消判断。それ以外の gate は自動",
+      "failure_impact": "仕掛かりが増え続け、重要施策の滞留が見えず、戦略変更時にも古い仕事が流れ続ける。",
+      "completion_evidence": [
+        "WIP limit 到達時の pull 拒否テスト green",
+        "blocked/unblocked の理由付き遷移証跡",
+        "flow 指標を同一状態履歴から再計算した結果"
+      ],
+      "trace_up": [
+        "charter v0.4 §3.0 Kanban-first + Scrum cadence"
+      ],
+      "trace_down": {
+        "req": [
+          "REQ-053"
+        ],
+        "fr": [
+          "FR-17"
+        ]
+      },
+      "mandated_groups": [],
+      "fill": "C"
+    },
+    {
+      "id": "BR-J2",
+      "group": "J. Kanban-first 戦術運転・可変ドメイン",
+      "title": "複数 bounded domain の隔離 workspace",
+      "purpose": "1 business_profile 配下に複数の bounded domain を登録し、domain ごとの正本・backlog・work・evidence を安全な workspace root に分離する。",
+      "actor": "profile/domain registry／workspace resolver／ストア層",
+      "trigger": "domain の登録・参照・archive・workspace path 解決時",
+      "problem": "profile と媒体だけを境界にすると、商品・市場・施策群など異なる業務コンテキストの語彙・資産・学習が同じフォルダへ混在する。",
+      "value": "複数 domain を同一 profile で運転しても、各 domain の状態・成果物・証跡が一意な root に収まり、越境と path escape を構造的に防げる。",
+      "scope_in": [
+        "business_profile 1 対多 bounded_domain registry",
+        "domain_key と workspace root の一意対応",
+        "domain manifest と strategy/backlog/work/evidence/exports の標準構造",
+        "path traversal・symlink escape・越境参照の拒否",
+        "archived domain の read-only 化"
+      ],
+      "scope_out": [
+        "domain 間の暗黙共有",
+        "媒体名を domain 境界として固定すること"
+      ],
+      "constraints": [
+        "bounded_domain は必ず 1 business_profile に属する",
+        "workspace root は registry と manifest の一致でのみ解決する",
+        "実媒体は domain そのものではなく media_binding として関連付ける"
+      ],
+      "prohibitions": [
+        "絶対 path・..・symlink を使った workspace root 外への escape",
+        "profile/domain を省略した共有 drafts/assets-src",
+        "媒体名を kernel の固定 directory 名として使用"
+      ],
+      "human_judgement": "domain の追加・archive・意味境界の変更は PO 判断。path 検証と scope 強制は自動",
+      "failure_impact": "戦略・資産・学習が domain 間で混線し、別商品や別市場へ誤った施策を公開する。",
+      "completion_evidence": [
+        "複数 domain の同時登録と workspace 分離テスト green",
+        "path traversal・symlink escape・越境書込みの拒否証跡",
+        "registry と domain manifest の整合監査 green"
+      ],
+      "trace_up": [
+        "charter v0.4 §3.0 profile/domain/media_binding 分離",
+        "BR-D4",
+        "BR-I1"
+      ],
+      "trace_down": {
+        "req": [
+          "REQ-054"
+        ],
+        "fr": [
+          "FR-35"
+        ]
+      },
+      "mandated_groups": [],
+      "fill": "H"
+    },
+    {
+      "id": "BR-J3",
+      "group": "J. Kanban-first 戦術運転・可変ドメイン",
+      "title": "戦略判断による媒体 binding の可変化",
+      "purpose": "上流戦略 OS の版付き判断を、下流戦術 OS が利用する実媒体・接続経路・workflow の binding に変換し、追加・一時停止・廃止・差替えを外殻非侵襲で行う。",
+      "actor": "上流戦略 OS（判断）／media binding registry（変換）／下流戦術 OS（実行）",
+      "trigger": "strategic brief/revision が媒体役割または媒体構成の変更を要求した時",
+      "problem": "媒体名と workflow を固定すると、市場や規約の変化で媒体を替えるたびに kernel・状態機械・フォルダ構造の改修が必要になる。",
+      "value": "戦略上の役割を保ったまま実媒体を安全に差し替え、下流の観測を TLP で上流へ返して次の媒体判断へつなげられる。",
+      "scope_in": [
+        "media_role と media_binding の分離",
+        "binding の planned/active/paused/retired と版・supersedes",
+        "binding から connector registry・workflow・playbook への参照",
+        "停止時の新規 pull 遮断と in-flight item の drain/cancel policy",
+        "TLP による媒体実績・失敗の上流還流"
+      ],
+      "scope_out": [
+        "TLP からの戦略正本直接更新",
+        "媒体ごとの固有実装を kernel に追加すること"
+      ],
+      "constraints": [
+        "binding の active 化は有効な strategic brief/revision と domain scope を要する",
+        "媒体差替えは旧 binding の破壊更新でなく新版 INSERT と supersedes で行う",
+        "接続可否・規約・承認 gate を迂回しない"
+      ],
+      "prohibitions": [
+        "戦略 trace なしの媒体追加・停止・差替え",
+        "retired binding への新規 work item pull",
+        "実媒体名を media_role として保存"
+      ],
+      "human_judgement": "媒体構成の採否と高リスク媒体の active 化は PO 判断。binding 検証と停止 gate は自動",
+      "failure_impact": "失効媒体へ施策を流し続けるか、媒体変更のたびに外殻が壊れ、戦略と実行の trace が切れる。",
+      "completion_evidence": [
+        "戦略 revision→binding 新版→下流 pull の trace",
+        "paused/retired binding への新規 pull 拒否テスト green",
+        "旧 binding の履歴と TLP が保持された差替え証跡"
+      ],
+      "trace_up": [
+        "charter v0.4 §3.0 戦略 OS ↔ 戦術 OS",
+        "BR-F3",
+        "BR-I2",
+        "BR-I4"
+      ],
+      "trace_down": {
+        "req": [
+          "REQ-055"
+        ],
+        "fr": [
+          "FR-48"
+        ]
+      },
+      "mandated_groups": [],
+      "fill": "R+C"
+    },
+    {
       "id": "BR-A2",
       "group": "A. ループ駆動（外殻）",
       "title": "媒体別サイクルの独立並走",
@@ -1802,5 +1960,5 @@
   "approved_at": "2026-08-01T00:00:00+09:00",
   "authority": "PO",
   "supersedes": [],
-  "approval_digest": "d5a8189e1cb2"
+  "approval_digest": "3a8888403ce6"
 }

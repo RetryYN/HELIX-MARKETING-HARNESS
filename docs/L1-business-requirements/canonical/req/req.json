@@ -1069,6 +1069,66 @@
           "FR-28"
         ]
       }
+    },
+    {
+      "id": "REQ-053",
+      "text": "下流戦術 OS が pull・WIP 制限・blocked 管理・flow 指標を持つ Kanban として連続運転し、Scrum は補充・レビュー・振り返りの cadence に限定されること",
+      "source_refs": [
+        "BR-J1"
+      ],
+      "related": [
+        "FR-17"
+      ],
+      "fill_route": "C",
+      "priority": "M",
+      "trace": {
+        "upstream": [
+          "BR-J1"
+        ],
+        "downstream": [
+          "FR-17"
+        ]
+      }
+    },
+    {
+      "id": "REQ-054",
+      "text": "business_profile 配下の複数 bounded domain が registry と安全な workspace 契約で隔離され、domain root 外への path escape と暗黙共有が拒否されること",
+      "source_refs": [
+        "BR-J2"
+      ],
+      "related": [
+        "FR-35"
+      ],
+      "fill_route": "H",
+      "priority": "M",
+      "trace": {
+        "upstream": [
+          "BR-J2"
+        ],
+        "downstream": [
+          "FR-35"
+        ]
+      }
+    },
+    {
+      "id": "REQ-055",
+      "text": "上流戦略 OS の版付き判断により domain ごとの実媒体 binding を追加・一時停止・廃止・差替えでき、下流結果が TLP として上流へ還流すること",
+      "source_refs": [
+        "BR-J3"
+      ],
+      "related": [
+        "FR-48"
+      ],
+      "fill_route": "R+C",
+      "priority": "M",
+      "trace": {
+        "upstream": [
+          "BR-J3"
+        ],
+        "downstream": [
+          "FR-48"
+        ]
+      }
     }
   ]
 }

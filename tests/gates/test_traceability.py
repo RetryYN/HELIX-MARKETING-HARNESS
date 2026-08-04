@@ -10,6 +10,28 @@ def test_chain_is_bidirectional_on_real_contracts() -> None:
     assert traceability.detect_orphan_s0_ac(CTX.allc, CTX.acc, CTX.duc) == []
 
 
+def test_requirements_defined_s1_may_defer_cmp_but_s0_may_not() -> None:
+    deferred = next(c for c in CTX.allc if c["id"] == "FR-17")
+    assert deferred["slice"] == "S1" and deferred["design_status"] == "requirements_defined"
+    assert not deferred["trace_down"].get("cmp")
+    promoted = [{**c, "slice": "S0"} if c["id"] == "FR-17" else c for c in CTX.allc]
+    faults = traceability.detect_chain_asymmetry(
+        CTX.brc, CTX.req, promoted, CTX.acc, CTX.cmpc, CTX.duc, CTX.tcc)
+    assert "FRSR-DESIGN-STATUS:FR-17:requirements_defined宣言不整合" in faults
+
+
+def test_mutation_removing_cmp_from_existing_s1_is_detected() -> None:
+    victim = next(c for c in CTX.allc if c["slice"] == "S1" and c["trace_down"].get("cmp"))
+    mutated = [
+        {**c, "trace_down": {**c["trace_down"], "fn": [], "cmp": []}}
+        if c["id"] == victim["id"] else c
+        for c in CTX.allc
+    ]
+    faults = traceability.detect_chain_asymmetry(
+        CTX.brc, CTX.req, mutated, CTX.acc, CTX.cmpc, CTX.duc, CTX.tcc)
+    assert f"FRSR→CMP:{victim['id']}:CMP未接続" in faults
+
+
 def test_mutation_one_way_br_req_edge_is_detected() -> None:
     mutated = [{**CTX.brc[0],
                 "trace_down": {**CTX.brc[0]["trace_down"],

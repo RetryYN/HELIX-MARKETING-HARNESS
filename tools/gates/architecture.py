@@ -380,7 +380,8 @@ def _transitions(ctx: Ctx) -> None:
     rows = tr.get("items") or tr.get("rows")
     allbr = {i["id"] for i in ctx.br}
     trbr = {x.get("br") or x.get("BR") for x in rows}
-    gate("G-TRC-BR", trbr == allbr, f"trace 38 行が全 BR をカバー (欠落={sorted(allbr - trbr)})")
+    gate("G-TRC-BR", trbr == allbr,
+         f"trace が現役 BR 全件をカバー (行={len(rows)}, 欠落={sorted(allbr - trbr)})")
 
 
 def _brief_db(ctx: Ctx) -> None:

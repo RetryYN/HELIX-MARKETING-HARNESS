@@ -199,14 +199,14 @@ def _json_syntax() -> None:
 
 
 def _counts(ctx: Ctx) -> None:
-    gate("G-CNT-BR", len(ctx.br) == 38 == md_count(L1 / "canonical/br-backbone_v0.1.md",
-                                                   r"\*\*(BR-[A-I]\d)\*\*"), "BR=38 (MD/JSON)")
-    gate("G-CNT-REQ", len(ctx.req) == 52 == md_count(L1 / "canonical/requirement-list_v0.1.md",
-                                                     r"(REQ-\d{3})"), "REQ=52 (MD/JSON)")
+    md_br = md_count(L1 / "canonical/br-backbone_v0.1.md", r"\*\*(BR-[A-Z]\d)\*\*")
+    md_req = md_count(L1 / "canonical/requirement-list_v0.1.md", r"(REQ-\d{3})")
+    gate("G-CNT-BR", len(ctx.br) == md_br, f"BR JSON↔MD 件数一致 (JSON={len(ctx.br)}, MD={md_br})")
+    gate("G-CNT-REQ", len(ctx.req) == md_req, f"REQ JSON↔MD 件数一致 (JSON={len(ctx.req)}, MD={md_req})")
     req_md = L3 / "canonical/functional/requirements_v0.1.md"
     md_fr = md_count(req_md, r"\*\*(FR-\d+)\*\*")
     md_nfr = md_count(req_md, r"\*\*(NFR-\d+)")
-    gate("G-CNT-FR", len(ctx.fr) == 36 == md_fr, f"FR=36 (MD={md_fr}/JSON={len(ctx.fr)})")
+    gate("G-CNT-FR", len(ctx.fr) == md_fr, f"FR JSON↔MD 件数一致 (MD={md_fr}/JSON={len(ctx.fr)})")
     gate("G-CNT-NFR", len(ctx.nfr) == 10 == md_nfr, f"NFR=10 (MD={md_nfr}/JSON={len(ctx.nfr)})")
     md_fn = md_count(L3 / "canonical/functional/function-list_v0.1.md", r"\| (FN-\d{3}) \|")
     gate("G-CNT-FN", len(ctx.fn) == 61 == md_fn, f"FN=61 (MD={md_fn}/JSON={len(ctx.fn)})")
@@ -220,12 +220,23 @@ def _counts(ctx: Ctx) -> None:
     gate("G-CNT-WF", len(wf) == 49, f"WF=49 (JSON={len(wf)})")
 
     cur = current_denominators(ctx)
-    want = {"AC_CONTRACT": 218, "TCC": 224, "API": 58, "API_UT": 199}
-    gate("G-CNT-CONTRACT", cur == want,
-         f"現行分母 AC=218／TCC=224／API=58／API_UT=199（旧 19/59/69 は使わない） (実={cur})")
+    base = ROOT / "docs/00-authority/baselines/baseline.json"
+    approved = load(base).get("contract_counts", {}) if base.exists() else {}
+    minimums = {
+        "AC_CONTRACT": approved.get("AC_CONTRACT", 218),
+        "TCC": approved.get("TCC", 224),
+        "API": approved.get("API", 58),
+        "API_UT": approved.get("API_UT", 199),
+    }
+    count_ok = (cur["AC_CONTRACT"] >= minimums["AC_CONTRACT"]
+                and cur["TCC"] >= minimums["TCC"]
+                and cur["API"] == minimums["API"]
+                and cur["API_UT"] == minimums["API_UT"])
+    gate("G-CNT-CONTRACT", count_ok,
+         "現行契約分母は AC/TCC の増加を許し、API/API_UT は設計正本と一致する"
+         f"（縮小は baseline ratchet が拒否） (最小={minimums}, 実={cur})")
 
     hist_bad = detect_legacy_denominator_leaks()
-    base = ROOT / "docs/00-authority/baselines/baseline.json"
     if base.exists():
         recorded = load(base).get("historical_counts", {})
         if recorded != HISTORICAL_COUNTS:
@@ -312,7 +323,7 @@ def _frsr_contracts(ctx: Ctx) -> None:
     cov_ok = {i["id"] for i in ctx.frc} == fr_ids and {i["id"] for i in ctx.src} == sr_ids
     tbl_faults = detect_contract_table_faults(ctx.allc, ctx.ddl_tables, ctx.trn_states)
     gate("G-FRSR-CONTRACT", not c_errs and cov_ok and not tbl_faults,
-         f"FR/SR 実行契約: schema 適合＋FR36/SR16 完全被覆＋DDL/遷移正本と突合 "
+         f"FR/SR 実行契約: schema 適合＋現役 FR/SR 完全被覆＋DDL/遷移正本と突合 "
          f"(err={c_errs[:3]}, cov={cov_ok}, 突合={sorted(set(tbl_faults))[:5]})")
 
     n_errs: list[str] = []

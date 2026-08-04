@@ -594,6 +594,39 @@
       }
     },
     {
+      "id": "FR-17",
+      "kind": "FR",
+      "text": "Kanban flow 制御: ready item は pull gate と WIP limit を満たす場合だけ claim でき、blocked 理由・解除条件と flow 指標を状態履歴から再構成できる。Scrum は replenishment/review/retrospective cadence とし連続運転を止めない",
+      "area": "loop",
+      "slice": "S1+",
+      "trace": {
+        "upstream": ["BR-J1"],
+        "downstream": []
+      }
+    },
+    {
+      "id": "FR-35",
+      "kind": "FR",
+      "text": "bounded domain registry: business_profile 配下の複数 domain を registry・manifest・canonical workspace root で一意化し、越境・path traversal・symlink escape・archived 書込みを拒否する",
+      "area": "profile-domain",
+      "slice": "S1+",
+      "trace": {
+        "upstream": ["BR-J2"],
+        "downstream": []
+      }
+    },
+    {
+      "id": "FR-48",
+      "kind": "FR",
+      "text": "media binding lifecycle: 有効な strategy revision と media_role を実媒体・connector・workflow・playbook へ版付きで束縛し、追加・pause・retire・replacement と TLP 還流を外殻非侵襲で行う",
+      "area": "connector-strategy",
+      "slice": "S1+",
+      "trace": {
+        "upstream": ["BR-J3"],
+        "downstream": []
+      }
+    },
+    {
       "id": "NFR-1",
       "kind": "NFR",
       "title": "fail-close: 全ゲートは判定不能時に「通さない」側へ倒す。ゲートの無効化フラグを持たない",

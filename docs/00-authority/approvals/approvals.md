@@ -85,6 +85,28 @@
 | 2026-08-01 | skip-budget | 0→194 | approved | PO | 全層再降下 §8 — DU 23 契約の API 58 本に対する test-first スタブ 185 本＋⑥既存分（S0.1 実装で解消） |
 | 2026-08-02 | skip-budget | 194→204 | approved | PO | 未被覆 API／更新境界最終是正 — S0.1 の契約節を UT へ直接接続するための test-first スタブ 10 本の追加（S0.1 実装で red→green 化して解消） |
 
+## Kanban-first・複数 domain 要求定義（2026-08-05）
+
+> PO の本スレッド指示「HELIX は開発方式」「製品内部は Kanban/Scrum 的」「上流戦略 OS と下流戦術 OS が相互連携し媒体は可変」「複数 domain 管理」を内容束縛した receipt。
+
+| 日付 | 対象 | 版 | 判断 | 承認者 | digest | 備考 |
+|---|---|---|---|---|---|---|
+| 2026-08-05 | marketing-harness-charter | v0.4 | confirmed | PO | db974edfd358 | 開発方式 HELIX V-model と製品 runtime Kanban-first + Scrum cadence の分離 |
+| 2026-08-05 | br-backbone | v0.1 | confirmed | PO | 9e775f3f5173 | BR-J1〜J3（Kanban／bounded domain／media binding）追加 |
+| 2026-08-05 | requirement-list | v0.1 | confirmed | PO | 1e84b520a4bf | REQ-053〜055 追加 |
+| 2026-08-05 | requirements | v0.1 | confirmed | PO | 7c2d6ec07e55 | FR-17／35／48 の要求ビュー・trace 追加 |
+| 2026-08-05 | br-contracts.json | v0.1 | confirmed | PO | 3a8888403ce6 | BR 41 件の JSON 内容正本 |
+| 2026-08-05 | fr-contracts.json | v0.1 | confirmed | PO | f8b833d1fa3b | FR 39 件の実行契約正本 |
+| 2026-08-05 | fr-contracts.json | v0.1 | confirmed | PO | 8ef8768e1fe1 | requirements_defined と design_defined の境界を明示し既存要件の降下逃れを拒否 |
+| 2026-08-05 | ac-contracts.json | v0.1 | confirmed | PO | ea6135f26ad7 | AC 227 件・新規3FRの3極性 |
+| 2026-08-05 | tc-contracts.json | v0.1 | confirmed | PO | 6854e1f24683 | TCC 233 件・新規AC双方向接続 |
+| 2026-08-05 | br-contracts | v0.1 | confirmed | PO | e195af28ecf4 | JSON正本の生成ビュー |
+| 2026-08-05 | fr-contracts | v0.1 | confirmed | PO | 4a4bd1c40920 | JSON正本の生成ビュー |
+| 2026-08-05 | fr-contracts | v0.1 | confirmed | PO | d3de77c171a5 | design_status receipt 反映後の生成ビュー |
+| 2026-08-05 | requirements | v0.1 | confirmed | PO | ffe5af474f2a | BR-J1／J2／J3 を FR 群見出しにも明示し、Kanban／domain／media binding の上流対応を可視化 |
+| 2026-08-05 | ac-catalog | v0.1 | confirmed | PO | 8db2287e7693 | JSON正本の生成ビュー |
+| 2026-08-05 | tc-catalog | v0.1 | confirmed | PO | 7707995c9712 | JSON正本の生成ビュー |
+
 ## 全層再降下（粒度是正）の完遂承認
 
 | 日付 | 対象 | 版 | 判定 | 承認者 | digest | 備考 |

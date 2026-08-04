@@ -359,6 +359,33 @@
         ]
       },
       "fill_route": null
+    },
+    {
+      "id": "BR-J1",
+      "text": "下流戦術 OS を pull・WIP 制限・blocked 管理・flow 指標を持つ Kanban として連続運転し、Scrum は replenishment・review・retrospective の cadence に限定する",
+      "trace": {
+        "upstream": [],
+        "downstream": ["REQ-053"]
+      },
+      "fill_route": "C"
+    },
+    {
+      "id": "BR-J2",
+      "text": "business_profile 配下に複数 bounded domain を registry と安全な workspace 契約で分離し、越境・path escape・暗黙共有を構造的に拒否する",
+      "trace": {
+        "upstream": [],
+        "downstream": ["REQ-054"]
+      },
+      "fill_route": "H"
+    },
+    {
+      "id": "BR-J3",
+      "text": "上流戦略 OS の版付き判断により実媒体 binding を追加・一時停止・廃止・差替えし、下流の結果を TLP で上流へ還流する",
+      "trace": {
+        "upstream": [],
+        "downstream": ["REQ-055"]
+      },
+      "fill_route": "R+C"
     }
   ]
 }

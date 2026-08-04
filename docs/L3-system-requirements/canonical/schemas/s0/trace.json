@@ -155,6 +155,18 @@
     {
       "br": "BR-I7",
       "fr_nfr": "NFR-3"
+    },
+    {
+      "br": "BR-J1",
+      "fr_nfr": "FR-17"
+    },
+    {
+      "br": "BR-J2",
+      "fr_nfr": "FR-35"
+    },
+    {
+      "br": "BR-J3",
+      "fr_nfr": "FR-48"
     }
   ]
 }

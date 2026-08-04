@@ -2,7 +2,7 @@
 
 # テストケース 検証契約カタログ（TC contracts）v0.1
 
-> status: **confirmed**（2026-08-01 PO 承認 — receipt c60db3bc035d）。JSON 内容正本の生成ビュー（全層再降下 §5）
+> status: **confirmed**（2026-08-01 PO 承認 — receipt 6854e1f24683）。JSON 内容正本の生成ビュー（全層再降下 §5）
 > 全 AC 検証契約と双方向接続（G-TRACE-BIDIR）。状態・DB 差分・証跡・禁止副作用・外部呼出回数を検証。
 > 旧体系のテストケースは historical 記録のみ（現行分母は本カタログ）。
 
@@ -232,5 +232,14 @@
 | TCC-11-6 | reject | AC-11-6 | tasks.state = 'escalated' | external_operations 1 行 UPDATE（sent→unknown）、tasks 1 行 UPDATE（in_progress→escalated）、state_transitions +1 行（event='escalate'）、送信系の新規行 0 | external_operations の sent 行が unknown 化され、operation_log 証跡に再送行が増えないこと | 照合不能時の再送・confirmed 化・done 遷移 | 照合 1 回・送信 0 回 | S0 |
 | TCC-12-5 | normal | AC-12-5 | workflows の行・列が前後で不変 | 差分なし | なし（証跡行が作られないこと） | 定義の暗黙補完・enum 外 kind の黙認・load による workflows 書込み | 0 回 | S0 |
 | TCC-12-6 | reject | AC-12-6 | 実行が開始されず tasks に新規行が生じない | 差分なし | なし（証跡行が作られないこと） | 破損定義での実行開始・既定値による補完・例外の握り潰し | 0 回 | S0 |
+| TCC-17-1 | normal | AC-17-1 | 優先 item A=in_progress、B=pending、lane WIP=limit | tasks A 1行 UPDATE、state_transitions +1行 | policy version 付き pull 遷移と flow snapshot | 二重 claim・WIP 超過・他 domain の変更 | 0 回 | S1 |
+| TCC-17-2 | reject | AC-17-2 | 対象 item=pending、WIP と claim owner は不変 | 業務状態差分なし、拒否遷移 +1行 | WIP_LIMIT／PULL_GATE_REQUIRED の拒否理由 | 上限超過 claim・push bypass・expedite 自由記述による迂回 | 0 回 | S1 |
+| TCC-17-3 | resume | AC-17-3 | block 中は blocked、再起動・unblock 後は同一 item が in_progress | tasks 2 UPDATE、block/unblock 遷移 +2行 | 理由・解除根拠・blocked time・policy fallback の履歴 | cadence 境界の強制完了・blocked item の WIP 除外 | 0 回 | S1 |
+| TCC-35-1 | normal | AC-35-1 | 同一 profile 配下に active domain 2件、root と manifest は相互非重複 | planned bounded_domains +2行、既存 profile/domain 不変 | domain ID・manifest version/hash・canonical root の整合記録 | 共有 drafts/assets-src・媒体名固定 directory・他 profile root の変更 | 0 回（local filesystem のみ） | S1 |
+| TCC-35-2 | reject | AC-35-2 | 全 domain root・registry・manifest が操作前と同一 | 差分なし | PATH_ESCAPE／SYMLINK_ESCAPE／CROSS_DOMAIN の拒否ログ | root 外生成・越境内容返却・orphan staging | 0 回（local filesystem のみ） | S1 |
+| TCC-35-3 | resume | AC-35-3 | recovery 後 active domain 1件、orphan staging 0、archived domain 不変 | planned bounded_domains +1行、archived domain 差分なし | staging recovery decision と archived write 拒否 | 二重登録・不一致 staging の採用・archived root への書込み | 0 回（local filesystem のみ） | S1 |
+| TCC-48-1 | normal | AC-48-1 | strategy trace 完全な active binding 1件、対象 work item のみ pull eligible | planned media_bindings +1行（planned→active）、外部操作差分なし | brief/revision→role→connector/workflow/playbook→binding の trace | 戦略正本直接更新・外殻/固定 directory 変更・外部投稿 | 0 回 | S1 |
+| TCC-48-2 | reject | AC-48-2 | 新規 active binding 0件、既存 task/brief/外部操作は不変 | 業務状態差分なし、拒否ログのみ | 5種の binding activation 拒否理由 | 推測補完・下流 pull・strategic_briefs 更新・外部呼出 | 0 回 | S1 |
+| TCC-48-3 | resume | AC-48-3 | V2 active、V1 retired、旧 task 終端、旧 binding trace 付き TLP 1件 | planned bindings 2 status 更新、task 終端、TLP +1行 | operation recovery・supersedes・drain decision・TLP trace | V1 新規 pull・履歴破壊・意図しない active 0件/無期限2件 | 0 回 | S1 |
 
 検証手段（method）の全文は JSON 正本を参照。

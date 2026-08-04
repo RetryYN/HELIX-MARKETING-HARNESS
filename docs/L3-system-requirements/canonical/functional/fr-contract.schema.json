@@ -222,6 +222,14 @@
       ],
       "description": "実装スライス（AC 必須判定・降下義務の基準）"
     },
+    "design_status": {
+      "type": "string",
+      "enum": [
+        "requirements_defined",
+        "design_defined"
+      ],
+      "description": "L3 要求定義と L4+ 設計降下の境界。省略時は後方互換のため design_defined と扱う。requirements_defined は S1+ かつ FN/CMP 未接続の場合だけ許可。"
+    },
     "ac_na": {
       "type": "object",
       "additionalProperties": false,
