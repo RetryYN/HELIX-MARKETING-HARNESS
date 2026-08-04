@@ -9,8 +9,8 @@
   "review_log_path": "docs/00-authority/reviews/logs/REV-S0-STRUCT-15.jsonl",
   "review_log_digest": "4ce65ba7c77cd4ee",
   "model": "gpt-5.6-sol",
-  "target_commit": "3745d1cf6bc814a6f562214e81240a416a7832c4",
-  "target_tree": "362f18bfd82ba84ef883a06b1de898514076ac8d",
+  "target_commit": "ac8670b2a2d3e91bdc2452805d9c50247fa8a6b5",
+  "target_tree": "bced183790f63ea8ba4e1ca64175e5b46f9104a5",
   "scope": "S0.1 Atomic Unit 正本、schema、ゲート、mutation test、Workset 連携、coverage scope、manifest、baseline の最終レビュー。複数 API 結合を上流依存グラフから導出した SCC のみに限定し、自己申告による非 SCC 結合を拒否する。",
   "supersedes_review": [
     "REV-S0-STRUCT-14"
