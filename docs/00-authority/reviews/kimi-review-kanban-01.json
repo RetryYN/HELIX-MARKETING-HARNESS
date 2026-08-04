@@ -10,8 +10,8 @@
   "review_log_digest": "ffaf7eb3736ef48b",
   "separation_status": "self_attested",
   "model": "kimi-code",
-  "target_commit": "af6a545cf863a73cba4c22f0eaee4384f2f3679a",
-  "target_tree": "420ba8f2ce37fe167689273bfb119e0f4f003cac",
+  "target_commit": "d31c70103b9dbe73840e8b89b2ba2b2e0fb857e0",
+  "target_tree": "d5666ff1c42bc8cd4374be1db5f048515d0a5a71",
   "scope": "Kanban-first、複数 bounded domain、戦略駆動 media binding の L3 要求定義と、要件分母・設計降下 gate の退行防止",
   "supersedes_review": [
     "REV-S0-DESIGN-02",
@@ -23,6 +23,7 @@
     "README.md": "2e22ea02d1ef7b34",
     "docs/00-authority/approvals/approvals.md": "6c60f350d7a0f323",
     "docs/00-authority/artifact-manifest.json": "7f4300dcc8f1c6ab",
+    "docs/00-authority/baselines/baseline.json": "230fdfbc671009af",
     "docs/00-authority/requirements-gates.md": "a3b8e626136ea0e9",
     "docs/00-authority/reviews/logs/REV-KIMI-KANBAN-01.jsonl": "ffaf7eb3736ef48b",
     "docs/L0-charter/canonical/marketing-harness-charter_v0.4.md": "db974edfd358e064",
