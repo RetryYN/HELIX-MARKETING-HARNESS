@@ -91,7 +91,7 @@ slice: cross
 | G-STRATEGY-VERSION | 全上流モデルが version 必須＋supersedes_id 定義（変異検出自己検査込み）、DDL append-only を実 DML で実証 | 上流正本の上書き |
 | G-MEDIA-ROLE | 役割台帳 12 語彙以上＋brief の役割/認識変化必須＋台帳外役割 fixture を拒否 | 媒体名の役割僭称 |
 | G-CONTENT-VALUE-DEFINITION | コンテンツ企画 5 宣言契約＋宣言欠落 fixture を拒否 | 認識変化を宣言しない量産 |
-| G-STRAT-PAIR | SR16／SCM10／AC-SR6 の双方向カバー＋戦略 4 文書の相互 pair＋全戦略ゲートに拒否系 STC | 片肺の戦略層 |
+| G-STRAT-PAIR | SR19／SCM10／AC-SR6 の双方向カバー＋戦略 4 文書の相互 pair＋全戦略ゲートに拒否系 STC | 片肺の戦略層 |
 
 ## architecture — 構造・DB 層
 

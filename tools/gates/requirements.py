@@ -53,6 +53,7 @@ STRATEGY_SCHEMAS = [
     "market-observation", "market-model", "segment-context", "problem-model",
     "value-hypothesis", "category-definition", "positioning-hypothesis", "causal-assumption",
     "strategic-choice", "strategic-brief", "tactical-learning-packet", "strategy-revision",
+    "logic-tree", "inference-analysis",
 ]
 STRAT_GATES = ["G-STRAT-BRIEF", "G-STRAT-TRACE", "G-SEGMENT-CONTEXT", "G-OBS-INTERPRETATION",
                "G-LEARNING-TRACE", "G-NO-DIRECT-STRATEGY-MUTATION", "G-REVISION-EVIDENCE",
@@ -587,9 +588,9 @@ def _strategy_pair(ctx: Ctx, sch: dict) -> None:
                        and set(a["du"]) <= du_ids for a in acsr)
                and {x for a in acsr for x in a["stc"]} == {f"STC-I-0{i}" for i in range(1, 7)})
     gate("G-STRAT-PAIR",
-         mut_detects and acsr_ok and len(ctx.sr) == 16 == sr_md and len(ctx.scm) == 10 and pair_ok
+         mut_detects and acsr_ok and len(ctx.sr) == 19 == sr_md and len(ctx.scm) == 10 and pair_ok
          and sr_ids == cov_sr and {c["id"] for c in ctx.scm} == cov_scm
          and all(g in neg for g in STRAT_GATES) and not missing_fx,
-         f"SR16/SCM10/AC-SR6 双方向カバー＋4 文書相互 pair＋全戦略ゲートに拒否系 STC "
+         f"SR19/SCM10/AC-SR6 双方向カバー＋4 文書相互 pair＋全戦略ゲートに拒否系 STC "
          f"(SR差={sorted(sr_ids ^ cov_sr)}, AC-SR={acsr_ok}, negative欠={sorted(set(STRAT_GATES) - neg)}, "
          f"fixture欠={missing_fx})")

@@ -10,7 +10,7 @@ slice: cross
 > pair: [strategy-loop-test-design_v0.1.md](../../../L4-basic-design/integration-tests/strategy-loop-test-design_v0.1.md)（戦略層テスト設計 — HELIX 式文書ペア）
 > 上位文書: [marketing-harness-charter_v0.4.md](../../../L0-charter/canonical/marketing-harness-charter_v0.4.md)（北極星）／
 > [loop-task-workflow_v0.1.md](../../../L1-business-requirements/canonical/loop-task-workflow_v0.1.md)（LP-U の工程名は本書でも維持）
-> 機械可読正本: [json/strategy/](./)（12 schema・媒体役割台帳・コンテンツ企画契約・[sr.json](sr.json)）。
+> 機械可読正本: [json/strategy/](./)（14 schema・媒体役割台帳・コンテンツ企画契約・[sr.json](sr.json)）。
 > 契約詳細（brief／TLP／revision）は [strategy-learning-contract_v0.1.md](strategy-learning-contract_v0.1.md)。
 > **実行契約正本（2026-08-01 全層再降下 §3）**: 各 SR の 18 観点実行契約 =
 > [json/strategy/sr-contracts.json](sr-contracts.json)
@@ -110,7 +110,34 @@ S0.1 の完了条件に含める**（s0-contract §7）。戦略層は独立し�
   S0 構造を壊さず追加できることは、DDL（strategic_briefs／TLP が先行配置済み）と
   戦略層テスト設計（STC）で保証する。S0 の FN 数・媒体数・制作機能は本要件で増やさない。
 
-## 7. ゲートとトレース
+## 7. ロジックツリーと統合分析による仮説検証（S2 スライス — 2026-08-05 PO 指示）
+
+上流と下流のループを仮説検証で閉じるため、戦略仮説を検証可能なツリー構造として保持し、
+運用後の学習と統合データ分析をノード単位で突き当てる。実装は S2 スライス（要求定義のみ本書で確定）。
+
+- **SR-17 ロジックツリー構築**: 戦略判断（strategic_choice）と同時に `logic_tree`
+  （[schema](../schemas/strategy/logic-tree.schema.json)）を構築する。ノードの整理軸は
+  **segment／target／needs／insight／psychological_conversion／behavioral_conversion／
+  situation／literacy の 8 種のみ**（語彙外拒否）。positioning は演出軸であり
+  ノード語彙に含めない（SR-19 の還流先として扱う）。各ノードは意味モデル
+  （segment_context／value_hypothesis／causal_assumption 等）と KPI ツリー上の観測指標へ
+  trace し、trace なしの自由記述ノードを正本にしない。ロジックツリーは因果背骨であり、
+  KPI ツリー（SR-12 観測背骨）を置換せず併存・接続する。
+- **SR-18 運用後のツリー検証**: TLP（SR-08）受領時、その学習をロジックツリーの特定ノードへ
+  突き当て、**supported／refuted／inconclusive** の判定を証跡参照付き・append-only で記録する
+  （既存判定の書換え禁止 — SR-11 と同規律）。ツリー対象ノードに関する strategy_revision は
+  ノード判定を根拠に含める。SR-16 の一周判定はノード更新の有無で機械判定できるようになる。
+- **SR-19 統合データ分析による関係推定**: 分析成果物（`inference_analysis` —
+  [schema](../schemas/strategy/inference-analysis.schema.json)）は**手法非拘束**
+  （MMM・CausalImpact・DiD・実験等を問わない）だが、relationship_claim を
+  **correlation／spurious_candidate／causal の 3 水準**で宣言し、不確実性区間・交絡検討・
+  入力系列 digest を必須とする。correlation 水準のみで supported を宣言できない。
+  受理 claim は SR-18 のノード判定の証拠となり、検証済みの強み・差別化候補は
+  **USP／SWOT 型の演出プラン入力**（strength／weakness／opportunity／threat／
+  differentiation_candidate）として positioning_hypothesis の調整材料へ還流する
+  （反映は strategy_revision 経由のみ — SR-09/10 維持）。
+
+## 8. ゲートとトレース
 
 本書の要件は fail-close ゲート（G-STRAT-BRIEF／G-STRAT-TRACE／G-SEGMENT-CONTEXT／
 G-OBS-INTERPRETATION／G-LEARNING-TRACE／G-NO-DIRECT-STRATEGY-MUTATION／G-REVISION-EVIDENCE／
@@ -120,4 +147,4 @@ json/strategy/fixtures/ の invalid fixture を拒否できることを毎 push 
 
 上流トレース: SR-01/12/16 → charter v0.4 §3・BR-A1/A3・P2/P3、SR-02..05 → BR-A3・BR-E1、
 SR-06/07/14 → BR-A2・FR-11/14、SR-08..10 → BR-B2/B3・FR-15/22、SR-11 → NFR-2/3・HELIX ratchet、
-SR-13 → BR-G1/G2・P5、SR-15 → charter §7 スライス駆動。
+SR-13 → BR-G1/G2・P5、SR-15 → charter §7 スライス駆動、SR-17..19 → BR-A3・BR-E1（仮説検証ループの閉合）。

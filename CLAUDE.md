@@ -38,7 +38,7 @@
 - 文書ペア（HELIX 式・片肺禁止）3 層: ①要件定義↔③検証設計、②基本設計↔④総合テスト設計（ITC 16）、
   ⑤詳細設計↔⑥単体テスト設計（DU 23）。ペアの正本は manifest の `pair_artifact_id`。
   戦略層は strategy-loop-requirements／strategy-learning-contract ↔ strategy-loop-design／
-  strategy-loop-test-design のペア（SR 16／SCM 10／STC）。
+  strategy-loop-test-design のペア（SR 19／SCM 10／STC）。
   DDL・状態遷移・evidence 型・WF 契約の正準は docs/L3-system-requirements/canonical/s0-contract_v0.1.md。
 - 現在地（この 7 行が正本。他所へ現在地を書かない。完了宣言は**更新単位**で、
   docs/L6-feature-design/S0/update-closure.json の宣言と実態の一致を G-UPDATE-DESIGN-CLOSURE が検査する）:
@@ -47,6 +47,7 @@
   - S0.2 設計クロージャー未了（planned・未被覆 API 5）
   - S0.3 設計クロージャー未了（planned・未被覆 API 1）
   - 今回追加した Kanban／bounded domain／media binding は L3 要求定義まで完了、S1 設計は未着手
+  - ロジックツリー／統合因果分析（SR-17〜19）は L3 要求定義まで完了、実装は S2 スライス・未着手
   - S0.1 実装未着手
   - HELIX-HARNESS 取込は未実施・PO 判断待ち
 - 実装・検証の入力は **契約正本 9 本**（JSON）のみ:

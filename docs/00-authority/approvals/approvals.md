@@ -352,3 +352,7 @@
 | 2026-08-02 | du-contracts | v0.1 | confirmed | PO | 59dc6c35c9bb | 未被覆 API／更新境界最終是正（レビュー R1-01／R1-05 対応）: 内部分類の実質化と AC-11-6 の DB 差分是正に伴う内容束縛承認 |
 | 2026-08-02 | update-boundary-remediation-2026-08-02 | - | confirmed | PO | 9aeac2902df4 | 未被覆 API／更新境界最終是正（レビュー R2／R3 対応）: 内部分類の UT 直接接続化・ci_attested の fail-close 化に伴う内容束縛承認 |
 | 2026-08-02 | update-boundary-remediation-2026-08-02 | - | confirmed | PO | 02e867564eb4 | 未被覆 API／更新境界最終是正（レビュー R4-01 対応）: 監査記録の表記是正に伴う内容束縛承認 |
+| 2026-08-05 | sr-contracts.json | v0.1 | confirmed | PO | 9af2b10b3147 | SR-17〜19（ロジックツリー構築／運用後ノード検証／統合データ分析 3 水準・演出プラン還流）追加に伴う内容束縛承認（2026-08-05 PO 指示） |
+| 2026-08-05 | sr-contracts | v0.1 | confirmed | PO | cc6280f98d7c | SR-17〜19（ロジックツリー構築／運用後ノード検証／統合データ分析 3 水準・演出プラン還流）追加に伴う内容束縛承認（2026-08-05 PO 指示） |
+| 2026-08-05 | strategy-loop-requirements | v0.1 | confirmed | PO | a037537fa88c | SR-17〜19（ロジックツリー構築／運用後ノード検証／統合データ分析 3 水準・演出プラン還流）追加に伴う内容束縛承認（2026-08-05 PO 指示） |
+| 2026-08-05 | strategy-loop-test-design | v0.1 | confirmed | PO | 818f9be8eda1 | SR-17〜19（ロジックツリー構築／運用後ノード検証／統合データ分析 3 水準・演出プラン還流）追加に伴う内容束縛承認（2026-08-05 PO 指示） |
