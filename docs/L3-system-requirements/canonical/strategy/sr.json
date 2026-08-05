@@ -66,6 +66,18 @@
     {
       "id": "SR-16",
       "text": "意味モデルのいずれかが revision 経由で更新されて初めて上流ループ一周と判定する"
+    },
+    {
+      "id": "SR-17",
+      "text": "戦略仮説をロジックツリー（8 軸ノード語彙: segment／target／needs／insight／psychological_conversion／behavioral_conversion／situation／literacy）として構築し、各ノードは意味モデル・観測指標へ trace する。自由形式ノード・語彙外ノード禁止（positioning は演出軸としてノード語彙に含めない）"
+    },
+    {
+      "id": "SR-18",
+      "text": "運用後、TLP の学習をロジックツリーの特定ノードへ突き当て、supported／refuted／inconclusive を証跡付き・append-only で記録する。ツリー対象ノードに関する strategy_revision はノード判定を根拠に含める"
+    },
+    {
+      "id": "SR-19",
+      "text": "統合データ分析は手法非拘束で relationship_claim を相関／疑似相関候補／因果の 3 水準で宣言し、不確実性・交絡検討・入力系列 digest を必須とする。出力はノード判定の証拠および演出プラン（USP／SWOT 型分析による positioning 調整）の入力として strategy_revision 経由でのみ還流する"
     }
   ]
 }

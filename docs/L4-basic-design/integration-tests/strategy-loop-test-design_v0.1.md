@@ -53,6 +53,9 @@ slice: S0
 | STC-I-08 | SCM-05〜07／SR-02..05 | 上流モデル生成の schema 適合・棄却案保持・反証条件必須 | S1 |
 | STC-I-09 | SCM-10／SR-13 | 5 宣言を欠くコンテンツ企画の実行時拒否（拒否系） | S1 |
 | STC-I-10 | SR-16 | revision 経由の意味モデル更新のみが「一周」と計上される | S1 |
+| STC-I-11 | SR-17 | 語彙外 node_kind・trace 欠落・循環を持つ logic_tree の拒否（8 軸語彙のみ受理・拒否系） | S2 |
+| STC-I-12 | SR-18 | 証跡参照なしの node_verdict・既存判定の UPDATE/DELETE の拒否（append-only・拒否系） | S2 |
+| STC-I-13 | SR-19 | claim_level 未宣言・不確実性欠落・入力系列 digest なし・correlation のみ根拠の supported 宣言の拒否（拒否系） | S2 |
 
 拒否系（fail-close）は STC-G 8 本＋STC-I 5 本。STC-I の S0.1 分は S0.1 実装の完了条件に含める
 （既存 UT とは独立の追加テストであり、既存分母を変更しない）。

@@ -2,7 +2,7 @@
 
 # 戦略要件 実行契約（SR contracts） v0.1
 
-> status: **confirmed**（2026-08-01 PO 承認 — receipt 572e080e88bc）。JSON 内容正本の生成ビュー（全層再降下 §3）
+> status: **confirmed**（2026-08-05 PO 承認 — receipt 9af2b10b3147）。JSON 内容正本の生成ビュー（全層再降下 §3）
 > 各 SR に 18 観点の実行契約を必須化。brief／TLP／revision の正準は strategy-learning-contract。
 
 ## SR-01 二重ループの責務分離
@@ -341,3 +341,66 @@
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: 一周判定の対象 target_type 一覧（市場の捉え方〜戦略判断 — strategy-loop-requirements §1）
 - **trace**: 上流 = charter v0.4 §3 BR-A1 BR-A3 ／ 下流 = AC-SR-16-1 AC-SR-16-2 AC-SR-16-3 SCM-08 ／ スライス = S1
+
+## SR-17 ロジックツリー構築（8 軸ノード語彙・意味モデル trace 必須）
+
+- **入力**: logic_tree payload（ノード木。node_kind = segment／target／needs／insight／psychological_conversion／behavioral_conversion／situation／literacy）／各ノードの意味モデル参照（segment_context／value_hypothesis／causal_assumption／strategic_choice の ID）と観測指標参照
+- **出力**: 受理: logic_tree レコード（schema 適合・全ノード trace 済み）／拒否: 語彙外 node_kind・trace 欠落・循環を持つツリー
+- **事前条件**: logic-tree schema が json/strategy/ に確定済み／参照先の意味モデル schema（SR-03〜05）が確定済み
+- **事後条件**: 受理ツリーの全ノードが 8 軸語彙内の node_kind を持つ／全ノードが実在する意味モデル ID または観測指標へ trace している／ツリーは非循環（親参照の閉路なし）
+- **不変条件**: node_kind 語彙に positioning を含めない（演出軸は SR-19 の出力先であり、ツリーの整理軸ではない）／ロジックツリーは KPI ツリー（SR-12 観測背骨）を置換しない — 因果背骨として併存し、観測指標参照で接続する／自由記述のみのノード（trace なし）を正本にしない
+- **状態遷移**: なし
+- **正常動作**: logic_tree を schema 検証し、node_kind 語彙・意味モデル参照の実在・非循環を確認して受理する。ツリーは戦略判断工程（strategic_choice）と同時に構築・改版される。
+- **拒否・異常動作**: 語彙外 node_kind・参照先不在・循環を持つツリーは拒否し、operation_log 証跡へ記録する。判定不能は拒否。
+- **境界動作**: 観測指標参照のみで意味モデル参照を欠くノードは葉ノードに限り受理（観測端点）。中間ノードは意味モデル参照必須。
+- **再試行・再開・復旧**: ゲートは無状態（判定のみ）。再実行は同一判定。修正後の成果物は新版として再投入。
+- **人間判断／escalation**: なし（全自動。語彙・schema の変更は要件改訂）
+- **副作用**: 構造化ログ出力（拒否時）
+- **冪等性**: 判定は pure。同一 payload の再投入は同一判定・同一版。
+- **証跡**: 拒否の構造化ログ（欠落・違反フィールド一覧）
+- **使用テーブル・正本**: なし
+- **外部依存**: なし
+- **設定値**: なし ／ **固定値**: logic_tree schema の node_kind 語彙 8 種（json/strategy/）
+- **trace**: 上流 = BR-A3 BR-E1 ／ 下流 = （AC 割当待ち） ／ スライス = S2
+
+## SR-18 運用後のロジックツリー検証（ノード突き当て・append-only 判定）
+
+- **入力**: tactical_learning_packet（SR-08）／対象 logic_tree（SR-17）と突き当て先ノード ID
+- **出力**: 受理: node_verdict レコード（supported／refuted／inconclusive・証跡参照付き・append-only）／拒否: 証跡参照なしの判定・既存判定の書換え
+- **事前条件**: logic-tree-verification schema が json/strategy/ に確定済み／対象 TLP と logic_tree が正本に存在する
+- **事後条件**: 各判定が TLP・evidence へ接続している／判定は追記のみ（同一ノードへの再判定は新レコード）／ツリー対象ノードに関する strategy_revision がノード判定を根拠に含む
+- **不変条件**: 判定語彙は supported／refuted／inconclusive のみ／既存 node_verdict の UPDATE/DELETE 禁止（append-only — SR-11 と同規律）／数値変化のみを根拠とする自動判定・自動戦略変更をしない（SR-10 維持）
+- **状態遷移**: なし
+- **正常動作**: TLP 受領時に、その因果解釈・仮説判定を logic_tree の宛先ノードへ突き当て、node_verdict を証跡参照付きで追記する。SR-16 の一周判定はノード更新の有無で機械判定できる。
+- **拒否・異常動作**: 証跡参照を欠く判定・語彙外の判定・既存判定の変更は拒否し、operation_log 証跡へ記録する。
+- **境界動作**: どのノードにも突き当たらない TLP は受理するが inconclusive 判定すら生まない（突き当てゼロは許容し、未接続として可視化する）。
+- **再試行・再開・復旧**: ゲートは無状態（判定のみ）。再実行は同一判定。修正後の成果物は新版として再投入。
+- **人間判断／escalation**: なし（全自動。語彙・schema の変更は要件改訂）
+- **副作用**: 構造化ログ出力（拒否時）
+- **冪等性**: 判定は pure。同一 payload の再投入は同一判定・同一版。
+- **証跡**: 拒否の構造化ログ（欠落・違反フィールド一覧）
+- **使用テーブル・正本**: なし
+- **外部依存**: なし
+- **設定値**: なし ／ **固定値**: 判定語彙 supported／refuted／inconclusive（logic-tree-verification schema）
+- **trace**: 上流 = BR-A3 BR-E1 ／ 下流 = （AC 割当待ち） ／ スライス = S2
+
+## SR-19 統合データ分析による関係推定（手法非拘束・3 水準宣言・演出プラン還流）
+
+- **入力**: 分析成果物（inference_analysis payload — MMM・CausalImpact・DiD・実験等、手法は問わない）／入力系列（計測事実・media_role 別系列）の digest
+- **出力**: 受理: relationship_claim 群（correlation／spurious_candidate／causal の 3 水準・不確実性区間・交絡検討付き）／SR-18 の node_verdict への証拠接続／演出プラン入力（検証済み強み・差別化候補 = USP／SWOT 型分析の材料 → positioning_hypothesis 調整は strategy_revision 経由のみ）／拒否: 水準未宣言・不確実性なし・入力系列 digest なしの分析成果物
+- **事前条件**: inference-analysis schema が json/strategy/ に確定済み／入力系列が market_observation／計測事実として正本に存在する
+- **事後条件**: 全 claim が 3 水準のいずれかを宣言し、causal を名乗る claim は交絡検討を保持する／分析成果物が入力系列 digest・手法・モデル版を保持し再現可能である／positioning_hypothesis への反映が strategy_revision を経由している（直接変更なし — SR-09）
+- **不変条件**: 手法を固定しない（相関・疑似相関の弁別・因果推論が宣言できる限り MMM に限らない）／モデル出力単独で strategy_revision を起こさない（SR-10 の複数根拠要件）／correlation 水準の claim を causal として node_verdict の supported 根拠にしない
+- **状態遷移**: なし
+- **正常動作**: 分析成果物を schema 検証し、claim 水準・不確実性・交絡検討・入力 digest を確認して受理する。受理 claim は SR-18 の判定証拠となり、検証済みの強み・差別化候補は USP／SWOT 型の演出プラン起草（positioning 調整）の入力として strategy_revision 経由で還流する。
+- **拒否・異常動作**: 水準未宣言・不確実性欠落・digest なし・交絡検討なしで causal を名乗る成果物は拒否し、operation_log 証跡へ記録する。
+- **境界動作**: 少データ期は correlation／spurious_candidate 水準のみの成果物も受理する（causal は名乗れない）。単一介入の前後比較は介入時点と反実仮想の根拠を宣言すれば causal 候補として受理。
+- **再試行・再開・復旧**: ゲートは無状態（判定のみ）。再実行は同一判定。修正後の成果物は新版として再投入。
+- **人間判断／escalation**: なし（全自動。語彙・schema の変更は要件改訂）
+- **副作用**: 構造化ログ出力（拒否時）
+- **冪等性**: 判定は pure。同一 payload の再投入は同一判定・同一版。
+- **証跡**: 拒否の構造化ログ（欠落・違反フィールド一覧）
+- **使用テーブル・正本**: なし
+- **外部依存**: なし
+- **設定値**: なし ／ **固定値**: claim 水準語彙 correlation／spurious_candidate／causal（inference-analysis schema）
+- **trace**: 上流 = BR-A3 BR-E1 ／ 下流 = （AC 割当待ち） ／ スライス = S2

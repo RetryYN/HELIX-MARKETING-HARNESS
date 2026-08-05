@@ -1,0 +1,74 @@
+{
+  "review_id": "REV-KIMI-LOGIC-TREE-01",
+  "reviewer_principal": "kimi-code-cli",
+  "author_principal": "claude-fable-5",
+  "author_execution_id": "de14d6cd5cc60dcb",
+  "reviewer_execution_id": "session_8d1dfd35-7db6-4d9d-a9cb-981db804b387",
+  "review_run_id": "REV-KIMI-LOGIC-TREE-01-R1",
+  "reviewer_provider": "moonshot-kimi-code-cli",
+  "review_log_path": "docs/00-authority/reviews/logs/REV-KIMI-LOGIC-TREE-01.jsonl",
+  "review_log_digest": "ea9ee777b9fbf423",
+  "separation_status": "self_attested",
+  "model": "kimi-code",
+  "target_commit": "de14d6cd5cc60dcb8a58388a722bc450a3a7e3bd",
+  "target_tree": "51e31b05e62b8ec3fc93ee8c42bc9609e72b0e71",
+  "scope": "SR-17〜19（ロジックツリー構築／運用後ノード検証／統合データ分析）のL3要求定義と戦略層スキーマ・テスト設計・gate更新の整合性",
+  "supersedes_review": [
+    "REV-KIMI-KANBAN-01",
+    "REV-KIMI-WORKSPACE-02",
+    "REV-S0-DESIGN-02",
+    "REV-S0-STRUCT-01",
+    "REV-S0-STRUCT-03",
+    "REV-S0-STRUCT-04",
+    "REV-S0-STRUCT-05",
+    "REV-S0-STRUCT-06",
+    "REV-S0-STRUCT-07",
+    "REV-S0-STRUCT-08",
+    "REV-S0-STRUCT-09",
+    "REV-S0-STRUCT-10",
+    "REV-S0-STRUCT-11",
+    "REV-S0-STRUCT-12",
+    "REV-S0-STRUCT-13",
+    "REV-S0-STRUCT-14"
+  ],
+  "reviewed_artifact_digests": {
+    "CLAUDE.md": "ef0bc106e271100a",
+    "docs/00-authority/approvals/approvals.md": "eece76a45548f3ec",
+    "docs/00-authority/artifact-manifest.json": "49f59d93014977d0",
+    "docs/00-authority/baselines/baseline.json": "8738704caf14a89d",
+    "docs/00-authority/requirements-gates.md": "c89d3b56b79284c4",
+    "docs/L3-system-requirements/canonical/schemas/strategy/inference-analysis.schema.json": "56030430a3361193",
+    "docs/L3-system-requirements/canonical/schemas/strategy/logic-tree.schema.json": "cd20556e012421e6",
+    "docs/L3-system-requirements/canonical/strategy/sr-contracts.json": "bc94fddb3a2b9cc7",
+    "docs/L3-system-requirements/canonical/strategy/sr.json": "1cdedebf3d9d15fa",
+    "docs/L3-system-requirements/canonical/strategy/strategy-loop-requirements_v0.1.md": "a037537fa88c6c96",
+    "docs/L3-system-requirements/views/sr-contracts_v0.1.md": "cc6280f98d7c560c",
+    "docs/L4-basic-design/integration-tests/strategy-loop-test-design_v0.1.md": "818f9be8eda1df70",
+    "docs/L4-basic-design/integration-tests/strategy-tests.json": "0255cc4c3c9b508f",
+    "tools/gates/requirements.py": "25bde5e02e07d033"
+  },
+  "resolution_commits": [],
+  "verdict": "Go",
+  "completed_at": "2026-08-06",
+  "rounds": 1,
+  "findings": [
+    {
+      "severity": "minor",
+      "status": "accepted-as-is",
+      "summary": "inference-analysis.schema.json が node_verdicts を直接保持し、SR-18（TLP 由来の node_verdict）と SR-19（統合分析の relationship_claim）の責務境界がやや曖昧になる",
+      "resolution": "schema 上は分析側が verdict 提案を持ち SR-18 が証跡を検証・append-only 化する解釈が可能。現状の wording「SR-18 の node_verdict への証拠接続」と両立し、S2 詳細設計で責務分割を明確化する。"
+    },
+    {
+      "severity": "minor",
+      "status": "accepted-as-is",
+      "summary": "logic-tree.schema.json の model_refs 語彙に PM/MM（problem-model/market-model）が含まれる一方、SR-17 実行契約本文では segment_context/value_hypothesis/causal_assumption/strategic_choice のみ列挙",
+      "resolution": "SR-03 で market_model/problem_model も意味モデル群であるため実質的に整合。契約文の列挙を補足するか S2 設計で語彙を揃える。"
+    },
+    {
+      "severity": "minor",
+      "status": "accepted-as-is",
+      "summary": "strategy-loop-requirements_v0.1.md 本文の status 行が 2026-08-01 のままで、2026-08-05 の再承認（approvals.md）と日付が一致しない",
+      "resolution": "G-STATUS-CONSISTENCY は frontmatter と manifest で整合を確認。本文 status 行の日付は次回ビュー生成時に揃えるか、手動で 2026-08-05 に修正してもよい。"
+    }
+  ]
+}

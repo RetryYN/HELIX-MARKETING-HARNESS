@@ -368,6 +368,42 @@
       "update": "S1",
       "test_file": "tests/unit/test_revision_engine.py",
       "text": "revision 経由更新のみ一周計上・役割台帳参照"
+    },
+    {
+      "id": "STC-I-11",
+      "kind": "impl",
+      "scm": [],
+      "sr": [
+        "SR-17"
+      ],
+      "polarity": "reject",
+      "update": "S2",
+      "test_file": "tests/unit/test_logic_tree.py",
+      "text": "語彙外 node_kind・trace 欠落・循環を持つ logic_tree の拒否（8 軸語彙のみ受理）"
+    },
+    {
+      "id": "STC-I-12",
+      "kind": "impl",
+      "scm": [],
+      "sr": [
+        "SR-18"
+      ],
+      "polarity": "reject",
+      "update": "S2",
+      "test_file": "tests/unit/test_logic_tree.py",
+      "text": "証跡参照なしの node_verdict・既存判定の UPDATE/DELETE の拒否（append-only）"
+    },
+    {
+      "id": "STC-I-13",
+      "kind": "impl",
+      "scm": [],
+      "sr": [
+        "SR-19"
+      ],
+      "polarity": "reject",
+      "update": "S2",
+      "test_file": "tests/unit/test_inference_analysis.py",
+      "text": "claim_level 未宣言・不確実性欠落・入力系列 digest なし・correlation のみ根拠の supported 宣言の拒否"
     }
   ]
 }

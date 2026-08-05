@@ -2214,7 +2214,7 @@
       "previous_paths": [
         "docs/requirements/json/strategy/sr-contracts.json"
       ],
-      "approval_digest": "572e080e88bc",
+      "approval_digest": "9af2b10b3147",
       "review_digest": null
     },
     {
@@ -2280,7 +2280,7 @@
       "previous_paths": [
         "docs/requirements/strategy-loop-requirements_v0.1.md"
       ],
-      "approval_digest": "9646272aab5a",
+      "approval_digest": "a037537fa88c",
       "review_digest": null
     },
     {
@@ -3086,7 +3086,7 @@
       "previous_paths": [
         "docs/design/strategy-loop-test-design_v0.1.md"
       ],
-      "approval_digest": "67759deee63a",
+      "approval_digest": "818f9be8eda1",
       "review_digest": null
     },
     {
@@ -3770,6 +3770,46 @@
       ],
       "previous_paths": [],
       "approval_digest": "02e867564eb4",
+      "review_digest": null
+    },
+    {
+      "artifact_id": "L3-SCHEMA-LOGIC-TREE-SCHEMA",
+      "layer": "L3",
+      "slice": "cross",
+      "domain": "schemas",
+      "artifact_type": "schema",
+      "authority_format": "json",
+      "authority_status": "active",
+      "lifecycle_status": "draft",
+      "canonical_path": "docs/L3-system-requirements/canonical/schemas/strategy/logic-tree.schema.json",
+      "view_path": null,
+      "view_generation": "none",
+      "pair_artifact_id": null,
+      "supersedes": [],
+      "extends_artifact_ids": [],
+      "depends_on_artifact_ids": [],
+      "previous_paths": [],
+      "approval_digest": null,
+      "review_digest": null
+    },
+    {
+      "artifact_id": "L3-SCHEMA-INFERENCE-ANALYSIS-SCHEMA",
+      "layer": "L3",
+      "slice": "cross",
+      "domain": "schemas",
+      "artifact_type": "schema",
+      "authority_format": "json",
+      "authority_status": "active",
+      "lifecycle_status": "draft",
+      "canonical_path": "docs/L3-system-requirements/canonical/schemas/strategy/inference-analysis.schema.json",
+      "view_path": null,
+      "view_generation": "none",
+      "pair_artifact_id": null,
+      "supersedes": [],
+      "extends_artifact_ids": [],
+      "depends_on_artifact_ids": [],
+      "previous_paths": [],
+      "approval_digest": null,
       "review_digest": null
     }
   ]
