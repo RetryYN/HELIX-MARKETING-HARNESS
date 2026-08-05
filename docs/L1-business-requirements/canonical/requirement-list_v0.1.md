@@ -67,8 +67,11 @@ slice: cross
 | REQ-050 | 複数媒体の役割分担キャンペーンを計画・評価単位として扱えること | BR-I5 | SR-06, 14 | R | C |
 | REQ-051 | 主要コンテンツ企画が 5 宣言なしに承認されないこと | BR-I6 | SR-13 | — | S |
 | REQ-052 | 全工程が証跡・再開・冪等性の横断契約を満たすこと | BR-I7 | NFR-3, FR-28 | — | M |
+| REQ-053 | 下流戦術 OS が pull・WIP 制限・blocked 管理・flow 指標を持つ Kanban として連続運転し、Scrum は cadence に限定されること | BR-J1 | FR-17 | C | M |
+| REQ-054 | business_profile 配下の複数 bounded domain が registry と安全な workspace 契約で隔離されること | BR-J2 | FR-35 | H | M |
+| REQ-055 | 上流戦略 OS の版付き判断で実媒体 binding を追加・一時停止・廃止・差替えでき、TLP で上流へ還流すること | BR-J3 | FR-48 | R+C | M |
 
-**集計**: 全 52 要求（Must 25 / Should 20 / Could 6 / 媒体別 1）
+**集計**: 全 55 要求（Must 28 / Should 20 / Could 6 / 媒体別 1）
 
 > 2026-08-01 全層再降下: REQ-046〜052 は 12 独立要求群の BR 昇格（BR-I1〜I7）に伴う追加。
 > 各要求の構造化契約（目的・価値・禁止・証跡ほか 12 観点）の正本は

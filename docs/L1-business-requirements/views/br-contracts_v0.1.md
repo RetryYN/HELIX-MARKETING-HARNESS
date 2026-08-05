@@ -2,7 +2,7 @@
 
 # 業務要求 構造化契約（BR contracts）v0.1
 
-> status: **confirmed**（2026-08-01 PO 承認 — receipt d5a8189e1cb2）。JSON 内容正本の生成ビュー（全層再降下 §2）
+> status: **confirmed**（2026-08-01 PO 承認 — receipt 3a8888403ce6）。JSON 内容正本の生成ビュー（全層再降下 §2）
 > 位置づけ: [br-backbone_v0.1.md](../canonical/br-backbone_v0.1.md) の全 BR を 12 観点の構造化契約へ展開した正本ビュー。
 > 1 行要求文の禁止（G-REQ-CONTRACT が schema 適合・全 BR 被覆・12 要求群被覆・本ビュー同期を fail-close 検査）。
 
@@ -79,6 +79,62 @@
 - **上流 trace**: charter v0.4 §3 実行モデル（外殻はループ、内部はタスク×ワークフロー）
 - **下流 trace**: REQ-003 REQ-007、FR-12 FR-13
 - **充填経路**: C
+
+## J. Kanban-first 戦術運転・可変ドメイン
+
+### BR-J1 下流戦術 OS の Kanban pull 運転
+
+- **目的**: 下流戦術 OS を連続 pull system として運転し、WIP 制限・blocked 管理・flow 指標によって滞留と過負荷を制御する。Scrum は補充・レビュー・振り返りの cadence に限定する。
+- **主体・利用者**: 戦術 OS kernel／作業エージェント／flow reviewer
+- **発生状況・トリガー**: ready item の pull、作業状態変更、blocked/unblocked、定期 replenishment/review/retrospective
+- **現在の問題**: 期間単位で仕事を一括投入すると、AI ワーカーの同時進行が膨張し、媒体ごとの速度差と突発的な戦略変更を吸収できない。
+- **期待する価値・成果**: 能力が空いた時だけ次の eligible item を引き、過負荷を防ぎながら媒体・domain ごとの流動性と滞留を測定できる。
+- **対象範囲**: pull eligibility と明示的な ready policy／lane/domain ごとの WIP limit／blocked reason・blocked_since・unblock 条件／lead time・cycle time・throughput・work item age／replenishment/review/retrospective cadence
+- **非対象範囲**: 人間チームの velocity 管理・ceremony／上流戦略内容の自動決定
+- **制約**: push による in_progress 直接投入は禁止し claim は pull gate を通す／WIP limit と service policy は config の版付き値である／cadence 境界で進行中 item を強制終了しない
+- **禁止事項**: WIP 上限を超える claim／blocked 理由なしの滞留／sprint backlog 全件の一括開始
+- **人間判断点**: replenishment での優先順位・service policy 変更、恒常 blocked の解消判断。それ以外の gate は自動
+- **失敗時の影響**: 仕掛かりが増え続け、重要施策の滞留が見えず、戦略変更時にも古い仕事が流れ続ける。
+- **完了を証明する証跡**: WIP limit 到達時の pull 拒否テスト green／blocked/unblocked の理由付き遷移証跡／flow 指標を同一状態履歴から再計算した結果
+- **上流 trace**: charter v0.4 §3.0 Kanban-first + Scrum cadence
+- **下流 trace**: REQ-053、FR-17
+- **充填経路**: C
+
+### BR-J2 複数 bounded domain の隔離 workspace
+
+- **目的**: 1 business_profile 配下に複数の bounded domain を登録し、domain ごとの正本・backlog・work・evidence を安全な workspace root に分離する。
+- **主体・利用者**: profile/domain registry／workspace resolver／ストア層
+- **発生状況・トリガー**: domain の登録・参照・archive・workspace path 解決時
+- **現在の問題**: profile と媒体だけを境界にすると、商品・市場・施策群など異なる業務コンテキストの語彙・資産・学習が同じフォルダへ混在する。
+- **期待する価値・成果**: 複数 domain を同一 profile で運転しても、各 domain の状態・成果物・証跡が一意な root に収まり、越境と path escape を構造的に防げる。
+- **対象範囲**: business_profile 1 対多 bounded_domain registry／domain_key と workspace root の一意対応／domain manifest と strategy/backlog/work/evidence/exports の標準構造／path traversal・symlink escape・越境参照の拒否／archived domain の read-only 化
+- **非対象範囲**: domain 間の暗黙共有／媒体名を domain 境界として固定すること
+- **制約**: bounded_domain は必ず 1 business_profile に属する／workspace root は registry と manifest の一致でのみ解決する／実媒体は domain そのものではなく media_binding として関連付ける
+- **禁止事項**: 絶対 path・..・symlink を使った workspace root 外への escape／profile/domain を省略した共有 drafts/assets-src／媒体名を kernel の固定 directory 名として使用
+- **人間判断点**: domain の追加・archive・意味境界の変更は PO 判断。path 検証と scope 強制は自動
+- **失敗時の影響**: 戦略・資産・学習が domain 間で混線し、別商品や別市場へ誤った施策を公開する。
+- **完了を証明する証跡**: 複数 domain の同時登録と workspace 分離テスト green／path traversal・symlink escape・越境書込みの拒否証跡／registry と domain manifest の整合監査 green
+- **上流 trace**: charter v0.4 §3.0 profile/domain/media_binding 分離／BR-D4／BR-I1
+- **下流 trace**: REQ-054、FR-35
+- **充填経路**: H
+
+### BR-J3 戦略判断による媒体 binding の可変化
+
+- **目的**: 上流戦略 OS の版付き判断を、下流戦術 OS が利用する実媒体・接続経路・workflow の binding に変換し、追加・一時停止・廃止・差替えを外殻非侵襲で行う。
+- **主体・利用者**: 上流戦略 OS（判断）／media binding registry（変換）／下流戦術 OS（実行）
+- **発生状況・トリガー**: strategic brief/revision が媒体役割または媒体構成の変更を要求した時
+- **現在の問題**: 媒体名と workflow を固定すると、市場や規約の変化で媒体を替えるたびに kernel・状態機械・フォルダ構造の改修が必要になる。
+- **期待する価値・成果**: 戦略上の役割を保ったまま実媒体を安全に差し替え、下流の観測を TLP で上流へ返して次の媒体判断へつなげられる。
+- **対象範囲**: media_role と media_binding の分離／binding の planned/active/paused/retired と版・supersedes／binding から connector registry・workflow・playbook への参照／停止時の新規 pull 遮断と in-flight item の drain/cancel policy／TLP による媒体実績・失敗の上流還流
+- **非対象範囲**: TLP からの戦略正本直接更新／媒体ごとの固有実装を kernel に追加すること
+- **制約**: binding の active 化は有効な strategic brief/revision と domain scope を要する／媒体差替えは旧 binding の破壊更新でなく新版 INSERT と supersedes で行う／接続可否・規約・承認 gate を迂回しない
+- **禁止事項**: 戦略 trace なしの媒体追加・停止・差替え／retired binding への新規 work item pull／実媒体名を media_role として保存
+- **人間判断点**: 媒体構成の採否と高リスク媒体の active 化は PO 判断。binding 検証と停止 gate は自動
+- **失敗時の影響**: 失効媒体へ施策を流し続けるか、媒体変更のたびに外殻が壊れ、戦略と実行の trace が切れる。
+- **完了を証明する証跡**: 戦略 revision→binding 新版→下流 pull の trace／paused/retired binding への新規 pull 拒否テスト green／旧 binding の履歴と TLP が保持された差替え証跡
+- **上流 trace**: charter v0.4 §3.0 戦略 OS ↔ 戦術 OS／BR-F3／BR-I2／BR-I4
+- **下流 trace**: REQ-055、FR-48
+- **充填経路**: R+C
 
 ## B. ペアゲート・証跡
 

@@ -72,7 +72,7 @@ slice: cross
 > 12 独立要求群（指示 §2）のうち下流文書に散在していた 7 群を BR として昇格。
 > 各 BR の構造化契約（目的・主体・トリガー・問題・価値・範囲・制約・禁止・人間判断点・
 > 失敗影響・証跡・trace の 12 観点）の正本は [json/br/br-contracts.json](br/br-contracts.json)
-> （全 38 BR 分。ビュー = [br-contracts_v0.1.md](../views/br-contracts_v0.1.md)）。
+> （全 41 BR 分。ビュー = [br-contracts_v0.1.md](../views/br-contracts_v0.1.md)）。
 
 - **BR-I1** ブランド隔離: 複数ブランド・事業のデータ・資産・認証・学習を相互隔離し、越境参照・越境書込みを
   構造的に不可能にすること（1 ブランドの事故が他ブランドへ波及しない）
@@ -88,6 +88,15 @@ slice: cross
   必須とし、認識変化を起こさない物量投稿を主要企画として承認しないこと
 - **BR-I7** 証跡・再開・冪等性: 全工程が証跡を残し、強制終了後に SQLite 状態のみから再開でき、同一操作の
   再実行が副作用を二重化しない（冪等）ことを横断契約として保証すること
+
+## J. Kanban-first 戦術運転・可変ドメイン
+
+- **BR-J1** 下流戦術 OS を pull・WIP 制限・blocked 管理・flow 指標を持つ Kanban として連続運転し、
+  Scrum は replenishment・review・retrospective の cadence に限定すること
+- **BR-J2** `business_profile` 配下に複数 `bounded_domain` を registry と安全な workspace 契約で分離し、
+  domain 越境・path escape・暗黙共有を構造的に拒否すること
+- **BR-J3** 上流戦略 OS の版付き判断で実媒体 `media_binding` を追加・一時停止・廃止・差替えし、
+  下流結果を TLP で上流へ還流すること
 
 ## 媒体別展開
 

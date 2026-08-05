@@ -62,15 +62,15 @@ slice: cross
 | ゲート | 検証内容 | 違反の意味 |
 |---|---|---|
 | G-JSON | 現役階層の全 JSON が構文的に妥当 | 壊れた正本 |
-| G-CNT-BR/REQ/FR/NFR/FN/BRM/MR/WF | JSON 件数 = MD 分母（BR38・REQ52・FR36・NFR10・FN61・BR-M70・MR54・WF49） | MD↔JSON の同期漏れ・分母のサイレント変更 |
-| G-CNT-CONTRACT | 現行分母が AC=211／TCC=217／API=58／API_UT=189 と一致 | 分母のサイレント縮小 |
+| G-CNT-BR/REQ/FR/NFR/FN/BRM/MR/WF | BR/REQ/FR は JSON 件数 = MD 件数、固定設計集合は各正本分母と一致（縮小は baseline ratchet が拒否） | MD↔JSON の同期漏れ・分母のサイレント変更 |
+| G-CNT-CONTRACT | AC/TCC は承認済み最小分母以上、API/API_UT は設計正本分母と一致し、縮小は baseline ratchet が拒否 | 分母のサイレント縮小・新規要件追加の阻害 |
 | G-HISTORICAL-COUNTS | 旧 AC/TC/UT 分母が baseline の historical_counts のみに存在し、現役分母・現役文書に混入しない | 旧体系の分母復活 |
 | G-UNIQ-* | BR/REQ/FR・NFR/FN の ID 重複ゼロ | ID 衝突 |
 | G-SUBSTANCE | 全エンティティに 8 文字以上の本文実体 | 空・スタブ本文の完了僭称 |
 | G-SRC-FRESH | br-media 各媒体の structure_checked が 90 日以内 | 出典腐敗 |
 | G-POC-EXIT | PoC が出口 2 軸 schema に適合、confirmed には promotion_strategy 必須 | PoC の独り歩き |
-| G-REQ-CONTRACT | BR 構造化契約が schema 適合で全 38 BR・12 要求群を被覆し、REQ 参照が実在し、生成ビューが同期 | 1 行要求の温存・手編集ビューの乖離 |
-| G-FRSR-CONTRACT | 全 FR36／SR16 に 18 観点の実行契約が schema 適合で存在し、tables／state_transitions が DDL・遷移正本と一致 | 責務 1 行要件の温存・正本との乖離 |
+| G-REQ-CONTRACT | BR 構造化契約が schema 適合で現役 BR 全件・12 要求群を被覆し、REQ 参照が実在し、生成ビューが同期 | 1 行要求の温存・手編集ビューの乖離 |
+| G-FRSR-CONTRACT | 現役 FR／SR 全件に 18 観点の実行契約が schema 適合で存在し、tables／state_transitions が DDL・遷移正本と一致 | 責務 1 行要件の温存・正本との乖離 |
 | G-NFR-MEASURABLE | 全 NFR10 に計測契約（対象・方法・閾値・環境・違反時動作・証跡） | 測定方法のない閾値 |
 | G-AC-COVERAGE | AC 検証契約が schema 適合・ID 一意・target 実在で、S0 の全 FR/SR に AC ≥1 | AC なし実装対象 |
 | G-AC-POLARITY | S0 の各 FR/SR が正常／拒否／境界復旧の 3 極性を AC か理由付き N/A で被覆 | 正常系だけの受入 |
@@ -104,7 +104,7 @@ slice: cross
 | G-TRN-ENT / G-TRN-ST | 遷移 entity が loop_runs/tasks、from/to が DDL enum 内 | 実装不能な状態機械 |
 | G-TRN-UNIQ/REACH/TERM/GUARD | (entity, from, event) 一意・全状態の到達可能性・終端からの遷移不在・全遷移に非空ガード | 非決定的な状態機械 |
 | G-S0-CNT / G-S0-SET | S0 の fn_ids が 25 件・重複なし・function-list の slice=S0 と一致 | スコープのサイレント増減 |
-| G-TRC-BR | trace が全 38 BR をカバー | トレース断絶 |
+| G-TRC-BR | trace が現役 BR 全件をカバー | トレース断絶 |
 | G-BRIEF-TRANSITION | brief の status 遷移を実 DML で検査（draft→active／active→superseded・retired のみ通過、superseded/retired からの復帰・draft 逆行は ABORT） | 戦略正本の状態逆行（PO 指示 §5） |
 | G-BRIEF-VALID-UNTIL | valid_until の延長（後ろ倒し・NULL 化）を拒否し短縮のみ許可 | 有効期限の無制限延長（新版発行の回避） |
 | G-TLP-JSON-PREDICATE | TLP の空配列判定が `json_array_length()`（文字列比較の不在＋空白入り空配列の実 DML 実証） | 文字列比較による誤判定（PO 指示 §5） |
@@ -135,7 +135,7 @@ slice: cross
 | ゲート | 検証内容 | 違反の意味 |
 |---|---|---|
 | G-TRACE-BIDIR | TC 検証契約が schema 適合で、全 AC と TC が双方向に接続（AC 無 TC・宙吊り・非対称 = 0） | 検証の届かない AC |
-| G-CHAIN-BIDIR | BR→REQ→FR/SR→AC→TC→CMP→DU→API→UT の全区間を双方向突合、S0 の全 AC/TC が最低 1 DU へ割当 | 鎖の片方向化・区間の抜け |
+| G-CHAIN-BIDIR | BR→REQ→FR/SR→AC→TC を全件双方向突合。`design_status=requirements_defined` を明示した S1+ 要件だけ L3 で停止でき、それ以外は CMP→DU→API→UT まで必須。S0 の全 AC/TC は最低 1 DU へ割当 | 鎖の片方向化・既存要件の CMP/FN 削除による降下逃れ・要求定義と設計クロージャーの混同 |
 | G-DESCENT-SELFTEST | 粒度ゲート群（polarity／DbC／DATA／BIDIR／CHAIN／invariant／API-UT）の**検出関数そのもの**へ変異データを投入し検出を毎回証明 | 名目だけの粒度ゲート |
 
 ## semantic_refs — 意味整合

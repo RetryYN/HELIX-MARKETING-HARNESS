@@ -66,7 +66,15 @@ def detect_chain_asymmetry(brc: list[dict], req: list[dict], allc: list[dict],
             bad.append(f"CMP↔DU:{cid}:{diff}")
     cmp_by_id = {c["id"]: c for c in cmpc}
     for c in allc:
-        if not c["trace_down"].get("cmp"):
+        # requirements_defined は明示宣言した S1+ 要件だけに許す。省略時は design_defined と
+        # 扱うため、既存要件から FN/CMP を消して設計降下を逃れることはできない。
+        requirements_only = c.get("design_status", "design_defined") == "requirements_defined"
+        if requirements_only and (c["slice"] == "S0"
+                                  or c["trace_down"].get("fn")
+                                  or c["trace_down"].get("cmp")):
+            bad.append(f"FRSR-DESIGN-STATUS:{c['id']}:requirements_defined宣言不整合")
+        design_descent_required = not requirements_only
+        if design_descent_required and not c["trace_down"].get("cmp"):
             bad.append(f"FRSR→CMP:{c['id']}:CMP未接続")
         for cid in c["trace_down"].get("cmp", []):
             if cid not in cmp_by_id:

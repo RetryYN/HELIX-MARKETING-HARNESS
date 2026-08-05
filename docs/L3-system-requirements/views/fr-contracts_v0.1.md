@@ -2,7 +2,7 @@
 
 # 機能要件 実行契約（FR contracts） v0.1
 
-> status: **confirmed**（2026-08-01 PO 承認 — receipt a58c16eb947f）。JSON 内容正本の生成ビュー（全層再降下 §3）
+> status: **confirmed**（2026-08-01 PO 承認 — receipt 8ef8768e1fe1）。JSON 内容正本の生成ビュー（全層再降下 §3）
 > 各 FR に 18 観点の実行・検証・拒否・復旧契約を必須化（G-REQ-CONTRACT／G-INVARIANT-TRACE）。
 
 ## FR-11 ループ状態機械
@@ -67,6 +67,69 @@
 - **外部依存**: なし
 - **設定値**: config.retry_limit（C・暫定既定値 3 — 差戻し上限） ／ **固定値**: なし
 - **trace**: 上流 = BR-A4 REQ-003 ／ 下流 = AC-13-1 AC-13-2 AC-13-3 AC-13-4 AC-13-5 AC-13-6 AC-13-7 AC-13-8 AC-13-9 FN-103 CMP-02 ／ スライス = S0
+
+## FR-17 Kanban pull・WIP・blocked・flow 制御
+
+- **入力**: pull 要求（business_profile_id, bounded_domain_id, lane, principal_id）／ready queue（優先順位・class_of_service・依存・DoR を持つ work item）／flow policy（config.kanban.<domain>.wip_limits／pull_policy／blocked_policy／cadence）
+- **出力**: pull 成立: claim 済み work item と pending→in_progress 遷移／拒否時: GateRejected（WIP 上限・DoR/依存未充足・binding 非 active の理由つき）／flow snapshot（WIP・throughput・lead_time・cycle_time・work_item_age・blocked_time）
+- **事前条件**: work item が ready policy と依存関係を満たし、対象 domain と active media_binding に scope されている／対象 lane の WIP limit と現 WIP が同一 transaction 内で評価可能である／replenishment で優先順位と class_of_service が確定している
+- **事後条件**: pull 成立後も lane WIP は設定上限以下である／拒否された work item の状態・claim owner・WIP は不変である／blocked/unblocked は理由・時刻・解除条件を持つ状態履歴として再計算可能である
+- **不変条件**: work item は push で in_progress へ投入されず、全 claim が pull gate を通る／WIP limit 超過を priority や expedite の自由記述で迂回できない／Scrum cadence 到達だけを理由に進行中 item を強制完了・強制取消ししない
+- **状態遷移**: なし
+- **正常動作**: ready queue を priority・class_of_service・age の決定的 policy で評価し、対象 lane の現 WIP が上限未満の場合だけ最上位 eligible item を claim して in_progress へ遷移する。replenishment は ready queue を補充し、review/retrospective は flow snapshot と TLP を評価するが、Kanban の連続運転を停止しない。
+- **拒否・異常動作**: WIP 上限到達、DoR/依存未充足、domain scope 不一致、paused/retired media_binding、push による直接開始は GateRejected とし、tasks・claim・WIP を変更しない。拒否理由は構造化ログと遷移 guard_result に残す。
+- **境界動作**: WIP limit=0 は lane 停止として全 pull を拒否する。expedite は設定された専用上限内のみ許可する。blocked item は policy で WIP に含めるかを明示し、未定義なら含める側へ倒す。cadence 境界を跨ぐ item は同一 ID・状態のまま継続する。
+- **再試行・再開・復旧**: pull と WIP 判定は単一 transaction とし、競合 claim は更新 0 行で一方だけ成立する。クラッシュ後は tasks・state_transitions・config から queue と WIP を再構成し、メモリ上のボードを正本にしない。
+- **人間判断／escalation**: 人間: replenishment の優先順位、class_of_service、WIP policy の変更、長期 blocked の解消。通常 pull と gate は全自動
+- **副作用**: tasks UPDATE（claim・state・blocked metadata の S1 拡張）／state_transitions INSERT（pull/block/unblock の成立・拒否）／構造化 flow snapshot 生成
+- **冪等性**: 同一 work item の pull は現 state と claim token を冪等条件とし二重 claim しない。flow 指標は同一履歴・同一時刻窓から同一値を再計算する。
+- **証跡**: state_transitions 行（pull/block/unblock と guard_result）／flow snapshot（算出窓・policy version・対象 item ID つき）
+- **使用テーブル・正本**: rw: tasks（S1 で blocked metadata を expand）／w: state_transitions／r: config（Kanban policy）／参照: S1 schema で追加する media_bindings・bounded_domains（scope と active 判定）
+- **外部依存**: なし
+- **設定値**: config.kanban.<domain>.wip_limits／config.kanban.<domain>.pull_policy／config.kanban.<domain>.blocked_policy／config.kanban.<domain>.cadence ／ **固定値**: pull gate 必須・未定義 blocked policy は WIP に含める（fail-close）
+- **trace**: 上流 = BR-J1 REQ-053 ／ 下流 = AC-17-1 AC-17-2 AC-17-3 ／ スライス = S1
+
+## FR-35 bounded domain registry と safe workspace 解決
+
+- **入力**: domain 登録要求（business_profile_id, domain_key, domain_type, display_name, manifest_version）／workspace 解決要求（business_profile_id, bounded_domain_id, relative_path）／profile workspace registry と domain manifest
+- **出力**: profile に scope された bounded_domain 登録と canonical workspace root／標準 directory（strategy／backlog／work/drafts／work/assets-src／evidence／exports）／拒否時: GateRejected（越境・重複・manifest 不一致・path/symlink escape）
+- **事前条件**: 親 business_profile が active で、profile workspace root が明示設定されている／domain_key が profile 内で一意かつ slug 制約を満たす／要求 relative_path は未解決の絶対 path を含まない
+- **事後条件**: bounded_domain はちょうど 1 business_profile に属し registry と manifest が同じ ID・version・root を指す／解決 path は canonical domain root 配下にあり、他 profile/domain の root と重ならない／登録失敗時は directory・registry・manifest の部分生成が残らない
+- **不変条件**: business_profile と bounded_domain の二段 scope を省略した読書きは deny-by-default／domain は業務境界であり media_binding と同一視しない／drafts/assets-src/evidence は domain root 配下にのみ存在し profile/domain 間で暗黙共有しない
+- **状態遷移**: なし
+- **正常動作**: profile workspace root の直下に opaque な domain_key から canonical root を決定し、domain manifest と標準 directory を staging root へ生成する。registry 記録と manifest hash の検証後に atomic rename で有効化し、以降の path は resolver だけが返す。
+- **拒否・異常動作**: profile 越境、domain_key 重複、絶対 path、..、NUL、root 外を指す symlink、registry/manifest の ID・version・hash 不一致は GateRejected とし、書込み前または staging cleanup 後に拒否する。
+- **境界動作**: 空 profile は最初の domain 登録を許可する。archived domain は既存成果物の読取のみ許可し、新規 task・binding・ファイル書込みを拒否する。domain rename は in-place 変更せず新版 domain＋supersedes と明示 migration で扱う。
+- **再試行・再開・復旧**: 登録は staging directory＋registry transaction＋atomic rename の recovery protocol とし、再開時は manifest hash で完成済み・staging・不一致を判定する。不一致は自動採用せず quarantine して escalation する。
+- **人間判断／escalation**: 人間: domain の意味境界・追加・archive・migration の承認。path 検査・scope 強制・recovery は全自動
+- **副作用**: bounded domain registry INSERT/UPDATE（S1 schema）／domain manifest と標準 directory の生成／不一致 staging の quarantine
+- **冪等性**: (business_profile_id, domain_key, manifest_version) を冪等キーとし、同一 manifest hash の再登録は既存 root を返す。異なる hash は競合として拒否する。
+- **証跡**: domain registry 行と manifest hash／workspace resolution audit（profile/domain/root/relative path）／越境・escape・不一致の拒否ログ
+- **使用テーブル・正本**: r: business_profiles／r: config（profile workspace root）／参照: S1 schema で追加する bounded_domains（profile FK・domain_key・manifest hash・status）
+- **外部依存**: ローカル filesystem（canonicalize・symlink 検査・atomic rename）
+- **設定値**: config.workspace.<profile_key>.root ／ **固定値**: 標準 directory 名（strategy／backlog／work/drafts／work/assets-src／evidence／exports）／domain_key slug と path escape 拒否規則
+- **trace**: 上流 = BR-J2 REQ-054 ／ 下流 = AC-35-1 AC-35-2 AC-35-3 ／ スライス = S1
+
+## FR-48 戦略 trace 付き media binding lifecycle
+
+- **入力**: binding 変更要求（business_profile_id, bounded_domain_id, media_role, service_key, connector_ref, workflow_ref, playbook_ref）／有効な strategic brief/revision と supporting evidence／停止時 policy（drain/cancel、effective_at、replacement binding）
+- **出力**: 版付き media_binding（planned/active/paused/retired、supersedes_id、strategy trace）／下流 pull eligibility と解決済み connector/workflow/playbook 参照／拒否時: GateRejected（戦略 trace・scope・接続・規約・承認の不足）
+- **事前条件**: business_profile と bounded_domain が active で一致する／media_role が SR-14 台帳語彙、service route が FR-41 で解決可能である／strategic brief/revision が有効期間内で binding 変更理由と対象 domain を参照する
+- **事後条件**: active binding は strategy revision・media_role・connector・workflow・playbook へ完全 trace する／paused/retired binding から新規 work item は pull されない／差替え後も旧 binding・旧 run・TLP は不変で追跡可能である
+- **不変条件**: media_role は戦略上の役割、media_binding は実媒体への版付き束縛であり同じ値を要求しない／binding 変更は下流から strategic_briefs を直接更新せず、上流判断→binding、TLP→上流評価の経路だけを使う／媒体追加・停止・差替えで kernel・状態機械・固定 workspace directory を変更しない
+- **状態遷移**: なし
+- **正常動作**: 上流の有効な brief/revision を検証し、media_role を実 service・connector route・workflow・playbook へ束縛した planned binding を INSERT する。接続・規約・承認 gate の成立後に active 化し、下流 Kanban は active binding の work item だけを pull する。下流終端結果は TLP として同じ brief/binding trace を保持して上流へ返す。
+- **拒否・異常動作**: 戦略 trace 欠落、期限切れ brief、domain/profile 越境、台帳外 media_role、未解決 route、禁止媒体経路、workflow/playbook 欠落、必要承認欠如は GateRejected とし binding・task・外部操作を変更しない。
+- **境界動作**: pause は新規 pull を即時停止し in-flight item は policy に従い drain または理由付き cancel とする。差替えは旧 binding を破壊せず replacement を active 化してから旧版を retired にし、同時 active を許す移行窓は明示期限内だけ認める。
+- **再試行・再開・復旧**: binding lifecycle は idempotency key と現 status を条件に単一 transaction で更新する。差替え途中のクラッシュは operation record と現 status から再開し、active binding 0 件または意図しない 2 件を fail-close で検出する。
+- **人間判断／escalation**: 人間: 媒体構成の戦略判断、高リスク・有償経路の承認、drain/cancel policy。trace・scope・route gate は全自動
+- **副作用**: media binding registry INSERT/UPDATE（S1 schema）／binding lifecycle の構造化監査ログ／pause/retire 時の新規 pull gate 更新
+- **冪等性**: (bounded_domain_id, strategy_revision_id, service_key, binding_version) と operation key で重複を検出し、同一変更要求は既存 binding を返す。
+- **証跡**: binding 行（strategy/role/connector/workflow/playbook/supersedes trace）／pause/retire/difference operation の監査ログ／binding と brief/run/TLP の trace query 結果
+- **使用テーブル・正本**: r: strategic_briefs／r: tactical_learning_packets／r: config（media role・connector registry）／r: workflows・playbooks／参照: S1 schema で追加する media_bindings・bounded_domains
+- **外部依存**: なし
+- **設定値**: config.media_roles_ledger／config.registry.<service>／config.media_binding.transition_window ／ **固定値**: binding status 語彙（planned/active/paused/retired）／差替えは新版 INSERT＋supersedes（破壊更新禁止）
+- **trace**: 上流 = BR-J3 REQ-055 ／ 下流 = AC-48-1 AC-48-2 AC-48-3 ／ スライス = S1
 
 ## FR-14 スプリント制御
 

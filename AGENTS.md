@@ -23,5 +23,5 @@ Codex エージェント向け。作業規律の正本は CLAUDE.md（同内容�
   MD は `scripts/render_views.py` の生成ビューで手編集禁止。
 - ゲート実装は `tools/gates/` の工程別モジュール。`scripts/validate_requirements.py` は互換ラッパーで、
   ゲート本体を書き足さない。
-- 現行分母は AC=218 ／ TCC=224 ／ API=58 ／ API_UT=199 のみ。旧体系の分母は
+- 現行分母は AC=227 ／ TCC=233 ／ API=58 ／ API_UT=199 のみ。旧体系の分母は
   baseline.json の `historical_counts` にのみ保持する。

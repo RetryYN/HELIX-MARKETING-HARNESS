@@ -38,7 +38,7 @@ src/helix/（Python — 実装正本パッケージ）
 
 ## 2. 機能要求（FR）
 
-### FR-1x エンジン（← BR-A1..A4）
+### FR-1x エンジン／flow（← BR-A1..A4, J1）
 
 - **FR-11** ループ状態機械: `loop_runs`（上位/下位/マイクロの3種）を状態遷移表で駆動する。遷移は
   `(現状態, イベント, ガード条件) → 次状態` の宣言的定義とし、コード分岐に埋め込まない
@@ -51,6 +51,8 @@ src/helix/（Python — 実装正本パッケージ）
 - **FR-15** 還流: スプリントレビュー成立（FR-22）時に `learnings` を生成し、上位ループの次回転の入力キューへ積む
 - **FR-16** エスカレーション制御: 異常（ゲート赤・予算超過・地図破損・リトライ超過）を検知した場合、該当タスクを
   `escalated` に遷移させ、通知（FR-46 経路）と安全停止（該当ループの保留）へ振り分ける（← BR-H3）
+- **FR-17** Kanban flow 制御: ready item は pull gate と WIP limit を満たす場合だけ claim でき、blocked 理由・
+  解除条件と flow 指標を状態履歴から再構成する。Scrum は replenishment/review/retrospective cadence とする
 
 ### FR-2x ゲート（← BR-B1..B4, C1..C4）
 
@@ -70,7 +72,7 @@ src/helix/（Python — 実装正本パッケージ）
 - **FR-28** 証跡完備検証: タスク完了（`done` 遷移）時に、タスク種別ごとに定義された必須証跡（§4bis）が
   `evidence` に揃っていることを検証し、欠落時は遷移を拒否する（← BR-B3）
 
-### FR-3x 三エンジン（← BR-D1..D4）
+### FR-3x 三エンジン／domain（← BR-D1..D4, J2）
 
 - **FR-31** ヒアリングエンジン: スキーマ（§4）の必須スロットの空きを検出し、質問リストを生成して
   Claude Code 対話で人に照会、回答を型検証して充填する。未充足のままでは依存タスクを開始しない
@@ -79,8 +81,10 @@ src/helix/（Python — 実装正本パッケージ）
 - **FR-33** 設定管理: `config` テーブル（key, value, type, changed_at, changed_by, reason）。
   変更は履歴保持（UPDATE でなく INSERT）。安全側数値の既定値は保守的に設定
 - **FR-34** 事業非依存: 事業前提は `business_profiles` に分離し、複数プロファイルの共存を許すスキーマとする
+- **FR-35** bounded domain registry: profile 配下の複数 domain を registry・manifest・canonical workspace root で
+  一意化し、越境・path traversal・symlink escape・archived 書込みを拒否する
 
-### FR-4x コネクタ（← BR-F1..F4）
+### FR-4x コネクタ／media binding（← BR-F1..F4, J3）
 
 - **FR-41** 接続レジストリ: サービスごとに (優先経路: MCP/ブラウザ/API, フォールバック経路, 認証方式) を
   宣言的に保持。経路選定はレジストリ参照で行いコードに埋め込まない
@@ -95,6 +99,8 @@ src/helix/（Python — 実装正本パッケージ）
   応答を `approvals` に証跡化。オートモード判定は `config.auto_mode_criteria`（C）と実績証跡から機械判定
 - **FR-47** 秘匿情報: 認証情報・セッションは OS キーチェーンまたは暗号化ストアに置き、
   リポジトリ・SQLite・ログへの平文書き込みを禁止（BR-F4）
+- **FR-48** media binding lifecycle: 有効な strategy revision と media_role を実媒体・connector・workflow・playbook へ
+  版付きで束縛し、追加・pause・retire・replacement と TLP 還流を外殻非侵襲で行う
 
 ### FR-5x 制作（← BR-G1..G4）
 
@@ -263,6 +269,9 @@ fixture と外部環境の前提は [s0-contract_v0.1.md](../s0-contract_v0.1.md
 | BR-H1 | FR-31, FR-46 |
 | BR-H2 | FR-46 |
 | BR-H3 | FR-16, FR-43 |
+| BR-J1 | FR-17 |
+| BR-J2 | FR-35 |
+| BR-J3 | FR-48 |
 
 ## 5bis. 上流戦略層（2026-08-01 追補）
 

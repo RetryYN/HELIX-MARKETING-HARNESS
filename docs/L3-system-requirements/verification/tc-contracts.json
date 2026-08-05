@@ -6344,6 +6344,195 @@
           "load"
         ]
       }
+    },
+    {
+      "id": "TCC-17-1",
+      "ac": ["AC-17-1"],
+      "kind": "normal",
+      "verifies_state": "優先 item A=in_progress、B=pending、lane WIP=limit",
+      "verifies_db_delta": "tasks A 1行 UPDATE、state_transitions +1行",
+      "verifies_evidence": "policy version 付き pull 遷移と flow snapshot",
+      "verifies_forbidden": "二重 claim・WIP 超過・他 domain の変更",
+      "external_calls": "0 回",
+      "method": "pytest: ready item 2件＋既存 WIP を seed し、pull 後の選択順・claim・WIP・状態履歴を assert",
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": ["config", "state_transitions", "tasks"],
+        "column_refs": ["tasks.state"],
+        "state_refs": ["tasks.in_progress", "tasks.pending"],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
+    },
+    {
+      "id": "TCC-17-2",
+      "ac": ["AC-17-2"],
+      "kind": "reject",
+      "verifies_state": "対象 item=pending、WIP と claim owner は不変",
+      "verifies_db_delta": "業務状態差分なし、拒否遷移 +1行",
+      "verifies_evidence": "WIP_LIMIT／PULL_GATE_REQUIRED の拒否理由",
+      "verifies_forbidden": "上限超過 claim・push bypass・expedite 自由記述による迂回",
+      "external_calls": "0 回",
+      "method": "pytest: WIP=limit fixture で pull と直接開始を実行し、GateRejected・DB 不変・拒否理由を assert",
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": ["config", "state_transitions", "tasks"],
+        "column_refs": ["tasks.state"],
+        "state_refs": ["tasks.pending"],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": ["GateRejected"],
+        "api_refs": []
+      }
+    },
+    {
+      "id": "TCC-17-3",
+      "ac": ["AC-17-3"],
+      "kind": "resume",
+      "verifies_state": "block 中は blocked、再起動・unblock 後は同一 item が in_progress",
+      "verifies_db_delta": "tasks 2 UPDATE、block/unblock 遷移 +2行",
+      "verifies_evidence": "理由・解除根拠・blocked time・policy fallback の履歴",
+      "verifies_forbidden": "cadence 境界の強制完了・blocked item の WIP 除外",
+      "external_calls": "0 回",
+      "method": "pytest: blocked policy 欠落と kill/restart fixture で WIP 再構成・状態継続・unblock を assert",
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": ["config", "state_transitions", "tasks"],
+        "column_refs": ["tasks.state"],
+        "state_refs": ["tasks.in_progress"],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
+    },
+    {
+      "id": "TCC-35-1",
+      "ac": ["AC-35-1"],
+      "kind": "normal",
+      "verifies_state": "同一 profile 配下に active domain 2件、root と manifest は相互非重複",
+      "verifies_db_delta": "planned bounded_domains +2行、既存 profile/domain 不変",
+      "verifies_evidence": "domain ID・manifest version/hash・canonical root の整合記録",
+      "verifies_forbidden": "共有 drafts/assets-src・媒体名固定 directory・他 profile root の変更",
+      "external_calls": "0 回（local filesystem のみ）",
+      "method": "pytest tmp_path: opaque domain key 2件を登録し、tree・realpath・manifest hash・scope 分離を assert",
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": ["business_profiles", "config"],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
+    },
+    {
+      "id": "TCC-35-2",
+      "ac": ["AC-35-2"],
+      "kind": "reject",
+      "verifies_state": "全 domain root・registry・manifest が操作前と同一",
+      "verifies_db_delta": "差分なし",
+      "verifies_evidence": "PATH_ESCAPE／SYMLINK_ESCAPE／CROSS_DOMAIN の拒否ログ",
+      "verifies_forbidden": "root 外生成・越境内容返却・orphan staging",
+      "external_calls": "0 回（local filesystem のみ）",
+      "method": "pytest tmp_path: absolute/../NUL/symlink/cross-domain fixture を表駆動で解決し GateRejected と hash 不変を assert",
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": ["business_profiles", "config"],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": ["GateRejected"],
+        "api_refs": []
+      }
+    },
+    {
+      "id": "TCC-35-3",
+      "ac": ["AC-35-3"],
+      "kind": "resume",
+      "verifies_state": "recovery 後 active domain 1件、orphan staging 0、archived domain 不変",
+      "verifies_db_delta": "planned bounded_domains +1行、archived domain 差分なし",
+      "verifies_evidence": "staging recovery decision と archived write 拒否",
+      "verifies_forbidden": "二重登録・不一致 staging の採用・archived root への書込み",
+      "external_calls": "0 回（local filesystem のみ）",
+      "method": "pytest tmp_path: registry commit 前 kill 状態を seed し、同 hash 再開と archived read/write 境界を assert",
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": ["business_profiles", "config"],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": ["GateRejected"],
+        "api_refs": []
+      }
+    },
+    {
+      "id": "TCC-48-1",
+      "ac": ["AC-48-1"],
+      "kind": "normal",
+      "verifies_state": "strategy trace 完全な active binding 1件、対象 work item のみ pull eligible",
+      "verifies_db_delta": "planned media_bindings +1行（planned→active）、外部操作差分なし",
+      "verifies_evidence": "brief/revision→role→connector/workflow/playbook→binding の trace",
+      "verifies_forbidden": "戦略正本直接更新・外殻/固定 directory 変更・外部投稿",
+      "external_calls": "0 回",
+      "method": "pytest: valid brief/revision・role・route・workflow・playbook を seed し binding trace と pull eligibility を assert",
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": ["config", "playbooks", "strategic_briefs", "workflows"],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
+    },
+    {
+      "id": "TCC-48-2",
+      "ac": ["AC-48-2"],
+      "kind": "reject",
+      "verifies_state": "新規 active binding 0件、既存 task/brief/外部操作は不変",
+      "verifies_db_delta": "業務状態差分なし、拒否ログのみ",
+      "verifies_evidence": "5種の binding activation 拒否理由",
+      "verifies_forbidden": "推測補完・下流 pull・strategic_briefs 更新・外部呼出",
+      "external_calls": "0 回",
+      "method": "pytest parameterize: trace欠落/期限切れ/越境/role外/route欠落で GateRejected と全正本不変を assert",
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": ["config", "external_operations", "strategic_briefs", "tasks"],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": ["GateRejected"],
+        "api_refs": []
+      }
+    },
+    {
+      "id": "TCC-48-3",
+      "ac": ["AC-48-3"],
+      "kind": "resume",
+      "verifies_state": "V2 active、V1 retired、旧 task 終端、旧 binding trace 付き TLP 1件",
+      "verifies_db_delta": "planned bindings 2 status 更新、task 終端、TLP +1行",
+      "verifies_evidence": "operation recovery・supersedes・drain decision・TLP trace",
+      "verifies_forbidden": "V1 新規 pull・履歴破壊・意図しない active 0件/無期限2件",
+      "external_calls": "0 回",
+      "method": "pytest: V1/V2 差替え中 kill point を fault injection し、再開後の status・pull gate・TLP 一意性を assert",
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": ["strategic_briefs", "tactical_learning_packets", "tasks"],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     }
   ],
   "status": "confirmed",
@@ -6352,5 +6541,5 @@
   "supersedes": [
     "ARCHIVE-TC-LEGACY"
   ],
-  "approval_digest": "c60db3bc035d"
+  "approval_digest": "6854e1f24683"
 }

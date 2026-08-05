@@ -330,7 +330,7 @@
       "previous_paths": [
         "docs/L0-charter/marketing-harness-charter_v0.4.md"
       ],
-      "approval_digest": "5fadaee9f132",
+      "approval_digest": "28d40aeec638",
       "review_digest": null
     },
     {
@@ -352,7 +352,7 @@
       "previous_paths": [
         "docs/requirements/br-backbone_v0.1.md"
       ],
-      "approval_digest": "1d4d9354805b",
+      "approval_digest": "9e775f3f5173",
       "review_digest": null
     },
     {
@@ -858,7 +858,7 @@
       "previous_paths": [
         "docs/requirements/json/br/br-contracts.json"
       ],
-      "approval_digest": "d5a8189e1cb2",
+      "approval_digest": "3a8888403ce6",
       "review_digest": null
     },
     {
@@ -1048,7 +1048,7 @@
       "previous_paths": [
         "docs/requirements/requirement-list_v0.1.md"
       ],
-      "approval_digest": "d2394ab820cb",
+      "approval_digest": "1e84b520a4bf",
       "review_digest": null
     },
     {
@@ -1094,7 +1094,7 @@
       "previous_paths": [
         "docs/requirements/json/ac/ac-contracts.json"
       ],
-      "approval_digest": "ab1cabe3793f",
+      "approval_digest": "ea6135f26ad7",
       "review_digest": null
     },
     {
@@ -1160,7 +1160,7 @@
       "previous_paths": [
         "docs/requirements/json/fr/fr-contracts.json"
       ],
-      "approval_digest": "a58c16eb947f",
+      "approval_digest": "8ef8768e1fe1",
       "review_digest": null
     },
     {
@@ -1688,7 +1688,7 @@
       "previous_paths": [
         "docs/requirements/requirements_v0.1.md"
       ],
-      "approval_digest": "03eb6e9996e0",
+      "approval_digest": "ffe5af474f2a",
       "review_digest": null
     },
     {
@@ -2668,7 +2668,7 @@
       "previous_paths": [
         "docs/requirements/json/verification/tc-contracts.json"
       ],
-      "approval_digest": "c60db3bc035d",
+      "approval_digest": "6854e1f24683",
       "review_digest": null
     },
     {

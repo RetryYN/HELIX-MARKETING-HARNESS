@@ -2,7 +2,7 @@
 
 # 受入条件 検証契約カタログ（AC contracts）v0.1
 
-> status: **confirmed**（2026-08-01 PO 承認 — receipt ab1cabe3793f）。JSON 内容正本の生成ビュー（全層再降下 §4）
+> status: **confirmed**（2026-08-01 PO 承認 — receipt ea6135f26ad7）。JSON 内容正本の生成ビュー（全層再降下 §4）
 > 各 AC に GWT＋fixture・観測点・期待状態・DB 差分・証跡・禁止副作用・エラー型・対象更新を必須化
 > （G-AC-COVERAGE／G-AC-POLARITY）。旧体系の受入条件は historical 記録のみ（現行分母は本カタログ）。
 
@@ -2071,3 +2071,90 @@
 - **期待 DB 差分**: ループ計数 +1（複数更新ケースのみ） ／ **期待証跡**: maintain の revision 記録（「見て維持」— 計上されない根拠）
 - **禁止副作用**: 複数更新の多重計上・判定不能時の一周扱い（fail-open） ／ **エラー型**: なし（判定 False — 例外ではない）
 - **対象更新**: S1（上流戦略スライス） ／ **TC**: TCC-SR-16-3
+
+## FR-17
+
+### AC-17-1（正常）
+
+- **Given**: domain D の ready queue に eligible item A/B があり、対象 lane の WIP=1・limit=2、A の優先順位が上位である ／ **When**: 同じ domain の作業主体が pull を要求する ／ **Then**: A だけが claim され pending→in_progress となり、WIP=2、B は pending のままである
+- **fixture**: seed: tasks A/B pending、config kanban.D.wip_limit=2、既存 in_progress 1 件、A/B の DoR・依存成立
+- **観測点**: tasks.state/claim owner、state_transitions、flow snapshot ／ **期待状態**: A=in_progress、B=pending、lane WIP=2
+- **期待 DB 差分**: tasks A 1 行 UPDATE、state_transitions +1 行（pull accepted） ／ **期待証跡**: pull policy version と対象 item を持つ遷移行・flow snapshot
+- **禁止副作用**: B の同時 claim・WIP limit 超過・他 domain task の変更 ／ **エラー型**: なし
+- **対象更新**: S1（Kanban flow control） ／ **TC**: TCC-17-1
+
+### AC-17-2（拒否）
+
+- **Given**: 対象 lane の WIP が limit と同値で、ready item A と push による直接開始要求がある ／ **When**: A の pull と pull gate を迂回する in_progress 更新を試みる ／ **Then**: 両方とも GateRejected となり A は pending、WIP と claim owner は不変である
+- **fixture**: seed: config wip_limit=2、in_progress 2 件、A pending、直接 UPDATE を試みる adapter stub
+- **観測点**: 例外型、tasks/state_transitions の前後スナップショット ／ **期待状態**: A=pending、lane WIP=2 のまま
+- **期待 DB 差分**: 業務状態差分なし、拒否の state_transitions +1 行 ／ **期待証跡**: WIP_LIMIT または PULL_GATE_REQUIRED を理由に持つ拒否行
+- **禁止副作用**: A の claim・WIP=3・priority/expedite 自由記述による迂回 ／ **エラー型**: GateRejected
+- **対象更新**: S1（Kanban WIP/pull gate） ／ **TC**: TCC-17-2
+
+### AC-17-3（境界・復旧）
+
+- **Given**: in_progress item A が外部待ちで block され、blocked policy 未定義、cadence 境界とプロセス再起動を跨ぐ ／ **When**: A を理由・解除条件つきで blocked 化し、再起動後に条件成立で unblock する ／ **Then**: 未定義 policy は A を WIP に含め、cadence 境界で強制終了せず、再起動後も同一 item が blocked→in_progress へ戻る
+- **fixture**: seed: A in_progress、block reason='external-review'、unblock condition evidence E、config blocked policy 欠落
+- **観測点**: tasks.state、state_transitions、再構成した WIP/blocked_time ／ **期待状態**: block 中 A=blocked、unblock 後 A=in_progress、item ID 不変
+- **期待 DB 差分**: tasks 2 UPDATE、state_transitions +2 行（block/unblock） ／ **期待証跡**: 理由・blocked_since・解除根拠・policy fallback を持つ状態履歴
+- **禁止副作用**: cadence 到達による done/cancelled 化・blocked item の WIP 除外による上限迂回 ／ **エラー型**: なし
+- **対象更新**: S1（blocked/cadence/recovery） ／ **TC**: TCC-17-3
+
+## FR-35
+
+### AC-35-1（正常）
+
+- **Given**: active profile P と空の profile workspace があり、異なる domain_key D1/D2 の登録要求がある ／ **When**: D1/D2 を登録し各 domain 内の work/drafts と evidence path を resolver で解決する ／ **Then**: 2 domain が同じ profile 配下に共存し、registry/manifest/root が一致し、解決 path は互いの root と重ならない
+- **fixture**: seed: business_profiles P active、temp workspace root、domain requests D1/D2（媒体名ではない opaque key）
+- **観測点**: registry snapshot、domain manifests、realpath、directory tree ／ **期待状態**: P 配下に active domain 2 件、各 root に標準構造 1 組
+- **期待 DB 差分**: planned bounded_domains +2 行、他 profile/domain の行は不変 ／ **期待証跡**: domain ID・manifest version/hash・canonical root の整合記録
+- **禁止副作用**: 共有 drafts/assets-src・媒体名固定 directory・他 profile root の変更 ／ **エラー型**: なし
+- **対象更新**: S1（multi-domain workspace） ／ **TC**: TCC-35-1
+
+### AC-35-2（拒否）
+
+- **Given**: profile P/domain D の root と、../、絶対 path、root 外 symlink、別 domain D2 の ID を用いる各解決要求 ／ **When**: 各 path を workspace resolver で書込み用に解決する ／ **Then**: すべて GateRejected となり root 外・D2・filesystem・registry に変更がない
+- **fixture**: seed: P/D/D2 active、D 内 symlink→D2、requests '../D2/x'・'/tmp/x'・'escape/x'・scope D target D2
+- **観測点**: 例外型、realpath、filesystem/registry 前後 hash ／ **期待状態**: 全 domain root と manifest が不変
+- **期待 DB 差分**: 差分なし ／ **期待証跡**: PATH_ESCAPE／SYMLINK_ESCAPE／CROSS_DOMAIN を区別した拒否ログ
+- **禁止副作用**: root 外ファイル生成・D2 内容の返却・staging directory 残存 ／ **エラー型**: GateRejected
+- **対象更新**: S1（safe workspace fail-close） ／ **TC**: TCC-35-2
+
+### AC-35-3（境界・復旧）
+
+- **Given**: domain D の staging 生成後・registry commit 前に kill された状態、同 key/hash の再要求、archived domain A がある ／ **When**: 再起動 recovery と D の再登録、A の読取・新規書込みを実行する ／ **Then**: staging は hash 照合後に1つの active Dへ収束し、A は読取のみ成功・書込みは GateRejected となる
+- **fixture**: seed: valid staging manifest D、registry D なし、A archived、同一 registration request
+- **観測点**: staging/root 数、registry/manifest hash、A の read/write 結果 ／ **期待状態**: D active 1件、orphan staging 0、A archived 不変
+- **期待 DB 差分**: planned bounded_domains D +1、A 差分なし ／ **期待証跡**: recovery decision と archived write 拒否ログ
+- **禁止副作用**: D 二重登録・不一致 staging の自動採用・A への新規ファイル生成 ／ **エラー型**: GateRejected（archived write）
+- **対象更新**: S1（workspace recovery/archive boundary） ／ **TC**: TCC-35-3
+
+## FR-48
+
+### AC-48-1（正常）
+
+- **Given**: active domain D、有効な brief/revision R、台帳内 media_role、解決可能な connector/workflow/playbook がある ／ **When**: R に基づく binding を planned で登録し gate 成立後 active 化して下流 pull を行う ／ **Then**: active binding が R・role・connector・workflow・playbook に trace し、その binding の work item だけが pull eligible になる
+- **fixture**: seed: strategic_brief B active、revision R accepted、config media role/registry、workflows/playbooks 各1件
+- **観測点**: binding snapshot、下流 pull eligibility、brief→binding→task trace query ／ **期待状態**: binding active 1件、対象 work item pull eligible
+- **期待 DB 差分**: planned media_bindings +1行（planned→active）、外部操作なし ／ **期待証跡**: strategy revision と全実行参照を持つ binding lifecycle 記録
+- **禁止副作用**: strategic_briefs の直接更新・kernel code/固定 directory の変更・外部投稿 ／ **エラー型**: なし
+- **対象更新**: S1（strategy-to-tactics media binding） ／ **TC**: TCC-48-1
+
+### AC-48-2（拒否）
+
+- **Given**: 戦略 trace 欠落・期限切れ brief・別 domain・台帳外 media_role・未解決 route の binding 要求を各1件用意する ／ **When**: 各 binding を登録または active 化する ／ **Then**: すべて GateRejected となり binding・task・brief・外部操作に差分がない
+- **fixture**: seed: invalid requests 5件、既存 active brief/domain と config/workflow/playbook の対照 fixture
+- **観測点**: 例外型、binding/task/strategic_briefs/external_operations 前後スナップショット ／ **期待状態**: 新規 active binding 0件、既存正本不変
+- **期待 DB 差分**: 業務状態差分なし、拒否ログのみ ／ **期待証跡**: STRATEGY_TRACE／BRIEF_EXPIRED／CROSS_DOMAIN／ROLE／ROUTE の拒否理由
+- **禁止副作用**: 推測による binding 補完・下流 pull・strategic_briefs 更新・外部呼出 ／ **エラー型**: GateRejected
+- **対象更新**: S1（binding activation fail-close） ／ **TC**: TCC-48-2
+
+### AC-48-3（境界・復旧）
+
+- **Given**: active binding V1 と in-flight item、V1 を置換する planned V2、drain policy、差替え transaction 途中の kill がある ／ **When**: V2 active 化・V1 retire を再開し、V1 の新規 pull と既存 item 終端/TLP生成を実行する ／ **Then**: V2 が active、V1 は retired で新規 pull 不可、既存 item は policyどおり終端し V1/brief trace 付き TLP を1件残す
+- **fixture**: seed: V1 active、task in_progress、V2 planned supersedes V1、operation key K、kill point between lifecycle writes
+- **観測点**: binding status、pull result、task/TLP、旧 binding/brief/run trace ／ **期待状態**: V2 active 1件、V1 retired、旧 task 終端、TLP 1件
+- **期待 DB 差分**: planned media_bindings 2 status 更新、task 終端、tactical_learning_packets +1行 ／ **期待証跡**: operation K の recovery、supersedes、drain decision、旧 binding trace 付き TLP
+- **禁止副作用**: V1 への新規 pull・旧 binding/TLP の破壊・意図しない active 0件または無期限2件 ／ **エラー型**: なし
+- **対象更新**: S1（binding replacement/recovery/TLP） ／ **TC**: TCC-48-3

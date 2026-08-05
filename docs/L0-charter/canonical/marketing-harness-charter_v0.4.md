@@ -13,19 +13,23 @@ slice: cross
   strategic_brief／tactical_learning_packet／strategy_revision の 3 契約を導入
   （要件正本: strategy-loop-requirements_v0.1／strategy-learning-contract_v0.1）。二重ループ構造自体は不変。
 - 改訂: v0.3 (2026-07-30) — データ基盤を定義（WordPress=コンテンツ資産 DB、Notion=ネタ・計画）。ペア構造（企画↔品質、計画↔計測）を pair_closure のループ版として導入。
-- 改訂: v0.2 (2026-07-30) — アーキテクチャを V-model ペアリングから**ループスクラム型（二重改善ループ）**へ全面変更。自律境界（人/AI の分担）を明文化。
+- 改訂: v0.2 (2026-07-30) — 製品内アーキテクチャを V-model ペアリングから**適応型の二重改善ループ**へ変更。自律境界（人/AI の分担）を明文化。
+- 追補: v0.4 (2026-08-05) — HELIX V-model は開発方式、製品内部は **Kanban-first + Scrum cadence** と分離。上流戦略 OS と下流戦術 OS の双方向連携、可変 media binding、複数 bounded domain の境界を明文化。
 - 正本リポジトリ: <https://github.com/RetryYN/HELIX-MARKETING-HARNESS>
-- ベース: <https://github.com/RetryYN/TAKUMI_CMO-Claude_Cowark（機能ソース。read-only> 参照）
-- 関連: HELIX（超個人開発システム）本体 = RetryYN/HELIX-HARNESS-OS
+- 機能ソース: <https://github.com/RetryYN/TAKUMI_CMO-Claude_Cowark>（read-only 参照）
+- 開発方式の参照元: <https://github.com/RetryYN/HELIX-HARNESS>（development 正本、read-only 参照）
+- HELIX-HARNESS-OS は HELIX の配布 surface であり、本製品の依存先・組込み先ではない
 
 ---
 
 ## §1 一言で
 
 **TAKUMI-CMO のマーケティング頭脳を、HELIX 流「証跡と機械ゲートで品質を守る」思想で、
-スクラムをベースとした二重改善ループ（ループスクラム）として回すハーネスにする。**
+上流戦略 OS と下流戦術 OS を二重改善ループとして接続し、下流は pull・WIP 制限・blocked 管理・flow 計測を持つ Kanban を常時運転の主軸、Scrum は replenishment・review・retrospective の cadence として使うハーネスにする。**
 
-開発のような一方向の工程（V-model）ではなく、マーケティングの本質である
+HELIX-HARNESS は本製品へ組み込む runtime dependency ではない。本リポジトリの要求・設計・実装・検証を進める開発方式として使用し、製品内部の運転モデルとは分離する。
+
+製品 runtime は開発工程の V-model を模倣せず、マーケティングの本質である
 「仮説→実行→計測→学習」の反復を構造の中心に置く。品質は宣言ではなく、
 公開 URL・計測値・審査記録という**証跡**で守る。この点は HELIX と同一思想。
 
@@ -38,7 +42,15 @@ slice: cross
 3. **マーケは反復が本質** — 開発の V-model 的な「凍結して下ろす」構造は合わない。
    戦略も戦術も計測結果で更新され続ける。**ループそのものを機械で駆動する**構造が必要。
 
-## §3 アーキテクチャ — ループスクラム（二重改善ループ）
+## §3 アーキテクチャ — 戦略 OS ↔ 戦術 OS（二重改善ループ）
+
+### 3.0 開発方式と製品運転モデルの分離
+
+- **外側（開発）**: HELIX の L1〜L12 V-model、Forward/Reverse、要件↔検証ペア、証跡ゲートで本製品を開発する。
+- **内側（製品 runtime）**: 下流戦術 OS は Kanban の pull system として連続運転する。スプリントは作業を一括投入する箱ではなく、補充・レビュー・振り返りを行う時間境界である。
+- 上流戦略 OS は市場・顧客・価値仮説・戦略選択・媒体役割・KPI を版付き brief として下流へ渡す。下流戦術 OS は実行・計測の事実と解釈を分離した TLP を上流へ返す。どちらも相手の正本を直接更新しない。
+- 上流の revision により実媒体は追加・一時停止・廃止・差替えできる。戦略上の `media_role`、実媒体への `media_binding`、接続経路を分離し、媒体名を kernel・固定フォルダ構造・状態機械へ焼き付けない。
+- `business_profile` は隔離境界、その配下の `bounded_domain` は業務コンテキスト、`media_binding` は domain 内で版管理される実行資源とする。1 profile は複数 domain を持てるが、domain 間・profile 間の暗黙共有は禁止する。
 
 ### 時間軸 — 3 層構造とサイクルの分離
 
@@ -161,14 +173,14 @@ X は日次回転、ブログは週次回転、といった媒体差を許容し
 - WordPress は単なる公開先ではなく**運用資産の形成先**。過去コンテンツの構造・実績が次の企画の入力になる
 - ペア成立の判定（企画↔品質、計画↔計測）はハーネス DB が持つ。Notion / WordPress は判定正本にしない
 
-### スクラム要素の対応
+### Scrum cadence の対応
 
 | スクラム | 本ハーネス |
 |---|---|
 | プロダクトバックログ | 上位ループの行動計画 |
-| スプリント | 下位ループの 1 回転（計画スパン） |
+| スプリント | Kanban を停止しない補充・レビューの時間境界（WIP を一括投入する箱ではない） |
 | スプリントレビュー | 計測ゲート（証跡が揃って初めてレビュー成立） |
-| レトロスペクティブ | 改善ステップ（学習の DB 収束＋次スプリント計画へ反映） |
+| レトロスペクティブ | 改善ステップ（flow 指標と学習の DB 収束＋次の replenishment 方針へ反映） |
 | インクリメント | 公開された成果物＋計測スナップショット |
 
 ### 実行モデル — 外殻はループ、内部はタスク×ワークフロー
@@ -311,19 +323,22 @@ SNS（X / note / Instagram / YouTube …）の投稿・計測は **API 契約で
 
 1. 証跡ゲート（P1）とハーネス DB（KPI ツリー・施策・証跡・実測）
 2. 二重ループの状態機械（P2）— どのスプリントの、どのステップに、何が滞留しているかを機械が把握
-3. HELIX ローダ互換（`@...` import で HELIX 本体から読める構成）
+3. HELIX 式の開発統制（Forward/Reverse、V-pair、trace、証跡 gate）。製品コードや runtime workspace を
+   HELIX 本体へ import する互換層は持たない
 4. 外部基盤コネクタ — WordPress（REST API + WP-CLI。内部構築含む）と Notion（MCP）への読み書き。証跡・判定はハーネス DB 側に持つ
 
 ### 非スコープ
 
 - 広告運用（変数として 0 に固定）
-- 人間チーム運用（velocity / ceremony。スクラムは AI の反復機構としてのみ採用）
+- 人間チームの staffing／velocity 管理（replenishment・review・retrospective は system/AI が Kanban を
+  継続運転する cadence としてスコープ内。人間は別途定義された承認・判断 gate だけに関与する）
 - HELIX 本体（開発ハーネス）の変更
 
-## §7 進め方 — スライス駆動（層積みではなく縦切り）
+## §7 進め方 — HELIX V-model × スライス駆動
 
-本ハーネスの構築自体もループスクラムで行う。V-model 的な層進行（要求→設計→実装の一括積み上げ）や
-機能別フェーズ（移植→ゲート→DB→…の水平積み）は採らない。**各スライス = 端から端まで動くインクリメント**とし、
+本ハーネスの構築は HELIX の V-model（要求↔検証、設計↔テスト、実装↔単体テスト）を開発の背骨とする。
+その各層を一括凍結してから次層へ進むのではなく、**各スライス = 端から端まで検証可能なインクリメント**として
+必要な層を Forward で降り、検証結果を Reverse で上位へ還流する。
 TAKUMI スキルや接続・パイプラインは各スライスが必要とした時点で引き込む（先行一括移植をしない）。
 ドキュメントも「共通の背骨（スキーマ群・接続原則）＋スライスごとの要求」の形を取る。
 本チャーターは層外の anchor（HELIX の L0 と同じ位置づけ）。
@@ -335,22 +350,57 @@ TAKUMI スキルや接続・パイプラインは各スライスが必要とし�
 | S2 ヒアリングエンジン最小版 | 事業前提スキーマの不足検出 → 問診 → 充填 | 事業前提が型経由で確定し KPI ツリー初期形が起草される |
 | S3+ 媒体・能力の逐次追加 | 媒体 1 つ or パイプライン 1 本ずつ（X、Podcast、診断ツール、…） | 各スライスごとに新しい面が証跡付きで稼働 |
 
-スライスの順序・粒度は固定しない — 各スプリントのレトロスペクティブで次スライスを決める（自己適用）。
+スライスの順序・粒度は、HELIX の trace と検証クロージャーを壊さない範囲で、各開発イテレーションのレビューにより決める。
 
-## §8 リポジトリ構成（案）
+## §8 構成境界
+
+### 開発リポジトリ
+
+HELIX の成果物階層・正本／生成 view・検証ペアを、このリポジトリ内で完結させる。HELIX 本体の
+source tree や runtime state へ本製品を配置しない。
 
 ```text
 HELIX-MARKETING-HARNESS/
-├── docs/
-│   ├── L0-charter/        # 本書（北極星）
-│   ├── governance/        # 方針・ADR
-│   └── design/            # ループ・DB・ゲートの設計
-├── skills/                # TAKUMI 由来スキル（移植）
-├── agents/                # 分業エージェント定義
-├── commands/              # エントリポイント
-├── loops/                 # 上位/下位ループのステップ定義（旧 procedures を再編）
-└── harness/               # 状態機械・ゲート・DB（F2 以降）
+├── docs/                   # 00-authority + L0〜L6 の正本・生成 view・検証設計
+├── src/helix/              # 本製品の Python semantic core（実装時）
+├── tests/                  # gate／unit tests
+├── tools/gates/            # 工程別の機械 gate
+└── scripts/                # view 生成・検証用の薄い entrypoint
 ```
+
+### runtime managed workspace（複数 domain）
+
+物理 workspace は `business_profile` と `bounded_domain` の二段境界を必須とする。下記の
+`<workspace-root>` は設定された managed root であり、リポジトリ root・HELIX 本体・任意の絶対 path を
+既定値にしてはならない。directory 名に媒体名を焼き付けず、実媒体は domain manifest が参照する
+版付き `media_binding` で追加・pause・retire・replacement する。
+
+```text
+<workspace-root>/
+└── profiles/
+    └── <business_profile_id>/
+        ├── profile-manifest.json
+        └── domains/
+            └── <bounded_domain_id>/
+                ├── domain-manifest.json
+                ├── strategy/
+                ├── backlog/
+                ├── work/
+                │   ├── drafts/
+                │   └── assets-src/
+                ├── evidence/
+                └── exports/
+```
+
+- registry の canonical root と manifest の ID・version・root は一致させる。
+- すべての read/write は profile ID と domain ID を要求し、path traversal、symlink escape、他境界との
+  root overlap、archived domain への write を fail-close で拒否する。
+- domain 間の共有は明示された export/import 契約だけで行い、相対 path や共通 directory による暗黙共有を禁止する。
+- `strategy/` は上流戦略の投影、`backlog/` と `work/` は下流 Kanban の作業面、`evidence/` は検証証跡、
+  `exports/` は境界外へ渡す不変成果物とし、互いの責務を混在させない。
+- ID・状態・版・拒否条件の L3 正本は
+  [FR-17／FR-35／FR-48 契約](../../L3-system-requirements/canonical/functional/fr-contracts.json) と
+  [要件一覧](../../L3-system-requirements/canonical/functional/requirements_v0.1.md) とする。
 
 ### 保留（検討済み・現段階で不採用）
 
@@ -372,8 +422,9 @@ HELIX-MARKETING-HARNESS/
   構造設計は AI が実施済み — HQ ページ配下に 📋 行動計画 / 💡 ネタ帳（編集カレンダー・制作ボード付き）/
   🏃 スプリントバックログ（スプリントボード付き）の 3 DB をリレーション接続で構築（2026-07-30）。
 - **SNS 接続方式（確定 2026-07-30）**: API ではなく**ブラウザ自動化で突破**。サイト構造の攻略地図を DB に蓄積。
-- **TAKUMI 継承方針（確定 2026-07-30）**: そのまま移植ではなく、スキル・ワークフロー・タスクを素材として
-  取り出し、ループスクラム構造へ HELIX 風にカスタマイズして再配置する。
+- **TAKUMI 継承方針（確定 2026-07-30、2026-08-05 語義是正）**: そのまま移植ではなく、スキル・
+  ワークフロー・タスクを素材として取り出す。開発は HELIX 式 V-model に従い、製品 runtime は
+  Kanban-first + Scrum cadence として再配置する。
 - **コマンド体系（② 確定 2026-07-30）**: **専用コマンドは持たない**。ハーネスの状態機械が次アクションを
   把握しているため、人が工程をコマンドで呼び出す構造は不要。入口は自然言語＋定時実行（cron/heartbeat）。
   TAKUMI のコマンド群・「匠」の呼称・文言は一切継承しない（機能素材のみ取り込む）。
