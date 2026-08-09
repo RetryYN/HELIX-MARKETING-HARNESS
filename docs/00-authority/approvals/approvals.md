@@ -474,3 +474,7 @@
 | 2026-08-10 | tc-contracts.json | v0.1 | confirmed | PO | 20097c61f972 | 公開API語彙をlist_declaredへ正規化した最終TCC正本 |
 | 2026-08-10 | ac-catalog | v0.1 | confirmed | PO | c348c80c94eb | 最終AC正本から生成ビューを再生成（手編集なし） |
 | 2026-08-10 | tc-catalog | v0.1 | confirmed | PO | b9f5bfb74aa5 | 最終TCC正本から生成ビューを再生成（手編集なし） |
+| 2026-08-10 | ac-contracts.json | v0.1 | confirmed | PO | af80ad5f5927 | screenshot API ID取り違えを修正し解消履歴由来の観測ラチェットへ同期 |
+| 2026-08-10 | tc-contracts.json | v0.1 | confirmed | PO | 829ca45b5672 | launch・screenshot・run_playbookの公開API観測をTCCへ同期 |
+| 2026-08-10 | ac-catalog | v0.1 | confirmed | PO | 6aa774e744a7 | screenshot観測修正後のAC生成ビュー |
+| 2026-08-10 | tc-catalog | v0.1 | confirmed | PO | ac84cb7d4e13 | screenshot観測修正後のTCC生成ビュー |

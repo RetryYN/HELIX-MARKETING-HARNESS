@@ -3510,7 +3510,11 @@
           "operation_log"
         ],
         "error_type_refs": [],
-        "api_refs": []
+        "api_refs": [
+          "launch",
+          "run_playbook",
+          "screenshot"
+        ]
       },
       "api_observation_assertions": {
         "API-DU15-01": {
@@ -3519,10 +3523,10 @@
           "observation": "BrowserSession.scopeとstorage_state_path、および別profile配下の前後snapshotを観測する",
           "assert": "scopeが指定profile、保存先が同profile配下、別profile差分0を独立assertする"
         },
-        "API-DU15-03": {
+        "API-DU15-02": {
           "fixture": "到達可能URLと不一致最終URLを返すfixtureを分け、capture保存先Pathを固定する",
-          "action": "run_playbook(session, playbook, ctx)のscreenshot stepを呼び到達確認と保存を実行する",
-          "observation": "返却capture Path、最終URL、保存ファイルhash、外部操作行のeffectとstatusを観測する",
+          "action": "screenshot(session, url, out_path)を呼び到達確認とcapture保存を実行する",
+          "observation": "返却capture Path、最終URL、保存ファイルhash、拒否時の保存先差分を観測する",
           "assert": "指定Path保存とURL一致をassertし、不一致fixtureは保存前に拒否されることを別ケースでassertする"
         }
       },
@@ -9129,5 +9133,5 @@
   "supersedes": [
     "ARCHIVE-AC-LEGACY"
   ],
-  "approval_digest": "f37c3d890ed0"
+  "approval_digest": "af80ad5f5927"
 }

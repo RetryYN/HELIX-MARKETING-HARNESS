@@ -36,13 +36,6 @@ IMPL_UNIT_SCHEMA = L6 / "S0/implementation-unit.schema.json"
 # trace を「借りて」済ませる言い回し。ID の代わりにこれらが立つと意味接続が空洞になる
 TRACE_SUBSTITUTES = ("準用", "準じる", "準ずる", "同等", "相当をもって", "に倣う", "に習う",
                      "同様に扱う", "踏襲", "流用", "借用", "代用")
-# 過去に節IDの追記だけで「未被覆=0」へ移したAPI。これらはAPI固有の反証可能な
-# fixture/action/observation/assertをACへ構造化し、同じ空洞化を再発させない。
-OBSERVATION_RATCHET_APIS = {
-    "API-DU13-02", "API-DU15-01", "API-DU15-03", "API-DU20-01", "API-DU21-02",
-}
-
-
 def api_index(du: dict) -> dict[str, dict]:
     return {a["api_id"]: a for a in du["apis"]}
 
@@ -331,7 +324,24 @@ def detect_clause_coverage_faults(ctx: Ctx) -> list[str]:
                         bad.append(f"{a['api_id']}: 内部 API（{lv}）なのに契約節 {cid} が"
                                    f"『{GAP_CATEGORY}』（内部分類と未解決 gap は併存しない）")
     bad += detect_uncovered_api_ledger_faults(ctx, covered)
-    for api_id in sorted(OBSERVATION_RATCHET_APIS):
+    ledger = load(UNCOVERED_APIS)
+    resolved = ledger.get("resolved_items") or []
+    if ledger.get("resolved_count") != len(resolved):
+        bad.append("uncovered-apis.json: resolved_count がappend-only解消履歴の実数と不一致")
+    resolved_ids = [it.get("api_id") for it in resolved]
+    if len(resolved_ids) != len(set(resolved_ids)):
+        bad.append("uncovered-apis.json: resolved_items の api_id が重複")
+    for it in resolved:
+        api_id = it.get("api_id")
+        expected_owner = it.get("resolution_ac")
+        if api_id not in api_names:
+            bad.append(f"{api_id}: resolved_items が実在しないAPIを参照")
+            continue
+        if it.get("function") != api_names[api_id] or it.get("du_id") != du_of_api[api_id]:
+            bad.append(f"{api_id}: resolved_items のdu_id/functionが現API契約と不一致")
+        if expected_owner not in observation_owners.get(api_id, []):
+            bad.append(f"{api_id}: resolution_ac={expected_owner} がAPI固有assertionを所有しない")
+    for api_id in sorted(set(resolved_ids)):
         owners = observation_owners.get(api_id, [])
         if len(owners) != 1:
             bad.append(f"{api_id}: API固有の反証可能な api_observation_assertions が"

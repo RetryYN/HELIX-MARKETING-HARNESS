@@ -1792,7 +1792,7 @@
         "AC-42-1"
       ],
       "kind": "normal",
-      "verifies_state": "external_operations 3行すべてeffect='write'・confirmed、playbookはactiveのまま",
+      "verifies_state": "sessionは指定profileだけへ保存し、screenshotは最終URL一致時だけ指定Pathへ保存、不一致時は保存差分0。external_operations 3行はwrite・confirmedでplaybookはactive",
       "verifies_db_delta": "external_operations(effect='write') +3行、対応operation_log +3行、playbooks.last_success_at UPDATE",
       "verifies_evidence": "operation_log 行（external_operation_id つき）＋構造化ログの seed=42 と間隔 3 値。operation_logはexternal_operation_row_idで該当external_operations.idへexactly-oneに束縛し、provider external_operation_idは任意。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
       "verifies_forbidden": "固定間隔での連続送信（3 間隔が全一致）・範囲外（1 秒未満/5 秒超）の間隔・idempotency key の重複",
@@ -1824,7 +1824,11 @@
           "operation_log"
         ],
         "error_type_refs": [],
-        "api_refs": []
+        "api_refs": [
+          "launch",
+          "run_playbook",
+          "screenshot"
+        ]
       }
     },
     {
@@ -7049,5 +7053,5 @@
   "supersedes": [
     "ARCHIVE-TC-LEGACY"
   ],
-  "approval_digest": "20097c61f972"
+  "approval_digest": "829ca45b5672"
 }

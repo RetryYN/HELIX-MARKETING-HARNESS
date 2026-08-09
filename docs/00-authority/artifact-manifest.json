@@ -1094,7 +1094,7 @@
       "previous_paths": [
         "docs/requirements/json/ac/ac-contracts.json"
       ],
-      "approval_digest": "f37c3d890ed0",
+      "approval_digest": "af80ad5f5927",
       "review_digest": null
     },
     {
@@ -2668,7 +2668,7 @@
       "previous_paths": [
         "docs/requirements/json/verification/tc-contracts.json"
       ],
-      "approval_digest": "20097c61f972",
+      "approval_digest": "829ca45b5672",
       "review_digest": null
     },
     {
