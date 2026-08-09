@@ -147,7 +147,9 @@ CREATE TABLE workflows (
   id INTEGER PRIMARY KEY,
   workflow_key TEXT NOT NULL,
   name TEXT NOT NULL,
-  task_type TEXT NOT NULL,
+  task_type TEXT NOT NULL CHECK (
+    length(task_type) > 0
+    AND task_type NOT GLOB '*[^A-Za-z0-9_-]*'),
   version INTEGER NOT NULL,
   definition_json TEXT NOT NULL CHECK (json_valid(definition_json)),
   required_evidence_json TEXT NOT NULL CHECK (json_valid(required_evidence_json)),
@@ -244,7 +246,9 @@ CREATE TABLE tasks (
   loop_run_id INTEGER NOT NULL,
   parent_task_id INTEGER,
   workflow_id INTEGER NOT NULL,
-  task_type TEXT NOT NULL,
+  task_type TEXT NOT NULL CHECK (
+    length(task_type) > 0
+    AND task_type NOT GLOB '*[^A-Za-z0-9_-]*'),
   author_agent_id INTEGER NOT NULL,
   verifier_agent_id INTEGER NOT NULL,
   state TEXT NOT NULL CHECK (state IN ('pending', 'in_progress', 'verifying', 'done', 'failed', 'escalated')),
@@ -299,7 +303,7 @@ CREATE TABLE external_operations (
   evidence_id INTEGER UNIQUE,
   prepared_at TEXT NOT NULL,
   sent_at TEXT,
-  confirmed_at TEXT,
+  finalized_at TEXT,
   FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE RESTRICT,
   FOREIGN KEY (evidence_id) REFERENCES evidence(id) ON DELETE RESTRICT,
   UNIQUE (task_id, effect, operation, request_hash, request_sequence),
@@ -328,12 +332,12 @@ CREATE TABLE external_operations (
       AND sent_at GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T[0-9][0-9]:[0-9][0-9]:[0-9][0-9]Z'
       AND COALESCE(strftime('%Y-%m-%dT%H:%M:%SZ', sent_at, '+0 seconds') = sent_at, 0)
       AND sent_at >= prepared_at)),
-  CHECK (confirmed_at IS NULL OR (
+  CHECK (finalized_at IS NULL OR (
       sent_at IS NOT NULL
-      AND length(confirmed_at) = 20
-      AND confirmed_at GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T[0-9][0-9]:[0-9][0-9]:[0-9][0-9]Z'
-      AND COALESCE(strftime('%Y-%m-%dT%H:%M:%SZ', confirmed_at, '+0 seconds') = confirmed_at, 0)
-      AND confirmed_at >= sent_at))
+      AND length(finalized_at) = 20
+      AND finalized_at GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T[0-9][0-9]:[0-9][0-9]:[0-9][0-9]Z'
+      AND COALESCE(strftime('%Y-%m-%dT%H:%M:%SZ', finalized_at, '+0 seconds') = finalized_at, 0)
+      AND finalized_at >= sent_at))
 );
 
 CREATE TABLE pair_plan_quality (
@@ -585,7 +589,7 @@ CREATE TRIGGER external_operations_insert_prepared BEFORE INSERT ON external_ope
 WHEN NEW.status != 'prepared'
   OR NEW.evidence_id IS NOT NULL
   OR NEW.sent_at IS NOT NULL
-  OR NEW.confirmed_at IS NOT NULL
+  OR NEW.finalized_at IS NOT NULL
   OR NEW.external_operation_id IS NOT NULL
   OR NEW.remote_object_id IS NOT NULL
   OR NEW.response_hash IS NOT NULL
@@ -645,19 +649,19 @@ WHEN OLD.status != 'sent' OR NEW.status != 'sent'
       AND NEW.response_hash IS NOT OLD.response_hash)
 BEGIN SELECT RAISE(ABORT, 'external operation result metadata is write-once while sent'); END;
 CREATE TRIGGER external_operations_lifecycle BEFORE UPDATE OF
-  status, evidence_id, sent_at, confirmed_at ON external_operations
+  status, evidence_id, sent_at, finalized_at ON external_operations
 WHEN NOT (
   (OLD.status = 'prepared'
     AND NEW.status = 'sent'
     AND OLD.evidence_id IS NULL AND NEW.evidence_id IS NULL
     AND OLD.sent_at IS NULL AND NEW.sent_at IS NOT NULL
-    AND OLD.confirmed_at IS NULL AND NEW.confirmed_at IS NULL)
+    AND OLD.finalized_at IS NULL AND NEW.finalized_at IS NULL)
   OR
   (OLD.status = 'sent'
     AND NEW.status IN ('confirmed', 'rejected', 'unknown')
     AND OLD.evidence_id IS NULL AND NEW.evidence_id IS NOT NULL
     AND NEW.sent_at IS OLD.sent_at
-    AND OLD.confirmed_at IS NULL AND NEW.confirmed_at IS NOT NULL
+    AND OLD.finalized_at IS NULL AND NEW.finalized_at IS NOT NULL
     AND EXISTS (
       SELECT 1 FROM evidence AS ev
       WHERE ev.id = NEW.evidence_id
@@ -731,7 +735,7 @@ BEGIN
   UPDATE external_operations
   SET status = json_extract(NEW.payload_json, '$.result'),
       evidence_id = NEW.id,
-      confirmed_at = NEW.created_at
+      finalized_at = NEW.created_at
   WHERE id = NEW.external_operation_row_id;
   INSERT INTO spend_ledger (
     task_id, entry_type, approval_id, service, amount_minor, currency, purpose,
@@ -810,14 +814,22 @@ WHEN NOT EXISTS (
       AND NEW.external_operation_id IS NULL
       AND EXISTS (
         SELECT 1 FROM spend_ledger AS original
+        JOIN tasks AS correction ON correction.id = NEW.task_id
+        JOIN tasks AS source ON source.id = original.task_id
         WHERE original.id = NEW.reverses_spend_ledger_id
           AND original.entry_type = 'charge'
           AND original.amount_minor = NEW.amount_minor
           AND original.service = NEW.service
           AND original.currency = NEW.currency
+          AND correction.task_type = 'spend_correction'
+          AND correction.parent_task_id = source.id
+          AND correction.loop_run_id = source.loop_run_id
+          AND correction.id != source.id
+          AND json_type(correction.input_json, '$.original_spend_ledger_id') = 'integer'
+          AND json_extract(correction.input_json, '$.original_spend_ledger_id') = original.id
       ))
   )
-BEGIN SELECT RAISE(ABORT, 'spend entry must be an approved paid-operation charge or one exact approved reversal'); END;
+BEGIN SELECT RAISE(ABORT, 'spend entry must be an approved paid-operation charge or one exact reversal from its bound approved correction task'); END;
 CREATE TRIGGER spend_ledger_no_update BEFORE UPDATE ON spend_ledger
 BEGIN SELECT RAISE(ABORT, 'spend_ledger is append-only'); END;
 CREATE TRIGGER spend_ledger_no_delete BEFORE DELETE ON spend_ledger
@@ -1010,7 +1022,7 @@ BEGIN SELECT RAISE(ABORT,
 
 必須 kind は `workflows.required_evidence_json` に JSON 配列で宣言する。S0 の基準は T-PLAN: `plan_record`、T-PROD: `commit_hash`、T-REVIEW: `review_pass`、T-PUB: `published_url`・`screenshot`・`approval`、T-MEAS: `measurement`・`file_hash`・`screenshot` とする。`done` 遷移では、現在の workflow の全 kind が当該 task に存在し、各 kind 規則を再検証してからのみ遷移する。
 
-`operation_log` は sent の `external_operations` 行が先に存在しなければ INSERT できない。call 後は sent 行の任意 provider ID / remote object ID / lowercase response hash をそれぞれ NULL から一度だけ記録し、結果を payload に持つ `operation_log` を INSERT する。`prepared_at`／`sent_at`／`confirmed_at` と operation_log の `created_at` は実在する秒精度の canonical UTC RFC3339（`YYYY-MM-DDTHH:MM:SSZ`）だけを受理する。`evidence_operation_log_insert` AFTER trigger は INSERT 文の内部で全束縛を検証してから、同じ外部行を `status=<payload.result>, evidence_id=<NEW.id>, confirmed_at=<NEW.created_at>` へ更新する。`approved_paid_operation + confirmed` では続けて payload の承認・正額・JPY・非空目的・発生時刻から charge を自動 INSERT する。lifecycle／spend trigger が反対向 FK と全束縛を再検証するため、成功時は operation_log・final 化・charge が同じ statement/transaction で成立し、どれかの失敗時は3者とも rollback される。rejected/unknown は charge 0 行とする。アプリケーションが別の final UPDATE や初回 charge を発行してはならない。不一致・孤児・重複・証跡なし final・final 後の変更を ABORT する。
+`operation_log` は sent の `external_operations` 行が先に存在しなければ INSERT できない。call 後は sent 行の任意 provider ID / remote object ID / lowercase response hash をそれぞれ NULL から一度だけ記録し、結果を payload に持つ `operation_log` を INSERT する。`prepared_at`／`sent_at`／`finalized_at` と operation_log の `created_at` は実在する秒精度の canonical UTC RFC3339（`YYYY-MM-DDTHH:MM:SSZ`）だけを受理する。`evidence_operation_log_insert` AFTER trigger は INSERT 文の内部で全束縛を検証してから、同じ外部行を `status=<payload.result>, evidence_id=<NEW.id>, finalized_at=<NEW.created_at>` へ更新する。`approved_paid_operation + confirmed` では続けて payload の承認・正額・JPY・非空目的・発生時刻から charge を自動 INSERT する。lifecycle／spend trigger が反対向 FK と全束縛を再検証するため、成功時は operation_log・final 化・charge が同じ statement/transaction で成立し、どれかの失敗時は3者とも rollback される。rejected/unknown は charge 0 行とする。アプリケーションが別の final UPDATE や初回 charge を発行してはならない。不一致・孤児・重複・証跡なし final・final 後の変更を ABORT する。
 
 `published_url` は provider operation ID を同一性キーにしない。`external_operation_row_id` と `operation_log_evidence_id` を必須とし、同じ task の actual・confirmed・`content_publish`・write 外部行、その行を final 化した operation_log、同じ canonical URL の asset に束縛する。各ローカル ID は published_url 側でも UNIQUE とし、他 evidence kind による占有、別 task、非confirmed／非publish、URL・WP post ID・asset 不一致を拒否する。
 

@@ -101,6 +101,7 @@ slice: cross
 | G-DDL-APPLY | DDL が空 SQLite へ適用でき FK/integrity が通り、テーブル 25・トリガ 37。実 external read/write と operation_log の双方向1:1、prepared→sent→final、final不変、mock/dry-run/pre-call行0、published_urlのローカル行束縛、有償操作とchargeの原子化を実DML mutationで検証 | 実行不能なスキーマ・孤児/重複外部証跡・結果改竄・非原子finalize・台帳外支出 |
 | G-DESIGN-PHYSICAL-COUNT | 現役文書・契約 JSON・テスト関数名が主張する物理数（テーブル総数・トリガ本数）が**実 DDL から導出した数**と一致し、部分集合の本数を数値で書いていない（監査記録・承認ログは当時の事実を保存する履歴なので対象外） | 設計文書の物理数が実スキーマから乖離（11／14 本のような化石表記の温存） |
 | G-PLAYBOOK-VERSION | playbook修復を実DMLで検査し、破損版ごとにrepair task 1件、attempt=1/retry=0、版の連続系譜、successor INSERT失敗時のatomic rollback、旧版内容・retired版・削除の拒否を確認 | 再起動や並行通知での多重修復・攻略地図の上書き・現役版消失 |
+| G-TASK-TYPE-REGISTRY | DDL が意味分岐に用いる内部 `task_type` 集合と L1 `task-types.json` の `internal=true` 語彙を完全一致で照合 | 未登録・誤記・失効した内部task typeによる要件とDB制約の分離 |
 | G-EVK | evidence kind 10 種が JSON 契約と DDL CHECK で同一集合 | 証跡語彙の乖離 |
 | G-TRN-ENT / G-TRN-ST | 遷移 entity が loop_runs/tasks、from/to が DDL enum 内 | 実装不能な状態機械 |
 | G-TRN-UNIQ/REACH/TERM/GUARD | (entity, from, event) 一意・全状態の到達可能性・終端からの遷移不在・全遷移に非空ガード | 非決定的な状態機械 |

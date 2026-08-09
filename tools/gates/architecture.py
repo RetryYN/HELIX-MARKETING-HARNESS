@@ -14,6 +14,7 @@ from tools.gates.common import (
     L4,
     L5,
     L6,
+    LTW_DIR,
     MIGRATION_RULES,
     ROOT,
     S0_CONTRACT,
@@ -398,6 +399,63 @@ def _detect_published_spend_faults(ddl: str) -> list[str]:
         finally:
             c.close()
 
+    # reversal は散文上の approval だけでなく、元chargeへ構造束縛した専用訂正taskを必須とする。
+    correction_task_faults = [
+        ("task種別不一致",
+         lambda db: db.execute("UPDATE tasks SET task_type='external_io' WHERE id=2")),
+        ("元task親参照なし",
+         lambda db: db.execute("UPDATE tasks SET parent_task_id=NULL WHERE id=2")),
+        ("元仕訳入力不一致", lambda db: db.execute(
+            "UPDATE tasks SET input_json='{\"original_spend_ledger_id\":999}' WHERE id=2")),
+        ("元仕訳入力型不一致", lambda db: db.execute(
+            "UPDATE tasks SET input_json='{\"original_spend_ledger_id\":\"1\"}' WHERE id=2")),
+        ("loop不一致", lambda db: (
+            db.execute("INSERT INTO loop_runs "
+                       "(id,loop_kind,loop_type,state,idempotency_key,created_at) "
+                       "VALUES (2,'upper','LP-U','running','other-loop','t')"),
+            db.execute("UPDATE tasks SET loop_run_id=2 WHERE id=2"),
+        )),
+    ]
+    for label, corrupt_task in correction_task_faults:
+        c = _external_io_fixture(ddl)
+        try:
+            _insert_approved_approval(c)
+            _insert_external_operation(c, policy_category="approved_paid_operation",
+                                       rate_scope="approved_paid_operation")
+            _send_external_operation(c)
+            _insert_operation_log(c, payload_overrides=paid_payload)
+            _insert_approved_approval(c, approval_id=2, task_id=2)
+            corrupt_task(c)
+            try:
+                _insert_reversal(c)
+                bad.append(f"reversal correction task {label}が通過")
+            except sqlite3.IntegrityError:
+                pass
+            if c.execute("SELECT count(*) FROM spend_ledger").fetchone()[0] != 1:
+                bad.append(f"reversal correction task {label}拒否後に台帳行が変化")
+        finally:
+            c.close()
+
+    # 元charge task自身を訂正taskへ偽装しても「別task」条件を迂回できない。
+    c = _external_io_fixture(ddl)
+    try:
+        _insert_approved_approval(c)
+        _insert_external_operation(c, policy_category="approved_paid_operation",
+                                   rate_scope="approved_paid_operation")
+        _send_external_operation(c)
+        _insert_operation_log(c, payload_overrides=paid_payload)
+        c.execute("UPDATE tasks SET task_type='spend_correction', parent_task_id=1, "
+                  "input_json='{\"original_spend_ledger_id\":1}' WHERE id=1")
+        try:
+            _insert_reversal(c, task_id=1, approval_id=1)
+            bad.append("reversal correction task自己参照が通過")
+        except sqlite3.IntegrityError:
+            pass
+        if c.execute("SELECT count(*) FROM spend_ledger").fetchone()[0] != 1:
+            bad.append("reversal correction task自己参照拒否後に台帳行が変化")
+    finally:
+        c.close()
+
     c = _external_io_fixture(ddl)
     try:
         _insert_approved_approval(c)
@@ -665,12 +723,17 @@ def _external_io_fixture(ddl: str) -> sqlite3.Connection:
               " VALUES (1,'io-wf','External I/O','external_io',1,'{}','[]','active','t')")
     c.execute("INSERT INTO loop_runs (id,loop_kind,loop_type,state,idempotency_key,created_at)"
               " VALUES (1,'upper','LP-U','running','io-loop','t')")
-    for task_id in (1, 2):
-        c.execute("INSERT INTO tasks (id,loop_run_id,workflow_id,task_type,author_agent_id,"
-                  " verifier_agent_id,state,step_key,attempt,retry_count,idempotency_key,"
-                  " expected_output_kind,input_json,created_at)"
-                  " VALUES (?,1,1,'external_io',1,2,'in_progress',?,1,0,?,'operation_log','{}','t')",
-                  (task_id, f"io-{task_id}", f"io-task-{task_id}"))
+    c.execute("INSERT INTO tasks (id,loop_run_id,workflow_id,task_type,author_agent_id,"
+              " verifier_agent_id,state,step_key,attempt,retry_count,idempotency_key,"
+              " expected_output_kind,input_json,created_at)"
+              " VALUES (1,1,1,'external_io',1,2,'in_progress','io-1',1,0,'io-task-1',"
+              " 'operation_log','{}','t')")
+    c.execute("INSERT INTO tasks (id,loop_run_id,parent_task_id,workflow_id,task_type,"
+              " author_agent_id,verifier_agent_id,state,step_key,attempt,retry_count,"
+              " idempotency_key,expected_output_kind,input_json,created_at)"
+              " VALUES (2,1,1,1,'spend_correction',1,2,'in_progress','spend-correction-1',"
+              " 1,0,'spend-correction-task-1','spend_reversal',"
+              " '{\"original_spend_ledger_id\":1}','t')")
     c.execute("INSERT INTO config (id,key,value_json,value_type,changed_at,reason)"
               " VALUES (1,'external_operation.sent_recovery_timeout_sec','300','integer',"
               " '2026-08-10T00:00:00Z','required recovery timeout')")
@@ -967,7 +1030,7 @@ def detect_external_operation_evidence_faults(ddl: str) -> list[str]:
             _insert_operation_log(c, provider_id=provider_id, result=result)
             c.commit()
             state = c.execute(
-                "SELECT status,evidence_id,confirmed_at FROM external_operations WHERE id=1"
+                "SELECT status,evidence_id,finalized_at FROM external_operations WHERE id=1"
             ).fetchone()
             links = c.execute(
                 "SELECT count(*) FROM external_operations AS op JOIN evidence AS ev "
@@ -1138,7 +1201,7 @@ def detect_external_operation_evidence_faults(ddl: str) -> list[str]:
              "UPDATE external_operations SET external_operation_id='provider-1' WHERE id=1"))),
         ("preparedからfinalへ直行",
          lambda c: (_insert_external_operation(c), c.execute(
-             "UPDATE external_operations SET status='confirmed',confirmed_at='t3' WHERE id=1"))),
+             "UPDATE external_operations SET status='confirmed',finalized_at='t3' WHERE id=1"))),
         ("sentからpreparedへ逆行",
          lambda c: (_insert_external_operation(c), _send_external_operation(c), c.execute(
              "UPDATE external_operations SET status='prepared',sent_at=NULL WHERE id=1"))),
@@ -1154,7 +1217,7 @@ def detect_external_operation_evidence_faults(ddl: str) -> list[str]:
         ("sent_at cap窓付替え",
          lambda c: (_insert_external_operation(c), _send_external_operation(c), c.execute(
              "UPDATE external_operations SET sent_at='2026-08-09T00:00:00Z' WHERE id=1"))),
-        ("confirmed_at非canonical",
+        ("finalized_at非canonical",
          lambda c: (_insert_external_operation(c), _send_external_operation(c),
                     _insert_operation_log(c, created_at="2026-08-10 00:00:03"))),
         ("operation_log created_at暦時刻不正",
@@ -1171,7 +1234,7 @@ def detect_external_operation_evidence_faults(ddl: str) -> list[str]:
                     _insert_external_operation(c, operation_id=2, idempotency_key="write-key-2"))),
         ("証跡なしfinal",
          lambda c: (_insert_external_operation(c), _send_external_operation(c), c.execute(
-             "UPDATE external_operations SET status='unknown',confirmed_at='t3' WHERE id=1"))),
+             "UPDATE external_operations SET status='unknown',finalized_at='t3' WHERE id=1"))),
         ("sent前operation_log",
          lambda c: (_insert_external_operation(c), _insert_operation_log(c))),
     ]
@@ -1331,7 +1394,7 @@ def detect_external_operation_evidence_faults(ddl: str) -> list[str]:
              lambda: _insert_operation_log(c, evidence_id=2)),
             ("final外部行更新",
              lambda: c.execute(
-                 "UPDATE external_operations SET confirmed_at='2026-08-10T00:00:04Z' WHERE id=1")),
+                 "UPDATE external_operations SET finalized_at='2026-08-10T00:00:04Z' WHERE id=1")),
             ("final外部行削除",
              lambda: c.execute("DELETE FROM external_operations WHERE id=1")),
             ("operation_log更新",
@@ -1345,7 +1408,7 @@ def detect_external_operation_evidence_faults(ddl: str) -> list[str]:
             except sqlite3.IntegrityError:
                 pass
         state = tuple(c.execute(
-            "SELECT status,evidence_id,confirmed_at FROM external_operations WHERE id=1").fetchone())
+            "SELECT status,evidence_id,finalized_at FROM external_operations WHERE id=1").fetchone())
         evidence = c.execute(
             "SELECT external_operation_row_id,json_extract(payload_json,'$.result') "
             "FROM evidence WHERE id=1").fetchone()
@@ -1488,6 +1551,22 @@ def extract_primary_ddl(contract_text: str) -> str:
     return match.group(1) if match else ""
 
 
+def detect_internal_task_type_registry_faults(ddl: str, items: list[dict]) -> list[str]:
+    """DDL が意味分岐に使う内部 task_type と L1 正本語彙を完全一致させる。"""
+    faults: list[str] = []
+    ddl_types = set(re.findall(
+        r"(?:NEW\.|OLD\.|creator\.|correction\.)?task_type\s*=\s*'([A-Za-z0-9_-]+)'", ddl
+    ))
+    registered = {item["id"] for item in items if item.get("internal") is True}
+    if ddl_types != registered:
+        faults.append(f"内部task_type語彙差分={sorted(ddl_types ^ registered)}")
+    invalid_ids = sorted(item.get("id", "") for item in items
+                         if not re.fullmatch(r"[A-Za-z0-9_-]+", item.get("id", "")))
+    if invalid_ids:
+        faults.append(f"DDL CHECKで格納不能なtask_type正本ID={invalid_ids}")
+    return faults
+
+
 # ---------------------------------------------------------------- ゲート本体
 def run(ctx: Ctx) -> None:
     _ddl(ctx)
@@ -1532,6 +1611,12 @@ def _ddl(ctx: Ctx) -> None:
     gate("G-PLAYBOOK-VERSION", not playbook_faults,
          "playbook修復はbroken版ごとに1 task、版連鎖・atomic rollback・旧版不変をDBで強制 "
          f"(違反={playbook_faults[:3]})")
+
+    task_type_items = load(LTW_DIR / "task-types.json")["items"]
+    task_type_faults = detect_internal_task_type_registry_faults(ctx.ddl, task_type_items)
+    gate("G-TASK-TYPE-REGISTRY", not task_type_faults,
+         "DDL意味分岐の内部task_typeがL1正本語彙へ完全登録 "
+         f"(違反={task_type_faults})")
 
     kind_items = load(EVIDENCE_KINDS)["items"]
     kinds = {k["kind"] for k in kind_items}

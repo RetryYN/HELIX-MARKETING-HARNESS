@@ -72,6 +72,55 @@ def test_playbook_versions_and_repair_episode_are_enforced_by_ddl() -> None:
     assert architecture.detect_playbook_version_faults(CTX.ddl) == []
 
 
+def test_internal_task_types_are_registered_in_l1_canonical_vocabulary() -> None:
+    items = architecture.load(architecture.LTW_DIR / "task-types.json")["items"]
+    assert architecture.detect_internal_task_type_registry_faults(CTX.ddl, items) == []
+
+
+def test_mutation_unregistered_internal_task_type_is_detected() -> None:
+    items = architecture.load(architecture.LTW_DIR / "task-types.json")["items"]
+    mutated = [item for item in items if item["id"] != "spend_correction"]
+    faults = architecture.detect_internal_task_type_registry_faults(CTX.ddl, mutated)
+    assert any("spend_correction" in fault for fault in faults)
+
+
+def test_mutation_registry_id_rejected_by_ddl_character_contract_is_detected() -> None:
+    items = architecture.load(architecture.LTW_DIR / "task-types.json")["items"]
+    mutated = [*items, {"id": "bad task type", "internal": False}]
+    faults = architecture.detect_internal_task_type_registry_faults(CTX.ddl, mutated)
+    assert any("格納不能" in fault for fault in faults)
+
+
+def test_canonical_business_task_type_is_accepted_by_workflow_and_task_ddl() -> None:
+    con = sqlite3.connect(":memory:")
+    try:
+        con.executescript(CTX.ddl)
+        con.execute("INSERT INTO agents (id,agent_key,principal,role,display_name,status,created_at) "
+                    "VALUES (1,'a','p1','author','A','active','t'),"
+                    "(2,'v','p2','verifier','V','active','t')")
+        con.execute("INSERT INTO workflows (id,workflow_key,name,task_type,version,definition_json,"
+                    "required_evidence_json,status,created_at) "
+                    "VALUES (1,'WF-WP-1','Plan','T-PLAN',1,'{}','[]','active','t')")
+        con.execute("INSERT INTO loop_runs "
+                    "(id,loop_kind,loop_type,state,idempotency_key,created_at) "
+                    "VALUES (1,'upper','LP-U','running','loop','t')")
+        con.execute("INSERT INTO tasks (id,loop_run_id,workflow_id,task_type,author_agent_id,"
+                    "verifier_agent_id,state,step_key,idempotency_key,expected_output_kind,"
+                    "input_json,created_at) VALUES "
+                    "(1,1,1,'T-PLAN',1,2,'pending','plan','task','plan_record','{}','t')")
+    finally:
+        con.close()
+
+
+@pytest.mark.parametrize("misspelling", ["spend_correction2", "spend-correction", "SpendCorrection"])
+def test_mutation_noncanonical_internal_task_type_spelling_is_detected(misspelling: str) -> None:
+    items = architecture.load(architecture.LTW_DIR / "task-types.json")["items"]
+    mutated = CTX.ddl.replace("task_type = 'spend_correction'",
+                              f"task_type = '{misspelling}'")
+    faults = architecture.detect_internal_task_type_registry_faults(mutated, items)
+    assert any(misspelling in fault for fault in faults)
+
+
 def test_external_operation_evidence_one_to_one_is_enforced_by_ddl() -> None:
     """実 DML で actual-only、状態機械、原子finalize、read反復、1:1、不変性を実証する。"""
     assert architecture.detect_external_operation_evidence_faults(CTX.ddl) == []

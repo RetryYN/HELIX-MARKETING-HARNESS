@@ -10,6 +10,7 @@
 """
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -24,6 +25,24 @@ GENERATED_HEADER = (
 )
 
 STATUS_LABEL = {"confirmed": "confirmed", "draft": "draft（再降下中）", "superseded": "superseded"}
+
+
+def _markdown_autolink_urls(value: str) -> str:
+    """正本の bare URL を変更せず、生成 Markdown でだけ autolink 化する。"""
+    trailing = ".,;:!?)]}）］】」』"
+
+    def autolink(match: re.Match[str]) -> str:
+        candidate = match.group(0)
+        url = candidate.rstrip(trailing)
+        return f"<{url}>{candidate[len(url):]}"
+
+    def render_prose(part: str) -> str:
+        # 既存 autolink・code span・Markdown link destination は二重加工しない。
+        return re.sub(r"(?<![<`(])(https?://[^\s<>`、。）」』】]+)", autolink, part)
+
+    # fenced code は表示内容そのものなので変更せず、prose 部分だけを変換する。
+    parts = re.split(r"(^```[^\n]*\n.*?^```[ \t]*$)", value, flags=re.MULTILINE | re.DOTALL)
+    return "".join(part if part.startswith("```") else render_prose(part) for part in parts)
 
 
 def status_line(data: dict, note: str) -> str:
@@ -283,7 +302,7 @@ def main() -> int:
         # 正本の欠落は fail-close（黙殺 skip は同期成功と区別できないため禁止 — Sol major 対応）
         path, content = fn()
         current = path.read_text() if path.exists() else None
-        content = content.rstrip("\n") + "\n"
+        content = _markdown_autolink_urls(content.rstrip("\n")) + "\n"
         if current != content:
             if check:
                 dirty.append(str(path.relative_to(ROOT)))

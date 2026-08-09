@@ -2,7 +2,7 @@
 
 # 機能要件 実行契約（FR contracts） v0.1
 
-> status: **confirmed**（2026-08-01 PO 承認 — receipt c313be37fc53）。JSON 内容正本の生成ビュー（全層再降下 §3）
+> status: **confirmed**（2026-08-01 PO 承認 — receipt 7413d0e4506b）。JSON 内容正本の生成ビュー（全層再降下 §3）
 > 各 FR に 18 観点の実行・検証・拒否・復旧契約を必須化（G-REQ-CONTRACT／G-INVARIANT-TRACE）。
 
 ## FR-11 ループ状態機械
@@ -805,13 +805,13 @@
 
 ## FR-73 例外支出台帳（spend_ledger）
 
-- **入力**: charge記録要求（entry_type='charge', external_operation_row_id, amount_minor>0, currency='JPY', purpose, approval_id, occurred_at。service/task_idは外部操作行から取得）／reversal記録要求（entry_type='reversal', reverses_spend_ledger_id, amount_minor>0, currency='JPY', purpose, approval_id, occurred_at。別のapproved correction taskへ束縛）／月間累計の照会要求（対象月）
+- **入力**: charge記録要求（entry_type='charge', external_operation_row_id, amount_minor>0, currency='JPY', purpose, approval_id, occurred_at。service/task_idは外部操作行から取得）／reversal記録要求（entry_type='reversal', reverses_spend_ledger_id, amount_minor>0, currency='JPY', purpose, approval_id, occurred_at。task_type='spend_correction'・parent_task_id=元charge.task_id・input_json.original_spend_ledger_id=元charge.idの別taskへ束縛）／月間累計の照会要求（対象月）
 - **出力**: spend_ledger仕訳行（entry_type=charge|reversal。例外利用1件=charge 1行、取消しは元chargeに対するreversal最大1行）／月間累計額（NFR-6 の上限判定入力）／拒否時: SpendRecordIncomplete／DuplicateSpendEntry 例外／設計境界: S1詳細設計未着手（専用spend ledger component/DUへ再降下必須。既存CMP-13/DU-23は計測専用で代用しない）
-- **事前条件**: chargeはexternal_operation_row_idが指すexternal_operations行がexecution_mode='actual'・effect='write'・policy_category='approved_paid_operation'・status='confirmed'で、対応operation_logが確定済み／chargeのservice/task_idがexternal_operations行と一致し、approval_idは同じtask・操作へ束縛済み／reversalはreverses_spend_ledger_idが未取消しのentry_type='charge'行を指し、別のdecision=approved correction task/approvalへ束縛済み
+- **事前条件**: chargeはexternal_operation_row_idが指すexternal_operations行がexecution_mode='actual'・effect='write'・policy_category='approved_paid_operation'・status='confirmed'で、対応operation_logが確定済み／chargeのservice/task_idがexternal_operations行と一致し、approval_idは同じtask・操作へ束縛済み／reversalはreverses_spend_ledger_idが未取消しのentry_type='charge'行を指し、同一loop_runの別task（task_type='spend_correction'・parent_task_id=元charge.task_id・input_json.original_spend_ledger_id=元charge.id）とそのdecision=approved approvalへ束縛済み
 - **事後条件**: Seedance等のconfirmed approved_paid_operationが全件entry_type='charge'のspend_ledgerに存在する（記録なしの有償操作0件）／全仕訳でamount_minor>0・currency='JPY'が保証され、無料・amount=0・手動charge・FX通貨はspend_ledgerへ混入しない／月間純額がSUM(CASE WHEN entry_type='charge' THEN amount_minor ELSE -amount_minor END)のSELECTだけで算出できる
-- **不変条件**: confirmed有償actual write（policy_category='approved_paid_operation'）とcharge行はexternal_operation_row_idで双方向exactly-one（台帳なし支出・孤児chargeとも0 — BR-F1）／chargeだけexternal_operation_row_id NOT NULL UNIQUE・reverses_spend_ledger_id NULL、reversalだけexternal_operation_row_id NULL・reverses_spend_ledger_id NOT NULL UNIQUEで元chargeを指す。provider external_operation_idは任意の補助属性にすぎない／reversalは元chargeとamount_minor/service/currencyが完全一致し、1 chargeにつき最大1行。台帳行のUPDATE/DELETEは禁止し、訂正は別approved correction taskに束縛したreversal追加だけで行う
+- **不変条件**: confirmed有償actual write（policy_category='approved_paid_operation'）とcharge行はexternal_operation_row_idで双方向exactly-one（台帳なし支出・孤児chargeとも0 — BR-F1）／chargeだけexternal_operation_row_id NOT NULL UNIQUE・reverses_spend_ledger_id NULL、reversalだけexternal_operation_row_id NULL・reverses_spend_ledger_id NOT NULL UNIQUEで元chargeを指す。provider external_operation_idは任意の補助属性にすぎない／reversalは元chargeとamount_minor/service/currencyが完全一致し、1 chargeにつき最大1行。台帳行のUPDATE/DELETEは禁止し、訂正はDBが元chargeへ構造束縛を検証した別approved spend_correction taskによるreversal追加だけで行う
 - **状態遷移**: なし
-- **正常動作**: chargeは有償APIのexternal_operations行がactual write・policy_category='approved_paid_operation'としてoperation_log triggerでconfirmed化した時だけ、その内部idをexternal_operation_row_idへNOT NULLでINSERTする。reversalは別approved correction taskから未取消しchargeをreverses_spend_ledger_idで参照し、元と同額・同service・JPYでINSERTする。provider IDは同一性に使わない。月間純額はUTC半開区間に対しSUM(CASE WHEN entry_type='charge' THEN amount_minor ELSE -amount_minor END)で集計する。
+- **正常動作**: chargeは有償APIのexternal_operations行がactual write・policy_category='approved_paid_operation'としてoperation_log triggerでconfirmed化した時だけ、その内部idをexternal_operation_row_idへNOT NULLでINSERTする。reversalはtask_type='spend_correction'・parent_task_id=元charge.task_id・input_json.original_spend_ledger_id=元charge.idを満たす別approved taskから未取消しchargeを参照し、元と同額・同service・JPYでINSERTする。provider IDは同一性に使わない。月間純額はUTC半開区間に対しSUM(CASE WHEN entry_type='charge' THEN amount_minor ELSE -amount_minor END)で集計する。
 - **拒否・異常動作**: chargeのexternal_operation_row_id/amount/purpose/approval欠落、参照外部行不在、actual/write/approved_paid_operation/confirmed不一致、task/service不一致、reversalの元charge不在・既取消し・同額/同service/JPY不一致・correction task/approval欠落はINSERT前拒否。同一external_operation_row_id又はreverses_spend_ledger_idの再INSERTはUNIQUEでDuplicateSpendEntry。amount_minor<=0、currency!='JPY'、FX、無料・手動chargeを拒否し、台帳記録失敗の有償操作は成功扱いにしない。UPDATE/DELETEも常時拒否する。
 - **境界動作**: amount_minor=0の無料利用と手動分類はspend_ledgerへINSERTせず、process usage又は別の手動会計分類へ記録する。reversalは元chargeと同額全額取消しだけで部分取消し不可。月跨ぎcharge/reversalは各occurred_atのUTC月に符号付き計上する。provider IDがNULLでも内部row IDで一意性を保つ。
 - **再試行・再開・復旧**: charge前クラッシュ時は元writeのsent状態を別の実外部read行＋operation_logで照合し、元writeをoperation_log triggerでconfirmed化した後にexternal_operation_row_idで台帳記録を再開する。chargeは内部row ID UNIQUE、reversalはreverses_spend_ledger_id UNIQUEで各1行に収束し、provider ID欠落時も挙動は変わらない。

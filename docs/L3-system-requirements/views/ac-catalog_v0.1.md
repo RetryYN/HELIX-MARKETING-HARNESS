@@ -2,7 +2,7 @@
 
 # 受入条件 検証契約カタログ（AC contracts）v0.1
 
-> status: **confirmed**（2026-08-01 PO 承認 — receipt 6c8d0093fd6c）。JSON 内容正本の生成ビュー（全層再降下 §4）
+> status: **confirmed**（2026-08-01 PO 承認 — receipt 8d88e42f46d0）。JSON 内容正本の生成ビュー（全層再降下 §4）
 > 各 AC に GWT＋fixture・観測点・期待状態・DB 差分・証跡・禁止副作用・エラー型・対象更新を必須化
 > （G-AC-COVERAGE／G-AC-POLARITY）。旧体系の受入条件は historical 記録のみ（現行分母は本カタログ）。
 
@@ -1485,8 +1485,8 @@
 ### AC-73-3（境界・復旧）
 
 - **Given**: amount_minor=0の無料利用・手動分類、sentのままクラッシュしたapproved_paid_operation actual write、未取消しcharge 300円と別approved correction taskがある ／ **When**: 無料/手動分類、再起動後の照合→charge記録再開、元chargeの全額reversalを実行し、各要求を再実行する ／ **Then**: 無料・手動経路は台帳0行、クラッシュ分はconfirmed化後にcharge 1行、取消しはexternal rowなしのreversal 1行となる。charge/reversal再実行は各UNIQUEで1行に収束し、月次純額はcharge−reversalで算出される
-- **fixture**: seed: 無料要求={amount_minor:0}、手動分類、external_operations(id=702, service='seedance', effect='write', policy_category='approved_paid_operation', rate_scope='seedance', execution_mode='actual', status='sent', external_operation_id=NULL)＋actual-mode照合test double成功、spend_ledger(id=803, entry_type='charge', amount_minor=300, currency='JPY', service='seedance')、別approved correction task/approval
-- **観測点**: spend_ledger SELECT（external_operation_row_id=702だけ1行、無料/手動0行）／external_operations SELECT（confirmed化・照合read行） ／ **期待状態**: 復旧charge+1行、元803へのreversal+1行、無料/手動0行。reversalは元と同額・同service・JPY、別correction task束縛
+- **fixture**: seed: 無料要求={amount_minor:0}、手動分類、external_operations(id=702, service='seedance', effect='write', policy_category='approved_paid_operation', rate_scope='seedance', execution_mode='actual', status='sent', external_operation_id=NULL)＋actual-mode照合test double成功、spend_ledger(id=803, task_id=51, entry_type='charge', amount_minor=300, currency='JPY', service='seedance')、同一loop_runの別task(id=52, task_type='spend_correction', parent_task_id=51, input_json.original_spend_ledger_id=803)とapproved approval
+- **観測点**: spend_ledger SELECT（external_operation_row_id=702だけ1行、無料/手動0行）／external_operations SELECT（confirmed化・照合read行） ／ **期待状態**: 復旧charge+1行、元803へのreversal+1行、無料/手動0行。reversalは元と同額・同service・JPYで、DB上task_type='spend_correction'・parent_task_id=51・input_json.original_spend_ledger_id=803の別approved taskへ束縛
 - **期待 DB 差分**: spend_ledger +2行（charge.external_operation_row_id=702、reversal.reverses_spend_ledger_id=803・external_operation_row_id=NULL）、既存actual writeをoperation_log triggerでconfirmed化＋照合read external_operations(effect='read', policy_category='external_read', rate_scope=NULL) +1行、両terminal行のoperation_log各1行。無料/手動はprocess/別分類のみ ／ **期待証跡**: charge/reversal仕訳と元write/照合readの各operation_log。reversalはamount/service/currency一致・approved correction task、readはcorrelation式・payload request_sequence一致、provider ID任意 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。
 - **禁止副作用**: 0 円利用の記録省略・復旧再送での二重計上 ／ **エラー型**: なし
 - **対象更新**: S1詳細設計未着手（専用spend ledger component/DUへ再降下必須）／無料・手動除外＋クラッシュ復旧の冪等記録 ／ **TC**: TCC-73-3

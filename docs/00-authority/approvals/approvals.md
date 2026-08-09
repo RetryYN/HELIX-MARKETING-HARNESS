@@ -422,6 +422,25 @@
 | 2026-08-10 | migration | - | confirmed | PO | 68e2a643d754 | 25 tables／37 triggersへの物理数同期 |
 | 2026-08-10 | pair-gate | - | confirmed | PO | 17e4bb8a1c94 | preflight拒否の外部2表0行契約同期 |
 
+## 意味監査 Low 指摘の完封（2026-08-10）
+
+> 2026-08-10 PO の「直して」指示に基づき、訂正taskのDB構造束縛、外部操作終端時刻の語義、
+> および正本と生成Markdownの責務分離を是正した内容束縛承認。
+
+| 日付 | 対象 | 版 | 判定 | 承認者 | digest | 備考 |
+|---|---|---|---|---|---|---|
+| 2026-08-10 | ac-contracts.json | v0.1 | confirmed | PO | 8d88e42f46d0 | spend_correction taskのDB束縛fixtureとDesignSync bare URL正本化 |
+| 2026-08-10 | fr-contracts.json | v0.1 | confirmed | PO | 7413d0e4506b | reversal訂正taskの構造契約を明示 |
+| 2026-08-10 | nfr-contracts.json | v0.1 | confirmed | PO | f69c6e989f78 | reversal完全性へtask種別・親・元仕訳IDを追加 |
+| 2026-08-10 | tc-contracts.json | v0.1 | confirmed | PO | e68e5ca4cfcc | 訂正task不一致のDB拒否assertを追加 |
+| 2026-08-10 | s0-contract | v0.1 | confirmed | PO | 3c1210a2b730 | finalized_at命名とspend_correction DDL拘束を正準化 |
+| 2026-08-10 | ac-catalog | v0.1 | confirmed | PO | 7f0ecf2fc0f8 | 更新済みJSON正本から再生成 |
+| 2026-08-10 | fr-contracts | v0.1 | confirmed | PO | 7ec09d3dea38 | 更新済みJSON正本から再生成 |
+| 2026-08-10 | nfr-contracts | v0.1 | confirmed | PO | dec031072e2f | 更新済みJSON正本から再生成 |
+| 2026-08-10 | tc-catalog | v0.1 | confirmed | PO | d9157f765d6f | 更新済みJSON正本から再生成 |
+| 2026-08-10 | s0-contract | v0.1 | confirmed | PO | d1572cdde443 | workflow/task typeを非空canonical lowercase語彙へDB拘束 |
+| 2026-08-10 | s0-contract | v0.1 | confirmed | PO | 2b290bc9fe49 | L1正準IDを許容する英数・underscore・hyphen語彙へDB拘束 |
+
 ## CI lint follow-up（2026-08-10）
 
 > GitHub Actions の Markdown lint／Ruff が検出した表区切り、bare URL、動的 SQL 警告を、

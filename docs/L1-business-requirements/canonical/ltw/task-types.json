@@ -115,6 +115,45 @@
       }
     },
     {
+      "id": "playbook_repair",
+      "title": "内部制御: playbook 自動修復",
+      "internal": true,
+      "author": "orchestrator",
+      "verifier": "gate-engine",
+      "required_evidence": "playbook version切替とstate_transitions",
+      "gate": "broken episode・attempt=1・retry_count=0・元task束縛",
+      "trace": {
+        "upstream": ["FR-43"],
+        "downstream": ["playbook_repair_task_insert"]
+      }
+    },
+    {
+      "id": "playbook_manual_revision",
+      "title": "内部制御: playbook 手動改版",
+      "internal": true,
+      "author": "operator",
+      "verifier": "gate-engine",
+      "required_evidence": "承認済みplaybook version切替",
+      "gate": "人手承認・版連鎖・現役版一意",
+      "trace": {
+        "upstream": ["FR-43"],
+        "downstream": ["playbooks_version_insert"]
+      }
+    },
+    {
+      "id": "spend_correction",
+      "title": "内部制御: 支出訂正",
+      "internal": true,
+      "author": "operator",
+      "verifier": "gate-engine",
+      "required_evidence": "approved approvalとreversal仕訳",
+      "gate": "元charge task・元仕訳ID・同一loop_run束縛",
+      "trace": {
+        "upstream": ["FR-73", "NFR-6"],
+        "downstream": ["spend_ledger_binding_insert"]
+      }
+    },
+    {
       "id": "T-R1",
       "text": "タスク型ごとの必須証跡 kind 集合はワークフロー定義が宣言し、FR-28 が `done` 遷移時に検証する",
       "trace": {

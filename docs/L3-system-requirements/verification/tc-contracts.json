@@ -3534,10 +3534,10 @@
       "kind": "boundary",
       "verifies_state": "復旧charge+1、既存chargeへの同額/同service/JPY reversal+1、無料/手動0。各再実行は1行収束",
       "verifies_db_delta": "spend_ledger +2（charge.external_operation_row_id=702、reversal.reverses_spend_ledger_id=803・外部row NULL）、元writeをlog trigger final＋external_read/rate_scope=NULL照合read +1、operation_log各1。無料/手動0",
-      "verifies_evidence": "charge/reversalと元write/照合read operation_log。reversalは別approved correction task、read correlation式/payload sequence一致、provider ID任意 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
+      "verifies_evidence": "charge/reversalと元write/照合read operation_log。reversalは同一loop_runの別approved task（task_type='spend_correction'・parent_task_id=元charge.task_id・input_json.original_spend_ledger_id=元charge.id）へDBで構造束縛、read correlation式/payload sequence一致、provider ID任意 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
       "verifies_forbidden": "0円/manual charge、write再送、二重charge/reversal、部分/異通貨取消し",
       "external_calls": "有償操作の照合read 1回（write再送0回）",
-      "method": "pytest: amount=0・manual、sent approved_paid_operation id=702＋actual照合、未取消しcharge id=803＋別approved correction taskをseedし、無料/manual 0、照合read/log、元write log trigger final、charge 702一意、reversal 803一意・同額/service/JPY、符号付き月次純額をassertする",
+      "method": "pytest: amount=0・manual、sent approved_paid_operation id=702＋actual照合、未取消しcharge id=803＋同一loop_runの別spend_correction task（parent_task_id=元charge.task_id、input_json.original_spend_ledger_id=803）をseedし、無料/manual 0、照合read/log、元write log trigger final、charge 702一意、reversal 803一意・同額/service/JPY、task種別/親/input不一致のDB拒否、符号付き月次純額をassertする",
       "slice": "S1",
       "semantic_refs": {
         "table_refs": [
@@ -7043,5 +7043,5 @@
   "supersedes": [
     "ARCHIVE-TC-LEGACY"
   ],
-  "approval_digest": "1f2b0bb2d810"
+  "approval_digest": "e68e5ca4cfcc"
 }

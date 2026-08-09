@@ -7,6 +7,7 @@ import sqlite3
 
 import pytest
 
+from scripts.render_views import _markdown_autolink_urls
 from tools.gates import requirements
 from tools.gates.common import CTX
 
@@ -39,12 +40,12 @@ def _nfr_sql_containing(nfr_id: str, needle: str) -> str:
     return next(sql for sql in re.findall(r"SQL:`([^`]+)`", method) if needle in sql)
 
 
-def _insert_approval(con: sqlite3.Connection, approval_id: int) -> None:
+def _insert_approval(con: sqlite3.Connection, approval_id: int, task_id: int = 1) -> None:
     con.execute(
         "INSERT INTO approvals (id,task_id,requested_by_agent_id,channel,binding_subject,"
         "binding_operation,binding_at,decision,decided_at,created_at) "
-        "VALUES (?,1,1,'claude_code_app',?,?,?,'approved',?,?)",
-        (approval_id, f"subject-{approval_id}", f"operation-{approval_id}",
+        "VALUES (?,?,1,'claude_code_app',?,?,?,'approved',?,?)",
+        (approval_id, task_id, f"subject-{approval_id}", f"operation-{approval_id}",
          f"2026-08-{approval_id:02d}T00:00:00Z", f"2026-08-{approval_id:02d}T00:00:01Z",
          f"2026-08-{approval_id:02d}T00:00:00Z"),
     )
@@ -227,11 +228,39 @@ def test_mutation_backtick_select_without_sql_tag_is_detected() -> None:
     assert any("SELECT/WITH契約SQL" in f for f in faults)
 
 
+def test_generated_markdown_autolinks_bare_url_without_polluting_canonical_value() -> None:
+    canonical = "config.designsync_source=http://designsync.test、次"
+    assert _markdown_autolink_urls(canonical) == (
+        "config.designsync_source=<http://designsync.test>、次"
+    )
+    assert "<" not in canonical
+
+
+def test_generated_markdown_autolink_does_not_double_wrap_markup_or_code() -> None:
+    assert _markdown_autolink_urls(
+        "<http://a.test> `http://b.test` [link](http://c.test)"
+    ) == (
+        "<http://a.test> `http://b.test` [link](http://c.test)"
+    )
+
+
+def test_generated_markdown_autolink_keeps_sentence_punctuation_outside() -> None:
+    assert _markdown_autolink_urls("（http://a.test/path）。https://b.test/x.") == (
+        "（<http://a.test/path>）。<https://b.test/x>."
+    )
+
+
+def test_generated_markdown_autolink_leaves_fenced_code_unchanged() -> None:
+    source = "before http://a.test\n```text\nhttp://code.test\n```\nafter http://b.test"
+    assert _markdown_autolink_urls(source) == (
+        "before <http://a.test>\n```text\nhttp://code.test\n```\nafter <http://b.test>"
+    )
+
+
 def test_nfr6_spend_sql_uses_jpy_and_utc_half_open_window() -> None:
     con = _measurement_db()
     try:
         _insert_approval(con, 1)
-        _insert_approval(con, 2)
         paid_rows = [
             (1, 100, "2026-08-01T00:00:00Z", "kept charge"),
             (2, 50, "2026-08-02T00:00:00Z", "reversed charge"),
@@ -251,10 +280,19 @@ def test_nfr6_spend_sql_uses_jpy_and_utc_half_open_window() -> None:
             "SELECT id FROM spend_ledger WHERE external_operation_row_id=2"
         ).fetchone()[0]
         con.execute(
+            "INSERT INTO tasks (id,loop_run_id,parent_task_id,workflow_id,task_type,"
+            "author_agent_id,verifier_agent_id,state,step_key,idempotency_key,"
+            "expected_output_kind,input_json,created_at) "
+            "VALUES (2,1,1,1,'spend_correction',1,2,'in_progress','correct-spend',"
+            "'correct-spend-1','spend_reversal',?, 't')",
+            (json.dumps({"original_spend_ledger_id": reversed_id}),),
+        )
+        _insert_approval(con, 2, task_id=2)
+        con.execute(
             "INSERT INTO spend_ledger "
             "(task_id,entry_type,approval_id,service,amount_minor,currency,purpose,"
             "reverses_spend_ledger_id,occurred_at,created_at) "
-            "VALUES (1,'reversal',2,'fixture',50,'JPY','approved correction',?,?,?)",
+            "VALUES (2,'reversal',2,'fixture',50,'JPY','approved correction',?,?,?)",
             (reversed_id, "2026-08-03T00:00:00Z", "2026-08-03T00:00:00Z"),
         )
         total = con.execute(_nfr_sql("NFR-6"), {

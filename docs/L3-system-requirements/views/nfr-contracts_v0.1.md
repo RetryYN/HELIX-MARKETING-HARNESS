@@ -2,7 +2,7 @@
 
 # 非機能要件 計測契約（NFR contracts）v0.1
 
-> status: **confirmed**（2026-08-01 PO 承認 — receipt 4cd61e728300）。JSON 内容正本の生成ビュー（全層再降下 §3）
+> status: **confirmed**（2026-08-01 PO 承認 — receipt f69c6e989f78）。JSON 内容正本の生成ビュー（全層再降下 §3）
 > 各 NFR に測定対象・測定方法・閾値・測定環境・違反時動作・証跡を必須化（G-NFR-MEASURABLE）。
 
 ## NFR-1 fail-close（判定不能は通さない）
@@ -63,7 +63,7 @@
 ## NFR-6 支出上限（月次キャップ）
 
 - **測定対象**: 月次支出純額（spend_ledgerのcharge−reversal）とconfig.spend_cap_monthlyの比較、仕訳完全性、超過時の有償経路タスク自動停止
-- **測定方法**: ① SQL:`SELECT COALESCE(SUM(CASE WHEN entry_type='charge' THEN amount_minor ELSE -amount_minor END),0) FROM spend_ledger WHERE currency='JPY' AND occurred_at >= :month_start_utc AND occurred_at < :next_month_start_utc`でUTC半開区間の既支出純額を求め、`既支出純額 + requested_amount_minor <= config.spend_cap_monthly`を開始ガードとする。② pytest: projected totalが上限直前・一致・1円超過、config欠落の4 fixtureを検証する。超過時は有償tasks.pendingをnon_retryable_failure→failedとして安全な無償代替taskを発行・claimし、config欠落時は有償taskをescalate→escalatedとして無償taskを発行・claimする。③ confirmed有償external_operations(execution_mode='actual', effect='write', policy_category='approved_paid_operation')とentry_type='charge'をexternal_operations.id=spend_ledger.external_operation_row_idで双方向anti-join＋GROUP BYしexactly-one、task_id/service一致、孤児・未記録・重複0を検証する。④ reversalはexternal_operation_row_id IS NULL、reverses_spend_ledger_idが未取消しchargeをUNIQUE参照し、元chargeとamount_minor/service/currency='JPY'一致、別approved correction taskへ束縛、1 charge最大1行を検証する。全仕訳はamount_minor>0・JPYのみでUPDATE/DELETE拒否、provider external_operation_idは任意で同一性に使わない。無料・amount=0・手動charge・FXは台帳0行とする。
+- **測定方法**: ① SQL:`SELECT COALESCE(SUM(CASE WHEN entry_type='charge' THEN amount_minor ELSE -amount_minor END),0) FROM spend_ledger WHERE currency='JPY' AND occurred_at >= :month_start_utc AND occurred_at < :next_month_start_utc`でUTC半開区間の既支出純額を求め、`既支出純額 + requested_amount_minor <= config.spend_cap_monthly`を開始ガードとする。② pytest: projected totalが上限直前・一致・1円超過、config欠落の4 fixtureを検証する。超過時は有償tasks.pendingをnon_retryable_failure→failedとして安全な無償代替taskを発行・claimし、config欠落時は有償taskをescalate→escalatedとして無償taskを発行・claimする。③ confirmed有償external_operations(execution_mode='actual', effect='write', policy_category='approved_paid_operation')とentry_type='charge'をexternal_operations.id=spend_ledger.external_operation_row_idで双方向anti-join＋GROUP BYしexactly-one、task_id/service一致、孤児・未記録・重複0を検証する。④ reversalはexternal_operation_row_id IS NULL、reverses_spend_ledger_idが未取消しchargeをUNIQUE参照し、元chargeとamount_minor/service/currency='JPY'一致、同一loop_runの別approved task（task_type='spend_correction'・parent_task_id=元charge.task_id・input_json.original_spend_ledger_id=元charge.id）へDBで構造束縛、1 charge最大1行を検証する。全仕訳はamount_minor>0・JPYのみでUPDATE/DELETE拒否、provider external_operation_idは任意で同一性に使わない。無料・amount=0・手動charge・FXは台帳0行とする。
 - **閾値**: 既支出純額 + requested_amount_minor <= config.spend_cap_monthlyのときだけ有償経路を開始（1円でも超過なら開始0件）・無償経路は継続・confirmed approved_paid_operation actual writeとchargeがexternal_operation_row_idで双方向exactly-one・reversalは元chargeと同額/同service/JPYかつ別approved correction task、1 charge最大1行・task/service不一致、孤児、漏れ、重複、不正通貨、UPDATE/DELETE各0件
 - **測定環境**: CI（python-ci — pytest＋fixture）／運用時は SQLite 直接クエリ
 - **違反時の動作**: 上限超過時は安全な無償代替を自動発行できるため、有償taskをevent=non_retryable_failureでfailedとし、無償taskをclaimして継続する。config欠落時は人の是正が必要なため有償taskをevent=escalateでescalatedとし、無償taskはclaimして継続する。いずれも有償external_operations/spend_ledger差分は0で、成立した遷移はguard_result=passedとする。

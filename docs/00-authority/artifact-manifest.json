@@ -1094,7 +1094,7 @@
       "previous_paths": [
         "docs/requirements/json/ac/ac-contracts.json"
       ],
-      "approval_digest": "6c8d0093fd6c",
+      "approval_digest": "8d88e42f46d0",
       "review_digest": null
     },
     {
@@ -1160,7 +1160,7 @@
       "previous_paths": [
         "docs/requirements/json/fr/fr-contracts.json"
       ],
-      "approval_digest": "c313be37fc53",
+      "approval_digest": "7413d0e4506b",
       "review_digest": null
     },
     {
@@ -1732,7 +1732,7 @@
       "previous_paths": [
         "docs/requirements/json/nfr/nfr-contracts.json"
       ],
-      "approval_digest": "4cd61e728300",
+      "approval_digest": "f69c6e989f78",
       "review_digest": null
     },
     {
@@ -1754,7 +1754,7 @@
       "previous_paths": [
         "docs/requirements/s0-contract_v0.1.md"
       ],
-      "approval_digest": "8da21fce99bf",
+      "approval_digest": "2b290bc9fe49",
       "review_digest": null
     },
     {
@@ -2668,7 +2668,7 @@
       "previous_paths": [
         "docs/requirements/json/verification/tc-contracts.json"
       ],
-      "approval_digest": "1f2b0bb2d810",
+      "approval_digest": "e68e5ca4cfcc",
       "review_digest": null
     },
     {
