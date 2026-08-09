@@ -2,18 +2,19 @@
 
 # 非機能要件 計測契約（NFR contracts）v0.1
 
-> status: **confirmed**（2026-08-01 PO 承認 — receipt 943b990d788e）。JSON 内容正本の生成ビュー（全層再降下 §3）
+> status: **confirmed**（2026-08-01 PO 承認 — receipt d9e5b037af9c）。JSON 内容正本の生成ビュー（全層再降下 §3）
 > 各 NFR に測定対象・測定方法・閾値・測定環境・違反時動作・証跡を必須化（G-NFR-MEASURABLE）。
 
 ## NFR-1 fail-close（判定不能は通さない）
 
 - **測定対象**: 全ゲート（要件 CI ゲート＋実行時ゲート層）の判定不能時挙動と、ゲート無効化フラグの非存在
-- **測定方法**: ①`python3 scripts/validate_requirements.py`が json/strategy/fixtures/ 等の invalid fixture を全ゲートで拒否すること（negative test 常設 — 毎 push）。② pytest（tests/unit/ のゲート拒否系 — python-ci ジョブ）で allowlist 空・schema 破損・リスト破損等の判定不能入力が全て拒否になることを検証。③`grep -rn 'gate.*disable\|bypass' src/helix/ config`でゲート無効化フラグ・バイパス経路の不在を検査。
+- **測定方法**: ①`python3 tools/gates/run_all.py`が docs/L3-system-requirements/verification/fixtures/ の invalid fixture を全て拒否すること（negative test 常設 — 毎 push）。② pytest（tests/gates/ と tests/unit/ の拒否系 — python-ci ジョブ）で allowlist 空・schema 破損・リスト破損等の判定不能入力が全て拒否になることを検証。③`rg -n 'gate.*disable|bypass' src/helix config`を対象パス実在後に実行し、ゲート無効化フラグ・バイパス経路が 0 件であることを検査する。
 - **閾値**: invalid fixture の拒否率 100%（1 件でも通過で fail）・ゲート無効化フラグ検出 0 件・判定不能入力の通過 0 件
 - **測定環境**: CI（GitHub Actions: python-ci／requirements-gates 相当ジョブ）＋ローカル pytest
-- **違反時の動作**: CI 赤で merge を遮断（fail-close）。実行時は該当操作を拒否し operation_log へ記録、ゲート自体の破損検知は fatal_failure で escalated。
+- **違反時の動作**: CI 赤で merge を遮断（fail-close）。実行時は該当操作を拒否し、状態遷移の拒否は state_transitions、外部操作の拒否だけは operation_log へ記録する。ゲート自体の破損検知は fatal_failure で escalated。
 - **証跡**: validate_requirements.py の実行ログ（negative test 結果）／pytest レポート（拒否系 TC）／拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）（実行時）
-- **trace**: 上流 = requirements_v0.1 §3 BR-B4 ／ 下流 = STC-G 系（invalid fixture 拒否） 拒否系 TC 群（検証設計③）
+- **検証観点**: NFR-1:invalid-rejection NFR-1:disable-path-absence NFR-1:indeterminate-rejection NFR-1:evidence-channel NFR-1:fatal-escalation
+- **trace**: 上流 = requirements_v0.1 §3 BR-B4 ／ 下流 = AC-901 TCC-NFR-01
 
 ## NFR-2 決定性（同一入力→同一出力）
 
@@ -23,7 +24,8 @@
 - **測定環境**: CI（python-ci — pytest）＋ローカル
 - **違反時の動作**: 不一致検出時は該当テスト red で CI 遮断。実行時の hash 不一致（再計算不一致）は該当 task を failed とし投入しない（WF-MEAS-1 ステップ 2 と同規律）。
 - **証跡**: pytest レポート（STC-I-04・二重実行比較）／evidence 行（commit_hash／file_hash — 出力固定）
-- **trace**: 上流 = requirements_v0.1 §3 BR-B3 ／ 下流 = STC-I-04
+- **検証観点**: NFR-2:deterministic-hash NFR-2:brief-digest NFR-2:nondeterministic-output-evidence NFR-2:clock-rng-injection
+- **trace**: 上流 = requirements_v0.1 §3 BR-B3 ／ 下流 = AC-902 TCC-NFR-02
 
 ## NFR-3 再開性（SQLite 状態からの復旧）
 
@@ -33,57 +35,63 @@
 - **測定環境**: CI（python-ci — pytest＋mock WP）／E2E は Docker WP
 - **違反時の動作**: 再開不能・二重送信検出は該当テスト red で CI 遮断。実行時に sent 照合不能の場合は unknown とし再送せず escalate（fail-close）。
 - **証跡**: pytest レポート（kill-point 系）／external_operations 行（prepared→sent→confirmed 遷移）／operation_log 行（照合結果）
-- **trace**: 上流 = requirements_v0.1 §3 BR-A1 ／ 下流 = 再開規則 TC 群（s0-contract §8）
+- **検証観点**: NFR-3:all-kill-points NFR-3:no-resend NFR-3:evidence-before-transition NFR-3:unknown-escalation
+- **trace**: 上流 = requirements_v0.1 §3 BR-A1 ／ 下流 = AC-903 TCC-NFR-03
 
 ## NFR-4 秘匿（平文 credential ゼロ）
 
 - **測定対象**: SQLite 全テーブル・構造化ログ・evidence payload・リポジトリへの平文 credential・secret の混入件数
-- **測定方法**: ① pytest: 秘匿パターン（Application Password 形式・token 接頭辞・既知テスト credential 値）の regex スキャナを SQLite 全列ダンプ（`SELECT * FROM evidence/operation_log 派生/config`等）へ適用し検出 0 を検証。② CI の secret-scan ジョブ（gitleaks 相当）でリポジトリ・コミット履歴を走査。③ pytest: operation_log 証跡の生成時マスキング（request_fingerprint に本文・credential を含めない）を fixture で検証。credential は暗号化ストアから実行時注入のみ（環境契約 §6）。
+- **測定方法**: ① pytest: `SELECT name FROM sqlite_schema WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name`で全テーブルを列挙し、`PRAGMA table_info(<quoted_table>)`から得た全列を安全にquoteして走査する。Application Password形式・token接頭辞・既知テストcredential値の検出0件を検証する。② CIのsecret-scanジョブ（gitleaks）でリポジトリとコミット履歴を走査する。③ pytest: operation_log生成時のrequest_fingerprintに本文・credentialを含めないことをfixtureで検証する。credentialは暗号化ストアから実行時注入のみ（環境契約 §6）。
 - **閾値**: 平文 credential 検出 0 件（DB・ログ・repo とも）・マスキング欠落 0 件
 - **測定環境**: CI（python-ci＋secret-scan ジョブ）＋ローカル
-- **違反時の動作**: 検出時は CI 赤で merge 遮断。実行時に秘匿違反を検知した task は non_retryable_failure で failed（s0-contract §3.2）とし、混入した credential は失効・再発行を escalation で要求する。
+- **違反時の動作**: 検出時は CI 赤で merge 遮断。実行時に秘匿違反を検知した task は escalate で escalated（FR-47）とし、混入した credential は失効・再発行を同じ escalation で要求する。
 - **証跡**: secret-scan の CI ログ／pytest レポート（マスキング検証）／operation_log 行（fingerprint のみ — 本文なし）
-- **trace**: 上流 = BR-F4 requirements_v0.1 §3 ／ 下流 = 秘匿系拒否 TC 群
+- **検証観点**: NFR-4:secret-zero NFR-4:masking NFR-4:runtime-failure NFR-4:credential-rotation-escalation
+- **trace**: 上流 = BR-F4 requirements_v0.1 §3 ／ 下流 = AC-904 TCC-NFR-04
 
 ## NFR-5 可観測性（1 クエリで滞留を答える）
 
 - **測定対象**: 状態遷移・ゲート判定・外部操作の構造化ログ網羅率と、滞留把握クエリの単一性
-- **測定方法**: ① pytest: 全遷移（許可・拒否とも）実行後に`SELECT count(*) FROM state_transitions`= 発火イベント数（guard_result = passed/rejected の合計）を検証（未記録遷移 0）。② pytest: 全外部操作に external_operations 行と operation_log 証跡が対応することを件数突合。③ 滞留クエリの実在検証:`SELECT entity_type, id, state FROM loop_runs/tasks WHERE state NOT IN (終端)`系の 1 本の SQL（設計固定のビュー相当）で「いまどこで何が滞留しているか」が返ることを pytest で固定（クエリ本数 = 1）。
+- **測定方法**: ① pytest: 全遷移（許可・拒否とも）実行後に`SELECT count(*) FROM state_transitions`= 発火イベント数（guard_result = passed/rejected の合計）を検証（未記録遷移 0）。② pytest: 全外部操作に external_operations 行と operation_log 証跡が対応することを件数突合。③ 滞留把握は次の 1 statement をそのまま実行して固定する:`SELECT 'loop_run' AS entity_type, id, state FROM loop_runs WHERE state NOT IN ('completed','failed','escalated','cancelled') UNION ALL SELECT 'task' AS entity_type, id, state FROM tasks WHERE state NOT IN ('done','failed','escalated')`。pytest で pending/running/waiting と pending/in_progress/verifying の全 fixture が返り、終端状態が返らないことを検証する。
 - **閾値**: 未記録の状態遷移・ゲート判定・外部操作 = 0 件・滞留把握は SQL 1 本で応答（複数クエリの手作業結合を要しない）
 - **測定環境**: CI（python-ci — pytest）＋運用時はローカル SQLite への直接クエリ
 - **違反時の動作**: 記録欠落を検出したテストは red で CI 遮断。実行時にログ INSERT が失敗した遷移は transaction ごと rollback（遷移自体を成立させない — 1 遷移 = 1 transaction）。
 - **証跡**: state_transitions 行（全遷移）／operation_log 行（全外部操作）／pytest レポート（件数突合・滞留クエリ）
-- **trace**: 上流 = requirements_v0.1 §3 BR-H3 ／ 下流 = 遷移ログ完全性 TC 群
+- **検証観点**: NFR-5:transition-coverage NFR-5:gate-decision-coverage NFR-5:external-operation-coverage NFR-5:single-query-backlog
+- **trace**: 上流 = requirements_v0.1 §3 BR-H3 ／ 下流 = AC-905 TCC-NFR-05
 
 ## NFR-6 支出上限（月次キャップ）
 
 - **測定対象**: 月次支出合計（spend_ledger）と config.spend_cap_monthly の比較、超過時の有償経路タスク自動停止
-- **測定方法**: ① SQL:`SELECT COALESCE(SUM(amount_minor),0) FROM spend_ledger WHERE occurred_at >= <当月初>`を config.spend_cap_monthly（暫定既定値 5,000 円/月 — C 充填）と比較するガードを kernel に実装。② pytest: 超過直前・ちょうど・超過の 3 fixture で、有償経路（spend を伴う操作型）の新規タスクが超過時に開始拒否（fatal_failure → escalated）となることを検証。無償経路のタスクは停止しないことも検証。
-- **閾値**: 月次合計 > config.spend_cap_monthly のとき有償経路の新規タスク開始 0 件（ちょうど上限までは許可）・spend_ledger への記録漏れ 0 件（外部 operation との UNIQUE 突合）
+- **測定方法**: ① SQL:`SELECT COALESCE(SUM(amount_minor),0) FROM spend_ledger WHERE occurred_at >= <当月初>`で既支出を求め、`既支出 + requested_amount_minor <= config.spend_cap_monthly`を開始ガードとする。② pytest: projected totalが上限直前・一致・1円超過、config欠落の4 fixtureで、有償経路の新規taskが超過/欠落時に開始拒否（fatal_failure→escalated）となること、無償経路を停止しないことを検証する。③ confirmed有償external_operationsとspend_ledgerをexternal_operation_idで双方向突合し、未記録・重複0件を検証する。
+- **閾値**: 既支出 + requested_amount_minor <= config.spend_cap_monthly のときだけ有償経路を開始（projected totalが1円でも超過なら開始0件）・無償経路は継続・spend_ledger記録漏れ/重複0件（external operationとUNIQUE突合）
 - **測定環境**: CI（python-ci — pytest＋fixture）／運用時は SQLite 直接クエリ
 - **違反時の動作**: 超過検知で有償経路タスクを自動停止（fatal_failure → escalated）し人間へ通知（FR-46 経路）。判定不能（config 欠落）は有償経路を全停止する側へ倒す（fail-close）。
 - **証跡**: spend_ledger 行（全支出）／state_transitions 行（超過時の escalated 遷移）／pytest レポート（境界 3 ケース）
-- **trace**: 上流 = BR-F1 requirements_v0.1 §3 ／ 下流 = 支出境界 TC 群
+- **検証観点**: NFR-6:projected-cap NFR-6:free-route-continuity NFR-6:ledger-completeness NFR-6:config-missing-failclose
+- **trace**: 上流 = BR-F1 requirements_v0.1 §3 ／ 下流 = AC-906 TCC-NFR-06
 
 ## NFR-7 レート節度（ランダム化操作間隔）
 
-- **測定対象**: ブラウザ自動化の書き込み・公開系操作の操作間隔分布（1〜5 秒一様乱数）・日次公開上限・乱数シードの記録率
-- **測定方法**: ① pytest: Rng 注入（seed 固定）で書込み系操作列を実行し、生成間隔が config.rate_interval_min_sec〜config.rate_interval_max_sec（暫定 1〜5 秒・一様分布）の範囲内に 100% 収まり、かつ全間隔が同一値でない（固定間隔 = 機械署名の禁止）ことを検証。② pytest: seed と生成値が構造化ログ（operation_log 派生）に記録され、同一 seed の再生で同一間隔列が再現されること（NFR-2 のログ再生担保）。③ SQL:`SELECT count(*) FROM external_operations WHERE service=<媒体> AND date(sent_at)=<日>`≤ config.daily_publish_cap（暫定 10 件/日/媒体）。読み取り系は本契約の対象外（通常速度可）。
-- **閾値**: 間隔 ∈ [config.rate_interval_min_sec, config.rate_interval_max_sec]（1〜5 秒・一様）100%・間隔の分散 > 0（固定間隔 0 件）・公開系 ≤ config.daily_publish_cap（10 件/日/媒体）・seed 記録率 100%
+- **測定対象**: ブラウザ自動化の書き込み・公開系操作の整数秒間隔分布（1〜5秒、両端包含の離散一様乱数）・日次公開上限・乱数シードの記録率
+- **測定方法**: ① Rng契約はPython `random.Random(seed).randint(min_sec,max_sec)`（MT19937、両端包含）に固定する。pytestでseed=[0,1,42,4294967295]を各10,000回標本化し、全値がconfig.rate_interval_min_sec〜max_sec内、整数bucketごとのχ²適合度検定p>=0.01、分散>0を検証する。② seed・アルゴリズムID・生成値を秘匿化済み構造化実行ログへ記録し、同一seedの再生列完全一致を検証する。③ SQL:`SELECT count(*) FROM external_operations WHERE service=<媒体> AND date(sent_at)=<日>`が媒体別`config.rate.<service>.daily_write_cap`以下であることを検証する（個別値未設定時だけconfig.daily_publish_cap=10）。読み取り系は対象外。
+- **閾値**: 全4 seed・各10,000標本で間隔が設定範囲内100%・離散一様性χ² p>=0.01・分散>0・再生列一致100%・公開系件数が媒体別daily_write_cap以下（未設定時10）・seed/algorithm記録率100%
 - **測定環境**: CI（python-ci — pytest＋注入 Rng）／E2E は Docker WP のブラウザ自動化
-- **違反時の動作**: 上限超過・範囲逸脱を検知した書込み操作は実行前に拒否し operation_log へ記録（fail-close）。日次上限到達後の公開系タスクは翌日まで waiting。seed 未記録は決定性違反としてテスト red。
-- **証跡**: operation_log 行（seed・生成間隔値）／external_operations 行（sent_at — 日次件数の根拠）／pytest レポート（分布・再現性）
-- **trace**: 上流 = BR-F5 requirements_v0.1 §3 ／ 下流 = レート節度 TC 群（間隔分布・日次上限）
+- **違反時の動作**: 上限超過・範囲逸脱を検知した書込み操作は実行前に拒否し、秘匿化済み構造化拒否ログへ記録する（fail-close）。日次上限到達後は公開系 task を pending のまま保持し、親 loop_run を翌日まで waiting とする。seed 未記録は決定性違反としてテスト red。
+- **証跡**: 秘匿化済み構造化実行ログ（seed・生成間隔値）／external_operations 行（sent_at — 日次件数の根拠）／pytest レポート（分布・再現性）
+- **検証観点**: NFR-7:interval-range NFR-7:uniformity NFR-7:daily-cap NFR-7:seed-recording NFR-7:cap-wait-state
+- **trace**: 上流 = BR-F5 requirements_v0.1 §3 ／ 下流 = AC-907 TCC-NFR-07
 
 ## NFR-8 保守性（媒体追加 = データ行追加のみ）
 
 - **測定対象**: 新媒体追加時に必要な変更の種別（workflows・playbooks・接続レジストリの行追加のみか、外殻コードの変更を要するか）
-- **測定方法**: pytest（python-ci）: テスト媒体 fixture を workflows INSERT（新 workflow_key）＋playbooks INSERT（service/operation/route_type）＋接続レジストリ行の追加**のみ**で登録し、ループ状態機械〜ゲート〜コネクタの dry-run E2E が既存コード無変更で通ることを検証。検証補助:`git diff --stat -- src/helix/`が fixture・データ以外で 0 行であることをテスト内で確認（外殻コード変更ゼロの機械判定）。
+- **測定方法**: pytest（python-ci）: テスト開始時にengine/gates/connectors配下のgit追跡ファイルを列挙してSHA-256 mapを固定し、テスト媒体fixtureをworkflows＋playbooks＋接続レジストリ行の追加だけで登録する。dry-run E2E後に同じファイル集合とhash mapが完全一致し、新規製品ファイルも0件であることを検証する（dirty worktreeやcheckout基点に依存しない）。
 - **閾値**: 媒体追加時の外殻コード（engine/gates/connectors 本体）diff = 0 行・追加は workflows／playbooks／レジストリ行のみ・dry-run E2E green
 - **測定環境**: CI（python-ci — pytest＋dry-run mock）
 - **違反時の動作**: コード変更を要した媒体追加は設計違反としてテスト red・差戻し（外殻の拡張が必要な場合は要件・設計改訂を先行させる）。
 - **証跡**: pytest レポート（媒体追加 E2E）／workflows／playbooks の追加行／git diff 検査結果
-- **trace**: 上流 = BR-F3 requirements_v0.1 §3 ／ 下流 = 媒体追加 dry-run TC
+- **検証観点**: NFR-8:data-only-extension NFR-8:dry-run-e2e NFR-8:product-hash-zero-diff NFR-8:registry-row-only
+- **trace**: 上流 = BR-F3 requirements_v0.1 §3 ／ 下流 = AC-908 TCC-NFR-08
 
 ## NFR-9 法規遵守（ステマ規制・特電法・APPI）
 
@@ -91,16 +99,18 @@
 - **測定方法**: ① pytest: アフィリエイトリンクを含み PR 表記ブロックのない成果物 fixture が公開ゲートで拒否されること（FR-24 拒否系）。② pytest: オプトイン記録のない宛先への配信・配信停止導線のないメッセージ fixture が配信ゲートで拒否されること。③ 静的検査: 採用配信形態の一覧が機械ゲート化済み形態のみで構成されることを設定（MR 台帳）と突合し、ゲート化できない形態の採用 0 を確認。④ SQL: リード個人情報の保持列が収集目的宣言と対応することをスキーマ検査で確認。
 - **閾値**: PR 表記なしアフィリエイト成果物の公開 0 件（拒否率 100%）・オプトインなし配信 0 件・機械ゲート化不能な配信形態の採用 0 件
 - **測定環境**: CI（python-ci — pytest＋invalid fixture）
-- **違反時の動作**: 違反成果物は公開ゲートで拒否し operation_log へ記録（fail-close）。ゲート化できない配信形態の追加要求は採用拒否（要件改訂でもゲート化が前提）。
+- **違反時の動作**: 違反成果物は公開・配信前に拒否し、外部操作を生成せず秘匿化済み構造化拒否ログへ記録する（fail-close）。ゲート化できない配信形態の追加要求は採用拒否（要件改訂でもゲート化が前提）。
 - **証跡**: 拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）（PR 表記・オプトイン）／pytest レポート（法規拒否系）／MR 台帳との突合結果
-- **trace**: 上流 = requirements_v0.1 §3 MR-HS-3 MR-LINE-2 ／ 下流 = 法規ゲート拒否 TC 群
+- **検証観点**: NFR-9:pr-label NFR-9:opt-in NFR-9:unsubscribe NFR-9:supported-channel-only NFR-9:pii-purpose
+- **trace**: 上流 = requirements_v0.1 §3 MR-HS-3 MR-LINE-2 ／ 下流 = AC-909 TCC-NFR-09
 
 ## NFR-10 バックアップ・復旧（日次＋14 世代）
 
 - **測定対象**: SQLite 日次バックアップの実行率・世代保持数・復元可能性（integrity）、ブラウザセッション・WP の復旧手段の存在
-- **測定方法**: ① SQL/ファイル検査: バックアップジョブが残す evidence（kind = file_hash — バックアップファイルの SHA-256）を日次で確認し、保持世代数を`ls`相当の走査で config.backup_generations（暫定 14 世代 — C 充填）と比較。② pytest（復元試験）: 最新バックアップから空環境へ restore →`PRAGMA integrity_check`と`PRAGMA foreign_key_check`の成功、行数・hash の原本一致を検証（migration §5.2 の手順と同規律）。③ ブラウザセッション = 暗号化ストアの複製、WP = WP 側バックアップの存在をチェックリスト（LP-OPS ヘルスチェック）で確認。
-- **閾値**: 日次バックアップ欠落 0 日・保持世代 ≥ config.backup_generations（14）・復元試験の integrity_check/foreign_key_check 成功率 100%
+- **測定方法**: ① config.backup_generations=N（既定14）を読取り、過去N暦日の各日についてbackup fileとkind=file_hash evidenceを日付で突合して欠落0日を検証する。破損世代は正常保持数から除外し、N正常世代を確保するまでN日より前へ探索する。② pytest: 最新世代を破損させ、正常な前世代へ遡って空環境へrestoreしPRAGMA integrity_check='ok'、foreign_key_check=0行、行数/hash原本一致を検証する。③ 暗号化ブラウザセッション複製を一時プロファイルへrestoreし復号・有効期限検査を行う。④ Docker WPのbackup artifactを一時コンテナへrestoreし、`wp core is-installed`とhealth endpoint成功を検証する。チェックリストだけを合格証拠にしない。
+- **閾値**: 直近N日の日次バックアップ欠落0日・破損除外後の正常保持世代 ≥ config.backup_generations=N（既定14）・復元試験の integrity_check/foreign_key_check 成功率100%
 - **測定環境**: ローカル（バックアップジョブ＋LP-OPS ヘルスチェック）／復元試験は CI・ローカル pytest
 - **違反時の動作**: バックアップ欠落・復元失敗の検知で新規外部書込みタスクを保留し escalate（データ喪失リスク下での書込み継続を禁止 — fail-close）。破損バックアップは世代から除外し前世代へ遡る。
 - **証跡**: evidence 行（kind = file_hash — バックアップ hash）／復元試験の pytest レポート／LP-OPS ヘルスチェック記録
-- **trace**: 上流 = requirements_v0.1 §3 RSK-06 ／ 下流 = 復元試験 TC
+- **検証観点**: NFR-10:daily-backup NFR-10:generations NFR-10:db-restore NFR-10:browser-session-copy NFR-10:wp-backup-check NFR-10:write-hold-on-failure
+- **trace**: 上流 = requirements_v0.1 §3 RSK-06 ／ 下流 = AC-910 TCC-NFR-10

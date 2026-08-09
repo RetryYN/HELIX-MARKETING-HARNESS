@@ -11,9 +11,9 @@ from tools.gates.common import (
 )
 
 # operation_log（evidence kind）を証跡にできるのは外部操作・業務操作を伴うドメインのみ
-EXTERNAL_TABLES = {"external_operations", "playbooks", "approvals", "assets",
-                   "measurements", "spend_ledger"}
 EXTERNAL_TARGET = re.compile(r"^(FR-4\d|FR-5\d|FR-6\d)$")
+NO_EXTERNAL_EFFECT = ("外部操作差分なし", "外部呼出0", "外部呼出 0", "外部操作を生成せず",
+                      "operation_log は使用しない", "operation_log kind）の対象外")
 ERROR_TYPE_RE = re.compile(
     r"[A-Z][A-Za-z]{3,}(?:Error|Rejected|Denied|Missing|Mismatch|Detected|Incomplete|"
     r"Immutable|Violation|Required|Exhausted)")
@@ -66,25 +66,53 @@ def detect_semantic_ref_faults(items: list[dict], canon: dict) -> list[str]:
 
 
 def _external_domain(refs: dict, target: str, text: str) -> bool:
-    return (bool(set(refs.get("table_refs", [])) & EXTERNAL_TABLES)
-            or bool(EXTERNAL_TARGET.match(target or ""))
-            or "外部操作" in text)
+    """operation_log を正当に生成する外部操作そのものか（単なる表参照では認めない）。"""
+    if any(neg in text for neg in NO_EXTERNAL_EFFECT):
+        return False
+    explicit = ("Web 取得" in text or "external_operation_id" in text
+                or "external_operations +" in text or "external_operations 1 行" in text
+                or "external_operations 2 行" in text or "external_operations遷移" in text
+                or "external_operations の status" in text
+                or "外部操作のマスク済み証跡" in text
+                or "外部操作対応operation_log" in text or "operation_log 行（外部操作" in text
+                or "operation_log 行（外部取得操作" in text
+                or "Docker WP" in text)
+    has_external_table = "external_operations" in refs.get("table_refs", [])
+    return ("Web 取得" in text
+            or (explicit and (has_external_table or bool(EXTERNAL_TARGET.match(target or "")))))
 
 
-def detect_state_evidence_faults(acs: list[dict], tcs: list[dict]) -> list[str]:
+def detect_state_evidence_faults(acs: list[dict], tcs: list[dict],
+                                 contracts: list[dict] | None = None) -> list[str]:
     """状態遷移・ゲート拒否の証跡を operation_log で表現している箇所を列挙する。"""
     bad: list[str] = []
     ac_by_id = {a["id"]: a for a in acs}
+    for c in contracts or []:
+        positive = " ".join([
+            c.get("rejection_behavior", ""),
+            " ".join(c.get("side_effects", [])),
+            " ".join(c.get("evidence", [])),
+        ])
+        refs = c.get("semantic_refs", {})
+        claims_operation_log = ("operation_log" in positive
+                                and not any(neg in positive for neg in NO_EXTERNAL_EFFECT))
+        if claims_operation_log and not _external_domain(refs, c.get("id", ""), positive):
+            bad.append(f"{c['id']}:内部遷移・ゲート拒否をoperation_logで表現")
+        if "DB を変更せず" in c.get("rejection_behavior", "") \
+                and "state_transitions" in c.get("rejection_behavior", ""):
+            bad.append(f"{c['id']}:拒否証跡INSERTとDB変更なしが矛盾")
     for a in acs:
-        ev_txt = a.get("expected_evidence", "")
-        if "operation_log" not in ev_txt:
+        positive = a.get("expected_evidence", "")
+        if "operation_log" not in positive or any(neg in positive for neg in NO_EXTERNAL_EFFECT):
             continue
+        ev_txt = " ".join((positive, a.get("expected_db_delta", ""), a.get("then", "")))
         if not _external_domain(a.get("semantic_refs", {}), a.get("target", ""), ev_txt):
             bad.append(f"{a['id']}:内部遷移・ゲート拒否を operation_log で表現")
     for t in tcs:
-        ev_txt = t.get("verifies_evidence", "")
-        if "operation_log" not in ev_txt:
+        positive = t.get("verifies_evidence", "")
+        if "operation_log" not in positive or any(neg in positive for neg in NO_EXTERNAL_EFFECT):
             continue
+        ev_txt = " ".join((positive, t.get("verifies_db_delta", "")))
         tgt = next((ac_by_id[x]["target"] for x in t.get("ac", []) if x in ac_by_id), "")
         if not _external_domain(t.get("semantic_refs", {}), tgt, ev_txt):
             bad.append(f"{t['id']}:内部遷移・ゲート拒否を operation_log で表現")
@@ -99,7 +127,7 @@ def run(ctx: Ctx) -> None:
     gate("G-SEMANTIC-REF", not sem_bad,
          f"構造化参照が正本語彙に実在（table/column/state/event/kind/error/api） (不正={sem_bad[:5]})")
     gate("G-COLUMN-REF", not col_bad, f"table/column 参照が ddl.sql に実在 (不正={col_bad[:5]})")
-    se_bad = detect_state_evidence_faults(ctx.acc, ctx.tcc)
+    se_bad = detect_state_evidence_faults(ctx.acc, ctx.tcc, ctx.allc)
     gate("G-STATE-EVIDENCE-CONSISTENCY", not se_bad,
          "状態遷移の拒否・成立は state_transitions／構造化ログで表現し operation_log は外部操作に限定 "
          f"(違反={se_bad[:5]})")

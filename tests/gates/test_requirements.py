@@ -50,7 +50,60 @@ def test_mutation_malformed_table_notation_is_detected() -> None:
 
 def test_current_denominators_match_declared_scope() -> None:
     assert requirements.current_denominators(CTX) == {
-        "AC_CONTRACT": 227, "TCC": 233, "API": 58, "API_UT": 199}
+        "AC_CONTRACT": 237, "TCC": 243, "API": 58, "API_UT": 199}
+
+
+def test_nfr_verification_chain_is_concrete_and_complete() -> None:
+    assert requirements.detect_nfr_verification_faults(CTX.nfc, CTX.acc, CTX.tcc) == []
+
+
+def test_mutation_nfr_prose_tc_and_pseudo_sql_are_detected() -> None:
+    nfr = copy.deepcopy(CTX.nfc[0])
+    nfr["trace_down"] = {"ac": [], "tc": ["拒否系 TC 群"]}
+    nfr["measurement_method"] += " SELECT * FROM loop_runs/tasks WHERE state NOT IN (終端)"
+    faults = requirements.detect_nfr_verification_faults([nfr], CTX.acc, CTX.tcc)
+    assert any("AC未接続" in f for f in faults)
+    assert any("未知TCC" in f for f in faults)
+    assert any("実行不能な擬似SQL" in f for f in faults)
+
+
+def test_mutation_nfr_aspect_missing_from_ac_and_tcc_is_detected() -> None:
+    nfr = copy.deepcopy(CTX.nfc[0])
+    acs = copy.deepcopy(CTX.acc)
+    tcs = copy.deepcopy(CTX.tcc)
+    victim = nfr["verification_aspects"][0]
+    for ac in acs:
+        if ac["id"] in nfr["trace_down"]["ac"]:
+            ac["verification_aspects"].remove(victim)
+    for tc in tcs:
+        if tc["id"] in nfr["trace_down"]["tc"]:
+            tc["verification_aspects"].remove(victim)
+    faults = requirements.detect_nfr_verification_faults([nfr], acs, tcs)
+    assert any("AC意味被覆差分" in f for f in faults)
+    assert any("TCC意味被覆差分" in f for f in faults)
+
+
+def test_mutation_nfr_aspect_without_executable_assertion_is_detected() -> None:
+    nfr = copy.deepcopy(CTX.nfc[0])
+    tcs = copy.deepcopy(CTX.tcc)
+    victim = nfr["verification_aspects"][0]
+    for tc in tcs:
+        if tc["id"] in nfr["trace_down"]["tc"]:
+            tc["aspect_assertions"].pop(victim)
+    faults = requirements.detect_nfr_verification_faults([nfr], CTX.acc, tcs)
+    assert any("TCC観点assert差分" in f for f in faults)
+
+
+def test_media_requirements_have_no_unquantified_or_stale_limits() -> None:
+    assert requirements.detect_media_semantic_faults() == []
+
+
+def test_mutation_ambiguous_media_rate_is_detected(tmp_path) -> None:
+    p = tmp_path / "docs/L1-business-requirements/canonical/br-media"
+    p.mkdir(parents=True)
+    (p / "kdp.json").write_text('{"text":"出版は月数冊とする"}', encoding="utf-8")
+    faults = requirements.detect_media_semantic_faults(root=tmp_path)
+    assert any("月数冊" in f for f in faults)
 
 
 def test_no_legacy_denominator_leaks_in_live_docs() -> None:

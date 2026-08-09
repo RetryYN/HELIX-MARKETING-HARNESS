@@ -41,6 +41,8 @@ CURRENT_STATE_LINES = [
     "S0.1 設計クロージャー完了（未被覆 API 0）",
     "S0.2 設計クロージャー未了（planned・未被覆 API 5）",
     "S0.3 設計クロージャー未了（planned・未被覆 API 1）",
+    "今回追加した Kanban／bounded domain／media binding は L3 要求定義まで完了、S1 設計は未着手",
+    "ロジックツリー／統合因果分析（SR-17〜19）は L3 要求定義まで完了、実装は S2 スライス・未着手",
     "S0.1 実装未着手",
     "HELIX-HARNESS 取込は未実施・PO 判断待ち",
 ]

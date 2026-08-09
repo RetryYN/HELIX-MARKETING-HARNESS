@@ -356,3 +356,31 @@
 | 2026-08-05 | sr-contracts | v0.1 | confirmed | PO | cc6280f98d7c | SR-17〜19（ロジックツリー構築／運用後ノード検証／統合データ分析 3 水準・演出プラン還流）追加に伴う内容束縛承認（2026-08-05 PO 指示） |
 | 2026-08-05 | strategy-loop-requirements | v0.1 | confirmed | PO | a037537fa88c | SR-17〜19（ロジックツリー構築／運用後ノード検証／統合データ分析 3 水準・演出プラン還流）追加に伴う内容束縛承認（2026-08-05 PO 指示） |
 | 2026-08-05 | strategy-loop-test-design | v0.1 | confirmed | PO | 818f9be8eda1 | SR-17〜19（ロジックツリー構築／運用後ノード検証／統合データ分析 3 水準・演出プラン還流）追加に伴う内容束縛承認（2026-08-05 PO 指示） |
+| 2026-08-09 | br-media | v0.1 | confirmed | PO | 1b547bab2fd9 | 全意味監査: KDP公式上限の最新一次情報への是正、KDP/note公開頻度の判定可能化（2026-08-09 PO 指示） |
+| 2026-08-09 | fr-contracts.json | v0.1 | confirmed | PO | e7417d45b728 | 全意味監査: FR-11拒否時の業務状態不変とstate_transitions拒否証跡への一元化（2026-08-09 PO 指示） |
+| 2026-08-09 | sr-contracts.json | v0.1 | confirmed | PO | ecf2afd626b4 | 全意味監査: 内部schema/戦略ゲート拒否と外部操作operation_logの証跡責務分離（2026-08-09 PO 指示） |
+| 2026-08-09 | nfr-contracts.json | v0.1 | confirmed | PO | 6671df06142d | 全意味監査: NFR10の実行可能な測定方法と専用AC/TCC接続、状態語彙の正規化（2026-08-09 PO 指示） |
+| 2026-08-09 | ac-contracts.json | v0.1 | confirmed | PO | 515b85f36367 | 全意味監査: NFR10専用受入基準AC-901〜910追加（2026-08-09 PO 指示） |
+| 2026-08-09 | tc-contracts.json | v0.1 | confirmed | PO | c09d6df06c3b | 全意味監査: NFR10専用検証契約TCC-NFR-01〜10追加（2026-08-09 PO 指示） |
+| 2026-08-09 | ac-catalog | v0.1 | confirmed | PO | a11580f52410 | 全意味監査後のAC生成ビュー再生成（scripts/render_views.py、手編集なし） |
+| 2026-08-09 | fr-contracts | v0.1 | confirmed | PO | bf4a78314452 | 全意味監査後のFR生成ビュー再生成（scripts/render_views.py、手編集なし） |
+| 2026-08-09 | nfr-contracts | v0.1 | confirmed | PO | c25391c21acb | 全意味監査後のNFR生成ビュー再生成（scripts/render_views.py、手編集なし） |
+| 2026-08-09 | sr-contracts | v0.1 | confirmed | PO | a8b0777f4b9d | 全意味監査後のSR生成ビュー再生成（scripts/render_views.py、手編集なし） |
+| 2026-08-09 | tc-catalog | v0.1 | confirmed | PO | bb33fde752bc | 全意味監査後のTCC生成ビュー再生成（scripts/render_views.py、手編集なし） |
+| 2026-08-09 | br-media | v0.1 | confirmed | PO | 223b093b46be | Sol意味監査Go: KDP週次作成上限と内部出版節度の分離、note上限同期 |
+| 2026-08-09 | s0-contract | v0.1 | confirmed | PO | f77330da3aae | Sol意味監査Go: process logger構造化ログと外部操作operation_logの責務分離 |
+| 2026-08-09 | fr-contracts.json | v0.1 | confirmed | PO | ea275cdd9508 | Sol意味監査Go: 拒否証跡型と状態遷移意味の正規化 |
+| 2026-08-09 | nfr-contracts.json | v0.1 | confirmed | PO | d9e5b037af9c | Sol意味監査Go: NFR計測境界・復旧・乱数・証跡契約の実行可能化 |
+| 2026-08-09 | ac-contracts.json | v0.1 | confirmed | PO | 5dd171616681 | Sol意味監査Go: NFR受入観点、境界、拒否状態の全層再降下 |
+| 2026-08-09 | tc-contracts.json | v0.1 | confirmed | PO | 66b03428ea58 | Sol意味監査Go: NFR観点別assertと独立fixtureの構造化 |
+| 2026-08-09 | du-contracts.json | v0.1 | confirmed | PO | 90e5256f2295 | Sol意味監査Go: credential検知のpre-operation構造化ログ統一 |
+| 2026-08-09 | ac-catalog | v0.1 | confirmed | PO | 6146370311e4 | Sol意味監査Go後のAC生成ビュー再生成（scripts/render_views.py、手編集なし） |
+| 2026-08-09 | fr-contracts | v0.1 | confirmed | PO | 038e6274de3d | Sol意味監査Go後のFR生成ビュー再生成（scripts/render_views.py、手編集なし） |
+| 2026-08-09 | nfr-contracts | v0.1 | confirmed | PO | 429e4727c340 | Sol意味監査Go後のNFR生成ビュー再生成（scripts/render_views.py、手編集なし） |
+| 2026-08-09 | tc-catalog | v0.1 | confirmed | PO | 633426c319ac | Sol意味監査Go後のTCC生成ビュー再生成（scripts/render_views.py、手編集なし） |
+| 2026-08-09 | du-contracts | v0.1 | confirmed | PO | b802689881bd | Sol意味監査Go後のDU生成ビュー再生成（scripts/render_views.py、手編集なし） |
+| 2026-08-09 | ac-catalog | v0.1 | confirmed | PO | d8cdb7987e7c | 最終approval digest同期後のAC生成ビュー再生成 |
+| 2026-08-09 | fr-contracts | v0.1 | confirmed | PO | ebe0900a6c41 | 最終approval digest同期後のFR生成ビュー再生成 |
+| 2026-08-09 | nfr-contracts | v0.1 | confirmed | PO | 16bce183a922 | 最終approval digest同期後のNFR生成ビュー再生成 |
+| 2026-08-09 | tc-catalog | v0.1 | confirmed | PO | a03ac65b9cd6 | 最終approval digest同期後のTCC生成ビュー再生成 |
+| 2026-08-09 | du-contracts | v0.1 | confirmed | PO | c0cbce023e6b | 最終approval digest同期後のDU生成ビュー再生成 |

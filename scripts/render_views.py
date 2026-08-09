@@ -142,6 +142,7 @@ def render_nfr_contracts() -> tuple[Path, str]:
         out.append(f"- **測定環境**: {it['measurement_env']}\n")
         out.append(f"- **違反時の動作**: {it['violation_behavior']}\n")
         out.append(f"- **証跡**: {'／'.join(it['evidence'])}\n")
+        out.append(f"- **検証観点**: {' '.join(it['verification_aspects'])}\n")
         td = it["trace_down"]
         out.append(f"- **trace**: 上流 = {' '.join(it['trace_up'])} ／ 下流 = {' '.join(td.get('ac', []) + td.get('tc', [])) or '（割当待ち）'}\n\n")
     return L3 / "views" / "nfr-contracts_v0.1.md", "".join(out)
@@ -167,6 +168,8 @@ def render_ac_catalog() -> tuple[Path, str]:
         out.append(f"- **観測点**: {it['observation_point']} ／ **期待状態**: {it['expected_state']}\n")
         out.append(f"- **期待 DB 差分**: {it['expected_db_delta']} ／ **期待証跡**: {it['expected_evidence']}\n")
         out.append(f"- **禁止副作用**: {it['forbidden_side_effects']} ／ **エラー型**: {it['error_type']}\n")
+        if it.get("verification_aspects"):
+            out.append(f"- **NFR 検証観点**: {' '.join(it['verification_aspects'])}\n")
         out.append(f"- **対象更新**: {it['target_update']} ／ **TC**: {' '.join(it['tc']) or '（割当待ち）'}\n\n")
     return L3 / "views" / "ac-catalog_v0.1.md", "".join(out)
 
@@ -179,12 +182,18 @@ def render_tc_catalog() -> tuple[Path, str]:
     out.append(status_line(data, "JSON 内容正本の生成ビュー（全層再降下 §5）"))
     out.append("> 全 AC 検証契約と双方向接続（G-TRACE-BIDIR）。状態・DB 差分・証跡・禁止副作用・外部呼出回数を検証。\n")
     out.append("> 旧体系のテストケースは historical 記録のみ（現行分母は本カタログ）。\n\n")
-    out.append("| TC | kind | AC | 検証する状態 | DB 差分 | 証跡 | 禁止副作用の不在 | 外部呼出 | slice |\n")
-    out.append("|---|---|---|---|---|---|---|---|---|\n")
+    out.append("| TC | kind | AC | NFR 検証観点 | 検証する状態 | DB 差分 | 証跡 | 禁止副作用の不在 | 外部呼出 | slice |\n")
+    out.append("|---|---|---|---|---|---|---|---|---|---|\n")
     for it in data["items"]:
-        out.append(f"| {it['id']} | {it['kind']} | {' '.join(it['ac'])} | {it['verifies_state']} | "
+        aspects = ' '.join(it.get('verification_aspects', [])) or '—'
+        out.append(f"| {it['id']} | {it['kind']} | {' '.join(it['ac'])} | {aspects} | {it['verifies_state']} | "
                    f"{it['verifies_db_delta']} | {it['verifies_evidence']} | {it['verifies_forbidden']} | "
                    f"{it['external_calls']} | {it['slice']} |\n")
+    out.append("\n## NFR 観点別 assert\n\n")
+    for it in data["items"]:
+        if it.get("aspect_assertions"):
+            out.append(f"- **{it['id']}**: " + " ／ ".join(
+                f"`{k}` → {v}" for k, v in it["aspect_assertions"].items()) + "\n")
     out.append("\n検証手段（method）の全文は JSON 正本を参照。\n")
     return L3 / "views" / "tc-catalog_v0.1.md", "".join(out)
 

@@ -40,6 +40,12 @@
         "boundary-recovery"
       ]
     },
+    "verification_aspects": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^NFR-[0-9]+:[a-z0-9-]+$"},
+      "description": "NFR target のときに必須。親NFRの検証意味単位を過不足なく列挙する"
+    },
     "given": {
       "type": "string",
       "minLength": 10

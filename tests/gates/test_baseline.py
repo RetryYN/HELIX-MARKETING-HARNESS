@@ -44,6 +44,18 @@ def test_historical_counts_are_kept_out_of_live_denominators() -> None:
     assert not set(base["counts"]) & {"AC", "UTC"}
 
 
+def test_readme_major_counts_match_canonical_denominators() -> None:
+    text = (ROOT / "README.md").read_text(encoding="utf-8")
+    assert baseline.detect_readme_count_faults(text, baseline.current_counts(baseline.Ctx())) == []
+
+
+def test_mutation_stale_readme_requirement_count_is_detected() -> None:
+    text = "BR 背骨 41 / 要求一覧 52 / 要件定義 FR39/NFR10 / 機能一覧 61"
+    counts = {"BR": 41, "REQ": 55, "FR": 39, "NFR": 10, "FN": 61}
+    faults = baseline.detect_readme_count_faults(text, counts)
+    assert faults == ["README:REQ=[52]!=55"]
+
+
 PREV = {
     "counts": {"BR": 38, "REQ": 52, "AC": 19},
     "contract_counts": {"AC_CONTRACT": 211, "TCC": 217},
@@ -408,4 +420,3 @@ def test_mutation_skip_raise_without_design_addition_is_detected() -> None:
 def test_mutation_skip_raise_without_parent_ut_count_is_failclose() -> None:
     faults = baseline.skip_raise_backing_faults({}, {"API_UT": 199}, 194, 204)
     assert any("親コミットの API_UT が無い" in f for f in faults), faults
-

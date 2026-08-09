@@ -42,6 +42,19 @@
         "resume"
       ]
     },
+    "verification_aspects": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^NFR-[0-9]+:[a-z0-9-]+$"},
+      "description": "NFR専用TCCが実証する意味単位。親NFR・ACと集合完全一致させる"
+    },
+    "aspect_assertions": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {"pattern": "^NFR-[0-9]+:[a-z0-9-]+$"},
+      "additionalProperties": {"type": "string", "minLength": 20},
+      "description": "各verification_aspectを実証するfixture・観測点・assertを個別に記述する"
+    },
     "verifies_state": {
       "type": "string",
       "minLength": 4,

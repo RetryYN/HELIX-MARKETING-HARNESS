@@ -16,6 +16,7 @@
 - S0.2 設計クロージャー未了（planned・未被覆 API 5）
 - S0.3 設計クロージャー未了（planned・未被覆 API 1）
 - 今回追加した Kanban／bounded domain／media binding は L3 要求定義まで完了、S1 設計は未着手
+- ロジックツリー／統合因果分析（SR-17〜19）は L3 要求定義まで完了、実装は S2 スライス・未着手
 - S0.1 実装未着手
 - HELIX-HARNESS 取込は未実施・PO 判断待ち
 
@@ -32,9 +33,9 @@ S0.1 の進行方法（本リポジトリ内か他経路か）は PO が決定�
 |---|---|---|
 | [00-authority](docs/00-authority/) | 権威層 | artifact manifest・[承認ログ](docs/00-authority/approvals/approvals.md)・[baseline](docs/00-authority/baselines/baseline.json)・[レビュー](docs/00-authority/reviews/)・[監査](docs/00-authority/audits/)・[ゲート台帳](docs/00-authority/requirements-gates.md)・[ADR](docs/00-authority/adr/)・[リスク登録簿](docs/00-authority/risk-register_v0.1.md) |
 | [L0-charter](docs/L0-charter/) | 北極星 | [charter v0.4](docs/L0-charter/canonical/marketing-harness-charter_v0.4.md) |
-| [L1-business-requirements](docs/L1-business-requirements/) | 業務要求 | [BR 背骨 38](docs/L1-business-requirements/canonical/br-backbone_v0.1.md)・[媒体別業務要求 70](docs/L1-business-requirements/canonical/br-media_v0.1.md)・[要求一覧 52](docs/L1-business-requirements/canonical/requirement-list_v0.1.md)・[ループ/タスク/WF](docs/L1-business-requirements/canonical/loop-task-workflow_v0.1.md)・[用語集](docs/L1-business-requirements/canonical/glossary_v0.1.md)・[BR 契約ビュー](docs/L1-business-requirements/views/br-contracts_v0.1.md) |
+| [L1-business-requirements](docs/L1-business-requirements/) | 業務要求 | [BR 背骨 41](docs/L1-business-requirements/canonical/br-backbone_v0.1.md)・[媒体別業務要求 70](docs/L1-business-requirements/canonical/br-media_v0.1.md)・[要求一覧 55](docs/L1-business-requirements/canonical/requirement-list_v0.1.md)・[ループ/タスク/WF](docs/L1-business-requirements/canonical/loop-task-workflow_v0.1.md)・[用語集](docs/L1-business-requirements/canonical/glossary_v0.1.md)・[BR 契約ビュー](docs/L1-business-requirements/views/br-contracts_v0.1.md) |
 | [L2-prototypes](docs/L2-prototypes/) | プロトタイプ | 未着手（workflows／screens／operating-scenarios の枠のみ） |
-| [L3-system-requirements](docs/L3-system-requirements/) | システム要件 | [要件定義 FR36/NFR10](docs/L3-system-requirements/canonical/functional/requirements_v0.1.md)・[機能一覧 61](docs/L3-system-requirements/canonical/functional/function-list_v0.1.md)・[媒体別詳細要件](docs/L3-system-requirements/canonical/functional/media-requirements_v0.1.md)・[S0 契約](docs/L3-system-requirements/canonical/s0-contract_v0.1.md)・[上流戦略ループ要件](docs/L3-system-requirements/canonical/strategy/strategy-loop-requirements_v0.1.md)・[戦略学習契約](docs/L3-system-requirements/canonical/strategy/strategy-learning-contract_v0.1.md)・[検証設計](docs/L3-system-requirements/verification/verification-design_v0.1.md)・[AC カタログ](docs/L3-system-requirements/views/ac-catalog_v0.1.md)・[TC カタログ](docs/L3-system-requirements/views/tc-catalog_v0.1.md) |
+| [L3-system-requirements](docs/L3-system-requirements/) | システム要件 | [要件定義 FR39/NFR10](docs/L3-system-requirements/canonical/functional/requirements_v0.1.md)・[機能一覧 61](docs/L3-system-requirements/canonical/functional/function-list_v0.1.md)・[媒体別詳細要件](docs/L3-system-requirements/canonical/functional/media-requirements_v0.1.md)・[S0 契約](docs/L3-system-requirements/canonical/s0-contract_v0.1.md)・[上流戦略ループ要件](docs/L3-system-requirements/canonical/strategy/strategy-loop-requirements_v0.1.md)・[戦略学習契約](docs/L3-system-requirements/canonical/strategy/strategy-learning-contract_v0.1.md)・[検証設計](docs/L3-system-requirements/verification/verification-design_v0.1.md)・[AC カタログ](docs/L3-system-requirements/views/ac-catalog_v0.1.md)・[TC カタログ](docs/L3-system-requirements/views/tc-catalog_v0.1.md) |
 | [L4-basic-design](docs/L4-basic-design/) | 基本設計 | [基本設計](docs/L4-basic-design/canonical/basic-design_v0.1.md)・[戦略ループ設計](docs/L4-basic-design/canonical/components/strategy-loop-design_v0.1.md)・独立設計書（[外部 IF](docs/L4-basic-design/canonical/external-if/external-if-design_v0.1.md)／[DB](docs/L4-basic-design/canonical/data/db-design_v0.1.md)／[状態機械](docs/L4-basic-design/canonical/state-machine/state-machine-design_v0.1.md)／[承認](docs/L4-basic-design/canonical/approval/approval-design_v0.1.md)／[ブランド隔離](docs/L4-basic-design/canonical/brand-isolation/brand-isolation-design_v0.1.md)）・[技術選定](docs/L4-basic-design/canonical/tech-stack_v0.1.md)・[総合テスト設計](docs/L4-basic-design/integration-tests/integration-test-design_v0.1.md)・[CMP 契約ビュー](docs/L4-basic-design/views/cmp-contracts_v0.1.md) |
 | [L5-detailed-design](docs/L5-detailed-design/) | 詳細設計 | [詳細設計](docs/L5-detailed-design/canonical/detailed-design_v0.1.md)・[エラー分類](docs/L5-detailed-design/canonical/errors/error-taxonomy_v0.1.md)・[migration 規則](docs/L5-detailed-design/canonical/migrations/migration-rules.json)・[単体テスト設計](docs/L5-detailed-design/unit-tests/unit-test-design_v0.1.md)・[DU 契約ビュー](docs/L5-detailed-design/views/du-contracts_v0.1.md) |
 | [L6-feature-design](docs/L6-feature-design/) | 機能別設計 | [S0 の 11 本](docs/L6-feature-design/S0/)（brief・TLP・証跡・migration・状態機械・ペア判定・設定管理・ブランド隔離基盤・KPI handoff・外部操作・承認 — すべて confirmed）＋[実装単位 48 件](docs/L6-feature-design/S0/implementation-units.json)＋[未被覆 API 台帳](docs/L6-feature-design/S0/uncovered-apis.json)＋[更新別クロージャー](docs/L6-feature-design/S0/update-closure.json)＋[S0.1 計画](docs/L6-feature-design/S0/plan-s0.1.json)、[S1 の 3 本](docs/L6-feature-design/S1/)（ブランド隔離完成・キャンペーン・戦略改訂 — planned）。later は空 |
@@ -55,7 +56,7 @@ S0.1 の進行方法（本リポジトリ内か他経路か）は PO が決定�
 | CMP/SCM | [cmp-contracts.json](docs/L4-basic-design/canonical/components/cmp-contracts.json) |
 | DU/API/UT | [du-contracts.json](docs/L5-detailed-design/canonical/apis/du-contracts.json) |
 
-現行分母は **AC=227 ／ TCC=233 ／ API=58 ／ API_UT=199**（件数の正本は
+現行分母は **AC=237 ／ TCC=243 ／ API=58 ／ API_UT=199**（件数の正本は
 [baseline.json](docs/00-authority/baselines/baseline.json)）。旧体系の分母は `historical_counts` にのみ保持する。
 
 第 9 正本の implementation-units.json は **手編集の confirmed 正本**であり、DU 契約や L6 文書からの

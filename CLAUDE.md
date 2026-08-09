@@ -40,7 +40,7 @@
   戦略層は strategy-loop-requirements／strategy-learning-contract ↔ strategy-loop-design／
   strategy-loop-test-design のペア（SR 19／SCM 10／STC）。
   DDL・状態遷移・evidence 型・WF 契約の正準は docs/L3-system-requirements/canonical/s0-contract_v0.1.md。
-- 現在地（この 7 行が正本。他所へ現在地を書かない。完了宣言は**更新単位**で、
+- 現在地（この 8 行が正本。他所へ現在地を書かない。完了宣言は**更新単位**で、
   docs/L6-feature-design/S0/update-closure.json の宣言と実態の一致を G-UPDATE-DESIGN-CLOSURE が検査する）:
   - 構造・権威移行完了（L0〜L6 の正本と機械ゲートを確定）
   - S0.1 設計クロージャー完了（未被覆 API 0）
@@ -74,7 +74,7 @@
   `resolution_update`（DU の fn_ids → updates.json から機械導出 — G-UNCOVERED-API-UPDATE）付きで登録する。
   更新ごとの設計クロージャー宣言は docs/L6-feature-design/S0/update-closure.json が正本で、
   実態との一致と現在地との一致を G-UPDATE-DESIGN-CLOSURE が検査する（slice と update を混同しない）。
-- 現行分母は **AC=227 ／ TCC=233 ／ API=58 ／ API_UT=199** のみ。旧体系の分母は baseline.json の
+- 現行分母は **AC=237 ／ TCC=243 ／ API=58 ／ API_UT=199** のみ。旧体系の分母は baseline.json の
   `historical_counts` にのみ保持し、現役導線では使わない。
 - 次 = **S0.1 実装**（DU-01〜12 の API を test-first。各 API の UT は du-contracts の `apis[].ut` が正本）。
   実装パッケージは **`src/helix/`**。着手は**自動検出**される（`src/helix/` への実装追加・

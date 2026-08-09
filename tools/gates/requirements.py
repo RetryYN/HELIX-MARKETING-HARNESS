@@ -48,6 +48,8 @@ MANDATED_GROUPS = {
 }
 POLARITIES = {"normal", "reject", "boundary-recovery"}
 MAX_SRC_AGE_DAYS = 90
+AMBIGUOUS_MEDIA_PHRASES = ("月数冊", "少量高品質")
+STALE_MEDIA_FACTS = ("新規タイトル 1 日 3 冊制限", "1 日 3 冊制限")
 
 STRATEGY_SCHEMAS = [
     "market-observation", "market-model", "segment-context", "problem-model",
@@ -176,6 +178,68 @@ def current_denominators(ctx: Ctx) -> dict[str, int]:
     }
 
 
+def detect_nfr_verification_faults(nfrs: list[dict], acs: list[dict],
+                                   tcs: list[dict]) -> list[str]:
+    """NFR→AC→TCC が実在IDで接続され、測定方法が実行可能な形か検査する。"""
+    ac_by_id = {a["id"]: a for a in acs}
+    tc_by_id = {t["id"]: t for t in tcs}
+    bad: list[str] = []
+    for nfr in nfrs:
+        nid = nfr["id"]
+        expected_aspects = set(nfr.get("verification_aspects", []))
+        ac_refs = nfr.get("trace_down", {}).get("ac", [])
+        tc_refs = nfr.get("trace_down", {}).get("tc", [])
+        if not ac_refs:
+            bad.append(f"{nid}:AC未接続")
+        if not tc_refs:
+            bad.append(f"{nid}:TCC未接続")
+        for aid in ac_refs:
+            ac = ac_by_id.get(aid)
+            if ac is None:
+                bad.append(f"{nid}:未知AC {aid}")
+            elif ac.get("target") != nid:
+                bad.append(f"{nid}:{aid} target={ac.get('target')}")
+        for tid in tc_refs:
+            tc = tc_by_id.get(tid)
+            if tc is None:
+                bad.append(f"{nid}:未知TCC {tid}")
+            elif not set(tc.get("ac", [])) & set(ac_refs):
+                bad.append(f"{nid}:{tid}がNFRのACを検証しない")
+        ac_aspects = {aspect for aid in ac_refs if (ac := ac_by_id.get(aid))
+                      for aspect in ac.get("verification_aspects", [])}
+        tc_aspects = {aspect for tid in tc_refs if (tc := tc_by_id.get(tid))
+                      for aspect in tc.get("verification_aspects", [])}
+        tc_assertions = {aspect for tid in tc_refs if (tc := tc_by_id.get(tid))
+                         for aspect in tc.get("aspect_assertions", {})}
+        if not expected_aspects or any(not x.startswith(f"{nid}:") for x in expected_aspects):
+            bad.append(f"{nid}:verification_aspects欠落またはprefix不一致")
+        if ac_aspects != expected_aspects:
+            bad.append(f"{nid}:AC意味被覆差分={sorted(expected_aspects ^ ac_aspects)}")
+        if tc_aspects != expected_aspects:
+            bad.append(f"{nid}:TCC意味被覆差分={sorted(expected_aspects ^ tc_aspects)}")
+        if tc_assertions != expected_aspects:
+            bad.append(f"{nid}:TCC観点assert差分={sorted(expected_aspects ^ tc_assertions)}")
+        method = nfr.get("measurement_method", "")
+        if "loop_runs/tasks" in method or "NOT IN (終端)" in method:
+            bad.append(f"{nid}:実行不能な擬似SQL")
+    return bad
+
+
+def detect_media_semantic_faults(root: Path = ROOT) -> list[str]:
+    """媒体要求の判定不能な曖昧量と、失効が確認された外部仕様表記を検出する。"""
+    bad: list[str] = []
+    targets = sorted((root / "docs/L1-business-requirements/canonical/br-media").glob("*.json"))
+    md = root / "docs/L1-business-requirements/canonical/br-media_v0.1.md"
+    for p in [*targets, md]:
+        if not p.exists() or p.stem == "index":
+            continue
+        text = p.read_text(encoding="utf-8")
+        for phrase in (*AMBIGUOUS_MEDIA_PHRASES, *STALE_MEDIA_FACTS):
+            if phrase in text:
+                bad.append(f"{p.name}:判定不能または失効表記『{phrase}』")
+    return bad
+
+
 # ---------------------------------------------------------------- ゲート本体
 def run(ctx: Ctx) -> None:
     _json_syntax()
@@ -268,7 +332,10 @@ def _substance(ctx: Ctx) -> None:
         for i in load(p)["items"]:
             if len((i.get("text") or "").strip()) < 8:
                 hollow.append(i["id"])
-    gate("G-SUBSTANCE", not hollow, f"全エンティティ本文実体あり (空={hollow})")
+    media_semantic = detect_media_semantic_faults()
+    gate("G-SUBSTANCE", not hollow and not media_semantic,
+         f"全エンティティ本文実体があり媒体要求に曖昧量・失効済み仕様がない "
+         f"(空={hollow}, 媒体意味={media_semantic[:5]})")
 
     today = datetime.date.today()
     stale = []
@@ -333,8 +400,11 @@ def _frsr_contracts(ctx: Ctx) -> None:
         n_errs += [f"{it.get('id', '?')}: {e}" for e in schema_check(nfc_schema, it)]
     nfr_ids = {i["id"] for i in ctx.nfr}
     nfr_json_ids = {i["id"].replace("NFR-0", "NFR-") for i in ctx.nfc} | {i["id"] for i in ctx.nfc}
-    gate("G-NFR-MEASURABLE", not n_errs and all(i in nfr_json_ids for i in nfr_ids),
-         f"NFR 計測契約: schema 適合＋NFR10 完全被覆 (err={n_errs[:3]})")
+    nfr_verify_faults = detect_nfr_verification_faults(ctx.nfc, ctx.acc, ctx.tcc)
+    gate("G-NFR-MEASURABLE",
+         not n_errs and all(i in nfr_json_ids for i in nfr_ids) and not nfr_verify_faults,
+         "NFR 計測契約: schema 適合＋NFR10 完全被覆＋NFR→AC→TCC実在ID接続＋実行可能な測定方法 "
+         f"(err={n_errs[:3]}, 検証接続={nfr_verify_faults[:5]})")
 
     acc_schema = load(AC_SCHEMA)
     a_errs: list[str] = []

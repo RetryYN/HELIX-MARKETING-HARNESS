@@ -36,7 +36,7 @@ def test_mutation_missing_semantic_refs_block_is_detected() -> None:
 
 
 def test_state_evidence_consistency_holds() -> None:
-    assert semantic_refs.detect_state_evidence_faults(CTX.acc, CTX.tcc) == []
+    assert semantic_refs.detect_state_evidence_faults(CTX.acc, CTX.tcc, CTX.allc) == []
 
 
 def test_mutation_operation_log_for_internal_transition_is_detected() -> None:
@@ -44,3 +44,17 @@ def test_mutation_operation_log_for_internal_transition_is_detected() -> None:
               "expected_evidence": "operation_log に遷移拒否を記録",
               "semantic_refs": {**CTX.acc[0]["semantic_refs"], "table_refs": ["loop_runs"]}}
     assert semantic_refs.detect_state_evidence_faults([victim], [])
+
+
+def test_mutation_contract_evidence_channel_and_db_contradiction_are_detected() -> None:
+    contract = {
+        "id": "FR-11",
+        "rejection_behavior": "DB を変更せず state_transitions に rejected 行を記録する",
+        "side_effects": [],
+        "evidence": ["operation_log 行"],
+        "tables": ["w: state_transitions"],
+        "semantic_refs": {"table_refs": ["state_transitions"]},
+    }
+    faults = semantic_refs.detect_state_evidence_faults([], [], [contract])
+    assert any("operation_log" in f for f in faults)
+    assert any("DB変更なし" in f for f in faults)

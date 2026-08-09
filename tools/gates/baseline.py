@@ -539,7 +539,27 @@ def _count_sync(ctx: Ctx) -> None:
             n = int(next(x for x in m if x))
             if n != gc:
                 stale.append(f"{p.name}:{n}!={gc}")
-    gate("G-COUNT-SYNC", not stale, f"ゲート件数の手書き表記が実数と一致 (乖離={stale})")
+    stale += detect_readme_count_faults(
+        (ROOT / "README.md").read_text(encoding="utf-8"), current_counts(ctx))
+    gate("G-COUNT-SYNC", not stale,
+         f"ゲート件数と README の主要分母表記が正本の実数と一致 (乖離={stale})")
+
+
+def detect_readme_count_faults(text: str, counts: dict[str, int]) -> list[str]:
+    """README の入口導線に掲げる主要分母が JSON 正本からドリフトしていないか検出する。"""
+    claims = {
+        "BR": (r"BR 背骨\s+(\d+)", counts["BR"]),
+        "REQ": (r"要求一覧\s+(\d+)", counts["REQ"]),
+        "FR": (r"要件定義 FR(\d+)/NFR\d+", counts["FR"]),
+        "NFR": (r"要件定義 FR\d+/NFR(\d+)", counts["NFR"]),
+        "FN": (r"機能一覧\s+(\d+)", counts["FN"]),
+    }
+    bad: list[str] = []
+    for label, (pattern, expected) in claims.items():
+        found = [int(x) for x in re.findall(pattern, text)]
+        if found != [expected]:
+            bad.append(f"README:{label}={found or '欠落'}!={expected}")
+    return bad
 
 
 def _wiring(ctx: Ctx) -> None:

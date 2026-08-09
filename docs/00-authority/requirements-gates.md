@@ -66,12 +66,12 @@ slice: cross
 | G-CNT-CONTRACT | AC/TCC は承認済み最小分母以上、API/API_UT は設計正本分母と一致し、縮小は baseline ratchet が拒否 | 分母のサイレント縮小・新規要件追加の阻害 |
 | G-HISTORICAL-COUNTS | 旧 AC/TC/UT 分母が baseline の historical_counts のみに存在し、現役分母・現役文書に混入しない | 旧体系の分母復活 |
 | G-UNIQ-* | BR/REQ/FR・NFR/FN の ID 重複ゼロ | ID 衝突 |
-| G-SUBSTANCE | 全エンティティに 8 文字以上の本文実体 | 空・スタブ本文の完了僭称 |
+| G-SUBSTANCE | 全エンティティに 8 文字以上の本文実体を要求し、媒体要求の判定不能な曖昧量と失効確認済み仕様を拒否 | 空・スタブ本文の完了僭称・AC化不能な頻度表現・外部仕様の陳腐化 |
 | G-SRC-FRESH | br-media 各媒体の structure_checked が 90 日以内 | 出典腐敗 |
 | G-POC-EXIT | PoC が出口 2 軸 schema に適合、confirmed には promotion_strategy 必須 | PoC の独り歩き |
 | G-REQ-CONTRACT | BR 構造化契約が schema 適合で現役 BR 全件・12 要求群を被覆し、REQ 参照が実在し、生成ビューが同期 | 1 行要求の温存・手編集ビューの乖離 |
 | G-FRSR-CONTRACT | 現役 FR／SR 全件に 18 観点の実行契約が schema 適合で存在し、tables／state_transitions が DDL・遷移正本と一致 | 責務 1 行要件の温存・正本との乖離 |
-| G-NFR-MEASURABLE | 全 NFR10 に計測契約（対象・方法・閾値・環境・違反時動作・証跡） | 測定方法のない閾値 |
+| G-NFR-MEASURABLE | 全 NFR10 に計測契約と `verification_aspects` を要求し、NFR→AC→TCC の実在ID接続に加えて意味単位集合の完全一致を強制し、実行不能な擬似SQLを拒否 | 測定方法のない閾値・IDだけ接続した意味上の片肺・実行不能な検証手順 |
 | G-AC-COVERAGE | AC 検証契約が schema 適合・ID 一意・target 実在で、S0 の全 FR/SR に AC ≥1 | AC なし実装対象 |
 | G-AC-POLARITY | S0 の各 FR/SR が正常／拒否／境界復旧の 3 極性を AC か理由付き N/A で被覆 | 正常系だけの受入 |
 | G-HUMAN-JUDGE | 全 FR/SR 契約に人間判断点の明示 | 人間判断点の暗黙化 |
@@ -144,7 +144,7 @@ slice: cross
 |---|---|---|
 | G-SEMANTIC-REF | 全 FR/SR/AC/TC/CMP/DU の semantic_refs が正本語彙（DDL・遷移表・evidence kind・エラー分類・API）に実在 | 自由文に埋もれた意味矛盾 |
 | G-COLUMN-REF | table_refs／column_refs が ddl.sql の実在テーブル・実在列 | 列名のドリフト |
-| G-STATE-EVIDENCE-CONSISTENCY | 状態遷移の拒否・成立は state_transitions／構造化ログで表現し operation_log は外部操作に限定 | 証跡種別の混同 |
+| G-STATE-EVIDENCE-CONSISTENCY | FR/SR/AC/TCC の状態遷移拒否・成立は state_transitions で表現し operation_log は外部操作に限定。「DB変更なし」と拒否証跡INSERTの自己矛盾も拒否 | 証跡種別の混同・拒否契約の自己矛盾 |
 
 ## test_pairing — ペアと test-first の実体化（PO 指示 §6）
 
@@ -210,7 +210,7 @@ slice: cross
 | G-BASE-EXIST/HASH/STATUS/RATCHET | baseline.json に対し confirmed 文書のハッシュ一致・降格なし・分母縮小/ゲート削減なし・pytest skip 上限の未承認引き上げなし（引き上げは approvals.md の構造化 PO 承認行に加え、**同一変更の API 単位 UT 追加本数以内**であることを要求 — 承認行だけでは上げられない）・**S0.1 着手前提条件（plan-s0.1.json の preconditions[].id）の削除なし**（比較元は**親コミット**の baseline、引き上げには approvals.md の構造化 PO 承認行が必要） | デグレ：confirmed のサイレント改変・後退・スコープ縮小 |
 | G-BASE-ART | 実装入力（契約 JSON・DDL・manifest・ゲートモジュール・CI・規律文書・hook・skip/coverage 予算）のハッシュが baseline と一致・未登録なし | 実装入力のサイレント改変 |
 | G-BASE-ART-PATHS | baseline.json の `artifacts` が「**git 追跡下かつ作業ツリーに実在するパス** → sha256 64 桁」だけで構成される。この台帳は digest のみを持つため secret scanner（gitleaks）の allowlist で除外しているが、その除外が安全なのはキーが実在パスに限られることが機械保証されている場合だけであり、本ゲートがその保証を与える。allowlist の設定ファイル `.gitleaks.toml` 自体も baseline の改変検出対象に含める | 台帳に秘密らしきキー（`api_key.txt` 等）を紛れ込ませ、secret scan の allowlist を悪用する |
-| G-COUNT-SYNC | 手書きのゲート件数表記が実数と一致 | 散在する件数のドリフト |
+| G-COUNT-SYNC | 手書きのゲート件数と README の主要分母（BR/REQ/FR/NFR/FN）が各正本の実数と一致 | 入口文書に残る旧件数・散在する件数のドリフト |
 | G-WIRING | 全ゲート ID が本台帳に掲載され、CI が `tools/gates/run_all.py` を呼ぶ | ルールの配線漏れ・死蔵 |
 | G-GATE-MODULES | ゲートが tools/gates/ の工程別モジュール（`common.GATE_MODULES` が正本）へ分割され、validate_requirements.py が薄い互換ラッパー（40 行以下・run_all 参照） | 巨大 validator への逆戻り |
 | G-GATE-UNITTEST | 各ゲートモジュールに単体テスト（tests/gates/test_<module>.py）が存在し、`test_mutation_*` 関数**それ自身**が当該モジュールの関数を到達しうる位置で呼び、その**結果を観測する** assert を持つ（assert 式が呼出しを含むか、呼出し結果に束縛された名前を参照する。タプル代入は位置対応、名前伝播は固定点で解決） | 検査されないゲート実装／`def test_mutation_x(): pass`・結果を捨てる・到達しない位置に置く形骸 mutation |

@@ -4,10 +4,17 @@
   "description": "非機能要件（NFR）の計測契約。測定対象・方法・閾値・環境・違反時動作・証跡を必須化する（全層再降下 §3）。",
   "type": "object",
   "additionalProperties": false,
-  "required": ["id", "title", "measurement_target", "measurement_method", "threshold", "measurement_env", "violation_behavior", "evidence", "trace_up", "trace_down"],
+  "required": ["id", "title", "verification_aspects", "measurement_target", "measurement_method", "threshold", "measurement_env", "violation_behavior", "evidence", "trace_up", "trace_down"],
   "properties": {
     "id": {"type": "string", "pattern": "^NFR-[0-9]+$"},
     "title": {"type": "string", "minLength": 4},
+    "verification_aspects": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^NFR-[0-9]+:[a-z0-9-]+$"},
+      "description": "measurement/threshold/violation の意味上の検証単位。専用 AC/TCC と集合完全一致させる"
+    },
     "measurement_target": {"type": "string", "minLength": 10, "description": "測定対象（何の量・性質を測るか）"},
     "measurement_method": {"type": "string", "minLength": 15, "description": "測定方法（どのコマンド・クエリ・テストで測るか — 機械実行可能に）"},
     "threshold": {"type": "string", "minLength": 4, "description": "閾値（合否の数値・条件。config 値は config キー名で参照）"},

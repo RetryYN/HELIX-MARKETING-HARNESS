@@ -2,7 +2,7 @@
 
 # 戦略要件 実行契約（SR contracts） v0.1
 
-> status: **confirmed**（2026-08-05 PO 承認 — receipt 9af2b10b3147）。JSON 内容正本の生成ビュー（全層再降下 §3）
+> status: **confirmed**（2026-08-05 PO 承認 — receipt ecf2afd626b4）。JSON 内容正本の生成ビュー（全層再降下 §3）
 > 各 SR に 18 観点の実行契約を必須化。brief／TLP／revision の正準は strategy-learning-contract。
 
 ## SR-01 二重ループの責務分離
@@ -14,7 +14,7 @@
 - **不変条件**: tactical_learning_packets.loop_run_id の run は常に loop_kind = 'lower'（DDL 整合トリガ）／上流の学習対象（市場・価値・選択基準）と下流の学習対象（媒体・表現・運用）を単一 PDCA/OODA/スクラムへ統合する経路が存在しない
 - **状態遷移**: なし
 - **正常動作**: run 生成時に loop_kind を確定し、成果物提出時に「型 × loop_kind」対応表で照合する。上流 run は意味モデルのみ、下流 run は公開物・計測・TLP のみを受理し、それぞれの学習正本へ書き込む。
-- **拒否・異常動作**: 下流 run からの意味モデル・strategy_revision 提出、上流 run からの TLP 提出は LoopScopeViolation を raise し、DB を変更せず operation_log 証跡に拒否理由を記録する（fail-close）。DDL 整合トリガは lower 以外の run への TLP INSERT を常時拒否する。
+- **拒否・異常動作**: 下流 run からの意味モデル・strategy_revision 提出、上流 run からの TLP 提出は LoopScopeViolation を raise し、DB を変更せず 構造化拒否ログに拒否理由を記録する（fail-close）。DDL 整合トリガは lower 以外の run への TLP INSERT を常時拒否する。
 - **境界動作**: micro run は下流の内部検証ループであり、どちらの学習正本にも直接書かない（親 task 経由のみ）。loop_kind 判定不能（対応表にない型）は拒否側へ倒す。
 - **再試行・再開・復旧**: 対応表照合は無状態のため再実行安全。クラッシュ時は提出 transaction ごと消え、越境した中間状態は残らない。再開は loop_runs の現状態から続行。
 - **人間判断／escalation**: なし（全自動。責務分離の変更は要件改訂 = PO 承認事項）
@@ -36,7 +36,7 @@
 - **不変条件**: market_observation schema に解釈用フィールドが存在しない（観測 = 事実のみ）／fact と解釈を同一フィールドへ格納する経路が存在しない
 - **状態遷移**: なし
 - **正常動作**: リサーチ工程の出力を market_observation schema で検証し、fact（観測事実）のみを受理する。解釈は TLP の causal_interpretation／revision の reason へ別レコードとして経路分離する。
-- **拒否・異常動作**: schema 非適合（解釈フィールドの付加・必須 fact 欠落）は ObservationInterpretationMixRejected で拒否し、operation_log 証跡に理由を記録する。schema 判定不能（fixture/schema 破損）も拒否側へ倒す（fail-close）。
+- **拒否・異常動作**: schema 非適合（解釈フィールドの付加・必須 fact 欠落）は ObservationInterpretationMixRejected で拒否し、構造化拒否ログに理由を記録する。schema 判定不能（fixture/schema 破損）も拒否側へ倒す（fail-close）。
 - **境界動作**: 同一テキストでも別レコード（TLP.causal_interpretation）としての提出は受理する — 分離の単位はフィールド・レコードであり字句ではない。空の fact は必須欠落として拒否。
 - **再試行・再開・復旧**: schema 検証は無状態。再実行は同一判定。受理 transaction がクラッシュで消えた場合は再投入で冪等に再受理。
 - **人間判断／escalation**: なし（全自動。schema 改訂は要件改訂）
@@ -57,7 +57,7 @@
 - **不変条件**: 市場分析の出力型は 3 モデルのみ（自由 JSON への埋没禁止）／各モデルは market_observation への trace を保持する
 - **状態遷移**: なし
 - **正常動作**: 観測事実を統合して market_model／segment_context／problem_model を生成し、各 JSON Schema で必須フィールド完全性を検証してから版付きで受理する。
-- **拒否・異常動作**: 必須フィールド欠落・schema 外の型・3 モデル以外の自由 JSON は ModelSchemaRejected で受理を拒否し、欠落フィールド一覧を operation_log 証跡へ記録する。判定不能も拒否側へ倒す。
+- **拒否・異常動作**: 必須フィールド欠落・schema 外の型・3 モデル以外の自由 JSON は ModelSchemaRejected で受理を拒否し、欠落フィールド一覧を 構造化拒否ログへ記録する。判定不能も拒否側へ倒す。
 - **境界動作**: additionalProperties は schema 準拠で拒否（未知フィールドの黙認をしない）。観測 0 件からのモデル生成は根拠欠落として拒否。
 - **再試行・再開・復旧**: schema 検証は無状態。生成失敗は入力（観測 ID 群）から再実行可能。受理は版単位で冪等（同一内容 = 同一版）。
 - **人間判断／escalation**: なし（全自動。schema 改訂は要件改訂）
@@ -78,7 +78,7 @@
 - **不変条件**: 人口統計属性は補助変数のみ（segment の定義中心にならない）／架空人物ペルソナ型（年齢・性別・職業・趣味中心）を正本として導入する経路が存在しない
 - **状態遷移**: なし
 - **正常動作**: segment_context を schema 検証し、状況ベースフィールド（状況・制約・代替行動・意思決定条件等）が実質記入されていることを確認して受理する。人口統計は補助フィールドとして併記可。
-- **拒否・異常動作**: 状況フィールドが全て空・欠落で人口統計属性のみの segment は PersonaSegmentRejected（G-SEGMENT-CONTEXT）で拒否し、operation_log 証跡へ記録する。判定不能は拒否。
+- **拒否・異常動作**: 状況フィールドが全て空・欠落で人口統計属性のみの segment は PersonaSegmentRejected（G-SEGMENT-CONTEXT）で拒否し、構造化拒否ログへ記録する。判定不能は拒否。
 - **境界動作**: 人口統計＋状況の混在は受理（人口統計が補助である限り）。状況フィールドが空文字・空配列のみの場合は「実質未記入」として人口統計のみと同等に拒否。
 - **再試行・再開・復旧**: ゲートは無状態（判定のみ）。再実行は同一判定。修正後の segment は新版として再投入。
 - **人間判断／escalation**: なし（全自動。状況フィールド定義の変更は要件改訂）
@@ -99,7 +99,7 @@
 - **不変条件**: 棄却案・棄却理由なしの strategic_choice が正本に存在しない／反証条件なしの value_hypothesis が正本に存在しない（反証不能な仮説の禁止）
 - **状態遷移**: なし
 - **正常動作**: マーケティング戦略工程の出力（VH/CAT/POS/CA/SC）を各 schema で検証し、strategic_choice は rejected_options（棄却理由つき）を、value_hypothesis は disconfirming_conditions を必須確認して版付きで受理する。
-- **拒否・異常動作**: rejected_options 空・棄却理由欠落・disconfirming_conditions 欠落は IncompleteStrategyRejected で拒否し、operation_log 証跡へ欠落要素を記録する。schema 判定不能も拒否。
+- **拒否・異常動作**: rejected_options 空・棄却理由欠落・disconfirming_conditions 欠落は IncompleteStrategyRejected で拒否し、構造化拒否ログへ欠落要素を記録する。schema 判定不能も拒否。
 - **境界動作**: rejected_options ちょうど 1 件（minItems 境界）は受理。棄却理由が空文字の場合は欠落と同等に拒否。反証条件が「なし」と明記された仮説は反証不能として拒否。
 - **再試行・再開・復旧**: schema 検証は無状態。欠落補完後は新版として再投入（append-only — SR-11）。
 - **人間判断／escalation**: なし（検証は全自動。戦略内容そのものの妥当性判断は上流ループの改善工程 = SR-10 側）
@@ -127,7 +127,7 @@
 - **副作用**: strategic_briefs INSERT／旧版 status UPDATE（superseded — 新版発行時のみ）／構造化ログ出力（拒否時 — FN-704）
 - **冪等性**: digest 決定性により同一内容の再発行は同一 digest。UNIQUE(brief_key, version) が二重発行を検出。
 - **証跡**: strategic_briefs 行そのもの（digest・版が証跡）／拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）
-- **使用テーブル・正本**: w: strategic_briefs／w: evidence（外部操作証跡 = operation_log kind）／r: config（シード投入時の検証設定）
+- **使用テーブル・正本**: w: strategic_briefs／r: config（シード投入時の検証設定）
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: digest 正準化規則（キー昇順・(",",":")・UTF-8/NFC・digest/status/created_at 除外 — strategy-learning-contract §1 2bis）／media-roles.json 台帳（S0 は JSON 正本）
 - **trace**: 上流 = BR-A2 REQ-050 ／ 下流 = AC-SR-01 AC-SR-06-1 AC-SR-06-2 AC-SR-06-3 AC-SR-06-4 AC-SR-06-5 SCM-02 ／ スライス = S0
@@ -183,7 +183,7 @@
 - **不変条件**: 上流戦略正本の書込み API は issue/supersede_strategic_brief の 2 本のみで、下流・コネクタから到達不能／TLP の recommended_next_action は上流への入力であり、それ自体が戦略正本を変更しない／KPI ツリー（kpi_nodes/measurements）から意味正本への自動書込み経路が存在しない
 - **状態遷移**: なし
 - **正常動作**: 下流は終端時に TLP を提出するだけで完結する。上流正本の変更は上流ループの改善工程（strategy_revision — SR-10）だけが新版 INSERT で行い、書込みはストア副層・kernel 経由に限定される。
-- **拒否・異常動作**: 下流・コネクタ・計測処理からの strategic_briefs への UPDATE/DELETE は保護トリガが IntegrityError で常時拒否し、kernel 外経路の INSERT は WritePathDenied で拒否して operation_log に記録する。request_strategy_review 推奨を含む TLP も正本を変更しない（fail-close）。
+- **拒否・異常動作**: 下流・コネクタ・計測処理からの strategic_briefs への UPDATE/DELETE は保護トリガが IntegrityError で常時拒否し、kernel 外経路の INSERT は WritePathDenied で拒否して 構造化拒否ログに記録する。request_strategy_review 推奨を含む TLP も正本を変更しない（fail-close）。
 - **境界動作**: status/valid_until 列のみの遷移（superseded 化等）は上流 API 経由でのみ許可 — トリガ WHEN 条件の境界。TLP 大量提出（同一 brief への多 run）でも正本は 1 バイトも変わらない。
 - **再試行・再開・復旧**: 拒否は DB 無変更のため再実行安全。トリガは接続・プロセスに依存せず DDL として常時有効（クラッシュ後も防御が残る）。
 - **人間判断／escalation**: なし（PO でもトリガ・経路制限をバイパスできない。戦略変更は SR-10 の revision 手続きのみ）
@@ -267,14 +267,14 @@
 - **不変条件**: コンテンツは投稿物・集客物としてだけ扱われない（認識変化の宣言なしに主要企画になれない）／5 宣言の各値は content-plan-contract の schema に適合する
 - **状態遷移**: なし
 - **正常動作**: T-PLAN の plan_record payload を content-plan-contract.json で検証し、defined_problem・recognition_change・comparison_axes・defined_value・target_hypothesis_ids の 5 キーが実質記入されている企画のみ承認して evidence（plan_record）へ記録する。
-- **拒否・異常動作**: 5 キーのいずれかが欠落・schema 非適合の企画は ContentValueDeclarationRejected（G-CONTENT-VALUE-DEFINITION）で承認を拒否し、operation_log に欠落キーを記録する。集客目的であることは免除理由にならない（fail-close）。
+- **拒否・異常動作**: 5 キーのいずれかが欠落・schema 非適合の企画は ContentValueDeclarationRejected（G-CONTENT-VALUE-DEFINITION）で承認を拒否し、構造化拒否ログに欠落キーを記録する。集客目的であることは免除理由にならない（fail-close）。
 - **境界動作**: 5 キーが存在しても空文字・空配列は「未宣言」として欠落と同等に拒否。target_hypothesis_ids は実在する戦略仮説 ID を最低 1 件参照する。
 - **再試行・再開・復旧**: 検証は無状態。宣言補完後の再提出で承認可。S0/S1 前半は docs ゲート（CI）、S1 で実行時強制（SCM-10）へ昇格 — いずれも同一契約。
 - **人間判断／escalation**: なし（宣言の存在検証は全自動。企画内容の質は T-REVIEW の別 agent 審査が担う）
 - **副作用**: evidence INSERT（kind = plan_record — 承認時）／構造化ログ出力（拒否時 — FN-704）
 - **冪等性**: 検証は pure。plan_record は UNIQUE(task_id, kind, value) で重複投入を検出。
 - **証跡**: evidence 行（kind = plan_record — 5 宣言を payload_json に保持）／拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）（欠落キー一覧）
-- **使用テーブル・正本**: w: evidence（plan_record）／w: evidence（外部操作証跡 = operation_log kind）／r: tasks（T-PLAN 対象判定）
+- **使用テーブル・正本**: w: evidence（plan_record）／r: tasks（T-PLAN 対象判定）
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: content-plan-contract.json の 5 必須キー（変更は要件改訂）
 - **trace**: 上流 = BR-G1 BR-G2 REQ-051 ／ 下流 = AC-SR-13-1 AC-SR-13-2 AC-SR-13-3 SCM-10 ／ スライス = S1
@@ -288,14 +288,14 @@
 - **不変条件**: 媒体名は役割ではない（役割 = 戦略上の機能宣言）／語彙の正本は管理台帳のみ（コード内ハードコード禁止 — 台帳追加で拡張可能）
 - **状態遷移**: なし
 - **正常動作**: brief 発行時に media_role を media-roles.json の語彙と照合し、一致のみ通す。台帳は設定可能な管理台帳（S1 で config 経由の追加・変更 — SCM-09）として維持する。
-- **拒否・異常動作**: 台帳外の語彙（媒体名・自由記述・typo）は MediaRoleRejected（G-MEDIA-ROLE）で brief 発行を拒否し、operation_log に宣言値と台帳語彙を記録する（fail-close）。
+- **拒否・異常動作**: 台帳外の語彙（媒体名・自由記述・typo）は MediaRoleRejected（G-MEDIA-ROLE）で brief 発行を拒否し、構造化拒否ログに宣言値と台帳語彙を記録する（fail-close）。
 - **境界動作**: 台帳ファイル欠損・空・パース不能時は全宣言を拒否する（deny-by-default）。大文字小文字・前後空白の揺れは正規化せず不一致として拒否（宣言の厳密性を優先）。
 - **再試行・再開・復旧**: 照合は無状態。台帳更新（語彙追加）後は次回発行から反映。既発行 brief は digest 固定のため遡及変更されない。
 - **人間判断／escalation**: 台帳への語彙追加・変更は PO 承認（S1 の config 経由変更 — 履歴は config の append-only 契約に従う）。照合は全自動。
 - **副作用**: 構造化ログ出力（拒否時のみ — FN-704）
 - **冪等性**: 照合は pure（同一宣言 × 同一台帳→同一判定）。
 - **証跡**: 拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）（宣言値・台帳版）／strategic_briefs.media_role 列（受理証跡）
-- **使用テーブル・正本**: r: strategic_briefs（media_role 列）／w: evidence（外部操作証跡 = operation_log kind）／r: config（S1 — 台帳変更履歴）
+- **使用テーブル・正本**: r: strategic_briefs（media_role 列）／r: config（S1 — 台帳変更履歴）
 - **外部依存**: なし
 - **設定値**: config.media_roles_ledger（S1 — 台帳の DB 化後。S0 は json/strategy/media-roles.json） ／ **固定値**: 初期 12 役割語彙（media-roles.json v0.1）
 - **trace**: 上流 = BR-A2 REQ-050 ／ 下流 = AC-SR-14-1 AC-SR-14-2 AC-SR-14-3 SCM-09 ／ スライス = S1
@@ -351,7 +351,7 @@
 - **不変条件**: node_kind 語彙に positioning を含めない（演出軸は SR-19 の出力先であり、ツリーの整理軸ではない）／ロジックツリーは KPI ツリー（SR-12 観測背骨）を置換しない — 因果背骨として併存し、観測指標参照で接続する／自由記述のみのノード（trace なし）を正本にしない
 - **状態遷移**: なし
 - **正常動作**: logic_tree を schema 検証し、node_kind 語彙・意味モデル参照の実在・非循環を確認して受理する。ツリーは戦略判断工程（strategic_choice）と同時に構築・改版される。
-- **拒否・異常動作**: 語彙外 node_kind・参照先不在・循環を持つツリーは拒否し、operation_log 証跡へ記録する。判定不能は拒否。
+- **拒否・異常動作**: 語彙外 node_kind・参照先不在・循環を持つツリーは拒否し、構造化拒否ログへ記録する。判定不能は拒否。
 - **境界動作**: 観測指標参照のみで意味モデル参照を欠くノードは葉ノードに限り受理（観測端点）。中間ノードは意味モデル参照必須。
 - **再試行・再開・復旧**: ゲートは無状態（判定のみ）。再実行は同一判定。修正後の成果物は新版として再投入。
 - **人間判断／escalation**: なし（全自動。語彙・schema の変更は要件改訂）
@@ -372,7 +372,7 @@
 - **不変条件**: 判定語彙は supported／refuted／inconclusive のみ／既存 node_verdict の UPDATE/DELETE 禁止（append-only — SR-11 と同規律）／数値変化のみを根拠とする自動判定・自動戦略変更をしない（SR-10 維持）
 - **状態遷移**: なし
 - **正常動作**: TLP 受領時に、その因果解釈・仮説判定を logic_tree の宛先ノードへ突き当て、node_verdict を証跡参照付きで追記する。SR-16 の一周判定はノード更新の有無で機械判定できる。
-- **拒否・異常動作**: 証跡参照を欠く判定・語彙外の判定・既存判定の変更は拒否し、operation_log 証跡へ記録する。
+- **拒否・異常動作**: 証跡参照を欠く判定・語彙外の判定・既存判定の変更は拒否し、構造化拒否ログへ記録する。
 - **境界動作**: どのノードにも突き当たらない TLP は受理するが inconclusive 判定すら生まない（突き当てゼロは許容し、未接続として可視化する）。
 - **再試行・再開・復旧**: ゲートは無状態（判定のみ）。再実行は同一判定。修正後の成果物は新版として再投入。
 - **人間判断／escalation**: なし（全自動。語彙・schema の変更は要件改訂）
@@ -393,7 +393,7 @@
 - **不変条件**: 手法を固定しない（相関・疑似相関の弁別・因果推論が宣言できる限り MMM に限らない）／モデル出力単独で strategy_revision を起こさない（SR-10 の複数根拠要件）／correlation 水準の claim を causal として node_verdict の supported 根拠にしない
 - **状態遷移**: なし
 - **正常動作**: 分析成果物を schema 検証し、claim 水準・不確実性・交絡検討・入力 digest を確認して受理する。受理 claim は SR-18 の判定証拠となり、検証済みの強み・差別化候補は USP／SWOT 型の演出プラン起草（positioning 調整）の入力として strategy_revision 経由で還流する。
-- **拒否・異常動作**: 水準未宣言・不確実性欠落・digest なし・交絡検討なしで causal を名乗る成果物は拒否し、operation_log 証跡へ記録する。
+- **拒否・異常動作**: 水準未宣言・不確実性欠落・digest なし・交絡検討なしで causal を名乗る成果物は拒否し、構造化拒否ログへ記録する。
 - **境界動作**: 少データ期は correlation／spurious_candidate 水準のみの成果物も受理する（causal は名乗れない）。単一介入の前後比較は介入時点と反実仮想の根拠を宣言すれば causal 候補として受理。
 - **再試行・再開・復旧**: ゲートは無状態（判定のみ）。再実行は同一判定。修正後の成果物は新版として再投入。
 - **人間判断／escalation**: なし（全自動。語彙・schema の変更は要件改訂）

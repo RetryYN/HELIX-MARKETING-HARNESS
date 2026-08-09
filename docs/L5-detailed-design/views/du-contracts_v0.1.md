@@ -2,7 +2,7 @@
 
 # 詳細設計 実装契約（DU contracts）v0.1
 
-> status: **confirmed**（2026-08-01 PO 承認 — receipt d2c7b73dd280）。JSON 内容正本の生成ビュー（全層再降下 §7）
+> status: **confirmed**（2026-08-01 PO 承認 — receipt 90e5256f2295）。JSON 内容正本の生成ビュー（全層再降下 §7）
 > 各 DU に公開 API 署名・DbC・例外・tx 境界・冪等性・競合制御・AC/TC/UT 対応を必須化
 > （G-DU-API／G-DU-DBC／G-DU-ERROR／G-DU-DATA／G-API-UT）。
 
@@ -411,7 +411,7 @@
 ### API-DU14-03 `def scan(targets: list[Path], conn: Connection) -> list[Finding]`
 
 - **pre**: [API-DU14-03-PRE-01] targets は repo・構造化ログ等の走査対象パス（存在検査は内部で行い、欠落はエラー報告）／[API-DU14-03-PRE-02] conn は SQLite 全行走査用の接続（読取のみ）
-- **post**: [API-DU14-03-POST-01] 平文 credential パターン（鍵語・トークン形状の正規表現集合 — 正本は本モジュール、DU-09 と共有・config 拡張可）の検出結果を Finding のリストで返す（TC-047 の実装点）／[API-DU14-03-POST-02] 検出 0 件が AC-47-1 の合格条件。検出時は呼出元が CredentialLeakDetected を operation_log に記録し当該タスクを escalate へ誘導する／[API-DU14-03-POST-03] Finding は位置・パターン名のみを持ち、マッチした平文値そのものを含めない
+- **post**: [API-DU14-03-POST-01] 平文 credential パターン（鍵語・トークン形状の正規表現集合 — 正本は本モジュール、DU-09 と共有・config 拡張可）の検出結果を Finding のリストで返す（TC-047 の実装点）／[API-DU14-03-POST-02] 検出 0 件が AC-47-1 の合格条件。検出時は外部操作開始前のため operation_log を生成せず、呼出元が CredentialLeakDetected を秘匿化済み構造化検知ログへ記録し当該タスクを escalate へ誘導する／[API-DU14-03-POST-03] Finding は位置・パターン名のみを持ち、マッチした平文値そのものを含めない
 - **raises**: なし ／ **pure**: no
 - **UT→契約節**: test_registry_secrets.py::test_scan_repo_sqlite_logs_zero_plaintext→API-DU14-03-POST-01・API-DU14-03-POST-02／test_registry_secrets.py::test_scan_finding_contains_no_plaintext→API-DU14-03-POST-01・API-DU14-03-POST-03
 

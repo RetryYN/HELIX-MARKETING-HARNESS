@@ -2,7 +2,7 @@
 
 # 受入条件 検証契約カタログ（AC contracts）v0.1
 
-> status: **confirmed**（2026-08-01 PO 承認 — receipt ea6135f26ad7）。JSON 内容正本の生成ビュー（全層再降下 §4）
+> status: **confirmed**（2026-08-01 PO 承認 — receipt 5dd171616681）。JSON 内容正本の生成ビュー（全層再降下 §4）
 > 各 AC に GWT＋fixture・観測点・期待状態・DB 差分・証跡・禁止副作用・エラー型・対象更新を必須化
 > （G-AC-COVERAGE／G-AC-POLARITY）。旧体系の受入条件は historical 記録のみ（現行分母は本カタログ）。
 
@@ -814,7 +814,7 @@
 - **Given**: 新媒体をレジストリ行・ワークフロー・攻略地図の追加のみで登録した状態（外殻コードは未変更） ／ **When**: その媒体のタスクを 1 件実行し、続けて kernel/gates の import グラフを検査する ／ **Then**: タスクは正常に実行され、kernel・gates 層のモジュールに媒体固有の import・分岐が増えていない（外殻非侵襲）
 - **fixture**: seed: registry に新媒体行、workflows に 1 本、playbooks に地図 1 件
 - **観測点**: タスク実行結果／import-linter の層検査結果 ／ **期待状態**: タスク done・層違反 0
-- **期待 DB 差分**: tasks +1 行・registry/workflows/playbooks のみ増加 ／ **期待証跡**: タスクの operation_log
+- **期待 DB 差分**: tasks +1 行・registry/workflows/playbooks のみ増加 ／ **期待証跡**: タスク生成の秘匿化済み構造化ログ
 - **禁止副作用**: kernel・gates への媒体固有コードの混入 ／ **エラー型**: なし
 - **対象更新**: S0.1（コネクタ選定） ／ **TC**: TCC-41-5
 
@@ -831,8 +831,8 @@
 
 ### AC-42-1（正常）
 
-- **Given**: status=active な playbooks 行（note の書込み操作）と、seed 固定の Rng・Clock 注入、日次上限未達（当日書込み 0 件） ／ **When**: mock 媒体への書込み系ブラウザ操作を 3 連続で実行する ／ **Then**: 操作は playbook の手順どおり成功し、last_success_at が更新され、連続操作の間隔がすべて 1〜5 秒の範囲内で seed から再現可能な値として構造化ログに残る
-- **fixture**: seed: playbooks(service='note', operation='post', route_type='browser', status='active')、config.rate.note.daily_write_cap=10、Rng(seed=42) 注入、mock ブラウザ
+- **Given**: status=active な playbooks 行（Docker WP の書込み操作）と、seed 固定の Rng・Clock 注入、日次上限未達（当日書込み 0 件） ／ **When**: mock 媒体への書込み系ブラウザ操作を 3 連続で実行する ／ **Then**: 操作は playbook の手順どおり成功し、last_success_at が更新され、連続操作の間隔がすべて 1〜5 秒の範囲内で seed から再現可能な値として構造化ログに残る
+- **fixture**: seed: playbooks(service='wp', operation='post', route_type='browser', status='active')、config.rate.wp.daily_write_cap=10、Rng(seed=42) 注入、mock Docker WP ブラウザ
 - **観測点**: playbooks.last_success_at SELECT／構造化ログ（seed・間隔値）／external_operations.status ／ **期待状態**: external_operations 3 行すべて confirmed、playbook は active のまま
 - **期待 DB 差分**: external_operations +3 行、operation_log +3 行、playbooks.last_success_at UPDATE ／ **期待証跡**: operation_log 行（external_operation_id つき）＋構造化ログの seed=42 と間隔 3 値
 - **禁止副作用**: 固定間隔での連続送信（3 間隔が全一致）・範囲外（1 秒未満/5 秒超）の間隔・idempotency key の重複 ／ **エラー型**: なし
@@ -840,10 +840,10 @@
 
 ### AC-42-2（拒否）
 
-- **Given**: X への書込み操作要求と、当日すでに書込み 10 件（上限）に達した note への 11 件目の書込み要求 ／ **When**: 両方の書込み系ブラウザ操作を実行する ／ **Then**: X は ProhibitedMediaWrite（BR-M-X-4）、note は RateLimitExceeded で拒否され、外部送信は 0 回で operation_log に理由が残る
-- **fixture**: seed: 当日分 external_operations に note 書込み confirmed 10 行、X 用 playbook は書込み系を投入しない、config.rate.note.daily_write_cap=10
-- **観測点**: raise される例外型／operation_log SELECT／external_operations 件数 ／ **期待状態**: external_operations に新規 sent/confirmed 行なし
-- **期待 DB 差分**: operation_log +2 行（X 拒否・上限拒否）。external_operations 差分なし ／ **期待証跡**: 構造化ログの拒否行（media・理由 = prohibited／daily_cap）
+- **Given**: X への書込み操作要求と、当日すでに書込み 2 件（上限）に達した note への 3 件目の書込み要求 ／ **When**: 両方の書込み系ブラウザ操作を実行する ／ **Then**: X は ProhibitedMediaWrite（BR-M-X-4）、note は RateLimitExceeded で拒否され、外部送信は 0 回で秘匿化済み構造化拒否ログに理由が残る
+- **fixture**: seed: 当日分 external_operations に note 書込み confirmed 2 行、X 用 playbook は書込み系を投入しない、config.rate.note.daily_write_cap=2
+- **観測点**: raise される例外型／構造化拒否ログ／external_operations 件数 ／ **期待状態**: external_operations に新規 sent/confirmed 行なし
+- **期待 DB 差分**: external_operations 差分なし（構造化拒否ログは DB 業務証跡ではない） ／ **期待証跡**: 構造化ログの拒否行（media・理由 = prohibited／daily_cap）
 - **禁止副作用**: 外部サイトへのブラウザ書込み送信（0 回）・playbooks.last_success_at の更新 ／ **エラー型**: ProhibitedMediaWrite／RateLimitExceeded
 - **対象更新**: S1（CMP-08 ブラウザ基盤） ／ **TC**: TCC-42-2
 
@@ -863,7 +863,7 @@
 - **Given**: セレクタ不一致で失敗通知された playbooks 行（status=active→broken 化対象）と、再解析で正セレクタが取得できる mock ページ ／ **When**: 破損検知から自己修復（再解析→地図再生成→検証）を実行する ／ **Then**: playbook が新 selector_json で UPDATE され status=active・consecutive_failures=0 に戻り、検知と再生成の試行が operation_log に各 1 回残る
 - **fixture**: seed: playbooks(service='note', status='active', consecutive_failures=2, selector_json=旧セレクタ)、mock ページ DOM に新セレクタ
 - **観測点**: playbooks SELECT（status・selector_json・consecutive_failures）／operation_log SELECT ／ **期待状態**: playbook = active（新地図）
-- **期待 DB 差分**: playbooks 1 行 UPDATE、operation_log +2 行（検知・再生成成功） ／ **期待証跡**: operation_log 行（不一致セレクタ・再生成結果）＋再解析時 screenshot evidence
+- **期待 DB 差分**: playbooks 1 行 UPDATE、operation_log +2 行（検知・再生成成功） ／ **期待証跡**: 秘匿化済み構造化ログ（不一致セレクタ・再生成結果）＋再解析時 screenshot evidence
 - **禁止副作用**: 再解析中の外部サイトへの書込み（mock 書込み受信 0 回）・2 回目の再生成試行 ／ **エラー型**: なし
 - **対象更新**: S2（地図自己修復 FN-405）／playbook.self_heal ／ **TC**: TCC-43-1
 
@@ -872,7 +872,7 @@
 - **Given**: 再解析しても検証手順が通らない mock ページ（対象要素が存在しない）と、破損通知済みの playbooks 行 ／ **When**: 自己修復を実行し 1 回目の再生成が失敗する ／ **Then**: 追加試行は行われず playbook は broken のまま、対象タスクが escalated に遷移し FR-46 経路の通知が送出される（BR-H3）
 - **fixture**: seed: playbooks(status='active', consecutive_failures=3)、mock ページから対象要素を削除、対象 task = in_progress
 - **観測点**: playbooks.status／tasks.state／state_transitions SELECT／通知 mock の送出記録 ／ **期待状態**: playbook = broken、task = escalated
-- **期待 DB 差分**: playbooks.status UPDATE（broken）、state_transitions +1 行（escalate）、operation_log +2 行（検知・再生成失敗） ／ **期待証跡**: operation_log 行（再生成失敗理由）＋escalate 遷移行
+- **期待 DB 差分**: playbooks.status UPDATE（broken）、state_transitions +1 行（escalate）、operation_log +2 行（検知・再生成失敗） ／ **期待証跡**: 秘匿化済み構造化ログ（再生成失敗理由）＋escalate 遷移行
 - **禁止副作用**: 2 回目以降の自動再生成試行・broken 地図での書込み操作続行・地図の推測書換え ／ **エラー型**: PlaybookRepairFailed（escalate 事由として記録）
 - **対象更新**: S2（地図自己修復 FN-405） ／ **TC**: TCC-43-2
 
@@ -881,7 +881,7 @@
 - **Given**: 再生成の途中（broken 化コミット後・地図 UPDATE 前）でプロセスが強制終了した状態 ／ **When**: 再起動後に破損中 playbook を検出して自己修復を再実行する ／ **Then**: status=broken が残っているため再生成が最初からやり直され（読取りのみで外部副作用なし）、成功すれば active へ復帰する。status=retired の行は修復対象外として即 escalated となる
 - **fixture**: seed: playbooks 2 行（status='broken' の note 行／status='retired' の kdp 行）、mock ページは note の正セレクタを提供
 - **観測点**: playbooks SELECT（再実行後の status）／operation_log SELECT／tasks.state（retired 側） ／ **期待状態**: note 行 = active、kdp 行 = retired のまま対象タスク escalated
-- **期待 DB 差分**: playbooks 1 行 UPDATE（active）、state_transitions +1 行（retired 側 escalate）、operation_log +2 行以上 ／ **期待証跡**: operation_log 行（再開後の再生成試行・retired 拒否）
+- **期待 DB 差分**: playbooks 1 行 UPDATE（active）、state_transitions +1 行（retired 側 escalate）、operation_log +2 行以上 ／ **期待証跡**: 秘匿化済み構造化ログ（再開後の再生成試行・retired 拒否）
 - **禁止副作用**: 中間状態の地図（部分更新）での操作再開・retired 行の自動復活・外部書込み ／ **エラー型**: PlaybookRepairFailed（retired 側）
 - **対象更新**: S2（地図自己修復 FN-405）／recovery 経路 ／ **TC**: TCC-43-3
 
@@ -930,7 +930,7 @@
 - **Given**: Notion mock が全要求に接続エラーを返す障害状態と、進行中の loop_run・tasks ／ **When**: スプリント開始の読取り同期を実行し、その後ループ本体のタスク遷移を継続実行する ／ **Then**: 同期タスクのみ NotionUnavailable で failed となり operation_log に記録される一方、loop_run と他タスクは SQLite のみで正常に進行する（Notion は判定に関与しない）
 - **fixture**: seed: Notion mock を全断（connection error）、loop_runs 1 行進行中＋依存しない task 1 件
 - **観測点**: 同期 task の status／loop_runs・他 task の遷移可否／operation_log SELECT ／ **期待状態**: 同期 task = failed、loop_run は継続進行
-- **期待 DB 差分**: operation_log +1 行（NotionUnavailable）、state_transitions に同期 task の failed 遷移＋他 task の正常遷移 ／ **期待証跡**: operation_log 行（service=notion・理由 = unavailable）
+- **期待 DB 差分**: operation_log +1 行（NotionUnavailable）、state_transitions に同期 task の failed 遷移＋他 task の正常遷移 ／ **期待証跡**: 秘匿化済み構造化拒否ログ（service=notion・理由 = unavailable）
 - **禁止副作用**: ループ本体の停止・待機（Notion 障害の波及）・障害中の書戻し再送連打 ／ **エラー型**: NotionUnavailable
 - **対象更新**: S1（Notion 同期 FN-408） ／ **TC**: TCC-45-2
 
@@ -996,8 +996,8 @@
 
 - **Given**: 秘匿ストアに未投入のサービス（notion）への接続要求と、operation_log へ書き出される文字列に secret 値が混入したケース ／ **When**: notion 接続と、混入文字列のログ書出しを実行する ／ **Then**: 接続は SecretUnavailable で開始されず（外部呼出 0 回）、混入書出しはマスクされた上で CredentialLeakDetected が記録され書出し元タスクが escalated へ誘導される
 - **fixture**: seed: mock キーチェーン（notion キーなし）、書出し文字列 = 'auth failed: token=wp-app-pass-XYZ'（既知 secret 混入）
-- **観測点**: raise される例外型／operation_log SELECT（マスク後文字列）／tasks.state ／ **期待状態**: 接続 0 件、ログには伏字（token=***）のみ、書出し元 task = escalated 誘導
-- **期待 DB 差分**: operation_log +2 行（SecretUnavailable・CredentialLeakDetected — いずれも平文なし） ／ **期待証跡**: operation_log 検知行（マスク済み — 秘匿値そのものを含まない）
+- **観測点**: raise される例外型／秘匿化済み構造化検知ログ（マスク後文字列）／tasks.state ／ **期待状態**: 接続 0 件、ログには伏字（token=***）のみ、書出し元 task = escalated 誘導
+- **期待 DB 差分**: 外部操作開始前のため operation_log 差分なし。秘匿化済み構造化検知ログと task の escalate 遷移だけを記録 ／ **期待証跡**: 秘匿化済み構造化検知ログ（秘匿値そのものを含まない）
 - **禁止副作用**: 平文のままのログ永続化・秘匿値なしでの外部接続試行（外部 HTTP 呼出 0 回） ／ **エラー型**: SecretUnavailable／CredentialLeakDetected
 - **対象更新**: S0.2（CMP-07 秘匿ストア） ／ **TC**: TCC-47-2
 
@@ -1006,7 +1006,7 @@
 - **Given**: 保管済みセッションが期限切れになった状態と、テスト credential を本番 endpoint に組み合わせた設定（環境契約 §6 違反） ／ **When**: 期限切れセッションでの接続と、不一致組合せでの接続を実行し、その後 credential 再投入からタスクを再開する ／ **Then**: 期限切れは検知され再投入待ちの escalated（人の関与）へ、credential/endpoint 不一致は実行拒否となる。再投入後は同一タスク状態から再実行でき正常接続する
 - **fixture**: seed: mock キーチェーンに expired セッション、test credential ＋ production endpoint の組合せ設定、再投入手順で有効値に上書き
 - **観測点**: raise される例外型／tasks.state（escalated→再開）／operation_log SELECT ／ **期待状態**: 再投入前 = escalated・接続 0 件、再投入後 = 同一タスクが接続成功
-- **期待 DB 差分**: operation_log +2 行（期限切れ・組合せ拒否）、state_transitions に escalate と再開の遷移 ／ **期待証跡**: operation_log 行（理由 = session expired／credential-endpoint mismatch — 平文なし）
+- **期待 DB 差分**: operation_log +2 行（期限切れ・組合せ拒否）、state_transitions に escalate と再開の遷移 ／ **期待証跡**: 秘匿化済み構造化拒否ログ（理由 = session expired／credential-endpoint mismatch — 平文なし）
 - **禁止副作用**: 期限切れセッションでの外部送信・テスト credential の本番 endpoint 使用（fail-open）・再投入値の SQLite 保存 ／ **エラー型**: SecretUnavailable（期限切れ）／CredentialEndpointMismatch
 - **対象更新**: S0.2（CMP-07 秘匿ストア）／再投入・再開経路 ／ **TC**: TCC-47-3
 
@@ -1167,7 +1167,7 @@
 - **Given**: 同一 task・同一 commit H1 の証跡化要求が再実行（クラッシュ後リトライ相当）で二重到達し、hash 桁数が 40/64/その他の 3 パターンある状態 ／ **When**: commit_hash 証跡化をそれぞれ実行する ／ **Then**: 40 桁・64 桁は受理され再実行でも 1 行に収束し、その他桁数（39 桁）は拒否される
 - **fixture**: seed: 同一 (task, H1[40桁]) を 2 回投入／64 桁 hash を 1 回投入／39 桁文字列を 1 回投入
 - **観測点**: evidence SELECT（kind='commit_hash' の件数・value）／raise される例外型 ／ **期待状態**: commit_hash 証跡 = 2 行（40 桁 1・64 桁 1）
-- **期待 DB 差分**: evidence +2 行（重複分・不正桁は増えない） ／ **期待証跡**: operation_log 行（39 桁の拒否）
+- **期待 DB 差分**: evidence +2 行（重複分・不正桁は増えない） ／ **期待証跡**: 秘匿化済み構造化拒否ログ（39 桁の拒否）
 - **禁止副作用**: 同一 (task, kind, value) の重複行・不正桁数 hash の記録 ／ **エラー型**: InvalidCommitHash（不正桁のみ。重複再実行は正常収束）
 - **対象更新**: S0.2（制作層）／versioning の冪等・桁検査 ／ **TC**: TCC-54-3
 
@@ -1299,7 +1299,7 @@
 - **Given**: 10 行中 3 行が破損（列欠落・期間逆転・未登録ノード宛）した GA4 エクスポートと、全行破損の別ファイル ／ **When**: それぞれ取り込みを実行する ／ **Then**: 部分破損は正常 7 行のみ投入・3 行が隔離され、全行破損は ImportSourceInvalid で全体拒否される（AC-62 検証）
 - **fixture**: seed: fixture broken_partial.csv（破損 3/10）・broken_all.csv（全行破損）、config.import_quarantine_dir=scratch 隔離先
 - **観測点**: measurements 件数／隔離ファイルの行数・件数記録／raise される例外型 ／ **期待状態**: 部分破損: measurements 7 行＋隔離 3 行。全破損: measurements 差分なし
-- **期待 DB 差分**: 部分: evidence +1・measurements +7・operation_log +1（隔離記録）。全破損: operation_log +1 のみ ／ **期待証跡**: operation_log 行（隔離件数・理由）／取得証跡（部分破損側は投入前に記録済み）
+- **期待 DB 差分**: 部分: evidence +1・measurements +7・operation_log +1（隔離記録）。全破損: operation_log +1 のみ ／ **期待証跡**: 秘匿化済み構造化ログ（隔離件数・理由）／取得証跡（部分破損側は投入前に記録済み）
 - **禁止副作用**: 破損行の measurements 混入・全破損ファイルからの部分コミット ／ **エラー型**: ImportSourceInvalid（全破損のみ。部分破損は正常終了＋隔離）
 - **対象更新**: S0.3（計測層）／importer のエラー隔離・fail-close ／ **TC**: TCC-62-2
 
@@ -2158,3 +2158,123 @@
 - **期待 DB 差分**: planned media_bindings 2 status 更新、task 終端、tactical_learning_packets +1行 ／ **期待証跡**: operation K の recovery、supersedes、drain decision、旧 binding trace 付き TLP
 - **禁止副作用**: V1 への新規 pull・旧 binding/TLP の破壊・意図しない active 0件または無期限2件 ／ **エラー型**: なし
 - **対象更新**: S1（binding replacement/recovery/TLP） ／ **TC**: TCC-48-3
+
+## NFR-1
+
+### AC-901（拒否）
+
+- **Given**: invalid fixture、破損 schema、未定義遷移を含む判定不能入力が各1件ある ／ **When**: 全要件ゲートと対応する実行時ゲートを実行する ／ **Then**: 全入力が拒否され、通過件数とゲート無効化・bypassフラグ検出がともに0件で、状態遷移拒否はstate_transitionsだけに記録される
+- **fixture**: verification/fixturesのinvalid fixture＋破損schema＋未定義遷移seed＋ゲート無効化語を含む製品コードfixture＋ゲート破損seed
+- **観測点**: run_all終了コード、pytest結果、state_transitions、operation_log ／ **期待状態**: CI/schema拒否は業務状態不変、未定義遷移は状態不変、ゲート破損は対象run/taskがfatal_failureでescalated
+- **期待 DB 差分**: CI/schema拒否はDB差分なし、未定義遷移だけstate_transitions rejected +1、ゲート破損はescalated遷移 +1。全ケースでoperation_log差分なし ／ **期待証跡**: ゲート失敗ログとstate_transitions rejected行
+- **禁止副作用**: 判定不能入力の通過、ゲート無効化・bypass経路、業務状態更新、状態遷移拒否のoperation_log記録 ／ **エラー型**: TransitionRejected
+- **NFR 検証観点**: NFR-1:invalid-rejection NFR-1:disable-path-absence NFR-1:indeterminate-rejection NFR-1:evidence-channel NFR-1:fatal-escalation
+- **対象更新**: cross（fail-close品質契約） ／ **TC**: TCC-NFR-01
+
+## NFR-2
+
+### AC-902（正常）
+
+- **Given**: 同一の正準化済みbrief、固定Clock/Rng、同一制作・集計fixtureが2組ある ／ **When**: 別プロセスを含む2回の実行でdigestと生成物hashを算出する ／ **Then**: 全SHA-256が完全一致し、非決定出力はfile_hashまたはcommit_hash証跡へ固定される
+- **fixture**: 同一brief JSON、Clock固定値、Rng seed=42、同一制作入力
+- **観測点**: API戻り値、成果物SHA-256、evidence行 ／ **期待状態**: 2回の出力digestとhashが一致
+- **期待 DB 差分**: evidenceにhash証跡が実行単位で追記される ／ **期待証跡**: file_hashまたはcommit_hash evidence行
+- **禁止副作用**: 同一入力で異なる出力、未注入時刻・乱数、hash証跡欠落 ／ **エラー型**: なし
+- **NFR 検証観点**: NFR-2:deterministic-hash NFR-2:brief-digest NFR-2:nondeterministic-output-evidence NFR-2:clock-rng-injection
+- **対象更新**: cross（決定性品質契約） ／ **TC**: TCC-NFR-02
+
+## NFR-3
+
+### AC-903（境界・復旧）
+
+- **Given**: 各非終端状態とWP成功後sent記録直後のkill pointを持つmock WP fixtureがある ／ **When**: 各kill pointで強制終了しSQLiteだけから再起動する ／ **Then**: 正準再開規則で継続し、最危険kill pointでも外部再送は0回、照合不能はunknownで停止し、全ケースでoperation_log/external_operationsの書込みが業務状態遷移より先に確定する
+- **fixture**: loop_runs/tasks各非終端状態、external_operations sent、mock WP受信計数器
+- **観測点**: 再開action、DB状態、mock WP受信回数 ／ **期待状態**: 正準ResumeActionまたはunknown、二重送信なし
+- **期待 DB 差分**: 照合成功時confirmed、不能時unknown、重複external_operationsなし ／ **期待証跡**: external_operations遷移とoperation_log照合結果
+- **禁止副作用**: 推測による完了、外部再送、プロセスメモリ依存の再開、証跡より先の業務状態遷移 ／ **エラー型**: なし
+- **NFR 検証観点**: NFR-3:all-kill-points NFR-3:no-resend NFR-3:evidence-before-transition NFR-3:unknown-escalation
+- **対象更新**: cross（再開性品質契約） ／ **TC**: TCC-NFR-03
+
+## NFR-4
+
+### AC-904（拒否）
+
+- **Given**: 既知テストcredentialを暗号化ストアだけに投入した正常fixtureと、永続化直前にcredential混入を試みる違反fixtureがある ／ **When**: 正常外部操作後にrepo履歴・SQLite全列・ログ・evidenceを走査し、違反fixtureを秘匿ゲートへ投入する ／ **Then**: 平文検出0件・request_fingerprintに本文/credentialなし。違反fixtureは書込み前に拒否されtask escalated、credential失効・再発行要求が同じescalationに記録される
+- **fixture**: mock secret='nfr-test-secret-value'、正常mock外部操作、credential混入write fixture、DB/log dump
+- **観測点**: gitleaks結果、DB/log scannerヒット数、operation_log fingerprint ／ **期待状態**: secret検出0件、違反task escalated、credential rotation escalation発行済み
+- **期待 DB 差分**: 正常外部操作のマスク済み証跡、違反時escalate遷移1行だけが追記され平文差分なし ／ **期待証跡**: secret-scanログ、マスキング結果、credential失効・再発行要求の秘匿化済みescalation
+- **禁止副作用**: credentialのrepo・DB・ログ・evidence永続化 ／ **エラー型**: CredentialLeakDetected
+- **NFR 検証観点**: NFR-4:secret-zero NFR-4:masking NFR-4:runtime-failure NFR-4:credential-rotation-escalation
+- **対象更新**: cross（秘匿品質契約） ／ **TC**: TCC-NFR-04
+
+## NFR-5
+
+### AC-905（正常）
+
+- **Given**: loop_runsとtasksの各非終端・終端状態、許可/拒否遷移、外部操作を含むseedがある ／ **When**: NFR-5記載のUNION ALL滞留SQLを1 statementで実行し証跡件数を突合する ／ **Then**: 非終端6状態だけが返り、全遷移・全pairゲート判定・全外部操作の対応証跡欠落が0件である
+- **fixture**: loop_runs各状態、tasks各状態、state_transitions passed/rejected、external_operations
+- **観測点**: 滞留SQL result setと各証跡テーブル件数 ／ **期待状態**: 非終端だけをentity_type/id/stateで一覧可能
+- **期待 DB 差分**: 読取のみで差分なし ／ **期待証跡**: state_transitions全行、pair_plan_quality/pair_kpi_measure判定行、外部操作対応operation_log行
+- **禁止副作用**: 終端状態の混入、複数クエリ手作業結合、未記録遷移・pairゲート判定・外部操作 ／ **エラー型**: なし
+- **NFR 検証観点**: NFR-5:transition-coverage NFR-5:gate-decision-coverage NFR-5:external-operation-coverage NFR-5:single-query-backlog
+- **対象更新**: cross（可観測性品質契約） ／ **TC**: TCC-NFR-05
+
+## NFR-6
+
+### AC-906（境界・復旧）
+
+- **Given**: 既支出と要求額の合計が月次上限の直前・一致・1円超過となる3組、config欠落、confirmed有償operation対応のfixtureがある ／ **When**: projected_total=既支出+requested_amount_minorで有償/無償task開始ガードを評価し支出台帳を双方向突合する ／ **Then**: 上限一致までは許可、超過とconfig欠落は有償経路0件、無償経路は停止せず、confirmed外部operationとspend_ledgerの未対応・重複が0件である
+- **fixture**: (既支出,要求額)=(4998,1)/(4999,1)/(5000,1)円、cap=5000円、cap欠落、confirmed有償external_operations対応seed
+- **観測点**: 開始ガード結果、tasks状態、spend_ledger集計 ／ **期待状態**: 超過・判定不能の有償taskはescalated、無償taskは開始可能
+- **期待 DB 差分**: 拒否時は支出と外部操作差分なし、拒否遷移のみ追記 ／ **期待証跡**: state_transitions rejected行、月次集計結果、external_operation_id単位の台帳対応結果
+- **禁止副作用**: 上限超過時の有償操作、config欠落時のfail-open、無償経路の一律停止、支出記録欠落・二重計上 ／ **エラー型**: なし
+- **NFR 検証観点**: NFR-6:projected-cap NFR-6:free-route-continuity NFR-6:ledger-completeness NFR-6:config-missing-failclose
+- **対象更新**: cross（支出上限品質契約） ／ **TC**: TCC-NFR-06
+
+## NFR-7
+
+### AC-907（境界・復旧）
+
+- **Given**: 固定Rng seed 4種、整数秒操作間隔min/max、note媒体別上限2件の直前と到達fixtureがある ／ **When**: MT19937 randintで4 seed各10,000間隔標本のχ²検定とseed再生を行い、noteの追加公開要求を境界前後で実行する ／ **Then**: 全標本が両端包含の設定範囲内、各seedの離散一様性χ² p>=0.01、分散>0、再生列完全一致。noteは2件目まで許可し3件目の外部呼出0回でtask pending・親loop_run waitingとなる
+- **fixture**: Rng algorithm=MT19937/randint、seed=[0,1,42,4294967295]、interval=1..5整数秒、rate.note.daily_write_cap=2、当日confirmed=1/2件
+- **観測点**: Clock/Rngログ、external_operations件数、task状態 ／ **期待状態**: 上限未達はconfirmed、到達後はtask pending・親loop_run waiting
+- **期待 DB 差分**: 許可分だけexternal_operations追加、拒否分の外部操作差分なし ／ **期待証跡**: 秘匿化済み実行ログのseed・10,000標本集計・χ²統計量/p値・上限判定
+- **禁止副作用**: 範囲外・非一様分布・固定間隔・seed未記録、note日次2件超過、拒否後の外部呼出 ／ **エラー型**: なし
+- **NFR 検証観点**: NFR-7:interval-range NFR-7:uniformity NFR-7:daily-cap NFR-7:seed-recording NFR-7:cap-wait-state
+- **対象更新**: cross（レート節度品質契約） ／ **TC**: TCC-NFR-07
+
+## NFR-8
+
+### AC-908（正常）
+
+- **Given**: 製品ファイル集合/SHA-256 mapを取得済みで、未知媒体のworkflow・playbook・接続レジストリ行だけを追加したfixtureがある ／ **When**: 既存コードを変更せずdry-run E2Eを実行し、前後の製品ファイル集合とSHA-256 mapを比較する ／ **Then**: 状態機械からコネクタまでgreenで、製品ファイルの追加・削除・hash変化が0件である
+- **fixture**: test-mediaのworkflow/playbook/registry seedとdry-run connector
+- **観測点**: pytest E2E結果と前後の製品ファイル集合/SHA-256 map ／ **期待状態**: テスト媒体workflow完了
+- **期待 DB 差分**: workflows/playbooks/registryの追加行だけ ／ **期待証跡**: dry-run pytest結果と製品ファイルhash map完全一致結果
+- **禁止副作用**: 媒体固有分岐のengine/gates/connectors追加、既存媒体の挙動変更 ／ **エラー型**: なし
+- **NFR 検証観点**: NFR-8:data-only-extension NFR-8:dry-run-e2e NFR-8:product-hash-zero-diff NFR-8:registry-row-only
+- **対象更新**: cross（媒体追加保守性品質契約） ／ **TC**: TCC-NFR-08
+
+## NFR-9
+
+### AC-909（拒否）
+
+- **Given**: PR表記欠落affiliate成果物、opt-in欠落宛先、unsubscribe導線欠落message、収集目的に対応しないPII保持列の各fixtureがある ／ **When**: 公開・配信前の法規ゲートとPII schema目的対応検査を各fixtureへ適用する ／ **Then**: 全fixtureが拒否され外部呼出0回、採用配信形態は機械ゲート実装済みだけで、目的宣言に対応しないPII保持列が0件である
+- **fixture**: affiliate link without label、recipient without opt-in、message without unsubscribe、PII column without declared purpose
+- **観測点**: ゲート結果、external_operations件数、拒否証跡、MR台帳突合 ／ **期待状態**: 対象taskは公開・配信へ進まない
+- **期待 DB 差分**: external_operations差分なし、秘匿化済み構造化拒否ログだけ出力 ／ **期待証跡**: PR表記・opt-in・unsubscribe・PII目的不一致の各構造化拒否ログとschema検査結果
+- **禁止副作用**: 表記なし公開、同意なし配信、配信停止導線なし配信、目的外PII保持、外部呼出 ／ **エラー型**: なし
+- **NFR 検証観点**: NFR-9:pr-label NFR-9:opt-in NFR-9:unsubscribe NFR-9:supported-channel-only NFR-9:pii-purpose
+- **対象更新**: cross（法規遵守品質契約） ／ **TC**: TCC-NFR-09
+
+## NFR-10
+
+### AC-910（境界・復旧）
+
+- **Given**: config.backup_generations=N（既定14）、直近N日の日次SQLite/file_hash証跡と破損除外後に正常N世代を確保できる履歴、最新破損・前世代正常、暗号化browser session、Docker WP backupのfixtureがある ／ **When**: 日次/世代突合、DB前世代復元、browser session一時profile復元、Docker WP一時container復元を実行する ／ **Then**: 直近N日の日次欠落0日・破損除外後の正常N世代以上、DB integrity/FK/hash一致、session復号/期限検査、WP installed/health成功となり、いずれか失敗中は新規外部書込みを保留する
+- **fixture**: config N、N日backup+file_hash、N+1日以前も含む正常世代、latest corrupted、previous valid、暗号化session copy、Docker WP backup、原本hash manifest
+- **観測点**: 世代一覧、PRAGMA/DB hash、session復号/期限、wp core/health、書込みtask状態 ／ **期待状態**: DB・browser session・Docker WP復元成功、検証/失敗中の新規外部書込みは保留
+- **期待 DB 差分**: 復元先DBのみ生成、原本と外部対象は変更なし ／ **期待証跡**: 直近N日分file_hash、破損除外後の正常N世代一覧、DB/session/WP復元pytest結果
+- **禁止副作用**: 日次欠落、正常N世代未満、破損採用、DB/session/WP未検証での書込み再開、原本上書き ／ **エラー型**: なし
+- **NFR 検証観点**: NFR-10:daily-backup NFR-10:generations NFR-10:db-restore NFR-10:browser-session-copy NFR-10:wp-backup-check NFR-10:write-hold-on-failure
+- **対象更新**: cross（バックアップ復旧品質契約） ／ **TC**: TCC-NFR-10

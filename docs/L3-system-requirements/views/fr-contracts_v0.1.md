@@ -2,7 +2,7 @@
 
 # 機能要件 実行契約（FR contracts） v0.1
 
-> status: **confirmed**（2026-08-01 PO 承認 — receipt 8ef8768e1fe1）。JSON 内容正本の生成ビュー（全層再降下 §3）
+> status: **confirmed**（2026-08-01 PO 承認 — receipt ea275cdd9508）。JSON 内容正本の生成ビュー（全層再降下 §3）
 > 各 FR に 18 観点の実行・検証・拒否・復旧契約を必須化（G-REQ-CONTRACT／G-INVARIANT-TRACE）。
 
 ## FR-11 ループ状態機械
@@ -14,14 +14,14 @@
 - **不変条件**: 終端状態からの遷移は存在しない／遷移は宣言表にある (entity, from, event) のみ／lower run は有効 strategic_brief の id/digest を保持し続ける（SR-07）
 - **状態遷移**: loop_runs: 遷移表（json/s0/transitions.json）の全行が本 FR の対象
 - **正常動作**: イベント受領 → 遷移表から (現状態, イベント) を一意解決 → ガード条件を DB 状態で評価 → 成立なら loop_runs.state を次状態へ UPDATE し state_transitions へ証跡 INSERT（同一 transaction）。
-- **拒否・異常動作**: 遷移表に合致がない・ガード不成立・終端からの遷移要求は TransitionRejected を raise し、DB を変更せず 拒否理由を構造化ログ（FN-704）へ記録する（fail-close）。
+- **拒否・異常動作**: 遷移表に合致がない・ガード不成立・終端からの遷移要求は TransitionRejected を raise する。loop_runs の業務状態は変更せず、state_transitions に guard_result = rejected の拒否行だけを同一 transaction で追記する（fail-close）。
 - **境界動作**: 同一 run への同時イベントは transaction の直列化で 1 件のみ成立し、後続は再読込後に再判定。存在しない run_id は即拒否。
 - **再試行・再開・復旧**: クラッシュ時は transaction ごと消えるため中間状態が残らない。再開はプロセス再起動後に loop_runs の現状態から続行（申し送りなし — BR-A1）。
 - **人間判断／escalation**: なし（全自動。escalated への遷移後の対処は BR-H3 経由で人間）
-- **副作用**: loop_runs UPDATE／state_transitions INSERT／構造化ログ出力（拒否時 — FN-704）
+- **副作用**: loop_runs UPDATE／state_transitions INSERT／state_transitions INSERT（拒否時 — guard_result = rejected）
 - **冪等性**: 同一イベントの再送は現状態不一致で拒否される（状態遷移自体が冪等キー）。証跡は重複しない。
-- **証跡**: state_transitions 行（遷移ごと）／operation_log 行（拒否ごと）
-- **使用テーブル・正本**: 参照: 遷移表 JSON 正本（json/s0/transitions.json — DB テーブルではない）／rw: loop_runs／w: state_transitions／w: evidence（外部操作証跡 = operation_log kind）／r: strategic_briefs（lower 開始ガード）
+- **証跡**: state_transitions 行（遷移ごと）／state_transitions 行（拒否ごと、guard_result = rejected）
+- **使用テーブル・正本**: 参照: 遷移表 JSON 正本（json/s0/transitions.json — DB テーブルではない）／rw: loop_runs／w: state_transitions／r: strategic_briefs（lower 開始ガード）
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: 遷移表（transitions.json — 変更は要件改訂）
 - **trace**: 上流 = BR-A1 REQ-001 REQ-002 REQ-006 ／ 下流 = AC-11-1 AC-11-2 AC-11-3 AC-11-4 AC-11-5 AC-11-6 FN-101 CMP-01 ／ スライス = S0
@@ -207,7 +207,7 @@
 - **境界動作**: 企画又は commit を変更した時点で既存 pair を revoked とし、再審査まで公開不可。revoke と公開の競合は公開直前の同一 transaction 内再検証で拒否側が勝つ。同一 (plan_id, review_evidence_id) の重複成立は UNIQUE 制約で 1 行に抑止。
 - **再試行・再開・復旧**: ペア判定は DB 状態のみで再評価可能（申し送りなし）。クラッシュ後は pair_plan_quality の現在行から再判定して続行。revoked 後の復旧は再審査 PASS → 新 pair 成立のみ。
 - **人間判断／escalation**: なし（判定は全自動。審査 PASS 自体は FR-25/FR-27 の規律下で verifier agent が行う）
-- **副作用**: pair_plan_quality INSERT（成立時）／pair_plan_quality の status UPDATE（revoked 化）／operation_log INSERT（公開拒否時）
+- **副作用**: pair_plan_quality INSERT（成立時）／pair_plan_quality の status UPDATE（revoked 化）／秘匿化済み構造化拒否ログ（公開拒否時）
 - **冪等性**: 同一 (plan_id, review_evidence_id) の成立要求は UNIQUE 制約により 1 行のみ。公開前検証は pure（同一 DB 状態→同一判定）で再実行安全。
 - **証跡**: pair_plan_quality 行（成立・失効の状態）／evidence.kind = review_pass／plan_record（成立根拠）／構造化ログの拒否行（ペア不成立の公開試行）
 - **使用テーブル・正本**: rw: pair_plan_quality／r: action_plans／r: tasks（review_task 参照）／r: evidence（review_pass・plan_record）／w: evidence（外部操作証跡 = operation_log kind）
@@ -245,7 +245,7 @@
 - **不変条件**: deny-by-default（許可リストにない URL は常に拒否）／本ゲートに人間によるバイパス経路が存在しない
 - **状態遷移**: なし
 - **正常動作**: KPI 登録時は指標型を有料指標定義と照合し、非該当のみ登録を通す。ブラウザ遷移時は URL を許可リストと照合し、一致のみ通す。
-- **拒否・異常動作**: 有料指標（CAC/ROAS/広告費 系の型）は PaidMetricRejected で登録拒否。許可リスト外 URL は UrlDenied で遷移拒否し operation_log に記録。判定不能（リスト破損等）も拒否側へ倒す。
+- **拒否・異常動作**: 有料指標（CAC/ROAS/広告費 系の型）は PaidMetricRejected で登録拒否。許可リスト外 URL は UrlDenied で遷移拒否し秘匿化済み構造化拒否ログに記録。判定不能（リスト破損等）も拒否側へ倒す。
 - **境界動作**: サブドメイン・リダイレクト先も最終 URL で判定。許可リスト空 = 全遮断（安全側）。
 - **再試行・再開・復旧**: ゲートは無状態（判定のみ）。再実行は同一判定を返す。リスト更新後は次回判定から反映。
 - **人間判断／escalation**: なし（PO でも解除不可の機械的制約 — BR-C1）
@@ -266,7 +266,7 @@
 - **不変条件**: 表記検証に合格しないアフィリエイト成果物の公開は存在しない（ステマ規制遵守 — BR-C2）／判定不能な成果物はアフィリエイト該当として扱う（fail-close）／検証は commit 固定済み成果物に対して行い、検証後の内容差し替えは pair 失効（FR-21）で無効化される
 - **状態遷移**: tasks: T-PUB の pending→failed（表記検証不合格 = non_retryable_failure）
 - **正常動作**: 公開前検証時に成果物からリンクを抽出し、ASP ドメインリストと照合してアフィリエイト該当性を判定。該当時は PR 表記ブロック（必須文言・配置規則）の存在を検証し、合格した場合のみ公開ゲートへ通す。非該当の成果物は表記検証なしで通過する。
-- **拒否・異常動作**: アフィリエイトリンクを含み表記ブロックがない・文言不備の成果物は PrLabelMissing を raise して公開ゲートを通さず、operation_log に拒否理由（対象 URL・欠落規則）を記録して T-PUB を failed に倒す。リンク抽出不能・HTML パース不能はアフィリエイト該当扱いで拒否（fail-close）。
+- **拒否・異常動作**: アフィリエイトリンクを含み表記ブロックがない・文言不備の成果物は PrLabelMissing を raise して公開ゲートを通さず、秘匿化済み構造化拒否ログに拒否理由（対象 URL・欠落規則）を記録して T-PUB を failed に倒す。リンク抽出不能・HTML パース不能はアフィリエイト該当扱いで拒否（fail-close）。
 - **境界動作**: ASP ドメインリスト未設定（config 欠落）は判定不能として全公開を拒否（fail-close）。短縮 URL・リダイレクトは展開後の最終 URL で判定。リンク 0 件の成果物は非該当として通過。
 - **再試行・再開・復旧**: ゲートは無状態（判定のみ）。再実行は同一 commit に対し同一判定を返す。表記追加後は再 commit → 再審査 → 新 pair 成立を経て再判定。
 - **人間判断／escalation**: なし（機械検証。表記規則自体の改訂は要件改訂で行う）
@@ -314,7 +314,7 @@
 - **人間判断／escalation**: 実在: 承認者（利用者）が Claude Code アプリで approve/reject を決定する。オートモード移行後もこの判断は機械化されない（BR-C4 の escalation 境界）。escalated 後の対処も人間（BR-H3）。
 - **副作用**: approvals INSERT（要求・再要求ごと）／アプリ通知送信（FR-46 経路）／evidence INSERT（kind = approval — approved 時）／state_transitions INSERT（waiting 化・failed/escalated 遷移）
 - **冪等性**: 同一 (task, binding_subject, binding_operation, binding_at) の承認要求は UNIQUE 制約で 1 行。approved の再確認は pure。外部操作は専用 idempotency key で二重送信しない。
-- **証跡**: approvals 行（要求・応答の全履歴）／evidence.kind = approval（decision = approved、binding 3 項目）／operation_log 行（承認なし実行の拒否）
+- **証跡**: approvals 行（要求・応答の全履歴）／evidence.kind = approval（decision = approved、binding 3 項目）／秘匿化済み構造化拒否ログ（承認なし実行）
 - **使用テーブル・正本**: rw: approvals／r: tasks（操作型判定）／r: config（auto_mode_criteria・approval_retry_limit）／w: evidence（approval）／w: state_transitions／r: external_operations（再開照合）
 - **外部依存**: Claude Code アプリ通知（承認チャネル — transport はテストで mock 可）
 - **設定値**: config.approval_retry_limit（expired 再要求の上限）／config.auto_mode_criteria（オートモード判定 — 本 FR はこれに優先する） ／ **固定値**: 金銭操作型の定義リスト（価格変更・返金・決済設定に類する操作型）
@@ -455,13 +455,13 @@
 - **不変条件**: 経路優先順は MCP → ブラウザ → 有償 API（明示例外のみ — BR-F1）で、レジストリ行の変更のみで切替可能／X のブラウザ書込み経路はレジストリに登録できない（BR-M-X-4 — 登録要求自体を拒否）／媒体追加はレジストリ行＋ワークフロー＋攻略地図の追加のみで完結し、外殻コードを変更しない（NFR-8）
 - **状態遷移**: なし
 - **正常動作**: 経路解決要求を受け、config のレジストリ行から (service) の優先経路を読み、認証方式を添えて経路を返す。第一経路が利用不能（コネクタからの失敗通知）ならフォールバック経路へ切替え、切替を operation_log に記録する。経路の追加・変更は config INSERT（履歴保持 — FR-33）のみで反映される。
-- **拒否・異常動作**: 未登録 service は RouteNotRegistered を raise し operation_log に記録。例外宣言のないサービスへの有償 API 経路解決は PaidRouteDenied で拒否。X への browser 書込み経路の登録・解決要求は ProhibitedMediaWrite で拒否（BR-M-X-4）。レジストリ行 JSON の破損・型不一致は解決不能として拒否側へ倒す（fail-close）。
+- **拒否・異常動作**: 未登録 service は RouteNotRegistered を raise し秘匿化済み構造化拒否ログに記録。例外宣言のないサービスへの有償 API 経路解決は PaidRouteDenied で拒否。X への browser 書込み経路の登録・解決要求は ProhibitedMediaWrite で拒否（BR-M-X-4）。レジストリ行 JSON の破損・型不一致は解決不能として拒否側へ倒す（fail-close）。
 - **境界動作**: フォールバック経路が未宣言で第一経路も不能な場合は経路なしとして呼出元タスクを escalated へ誘導（解決 API は RouteNotRegistered）。同一 service の複数レジストリ行は changed_at 最新の 1 行のみ有効。空レジストリ = 全 service 解決不能（安全側）。
 - **再試行・再開・復旧**: 解決は無状態（config 読取のみ）で再実行は同一結果を返す。config 行更新後は次回解決から反映。クラッシュ後の再開に固有の中間状態はない。
 - **人間判断／escalation**: なし（全自動。有償経路の例外宣言の追加自体は config 変更として人間 = PO 判断 — BR-F1）
-- **副作用**: operation_log INSERT（拒否・フォールバック発動時）／なし（解決成功時は pure — 読取のみ）
+- **副作用**: 秘匿化済み構造化ログ（拒否・フォールバック発動時）／なし（解決成功時は pure — 読取のみ）
 - **冪等性**: 同一 (service, operation) の解決は同一 config 状態で同一経路を返す pure 判定。拒否ログは解決要求単位で 1 行。
-- **証跡**: operation_log 行（拒否・フォールバック発動 — service・要求経路・理由）
+- **証跡**: 秘匿化済み構造化ログ（拒否・フォールバック発動 — service・要求経路・理由）
 - **使用テーブル・正本**: r: config（registry.* 行）／w: evidence（外部操作証跡 = operation_log kind）／r: spend_ledger（有償経路の台帳配線検査）
 - **外部依存**: なし
 - **設定値**: config.registry.<service>（優先経路・フォールバック・認証方式の JSON）／config.registry.<service>.paid_exception（有償経路の明示例外宣言） ／ **固定値**: 経路優先順 MCP → ブラウザ → 有償 API（BR-F1 — 変更は要件改訂）／route_type 語彙（mcp/browser/api/wp_rest/wp_cli — playbooks DDL と共通）
@@ -480,7 +480,7 @@
 - **境界動作**: 間隔乱数は範囲端 1 秒・5 秒を含む一様分布。日次 10 件目は許可・11 件目は拒否（日付境界は Clock 注入基準）。セレクタ不一致は失敗として consecutive_failures を加算し FR-43 の破損検知へ渡す。セッション失効は書込み前に検知し送信しない。
 - **再試行・再開・復旧**: 送信直後クラッシュは external_operations の status で再開: prepared は同一 idempotency key で再送可、sent はリモート照合で confirmed 化または unknown→escalate（再送しない — s0-contract §3.3）。乱数はログの seed から再現可能（NFR-2）。
 - **人間判断／escalation**: なし（全自動。検知・警告兆候時の媒体停止判断は安全側自動調整＋escalated 経由で人間 — BR-F5）
-- **副作用**: 外部サイトへのブラウザ操作（書込みは external_operations 経由のみ）／external_operations INSERT/UPDATE／operation_log INSERT／playbooks.last_success_at / consecutive_failures UPDATE／構造化ログ行（seed・生成間隔値）
+- **副作用**: 外部サイトへのブラウザ操作（書込みは external_operations 経由のみ）／external_operations INSERT/UPDATE／operation_log INSERT（外部取得操作のみ）／秘匿化済み構造化ログ（隔離・拒否）／playbooks.last_success_at / consecutive_failures UPDATE／構造化ログ行（seed・生成間隔値）
 - **冪等性**: 書込み系は操作単位の idempotency key（external_operations.idempotency_key UNIQUE）で二重実行を検出（BR-I7）。sent 照合により再送は発生しない。読取り系は再実行安全。
 - **証跡**: operation_log 行（external_operation_id・request_fingerprint つき）／screenshot evidence（操作確認）／構造化ログ（乱数 seed・間隔値 — NFR-7 再現用）
 - **使用テーブル・正本**: rw: playbooks／rw: external_operations／w: evidence（外部操作証跡 = operation_log kind）／r: config（browser.headed・rate.*・url_allowlist）／w: evidence（screenshot）
@@ -501,9 +501,9 @@
 - **境界動作**: 同一 playbook への並行破損通知は 1 件のみ再生成し後続は結果待ち。status=retired は自己修復対象外（即 escalated）。再生成成功直後の再失敗は新たな破損検知として再度 1 回だけ試行可（試行カウントは破損イベント単位）。
 - **再試行・再開・復旧**: 再生成中クラッシュは playbooks.status=broken が残るため、再開時は破損検知済みとして再生成を最初からやり直す（読取りのみで外部副作用なし）。escalated 後の復旧は人間対処→地図修正→タスク再投入。
 - **人間判断／escalation**: 再生成失敗時の対処（地図手動修正・媒体運用判断）は escalated 経由で人間（BR-H3）。それ以外は全自動
-- **副作用**: playbooks UPDATE（status・selector_json・procedure_json・consecutive_failures）／operation_log INSERT（検知・試行・結果）／tasks の escalated 遷移（失敗時）／外部サイトへの読取りアクセス（書込みなし）
+- **副作用**: playbooks UPDATE（status・selector_json・procedure_json・consecutive_failures）／秘匿化済み構造化ログ（検知・試行・結果）／tasks の escalated 遷移（失敗時）／外部サイトへの読取りアクセス（書込みなし）
 - **冪等性**: 再生成は破損イベント単位で 1 回（operation_log の試行記録で重複試行を検出）。再解析は読取りのみで再実行安全。
-- **証跡**: operation_log 行（破損検知: 不一致セレクタ・失敗ステップ）／operation_log 行（再生成試行と結果）／screenshot evidence（再解析時のページ状態）
+- **証跡**: 秘匿化済み構造化ログ（破損検知: 不一致セレクタ・失敗ステップ）／秘匿化済み構造化ログ（再生成試行と結果）／screenshot evidence（再解析時のページ状態）
 - **使用テーブル・正本**: rw: playbooks／w: evidence（外部操作証跡 = operation_log kind）／rw: tasks（escalated 遷移は状態機械 FR-11 経由）／w: evidence（screenshot）
 - **外部依存**: 対象媒体サイト（読取り専用の再解析）／Playwright（FR-42 基盤を利用）
 - **設定値**: なし ／ **固定値**: 自動再生成の試行回数 = 1 回（要件固定 — 変更は要件改訂）
@@ -560,13 +560,13 @@
 - **不変条件**: pending の間、対象タスクは進行せず親 loop_run は waiting のまま（AC-46 系 — 先行公開経路なし）／binding 3 項目のいずれか 1 つでも不一致なら公開は通らない（部分一致許容なし）／承認応答の書換え・削除は不可（approvals は証跡 — decision 変更は新規要求で行う）
 - **状態遷移**: tasks: in_progress→failed（non_retryable_failure — rejected）／in_progress→escalated（escalate — expired 上限到達）／tasks: verifying→done（verify_pass — 承認証跡完備が前提）／テーブル列: approvals.decision: pending / approved / rejected / expired
 - **正常動作**: 公開系タスクが承認要求を出すと binding 3 項目を明記した通知を Claude Code アプリへ送り、approvals に decision=pending で INSERT。応答受領で decision を更新し、approved なら approval evidence を登録して binding 3 項目の完全一致を条件に後続公開を許可する。オートモード移行は config.auto_mode_criteria と実績証跡から機械判定する（人手の主観判定を挟まない — BR-H2）。
-- **拒否・異常動作**: rejected は non_retryable_failure として task を failed へ（再試行しない — 承認拒否は自動リトライ対象外）。公開時の binding 3 項目不一致は ApprovalBindingMismatch で公開拒否し operation_log に記録。承認なしの公開呼出しは ApprovalRequired で拒否（fail-close）。
+- **拒否・異常動作**: rejected は non_retryable_failure として task を failed へ（再試行しない — 承認拒否は自動リトライ対象外）。公開時の binding 3 項目不一致は ApprovalBindingMismatch で公開拒否し秘匿化済み構造化拒否ログに記録。承認なしの公開呼出しは ApprovalRequired で拒否（fail-close）。
 - **境界動作**: expired は承認を再要求して待機継続し、再要求回数が config.approval_retry_limit に到達したら escalated へ（無限待機しない）。同一 (task, binding 3 項目) の重複要求は UNIQUE 制約で既存行に照合。binding_at と実公開時点の乖離は不一致として拒否。
 - **再試行・再開・復旧**: クラッシュ後は approvals.decision から再開: pending は応答待ちを継続、approved は evidence 整合を確認して公開へ、rejected/expired は各遷移規則を適用。通知の再送は同一 binding の再要求として扱い二重承認を作らない。
 - **人間判断／escalation**: 承認応答そのもの（approve/reject）が人間判断の正規経路（BR-H1 — 束縛承認）。オートモード移行後は基準充足の機械判定で承認を省略
-- **副作用**: Claude Code アプリへの通知送出（transport は mock 可）／approvals INSERT/UPDATE（decision）／evidence INSERT（kind=approval）／operation_log INSERT（照合拒否時）／tasks の状態遷移（状態機械 FR-11 経由）
+- **副作用**: Claude Code アプリへの通知送出（transport は mock 可）／approvals INSERT/UPDATE（decision）／evidence INSERT（kind=approval）／秘匿化済み構造化拒否ログ（照合拒否時）／tasks の状態遷移（状態機械 FR-11 経由）
 - **冪等性**: 承認要求は (task_id, binding_subject, binding_operation, binding_at) UNIQUE で重複要求を検出。応答の重複受信は decision 確定済み行への no-op。
-- **証跡**: approvals 行（binding 3 項目・decision・responder_ref・decided_at）／approval evidence（decision=approved・approvals.evidence_id と相互整合）／operation_log 行（binding 不一致の公開拒否）
+- **証跡**: approvals 行（binding 3 項目・decision・responder_ref・decided_at）／approval evidence（decision=approved・approvals.evidence_id と相互整合）／秘匿化済み構造化拒否ログ（binding 不一致の公開拒否）
 - **使用テーブル・正本**: rw: approvals／w: evidence（approval）／w: evidence（外部操作証跡 = operation_log kind）／rw: tasks（遷移は FR-11 経由）／r: config（approval_retry_limit・auto_mode_criteria）
 - **外部依存**: Claude Code アプリ通知（承認 transport — テストは mock）
 - **設定値**: config.approval_retry_limit（expired 再要求の上限）／config.auto_mode_criteria（オートモード移行基準 — C） ／ **固定値**: channel = claude_code_app（approvals DDL CHECK — 変更は要件改訂）／binding 照合は 3 項目完全一致（部分一致なし）
@@ -581,13 +581,13 @@
 - **不変条件**: 平文 credential ゼロ（NFR-4 — SQLite/repo/ログ/evidence のいずれにも置かない）／evidence.external_operation_id 等の記録は秘匿情報を除いて行われる（s0-contract §1）／秘匿ストアを迂回して credential をコードや config に埋め込む経路が存在しない
 - **状態遷移**: なし
 - **正常動作**: コネクタが接続時に service 名で秘匿値を要求すると、暗号化ストア（OS キーチェーン優先）から復号してメモリ上でのみ注入する。ログ・operation_log・evidence への全書出しはマスキング層を通過し、既知 secret 値・credential パターンを伏字化してから永続化する。
-- **拒否・異常動作**: 秘匿値の取得不能（未投入・復号失敗・ストア不能）は SecretUnavailable を raise し外部操作を開始しない（fail-close）。書出し内容に平文 credential を検知した場合はマスクした上で CredentialLeakDetected を operation_log に記録し、当該書出し元のタスクを escalated へ誘導する。credential とテスト/本番 endpoint の組合せ不一致は実行拒否（環境契約 §6）。
+- **拒否・異常動作**: 秘匿値の取得不能（未投入・復号失敗・ストア不能）は SecretUnavailable を raise し外部操作を開始しない（fail-close）。書出し内容に平文 credential を検知した場合はマスクした上で CredentialLeakDetected を秘匿化済み構造化検知ログに記録し、当該書出し元のタスクを escalated へ誘導する。credential とテスト/本番 endpoint の組合せ不一致は実行拒否（環境契約 §6）。
 - **境界動作**: セッション失効・期限切れは取得時に検知し、再投入が必要なら escalated（credential 再投入は人の関与 — s0-contract §3.1 escalate ガード）。マスキングは部分一致（URL 埋込・JSON 内包）も対象。空ストア = 全接続不能（安全側）。
 - **再試行・再開・復旧**: 秘匿ストアは SQLite 外のため DB 再開手順に依存しない。SecretUnavailable で止まったタスクは credential 再投入後に同一状態から再実行可能。マスキングは書出しごとの純検査で再実行安全。
 - **人間判断／escalation**: 人間: credential の初回投入・失効時の再投入（環境契約 §6）。検査・マスキング・拒否は全自動
-- **副作用**: OS キーチェーン／暗号化ストアの読取り／operation_log INSERT（漏洩検知・取得不能時）／なし（正常注入は永続化を伴わない）
+- **副作用**: OS キーチェーン／暗号化ストアの読取り／秘匿化済み構造化検知ログ（漏洩検知・取得不能時）／なし（正常注入は永続化を伴わない）
 - **冪等性**: 取得・マスキングは pure（同一入力→同一結果）。漏洩検知ログは書出し操作単位で 1 行。再投入は上書きで冪等。
-- **証跡**: operation_log 行（SecretUnavailable・CredentialLeakDetected — 秘匿値そのものは含まない）／全文検索 0 件の検査結果（AC-47 の検証観測）
+- **証跡**: 秘匿化済み構造化ログ（SecretUnavailable・CredentialLeakDetected — 秘匿値そのものは含まない）／全文検索 0 件の検査結果（AC-47 の検証観測）
 - **使用テーブル・正本**: w: evidence（外部操作証跡 = operation_log kind）（evidence kind — 検知時のみ）／r: config（マスキング規則の非秘匿設定）
 - **外部依存**: OS キーチェーンまたは暗号化ストア（SQLite 外 — 鍵分離 BR-F4）
 - **設定値**: config.secret.masking_patterns（credential パターンの非秘匿定義） ／ **固定値**: 秘匿値の保管先 = OS キーチェーン／暗号化ストアのみ（SQLite・repo・ログ禁止 — BR-F4）
@@ -623,13 +623,13 @@
 - **不変条件**: トークンは Claude Design 正本（またはその同期キャッシュ）からのみ取得し、複製・手書き定義を持たない／同一トークン版＋同一ソース→同一出力（決定性 — NFR-2。トークン版 hash を証跡化して非決定要素を固定）
 - **状態遷移**: なし
 - **正常動作**: DesignSync からトークンを取得 → 版数・hash を算出しキャッシュを更新 → レンダリング入力へトークンを注入（CSS 変数・テーマ値展開）→ 適用トークンの版数・hash をレンダリング証跡の payload に記録する。
-- **拒否・異常動作**: トークン取得不能かつキャッシュも存在しない場合は DesignTokenUnavailable を raise しレンダリングを実行しない（トークンなし出力を作らない — fail-close）。キャッシュ破損（hash 不一致・JSON 不正）は破損キャッシュを使用せず同様に拒否し operation_log に記録。
+- **拒否・異常動作**: トークン取得不能かつキャッシュも存在しない場合は DesignTokenUnavailable を raise しレンダリングを実行しない（トークンなし出力を作らない — fail-close）。キャッシュ破損（hash 不一致・JSON 不正）は破損キャッシュを使用せず同様に拒否し秘匿化済み構造化拒否ログに記録。
 - **境界動作**: 正本取得不能でキャッシュありは直近同期済みキャッシュで継続し、キャッシュ利用（stale）フラグと版数を証跡に残す。トークン集合が空の応答は取得失敗と同等に扱う。
 - **再試行・再開・復旧**: 取得はタイムアウト後に規定回数まで再試行し、失敗はキャッシュ経路へフォールバック。キャッシュ更新はアトミック（temp 書込み→rename）で中間状態を残さない。
 - **人間判断／escalation**: なし（デザインシステム自体の改訂承認は BR-G3 の PO 領分）
-- **副作用**: トークンキャッシュ ファイル更新／operation_log INSERT（取得・フォールバック・拒否）
+- **副作用**: トークンキャッシュ ファイル更新／秘匿化済み構造化ログ（取得・フォールバック・拒否）
 - **冪等性**: 同一トークン版での再適用は同一出力。取得は read-only で何度実行しても正本を変更しない。
-- **証跡**: レンダリング証跡 payload 内のトークン版数・hash・stale フラグ／operation_log 行（取得失敗・フォールバック）
+- **証跡**: レンダリング証跡 payload 内のトークン版数・hash・stale フラグ／秘匿化済み構造化ログ（取得失敗・フォールバック）
 - **使用テーブル・正本**: w: evidence（外部操作証跡 = operation_log kind）／r: config（DesignSync 接続参照・再試行回数）
 - **外部依存**: Claude Design（DesignSync — トークン正本）
 - **設定値**: config.designsync_source（正本参照）／config.designsync_fetch_retry_max／config.designsync_cache_path ／ **固定値**: キャッシュ検証 = SHA-256 hash 一致／トークン注入方式（CSS 変数展開）
@@ -665,13 +665,13 @@
 - **不変条件**: 版管理外の成果物は審査・公開経路に乗らない（BR-G1 禁止事項）／PASS 後の改変は新 commit＝新 hash となり、旧 PASS は新版に流用できない（版すり替えの構造的排除）
 - **状態遷移**: なし
 - **正常動作**: 制作完了時にワークスペースの HEAD commit hash（40/64 桁）と対象 paths を evidence（kind=commit_hash）へ INSERT → 審査時は同 hash を review_pass 証跡の commit_hash 列・payload に記録し、PASS が特定版に束縛される。公開ゲート（FR-27 側）はこの束縛を検査する。
-- **拒否・異常動作**: 未 commit の作業ツリー・dirty 状態での証跡化要求は UnversionedSourceRejected で拒否。PASS 記録時に指定 commit_hash が当該 task の commit_hash 証跡と一致しなければ CommitHashMismatch で拒否し operation_log に記録（fail-close）。hash 桁数不正は DDL CHECK でも拒否される。
+- **拒否・異常動作**: 未 commit の作業ツリー・dirty 状態での証跡化要求は UnversionedSourceRejected で拒否。PASS 記録時に指定 commit_hash が当該 task の commit_hash 証跡と一致しなければ CommitHashMismatch で拒否し秘匿化済み構造化拒否ログに記録（fail-close）。hash 桁数不正は DDL CHECK でも拒否される。
 - **境界動作**: 同一 task で複数回 commit した場合は最新の commit_hash 証跡が審査対象版。40 桁（SHA-1）と 64 桁（SHA-256）の両 git hash を許容し、それ以外の長さは拒否。paths 空の証跡は拒否。
 - **再試行・再開・復旧**: 証跡は append-only のため再実行は UNIQUE(task_id, kind, value) で重複 INSERT にならない。復元は evidence の repository・commit_hash から git checkout で決定的に再現する。
 - **人間判断／escalation**: なし（審査 PASS の実施主体は FR-27 のペア審査 — 本 FR は束縛の機械保証のみ）
 - **副作用**: evidence INSERT（commit_hash / review_pass）／構造化ログ出力（拒否時 — FN-704）
 - **冪等性**: 同一 (task_id, kind, commit_hash) の再記録は UNIQUE 制約で 1 行に収束。判定（一致検査）は pure。
-- **証跡**: evidence 行（kind=commit_hash）／evidence 行（kind=review_pass — commit_hash 束縛）／operation_log 行（拒否）
+- **証跡**: evidence 行（kind=commit_hash）／evidence 行（kind=review_pass — commit_hash 束縛）／秘匿化済み構造化拒否ログ
 - **使用テーブル・正本**: r: tasks／w: evidence／w: evidence（外部操作証跡 = operation_log kind）／r: pair_plan_quality（審査経路整合の参照）
 - **外部依存**: git（hash 取得・checkout 復元）
 - **設定値**: なし ／ **固定値**: commit_hash 桁数 = 40 または 64（DDL CHECK と同値）／evidence kind = commit_hash / review_pass（s0-contract §2.1）
@@ -686,13 +686,13 @@
 - **不変条件**: コンテンツ実体の正本は WP に一元化され SQLite は参照のみ（BR-G2 — 実体の DB 直接格納の禁止）／出自記録（parent 参照・source_task_id）のない派生資産は存在しない
 - **状態遷移**: なし
 - **正常動作**: WP アップロード完了後、wp_media_id・canonical_url・content_hash・metadata を assets へ INSERT。派生制作（記事→SNS/スライド/音声/動画/EPUB）では parent_asset_id に元資産を指定して INSERT し、系譜クエリ（再帰 CTE）で追跡可能にする。
-- **拒否・異常動作**: 登録ペイロードに本文実体（本文テキスト・バイナリ・data URI 等、参照サイズ上限超のフィールド）が含まれる場合は ContentBodyRejected で拒否。WP 参照（wp_media_id/canonical_url）のいずれも欠く登録・存在しない parent_asset_id 指定は AssetReferenceInvalid で拒否し operation_log に記録（fail-close）。
+- **拒否・異常動作**: 登録ペイロードに本文実体（本文テキスト・バイナリ・data URI 等、参照サイズ上限超のフィールド）が含まれる場合は ContentBodyRejected で拒否。WP 参照（wp_media_id/canonical_url）のいずれも欠く登録・存在しない parent_asset_id 指定は AssetReferenceInvalid で拒否し秘匿化済み構造化拒否ログに記録（fail-close）。
 - **境界動作**: canonical_url・wp_media_id は UNIQUE で二重登録は制約違反として拒否。自己参照（parent = 自分）・循環系譜は登録時検査で拒否。parent なし（根 = オリジナル記事）は正常。
 - **再試行・再開・復旧**: 登録は 1 INSERT = 1 transaction。再実行は UNIQUE(canonical_url/wp_media_id) で重複せず、既存行を返して冪等に完了する。WP 側と参照の不整合は content_hash 照合で検出し escalation（BR-H3）へ回す。
 - **人間判断／escalation**: なし（全自動）
 - **副作用**: assets INSERT／構造化ログ出力（拒否時 — FN-704）
 - **冪等性**: UNIQUE(canonical_url)・UNIQUE(wp_media_id) が冪等キー。同一資産の再登録は行を増やさない。
-- **証跡**: assets 行自体（参照＋系譜の正本）／operation_log 行（拒否）／公開時は evidence（kind=published_url — asset_id 列で接続）
+- **証跡**: assets 行自体（参照＋系譜の正本）／秘匿化済み構造化拒否ログ／公開時は evidence（kind=published_url — asset_id 列で接続）
 - **使用テーブル・正本**: rw: assets／r: tasks（source_task_id 整合）／w: evidence（外部操作証跡 = operation_log kind）
 - **外部依存**: Docker WP（実体の置き場 — 本 FR 自体は参照登録のみ）
 - **設定値**: config.asset_metadata_max_bytes（参照サイズ上限 — 実体混入検知） ／ **固定値**: 系譜構造 = parent_asset_id による単方向ツリー（循環禁止）
@@ -707,13 +707,13 @@
 - **不変条件**: 有料指標型（cac/roas/ad_spend）のノードは kpi_nodes に存在しない（FR-23 ＋ DDL CHECK の二重防御 — BR-C1）／階層は露出→マイクロ CV→転換→関係→収益の 5 層に閉じ、層外の値は存在しない／KPI ツリーは観測背骨であり、数値変化から戦略正本への自動書込みは行わない（BR-E1 禁止事項）
 - **状態遷移**: テーブル列: kpi_nodes.status: active→archived（ノード退役。削除はしない — FK RESTRICT）
 - **正常動作**: 登録要求の metric_type を FR-23 の有料指標定義と照合 → 非該当なら layer・medium・aggregation_formula を検証して kpi_nodes へ INSERT。集計は kpi_nodes×measurements の JOIN で媒体横断（layer 別・medium 別）に実行できる正規化を維持する。
-- **拒否・異常動作**: 有料指標型は PaidMetricRejected で登録拒否（アプリ層 FR-23 ＋ DDL CHECK(metric_type NOT IN ...) の二重で fail-close）。layer が 5 階層外・node_key 重複・親不在／別 profile の親指定は KpiNodeInvalid で拒否し operation_log に記録。
+- **拒否・異常動作**: 有料指標型は PaidMetricRejected で登録拒否（アプリ層 FR-23 ＋ DDL CHECK(metric_type NOT IN ...) の二重で fail-close）。layer が 5 階層外・node_key 重複・親不在／別 profile の親指定は KpiNodeInvalid で拒否し秘匿化済み構造化拒否ログに記録。
 - **境界動作**: 根ノード（parent_node_id NULL）は正常。measurements から参照中のノードは FK RESTRICT で削除不能（archived 化のみ）。同一 node_key の再登録は UNIQUE(business_profile_id, node_key) で拒否。
 - **再試行・再開・復旧**: 登録は 1 INSERT = 1 transaction で中間状態なし。再実行は UNIQUE 制約で重複せず拒否される（既存確認後の冪等応答可）。集計クエリは read-only で何度でも安全。
 - **人間判断／escalation**: KPI ツリー初期形の承認（リサーチ充填後 — BR-E1。以後のノード登録・集計は全自動）
 - **副作用**: kpi_nodes INSERT/UPDATE(status)／構造化ログ出力（拒否時 — FN-704）
 - **冪等性**: UNIQUE(business_profile_id, node_key) が冪等キー。集計は pure（同一 DB 状態→同一結果）。
-- **証跡**: operation_log 行（有料指標拒否・定義不正拒否）／kpi_nodes 行（階層定義の正本）
+- **証跡**: 秘匿化済み構造化拒否ログ（有料指標拒否・定義不正拒否）／kpi_nodes 行（階層定義の正本）
 - **使用テーブル・正本**: rw: kpi_nodes／r: business_profiles／r: measurements（集計）／w: evidence（外部操作証跡 = operation_log kind）
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: 5 階層 enum（exposure/micro_cv/conversion/relationship/revenue — DDL CHECK と同値）／有料指標型の禁止リスト（cac/roas/ad_spend — FR-23 と共有）
@@ -728,13 +728,13 @@
 - **不変条件**: 証跡（hash・ブラウザ経路時はスクショ）なしの計測値は measurements に存在しない（BR-E2 禁止事項）／投入は冪等 — 同一エクスポートの再取込で行が重複しない／手動入力値を実測として投入する経路が存在しない
 - **状態遷移**: なし
 - **正常動作**: 取得（GA4/GSC は正規 Data API、他はブラウザエクスポート）→ 取得物の SHA-256 算出と evidence（measurement: source・file_hash・period・row_count）INSERT → サービス別パーサで行解釈 → kpi_node 解決 → measurements へ一括 INSERT（1 取込 = 1 transaction）。ブラウザ経路では取得画面スクショも evidence 化する。
-- **拒否・異常動作**: パース失敗行はエラー隔離（隔離ファイル＋件数記録）し、正常行のみ投入する（部分投入許容）。全行失敗・ファイル破損・hash 算出不能は ImportSourceInvalid で全体拒否。未登録 kpi_node 宛の行・有料指標由来の行は投入せず隔離し operation_log に記録（fail-close）。
+- **拒否・異常動作**: パース失敗行はエラー隔離（隔離ファイル＋件数記録）し、正常行のみ投入する（部分投入許容）。全行失敗・ファイル破損・hash 算出不能は ImportSourceInvalid で全体拒否。未登録 kpi_node 宛の行・有料指標由来の行は投入せず隔離し秘匿化済み構造化拒否ログに記録（fail-close）。
 - **境界動作**: 空エクスポート（データ 0 行）は measurements 差分なしで正常終了し、取得証跡のみ残る。同一 (kpi_node_id, period, dimensions) の重複行は UNIQUE 制約で 2 行目以降を投入しない。期間逆転（period_end < period_start）行は隔離。
 - **再試行・再開・復旧**: 投入 transaction 失敗は全行 rollback（部分コミットなし）。再実行は同一 source hash の evidence UNIQUE(task_id, kind, value) と measurements の UNIQUE で冪等に収束。API 阻害時はブラウザエクスポートへ一時フォールバックし、同一 evidence 契約に収束させる。
 - **人間判断／escalation**: なし（取得失敗の escalation は BR-H3 経由）
 - **副作用**: measurements INSERT／evidence INSERT（measurement/file_hash/screenshot）／隔離ファイル生成／operation_log INSERT／外部 read（GA4 Data API・ブラウザ）
 - **冪等性**: source hash（evidence UNIQUE）と measurements の UNIQUE(kpi_node_id, period_start, period_end, dimensions_json) の二重冪等キー。同一エクスポートの再投入は差分ゼロ。
-- **証跡**: evidence 行（kind=measurement — source・file_hash・period・row_count）／evidence 行（kind=file_hash／kind=screenshot — ブラウザ経路）／operation_log 行（取得操作・隔離・拒否）
+- **証跡**: evidence 行（kind=measurement — source・file_hash・period・row_count）／evidence 行（kind=file_hash／kind=screenshot — ブラウザ経路）／operation_log 行（外部取得操作）／秘匿化済み構造化ログ（隔離・拒否）
 - **使用テーブル・正本**: w: measurements／r: kpi_nodes／r: tasks／w: evidence／w: evidence（外部操作証跡 = operation_log kind）／r: playbooks（ブラウザ経路手順）／r: config
 - **外部依存**: GA4 / GSC 正規 API（read-only — ADR-006）／ブラウザエクスポート（フォールバック経路）
 - **設定値**: config.import_quarantine_dir（隔離先）／config.ga4_property_ref（接続参照 — credential は秘匿ストア） ／ **固定値**: hash アルゴリズム = SHA-256／1 取込 = 1 transaction（部分コミット禁止）
@@ -749,13 +749,13 @@
 - **不変条件**: 生成は決定的 — 同一 DB 状態→同一出力 hash（BR-E3。生成時刻は Clock 注入し出力へ埋め込む場合も入力として固定）／生成物に認証情報・secret を含めない（BR-E3 制約）／手動集計を経由しない（SQLite からの自動生成のみ）
 - **状態遷移**: なし
 - **正常動作**: SQLite から layer×medium×期間の集計を read-only クエリで取得 → テンプレートへ展開し CSS/JS を全インライン化した自己完結 HTML を生成 → 出力の SHA-256 を算出し evidence（kind=dashboard）へ INSERT。xlsx は同一クエリ結果から従として出力する。
-- **拒否・異常動作**: 生成後の自己検査で外部リソース参照を検出したら ExternalReferenceDetected で成果物を破棄し証跡化しない。secret パターン（credential 文字列）の混入検出も同様に破棄・拒否し operation_log に記録（fail-close）。DB 読取不能は DashboardGenerationFailed で拒否。
+- **拒否・異常動作**: 生成後の自己検査で外部リソース参照を検出したら ExternalReferenceDetected で成果物を破棄し証跡化しない。secret パターン（credential 文字列）の混入検出も同様に破棄・拒否し秘匿化済み構造化拒否ログに記録（fail-close）。DB 読取不能は DashboardGenerationFailed で拒否。
 - **境界動作**: measurements が 0 件でも空ダッシュボード（データなし表示）を決定的に生成する。同一 DB 状態での再生成は同一 hash となり evidence の UNIQUE(task_id, kind, value) で証跡が重複しない。巨大 DB は生成タイムアウト（config）で打ち切り拒否。
 - **再試行・再開・復旧**: 生成は temp へ書き出し成功時に rename するため中間生成物が残らない。クラッシュ後は再実行のみで復旧（DB は read-only のため汚染なし）。
 - **人間判断／escalation**: なし（閲覧のみ — PO が AI を介さず現況把握する手段の提供）
 - **副作用**: HTML/xlsx ファイル生成／evidence INSERT（dashboard）／構造化ログ出力（拒否時 — FN-704）
 - **冪等性**: 同一 DB 状態→同一出力 hash（pure な変換）。証跡は hash を value とする UNIQUE で重複しない。
-- **証跡**: evidence 行（kind=dashboard — file_path・file_hash・period_end）／operation_log 行（生成実行・拒否）
+- **証跡**: evidence 行（kind=dashboard — file_path・file_hash・period_end）／秘匿化済み構造化実行・拒否ログ
 - **使用テーブル・正本**: r: kpi_nodes／r: measurements／r: pair_kpi_measure／r: sprints／w: evidence／w: evidence（外部操作証跡 = operation_log kind）／r: config
 - **外部依存**: なし
 - **設定値**: config.dashboard_output_dir／config.dashboard_gen_timeout_sec ／ **固定値**: 自己完結制約（外部 CDN・外部 URL 参照の禁止）／hash アルゴリズム = SHA-256／HTML 主・xlsx 従の序列

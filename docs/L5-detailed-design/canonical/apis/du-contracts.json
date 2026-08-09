@@ -3692,7 +3692,7 @@
             },
             {
               "clause_id": "API-DU14-03-POST-02",
-              "text": "検出 0 件が AC-47-1 の合格条件。検出時は呼出元が CredentialLeakDetected を operation_log に記録し当該タスクを escalate へ誘導する"
+              "text": "検出 0 件が AC-47-1 の合格条件。検出時は外部操作開始前のため operation_log を生成せず、呼出元が CredentialLeakDetected を秘匿化済み構造化検知ログへ記録し当該タスクを escalate へ誘導する"
             },
             {
               "clause_id": "API-DU14-03-POST-03",
@@ -6294,5 +6294,5 @@
     "ARCHIVE-UT-LEGACY",
     "docs/L5-detailed-design/canonical/detailed-design_v0.1.md §3（API 正本宣言）"
   ],
-  "approval_digest": "d2c7b73dd280"
+  "approval_digest": "90e5256f2295"
 }

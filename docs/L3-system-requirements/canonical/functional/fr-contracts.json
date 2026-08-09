@@ -34,25 +34,24 @@
         "loop_runs: 遷移表（json/s0/transitions.json）の全行が本 FR の対象"
       ],
       "normal_behavior": "イベント受領 → 遷移表から (現状態, イベント) を一意解決 → ガード条件を DB 状態で評価 → 成立なら loop_runs.state を次状態へ UPDATE し state_transitions へ証跡 INSERT（同一 transaction）。",
-      "rejection_behavior": "遷移表に合致がない・ガード不成立・終端からの遷移要求は TransitionRejected を raise し、DB を変更せず 拒否理由を構造化ログ（FN-704）へ記録する（fail-close）。",
+      "rejection_behavior": "遷移表に合致がない・ガード不成立・終端からの遷移要求は TransitionRejected を raise する。loop_runs の業務状態は変更せず、state_transitions に guard_result = rejected の拒否行だけを同一 transaction で追記する（fail-close）。",
       "boundary_behavior": "同一 run への同時イベントは transaction の直列化で 1 件のみ成立し、後続は再読込後に再判定。存在しない run_id は即拒否。",
       "retry_resume_recovery": "クラッシュ時は transaction ごと消えるため中間状態が残らない。再開はプロセス再起動後に loop_runs の現状態から続行（申し送りなし — BR-A1）。",
       "human_judgement": "なし（全自動。escalated への遷移後の対処は BR-H3 経由で人間）",
       "side_effects": [
         "loop_runs UPDATE",
         "state_transitions INSERT",
-        "構造化ログ出力（拒否時 — FN-704）"
+        "state_transitions INSERT（拒否時 — guard_result = rejected）"
       ],
       "idempotency": "同一イベントの再送は現状態不一致で拒否される（状態遷移自体が冪等キー）。証跡は重複しない。",
       "evidence": [
         "state_transitions 行（遷移ごと）",
-        "operation_log 行（拒否ごと）"
+        "state_transitions 行（拒否ごと、guard_result = rejected）"
       ],
       "tables": [
         "参照: 遷移表 JSON 正本（json/s0/transitions.json — DB テーブルではない）",
         "rw: loop_runs",
         "w: state_transitions",
-        "w: evidence（外部操作証跡 = operation_log kind）",
         "r: strategic_briefs（lower 開始ガード）"
       ],
       "external_deps": [],
@@ -96,7 +95,6 @@
       ],
       "semantic_refs": {
         "table_refs": [
-          "evidence",
           "loop_runs",
           "state_transitions",
           "strategic_briefs"
@@ -108,9 +106,7 @@
           "loop_runs.escalated"
         ],
         "event_refs": [],
-        "evidence_kind_refs": [
-          "operation_log"
-        ],
+        "evidence_kind_refs": [],
         "error_type_refs": [
           "TransitionRejected"
         ],
@@ -1038,7 +1034,7 @@
       "side_effects": [
         "pair_plan_quality INSERT（成立時）",
         "pair_plan_quality の status UPDATE（revoked 化）",
-        "operation_log INSERT（公開拒否時）"
+        "秘匿化済み構造化拒否ログ（公開拒否時）"
       ],
       "idempotency": "同一 (plan_id, review_evidence_id) の成立要求は UNIQUE 制約により 1 行のみ。公開前検証は pure（同一 DB 状態→同一判定）で再実行安全。",
       "evidence": [
@@ -1246,7 +1242,7 @@
       ],
       "state_transitions": [],
       "normal_behavior": "KPI 登録時は指標型を有料指標定義と照合し、非該当のみ登録を通す。ブラウザ遷移時は URL を許可リストと照合し、一致のみ通す。",
-      "rejection_behavior": "有料指標（CAC/ROAS/広告費 系の型）は PaidMetricRejected で登録拒否。許可リスト外 URL は UrlDenied で遷移拒否し operation_log に記録。判定不能（リスト破損等）も拒否側へ倒す。",
+      "rejection_behavior": "有料指標（CAC/ROAS/広告費 系の型）は PaidMetricRejected で登録拒否。許可リスト外 URL は UrlDenied で遷移拒否し秘匿化済み構造化拒否ログに記録。判定不能（リスト破損等）も拒否側へ倒す。",
       "boundary_behavior": "サブドメイン・リダイレクト先も最終 URL で判定。許可リスト空 = 全遮断（安全側）。",
       "retry_resume_recovery": "ゲートは無状態（判定のみ）。再実行は同一判定を返す。リスト更新後は次回判定から反映。",
       "human_judgement": "なし（PO でも解除不可の機械的制約 — BR-C1）",
@@ -1347,7 +1343,7 @@
         "tasks: T-PUB の pending→failed（表記検証不合格 = non_retryable_failure）"
       ],
       "normal_behavior": "公開前検証時に成果物からリンクを抽出し、ASP ドメインリストと照合してアフィリエイト該当性を判定。該当時は PR 表記ブロック（必須文言・配置規則）の存在を検証し、合格した場合のみ公開ゲートへ通す。非該当の成果物は表記検証なしで通過する。",
-      "rejection_behavior": "アフィリエイトリンクを含み表記ブロックがない・文言不備の成果物は PrLabelMissing を raise して公開ゲートを通さず、operation_log に拒否理由（対象 URL・欠落規則）を記録して T-PUB を failed に倒す。リンク抽出不能・HTML パース不能はアフィリエイト該当扱いで拒否（fail-close）。",
+      "rejection_behavior": "アフィリエイトリンクを含み表記ブロックがない・文言不備の成果物は PrLabelMissing を raise して公開ゲートを通さず、秘匿化済み構造化拒否ログに拒否理由（対象 URL・欠落規則）を記録して T-PUB を failed に倒す。リンク抽出不能・HTML パース不能はアフィリエイト該当扱いで拒否（fail-close）。",
       "boundary_behavior": "ASP ドメインリスト未設定（config 欠落）は判定不能として全公開を拒否（fail-close）。短縮 URL・リダイレクトは展開後の最終 URL で判定。リンク 0 件の成果物は非該当として通過。",
       "retry_resume_recovery": "ゲートは無状態（判定のみ）。再実行は同一 commit に対し同一判定を返す。表記追加後は再 commit → 再審査 → 新 pair 成立を経て再判定。",
       "human_judgement": "なし（機械検証。表記規則自体の改訂は要件改訂で行う）",
@@ -1572,7 +1568,7 @@
       "evidence": [
         "approvals 行（要求・応答の全履歴）",
         "evidence.kind = approval（decision = approved、binding 3 項目）",
-        "operation_log 行（承認なし実行の拒否）"
+        "秘匿化済み構造化拒否ログ（承認なし実行）"
       ],
       "tables": [
         "rw: approvals",
@@ -2329,17 +2325,17 @@
       ],
       "state_transitions": [],
       "normal_behavior": "経路解決要求を受け、config のレジストリ行から (service) の優先経路を読み、認証方式を添えて経路を返す。第一経路が利用不能（コネクタからの失敗通知）ならフォールバック経路へ切替え、切替を operation_log に記録する。経路の追加・変更は config INSERT（履歴保持 — FR-33）のみで反映される。",
-      "rejection_behavior": "未登録 service は RouteNotRegistered を raise し operation_log に記録。例外宣言のないサービスへの有償 API 経路解決は PaidRouteDenied で拒否。X への browser 書込み経路の登録・解決要求は ProhibitedMediaWrite で拒否（BR-M-X-4）。レジストリ行 JSON の破損・型不一致は解決不能として拒否側へ倒す（fail-close）。",
+      "rejection_behavior": "未登録 service は RouteNotRegistered を raise し秘匿化済み構造化拒否ログに記録。例外宣言のないサービスへの有償 API 経路解決は PaidRouteDenied で拒否。X への browser 書込み経路の登録・解決要求は ProhibitedMediaWrite で拒否（BR-M-X-4）。レジストリ行 JSON の破損・型不一致は解決不能として拒否側へ倒す（fail-close）。",
       "boundary_behavior": "フォールバック経路が未宣言で第一経路も不能な場合は経路なしとして呼出元タスクを escalated へ誘導（解決 API は RouteNotRegistered）。同一 service の複数レジストリ行は changed_at 最新の 1 行のみ有効。空レジストリ = 全 service 解決不能（安全側）。",
       "retry_resume_recovery": "解決は無状態（config 読取のみ）で再実行は同一結果を返す。config 行更新後は次回解決から反映。クラッシュ後の再開に固有の中間状態はない。",
       "human_judgement": "なし（全自動。有償経路の例外宣言の追加自体は config 変更として人間 = PO 判断 — BR-F1）",
       "side_effects": [
-        "operation_log INSERT（拒否・フォールバック発動時）",
+        "秘匿化済み構造化ログ（拒否・フォールバック発動時）",
         "なし（解決成功時は pure — 読取のみ）"
       ],
       "idempotency": "同一 (service, operation) の解決は同一 config 状態で同一経路を返す pure 判定。拒否ログは解決要求単位で 1 行。",
       "evidence": [
-        "operation_log 行（拒否・フォールバック発動 — service・要求経路・理由）"
+        "秘匿化済み構造化ログ（拒否・フォールバック発動 — service・要求経路・理由）"
       ],
       "tables": [
         "r: config（registry.* 行）",
@@ -2454,7 +2450,7 @@
       "side_effects": [
         "外部サイトへのブラウザ操作（書込みは external_operations 経由のみ）",
         "external_operations INSERT/UPDATE",
-        "operation_log INSERT",
+        "operation_log INSERT（外部取得操作のみ）／秘匿化済み構造化ログ（隔離・拒否）",
         "playbooks.last_success_at / consecutive_failures UPDATE",
         "構造化ログ行（seed・生成間隔値）"
       ],
@@ -2575,14 +2571,14 @@
       "human_judgement": "再生成失敗時の対処（地図手動修正・媒体運用判断）は escalated 経由で人間（BR-H3）。それ以外は全自動",
       "side_effects": [
         "playbooks UPDATE（status・selector_json・procedure_json・consecutive_failures）",
-        "operation_log INSERT（検知・試行・結果）",
+        "秘匿化済み構造化ログ（検知・試行・結果）",
         "tasks の escalated 遷移（失敗時）",
         "外部サイトへの読取りアクセス（書込みなし）"
       ],
       "idempotency": "再生成は破損イベント単位で 1 回（operation_log の試行記録で重複試行を検出）。再解析は読取りのみで再実行安全。",
       "evidence": [
-        "operation_log 行（破損検知: 不一致セレクタ・失敗ステップ）",
-        "operation_log 行（再生成試行と結果）",
+        "秘匿化済み構造化ログ（破損検知: 不一致セレクタ・失敗ステップ）",
+        "秘匿化済み構造化ログ（再生成試行と結果）",
         "screenshot evidence（再解析時のページ状態）"
       ],
       "tables": [
@@ -2928,7 +2924,7 @@
         "テーブル列: approvals.decision: pending / approved / rejected / expired"
       ],
       "normal_behavior": "公開系タスクが承認要求を出すと binding 3 項目を明記した通知を Claude Code アプリへ送り、approvals に decision=pending で INSERT。応答受領で decision を更新し、approved なら approval evidence を登録して binding 3 項目の完全一致を条件に後続公開を許可する。オートモード移行は config.auto_mode_criteria と実績証跡から機械判定する（人手の主観判定を挟まない — BR-H2）。",
-      "rejection_behavior": "rejected は non_retryable_failure として task を failed へ（再試行しない — 承認拒否は自動リトライ対象外）。公開時の binding 3 項目不一致は ApprovalBindingMismatch で公開拒否し operation_log に記録。承認なしの公開呼出しは ApprovalRequired で拒否（fail-close）。",
+      "rejection_behavior": "rejected は non_retryable_failure として task を failed へ（再試行しない — 承認拒否は自動リトライ対象外）。公開時の binding 3 項目不一致は ApprovalBindingMismatch で公開拒否し秘匿化済み構造化拒否ログに記録。承認なしの公開呼出しは ApprovalRequired で拒否（fail-close）。",
       "boundary_behavior": "expired は承認を再要求して待機継続し、再要求回数が config.approval_retry_limit に到達したら escalated へ（無限待機しない）。同一 (task, binding 3 項目) の重複要求は UNIQUE 制約で既存行に照合。binding_at と実公開時点の乖離は不一致として拒否。",
       "retry_resume_recovery": "クラッシュ後は approvals.decision から再開: pending は応答待ちを継続、approved は evidence 整合を確認して公開へ、rejected/expired は各遷移規則を適用。通知の再送は同一 binding の再要求として扱い二重承認を作らない。",
       "human_judgement": "承認応答そのもの（approve/reject）が人間判断の正規経路（BR-H1 — 束縛承認）。オートモード移行後は基準充足の機械判定で承認を省略",
@@ -2936,14 +2932,14 @@
         "Claude Code アプリへの通知送出（transport は mock 可）",
         "approvals INSERT/UPDATE（decision）",
         "evidence INSERT（kind=approval）",
-        "operation_log INSERT（照合拒否時）",
+        "秘匿化済み構造化拒否ログ（照合拒否時）",
         "tasks の状態遷移（状態機械 FR-11 経由）"
       ],
       "idempotency": "承認要求は (task_id, binding_subject, binding_operation, binding_at) UNIQUE で重複要求を検出。応答の重複受信は decision 確定済み行への no-op。",
       "evidence": [
         "approvals 行（binding 3 項目・decision・responder_ref・decided_at）",
         "approval evidence（decision=approved・approvals.evidence_id と相互整合）",
-        "operation_log 行（binding 不一致の公開拒否）"
+        "秘匿化済み構造化拒否ログ（binding 不一致の公開拒否）"
       ],
       "tables": [
         "rw: approvals",
@@ -3061,18 +3057,18 @@
       ],
       "state_transitions": [],
       "normal_behavior": "コネクタが接続時に service 名で秘匿値を要求すると、暗号化ストア（OS キーチェーン優先）から復号してメモリ上でのみ注入する。ログ・operation_log・evidence への全書出しはマスキング層を通過し、既知 secret 値・credential パターンを伏字化してから永続化する。",
-      "rejection_behavior": "秘匿値の取得不能（未投入・復号失敗・ストア不能）は SecretUnavailable を raise し外部操作を開始しない（fail-close）。書出し内容に平文 credential を検知した場合はマスクした上で CredentialLeakDetected を operation_log に記録し、当該書出し元のタスクを escalated へ誘導する。credential とテスト/本番 endpoint の組合せ不一致は実行拒否（環境契約 §6）。",
+      "rejection_behavior": "秘匿値の取得不能（未投入・復号失敗・ストア不能）は SecretUnavailable を raise し外部操作を開始しない（fail-close）。書出し内容に平文 credential を検知した場合はマスクした上で CredentialLeakDetected を秘匿化済み構造化検知ログに記録し、当該書出し元のタスクを escalated へ誘導する。credential とテスト/本番 endpoint の組合せ不一致は実行拒否（環境契約 §6）。",
       "boundary_behavior": "セッション失効・期限切れは取得時に検知し、再投入が必要なら escalated（credential 再投入は人の関与 — s0-contract §3.1 escalate ガード）。マスキングは部分一致（URL 埋込・JSON 内包）も対象。空ストア = 全接続不能（安全側）。",
       "retry_resume_recovery": "秘匿ストアは SQLite 外のため DB 再開手順に依存しない。SecretUnavailable で止まったタスクは credential 再投入後に同一状態から再実行可能。マスキングは書出しごとの純検査で再実行安全。",
       "human_judgement": "人間: credential の初回投入・失効時の再投入（環境契約 §6）。検査・マスキング・拒否は全自動",
       "side_effects": [
         "OS キーチェーン／暗号化ストアの読取り",
-        "operation_log INSERT（漏洩検知・取得不能時）",
+        "秘匿化済み構造化検知ログ（漏洩検知・取得不能時）",
         "なし（正常注入は永続化を伴わない）"
       ],
       "idempotency": "取得・マスキングは pure（同一入力→同一結果）。漏洩検知ログは書出し操作単位で 1 行。再投入は上書きで冪等。",
       "evidence": [
-        "operation_log 行（SecretUnavailable・CredentialLeakDetected — 秘匿値そのものは含まない）",
+        "秘匿化済み構造化ログ（SecretUnavailable・CredentialLeakDetected — 秘匿値そのものは含まない）",
         "全文検索 0 件の検査結果（AC-47 の検証観測）"
       ],
       "tables": [
@@ -3298,18 +3294,18 @@
       ],
       "state_transitions": [],
       "normal_behavior": "DesignSync からトークンを取得 → 版数・hash を算出しキャッシュを更新 → レンダリング入力へトークンを注入（CSS 変数・テーマ値展開）→ 適用トークンの版数・hash をレンダリング証跡の payload に記録する。",
-      "rejection_behavior": "トークン取得不能かつキャッシュも存在しない場合は DesignTokenUnavailable を raise しレンダリングを実行しない（トークンなし出力を作らない — fail-close）。キャッシュ破損（hash 不一致・JSON 不正）は破損キャッシュを使用せず同様に拒否し operation_log に記録。",
+      "rejection_behavior": "トークン取得不能かつキャッシュも存在しない場合は DesignTokenUnavailable を raise しレンダリングを実行しない（トークンなし出力を作らない — fail-close）。キャッシュ破損（hash 不一致・JSON 不正）は破損キャッシュを使用せず同様に拒否し秘匿化済み構造化拒否ログに記録。",
       "boundary_behavior": "正本取得不能でキャッシュありは直近同期済みキャッシュで継続し、キャッシュ利用（stale）フラグと版数を証跡に残す。トークン集合が空の応答は取得失敗と同等に扱う。",
       "retry_resume_recovery": "取得はタイムアウト後に規定回数まで再試行し、失敗はキャッシュ経路へフォールバック。キャッシュ更新はアトミック（temp 書込み→rename）で中間状態を残さない。",
       "human_judgement": "なし（デザインシステム自体の改訂承認は BR-G3 の PO 領分）",
       "side_effects": [
         "トークンキャッシュ ファイル更新",
-        "operation_log INSERT（取得・フォールバック・拒否）"
+        "秘匿化済み構造化ログ（取得・フォールバック・拒否）"
       ],
       "idempotency": "同一トークン版での再適用は同一出力。取得は read-only で何度実行しても正本を変更しない。",
       "evidence": [
         "レンダリング証跡 payload 内のトークン版数・hash・stale フラグ",
-        "operation_log 行（取得失敗・フォールバック）"
+        "秘匿化済み構造化ログ（取得失敗・フォールバック）"
       ],
       "tables": [
         "w: evidence（外部操作証跡 = operation_log kind）",
@@ -3503,14 +3499,14 @@
       ],
       "state_transitions": [],
       "normal_behavior": "制作完了時にワークスペースの HEAD commit hash（40/64 桁）と対象 paths を evidence（kind=commit_hash）へ INSERT → 審査時は同 hash を review_pass 証跡の commit_hash 列・payload に記録し、PASS が特定版に束縛される。公開ゲート（FR-27 側）はこの束縛を検査する。",
-      "rejection_behavior": "未 commit の作業ツリー・dirty 状態での証跡化要求は UnversionedSourceRejected で拒否。PASS 記録時に指定 commit_hash が当該 task の commit_hash 証跡と一致しなければ CommitHashMismatch で拒否し operation_log に記録（fail-close）。hash 桁数不正は DDL CHECK でも拒否される。",
+      "rejection_behavior": "未 commit の作業ツリー・dirty 状態での証跡化要求は UnversionedSourceRejected で拒否。PASS 記録時に指定 commit_hash が当該 task の commit_hash 証跡と一致しなければ CommitHashMismatch で拒否し秘匿化済み構造化拒否ログに記録（fail-close）。hash 桁数不正は DDL CHECK でも拒否される。",
       "boundary_behavior": "同一 task で複数回 commit した場合は最新の commit_hash 証跡が審査対象版。40 桁（SHA-1）と 64 桁（SHA-256）の両 git hash を許容し、それ以外の長さは拒否。paths 空の証跡は拒否。",
       "retry_resume_recovery": "証跡は append-only のため再実行は UNIQUE(task_id, kind, value) で重複 INSERT にならない。復元は evidence の repository・commit_hash から git checkout で決定的に再現する。",
       "human_judgement": "なし（審査 PASS の実施主体は FR-27 のペア審査 — 本 FR は束縛の機械保証のみ）",
       "evidence": [
         "evidence 行（kind=commit_hash）",
         "evidence 行（kind=review_pass — commit_hash 束縛）",
-        "operation_log 行（拒否）"
+        "秘匿化済み構造化拒否ログ"
       ],
       "side_effects": [
         "evidence INSERT（commit_hash / review_pass）",
@@ -3610,7 +3606,7 @@
       ],
       "state_transitions": [],
       "normal_behavior": "WP アップロード完了後、wp_media_id・canonical_url・content_hash・metadata を assets へ INSERT。派生制作（記事→SNS/スライド/音声/動画/EPUB）では parent_asset_id に元資産を指定して INSERT し、系譜クエリ（再帰 CTE）で追跡可能にする。",
-      "rejection_behavior": "登録ペイロードに本文実体（本文テキスト・バイナリ・data URI 等、参照サイズ上限超のフィールド）が含まれる場合は ContentBodyRejected で拒否。WP 参照（wp_media_id/canonical_url）のいずれも欠く登録・存在しない parent_asset_id 指定は AssetReferenceInvalid で拒否し operation_log に記録（fail-close）。",
+      "rejection_behavior": "登録ペイロードに本文実体（本文テキスト・バイナリ・data URI 等、参照サイズ上限超のフィールド）が含まれる場合は ContentBodyRejected で拒否。WP 参照（wp_media_id/canonical_url）のいずれも欠く登録・存在しない parent_asset_id 指定は AssetReferenceInvalid で拒否し秘匿化済み構造化拒否ログに記録（fail-close）。",
       "boundary_behavior": "canonical_url・wp_media_id は UNIQUE で二重登録は制約違反として拒否。自己参照（parent = 自分）・循環系譜は登録時検査で拒否。parent なし（根 = オリジナル記事）は正常。",
       "retry_resume_recovery": "登録は 1 INSERT = 1 transaction。再実行は UNIQUE(canonical_url/wp_media_id) で重複せず、既存行を返して冪等に完了する。WP 側と参照の不整合は content_hash 照合で検出し escalation（BR-H3）へ回す。",
       "human_judgement": "なし（全自動）",
@@ -3621,7 +3617,7 @@
       "idempotency": "UNIQUE(canonical_url)・UNIQUE(wp_media_id) が冪等キー。同一資産の再登録は行を増やさない。",
       "evidence": [
         "assets 行自体（参照＋系譜の正本）",
-        "operation_log 行（拒否）",
+        "秘匿化済み構造化拒否ログ",
         "公開時は evidence（kind=published_url — asset_id 列で接続）"
       ],
       "tables": [
@@ -3722,7 +3718,7 @@
         "テーブル列: kpi_nodes.status: active→archived（ノード退役。削除はしない — FK RESTRICT）"
       ],
       "normal_behavior": "登録要求の metric_type を FR-23 の有料指標定義と照合 → 非該当なら layer・medium・aggregation_formula を検証して kpi_nodes へ INSERT。集計は kpi_nodes×measurements の JOIN で媒体横断（layer 別・medium 別）に実行できる正規化を維持する。",
-      "rejection_behavior": "有料指標型は PaidMetricRejected で登録拒否（アプリ層 FR-23 ＋ DDL CHECK(metric_type NOT IN ...) の二重で fail-close）。layer が 5 階層外・node_key 重複・親不在／別 profile の親指定は KpiNodeInvalid で拒否し operation_log に記録。",
+      "rejection_behavior": "有料指標型は PaidMetricRejected で登録拒否（アプリ層 FR-23 ＋ DDL CHECK(metric_type NOT IN ...) の二重で fail-close）。layer が 5 階層外・node_key 重複・親不在／別 profile の親指定は KpiNodeInvalid で拒否し秘匿化済み構造化拒否ログに記録。",
       "boundary_behavior": "根ノード（parent_node_id NULL）は正常。measurements から参照中のノードは FK RESTRICT で削除不能（archived 化のみ）。同一 node_key の再登録は UNIQUE(business_profile_id, node_key) で拒否。",
       "retry_resume_recovery": "登録は 1 INSERT = 1 transaction で中間状態なし。再実行は UNIQUE 制約で重複せず拒否される（既存確認後の冪等応答可）。集計クエリは read-only で何度でも安全。",
       "human_judgement": "KPI ツリー初期形の承認（リサーチ充填後 — BR-E1。以後のノード登録・集計は全自動）",
@@ -3732,7 +3728,7 @@
       ],
       "idempotency": "UNIQUE(business_profile_id, node_key) が冪等キー。集計は pure（同一 DB 状態→同一結果）。",
       "evidence": [
-        "operation_log 行（有料指標拒否・定義不正拒否）",
+        "秘匿化済み構造化拒否ログ（有料指標拒否・定義不正拒否）",
         "kpi_nodes 行（階層定義の正本）"
       ],
       "tables": [
@@ -3835,7 +3831,7 @@
       ],
       "state_transitions": [],
       "normal_behavior": "取得（GA4/GSC は正規 Data API、他はブラウザエクスポート）→ 取得物の SHA-256 算出と evidence（measurement: source・file_hash・period・row_count）INSERT → サービス別パーサで行解釈 → kpi_node 解決 → measurements へ一括 INSERT（1 取込 = 1 transaction）。ブラウザ経路では取得画面スクショも evidence 化する。",
-      "rejection_behavior": "パース失敗行はエラー隔離（隔離ファイル＋件数記録）し、正常行のみ投入する（部分投入許容）。全行失敗・ファイル破損・hash 算出不能は ImportSourceInvalid で全体拒否。未登録 kpi_node 宛の行・有料指標由来の行は投入せず隔離し operation_log に記録（fail-close）。",
+      "rejection_behavior": "パース失敗行はエラー隔離（隔離ファイル＋件数記録）し、正常行のみ投入する（部分投入許容）。全行失敗・ファイル破損・hash 算出不能は ImportSourceInvalid で全体拒否。未登録 kpi_node 宛の行・有料指標由来の行は投入せず隔離し秘匿化済み構造化拒否ログに記録（fail-close）。",
       "boundary_behavior": "空エクスポート（データ 0 行）は measurements 差分なしで正常終了し、取得証跡のみ残る。同一 (kpi_node_id, period, dimensions) の重複行は UNIQUE 制約で 2 行目以降を投入しない。期間逆転（period_end < period_start）行は隔離。",
       "retry_resume_recovery": "投入 transaction 失敗は全行 rollback（部分コミットなし）。再実行は同一 source hash の evidence UNIQUE(task_id, kind, value) と measurements の UNIQUE で冪等に収束。API 阻害時はブラウザエクスポートへ一時フォールバックし、同一 evidence 契約に収束させる。",
       "human_judgement": "なし（取得失敗の escalation は BR-H3 経由）",
@@ -3850,7 +3846,7 @@
       "evidence": [
         "evidence 行（kind=measurement — source・file_hash・period・row_count）",
         "evidence 行（kind=file_hash／kind=screenshot — ブラウザ経路）",
-        "operation_log 行（取得操作・隔離・拒否）"
+        "operation_log 行（外部取得操作）／秘匿化済み構造化ログ（隔離・拒否）"
       ],
       "tables": [
         "w: measurements",
@@ -3962,7 +3958,7 @@
       ],
       "state_transitions": [],
       "normal_behavior": "SQLite から layer×medium×期間の集計を read-only クエリで取得 → テンプレートへ展開し CSS/JS を全インライン化した自己完結 HTML を生成 → 出力の SHA-256 を算出し evidence（kind=dashboard）へ INSERT。xlsx は同一クエリ結果から従として出力する。",
-      "rejection_behavior": "生成後の自己検査で外部リソース参照を検出したら ExternalReferenceDetected で成果物を破棄し証跡化しない。secret パターン（credential 文字列）の混入検出も同様に破棄・拒否し operation_log に記録（fail-close）。DB 読取不能は DashboardGenerationFailed で拒否。",
+      "rejection_behavior": "生成後の自己検査で外部リソース参照を検出したら ExternalReferenceDetected で成果物を破棄し証跡化しない。secret パターン（credential 文字列）の混入検出も同様に破棄・拒否し秘匿化済み構造化拒否ログに記録（fail-close）。DB 読取不能は DashboardGenerationFailed で拒否。",
       "boundary_behavior": "measurements が 0 件でも空ダッシュボード（データなし表示）を決定的に生成する。同一 DB 状態での再生成は同一 hash となり evidence の UNIQUE(task_id, kind, value) で証跡が重複しない。巨大 DB は生成タイムアウト（config）で打ち切り拒否。",
       "retry_resume_recovery": "生成は temp へ書き出し成功時に rename するため中間生成物が残らない。クラッシュ後は再実行のみで復旧（DB は read-only のため汚染なし）。",
       "human_judgement": "なし（閲覧のみ — PO が AI を介さず現況把握する手段の提供）",
@@ -3974,7 +3970,7 @@
       "idempotency": "同一 DB 状態→同一出力 hash（pure な変換）。証跡は hash を value とする UNIQUE で重複しない。",
       "evidence": [
         "evidence 行（kind=dashboard — file_path・file_hash・period_end）",
-        "operation_log 行（生成実行・拒否）"
+        "秘匿化済み構造化実行・拒否ログ"
       ],
       "tables": [
         "r: kpi_nodes",
@@ -4358,5 +4354,5 @@
   "approved_at": "2026-08-01T00:00:00+09:00",
   "authority": "PO",
   "supersedes": [],
-  "approval_digest": "8ef8768e1fe1"
+  "approval_digest": "ea275cdd9508"
 }
