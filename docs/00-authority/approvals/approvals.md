@@ -421,3 +421,14 @@
 | 2026-08-10 | kpi-handoff | - | confirmed | PO | 646394a36687 | actual readとmock/fixture境界の同期 |
 | 2026-08-10 | migration | - | confirmed | PO | 68e2a643d754 | 25 tables／37 triggersへの物理数同期 |
 | 2026-08-10 | pair-gate | - | confirmed | PO | 17e4bb8a1c94 | preflight拒否の外部2表0行契約同期 |
+
+## CI lint follow-up（2026-08-10）
+
+> GitHub Actions の Markdown lint／Ruff が検出した表区切り、bare URL、動的 SQL 警告を、
+> 要求意味を変えずに正本と生成ビューへ反映した内容束縛承認。
+
+| 日付 | 対象 | 版 | 判定 | 承認者 | digest | 備考 |
+|---|---|---|---|---|---|---|
+| 2026-08-10 | ac-contracts.json | v0.1 | confirmed | PO | 6c8d0093fd6c | DesignSync test URLをMarkdown安全なautolink表現へ正規化 |
+| 2026-08-10 | ac-catalog | v0.1 | confirmed | PO | 0bee0240a3f8 | JSON正本からAC生成ビューを再生成（手編集なし） |
+| 2026-08-10 | s0-contract | v0.1 | confirmed | PO | 8da21fce99bf | 状態列挙の表セル内区切りを意味不変のMarkdown安全表現へ正規化 |

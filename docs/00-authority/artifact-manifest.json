@@ -1094,7 +1094,7 @@
       "previous_paths": [
         "docs/requirements/json/ac/ac-contracts.json"
       ],
-      "approval_digest": "6281f2db8aa8",
+      "approval_digest": "6c8d0093fd6c",
       "review_digest": null
     },
     {
@@ -1754,7 +1754,7 @@
       "previous_paths": [
         "docs/requirements/s0-contract_v0.1.md"
       ],
-      "approval_digest": "4f5ac5fe3bc8",
+      "approval_digest": "8da21fce99bf",
       "review_digest": null
     },
     {

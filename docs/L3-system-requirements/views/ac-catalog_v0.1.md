@@ -2,7 +2,7 @@
 
 # 受入条件 検証契約カタログ（AC contracts）v0.1
 
-> status: **confirmed**（2026-08-01 PO 承認 — receipt 6281f2db8aa8）。JSON 内容正本の生成ビュー（全層再降下 §4）
+> status: **confirmed**（2026-08-01 PO 承認 — receipt 6c8d0093fd6c）。JSON 内容正本の生成ビュー（全層再降下 §4）
 > 各 AC に GWT＋fixture・観測点・期待状態・DB 差分・証跡・禁止副作用・エラー型・対象更新を必須化
 > （G-AC-COVERAGE／G-AC-POLARITY）。旧体系の受入条件は historical 記録のみ（現行分母は本カタログ）。
 
@@ -1089,7 +1089,7 @@
 ### AC-52-1（正常）
 
 - **Given**: actual-modeのDesignSync test serviceがトークン集合v3（hash T3）を返す構成と、トークン参照を含むレンダリング対象ソース ／ **When**: トークン取得→注入つきレンダリングを実行する ／ **Then**: 出力にトークン値が展開され、キャッシュが v3 に更新され、証跡 payload にトークン版数 v3・hash T3 が記録される
-- **fixture**: seed: config.designsync_source=http://designsync.test、actual-mode test service応答={version:'v3', tokens:{color.primary:'#123456'}}、キャッシュはv2を事前配置。execution_mode='actual'で呼び出し、mock/dry-run経路は使用しない
+- **fixture**: seed: config.designsync_source=<http://designsync.test>、actual-mode test service応答={version:'v3', tokens:{color.primary:'#123456'}}、キャッシュはv2を事前配置。execution_mode='actual'で呼び出し、mock/dry-run経路は使用しない
 - **観測点**: 出力ファイル内のトークン展開値／キャッシュファイル内容／レンダリング証跡 payload ／ **期待状態**: キャッシュ = v3（hash T3）、出力に #123456 が展開
 - **期待 DB 差分**: DesignSync取得のexternal_operations(effect='read') +1行（confirmed）と対応operation_log +1行。業務テーブル差分なし ／ **期待証跡**: DesignSync取得operation_log（external_operation_id一致）＋レンダリング証跡payloadのtoken_version='v3'・token_hash=T3・stale=false。operation_logはexternal_operation_row_idで該当external_operations.idへexactly-oneに束縛し、provider external_operation_idは任意。各read要求はcorrelation_key='read:<task_id>:<request_hash>:<request_sequence>'を用い、反復poll/再取得ではrequest_sequenceを単調増加し、operation_log payloadのrequest_sequence一致をassertする。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。
 - **禁止副作用**: トークン外の恣意的スタイル値の混入・キャッシュの破壊的更新（temp→rename 以外） ／ **エラー型**: なし

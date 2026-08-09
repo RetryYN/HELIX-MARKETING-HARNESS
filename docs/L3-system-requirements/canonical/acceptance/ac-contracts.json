@@ -4775,7 +4775,7 @@
       "given": "actual-modeのDesignSync test serviceがトークン集合v3（hash T3）を返す構成と、トークン参照を含むレンダリング対象ソース",
       "when": "トークン取得→注入つきレンダリングを実行する",
       "then": "出力にトークン値が展開され、キャッシュが v3 に更新され、証跡 payload にトークン版数 v3・hash T3 が記録される",
-      "fixture": "seed: config.designsync_source=http://designsync.test、actual-mode test service応答={version:'v3', tokens:{color.primary:'#123456'}}、キャッシュはv2を事前配置。execution_mode='actual'で呼び出し、mock/dry-run経路は使用しない",
+      "fixture": "seed: config.designsync_source=<http://designsync.test>、actual-mode test service応答={version:'v3', tokens:{color.primary:'#123456'}}、キャッシュはv2を事前配置。execution_mode='actual'で呼び出し、mock/dry-run経路は使用しない",
       "observation_point": "出力ファイル内のトークン展開値／キャッシュファイル内容／レンダリング証跡 payload",
       "expected_state": "キャッシュ = v3（hash T3）、出力に #123456 が展開",
       "expected_db_delta": "DesignSync取得のexternal_operations(effect='read') +1行（confirmed）と対応operation_log +1行。業務テーブル差分なし",
@@ -9075,5 +9075,5 @@
   "supersedes": [
     "ARCHIVE-AC-LEGACY"
   ],
-  "approval_digest": "6281f2db8aa8"
+  "approval_digest": "6c8d0093fd6c"
 }

@@ -1185,6 +1185,21 @@ def detect_external_operation_evidence_faults(ddl: str) -> list[str]:
             c.close()
 
     # sent 中の各結果メタデータは NULL→値の一度だけ。上書きも NULL 戻しも不可。
+    # 識別子は parameter bind できないため、外部入力を補間せず閉じた SQL literal 表から選ぶ。
+    metadata_sql = {
+        "external_operation_id": (
+            "UPDATE external_operations SET external_operation_id=? WHERE id=1",
+            "SELECT external_operation_id FROM external_operations WHERE id=1",
+        ),
+        "remote_object_id": (
+            "UPDATE external_operations SET remote_object_id=? WHERE id=1",
+            "SELECT remote_object_id FROM external_operations WHERE id=1",
+        ),
+        "response_hash": (
+            "UPDATE external_operations SET response_hash=? WHERE id=1",
+            "SELECT response_hash FROM external_operations WHERE id=1",
+        ),
+    }
     for column, initial, replacement in [
         ("external_operation_id", "provider-1", "provider-2"),
         ("external_operation_id", "provider-1", None),
@@ -1197,13 +1212,14 @@ def detect_external_operation_evidence_faults(ddl: str) -> list[str]:
         try:
             _insert_external_operation(c)
             _send_external_operation(c)
-            c.execute(f"UPDATE external_operations SET {column}=? WHERE id=1", (initial,))
+            update_sql, select_sql = metadata_sql[column]
+            c.execute(update_sql, (initial,))
             try:
-                c.execute(f"UPDATE external_operations SET {column}=? WHERE id=1", (replacement,))
+                c.execute(update_sql, (replacement,))
                 bad.append(f"sent metadata再変更が通過:{column}/{replacement}")
             except sqlite3.IntegrityError:
                 pass
-            current = c.execute(f"SELECT {column} FROM external_operations WHERE id=1").fetchone()[0]
+            current = c.execute(select_sql).fetchone()[0]
             if current != initial:
                 bad.append(f"sent metadata拒否後に値が変化:{column}/{current}")
         except sqlite3.Error as e:

@@ -1103,7 +1103,7 @@ DDL は「最大 1 件」（UNIQUE）と整合（lower・終端・digest 三者�
 |---|---|---|
 | pending | そのまま再度 claim 可 | task の idempotency key を保持 |
 | in_progress（外部操作前） | 同じ author execution で再開又は `lease_expires_at` 失効後に別 execution が再 claim（`lease_owner_execution_id`・`heartbeat_at` を更新） | workspace・入力・既存証跡を再読込 |
-| in_progress（外部操作中/後） | `external_operations` の status を先に照合する: `prepared` は未 call とし、write は同一 idempotency key、read は同一 request_sequence の決定的 correlation key で再開。新しい poll/read は直前回 final 後だけ request_sequence を 1 増やした別行にする。`sent` は provider ID / remote object ID / idempotency key / correlation key でリモートを照合し、結果確定時は operation_log INSERT trigger によって同じ文で final 化する。`confirmed|rejected|unknown` は束縛済み operation_log を再読し、書換えない | sent が 300 秒を超えても再送・sequence前進・rate_scope付替えで cap を迂回しない。照合不能なら write/read とも `unknown` + escalate。paid confirmed は同じ INSERT 文で charge まで成立しなければ全 rollback |
+| in_progress（外部操作中/後） | `external_operations` の status を先に照合する: `prepared` は未 call とし、write は同一 idempotency key、read は同一 request_sequence の決定的 correlation key で再開。新しい poll/read は直前回 final 後だけ request_sequence を 1 増やした別行にする。`sent` は provider ID / remote object ID / idempotency key / correlation key でリモートを照合し、結果確定時は operation_log INSERT trigger によって同じ文で final 化する。`confirmed`・`rejected`・`unknown` は束縛済み operation_log を再読し、書換えない | sent が 300 秒を超えても再送・sequence前進・rate_scope付替えで cap を迂回しない。照合不能なら write/read とも `unknown` + escalate。paid confirmed は同じ INSERT 文で charge まで成立しなければ全 rollback |
 | verifying | verifier が既存出力・証跡を再検証 | PASS/FAIL 証跡が既にあれば同じ結果を採用し二重加算しない |
 | waiting | 承認・子 task・外部ジョブを再照合し、充足なら resume、未充足なら待機継続 | 承認は binding subject/operation/at の完全一致のみ有効 |
 | done / failed / escalated / completed / cancelled | 終端のまま | 新しい run/task を明示発行するまで遷移不可 |
