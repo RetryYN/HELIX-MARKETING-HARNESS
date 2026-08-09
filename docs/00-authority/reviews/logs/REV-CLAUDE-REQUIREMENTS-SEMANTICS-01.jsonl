@@ -1,0 +1,5 @@
+{"type":"session_meta","payload":{"session_id":"a8f0465b-42cd-4a37-981e-aa376ed03ee7"}}
+{"type":"turn_context","payload":{"model":"claude-opus-5"}}
+{"type":"review_result","payload":{"round":1,"verdict":"No-Go","summary":"FR-43 repair durability、内部拒否のoperation_log混在、NFR状態遷移、KDP structure、件数・意味gateの偽陰性を指摘"}}
+{"type":"review_result","payload":{"round":2,"verdict":"No-Go","summary":"全 substantive finding の解消を確認。唯一のblockerは新content commitを引き継ぐ後続review artifactが未作成でG-REVIEW-BINDINGがfail-closeしたこと"}}
+{"type":"review_result","payload":{"round":3,"verdict":"Go","summary":"target commit/tree、73件の変更集合とblob digest、review log、先行review継承を再計算し、full pytest 631 passed・204 skipped・0 failedおよび全142 gate PASSを確認。blocker/high/mediumは0件"}}
