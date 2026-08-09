@@ -2,7 +2,7 @@
 
 # 戦略要件 実行契約（SR contracts） v0.1
 
-> status: **confirmed**（2026-08-05 PO 承認 — receipt ecf2afd626b4）。JSON 内容正本の生成ビュー（全層再降下 §3）
+> status: **confirmed**（2026-08-05 PO 承認 — receipt 977ec7ae5c0c）。JSON 内容正本の生成ビュー（全層再降下 §3）
 > 各 SR に 18 観点の実行契約を必須化。brief／TLP／revision の正準は strategy-learning-contract。
 
 ## SR-01 二重ループの責務分離
@@ -190,7 +190,7 @@
 - **副作用**: 構造化ログ出力（拒否時 — FN-704）／tactical_learning_packets INSERT（正規還流時 — SR-08）
 - **冪等性**: 拒否は pure（同一要求→同一拒否）。TLP 提出の冪等性は SR-08 の UNIQUE(loop_run_id) が担う。
 - **証跡**: 拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）（要求元・対象・操作）／静的検査結果（書込み経路 2 API 限定 — STC-I-06）
-- **使用テーブル・正本**: r: strategic_briefs（保護対象）／w: tactical_learning_packets（唯一の還流経路）／w: evidence（外部操作証跡 = operation_log kind）
+- **使用テーブル・正本**: r: strategic_briefs（保護対象）／w: tactical_learning_packets（唯一の還流経路）
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: 書込み許可 API 一覧（issue_strategic_brief／supersede_strategic_brief の 2 本 — 変更は要件改訂）
 - **trace**: 上流 = BR-B2 BR-B3 REQ-047 ／ 下流 = AC-SR-04 AC-SR-09-1 AC-SR-09-2 AC-SR-09-3 AC-SR-09-4 SCM-01 SCM-04 ／ スライス = S0

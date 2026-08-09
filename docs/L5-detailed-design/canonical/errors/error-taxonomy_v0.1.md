@@ -41,6 +41,12 @@ slice: S0
 - **retryable**: 自動リトライ（retryable_failure）の対象か。差戻し（verify_fail）は retryable とは区別する。
 - **fail-close 先**: 発火する状態機械イベントと遷移先（正準 = s0-contract §3）。「拒否」= 遷移不発・状態不変。
 - **証跡**: 拒否・失敗が残す観測点。
+- **外部操作境界**: `operation_log` は preflight を通過して status=sent に到達した
+  `execution_mode=actual` の外部 read/write だけに作る。pre-call／internal 拒否、mock、dry-run は
+  `external_operations`／operation_log とも 0 行で、秘匿化済み process logger と必要な
+  `state_transitions`／業務証跡だけを使う。provider 到達後の confirmed／rejected／unknown は
+  内部 `external_operation_row_id` に束縛した operation_log をちょうど 1 行作る。effect／policy_category／
+  rate_scope は intent／request／result／外部行／log で同値、read は external_read／rate_scope NULL（log JSON は null）とする。
 
 ## 3. 分類台帳（正規名・全数）
 
@@ -63,20 +69,20 @@ slice: S0
 
 | 型名 | 意味 | retryable | fail-close 先 | 証跡 |
 |---|---|---|---|---|
-| GateRejected | 実行時ゲート不通過の基底型（本節の各型が具体） | — | 拒否（状態不変） | state_transitions rejected／operation_log |
-| PairNotEstablished | 企画↔品質ペア不成立・revoked の公開判定（FR-21/15） | — | T-PUB を non_retryable_failure → failed。WP API を呼ばない | operation_log 拒否行 |
+| GateRejected | 実行時ゲート不通過の基底型（本節の各型が具体） | — | 拒否（状態不変） | state_transitions rejected（遷移要求時）＋秘匿 process event。外部 2 表は 0 行 |
+| PairNotEstablished | 企画↔品質ペア不成立・revoked の公開判定（FR-21/15） | — | T-PUB を non_retryable_failure → failed。WP API を呼ばない | 秘匿 process event＋state_transitions。外部 2 表は 0 行 |
 | ReviewNotEstablished | KPI 目標↔計測スナップショットのペア不成立（FR-22 — S1） | —（計測後着で再判定可 = 待機） | 不成立（レビュー・還流を発生させない） | pair_kpi_measure 不変 |
 | PaidMetricRejected | 有料指標型（CAC/ROAS/広告費/CPC/CPM）の登録要求（FR-23/61） | — | 登録拒否 | 例外＋DB CHECK |
-| UrlDenied | 許可リスト外 URL への遷移（FR-23 — deny-by-default） | — | 遷移拒否 | operation_log 拒否行 |
-| PrLabelMissing | PR 表記ブロック欠落・判定不能のアフィリエイト成果物（FR-24 — S1） | — | T-PUB を non_retryable_failure → failed | operation_log 拒否行 |
+| UrlDenied | 許可リスト外 URL への遷移（FR-23 — deny-by-default） | — | 接続・遷移前拒否 | 秘匿 process event。外部 2 表は 0 行 |
+| PrLabelMissing | PR 表記ブロック欠落・判定不能のアフィリエイト成果物（FR-24 — S1） | — | T-PUB を non_retryable_failure → failed | verifier FAIL 証跡＋state_transitions。外部 2 表は 0 行 |
 | EthicsViolation | P5 該当・境界事例（FR-25 — S1） | —（差戻し = verify_fail） | verify_fail → in_progress（上限で verify_fail_exhausted → escalated） | verifier FAIL 証跡・state_transitions |
 | EvidenceIncomplete | 必須証跡 kind の欠落・kind 規則違反での done 要求（FR-28） | — | done 拒否（verifying のまま） | state_transitions rejected |
-| ApprovalRequired | approved な承認なしの公開・金銭系書込み要求（FR-26/44/46） | — | 拒否（外部送信 0 回） | operation_log 拒否行 |
-| ApprovalBindingMismatch | binding 3 項目の不一致応答・照合（FR-44/46） | — | 公開拒否・応答は無効として待機継続 | operation_log 拒否行 |
+| ApprovalRequired | approved な承認なしの公開・金銭系書込み要求（FR-26/44/46） | — | 拒否（外部送信 0 回） | 秘匿 process event＋state_transitions。後続業務操作の外部 2 表は 0 行 |
+| ApprovalBindingMismatch | binding 3 項目の不一致応答・照合（FR-44/46） | — | 公開拒否・応答は無効として待機継続 | 秘匿 process event。実 provider poll 自体の operation_log とは別で、後続業務 write は外部 2 表 0 行 |
 | ApprovalRejected | 承認応答 decision = rejected（FR-26/46 — 正規名。§5 参照） | — | non_retryable_failure → failed（代替 task 発行可） | approvals 行・state_transitions |
 | ApprovalExpired | 承認応答 decision = expired（FR-26/46） | —（再要求で待機継続） | 再要求。config.approval_retry_limit 到達で escalate | approvals 再要求系列 |
 | ApprovalRetryExhausted | expired 再要求が approval_retry_limit 到達（FR-46） | — | escalate → escalated | approvals 系列・state_transitions |
-| CommitHashMismatch | review_pass の hash と制作 hash の不一致（FR-54） | — | ペア成立拒否・公開拒否 | 例外＋operation_log |
+| CommitHashMismatch | review_pass の hash と制作 hash の不一致（FR-54） | — | ペア成立拒否・公開拒否 | 例外＋秘匿 process event。外部 2 表は 0 行 |
 | InvalidCommitHash | 不正桁の commit hash（FR-54） | — | 拒否 | 例外 |
 | KpiNodeInvalid | KPI ノード定義の不整合（FR-61） | — | 登録拒否 | 例外 |
 | UnversionedSourceRejected | 版管理外ソースからの制作・生成要求（FR-51/53） | — | 拒否 | 例外 |
@@ -99,30 +105,33 @@ slice: S0
 | ProfileKeyConflict | profile_key の重複（FR-34） | — | 拒否 | 例外＋UNIQUE |
 | CrossProfileAccessDenied | プロファイル横断アクセス（FR-34） | — | 拒否 | 例外 |
 | ArchivedProfileWriteDenied | archived プロファイルへの書込み（FR-34） | — | 拒否 | 例外 |
-| SpendRecordIncomplete | 支出台帳の必須項目欠落（FR-73） | — | 記録拒否（有償操作は開始しない） | 例外 |
-| DuplicateSpendEntry | 同一 (service, external_operation_id) の二重計上（FR-73） | — | 拒否 | UNIQUE |
+| SpendRecordIncomplete | 支出台帳の必須項目又は actual/write/confirmed・task/service 束縛の不整合（FR-73） | — | preflight 又は terminal tx 全体を拒否 | 例外＋秘匿 process event。有償操作開始前なら外部 2 表・ledger 0 行 |
+| DuplicateSpendEntry | 同一 external_operation_row_id の二重計上（FR-73） | — | 拒否 | internal row ID UNIQUE。provider ID は任意 |
 | ExternalReferenceDetected | 自己完結出力への外部参照混入（FR-63） | — | 出力拒否 | 例外 |
 
 ### 3.4 connector 層
 
 kind 列は [external-if-design_v0.1.md](../../../L4-basic-design/canonical/external-if/external-if-design_v0.1.md) §3.1 の ConnectorError.kind への正規化先。
+ここで「外部 2 表は 0 行」は `external_operations`／operation_log を指す。実 request が sent に
+到達した後の provider 応答（429 を含む明示拒否）・timeout／照合不能は pre-call 拒否ではなく、
+元 external row を rejected／unknown に final 化して operation_log を 1 行束縛する。
 
 | 型名 | 意味 | kind | retryable | fail-close 先 | 証跡 |
 |---|---|---|---|---|---|
-| RouteNotRegistered | 未登録 service の経路解決（FR-41） | absent | false | escalate 誘導（経路なし）又は failed | operation_log |
-| PaidRouteDenied | 例外宣言なしの有償 API 経路解決（FR-41） | blocked | false | 拒否 | operation_log |
-| ProhibitedMediaWrite | X へのブラウザ書込みの登録・解決・実行要求（FR-41/42 — BR-M-X-4） | blocked | false | 拒否（バイパスなし） | operation_log |
-| PlaybookMissing | 攻略地図行の不在（FR-42） | absent | false | 拒否（自己修復は FR-43 へ委譲） | operation_log |
-| PlaybookBroken | status = broken の地図参照（FR-42） | absent | false | 拒否（書込みを開始しない） | operation_log |
-| PlaybookRepairFailed | 自己修復 1 回の失敗（FR-43 — S2。escalate 事由コード） | absent | false | escalate → escalated | operation_log 試行記録 |
-| RateLimitExceeded | 日次 cap・バースト上限・外部 429（FR-42/44） | rate-limit | true | retryable_failure（自主上限は当日拒否・翌日まで waiting） | operation_log |
-| ProductionWriteDenied | Docker 以外の WP endpoint への書込み設定（FR-44 — 環境契約 §6） | blocked | false | 拒否（送信 0 回） | operation_log |
-| NotionUnavailable | Notion 応答不能・認証失効（FR-45 — S1） | timeout/auth | 経路による | 同期タスクのみ failed（ループ本体へ波及させない） | operation_log |
-| SecretUnavailable | 秘匿値の未投入・復号失敗・失効（FR-47） | auth | false | escalate（credential 再投入 = 人の関与） | operation_log（秘匿値なし） |
-| CredentialLeakDetected | 書出しへの平文 credential 混入検知（FR-47） | — | false | マスクした上で当該タスクを escalate | operation_log |
-| CredentialEndpointMismatch | テスト/本番 credential と endpoint の組合せ不一致（FR-47） | auth | false | 接続前拒否 | operation_log |
-| OperationUnverifiable | sent のまま結果照合不能（FR-42/44 — unknown 化の事由コード） | unknown | false | escalate（再送しない — s0-contract §3.3） | external_operations（unknown） |
-| ImportSourceInvalid | 取得物の全破損（FR-62 — 部分破損は隔離＋正常継続） | — | false | non_retryable_failure → failed | operation_log・隔離記録 |
+| RouteNotRegistered | 未登録 service の経路解決（FR-41） | absent | false | escalate 誘導（経路なし）又は failed | 秘匿 process event。外部 2 表は 0 行 |
+| PaidRouteDenied | 例外宣言なしの有償 API 経路解決（FR-41） | blocked | false | 拒否 | 秘匿 process event。外部 2 表は 0 行 |
+| ProhibitedMediaWrite | X へのブラウザ書込みの登録・解決・実行要求（FR-41/42 — BR-M-X-4） | blocked | false | 拒否（バイパスなし） | 秘匿 process event。外部 2 表は 0 行 |
+| PlaybookMissing | 攻略地図行の不在（FR-42） | absent | false | 拒否（自己修復は FR-43 へ委譲） | 秘匿 process event。外部 2 表は 0 行 |
+| PlaybookBroken | status = broken の地図参照（FR-42） | absent | false | 拒否（書込みを開始しない） | 秘匿 process event。外部 2 表は 0 行 |
+| PlaybookRepairFailed | 自己修復 1 回の失敗（FR-43 — S2。escalate 事由コード） | absent | false | escalate → escalated | 修復 task／state_transitions＋秘匿 process event。実 request が sent 済みならその行だけ operation_log 1 行 |
+| RateLimitExceeded | 日次 cap・バースト上限・外部 429（FR-42/44） | rate-limit | true | retryable_failure（自主上限は当日拒否・翌日まで waiting） | 自主 cap／burst は秘匿 process event＋外部 2 表 0 行。sent 後の 429 は rejected 行＋operation_log 1 行 |
+| ProductionWriteDenied | policy_category 欠落／未知、canonical lowercase rate_scope 欠落、又は `(policy_category, service, operation, target_endpoint)` exact policy 不一致（content_publish の Docker WP 以外を含む。FR-42/44 — 環境契約 §6） | blocked | false | 接続前拒否（送信 0 回） | 秘匿 process event。外部 2 表は 0 行 |
+| NotionUnavailable | Notion 応答不能・認証失効（FR-45 — S1） | timeout/auth | 経路による | 同期タスクのみ failed（ループ本体へ波及させない） | 認証 preflight は外部 2 表 0 行。sent 後 timeout は unknown 行＋operation_log 1 行 |
+| SecretUnavailable | 秘匿値の未投入・復号失敗・失効（FR-47） | auth | false | escalate（credential 再投入 = 人の関与） | 秘匿 process event。外部 2 表は 0 行 |
+| CredentialLeakDetected | 書出しへの平文 credential 混入検知（FR-47） | — | false | 永続化・接続前に拒否して当該タスクを escalate | 秘匿 process event。外部 2 表・平文は 0 行 |
+| CredentialEndpointMismatch | テスト/本番 credential と endpoint の組合せ不一致（FR-47） | auth | false | 接続前拒否 | 秘匿 process event。外部 2 表は 0 行 |
+| OperationUnverifiable | sent のまま結果照合不能（FR-42/44 — unknown 化の事由コード） | unknown | false | escalate（再送しない — s0-contract §3.3） | external_operations unknown＋内部 row ID 束縛 operation_log 1 行 |
+| ImportSourceInvalid | confirmed 取得物の全破損（FR-62 — 部分破損は隔離＋正常継続） | — | false | non_retryable_failure → failed | 隔離記録＋秘匿 process event。取得 read の operation_log とは別 |
 | DesignTokenUnavailable | デザイントークン取得不能（FR-52 — S1） | absent | false | 拒否 | 例外 |
 | PipelineExecutionFailed | 生成パイプラインの実行失敗（FR-53 — S1） | — | 状況による（一時失敗は retryable_failure） | failed 又は再試行 | 例外・ログ |
 

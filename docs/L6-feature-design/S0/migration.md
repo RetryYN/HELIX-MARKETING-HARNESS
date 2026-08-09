@@ -66,6 +66,9 @@ sequenceDiagram
   `PRAGMA foreign_key_check` を必須の関門とする。
 - backfill は migration に混ぜない: 再開可能・冪等な明示 task/WF として実行し、件数・hash・失敗を
   evidence に残す（[evidence.md](evidence.md) の型契約に従う）。
+- `playbooks` の版管理列・一意制約は S0.1 実装着手前の 0001 正本へ含める。旧形テーブルを適用済みの
+  DB が見つかった場合はその場で旧 UNIQUE を外さず、新テーブルへのcopyとbootstrap creator taskの
+  束縛、行数/hash/FK検証、切替を別migrationとしてレビュー・復元試験する。
 
 ## 4. verify() — 使用開始の関門
 
@@ -75,7 +78,7 @@ read-only の 4 検査。1 つでも不合格なら `FatalError`（SchemaVerific
 | # | 検査 | 不合格の意味 |
 |---|---|---|
 | 1 | `PRAGMA foreign_key_check`・`PRAGMA integrity_check` 違反 0 件 | 参照破損・ファイル破損 |
-| 2 | 25 テーブル（業務 23＋インフラ 2）＋保護トリガ 16 本の存在 | 不完全スキーマ・トリガ欠落 DB |
+| 2 | 25 テーブル（業務 23＋インフラ 2）＋保護トリガ 37 本の存在 | 不完全スキーマ・トリガ欠落 DB |
 | 3 | **TLP 孤児検査**: packet を持たない終端 lower run = 0 件 | kernel 契約すり抜け（検出時 escalate — [tlp.md](tlp.md) §6） |
 | 4 | 相互整合: approvals.evidence_id ↔ approval 証跡、pair passed の review 証跡実在、measurements.evidence_id の kind = measurement | 参照は繋がるが意味が壊れた行 |
 

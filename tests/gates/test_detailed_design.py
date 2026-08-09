@@ -52,7 +52,7 @@ def test_every_api_and_clause_has_a_stable_id() -> None:
     api_ids = [a["api_id"] for d in CTX.duc for a in d["apis"]]
     clause_ids = [c["clause_id"] for d in CTX.duc for a in d["apis"]
                   for c in detailed_design.api_clauses(a)]
-    assert len(api_ids) == len(set(api_ids)) == 58
+    assert len(api_ids) == len(set(api_ids)) == 59
     assert len(clause_ids) == len(set(clause_ids))
     for d in CTX.duc:
         for a in d["apis"]:

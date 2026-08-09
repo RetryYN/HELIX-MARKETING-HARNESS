@@ -23,13 +23,13 @@
       "kpi_contribution": "N/A（内部基盤・計画 UI）",
       "workflow": "N/A（FN-408 の同期処理のみ）",
       "gate": "N/A（判定に関与しない）",
-      "safety": "低頻度同期のみ。MCP レート内"
+      "safety": "必須 C `rate.notion.sync_interval_sec` と MCP quota の双方を満たす同期のみ（config欠落時は同期拒否）"
     },
     {
       "id": "MR-NOTION-2",
       "media": "NOTION",
       "media_name": "11.1 Notion",
-      "text": "（レート・BR-F5）: 公式 MCP のため N/A（API quota 準拠・低頻度同期のみ）",
+      "text": "（レート・BR-F5）: 人間模倣間隔は N/A。公式 MCP quota と必須 C `rate.notion.sync_interval_sec` の双方を満たす場合だけ同期し、config欠落時は同期を拒否する",
       "trace": {
         "upstream": [
           "BR-M-NOTION-2"
@@ -41,7 +41,7 @@
       "kpi_contribution": "N/A（内部基盤・計画 UI）",
       "workflow": "N/A（FN-408 の同期処理のみ）",
       "gate": "N/A（判定に関与しない）",
-      "safety": "低頻度同期のみ。MCP レート内"
+      "safety": "必須 C `rate.notion.sync_interval_sec` と MCP quota の双方を満たす同期のみ（config欠落時は同期拒否）"
     }
   ]
 }

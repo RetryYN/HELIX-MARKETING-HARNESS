@@ -32,9 +32,7 @@
         "event_refs": [
           "start"
         ],
-        "evidence_kind_refs": [
-          "operation_log"
-        ],
+        "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
       }
@@ -168,9 +166,7 @@
           "loop_runs.running"
         ],
         "event_refs": [],
-        "evidence_kind_refs": [
-          "operation_log"
-        ],
+        "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
       }
@@ -632,7 +628,6 @@
         "event_refs": [],
         "evidence_kind_refs": [
           "commit_hash",
-          "operation_log",
           "review_pass"
         ],
         "error_type_refs": [],
@@ -667,9 +662,7 @@
           "tasks.verifying"
         ],
         "event_refs": [],
-        "evidence_kind_refs": [
-          "operation_log"
-        ],
+        "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
       }
@@ -820,9 +813,7 @@
         "column_refs": [],
         "state_refs": [],
         "event_refs": [],
-        "evidence_kind_refs": [
-          "operation_log"
-        ],
+        "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
       }
@@ -834,11 +825,11 @@
       ],
       "kind": "reject",
       "verifies_state": "kpi_nodes 空のまま",
-      "verifies_db_delta": "operation_log +2 行（指標拒否・URL 拒否）",
+      "verifies_db_delta": "DB差分なし（指標拒否・URL拒否はprocess loggerへ各1 event）",
       "verifies_evidence": "構造化ログの拒否行（指標名・URL・理由）",
       "verifies_forbidden": "kpi_nodes への行追加・外部への実遷移",
       "external_calls": "0 回",
-      "method": "pytest: seed: config.url_allowlist=['blog.example.test']、登録要求 = {type:'ROAS'}、URL='`https://ads.example.com`' を seed し、raise される例外型／operation_log SELECT を assert（KPI 登録とブラウザ遷移判定を実行する）",
+      "method": "pytest: allowlist、ROAS登録要求、許可外URLをseedし、各例外、DB差分なし、process loggerの秘匿化済み拒否event 2件、外部遷移0をassert",
       "slice": "S0",
       "semantic_refs": {
         "table_refs": [
@@ -848,9 +839,7 @@
         "column_refs": [],
         "state_refs": [],
         "event_refs": [],
-        "evidence_kind_refs": [
-          "operation_log"
-        ],
+        "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
       }
@@ -866,7 +855,7 @@
       "verifies_evidence": "構造化ログの拒否行（理由 = allowlist 未設定）",
       "verifies_forbidden": "URL 許可（fail-open）",
       "external_calls": "0 回",
-      "method": "pytest: seed: config から url_allowlist 行を削除 を seed し、raise される例外型／operation_log SELECT を assert（任意の URL への遷移判定を実行する）",
+      "method": "pytest: url_allowlist欠落をseedし、UrlDenied、DB差分なし、process logger拒否event 1件、外部遷移0をassert",
       "slice": "S0",
       "semantic_refs": {
         "table_refs": [
@@ -875,9 +864,7 @@
         "column_refs": [],
         "state_refs": [],
         "event_refs": [],
-        "evidence_kind_refs": [
-          "operation_log"
-        ],
+        "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
       }
@@ -904,7 +891,6 @@
         "state_refs": [],
         "event_refs": [],
         "evidence_kind_refs": [
-          "operation_log",
           "review_pass"
         ],
         "error_type_refs": [],
@@ -922,7 +908,7 @@
       "verifies_evidence": "構造化ログの拒否行（commit hash・検出リンク・欠落規則）",
       "verifies_forbidden": "WP API 呼出し・表記なし成果物の公開ゲート通過",
       "external_calls": "0 回",
-      "method": "pytest: seed: config.affiliate_domainlist=['asp.example.test']、記事 HTML にリンクのみ・表記ブロックなし を seed し、raise される例外型／operation_log SELECT／external_operations SELECT（0 行） を assert（公開前の PR 表記検証を実行する）",
+      "method": "pytest: affiliate domainと表記欠落記事をseedし、PrLabelMissing、process logger拒否event、external_operations/operation_log 0をassert",
       "slice": "S1",
       "semantic_refs": {
         "table_refs": [
@@ -934,9 +920,7 @@
         "event_refs": [
           "non_retryable_failure"
         ],
-        "evidence_kind_refs": [
-          "operation_log"
-        ],
+        "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
       }
@@ -952,7 +936,7 @@
       "verifies_evidence": "構造化ログの拒否行（理由 = domainlist 未設定）",
       "verifies_forbidden": "リスト未設定での通過（fail-open）・展開前 URL のみでの非該当判定",
       "external_calls": "0 回",
-      "method": "pytest: seed: config から affiliate_domainlist 行を削除 → 再実行前に config INSERT（履歴追加）で設定、短縮 URL fixture（リダイレクト mock） を seed し、1 回目の例外型／2 回目の判定結果（最終 URL での ASP 該当）／operation_log SELECT を assert（公開前の PR 表記検証を実行し、その後リストを設定して再実行する）",
+      "method": "pytest: affiliate_domainlist欠落と最終URLを固定したリダイレクトfixtureをseedし、1回目拒否＋process logger event、config INSERT後の最終URL判定、operation_log 0をassert",
       "slice": "S1",
       "semantic_refs": {
         "table_refs": [
@@ -961,9 +945,7 @@
         "column_refs": [],
         "state_refs": [],
         "event_refs": [],
-        "evidence_kind_refs": [
-          "operation_log"
-        ],
+        "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
       }
@@ -1494,18 +1476,29 @@
       ],
       "kind": "normal",
       "verifies_state": "draft 1 件（全値出典つき・未昇格の draft 状態）",
-      "verifies_db_delta": "draft +1 件、evidence +1 行（operation_log — Web 取得）",
-      "verifies_evidence": "draft の出典 URL 列＋Web 取得の外部操作証跡（evidence kind = operation_log）",
+      "verifies_db_delta": "draft +1件、external_operations(effect='read', status='confirmed') +1行、対応operation_log +1行",
+      "verifies_evidence": "draftの出典URL列＋Web取得operation_log（external_operation_idでeffect='read'のexternal_operations行に一致）。operation_logはexternal_operation_row_idで該当external_operations.idへexactly-oneに束縛し、provider external_operation_idは任意。各read要求はcorrelation_key='read:<task_id>:<request_hash>:<request_sequence>'を用い、反復poll/再取得ではrequest_sequenceを単調増加し、operation_log payloadのrequest_sequence一致をassertする。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
       "verifies_forbidden": "draft の正本への自動昇格・外部への書込み",
-      "external_calls": "0 回",
-      "method": "pytest: seed: config.source_freshness_days=90、検索結果 mock = [{value:'CTR 中央値 1.5%', url:'`https://source.example.test/report`', fetched_at:今日}] を seed し、draft の出典 URL 列／structure_checked 日付／構造化ログ件数 を assert（リサーチ起草を実行する）",
+      "external_calls": "actual-mode Web検索read 1回",
+      "method": "pytest: Web検索stubで起草し、draft出典URL・structure_checked・external_operations(effect='read', status='confirmed')・external_operation_id一致のoperation_logをassertする",
       "slice": "S1",
       "semantic_refs": {
         "table_refs": [
           "config",
-          "evidence"
+          "evidence",
+          "external_operations"
         ],
-        "column_refs": [],
+        "column_refs": [
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
+          "external_operations.status"
+        ],
         "state_refs": [],
         "event_refs": [],
         "evidence_kind_refs": [
@@ -1730,15 +1723,12 @@
       "slice": "S0",
       "semantic_refs": {
         "table_refs": [
-          "config",
-          "evidence"
+          "config"
         ],
         "column_refs": [],
         "state_refs": [],
         "event_refs": [],
-        "evidence_kind_refs": [
-          "operation_log"
-        ],
+        "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
       }
@@ -1750,11 +1740,11 @@
       ],
       "kind": "reject",
       "verifies_state": "経路は 1 件も返却されない",
-      "verifies_db_delta": "operation_log +2 行（未登録拒否・有償経路拒否）",
+      "verifies_db_delta": "DB差分なし（未登録拒否・有償経路拒否はprocess loggerへ各1 event）",
       "verifies_evidence": "構造化ログの拒否行（service・要求経路・理由）",
       "verifies_forbidden": "有償 API への接続試行（外部 HTTP 呼出 0 回）・spend_ledger への行追加",
       "external_calls": "0 回",
-      "method": "pytest: seed: config('registry.note', {\"primary\":\"browser\"})（paid_exception なし）、unknown_svc の registry 行なし を seed し、raise される例外型／operation_log SELECT（service・理由） を assert（unknown_svc の経路解決と、note の route_type=api（有償）強制解決を要求する）",
+      "method": "pytest: noteレジストリ（paid_exceptionなし）とunknown serviceをseedし、RouteNotRegistered/PaidRouteDenied、DB差分なし、process logger拒否event 2件、外部呼出0をassert",
       "slice": "S0",
       "semantic_refs": {
         "table_refs": [
@@ -1764,9 +1754,7 @@
         "column_refs": [],
         "state_refs": [],
         "event_refs": [],
-        "evidence_kind_refs": [
-          "operation_log"
-        ],
+        "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
       }
@@ -1778,11 +1766,11 @@
       ],
       "kind": "boundary",
       "verifies_state": "両要求とも経路返却 0 件",
-      "verifies_db_delta": "operation_log +2 行（破損拒否・経路なし）",
+      "verifies_db_delta": "DB差分なし（破損拒否・経路なしはprocess loggerへ各1 event）",
       "verifies_evidence": "構造化ログの拒否行（理由 = registry 行破損／fallback なし）",
       "verifies_forbidden": "破損行からの部分的な経路返却（fail-open）・外部 HTTP 呼出（0 回）",
       "external_calls": "0 回",
-      "method": "pytest: seed: config('registry.gtm', \"broken-not-json\")、config('registry.instagram', {\"primary\":\"api\",\"paid_exception\":false}) ＋ instagram 第一経路の失敗通知 を seed し、raise される例外型／operation_log SELECT を assert（gtm と instagram の経路解決を実行する）",
+      "method": "pytest: 破損registryとfallbackなし第一経路失敗をseedし、RouteNotRegistered、DB差分なし、process logger拒否event 2件、外部呼出0をassert",
       "slice": "S0",
       "semantic_refs": {
         "table_refs": [
@@ -1791,9 +1779,7 @@
         "column_refs": [],
         "state_refs": [],
         "event_refs": [],
-        "evidence_kind_refs": [
-          "operation_log"
-        ],
+        "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
       }
@@ -1804,20 +1790,29 @@
         "AC-42-1"
       ],
       "kind": "normal",
-      "verifies_state": "external_operations 3 行すべて confirmed、playbook は active のまま",
-      "verifies_db_delta": "external_operations +3 行、operation_log +3 行、playbooks.last_success_at UPDATE",
-      "verifies_evidence": "operation_log 行（external_operation_id つき）＋構造化ログの seed=42 と間隔 3 値",
+      "verifies_state": "external_operations 3行すべてeffect='write'・confirmed、playbookはactiveのまま",
+      "verifies_db_delta": "external_operations(effect='write') +3行、対応operation_log +3行、playbooks.last_success_at UPDATE",
+      "verifies_evidence": "operation_log 行（external_operation_id つき）＋構造化ログの seed=42 と間隔 3 値。operation_logはexternal_operation_row_idで該当external_operations.idへexactly-oneに束縛し、provider external_operation_idは任意。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
       "verifies_forbidden": "固定間隔での連続送信（3 間隔が全一致）・範囲外（1 秒未満/5 秒超）の間隔・idempotency key の重複",
-      "external_calls": "0 回",
-      "method": "pytest: seed: playbooks(service='wp', operation='post', route_type='browser', status='active')、config.rate.wp.daily_write_cap=10、Rng(seed=42) 注入、mock Docker WP ブラウザを seed し、playbooks.last_success_at SELECT／構造化ログ（seed・間隔値）／external_operations.status を assert（mock 媒体への書込み系ブラウザ操作を 3 連続で実行する）",
+      "external_calls": "actual-mode browser write 3回",
+      "method": "pytest: seed: playbooks(service='wp', operation='post', route_type='browser', status='active')、config.rate.wp.daily_write_cap=10、Rng(seed=42) 注入、mock Docker WP ブラウザを seed し、playbooks.last_success_at SELECT／構造化ログ（seed・間隔値）／external_operations.status を assert（mock 媒体への書込み系ブラウザ操作を 3 連続で実行する）。外部I/O test doubleはexecution_mode='actual'で呼び出す（mock/dry-run経路ではない）",
       "slice": "S1",
       "semantic_refs": {
         "table_refs": [
           "config",
+          "evidence",
           "external_operations",
           "playbooks"
         ],
         "column_refs": [
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
           "external_operations.status",
           "playbooks.last_success_at"
         ],
@@ -1866,19 +1861,28 @@
       ],
       "kind": "boundary",
       "verifies_state": "k1 = confirmed、k2 = unknown で対象タスク escalated",
-      "verifies_db_delta": "external_operations 2 行 UPDATE（confirmed/unknown）、operation_log +2 行（照合結果）、state_transitions +1 行（escalate）",
-      "verifies_evidence": "operation_log 行（照合結果・external_operation_id 補完）",
+      "verifies_db_delta": "既存external_operations(effect='write') 2行UPDATE（confirmed/unknown）＋照合readのexternal_operations(effect='read') +2行（confirmed/rejected又はunknown）、4 terminal行へoperation_log各1行（計+4）、state_transitions +1行（escalate）",
+      "verifies_evidence": "元write 2行と照合read 2行へexternal_operation_row_idでexactly-oneに束縛したoperation_log各1行。read correlation式・payload request_sequence一致、provider external_operation_id任意 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
       "verifies_forbidden": "同一 idempotency key の再送（mock 受信カウンタ増加 0）・unknown の confirmed 化",
-      "external_calls": "0 回",
-      "method": "pytest: seed: external_operations(status='sent', idempotency_key='k1') 1 行＋mock 媒体に k1 成功応答、照合不能ケース用に mock が k2 を未知と応答する sent 行 1 行 を seed し、external_operations.status SELECT／mock 媒体の受信回数カウンタ／tasks.state を assert（再起動後に §3.3 の再開規則で当該操作を照合・再開する）",
+      "external_calls": "照合read 2回（write再送0回）",
+      "method": "pytest: effect='write'・status='sent'の2行と成功/不明照合stubをseedし、confirmed/unknown収束、対応operation_log、再送0、task escalatedをassertする。外部I/O test doubleはexecution_mode='actual'で呼び出す（mock/dry-run経路ではない）",
       "slice": "S1",
       "semantic_refs": {
         "table_refs": [
+          "evidence",
           "external_operations",
           "state_transitions",
           "tasks"
         ],
         "column_refs": [
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
           "external_operations.status",
           "tasks.state"
         ],
@@ -1901,21 +1905,49 @@
         "AC-43-1"
       ],
       "kind": "normal",
-      "verifies_state": "playbook = active（新地図）",
-      "verifies_db_delta": "playbooks 1 行 UPDATE、operation_log +2 行（検知・再生成成功）",
-      "verifies_evidence": "秘匿化済み構造化ログ（不一致セレクタ・再生成結果）＋再解析時 screenshot evidence",
-      "verifies_forbidden": "再解析中の外部サイトへの書込み（mock 書込み受信 0 回）・2 回目の再生成試行",
-      "external_calls": "0 回",
-      "method": "pytest: seed: playbooks(service='note', status='active', consecutive_failures=2, selector_json=旧セレクタ)、mock ページ DOM に新セレクタ を seed し、playbooks SELECT（status・selector_json・consecutive_failures）／operation_log SELECT を assert（破損検知から自己修復（再解析→地図再生成→検証）を実行する）",
+      "verifies_state": "旧version=3=retired、新version=4=active、repair task=done・retry_count=0",
+      "verifies_db_delta": "旧playbooks.status UPDATE＋新版INSERT、repair task +1、claim/submit/verify遷移 +3、外部DOM読取りexternal_operations(effect='read') +1／対応operation_log +1",
+      "verifies_evidence": "repair task・版付きplaybooks・秘匿化済み構造化ログ・外部DOM読取りoperation_log・screenshot。operation_logはexternal_operation_row_idで該当external_operations.idへexactly-oneに束縛し、provider external_operation_idは任意。各read要求はcorrelation_key='read:<task_id>:<request_hash>:<request_sequence>'を用い、反復poll/再取得ではrequest_sequenceを単調増加し、operation_log payloadのrequest_sequence一致をassertする。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
+      "verifies_forbidden": "外部write・repair task重複・retry増加・旧版内容UPDATE・版切替失敗後の現役版0件commit",
+      "external_calls": "mock read 1 回／write 0 回",
+      "method": "pytest: version=3 active、起点task、repair_limit=1、正セレクタmockをseedし、active→brokenとrepair task発行の同一tx、別principal検証、旧版retired＋新版active＋task doneの同一tx、版鎖・task一意性・retry_count=0・external read証跡をassert。新版INSERT失敗fixtureではtx全体rollbackもassert。外部I/O test doubleはexecution_mode='actual'で呼び出す（mock/dry-run経路ではない）",
       "slice": "S2",
       "semantic_refs": {
         "table_refs": [
           "evidence",
-          "playbooks"
+          "external_operations",
+          "playbooks",
+          "state_transitions",
+          "tasks"
         ],
-        "column_refs": [],
-        "state_refs": [],
-        "event_refs": [],
+        "column_refs": [
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
+          "external_operations.status",
+          "playbooks.created_by_task_id",
+          "playbooks.supersedes_playbook_id",
+          "playbooks.version",
+          "tasks.idempotency_key",
+          "tasks.retry_count",
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.done",
+          "tasks.in_progress",
+          "tasks.pending",
+          "tasks.verifying"
+        ],
+        "event_refs": [
+          "claim",
+          "submit_for_verification",
+          "verify_pass"
+        ],
         "evidence_kind_refs": [
           "operation_log",
           "screenshot"
@@ -1932,21 +1964,34 @@
         "AC-43-2"
       ],
       "kind": "reject",
-      "verifies_state": "playbook = broken、task = escalated",
-      "verifies_db_delta": "playbooks.status UPDATE（broken）、state_transitions +1 行（escalate）、operation_log +2 行（検知・再生成失敗）",
-      "verifies_evidence": "秘匿化済み構造化ログ（再生成失敗理由）＋escalate 遷移行",
-      "verifies_forbidden": "2 回目以降の自動再生成試行・broken 地図での書込み操作続行・地図の推測書換え",
-      "external_calls": "0 回",
-      "method": "pytest: seed: playbooks(status='active', consecutive_failures=3)、mock ページから対象要素を削除、対象 task = in_progress を seed し、playbooks.status／tasks.state／state_transitions SELECT／通知 mock の送出記録 を assert（自己修復を実行し 1 回目の再生成が失敗する）",
+      "verifies_state": "A(limit=1・target missing): version3 broken、repair/source task escalated、retry_count=0、新版0。B(limit欠落/1以外): version3 broken、repair task 0、source task escalated、新版0",
+      "verifies_db_delta": "A: status UPDATE、repair task +1、claim＋repair/source escalate +3、external_operations(effect='read') +1／対応operation_log +1、新版0。B: status UPDATE、source escalate +1、repair task/external read/operation_log/新版0",
+      "verifies_evidence": "A: repair task・外部DOM読取りoperation_log・失敗process event・escalate。B: config不正process event・source escalate（operation_logなし）。operation_logはexternal_operation_row_idで該当external_operations.idへexactly-oneに束縛し、provider external_operation_idは任意。各read要求はcorrelation_key='read:<task_id>:<request_hash>:<request_sequence>'を用い、反復poll/再取得ではrequest_sequenceを単調増加し、operation_log payloadのrequest_sequence一致をassertする。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
+      "verifies_forbidden": "A: 同episode 2個目task・retry_count増加・verify_fail系・新版。B: repair child・外部read・operation_log・新版。共通: brokenでのwrite・終端task再発行",
+      "external_calls": "mock read 1 回／write 0 回",
+      "method": "pytest: Aはversion3 active・source task・repair_limit=1・target missingをseedし、repair child 1/read 1/対応log 1/双方escalated/新版0をassert。Bはconfig欠落・0・2をparameterizeし、active→broken/source escalateは成立するがrepair child・external read・operation_log・新版が各0をassert。外部I/O test doubleはexecution_mode='actual'で呼び出す（mock/dry-run経路ではない）",
       "slice": "S2",
       "semantic_refs": {
         "table_refs": [
+          "evidence",
+          "external_operations",
           "playbooks",
           "state_transitions",
           "tasks"
         ],
         "column_refs": [
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
+          "external_operations.status",
           "playbooks.status",
+          "playbooks.version",
+          "tasks.retry_count",
           "tasks.state"
         ],
         "state_refs": [
@@ -1969,27 +2014,46 @@
         "AC-43-3"
       ],
       "kind": "boundary",
-      "verifies_state": "note 行 = active、kdp 行 = retired のまま対象タスク escalated",
-      "verifies_db_delta": "playbooks 1 行 UPDATE（active）、state_transitions +1 行（retired 側 escalate）、operation_log +2 行以上",
-      "verifies_evidence": "秘匿化済み構造化ログ（再開後の再生成試行・retired 拒否）",
-      "verifies_forbidden": "中間状態の地図（部分更新）での操作再開・retired 行の自動復活・外部書込み",
+      "verifies_state": "note v3 retired/v4 active/既存repair task done、kdp v2 retired/起点task escalated",
+      "verifies_db_delta": "note repair task INSERT 0・外部再呼出0・旧版UPDATE＋新版INSERT＋submit/verify +2、同taskのinstall再呼出しはUPDATE/INSERT 0、kdp repair task/新版0・escalate +1",
+      "verifies_evidence": "既存repair task、版付きplaybooks、再開・retired拒否の秘匿化済み構造化ログ。operation_logはexternal_operation_row_idで該当external_operations.idへexactly-oneに束縛し、provider external_operation_idは任意。各read要求はcorrelation_key='read:<task_id>:<request_hash>:<request_sequence>'を用い、反復poll/再取得ではrequest_sequenceを単調増加し、operation_log payloadのrequest_sequence一致をassertする。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
+      "verifies_forbidden": "同一episodeのtask/外部read/新版重複・部分版切替commit・retired版更新・外部write",
       "external_calls": "0 回",
-      "method": "pytest: seed: playbooks 2 行（status='broken' の note 行／status='retired' の kdp 行）、mock ページは note の正セレクタを提供 を seed し、playbooks SELECT（再実行後の status）／operation_log SELECT／tasks.state（retired 側） を assert（再起動後に破損中 playbook を検出して自己修復を再実行する）",
+      "method": "pytest: note v3 broken＋既存repair task＋external_operations(effect='read', status='confirmed')と対応operation_log、kdp v2 retiredをseedし、外部read再送0・同task版切替・kdp起点escalateをassertする",
       "slice": "S2",
       "semantic_refs": {
         "table_refs": [
+          "evidence",
+          "external_operations",
           "playbooks",
           "state_transitions",
           "tasks"
         ],
         "column_refs": [
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
+          "external_operations.status",
+          "playbooks.supersedes_playbook_id",
+          "playbooks.version",
+          "tasks.idempotency_key",
           "tasks.state"
         ],
         "state_refs": [
-          "tasks.escalated"
+          "tasks.done",
+          "tasks.escalated",
+          "tasks.in_progress",
+          "tasks.verifying"
         ],
         "event_refs": [
-          "escalate"
+          "escalate",
+          "submit_for_verification",
+          "verify_pass"
         ],
         "evidence_kind_refs": [
           "operation_log"
@@ -2005,11 +2069,11 @@
       ],
       "kind": "normal",
       "verifies_state": "下書き行・公開行とも confirmed、WP 上で記事 published",
-      "verifies_db_delta": "external_operations +2 行、operation_log +2 行、evidence +1 行（published_url）、assets +1 行（canonical_url・wp_post_id）",
-      "verifies_evidence": "published_url evidence（url・wp_post_id・external_operation_id・asset_id）＋operation_log 2 行",
+      "verifies_db_delta": "external_operations(effect='write', policy_category='content_publish', rate_scope='wp') +2行、対応operation_log +2行、evidence +1行（published_url）、assets +1行",
+      "verifies_evidence": "published_urlはoperation_log_evidence_id必須・payload external_operation_row_id=公開write local row・provider ID任意。operation_log 2行は内部row ID/policy_category/rate_scopeを外部行と一致させる。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
       "verifies_forbidden": "下書きと公開の idempotency key 共有・Docker 以外の endpoint への送信・credential の平文ログ出力",
-      "external_calls": "0 回",
-      "method": "pytest: seed: pair_plan_quality(passed) 1 行、approvals(approved・binding 一致) 1 行、Docker WP（または WP mock）稼働、idempotency key を操作別に付与 を seed し、external_operations SELECT（2 行の status 遷移）／WP 側 post status／evidence・assets SELECT を assert（下書き作成（key=k-draft）→公開（key=k-pub）を順に実行する）",
+      "external_calls": "Docker WP write 2回",
+      "method": "pytest: pair passed・approved binding・Docker WP actual-mode test double・content_publish/rate_scope='wp'・操作別keyをseedし、2行がsentへのoperation_log INSERT triggerでconfirmed化、published_urlのoperation_log_evidence_id/payload local row ID、assetsをassertする",
       "slice": "S1",
       "semantic_refs": {
         "table_refs": [
@@ -2019,7 +2083,18 @@
           "external_operations",
           "pair_plan_quality"
         ],
-        "column_refs": [],
+        "column_refs": [
+          "evidence.external_operation_row_id",
+          "evidence.operation_log_evidence_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
+          "external_operations.status"
+        ],
         "state_refs": [],
         "event_refs": [],
         "evidence_kind_refs": [
@@ -2037,11 +2112,11 @@
       ],
       "kind": "reject",
       "verifies_state": "external_operations に prepared 行すら作られない（検証は送信前）",
-      "verifies_db_delta": "operation_log +2 行（ペアなし拒否・本番書込み拒否）。external_operations 差分なし",
-      "verifies_evidence": "構造化ログの拒否行（理由 = pair 未成立／非 Docker endpoint）",
+      "verifies_db_delta": "全拒否fixtureでexternal_operations・operation_log差分0、process loggerへfixture別eventだけ",
+      "verifies_evidence": "構造化拒否ログ（pair未成立／category欠落・unknown・偽装／rate_scope欠落・alias・case不正／service・operation・endpoint不一致）",
       "verifies_forbidden": "外部 HTTP 呼出（受信カウンタ 0 のまま）・本番 WP への一切の書込み",
       "external_calls": "0 回",
-      "method": "pytest: seed: pair_plan_quality 空、config の WP endpoint を '`https://real-site.example.com`' に設定したケースを用意、WP mock の受信カウンタ 0 初期化 を seed し、raise される例外型／operation_log SELECT／WP mock 受信カウンタ を assert（両方の WP REST 書込みを実行する）",
+      "method": "pytest: pair空、本番WP、category NULL/unknown/Notion偽装、rate_scope NULL/'WP'/alias、unknown service/operation/endpointを独立seedし、全件preflight拒否・外部呼出/外部両テーブル0をassertする",
       "slice": "S1",
       "semantic_refs": {
         "table_refs": [
@@ -2052,9 +2127,7 @@
         "column_refs": [],
         "state_refs": [],
         "event_refs": [],
-        "evidence_kind_refs": [
-          "operation_log"
-        ],
+        "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
       }
@@ -2066,11 +2139,11 @@
       ],
       "kind": "boundary",
       "verifies_state": "k-pub 行 = confirmed、WP 上の公開記事は 1 件のまま",
-      "verifies_db_delta": "external_operations 1 行 UPDATE（confirmed・response 補完）、evidence +1 行（published_url 補完）、operation_log +1 行",
-      "verifies_evidence": "operation_log 照合行＋published_url evidence（external_operation_id 整合）",
+      "verifies_db_delta": "既存content_publish/rate_scope='wp' writeをoperation_log triggerでconfirmed化＋external_read/rate_scope=NULL照合read +1行、両operation_log各1行、published_url +1行",
+      "verifies_evidence": "元write/照合readのoperation_logは内部row ID/category/scope同値。published_urlはoperation_log_evidence_id/payload local row IDで元write logへ束縛。read correlation式一致、provider ID任意 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
       "verifies_forbidden": "公開 API の再送（mock 受信回数増加 0）・external_operations の重複行・二重公開",
-      "external_calls": "0 回",
-      "method": "pytest: seed: external_operations(status='sent', idempotency_key='k-pub') 1 行＋WP mock に k-pub の公開成功状態、再要求も key='k-pub' を seed し、external_operations.status／WP mock の公開 API 受信回数／evidence SELECT を assert（再起動後の §3.3 再開と、同一 key の公開再要求を実行する）",
+      "external_calls": "WP照合read 1回（write再送0回）",
+      "method": "pytest: sent content_publish/rate_scope='wp' writeとWP成功状態をseedし、actual照合read行/log、元write log trigger final、published_url束縛、write再送0をassertする",
       "slice": "S1",
       "semantic_refs": {
         "table_refs": [
@@ -2078,6 +2151,15 @@
           "external_operations"
         ],
         "column_refs": [
+          "evidence.external_operation_row_id",
+          "evidence.operation_log_evidence_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
           "external_operations.status"
         ],
         "state_refs": [],
@@ -2097,20 +2179,29 @@
       ],
       "kind": "normal",
       "verifies_state": "読取り draft 保存済み、書戻し操作 confirmed",
-      "verifies_db_delta": "external_operations +1 行（confirmed）、operation_log +1 行、draft 保存 +1 行",
-      "verifies_evidence": "operation_log 行（service=notion・external_operation_id・request_fingerprint）",
+      "verifies_db_delta": "external_operations +2行（external_readはrate_scope=NULL、review_sync writeはrate_scope='notion'でconfirmed）、対応operation_log +2行、draft保存 +1行",
+      "verifies_evidence": "読取り・書戻しoperation_logは内部row ID/effect/category/scope一致・provider ID任意、read correlation式/payload sequence一致。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
       "verifies_forbidden": "2,000 字超の単一ブロック送信・3 req/秒超過・ループ判定への Notion 値の混入",
-      "external_calls": "0 回",
-      "method": "pytest: seed: Notion mock（計画ページ 1 件・書込み受付）、learnings/sprints に書戻し元データ、config.rate.notion.req_per_sec=3、書戻し本文 2,500 字 を seed し、SQLite の draft 保存行／Notion mock の受信ブロック（2 分割・レート）／external_operations.status を assert（スプリント開始時の読取りと、レビュー成立時の書戻し（2,500 字 — 分割必要）を実行する）",
+      "external_calls": "Notion read 1回＋write 1回",
+      "method": "pytest: seed: Notion mock（計画ページ 1 件・書込み受付）、learnings/sprints に書戻し元データ、config.rate.notion.req_per_sec=3、書戻し本文 2,500 字 を seed し、SQLite の draft 保存行／Notion mock の受信ブロック（2 分割・レート）／external_operations.status を assert（スプリント開始時の読取りと、レビュー成立時の書戻し（2,500 字 — 分割必要）を実行する）。外部I/O test doubleはexecution_mode='actual'で呼び出す（mock/dry-run経路ではない）",
       "slice": "S1",
       "semantic_refs": {
         "table_refs": [
           "config",
+          "evidence",
           "external_operations",
           "learnings",
           "sprints"
         ],
         "column_refs": [
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
           "external_operations.status"
         ],
         "state_refs": [],
@@ -2129,20 +2220,34 @@
       ],
       "kind": "reject",
       "verifies_state": "同期 task = failed、loop_run は継続進行",
-      "verifies_db_delta": "operation_log +1 行（NotionUnavailable）、state_transitions に同期 task の failed 遷移＋他 task の正常遷移",
-      "verifies_evidence": "秘匿化済み構造化拒否ログ（service=notion・理由 = unavailable）",
+      "verifies_db_delta": "external_operations(effect='read', policy_category='external_read', rate_scope=NULL) +1行（rejected又はunknown）と対応operation_log +1行、同期taskのfailed遷移＋他taskの正常遷移",
+      "verifies_evidence": "外部Notion読取りoperation_log（external_operation_id一致）＋秘匿化済み構造化実行ログ（service=notion・理由=unavailable）。operation_logはexternal_operation_row_idで該当external_operations.idへexactly-oneに束縛し、provider external_operation_idは任意。各read要求はcorrelation_key='read:<task_id>:<request_hash>:<request_sequence>'を用い、反復poll/再取得ではrequest_sequenceを単調増加し、operation_log payloadのrequest_sequence一致をassertする。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
       "verifies_forbidden": "ループ本体の停止・待機（Notion 障害の波及）・障害中の書戻し再送連打",
-      "external_calls": "0 回",
-      "method": "pytest: seed: Notion mock を全断（connection error）、loop_runs 1 行進行中＋依存しない task 1 件 を seed し、同期 task の status／loop_runs・他 task の遷移可否／operation_log SELECT を assert（スプリント開始の読取り同期を実行し、その後ループ本体のタスク遷移を継続実行する）",
+      "external_calls": "Notion read 1回",
+      "method": "pytest: Notion mockをconnection errorにして同期読取りを実行し、同期taskだけのfailed／loop継続／external_operationsのrejected又はunknown／external_operation_id一致のoperation_logをassertする。外部I/O test doubleはexecution_mode='actual'で呼び出す（mock/dry-run経路ではない）",
       "slice": "S1",
       "semantic_refs": {
         "table_refs": [
+          "evidence",
+          "external_operations",
           "loop_runs",
-          "state_transitions"
+          "state_transitions",
+          "tasks"
         ],
-        "column_refs": [],
+        "column_refs": [
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
+          "external_operations.status"
+        ],
         "state_refs": [
-          "loop_runs.failed"
+          "loop_runs.failed",
+          "tasks.failed"
         ],
         "event_refs": [],
         "evidence_kind_refs": [
@@ -2159,18 +2264,27 @@
       ],
       "kind": "boundary",
       "verifies_state": "境界更新 1 件が draft に反映、k-nt = confirmed",
-      "verifies_db_delta": "draft 1 行 upsert（重複行なし）、external_operations 1 行 UPDATE、operation_log +1 行",
-      "verifies_evidence": "operation_log 照合行（external_operation_id 補完）",
+      "verifies_db_delta": "draft 1行upsert、境界poll/照合readはexternal_read/rate_scope=NULL各+1、既存review_sync/rate_scope='notion' writeをlog triggerでconfirmed化、operation_log計3",
+      "verifies_evidence": "境界poll/照合read/元writeのoperation_logは内部row ID/category/scope同値、read correlation式/payload sequence一致、provider ID任意 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
       "verifies_forbidden": "境界更新の取りこぼし・draft の重複行・書戻しの再送（mock 受信増加 0）",
-      "external_calls": "0 回",
-      "method": "pytest: seed: sync カーソル=T、Notion mock に last_edited_time=T（同一分）の更新、external_operations(status='sent', idempotency_key='k-nt') ＋ mock に k-nt 成功応答、config.sync.notion.cursor_margin_min=2 を seed し、draft 保存行数（重複なし）／external_operations.status／Notion mock 書込み受信回数 を assert（再起動後にポーリング読取りと書戻し再開（§3.3 照合）を実行する）",
+      "external_calls": "Notion境界poll read 1回＋sent書戻し照合read 1回（write再送0回）",
+      "method": "pytest: seed: sync カーソル=T、Notion mock に last_edited_time=T（同一分）の更新、external_operations(status='sent', idempotency_key='k-nt') ＋ mock に k-nt 成功応答、config.sync.notion.cursor_margin_min=2 を seed し、draft 保存行数（重複なし）／external_operations.status／Notion mock 書込み受信回数 を assert（再起動後にポーリング読取りと書戻し再開（§3.3 照合）を実行する）。外部I/O test doubleはexecution_mode='actual'で呼び出す（mock/dry-run経路ではない）",
       "slice": "S1",
       "semantic_refs": {
         "table_refs": [
           "config",
+          "evidence",
           "external_operations"
         ],
         "column_refs": [
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
           "external_operations.status"
         ],
         "state_refs": [],
@@ -2189,21 +2303,31 @@
       ],
       "kind": "normal",
       "verifies_state": "approvals = approved・evidence 相互整合、task = 進行再開",
-      "verifies_db_delta": "approvals +1 行（pending→approved UPDATE）、evidence +1 行（kind=approval）、state_transitions +2 行（waiting→in_progress 系）",
-      "verifies_evidence": "approval evidence（decision=approved・binding 3 項目・approvals.evidence_id 整合）",
+      "verifies_db_delta": "通知はapproval_notification/rate_scope='claude_code_app' write +1、pollはexternal_read/rate_scope=NULL +1、各operation_log、approvals UPDATE、approval evidence +1、state_transitions +2",
+      "verifies_evidence": "通知write・応答readの各operation_logは内部row ID/category/scope一致。通知はbinding 3項目必須だがApprovalPass循環要求なし。read correlation式/payload sequence一致。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
       "verifies_forbidden": "応答受領前の公開実行・approvals 行の書換えによる decision 変更",
-      "external_calls": "0 回",
-      "method": "pytest: seed: task(pending) 1 件、mock transport（approved・responder_ref='po'）、binding = (post:123, publish, 2026-08-01T10:00) を seed し、approvals SELECT（decision・binding・evidence_id）／応答前後の tasks.state／公開ゲートの通過可否 を assert（承認要求を送出し、応答受領後に binding 3 項目一致の公開を実行する）",
+      "external_calls": "通知write 1回＋応答poll read 1回",
+      "method": "pytest: binding 3項目とnotification policyをseedし、ApprovalPassなしでも通知preflightが成立すること、通知category/scope、poll external_read/scope、operation_log同値、approval evidence、公開ゲート通過をassertする",
       "slice": "S0",
       "semantic_refs": {
         "table_refs": [
           "approvals",
           "evidence",
+          "external_operations",
           "state_transitions",
           "tasks"
         ],
         "column_refs": [
           "approvals.evidence_id",
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
+          "external_operations.status",
           "tasks.state"
         ],
         "state_refs": [
@@ -2212,7 +2336,8 @@
         ],
         "event_refs": [],
         "evidence_kind_refs": [
-          "approval"
+          "approval",
+          "operation_log"
         ],
         "error_type_refs": [],
         "api_refs": []
@@ -2225,19 +2350,30 @@
       ],
       "kind": "reject",
       "verifies_state": "公開 0 件、rejected 側 task = failed（retry_count 増加なし）",
-      "verifies_db_delta": "operation_log +1 行（binding 不一致）、approvals 1 行 UPDATE（rejected）、state_transitions +1 行（failed）",
-      "verifies_evidence": "構造化ログの拒否行（不一致項目の明示）＋approvals rejected 行",
+      "verifies_db_delta": "rejected応答pollはexternal_operations(effect='read', policy_category='external_read', rate_scope=NULL) +1行と対応operation_log +1行、approvals UPDATE、failed遷移 +1。binding不一致判定自体はprocess loggerのみ",
+      "verifies_evidence": "rejected poll operation_log＋binding不一致process event＋approvals rejected行。operation_logはexternal_operation_row_idで該当external_operations.idへexactly-oneに束縛し、provider external_operation_idは任意。各read要求はcorrelation_key='read:<task_id>:<request_hash>:<request_sequence>'を用い、反復poll/再取得ではrequest_sequenceを単調増加し、operation_log payloadのrequest_sequence一致をassertする。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
       "verifies_forbidden": "不一致のままの公開（外部書込み 0 回）・rejected タスクの自動リトライ・escalated への迂回",
-      "external_calls": "0 回",
-      "method": "pytest: seed: approvals(approved, binding_at='2026-08-01T10:00') に対し公開時点 '2026-08-01T11:00' を提示、別 task に mock transport が rejected 応答 を seed し、raise される例外型／operation_log SELECT／tasks.state・state_transitions を assert（binding 不一致のままの公開と、rejected 後のタスク進行を試みる）",
+      "external_calls": "rejected応答poll read 1回（binding不一致側0回）",
+      "method": "pytest: 既存approvalのbinding不一致はprocess event・外部操作差分0をassertし、別taskのrejected pollはeffect='read' external_operationsと対応operation_log、approvals rejected、task failedをassertする",
       "slice": "S0",
       "semantic_refs": {
         "table_refs": [
           "approvals",
+          "evidence",
+          "external_operations",
           "state_transitions",
           "tasks"
         ],
         "column_refs": [
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
+          "external_operations.status",
           "tasks.state"
         ],
         "state_refs": [
@@ -2246,6 +2382,7 @@
         ],
         "event_refs": [],
         "evidence_kind_refs": [
+          "approval",
           "operation_log"
         ],
         "error_type_refs": [],
@@ -2259,20 +2396,32 @@
       ],
       "kind": "boundary",
       "verifies_state": "expired 側 task = escalated、pending 側 = waiting 継続（要求は 1 件のまま）",
-      "verifies_db_delta": "approvals は再要求分のみ増加（上限到達で停止）、state_transitions +1 行（escalate）。pending 側 approvals 差分なし",
-      "verifies_evidence": "approvals の expired 履歴＋escalate 遷移行（事由 = approval_retry_limit 到達）",
+      "verifies_db_delta": "各再要求cycleはapproval_notification/rate_scope='claude_code_app' writeとexternal_read/rate_scope=NULL poll各1行・対応operation_log各1行。上限到達でescalate +1、pending再開側は差分なし",
+      "verifies_evidence": "通知write・応答read各operation_log（内部row ID一致）＋approvals expired履歴＋escalate遷移。operation_logはexternal_operation_row_idで該当external_operations.idへexactly-oneに束縛し、provider external_operation_idは任意。各read要求はcorrelation_key='read:<task_id>:<request_hash>:<request_sequence>'を用い、反復poll/再取得ではrequest_sequenceを単調増加し、operation_log payloadのrequest_sequence一致をassertする。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
       "verifies_forbidden": "上限超過後の再要求継続（無限待機）・同一 binding の重複 approvals 行・expired の failed 化（rejected と混同）",
-      "external_calls": "0 回",
-      "method": "pytest: seed: config('approval_retry_limit', 2)、mock transport（常時 expired）、pending 行 1 件（UNIQUE binding）を残して再起動 を seed し、approvals 行数と decision 履歴／tasks.state／state_transitions SELECT を assert（expired の再要求ループを上限まで進め、pending 側は再起動後に待機再開する）",
+      "external_calls": "各cycleで通知write 1回＋expired poll read 1回（approval_retry_limit=2で計4回）",
+      "method": "pytest: approval_retry_limit=2・expired transportで、各cycleの通知effect='write'とpoll effect='read'のexternal_operations/operation_log、上限escalate、pending再開側の外部操作重複0をassertする",
       "slice": "S0",
       "semantic_refs": {
         "table_refs": [
           "approvals",
           "config",
+          "evidence",
+          "external_operations",
           "state_transitions",
           "tasks"
         ],
         "column_refs": [
+          "approvals.decision",
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
+          "external_operations.status",
           "tasks.state"
         ],
         "state_refs": [
@@ -2283,7 +2432,9 @@
         "event_refs": [
           "escalate"
         ],
-        "evidence_kind_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
         "error_type_refs": [],
         "api_refs": []
       }
@@ -2294,19 +2445,29 @@
         "AC-47-1"
       ],
       "kind": "normal",
-      "verifies_state": "接続成功・平文検出 0 件",
-      "verifies_db_delta": "external_operations/operation_log は操作分のみ（credential 列・平文なし）",
-      "verifies_evidence": "operation_log 行（external_operation_id — 秘匿値を含まない）",
+      "verifies_state": "Docker WP read-only health check成功・平文検出0件",
+      "verifies_db_delta": "external_operations(effect='read') +1行confirmedと内部row IDで対応するoperation_log +1行（credential列・平文なし）",
+      "verifies_evidence": "operation_log行（external_operation_row_id必須・provider external_operation_id任意・秘匿値なし）。各read要求はcorrelation_key='read:<task_id>:<request_hash>:<request_sequence>'を用い、反復poll/再取得ではrequest_sequenceを単調増加し、operation_log payloadのrequest_sequence一致をassertする。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
       "verifies_forbidden": "SQLite・repo・ログ・evidence への平文 credential 書込み（検索ヒット 1 件でも fail）",
-      "external_calls": "0 回",
-      "method": "pytest: seed: mock キーチェーンに secret='wp-app-pass-XYZ'、操作後に repo/DB/ログへ 'wp-app-pass-XYZ' の全文検索を実行 を seed し、接続結果／全文検索ヒット件数（repo grep・SQLite LIKE・ログ grep） を assert（秘匿値を実行時注入して外部操作（mock WP 接続）を 1 件実行し、リポジトリ・SQLite・ログ・evidence を全文検索する）",
+      "external_calls": "Docker WP read 1回",
+      "method": "pytest: test credentialを実行時注入してDocker WP read-only health checkを行い、external_operations(effect='read')・内部row ID一致operation_log・repo/DB/log/evidence平文0をassertする",
       "slice": "S0",
       "semantic_refs": {
         "table_refs": [
           "evidence",
           "external_operations"
         ],
-        "column_refs": [],
+        "column_refs": [
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
+          "external_operations.status"
+        ],
         "state_refs": [],
         "event_refs": [],
         "evidence_kind_refs": [
@@ -2322,28 +2483,33 @@
         "AC-47-2"
       ],
       "kind": "reject",
-      "verifies_state": "接続 0 件、ログには伏字（token=***）のみ、書出し元 task = escalated 誘導",
-      "verifies_db_delta": "外部操作開始前のため operation_log 差分なし。秘匿化済み構造化検知ログと task の escalate 遷移だけを記録",
+      "transition_refs": [
+        {"entity": "tasks", "from": "in_progress", "event": "escalate", "to": "escalated"}
+      ],
+      "verifies_state": "接続0件、ログには伏字（token=***）のみ、書出し元task=escalated",
+      "verifies_db_delta": "外部操作開始前のためexternal_operations/operation_log差分なし。taskのevent=escalate・guard_result=passed 1行だけを記録",
       "verifies_evidence": "秘匿化済み構造化検知ログ（秘匿値そのものを含まない）",
       "verifies_forbidden": "平文のままのログ永続化・秘匿値なしでの外部接続試行（外部 HTTP 呼出 0 回）",
       "external_calls": "0 回",
-      "method": "pytest: seed: mock キーチェーン（notion キーなし）、書出し文字列 = 'auth failed: token=wp-app-pass-XYZ'（既知 secret 混入） を seed し、raise される例外型／operation_log SELECT（マスク後文字列）／tasks.state を assert（notion 接続と、混入文字列のログ書出しを実行する）",
+      "method": "pytest: mockキーチェーン（notionなし）、既知secret混入文字列、task=in_progressをseedし、外部呼出/operation_log 0、秘匿化済みprocess log、tasks.in_progress→escalatedのevent=escalate・guard_result=passed 1行をassert",
       "slice": "S0",
       "semantic_refs": {
         "table_refs": [
+          "state_transitions",
           "tasks"
         ],
         "column_refs": [
+          "state_transitions.guard_result",
           "tasks.state"
         ],
         "state_refs": [
           "tasks.escalated",
-          "tasks.failed"
+          "tasks.in_progress"
         ],
-        "event_refs": [],
-        "evidence_kind_refs": [
-          "operation_log"
+        "event_refs": [
+          "escalate"
         ],
+        "evidence_kind_refs": [],
         "error_type_refs": [
           "CredentialLeakDetected"
         ],
@@ -2356,12 +2522,16 @@
         "AC-47-3"
       ],
       "kind": "boundary",
-      "verifies_state": "再投入前 = escalated・接続 0 件、再投入後 = 同一タスクが接続成功",
-      "verifies_db_delta": "operation_log +2 行（期限切れ・組合せ拒否）、state_transitions に escalate と再開の遷移",
+      "transition_refs": [
+        {"entity": "tasks", "from": "in_progress", "event": "escalate", "to": "escalated"},
+        {"entity": "tasks", "from": "pending", "event": "claim", "to": "in_progress"}
+      ],
+      "verifies_state": "再投入前=元task escalated・接続0、再投入後=元task終端のままreplacement task in_progressで接続成功",
+      "verifies_db_delta": "送信前拒否のexternal_operations/operation_log差分なし、元task escalate +1、replacement task INSERT +1とclaim +1",
       "verifies_evidence": "秘匿化済み構造化拒否ログ（理由 = session expired／credential-endpoint mismatch — 平文なし）",
       "verifies_forbidden": "期限切れセッションでの外部送信・テスト credential の本番 endpoint 使用（fail-open）・再投入値の SQLite 保存",
       "external_calls": "0 回",
-      "method": "pytest: seed: mock キーチェーンに expired セッション、test credential ＋ production endpoint の組合せ設定、再投入手順で有効値に上書き を seed し、raise される例外型／tasks.state（escalated→再開）／operation_log SELECT を assert（期限切れセッションでの接続と、不一致組合せでの接続を実行し、その後 credential 再投入からタスクを再開する）",
+      "method": "pytest: expired session、test credential＋production endpoint、元task=in_progressをseedし、送信前拒否と元task escalateをassert。再投入後は元taskをparentとする決定的replacement taskを明示発行・claimし、元taskがescalated終端のまま新taskだけ接続成功することをassert",
       "slice": "S0",
       "semantic_refs": {
         "table_refs": [
@@ -2369,17 +2539,19 @@
           "tasks"
         ],
         "column_refs": [
+          "tasks.parent_task_id",
           "tasks.state"
         ],
         "state_refs": [
-          "tasks.escalated"
+          "tasks.escalated",
+          "tasks.in_progress",
+          "tasks.pending"
         ],
         "event_refs": [
+          "claim",
           "escalate"
         ],
-        "evidence_kind_refs": [
-          "operation_log"
-        ],
+        "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
       }
@@ -2391,20 +2563,31 @@
       ],
       "kind": "normal",
       "verifies_state": "assets 1 行（content_hash = 出力 hash、wp_media_id あり）",
-      "verifies_db_delta": "assets +1 行、evidence +1 行（file_hash）、operation_log +1 行（WP アップ操作）— 2 回目は差分なし",
-      "verifies_evidence": "evidence 行（kind=file_hash、value=出力 SHA-256、payload に file_path・algorithm=SHA-256）",
+      "verifies_db_delta": "1回目はexternal_operations(effect='write') +1行（confirmed）と対応operation_log +1行、assets +1行、file_hash evidence +1行。2回目は全差分なし",
+      "verifies_evidence": "WPアップロードoperation_log（external_operation_id一致）＋file_hash evidence（出力SHA-256・file_path・algorithm）。operation_logはexternal_operation_row_idで該当external_operations.idへexactly-oneに束縛し、provider external_operation_idは任意。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
       "verifies_forbidden": "2 回目実行での assets/evidence の行増加・出力 hash の変動・本番 WP への書込み",
-      "external_calls": "0 回",
-      "method": "pytest: seed: tasks に T-PROD 1 行（実行中）、fixture リポジトリ commit abc…（記事 HTML 1 件）、config.wp_target=docker、WP コネクタは mock（決定的応答） を seed し、1 回目と 2 回目の出力ファイル SHA-256 比較／assets SELECT／evidence SELECT (kind='file_hash') を assert（同一 commit・同一プロファイル（manuscript）でレンダリングを 2 回実行する）",
+      "external_calls": "Docker WP upload write 1回（2回目の冪等再実行0回）",
+      "method": "pytest: 同一commit・profileで2回レンダリングし、出力SHA-256、assets/file_hash、WPアップロードexternal_operations.statusと対応operation_log、2回目の全差分0をassertする",
       "slice": "S0",
       "semantic_refs": {
         "table_refs": [
           "assets",
           "config",
           "evidence",
+          "external_operations",
           "tasks"
         ],
-        "column_refs": [],
+        "column_refs": [
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
+          "external_operations.status"
+        ],
         "state_refs": [],
         "event_refs": [],
         "evidence_kind_refs": [
@@ -2422,11 +2605,11 @@
       ],
       "kind": "reject",
       "verifies_state": "assets 空のまま、WP モックへの書込み呼出 0 回",
-      "verifies_db_delta": "operation_log +2 行（未 commit 拒否・接続先拒否）のみ",
+      "verifies_db_delta": "DB差分なし（external_operations・operation_log差分なし、拒否2件はprocess loggerへ各1 event）",
       "verifies_evidence": "構造化ログの拒否行（理由 = uncommitted source／wp target denied）",
       "verifies_forbidden": "assets/evidence への行追加・WP（モック含む）への書込み呼出",
       "external_calls": "0 回",
-      "method": "pytest: seed: fixture リポジトリに未 commit 変更を作る／config.wp_target を docker 以外（prod 想定値）に seed を seed し、raise される例外型／assets・evidence 件数／operation_log SELECT を assert（レンダリングと WP アップロードを要求する）",
+      "method": "pytest: dirty sourceとDocker外WP targetをseedし、例外型／process loggerの構造化拒否event／assets・evidence・external_operations・operation_log差分0をassertする",
       "slice": "S0",
       "semantic_refs": {
         "table_refs": [
@@ -2437,9 +2620,7 @@
         "column_refs": [],
         "state_refs": [],
         "event_refs": [],
-        "evidence_kind_refs": [
-          "operation_log"
-        ],
+        "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
       }
@@ -2479,17 +2660,29 @@
       ],
       "kind": "normal",
       "verifies_state": "キャッシュ = v3（hash T3）、出力に #123456 が展開",
-      "verifies_db_delta": "operation_log +1 行（取得成功）。業務テーブル差分なし",
-      "verifies_evidence": "レンダリング証跡 payload の token_version='v3'・token_hash=T3・stale=false",
+      "verifies_db_delta": "DesignSync取得external_operations(effect='read') +1行（confirmed）と対応operation_log +1行。業務テーブル差分なし",
+      "verifies_evidence": "DesignSync取得operation_log（external_operation_id一致）＋レンダリング証跡payloadのtoken_version='v3'・token_hash=T3・stale=false。operation_logはexternal_operation_row_idで該当external_operations.idへexactly-oneに束縛し、provider external_operation_idは任意。各read要求はcorrelation_key='read:<task_id>:<request_hash>:<request_sequence>'を用い、反復poll/再取得ではrequest_sequenceを単調増加し、operation_log payloadのrequest_sequence一致をassertする。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
       "verifies_forbidden": "トークン外の恣意的スタイル値の混入・キャッシュの破壊的更新（temp→rename 以外）",
-      "external_calls": "0 回",
-      "method": "pytest: seed: config.designsync_source=mock、DesignSync モック応答 = {version:'v3', tokens:{color.primary:'#123456'}}、キャッシュは v2 を事前配置 を seed し、出力ファイル内のトークン展開値／キャッシュファイル内容／レンダリング証跡 payload を assert（トークン取得→注入つきレンダリングを実行する）",
+      "external_calls": "actual-mode DesignSync test serviceへのread 1回",
+      "method": "pytest: actual-mode DesignSync test serviceからv3を取得し、展開値・cache・external_operations(effect='read', execution_mode='actual', request_sequence=1)・対応operation_log・token version/hashをassertする（mock/dry-run経路は使用しない）",
       "slice": "S1",
       "semantic_refs": {
         "table_refs": [
-          "config"
+          "config",
+          "evidence",
+          "external_operations"
         ],
-        "column_refs": [],
+        "column_refs": [
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
+          "external_operations.status"
+        ],
         "state_refs": [],
         "event_refs": [],
         "evidence_kind_refs": [
@@ -2506,19 +2699,30 @@
       ],
       "kind": "reject",
       "verifies_state": "レンダリング出力 0 件",
-      "verifies_db_delta": "operation_log +1 行（取得失敗・キャッシュなし拒否）のみ",
-      "verifies_evidence": "構造化ログの拒否行（理由 = token unavailable, no cache）",
+      "verifies_db_delta": "DesignSync取得external_operations(effect='read') +1行（rejected又はunknown）と対応operation_log +1行。cacheなし拒否はprocess loggerへ1 event",
+      "verifies_evidence": "失敗したDesignSync取得operation_log（external_operation_id一致）＋構造化拒否ログ（token unavailable, no cache）。operation_logはexternal_operation_row_idで該当external_operations.idへexactly-oneに束縛し、provider external_operation_idは任意。各read要求はcorrelation_key='read:<task_id>:<request_hash>:<request_sequence>'を用い、反復poll/再取得ではrequest_sequenceを単調増加し、operation_log payloadのrequest_sequence一致をassertする。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
       "verifies_forbidden": "トークン未適用出力の生成・assets/evidence への登録",
-      "external_calls": "0 回",
-      "method": "pytest: seed: DesignSync モックを接続エラー応答に設定、config.designsync_cache_path 先を空にする を seed し、raise される例外型／出力ディレクトリの内容／operation_log SELECT を assert（トークン注入つきレンダリングを実行する）",
+      "external_calls": "actual-mode DesignSync read 1回（到達不能結果）",
+      "method": "pytest: DesignSync接続エラー・cacheなしをseedし、例外型／出力0／external_operations rejected又はunknown／対応operation_log／process logger拒否eventをassertする",
       "slice": "S1",
       "semantic_refs": {
         "table_refs": [
           "assets",
           "config",
-          "evidence"
+          "evidence",
+          "external_operations"
         ],
-        "column_refs": [],
+        "column_refs": [
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
+          "external_operations.status"
+        ],
         "state_refs": [],
         "event_refs": [],
         "evidence_kind_refs": [
@@ -2535,17 +2739,29 @@
       ],
       "kind": "boundary",
       "verifies_state": "レンダリング成功（v2 トークン適用）、キャッシュは v2 のまま",
-      "verifies_db_delta": "operation_log +1 行（フォールバック記録）",
-      "verifies_evidence": "証跡 payload の token_version='v2'・stale=true",
+      "verifies_db_delta": "外部取得2試行としてexternal_operations(effect='read') +2行と対応operation_log +2行。cache fallbackはprocess loggerのみ",
+      "verifies_evidence": "各DesignSync取得operation_log（external_operation_id一致）＋証跡payloadのtoken_version='v2'・stale=true。operation_logはexternal_operation_row_idで該当external_operations.idへexactly-oneに束縛し、provider external_operation_idは任意。各read要求はcorrelation_key='read:<task_id>:<request_hash>:<request_sequence>'を用い、反復poll/再取得ではrequest_sequenceを単調増加し、operation_log payloadのrequest_sequence一致をassertする。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
       "verifies_forbidden": "破損キャッシュの使用（hash 不一致時の続行）・再試行回数の超過呼出",
-      "external_calls": "0 回",
-      "method": "pytest: seed: DesignSync モック = タイムアウト応答、config.designsync_fetch_retry_max=2、キャッシュ v2 を hash 整合状態で配置 を seed し、取得試行回数（モック呼出カウント）／出力のトークン展開値／証跡 payload を assert（規定回数の再試行後にトークン注入つきレンダリングを実行する）",
+      "external_calls": "actual-mode DesignSync read 2回",
+      "method": "pytest: retry_max=2・DesignSync timeout・整合cache v2をseedし、外部取得2回、各external_operationsと対応operation_log、cache fallback、stale payloadをassertする",
       "slice": "S1",
       "semantic_refs": {
         "table_refs": [
-          "config"
+          "config",
+          "evidence",
+          "external_operations"
         ],
-        "column_refs": [],
+        "column_refs": [
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
+          "external_operations.status"
+        ],
         "state_refs": [],
         "event_refs": [],
         "evidence_kind_refs": [
@@ -2562,23 +2778,35 @@
       ],
       "kind": "normal",
       "verifies_state": "assets +1 行（asset_type=audio、parent_asset_id=1）",
-      "verifies_db_delta": "assets +1 行、evidence +1 行（file_hash＋実行記録 payload）— 2 回目は差分なし",
-      "verifies_evidence": "evidence payload に入力参照（台本 commit・素材 asset_id）・ツール版数・出力 hash",
+      "verifies_db_delta": "1回目はexternal_operations(effect='write') +1行と対応operation_log +1行、assets +1行、file_hash evidence +1行。2回目は全差分なし",
+      "verifies_evidence": "WPアップロードoperation_log（external_operation_id一致）＋file_hash evidenceの入力参照・tool version・出力hash。operation_logはexternal_operation_row_idで該当external_operations.idへexactly-oneに束縛し、provider external_operation_idは任意。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
       "verifies_forbidden": "localhost 以外への TTS 送信・2 回目実行での行増加・SQLite への mp3 実体格納",
       "external_calls": "0 回",
-      "method": "pytest: seed: assets に元記事資産 1 行、fixture 台本 commit、VOICEVOX/WP モック（決定的応答）、config.voicevox_endpoint=localhost モック を seed し、出力 mp3 の SHA-256（2 回比較）／assets SELECT（parent_asset_id）／evidence payload を assert（voice パイプラインを同一入力で 2 回実行する）",
+      "method": "pytest: 同一inputでvoice pipelineを2回実行し、出力hash、assets、Docker WPアップロードexternal_operationsと対応operation_log、2回目の全差分0をassertする",
       "slice": "S3+",
       "semantic_refs": {
         "table_refs": [
           "assets",
           "config",
-          "evidence"
+          "evidence",
+          "external_operations"
         ],
-        "column_refs": [],
+        "column_refs": [
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
+          "external_operations.status"
+        ],
         "state_refs": [],
         "event_refs": [],
         "evidence_kind_refs": [
-          "file_hash"
+          "file_hash",
+          "operation_log"
         ],
         "error_type_refs": [],
         "api_refs": []
@@ -2591,11 +2819,11 @@
       ],
       "kind": "reject",
       "verifies_state": "assets 差分なし、WP への登録 0 件",
-      "verifies_db_delta": "operation_log +2 行（参照拒否・実行失敗）のみ",
+      "verifies_db_delta": "DB差分なし（参照拒否・ローカル実行失敗はprocess loggerへ各1 event、external_operations・operation_log差分なし）",
       "verifies_evidence": "構造化ログの拒否行（理由 = missing asset ref／pipeline failed at encode）",
       "verifies_forbidden": "部分出力（中間 mp4）の assets 登録・WP アップロード",
       "external_calls": "0 回",
-      "method": "pytest: seed: 台本の素材参照 = asset_id 999（不在）／別ケース: ffmpeg モックを exit 1 に設定し中間 mp4 断片を temp に生成させる を seed し、raise される例外型／assets・evidence 件数／temp 領域と WP モックの状態 を assert（video パイプラインを実行する）",
+      "method": "pytest: 不在asset参照とローカルffmpeg失敗をseedし、例外型／process loggerの構造化拒否event／assets・evidence・external_operations・operation_log差分0／WP送信0をassertする",
       "slice": "S3+",
       "semantic_refs": {
         "table_refs": [
@@ -2605,9 +2833,7 @@
         "column_refs": [],
         "state_refs": [],
         "event_refs": [],
-        "evidence_kind_refs": [
-          "operation_log"
-        ],
+        "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
       }
@@ -2676,11 +2902,11 @@
       ],
       "kind": "reject",
       "verifies_state": "review_pass 証跡 0 件のまま",
-      "verifies_db_delta": "operation_log +1 行（hash 不一致拒否）のみ",
+      "verifies_db_delta": "DB差分なし（hash不一致拒否はprocess loggerへ1 event）",
       "verifies_evidence": "構造化ログの拒否行（理由 = commit hash mismatch H1≠H2）",
       "verifies_forbidden": "H2 での review_pass 記録・既存 commit_hash 証跡の書換え",
       "external_calls": "0 回",
-      "method": "pytest: seed: evidence に (task, commit_hash, H1) を事前投入、PASS 要求 = {commit_hash: H2, result: 'PASS'} を seed し、raise される例外型／evidence SELECT (kind='review_pass')／operation_log SELECT を assert（review_pass 記録を要求する）",
+      "method": "pytest: taskのcommit_hash H1に対しH2のreview_passを要求し、例外型／review_pass差分0／process loggerの構造化拒否eventをassertする",
       "slice": "S0",
       "semantic_refs": {
         "table_refs": [
@@ -2691,7 +2917,6 @@
         "event_refs": [],
         "evidence_kind_refs": [
           "commit_hash",
-          "operation_log",
           "review_pass"
         ],
         "error_type_refs": [],
@@ -2719,8 +2944,7 @@
         "state_refs": [],
         "event_refs": [],
         "evidence_kind_refs": [
-          "commit_hash",
-          "operation_log"
+          "commit_hash"
         ],
         "error_type_refs": [],
         "api_refs": []
@@ -2760,11 +2984,11 @@
       ],
       "kind": "reject",
       "verifies_state": "assets 差分なし",
-      "verifies_db_delta": "operation_log +2 行（実体混入拒否・参照不正拒否）のみ",
+      "verifies_db_delta": "DB差分なし（実体混入拒否・参照不正拒否はprocess loggerへ各1 event）",
       "verifies_evidence": "構造化ログの拒否行（理由 = content body in metadata／parent not found）",
       "verifies_forbidden": "本文実体を含む行の INSERT・出自なし派生行の作成",
       "external_calls": "0 回",
-      "method": "pytest: seed: config.asset_metadata_max_bytes=4096、要求 1 = metadata_json に 50KB 本文、要求 2 = {parent_asset_id:999} を seed し、raise される例外型／assets 件数／operation_log SELECT を assert（それぞれ assets 登録を実行する）",
+      "method": "pytest: oversized metadataと不在parentをseedし、例外型／assets差分0／process loggerの構造化拒否eventをassertする",
       "slice": "S0",
       "semantic_refs": {
         "table_refs": [
@@ -2774,9 +2998,7 @@
         "column_refs": [],
         "state_refs": [],
         "event_refs": [],
-        "evidence_kind_refs": [
-          "operation_log"
-        ],
+        "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
       }
@@ -2788,7 +3010,7 @@
       ],
       "kind": "boundary",
       "verifies_state": "assets 1 行のまま（A1）、循環系譜 0 件",
-      "verifies_db_delta": "assets 差分なし、operation_log +1 行（循環拒否）",
+      "verifies_db_delta": "DB差分なし（循環拒否はprocess loggerへ1 event）",
       "verifies_evidence": "構造化ログの拒否行（理由 = circular lineage）",
       "verifies_forbidden": "canonical_url 重複行の作成・循環系譜の成立",
       "external_calls": "0 回",
@@ -2801,9 +3023,7 @@
         "column_refs": [],
         "state_refs": [],
         "event_refs": [],
-        "evidence_kind_refs": [
-          "operation_log"
-        ],
+        "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
       }
@@ -2843,11 +3063,11 @@
       ],
       "kind": "reject",
       "verifies_state": "kpi_nodes は seed の行のみ",
-      "verifies_db_delta": "operation_log +3 行（有料拒否・重複拒否・越境拒否）のみ",
+      "verifies_db_delta": "DB差分なし（有料拒否・重複拒否・越境拒否はprocess loggerへ各1 event）",
       "verifies_evidence": "構造化ログの拒否行（指標型・node_key・理由）",
       "verifies_forbidden": "cac/roas/ad_spend 型ノードの成立（アプリ層を迂回した直接 INSERT も DDL CHECK で拒否されること）",
       "external_calls": "0 回",
-      "method": "pytest: seed: business_profiles 2 行、profile1 に node_key='exposure.blog' 登録済み、要求 = {metric_type:'roas'}／{node_key:'exposure.blog'}／{parent: profile2 のノード} を seed し、raise される例外型／kpi_nodes 件数／operation_log SELECT を assert（それぞれ kpi_nodes 登録を実行する）",
+      "method": "pytest: paid metric・重複key・越境parentをseedし、例外型／kpi_nodes差分0／process loggerの構造化拒否eventをassertする",
       "slice": "S0",
       "semantic_refs": {
         "table_refs": [
@@ -2857,9 +3077,7 @@
         "column_refs": [],
         "state_refs": [],
         "event_refs": [],
-        "evidence_kind_refs": [
-          "operation_log"
-        ],
+        "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
       }
@@ -2901,27 +3119,38 @@
       ],
       "kind": "normal",
       "verifies_state": "measurements 10 行（全行 evidence_id が S1 証跡へ FK 接続）",
-      "verifies_db_delta": "1 回目: evidence +1 行・measurements +10 行。2 回目: 差分なし",
-      "verifies_evidence": "evidence（kind=measurement、value=S1、payload に source・file_hash・period・row_count=10）",
+      "verifies_db_delta": "1回目はeffect='read'のexternal_operations +1行（confirmed）と対応operation_log +1行、measurement evidence +1行、measurements +10行。2回目は全差分なし",
+      "verifies_evidence": "外部取得operation_log（external_operation_id一致）＋measurement evidence（value=S1、source・file_hash・period・row_count=10）。operation_logはexternal_operation_row_idで該当external_operations.idへexactly-oneに束縛し、provider external_operation_idは任意。各read要求はcorrelation_key='read:<task_id>:<request_hash>:<request_sequence>'を用い、反復poll/再取得ではrequest_sequenceを単調増加し、operation_log payloadのrequest_sequence一致をassertする。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
       "verifies_forbidden": "2 回目実行での行重複・証跡なし行の投入・有料指標ノードへの投入",
-      "external_calls": "0 回",
-      "method": "pytest: seed: kpi_nodes 1 行（exposure/pv）、tasks に T-MEAS 1 行、fixture ファイル ga4_export.csv（10 行、SHA-256=S1） を seed し、measurements 件数（1 回目 +10・2 回目 ±0）／evidence SELECT（kind='measurement'）の created_at と measurements.imported_at の順序 を assert（同一エクスポートで取り込みを 2 回実行する）",
+      "external_calls": "actual-mode GA4 read 1回（同一export再投入時0回）",
+      "method": "pytest: GA4取得mockから同一exportを2回取り込み、effect='read'のexternal_operations・対応operation_log・measurement evidence・measurements件数と時系列をassertする。外部I/O test doubleはexecution_mode='actual'で呼び出す（mock/dry-run経路ではない）",
       "slice": "S0",
       "semantic_refs": {
         "table_refs": [
           "evidence",
+          "external_operations",
           "kpi_nodes",
           "measurements",
           "tasks"
         ],
         "column_refs": [
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
+          "external_operations.status",
           "measurements.imported_at"
         ],
         "state_refs": [],
         "event_refs": [],
         "evidence_kind_refs": [
           "file_hash",
-          "measurement"
+          "measurement",
+          "operation_log"
         ],
         "error_type_refs": [],
         "api_refs": []
@@ -2934,7 +3163,7 @@
       ],
       "kind": "reject",
       "verifies_state": "部分破損: measurements 7 行＋隔離 3 行。全破損: measurements 差分なし",
-      "verifies_db_delta": "部分: evidence +1・measurements +7・operation_log +1（隔離記録）。全破損: operation_log +1 のみ",
+      "verifies_db_delta": "部分破損はmeasurement evidence +1・measurements +7、全破損はDB差分なし。隔離・全体拒否はprocess loggerへ記録しoperation_logを生成しない",
       "verifies_evidence": "秘匿化済み構造化ログ（隔離件数・理由）／取得証跡（部分破損側は投入前に記録済み）",
       "verifies_forbidden": "破損行の measurements 混入・全破損ファイルからの部分コミット",
       "external_calls": "0 回",
@@ -2949,9 +3178,7 @@
         "column_refs": [],
         "state_refs": [],
         "event_refs": [],
-        "evidence_kind_refs": [
-          "operation_log"
-        ],
+        "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
       }
@@ -3021,11 +3248,11 @@
       ],
       "kind": "reject",
       "verifies_state": "出力ファイル 0 件、dashboard 証跡 0 件",
-      "verifies_db_delta": "operation_log +1 行（検出・破棄）のみ",
+      "verifies_db_delta": "DB差分なし（検出・破棄はprocess loggerへ1 event）",
       "verifies_evidence": "構造化ログの拒否行（理由 = external reference detected／secret pattern）",
       "verifies_forbidden": "汚染 HTML の出力先残留・汚染成果物の証跡化",
       "external_calls": "0 回",
-      "method": "pytest: seed: 汚染テンプレート fixture／集計対象に 'password=…' 様文字列を含む seed 行 を seed し、raise される例外型／出力ディレクトリ（成果物なし）／evidence 件数／operation_log SELECT を assert（HTML ダッシュボード生成を実行する）",
+      "method": "pytest: 外部参照・secret混入fixtureで生成し、例外型／成果物・evidence差分0／process loggerの構造化拒否eventをassertする",
       "slice": "S1",
       "semantic_refs": {
         "table_refs": [
@@ -3035,8 +3262,7 @@
         "state_refs": [],
         "event_refs": [],
         "evidence_kind_refs": [
-          "dashboard",
-          "operation_log"
+          "dashboard"
         ],
         "error_type_refs": [],
         "api_refs": []
@@ -3076,7 +3302,7 @@
         "AC-71-1"
       ],
       "kind": "normal",
-      "verifies_state": "25 テーブル＋保護トリガ 16 本（append-only・TLP 整合・brief 不変／状態遷移／valid_until）存在、verify() = pass",
+      "verifies_state": "25 テーブル＋保護トリガ 37 本（append-only・TLP 整合・brief 不変／状態遷移／valid_until）存在、verify() = pass",
       "verifies_db_delta": "全 25 テーブル CREATE、schema_version +N 行（migration ごと）",
       "verifies_evidence": "schema_version 行（version・migration 名・checksum・適用者・時刻）",
       "verifies_forbidden": "DDL 正本にないテーブル・トリガの生成、FK OFF での使用開始",
@@ -3238,21 +3464,33 @@
         "AC-73-1"
       ],
       "kind": "normal",
-      "verifies_state": "台帳 1 行・当月累計 300 円",
+      "verifies_state": "charge 1行・reversal 0行・当月純額300円",
       "verifies_db_delta": "spend_ledger +1 行",
-      "verifies_evidence": "spend_ledger 行（external_operation_id で operation_log 証跡と紐付く）",
+      "verifies_evidence": "entry_type='charge'のexternal_operation_row_idがconfirmed approved_paid_operation actual writeとexactly-one、task/service一致、amount>0/JPY/reversal参照NULL。operation_logも同じ内部行へexactly-oneでprovider IDはNULL可 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
       "verifies_forbidden": "既存台帳行の変更・二重計上",
       "external_calls": "0 回",
-      "method": "pytest: seed: tasks 1 行、approvals 1 行（approved）、external_operations 1 行（confirmed, external_operation_id='seed-001'）、記録要求 = {service:'seedance', amount_minor:300, currency:'JPY', purpose:'動画生成', occurred_at:今日} を seed し、spend_ledger SELECT／月間累計クエリの戻り値 を assert（支出記録と当月累計の照会を実行する）",
+      "method": "pytest: tasks・approved approval・external_operations(id=701,effect='write',policy_category='approved_paid_operation',rate_scope='seedance',execution_mode='actual',status='confirmed',provider ID=NULL)とoperation_logをseedし、chargeのinternal row/task/service/amount/JPY、月次純額、双方向exactly-oneをassertする",
       "slice": "S1",
       "semantic_refs": {
         "table_refs": [
           "approvals",
+          "evidence",
           "external_operations",
           "spend_ledger",
           "tasks"
         ],
-        "column_refs": [],
+        "column_refs": [
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
+          "external_operations.status"
+          ,"spend_ledger.external_operation_row_id"
+        ],
         "state_refs": [],
         "event_refs": [],
         "evidence_kind_refs": [
@@ -3268,18 +3506,19 @@
         "AC-73-2"
       ],
       "kind": "reject",
-      "verifies_state": "spend_ledger 1 行のまま（不完全行・重複行なし）",
+      "verifies_state": "seed済みcharge/reversalだけが内容不変（不完全・重複・FX・部分取消しなし）",
       "verifies_db_delta": "差分なし",
-      "verifies_evidence": "構造化ログの拒否行（欠落フィールド名・重複キー）",
-      "verifies_forbidden": "用途不明の支出行の混入・同一操作の二重計上",
+      "verifies_evidence": "欠落/分類/参照/金額/通貨/重複の構造化拒否ログとUPDATE/DELETE trigger拒否",
+      "verifies_forbidden": "0/負額・FX・manual charge・非approved_paid_operation・孤児/異額/異service/二重reversal・既存仕訳変更/削除",
       "external_calls": "0 回",
-      "method": "pytest: seed: spend_ledger 1 行（service='seedance', external_operation_id='seed-001'）、要求 1 = {purpose:null}、要求 2 = seed と同一 (service, external_operation_id) を seed し、raise される例外型／spend_ledger SELECT（行数） を assert（2 件の INSERT を実行する）",
+      "method": "pytest: confirmed approved_paid_operation chargeと既取消しchargeをseedし、必須欠落・row重複・read/review_sync/rejected/task-service不一致・amount<=0・USD・manual・reversal元不在/二重/異額/異service/approval欠落・UPDATE/DELETEを投入し全拒否と不変をassertする",
       "slice": "S1",
       "semantic_refs": {
         "table_refs": [
+          "external_operations",
           "spend_ledger"
         ],
-        "column_refs": [],
+        "column_refs": ["external_operations.effect", "external_operations.execution_mode", "external_operations.status", "spend_ledger.external_operation_row_id"],
         "state_refs": [],
         "event_refs": [],
         "evidence_kind_refs": [],
@@ -3293,19 +3532,31 @@
         "AC-73-3"
       ],
       "kind": "boundary",
-      "verifies_state": "台帳 +2 行（0 円行・復旧行が各 1 行）",
-      "verifies_db_delta": "spend_ledger +2 行、external_operations 1 行 UPDATE（sent→confirmed）",
-      "verifies_evidence": "spend_ledger 行＋照合復旧の operation_log 証跡",
-      "verifies_forbidden": "0 円利用の記録省略・復旧再送での二重計上",
-      "external_calls": "0 回",
-      "method": "pytest: seed: 記録要求 = {amount_minor:0}、external_operations 1 行（status='sent', external_operation_id='seed-002'）＋リモート照合 mock = 成功 を seed し、spend_ledger SELECT（0 円行の存在・seed-002 の行数 = 1）／external_operations SELECT（confirmed 化） を assert（0 円利用の記録と、再起動後の §3.3 照合→記録再開を実行する）",
+      "verifies_state": "復旧charge+1、既存chargeへの同額/同service/JPY reversal+1、無料/手動0。各再実行は1行収束",
+      "verifies_db_delta": "spend_ledger +2（charge.external_operation_row_id=702、reversal.reverses_spend_ledger_id=803・外部row NULL）、元writeをlog trigger final＋external_read/rate_scope=NULL照合read +1、operation_log各1。無料/手動0",
+      "verifies_evidence": "charge/reversalと元write/照合read operation_log。reversalは別approved correction task、read correlation式/payload sequence一致、provider ID任意 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
+      "verifies_forbidden": "0円/manual charge、write再送、二重charge/reversal、部分/異通貨取消し",
+      "external_calls": "有償操作の照合read 1回（write再送0回）",
+      "method": "pytest: amount=0・manual、sent approved_paid_operation id=702＋actual照合、未取消しcharge id=803＋別approved correction taskをseedし、無料/manual 0、照合read/log、元write log trigger final、charge 702一意、reversal 803一意・同額/service/JPY、符号付き月次純額をassertする",
       "slice": "S1",
       "semantic_refs": {
         "table_refs": [
+          "evidence",
           "external_operations",
           "spend_ledger"
         ],
-        "column_refs": [],
+        "column_refs": [
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
+          "external_operations.status"
+          ,"spend_ledger.external_operation_row_id"
+        ],
         "state_refs": [],
         "event_refs": [],
         "evidence_kind_refs": [
@@ -3347,20 +3598,18 @@
       ],
       "kind": "reject",
       "verifies_state": "両 run の状態・学習正本とも提出前のまま",
-      "verifies_db_delta": "operation_log +2 行（越境拒否 ×2）のみ",
+      "verifies_db_delta": "DB差分なし（越境拒否2件はprocess loggerへ各1 event）",
       "verifies_evidence": "構造化ログの拒否行（loop_kind・提出型・理由）",
       "verifies_forbidden": "越境成果物の永続化・単一ループへの統合的書込み",
       "external_calls": "0 回",
-      "method": "pytest: seed: AC-SR-01-1 と同じ run 構成、提出 payload = 越境型 を seed し、raise される例外型／operation_log SELECT／対象テーブル行数 を assert（両提出を実行する）",
+      "method": "pytest: 越境提出payloadをseedし、例外型／process loggerの構造化拒否event／対象テーブル差分0をassertする",
       "slice": "S1",
       "semantic_refs": {
         "table_refs": [],
         "column_refs": [],
         "state_refs": [],
         "event_refs": [],
-        "evidence_kind_refs": [
-          "operation_log"
-        ],
+        "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
       }
@@ -3397,20 +3646,18 @@
       ],
       "kind": "reject",
       "verifies_state": "observation 未受理",
-      "verifies_db_delta": "構造化ログ +1 行（拒否）のみ",
+      "verifies_db_delta": "DB差分なし（拒否はprocess loggerへ1 event）",
       "verifies_evidence": "構造化ログの拒否行（違反フィールド・理由）",
       "verifies_forbidden": "混在 payload の部分受理・fact の自動書換え",
       "external_calls": "0 回",
-      "method": "pytest: fixture: json/strategy/fixtures/ の invalid market_observation（解釈混在） を seed し、raise される例外型／operation_log SELECT を assert（観測投入を実行する）",
+      "method": "pytest: 解釈混在market_observationを投入し、例外型／process loggerの構造化拒否event／DB差分0をassertする",
       "slice": "S1",
       "semantic_refs": {
         "table_refs": [],
         "column_refs": [],
         "state_refs": [],
         "event_refs": [],
-        "evidence_kind_refs": [
-          "operation_log"
-        ],
+        "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
       }
@@ -3422,7 +3669,7 @@
       ],
       "kind": "boundary",
       "verifies_state": "観測 0 件受理、TLP は正規経路で受理",
-      "verifies_db_delta": "operation_log +1 行（判定不能拒否）、tactical_learning_packets +1 行",
+      "verifies_db_delta": "tactical_learning_packets +1行。判定不能拒否はprocess loggerへ1 eventでDB差分なし",
       "verifies_evidence": "構造化ログの拒否行（理由 = schema 判定不能）",
       "verifies_forbidden": "判定不能時の受理（fail-open）",
       "external_calls": "0 回",
@@ -3435,9 +3682,7 @@
         "column_refs": [],
         "state_refs": [],
         "event_refs": [],
-        "evidence_kind_refs": [
-          "operation_log"
-        ],
+        "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
       }
@@ -3472,20 +3717,18 @@
       ],
       "kind": "reject",
       "verifies_state": "モデル 0 件受理",
-      "verifies_db_delta": "構造化ログ +2 行（拒否）のみ",
+      "verifies_db_delta": "DB差分なし（拒否2件はprocess loggerへ各1 event）",
       "verifies_evidence": "構造化ログの拒否行（欠落フィールド一覧）",
       "verifies_forbidden": "部分受理・自由 JSON の正本混入",
       "external_calls": "0 回",
-      "method": "pytest: fixture: json/strategy/fixtures/ の invalid market_model（必須欠落）＋自由 JSON を seed し、raise される例外型／operation_log SELECT を assert（市場分析の成果物投入を実行する）",
+      "method": "pytest: 必須欠落market_modelと自由JSONを投入し、例外型／process loggerの構造化拒否event／DB差分0をassertする",
       "slice": "S1",
       "semantic_refs": {
         "table_refs": [],
         "column_refs": [],
         "state_refs": [],
         "event_refs": [],
-        "evidence_kind_refs": [
-          "operation_log"
-        ],
+        "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
       }
@@ -3545,20 +3788,18 @@
       ],
       "kind": "reject",
       "verifies_state": "segment 0 件受理",
-      "verifies_db_delta": "構造化ログ +1 行（拒否）のみ",
+      "verifies_db_delta": "DB差分なし（拒否はprocess loggerへ1 event）",
       "verifies_evidence": "構造化ログの拒否行（欠落状況フィールド一覧）",
       "verifies_forbidden": "ペルソナ型 segment の正本混入",
       "external_calls": "0 回",
-      "method": "pytest: fixture: json/strategy/fixtures/ の invalid segment_context（人口統計のみ） を seed し、raise される例外型／operation_log SELECT を assert（セグメント投入を実行する）",
+      "method": "pytest: 状況フィールド欠落segment_contextを投入し、例外型／process loggerの構造化拒否event／DB差分0をassertする",
       "slice": "S1",
       "semantic_refs": {
         "table_refs": [],
         "column_refs": [],
         "state_refs": [],
         "event_refs": [],
-        "evidence_kind_refs": [
-          "operation_log"
-        ],
+        "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
       }
@@ -3616,20 +3857,18 @@
       ],
       "kind": "reject",
       "verifies_state": "0 件受理",
-      "verifies_db_delta": "構造化ログ +2 行（拒否）のみ",
+      "verifies_db_delta": "DB差分なし（拒否2件はprocess loggerへ各1 event）",
       "verifies_evidence": "構造化ログの拒否行（欠落要素一覧）",
       "verifies_forbidden": "反証不能な仮説の正本混入",
       "external_calls": "0 回",
-      "method": "pytest: fixture: json/strategy/fixtures/ の invalid strategic_choice（棄却案空）＋invalid value_hypothesis（反証なし） を seed し、raise される例外型／operation_log SELECT を assert（成果物投入を実行する）",
+      "method": "pytest: 棄却案空choiceと反証なしhypothesisを投入し、例外型／process loggerの構造化拒否event／DB差分0をassertする",
       "slice": "S1",
       "semantic_refs": {
         "table_refs": [],
         "column_refs": [],
         "state_refs": [],
         "event_refs": [],
-        "evidence_kind_refs": [
-          "operation_log"
-        ],
+        "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
       }
@@ -3687,11 +3926,11 @@
       ],
       "kind": "reject",
       "verifies_state": "strategic_briefs 空のまま",
-      "verifies_db_delta": "構造化ログ +2 行（拒否）のみ",
+      "verifies_db_delta": "DB差分なし（拒否2件はprocess loggerへ各1 event）",
       "verifies_evidence": "構造化ログの拒否行（欠落・無効理由）",
       "verifies_forbidden": "無効 brief の INSERT・digest の発番",
       "external_calls": "0 回",
-      "method": "pytest: seed: strategic_choice_id 空の draft＋measurement_plan_json = KPI 目標値のみの draft を seed し、raise される例外型／strategic_briefs SELECT／operation_log SELECT を assert（issue_strategic_brief（S0 シードコマンド）を実行する）",
+      "method": "pytest: trace欠落draftと実質計測計画なしdraftを発行し、例外型／strategic_briefs差分0／process loggerの構造化拒否eventをassertする",
       "slice": "S0",
       "semantic_refs": {
         "table_refs": [
@@ -3700,9 +3939,7 @@
         "column_refs": [],
         "state_refs": [],
         "event_refs": [],
-        "evidence_kind_refs": [
-          "operation_log"
-        ],
+        "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
       }
@@ -4051,20 +4288,18 @@
       ],
       "kind": "reject",
       "verifies_state": "v1 = active のまま・revision accepted 0 件",
-      "verifies_db_delta": "構造化ログ +2 行（拒否）のみ",
+      "verifies_db_delta": "DB差分なし（拒否2件はprocess loggerへ各1 event）",
       "verifies_evidence": "構造化ログの拒否行（根拠不足／反証未明示）",
       "verifies_forbidden": "単一計測値による自動 accept・新版の先行生成",
       "external_calls": "0 回",
-      "method": "pytest: seed: 意味モデル v1＋根拠 1 件（KPI 計測のみ）の提案＋反証フィールド欠落の提案 を seed し、raise される例外型／意味モデル行数・status／operation_log SELECT を assert（revision の accepted 適用を試行する）",
+      "method": "pytest: 根拠不足・反証欠落revisionを適用し、例外型／意味モデル差分0／process loggerの構造化拒否eventをassertする",
       "slice": "S1",
       "semantic_refs": {
         "table_refs": [],
         "column_refs": [],
         "state_refs": [],
         "event_refs": [],
-        "evidence_kind_refs": [
-          "operation_log"
-        ],
+        "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
       }
@@ -4202,7 +4437,7 @@
       ],
       "kind": "reject",
       "verifies_state": "意味モデル不変（v1 = active）",
-      "verifies_db_delta": "構造化ログ +1 行（拒否）のみ",
+      "verifies_db_delta": "DB差分なし（拒否はprocess loggerへ1 event）",
       "verifies_evidence": "構造化ログの拒否行（理由 = 単一計測値根拠）",
       "verifies_forbidden": "KPI 変動による戦略正本の自動更新",
       "external_calls": "0 回",
@@ -4280,11 +4515,11 @@
       ],
       "kind": "reject",
       "verifies_state": "企画未承認・plan_record 0 件",
-      "verifies_db_delta": "構造化ログ +1 行（拒否）のみ",
+      "verifies_db_delta": "DB差分なし（拒否はprocess loggerへ1 event）",
       "verifies_evidence": "構造化ログの拒否行（欠落キー = recognition_change）",
       "verifies_forbidden": "宣言なし企画の主要企画としての承認",
       "external_calls": "0 回",
-      "method": "pytest: fixture: json/strategy/fixtures/ の invalid content plan（recognition_change 欠落） を seed し、raise される例外型／evidence 件数／operation_log SELECT を assert（T-PLAN の plan_record 承認を実行する）",
+      "method": "pytest: recognition_change欠落planを承認し、例外型／evidence差分0／process loggerの構造化拒否eventをassertする",
       "slice": "S1",
       "semantic_refs": {
         "table_refs": [
@@ -4294,7 +4529,6 @@
         "state_refs": [],
         "event_refs": [],
         "evidence_kind_refs": [
-          "operation_log",
           "plan_record"
         ],
         "error_type_refs": [],
@@ -4359,11 +4593,11 @@
       ],
       "kind": "reject",
       "verifies_state": "brief 0 件発行",
-      "verifies_db_delta": "構造化ログ +2 行（拒否）のみ",
+      "verifies_db_delta": "DB差分なし（拒否2件はprocess loggerへ各1 event）",
       "verifies_evidence": "構造化ログの拒否行（宣言値・台帳版）",
       "verifies_forbidden": "媒体名の media_role としての保存・揺れの自動正規化",
       "external_calls": "0 回",
-      "method": "pytest: seed: media-roles.json＋invalid draft 2 件（媒体名・大小文字揺れ） を seed し、raise される例外型／strategic_briefs 件数／operation_log SELECT を assert（issue_strategic_brief を実行する）",
+      "method": "pytest: 媒体名・大小文字揺れdraftを発行し、例外型／strategic_briefs差分0／process loggerの構造化拒否eventをassertする",
       "slice": "S1",
       "semantic_refs": {
         "table_refs": [
@@ -4372,9 +4606,7 @@
         "column_refs": [],
         "state_refs": [],
         "event_refs": [],
-        "evidence_kind_refs": [
-          "operation_log"
-        ],
+        "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
       }
@@ -4628,18 +4860,29 @@
         "AC-42-3"
       ],
       "kind": "resume",
-      "verifies_state": "プロセス再起動後、in-flight の external_operations（sent 未確定）が照合され、確定 or 補償に収束",
-      "verifies_db_delta": "external_operations の status が pending のまま残らない",
-      "verifies_evidence": "operation_log の照合結果行",
+      "verifies_state": "プロセス再起動後、effect='write' の in-flight external_operations（sent 未確定）が照合され、confirmed/unknown に収束",
+      "verifies_db_delta": "既存sent write行がterminalへ収束し、照合readのexternal_operations(effect='read') +1行がterminal化。両行にoperation_log exactly 1",
+      "verifies_evidence": "元write行と照合read行へexternal_operation_row_idでexactly-oneに束縛したoperation_log。readはcorrelation_key='read:<task_id>:<request_hash>:<request_sequence>'・payload request_sequence一致、provider external_operation_id任意 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
       "verifies_forbidden": "同一操作の二重送信（冪等キー衝突）",
       "external_calls": "照合 1 回（送信の再実行 0 回）",
       "method": "pytest: sent 記録後に強制中断 → 再開処理を実行し、冪等キーで二重送信が抑止されることを assert",
       "slice": "S1",
       "semantic_refs": {
         "table_refs": [
+          "evidence",
           "external_operations"
         ],
-        "column_refs": [],
+        "column_refs": [
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
+          "external_operations.status"
+        ],
         "state_refs": [],
         "event_refs": [
           "resume"
@@ -4822,11 +5065,11 @@
       ],
       "kind": "reject",
       "verifies_state": "registry 不変（x の browser 書込み行なし）",
-      "verifies_db_delta": "operation_log に拒否 1 行",
+      "verifies_db_delta": "DB差分なし（拒否はprocess loggerへ1 event）",
       "verifies_evidence": "拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）（BR-M-X-4 理由つき）",
       "verifies_forbidden": "x の browser 書込み経路行の混入・後続経路解決での採用",
       "external_calls": "0 回",
-      "method": "pytest: seed: 空の x 経路レジストリ、登録要求 = {service:'x', route_type:'browser', operation:'write'} を seed し、raise される例外型／registry SELECT（x の browser 書込み行 0 件）／operation_log を assert（レジストリ行の登録を実行する）",
+      "method": "pytest: 空のxレジストリとbrowser write登録要求をseedし、XBrowserRouteDenied、registry/DB差分なし、process logger拒否event 1件をassert",
       "slice": "S0",
       "semantic_refs": {
         "table_refs": [
@@ -4835,9 +5078,7 @@
         "column_refs": [],
         "state_refs": [],
         "event_refs": [],
-        "evidence_kind_refs": [
-          "operation_log"
-        ],
+        "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
       }
@@ -5170,9 +5411,7 @@
           "tasks.done"
         ],
         "event_refs": [],
-        "evidence_kind_refs": [
-          "operation_log"
-        ],
+        "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": []
       }
@@ -6246,19 +6485,28 @@
       ],
       "kind": "reject",
       "verifies_state": "tasks.state = 'escalated'",
-      "verifies_db_delta": "external_operations 1 行 UPDATE（sent→unknown）、tasks 1 行 UPDATE（in_progress→escalated）、state_transitions +1 行（event='escalate'）、送信系の新規行 0",
-      "verifies_evidence": "external_operations の sent 行が unknown 化され、operation_log 証跡に再送行が増えないこと",
+      "verifies_db_delta": "既存external_operations(effect='write') 1行UPDATE（sent→unknown）＋照合readのexternal_operations(effect='read', status='rejected'又は'unknown') +1行、両terminal行のoperation_log各1行（計+2）、tasks 1行UPDATE（in_progress→escalated）、state_transitions +1行、送信系write新規行0",
+      "verifies_evidence": "unknown write行と照合read行へexternal_operation_row_idでexactly-oneに束縛したoperation_log。read correlation式・payload request_sequence一致、provider external_operation_id任意 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
       "verifies_forbidden": "照合不能時の再送・confirmed 化・done 遷移",
       "external_calls": "照合 1 回・送信 0 回",
-      "method": "pytest: external_operations の sent 行と照合不能スタブで resume を実行し、status の unknown 化・escalated 遷移・送信 0 回・再送行 0 を同一テストで assert",
+      "method": "pytest: external_operations(effect='write', status='sent')行と照合不能スタブでresumeを実行し、unknown化・exactly-one operation_log・escalated遷移・送信0回・再送行0を同一テストでassert",
       "slice": "S0",
       "semantic_refs": {
         "table_refs": [
+          "evidence",
           "external_operations",
           "state_transitions",
           "tasks"
         ],
         "column_refs": [
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
           "external_operations.status",
           "tasks.state"
         ],
@@ -6536,16 +6784,20 @@
       "id": "TCC-NFR-01",
       "ac": ["AC-901"],
       "verification_aspects": ["NFR-1:invalid-rejection", "NFR-1:disable-path-absence", "NFR-1:indeterminate-rejection", "NFR-1:evidence-channel", "NFR-1:fatal-escalation"],
-      "aspect_assertions": {"NFR-1:invalid-rejection": "invalid fixture全件が非0終了することをassert", "NFR-1:disable-path-absence": "src/config検索でdisable・bypass経路0件をassert", "NFR-1:indeterminate-rejection": "破損schemaと判定不能入力が全件拒否されることをassert", "NFR-1:evidence-channel": "経路別にDB差分なし又はstate_transitions拒否行をassert", "NFR-1:fatal-escalation": "gate破損時にtask escalatedと遷移1行をassert"},
+      "transition_refs": [
+        {"entity": "tasks", "from": "in_progress", "event": "escalate", "to": "escalated"},
+        {"entity": "loop_runs", "from": "running", "event": "fatal_failure", "to": "escalated"}
+      ],
+      "aspect_assertions": {"NFR-1:invalid-rejection": "invalid fixture全件が非0終了することをassert", "NFR-1:disable-path-absence": "src/config検索でdisable・bypass経路0件をassert", "NFR-1:indeterminate-rejection": "破損schemaと判定不能入力が全件拒否されることをassert", "NFR-1:evidence-channel": "経路別にDB差分なし又はstate_transitions拒否行をassert", "NFR-1:fatal-escalation": "gate破損時にtask escalateとloop fatal_failureのpassed遷移2行をassert"},
       "kind": "reject",
-      "verifies_state": "CI/schema拒否は状態不変、未定義遷移は状態不変、ゲート破損はfatal_failureでescalated",
-      "verifies_db_delta": "CI/schema拒否は差分なし、未定義遷移だけrejected +1、ゲート破損はescalated +1、operation_log差分なし",
-      "verifies_evidence": "ゲート失敗ログとstate_transitions拒否行",
+      "verifies_state": "CI/schema拒否と未定義遷移は状態不変、ゲート破損はtask/親loop_run双方escalated",
+      "verifies_db_delta": "CI/schema拒否は差分なし、未定義遷移rejected +1、ゲート破損はtask escalate＋loop fatal_failureのpassed +2、operation_log差分なし",
+      "verifies_evidence": "秘匿化済みゲート失敗ログ、state_transitions rejected行とpassed行",
       "verifies_forbidden": "判定不能入力の通過・disable/bypass経路・業務状態更新・operation_log誤記録",
       "external_calls": "0 回",
-      "method": "pytest: invalid fixture、破損schema、未定義遷移、disable/bypass語、ゲート破損を個別投入し各経路の状態・差分・証跡先をassert",
+      "method": "pytest: invalid fixture、破損schema、未定義遷移、disable/bypass語、task=in_progress/loop=runningのゲート破損を個別投入し、未定義遷移の状態不変＋rejected 1行、破損時task escalate/loop fatal_failure＋passed 2行をassert",
       "slice": "S0",
-      "semantic_refs": {"table_refs": ["loop_runs", "state_transitions"], "column_refs": ["loop_runs.state"], "state_refs": [], "event_refs": [], "evidence_kind_refs": [], "error_type_refs": ["TransitionRejected"], "api_refs": []}
+      "semantic_refs": {"table_refs": ["loop_runs", "state_transitions", "tasks"], "column_refs": ["loop_runs.state", "state_transitions.guard_result", "tasks.state"], "state_refs": ["loop_runs.escalated", "loop_runs.running", "tasks.escalated", "tasks.in_progress"], "event_refs": ["escalate", "fatal_failure"], "evidence_kind_refs": [], "error_type_refs": ["TransitionRejected"], "api_refs": []}
     },
     {
       "id": "TCC-NFR-02",
@@ -6570,72 +6822,174 @@
       "kind": "kill",
       "verifies_state": "正準ResumeActionまたはunknownで停止し証跡先行順序を維持",
       "verifies_db_delta": "confirmed/unknownへ一意収束し重複行なし",
-      "verifies_evidence": "external_operations遷移とoperation_log照合結果",
+      "verifies_evidence": "external_operations遷移とoperation_log照合結果。operation_logはexternal_operation_row_idで該当external_operations.idへexactly-oneに束縛し、provider external_operation_idは任意。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
       "verifies_forbidden": "推測完了・再送・メモリ依存再開・証跡より先の業務遷移",
-      "external_calls": "mock WP 受信 0 回（再開時）",
-      "method": "pytest: 全非終端と最危険kill pointへfault injectionしSQLite再開結果とmock受信回数をassert",
+      "external_calls": "case別: prepared再開はwrite最大1回、sent再開は照合read 1回、既送writeの再送0回",
+      "method": "pytest: Docker WP実書込みを使い、全非終端と最危険kill pointへfault injectionしてSQLite再開結果・effect='write'・受信回数・terminal行とoperation_logのexactly-one束縛をassert。外部I/O test doubleはexecution_mode='actual'で呼び出す（mock/dry-run経路ではない）",
       "slice": "S0",
-      "semantic_refs": {"table_refs": ["external_operations", "loop_runs", "tasks"], "column_refs": ["external_operations.status", "loop_runs.state", "tasks.state"], "state_refs": [], "event_refs": [], "evidence_kind_refs": ["operation_log"], "error_type_refs": [], "api_refs": []}
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "external_operations",
+          "loop_runs",
+          "tasks"
+        ],
+        "column_refs": [
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
+          "external_operations.status",
+          "loop_runs.state",
+          "tasks.state"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "TCC-NFR-04",
       "ac": ["AC-904"],
       "verification_aspects": ["NFR-4:secret-zero", "NFR-4:masking", "NFR-4:runtime-failure", "NFR-4:credential-rotation-escalation"],
+      "transition_refs": [
+        {"entity": "tasks", "from": "in_progress", "event": "escalate", "to": "escalated"}
+      ],
       "aspect_assertions": {"NFR-4:secret-zero": "repo履歴・DB全列・全ログ・evidenceのknown secret 0 hitをassert", "NFR-4:masking": "検知ログが伏字のみで平文非包含をassert", "NFR-4:runtime-failure": "credential混入fixtureが永続化前拒否されtask escalatedをassert", "NFR-4:credential-rotation-escalation": "失効・再発行要求とescalate遷移1行をassert"},
       "kind": "reject",
       "verifies_state": "secret検出0件、違反task escalated、credential rotation escalation発行済み",
-      "verifies_db_delta": "正常マスク済み証跡と違反escalate遷移1行だけ、平文差分なし",
-      "verifies_evidence": "secret-scan、マスキング、失効・再発行要求の秘匿化済みescalation",
+      "verifies_db_delta": "正常なDocker WP読取りはexternal_operations(effect='read', status='confirmed') +1行とexternal_operation_row_idで束縛したoperation_log +1行。違反taskはevent=escalate・guard_result=passed 1行だけで、違反external_operations/operation_log・平文差分なし",
+      "verifies_evidence": "正常読取りのexactly-one operation_log、secret-scan、マスキング、失効・再発行要求の秘匿化済みescalation。operation_logはexternal_operation_row_idで該当external_operations.idへexactly-oneに束縛し、provider external_operation_idは任意。各read要求はcorrelation_key='read:<task_id>:<request_hash>:<request_sequence>'を用い、反復poll/再取得ではrequest_sequenceを単調増加し、operation_log payloadのrequest_sequence一致をassertする。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
       "verifies_forbidden": "credential永続化・違反task継続・rotation要求欠落",
-      "external_calls": "mock 1 回",
-      "method": "pytest: 正常mock外部操作後にknown secretでrepo履歴・DB全列・ログ・evidenceを走査して0 hitとfingerprint非包含をassertし、別のcredential混入write fixtureを投入して永続化前拒否、task escalated、escalate遷移1行、失効・再発行要求、外部呼出0をassert",
+      "external_calls": "Docker WP health読取り1回、違反fixture 0回",
+      "method": "pytest: 正常なDocker WP health読取り後にknown secretでrepo履歴・DB全列・ログ・evidenceを走査し、0 hit・fingerprint非包含・effect='read'行とoperation_logのexactly-one束縛をassertする。別のcredential混入write fixtureは永続化前拒否、tasks.in_progress→escalated、event=escalate/guard_result=passed 1行、失効・再発行要求、違反外部呼出/external_operations/operation_log 0をassert",
       "slice": "S0",
-      "semantic_refs": {"table_refs": ["evidence", "external_operations", "state_transitions", "tasks"], "column_refs": ["tasks.state"], "state_refs": ["tasks.escalated"], "event_refs": ["escalate"], "evidence_kind_refs": ["operation_log"], "error_type_refs": ["CredentialLeakDetected"], "api_refs": []}
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "external_operations",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
+          "external_operations.status",
+          "state_transitions.guard_result",
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.escalated",
+          "tasks.in_progress"
+        ],
+        "event_refs": [
+          "escalate"
+        ],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "CredentialLeakDetected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "TCC-NFR-05",
       "ac": ["AC-905"],
       "verification_aspects": ["NFR-5:transition-coverage", "NFR-5:gate-decision-coverage", "NFR-5:external-operation-coverage", "NFR-5:single-query-backlog"],
-      "aspect_assertions": {"NFR-5:transition-coverage": "全許可・拒否遷移fixtureを発火しstate_transitions対応行をassert", "NFR-5:gate-decision-coverage": "pair_plan_qualityとpair_kpi_measureの成立・拒否fixtureを発火し判定行をassert", "NFR-5:external-operation-coverage": "全external_operations行に対応operation_logが一意にあることをassert", "NFR-5:single-query-backlog": "UNION ALL 1 statementの結果集合が全非終端seedと一致をassert"},
+      "aspect_assertions": {"NFR-5:transition-coverage": "全許可・拒否遷移fixtureを発火しstate_transitions対応行をassert", "NFR-5:gate-decision-coverage": "pair_plan_qualityとpair_kpi_measureの成立・拒否fixtureを発火し判定行をassert", "NFR-5:external-operation-coverage": "terminal external_operations↔operation_logをexternal_operation_row_idで双方向exactly-one、task/effect/policy_category/rate_scope/service/operation/correlation/request hash/sequence/result一致、orphan双方0。required integer>0のtimeout config current=300と注入UTC ClockでSQL:`SELECT id FROM external_operations WHERE status='sent' AND sent_at < :recovery_cutoff_utc`を実行し、cutoff直前だけ検出・等値/直後非検出、config不正fail-closeをassert", "NFR-5:single-query-backlog": "UNION ALL 1 statementの結果集合が全非終端seedと一致をassert"},
       "kind": "normal",
       "verifies_state": "滞留SQLが非終端6状態だけを返す",
       "verifies_db_delta": "読取のみで差分なし",
-      "verifies_evidence": "全state_transitions・pairゲート判定・外部操作対応ログ",
-      "verifies_forbidden": "終端混入・複数query結合・遷移/pairゲート/外部操作の証跡欠落",
+      "verifies_evidence": "全state_transitions・pair判定・terminal外部操作とexactly-one operation_log・strict cutoff境界・健全fixture超過sent 0・timeout config不正fail-close actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
+      "verifies_forbidden": "終端滞留混入・複数query結合・外部操作/operation_logのorphan・0/N件・task/effect/policy_category/rate_scope/service/operation/correlation/request hash/sequence/result不一致・timeout超過sent・wall clock直呼び・config推測",
       "external_calls": "0 回",
-      "method": "pytest: 全状態seedへNFR-5のUNION ALLを1 statement実行し集合一致と証跡件数をassert",
+      "method": "pytest: 全状態seedのUNION ALL集合一致に加え、effect別terminal external_operationsとoperation_logをexternal_operation_row_idで双方向anti-join/GROUP BYしexactly-one・対応属性一致・orphan双方0をassert。provider ID NULL/値あり双方を含む。config.external_operation.sent_recovery_timeout_sec=300とClock=Tを注入しSQL:`SELECT id FROM external_operations WHERE status='sent' AND sent_at < :recovery_cutoff_utc`へcutoff-1秒/等値/+1秒を投入して直前だけ検出、等値/直後非検出、健全fixture0件、config欠落/string/0はfail-closeをassertする",
       "slice": "S0",
-      "semantic_refs": {"table_refs": ["external_operations", "loop_runs", "pair_kpi_measure", "pair_plan_quality", "state_transitions", "tasks"], "column_refs": ["loop_runs.state", "tasks.state"], "state_refs": [], "event_refs": [], "evidence_kind_refs": ["operation_log"], "error_type_refs": [], "api_refs": []}
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "evidence",
+          "external_operations",
+          "loop_runs",
+          "pair_kpi_measure",
+          "pair_plan_quality",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+      "external_operations.operation",
+      "external_operations.policy_category",
+      "external_operations.rate_scope",
+      "external_operations.request_hash",
+          "external_operations.request_sequence",
+          "external_operations.service",
+          "external_operations.status",
+          "loop_runs.state",
+          "tasks.state"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "TCC-NFR-06",
       "ac": ["AC-906"],
-      "verification_aspects": ["NFR-6:projected-cap", "NFR-6:free-route-continuity", "NFR-6:ledger-completeness", "NFR-6:config-missing-failclose"],
-      "aspect_assertions": {"NFR-6:projected-cap": "既支出+要求額の直前・一致・1円超過境界をassert", "NFR-6:free-route-continuity": "有償拒否時も無償task開始可能をassert", "NFR-6:ledger-completeness": "confirmed有償operationとledgerの双方向一意対応をassert", "NFR-6:config-missing-failclose": "cap欠落時に有償外部呼出0とtask escalatedをassert"},
+      "verification_aspects": ["NFR-6:projected-cap", "NFR-6:free-route-continuity", "NFR-6:ledger-completeness", "NFR-6:reversal-integrity", "NFR-6:append-only", "NFR-6:config-missing-failclose"],
+      "transition_refs": [
+        {"entity": "tasks", "from": "pending", "event": "non_retryable_failure", "to": "failed"},
+        {"entity": "tasks", "from": "pending", "event": "escalate", "to": "escalated"},
+        {"entity": "tasks", "from": "pending", "event": "claim", "to": "in_progress"}
+      ],
+      "aspect_assertions": {"NFR-6:projected-cap": "charge−reversal純額+要求額の直前・一致・1円超過境界をassert", "NFR-6:free-route-continuity": "有償拒否時も無償task開始可能をassert", "NFR-6:ledger-completeness": "confirmed approved_paid_operationとchargeの双方向一意対応をassert", "NFR-6:reversal-integrity": "reversalが元chargeと同額/同service/JPY・別approved correction task・1回限りをassert", "NFR-6:append-only": "全仕訳UPDATE/DELETE拒否をassert", "NFR-6:config-missing-failclose": "cap欠落時に有償外部呼出0とtask escalatedをassert"},
       "kind": "boundary",
-      "verifies_state": "projected total超過・config欠落の有償taskはescalated、無償taskは開始可能、台帳漏れ0件",
-      "verifies_db_delta": "拒否時の支出・外部操作差分なし、拒否遷移のみ",
-      "verifies_evidence": "state_transitions拒否行、月次集計、external_operation_id台帳対応",
-      "verifies_forbidden": "超過有償操作・config欠落fail-open・無償経路停止・支出欠落/二重計上",
+      "verifies_state": "超過時有償task=failed、config欠落時有償task=escalated、両ケースの無償task=in_progress、台帳漏れ0件",
+      "verifies_db_delta": "超過は有償non_retryable_failure＋無償claim、欠落は有償escalate＋無償claimのpassed各2行。支出・外部操作差分なし",
+      "verifies_evidence": "state_transitions passed行、UTC半開区間の符号付き月次集計、internal external rowのcharge対応、reversal参照整合、append-only拒否",
+      "verifies_forbidden": "超過有償操作・config欠落fail-open・無償停止・charge欠落/二重・孤児/部分/二重reversal・FX/0円/manual・UPDATE/DELETE",
       "external_calls": "0 回",
-      "method": "pytest: (既支出+要求額)の直前/一致/1円超過/config欠落で開始境界とoperation↔ledger双方向対応をassert",
+      "method": "pytest: chargeを正、reversalを負としてJPYをUTC半開月区間で集計しprojected境界/config欠落を実行。遷移とfree継続、approved_paid_operation↔charge双方向exactly-one、reversalの元charge/額/service/通貨/correction approval/一回性、UPDATE/DELETE拒否をassert",
       "slice": "S0",
-      "semantic_refs": {"table_refs": ["config", "spend_ledger", "state_transitions", "tasks"], "column_refs": ["tasks.state"], "state_refs": ["tasks.escalated"], "event_refs": [], "evidence_kind_refs": [], "error_type_refs": [], "api_refs": []}
+      "semantic_refs": {"table_refs": ["config", "external_operations", "spend_ledger", "state_transitions", "tasks"], "column_refs": ["state_transitions.guard_result", "tasks.state"], "state_refs": ["tasks.escalated", "tasks.failed", "tasks.in_progress", "tasks.pending"], "event_refs": ["claim", "escalate", "non_retryable_failure"], "evidence_kind_refs": [], "error_type_refs": [], "api_refs": []}
     },
     {
       "id": "TCC-NFR-07",
       "ac": ["AC-907"],
-      "verification_aspects": ["NFR-7:interval-range", "NFR-7:uniformity", "NFR-7:daily-cap", "NFR-7:seed-recording", "NFR-7:cap-wait-state"],
-      "aspect_assertions": {"NFR-7:interval-range": "4 seed各10000標本が両端包含min/max内100%をassert", "NFR-7:uniformity": "MT19937 randint整数bucketで各seed χ² p値0.01以上をassert", "NFR-7:daily-cap": "note confirmed 1/2件境界で2件目許可・3件目拒否をassert", "NFR-7:seed-recording": "seed・algorithm ID記録と再生列完全一致をassert", "NFR-7:cap-wait-state": "上限拒否後task pending・親loop_run waiting・外部呼出0をassert"},
+      "verification_aspects": ["NFR-7:interval-range", "NFR-7:uniformity", "NFR-7:daily-cap", "NFR-7:canonical-rate-scope", "NFR-7:seed-recording", "NFR-7:cap-wait-state"],
+      "aspect_assertions": {"NFR-7:interval-range": "4 seed各10000標本が両端包含min/max内100%をassert", "NFR-7:uniformity": "MT19937 randint整数bucketで各seed χ² p値0.01以上をassert", "NFR-7:daily-cap": "rate_scope='wp'かつsent_at済みeffect='write'をstatus不問で算入しread除外、cap-1から2並行予約は片方だけsent・敗者0行をassert", "NFR-7:canonical-rate-scope": "scope/cap欠落・unknown・alias・case/shared-service迂回をpreflight拒否し外部両テーブル0、operation_log payload scope同値をassert", "NFR-7:seed-recording": "seed・algorithm ID記録と再生列完全一致をassert", "NFR-7:cap-wait-state": "cap到達・scope/cap不正・競合敗者のtask pending・親loop_run waiting・外部呼出0をassert"},
       "kind": "boundary",
-      "verifies_state": "10,000標本χ² p>=0.01、note上限到達後task pending・親loop_run waiting",
-      "verifies_db_delta": "許可分だけ外部操作追加、拒否分差分なし",
-      "verifies_evidence": "秘匿化済み実行ログのseed・標本集計・χ²統計量/p値・上限判定",
-      "verifies_forbidden": "範囲外/非一様/固定間隔・seed欠落・note2件超過・拒否後呼出",
-      "external_calls": "上限到達後 0 回",
-      "method": "pytest: MT19937 randint・seed=[0,1,42,4294967295]を各10,000標本化し両端包含範囲/各seed χ²/分散/algorithm記録/再現性とnote daily cap=2境界をassert",
+      "verifies_state": "10,000標本χ² p>=0.01、WP上限又はscope/cap不正時task pending・親loop_run waiting",
+      "verifies_db_delta": "rate_scope='wp'のconfirmed/rejected/unknown sent writeは全件消費、read除外。cap-1並行2予約は勝者write/sent +1だけ、敗者・scope/cap不正は外部両テーブル0",
+      "verifies_evidence": "seed・標本/χ²・status不問scope別write集計・read除外・scope正準化/alias拒否・cap欠落・並行勝敗 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
+      "verifies_forbidden": "範囲外/非一様/固定間隔・seed欠落・WP 2件超過・alias/case/shared service cap迂回・拒否後呼出",
+      "external_calls": "cap-1並行2予約の勝者write 1回だけ。cap到達・cap欠落・競合敗者は0回",
+      "method": "pytest: MT19937 4 seed各10,000標本の範囲/χ²/分散/再現性をassert。config.rate.wp.daily_write_cap=2でrate_scope='wp'のsent writeをstatus不問で算入しread除外。scope NULL/'WP'/alias/shared-serviceとcap欠落をfail-close、operation_log scope同値をassert。cap-1から2 thread/barrier予約で片方sent/write 1回、敗者0行・pending/waitingをassertする",
       "slice": "S0",
-      "semantic_refs": {"table_refs": ["config", "external_operations", "loop_runs", "tasks"], "column_refs": ["external_operations.status", "loop_runs.state", "tasks.state"], "state_refs": ["loop_runs.waiting", "tasks.pending"], "event_refs": [], "evidence_kind_refs": [], "error_type_refs": [], "api_refs": []}
+      "semantic_refs": {"table_refs": ["config", "evidence", "external_operations", "loop_runs", "tasks"], "column_refs": ["evidence.external_operation_row_id", "external_operations.correlation_key", "external_operations.effect", "external_operations.execution_mode", "external_operations.policy_category", "external_operations.rate_scope", "external_operations.request_hash", "external_operations.request_sequence", "external_operations.sent_at", "external_operations.status", "loop_runs.state", "tasks.state"], "state_refs": ["loop_runs.waiting", "tasks.pending"], "event_refs": [], "evidence_kind_refs": ["operation_log"], "error_type_refs": [], "api_refs": []}
     },
     {
       "id": "TCC-NFR-08",
@@ -6689,5 +7043,5 @@
   "supersedes": [
     "ARCHIVE-TC-LEGACY"
   ],
-  "approval_digest": "66b03428ea58"
+  "approval_digest": "1f2b0bb2d810"
 }

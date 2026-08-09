@@ -759,8 +759,7 @@
       ],
       "tables": [
         "r: strategic_briefs（保護対象）",
-        "w: tactical_learning_packets（唯一の還流経路）",
-        "w: evidence（外部操作証跡 = operation_log kind）"
+        "w: tactical_learning_packets（唯一の還流経路）"
       ],
       "external_deps": [],
       "config_values": [],
@@ -799,7 +798,6 @@
       ],
       "semantic_refs": {
         "table_refs": [
-          "evidence",
           "kpi_nodes",
           "measurements",
           "state_transitions",
@@ -1627,5 +1625,5 @@
   "approved_at": "2026-08-05T00:00:00+09:00",
   "authority": "PO",
   "supersedes": [],
-  "approval_digest": "ecf2afd626b4"
+  "approval_digest": "977ec7ae5c0c"
 }

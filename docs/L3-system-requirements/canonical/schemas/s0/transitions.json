@@ -79,21 +79,21 @@
       "entity": "loop_runs",
       "from": "pending",
       "event": "fatal_failure",
-      "guard": "認証失効、ゲート赤、地図破損、予算超過等で自動回復不可・人の関与が必要",
+      "guard": "認証失効、ゲート／遷移表破損、地図破損、予算超過等により loop_run 全体が自動回復不能で人の関与が必要（局所 task を隔離し安全な代替経路を同じ loop で継続できる場合は対象外）",
       "to": "escalated"
     },
     {
       "entity": "loop_runs",
       "from": "running",
       "event": "fatal_failure",
-      "guard": "認証失効、ゲート赤、地図破損、予算超過等で自動回復不可・人の関与が必要",
+      "guard": "認証失効、ゲート／遷移表破損、地図破損、予算超過等により loop_run 全体が自動回復不能で人の関与が必要（局所 task を隔離し安全な代替経路を同じ loop で継続できる場合は対象外）",
       "to": "escalated"
     },
     {
       "entity": "loop_runs",
       "from": "waiting",
       "event": "fatal_failure",
-      "guard": "認証失効、ゲート赤、地図破損、予算超過等で自動回復不可・人の関与が必要",
+      "guard": "認証失効、ゲート／遷移表破損、地図破損、予算超過等により loop_run 全体が自動回復不能で人の関与が必要（局所 task を隔離し安全な代替経路を同じ loop で継続できる場合は対象外）",
       "to": "escalated"
     },
     {
@@ -162,42 +162,42 @@
       "entity": "tasks",
       "from": "pending",
       "event": "non_retryable_failure",
-      "guard": "秘匿違反、予算超過、未定義遷移、回復不能な外部失敗、承認 decision = rejected 等が局所的で代替 task を発行できる",
+      "guard": "承認 decision = rejected、回復不能な外部失敗、又は秘匿・予算違反のうち、人の関与を要さず局所的で安全な代替 task を発行できるもの。未定義遷移要求そのものは対象外で、業務状態を変えず state_transitions.guard_result = rejected に記録する",
       "to": "failed"
     },
     {
       "entity": "tasks",
       "from": "in_progress",
       "event": "non_retryable_failure",
-      "guard": "秘匿違反、予算超過、未定義遷移、回復不能な外部失敗、承認 decision = rejected 等が局所的で代替 task を発行できる",
+      "guard": "承認 decision = rejected、回復不能な外部失敗、又は秘匿・予算違反のうち、人の関与を要さず局所的で安全な代替 task を発行できるもの。未定義遷移要求そのものは対象外で、業務状態を変えず state_transitions.guard_result = rejected に記録する",
       "to": "failed"
     },
     {
       "entity": "tasks",
       "from": "verifying",
       "event": "non_retryable_failure",
-      "guard": "秘匿違反、予算超過、未定義遷移、回復不能な外部失敗、承認 decision = rejected 等が局所的で代替 task を発行できる",
+      "guard": "承認 decision = rejected、回復不能な外部失敗、又は秘匿・予算違反のうち、人の関与を要さず局所的で安全な代替 task を発行できるもの。未定義遷移要求そのものは対象外で、業務状態を変えず state_transitions.guard_result = rejected に記録する",
       "to": "failed"
     },
     {
       "entity": "tasks",
       "from": "pending",
       "event": "escalate",
-      "guard": "credential 再投入・設計判断等、人の関与がないと進めない（承認 decision = rejected は含まない — non_retryable_failure で failed。expired は承認再要求で待機継続し config.approval_retry_limit 到達で escalate）",
+      "guard": "credential の再投入・失効／再発行、支出 cap/config の是正、ゲート／遷移表の修復、設計判断等、人の関与がないと進めない（承認 decision = rejected は含まない。局所失敗で安全な代替 task を自動発行できる場合は non_retryable_failure）",
       "to": "escalated"
     },
     {
       "entity": "tasks",
       "from": "in_progress",
       "event": "escalate",
-      "guard": "credential 再投入・設計判断等、人の関与がないと進めない（承認 decision = rejected は含まない — non_retryable_failure で failed。expired は承認再要求で待機継続し config.approval_retry_limit 到達で escalate）",
+      "guard": "credential の再投入・失効／再発行、支出 cap/config の是正、ゲート／遷移表の修復、設計判断等、人の関与がないと進めない（承認 decision = rejected は含まない。局所失敗で安全な代替 task を自動発行できる場合は non_retryable_failure）",
       "to": "escalated"
     },
     {
       "entity": "tasks",
       "from": "verifying",
       "event": "escalate",
-      "guard": "credential 再投入・設計判断等、人の関与がないと進めない（承認 decision = rejected は含まない — non_retryable_failure で failed。expired は承認再要求で待機継続し config.approval_retry_limit 到達で escalate）",
+      "guard": "credential の再投入・失効／再発行、支出 cap/config の是正、ゲート／遷移表の修復、設計判断等、人の関与がないと進めない（承認 decision = rejected は含まない。局所失敗で安全な代替 task を自動発行できる場合は non_retryable_failure）",
       "to": "escalated"
     }
   ],
@@ -230,7 +230,7 @@
     {
       "state": "done / failed / escalated / completed / cancelled",
       "on_restart": "終端のまま",
-      "safety": "新しい run/task を明示発行するまで遷移不可"
+      "safety": "元行の再開・状態復活は禁止。再実行が必要なら人が元 run/task ID を parent/source とする決定的 idempotency key の replacement run/task を pending で明示発行し、通常の start/claim から開始する"
     }
   ]
 }

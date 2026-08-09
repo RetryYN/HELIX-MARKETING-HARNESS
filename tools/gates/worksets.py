@@ -69,6 +69,45 @@ def worksets_of(data: dict | None) -> list[dict]:
     return [w for w in items if isinstance(w, dict)] if isinstance(items, list) else []
 
 
+def _ut_rename_map(data: dict | None) -> tuple[dict[tuple[str, str], str], list[str]]:
+    """DDL物理数同期に限定したUT nodeid renameを検証する。
+
+    任意の別テストへの付け替えでラチェットを迂回できないよう、同一
+    Workset・同一file・数字token以外が同一の1対1変更だけを認める。
+    """
+    rows = (data or {}).get("ut_nodeid_renames")
+    if not isinstance(rows, list):
+        return {}, ["ut_nodeid_renames が配列でない"]
+    current = {str(w.get("workset_id")): {str(n) for n in (w.get("ut_nodeids") or [])}
+               for w in worksets_of(data)}
+    mapping: dict[tuple[str, str], str] = {}
+    targets: set[tuple[str, str]] = set()
+    bad: list[str] = []
+    for index, row in enumerate(rows):
+        if not isinstance(row, dict):
+            bad.append(f"ut_nodeid_renames[{index}] がobjectでない")
+            continue
+        wid, old, new = (str(row.get(k) or "") for k in ("workset_id", "from", "to"))
+        key, target = (wid, old), (wid, new)
+        if key in mapping:
+            bad.append(f"{wid}: rename from 重複:{old}")
+        if target in targets:
+            bad.append(f"{wid}: rename to 重複:{new}")
+        mapping[key] = new
+        targets.add(target)
+        old_file, _, old_test = old.partition("::")
+        new_file, _, new_test = new.partition("::")
+        if old == new or old_file != new_file:
+            bad.append(f"{wid}: rename は同一test fileの別nodeidでない:{old}→{new}")
+        if re.sub(r"\d+", "#", old_test) != re.sub(r"\d+", "#", new_test):
+            bad.append(f"{wid}: rename で数字以外が変化:{old}→{new}")
+        if new not in current.get(wid, set()):
+            bad.append(f"{wid}: rename先が現行Worksetにない:{new}")
+        if any(old in nodeids for nodeids in current.values()):
+            bad.append(f"{wid}: rename元が現行Worksetに残存:{old}")
+    return mapping, bad
+
+
 def s0_du_ids() -> list[str]:
     return [f"DU-{i:02d}" for i in range(1, S0_DU_MAX + 1)]
 
@@ -283,6 +322,8 @@ def schema_faults(data: dict | None) -> list[str]:
         missing = sorted(set(s0_du_ids()) - set(covered))
         extra = sorted(set(covered) - set(s0_du_ids()))
         bad.append(f"S0.1 の DU を過不足なく覆っていない（欠落={missing}, 範囲外={extra}）")
+    _, rename_bad = _ut_rename_map(data)
+    bad += rename_bad
     for w in items:
         if w["status"] == "done" and not w["red_receipt"]:
             bad.append(f"{w['workset_id']}: done だが red_receipt が無い（red→green 証跡なし）")
@@ -765,6 +806,21 @@ def ratchet_faults(data: dict | None, prev: dict | None, source: str,
         return bad + _skip_reduction_faults(newly_done, skip_now, skip_prev, skip_source)
     now = {str(w.get("workset_id")): w for w in worksets_of(data)}
     old = {str(w.get("workset_id")): w for w in worksets_of(prev)}
+    rename_map, rename_bad = _ut_rename_map(data)
+    bad += rename_bad
+    old_renames = {
+        (str(row.get("workset_id")), str(row.get("from")), str(row.get("to")),
+         str(row.get("reason")))
+        for row in (prev.get("ut_nodeid_renames") or []) if isinstance(row, dict)
+    }
+    new_renames = {
+        (str(row.get("workset_id")), str(row.get("from")), str(row.get("to")),
+         str(row.get("reason")))
+        for row in ((data or {}).get("ut_nodeid_renames") or []) if isinstance(row, dict)
+    }
+    removed_renames = sorted(old_renames - new_renames)
+    if removed_renames:
+        bad.append(f"ut_nodeid_renames が縮小・改変:{removed_renames[:3]}")
     for wid, o in sorted(old.items()):
         n = now.get(wid)
         if n is None:
@@ -773,6 +829,10 @@ def ratchet_faults(data: dict | None, prev: dict | None, source: str,
         for key in ("du_ids", "api_ids", "ut_nodeids", "itc_ids", "depends_on"):
             lost = sorted({str(x) for x in (o.get(key) or [])}
                           - {str(x) for x in (n.get(key) or [])})
+            if key == "ut_nodeids":
+                current_ut = {str(x) for x in (n.get(key) or [])}
+                lost = [nodeid for nodeid in lost
+                        if rename_map.get((wid, nodeid)) not in current_ut]
             if lost:
                 bad.append(f"{wid}.{key} が縮小:{lost[:3]}")
         if RANK.get(str(n.get("status")), -1) < RANK.get(str(o.get("status")), -1):

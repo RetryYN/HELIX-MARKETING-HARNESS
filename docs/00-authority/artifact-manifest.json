@@ -858,7 +858,7 @@
       "previous_paths": [
         "docs/requirements/json/br/br-contracts.json"
       ],
-      "approval_digest": "3a8888403ce6",
+      "approval_digest": "6bfd434b51fb",
       "review_digest": null
     },
     {
@@ -1094,7 +1094,7 @@
       "previous_paths": [
         "docs/requirements/json/ac/ac-contracts.json"
       ],
-      "approval_digest": "5dd171616681",
+      "approval_digest": "6281f2db8aa8",
       "review_digest": null
     },
     {
@@ -1160,7 +1160,7 @@
       "previous_paths": [
         "docs/requirements/json/fr/fr-contracts.json"
       ],
-      "approval_digest": "ea275cdd9508",
+      "approval_digest": "c313be37fc53",
       "review_digest": null
     },
     {
@@ -1732,7 +1732,7 @@
       "previous_paths": [
         "docs/requirements/json/nfr/nfr-contracts.json"
       ],
-      "approval_digest": "d9e5b037af9c",
+      "approval_digest": "4cd61e728300",
       "review_digest": null
     },
     {
@@ -1754,7 +1754,7 @@
       "previous_paths": [
         "docs/requirements/s0-contract_v0.1.md"
       ],
-      "approval_digest": "f77330da3aae",
+      "approval_digest": "4f5ac5fe3bc8",
       "review_digest": null
     },
     {
@@ -2214,7 +2214,7 @@
       "previous_paths": [
         "docs/requirements/json/strategy/sr-contracts.json"
       ],
-      "approval_digest": "ecf2afd626b4",
+      "approval_digest": "977ec7ae5c0c",
       "review_digest": null
     },
     {
@@ -2668,7 +2668,7 @@
       "previous_paths": [
         "docs/requirements/json/verification/tc-contracts.json"
       ],
-      "approval_digest": "66b03428ea58",
+      "approval_digest": "1f2b0bb2d810",
       "review_digest": null
     },
     {
@@ -2756,7 +2756,7 @@
       "previous_paths": [
         "docs/design/approval-design_v0.1.md"
       ],
-      "approval_digest": "21ffffed51cb",
+      "approval_digest": "3a403cdb2ff4",
       "review_digest": null
     },
     {
@@ -2778,7 +2778,7 @@
       "previous_paths": [
         "docs/design/basic-design_v0.1.md"
       ],
-      "approval_digest": "f591bd8f83cb",
+      "approval_digest": "6ef47350715b",
       "review_digest": null
     },
     {
@@ -2844,7 +2844,7 @@
       "previous_paths": [
         "docs/design/json/cmp-contracts.json"
       ],
-      "approval_digest": "5b0b79cd0988",
+      "approval_digest": "e0c45722a185",
       "review_digest": null
     },
     {
@@ -2932,7 +2932,7 @@
       "previous_paths": [
         "docs/design/db-design_v0.1.md"
       ],
-      "approval_digest": "1db73b60d65d",
+      "approval_digest": "87e38658e04b",
       "review_digest": null
     },
     {
@@ -2954,7 +2954,7 @@
       "previous_paths": [
         "docs/design/external-if-design_v0.1.md"
       ],
-      "approval_digest": "dc208278b9c7",
+      "approval_digest": "82adce1bdb8d",
       "review_digest": null
     },
     {
@@ -3154,7 +3154,7 @@
       "previous_paths": [
         "docs/design/json/du-contracts.json"
       ],
-      "approval_digest": "90e5256f2295",
+      "approval_digest": "9c20b7e09797",
       "review_digest": null
     },
     {
@@ -3198,7 +3198,7 @@
       "previous_paths": [
         "docs/design/error-taxonomy_v0.1.md"
       ],
-      "approval_digest": "6b3457b33946",
+      "approval_digest": "97b1bea7c697",
       "review_digest": null
     },
     {
@@ -3306,7 +3306,7 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [],
       "previous_paths": [],
-      "approval_digest": "36da5dc77692",
+      "approval_digest": "8e5a8b45c389",
       "review_digest": null
     },
     {
@@ -3348,7 +3348,7 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [],
       "previous_paths": [],
-      "approval_digest": "1a69625b39a1",
+      "approval_digest": "6fb1aa60ea03",
       "review_digest": null
     },
     {
@@ -3368,7 +3368,7 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [],
       "previous_paths": [],
-      "approval_digest": "277a3a58ee7a",
+      "approval_digest": "57bb3214b260",
       "review_digest": null
     },
     {
@@ -3388,7 +3388,7 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [],
       "previous_paths": [],
-      "approval_digest": "0045ab37e7d1",
+      "approval_digest": "646394a36687",
       "review_digest": null
     },
     {
@@ -3408,7 +3408,7 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [],
       "previous_paths": [],
-      "approval_digest": "229e4bf9845f",
+      "approval_digest": "68e2a643d754",
       "review_digest": null
     },
     {
@@ -3428,7 +3428,7 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [],
       "previous_paths": [],
-      "approval_digest": "51b27835f0d0",
+      "approval_digest": "17e4bb8a1c94",
       "review_digest": null
     },
     {
@@ -3614,7 +3614,7 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [],
       "previous_paths": [],
-      "approval_digest": "d53fba0e2c56",
+      "approval_digest": "2f08d683c1c7",
       "review_digest": null
     },
     {

@@ -2,7 +2,7 @@
 
 # 機能要件 実行契約（FR contracts） v0.1
 
-> status: **confirmed**（2026-08-01 PO 承認 — receipt ea275cdd9508）。JSON 内容正本の生成ビュー（全層再降下 §3）
+> status: **confirmed**（2026-08-01 PO 承認 — receipt c313be37fc53）。JSON 内容正本の生成ビュー（全層再降下 §3）
 > 各 FR に 18 観点の実行・検証・拒否・復旧契約を必須化（G-REQ-CONTRACT／G-INVARIANT-TRACE）。
 
 ## FR-11 ループ状態機械
@@ -210,7 +210,7 @@
 - **副作用**: pair_plan_quality INSERT（成立時）／pair_plan_quality の status UPDATE（revoked 化）／秘匿化済み構造化拒否ログ（公開拒否時）
 - **冪等性**: 同一 (plan_id, review_evidence_id) の成立要求は UNIQUE 制約により 1 行のみ。公開前検証は pure（同一 DB 状態→同一判定）で再実行安全。
 - **証跡**: pair_plan_quality 行（成立・失効の状態）／evidence.kind = review_pass／plan_record（成立根拠）／構造化ログの拒否行（ペア不成立の公開試行）
-- **使用テーブル・正本**: rw: pair_plan_quality／r: action_plans／r: tasks（review_task 参照）／r: evidence（review_pass・plan_record）／w: evidence（外部操作証跡 = operation_log kind）
+- **使用テーブル・正本**: rw: pair_plan_quality／r: action_plans／r: tasks（review_task 参照）／r: evidence（review_pass・plan_record）
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: pair 成立条件 = 両参照実在＋review_pass PASS＋commit_hash 一致（s0-contract §4.1）
 - **trace**: 上流 = BR-B1 REQ-008 ／ 下流 = AC-21-1 AC-21-2 AC-21-3 AC-21-4 AC-21-5 FN-201 FN-202 CMP-03 ／ スライス = S0
@@ -239,9 +239,9 @@
 ## FR-23 ゼロ広告費ゲート
 
 - **入力**: KPI ノード登録要求（kpi_node の型・名称）／ブラウザ遷移先 URL（str — コネクタ経由）
-- **出力**: 登録拒否: PaidMetricRejected 例外／URL 遮断: UrlDenied 例外＋operation_log 行／許可時: 通過（副作用なし）
+- **出力**: 登録拒否: PaidMetricRejected 例外／URL 遮断: UrlDenied 例外＋秘匿化済み構造化拒否ログ／許可時: 通過（副作用なし）
 - **事前条件**: 有料指標型の定義リスト（固定値）がロード済み／URL 許可リスト（allow-list）が config に存在する
-- **事後条件**: 有料指標は kpi_nodes に存在しない／課金ドメインへの遷移が operation_log 上で 0 件
+- **事後条件**: 有料指標は kpi_nodes に存在しない／課金ドメインへの外部呼出しが 0 件
 - **不変条件**: deny-by-default（許可リストにない URL は常に拒否）／本ゲートに人間によるバイパス経路が存在しない
 - **状態遷移**: なし
 - **正常動作**: KPI 登録時は指標型を有料指標定義と照合し、非該当のみ登録を通す。ブラウザ遷移時は URL を許可リストと照合し、一致のみ通す。
@@ -252,7 +252,7 @@
 - **副作用**: 構造化ログ出力（拒否時のみ — FN-704）
 - **冪等性**: 判定は pure（同一入力→同一判定）。拒否ログは操作単位で 1 行。
 - **証跡**: 拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）（URL・指標名・理由）
-- **使用テーブル・正本**: r: config（URL 許可リスト）／r: kpi_nodes（重複検査）／w: evidence（外部操作証跡 = operation_log kind）
+- **使用テーブル・正本**: r: config（URL 許可リスト）／r: kpi_nodes（重複検査）
 - **外部依存**: なし
 - **設定値**: config.url_allowlist（媒体別） ／ **固定値**: 有料指標型の定義リスト（CAC/ROAS/広告費/CPC/CPM）
 - **trace**: 上流 = BR-C1 REQ-012 ／ 下流 = AC-23-1 AC-23-2 AC-23-3 AC-23-4 AC-23-5 FN-204 CMP-03 ／ スライス = S0
@@ -260,7 +260,7 @@
 ## FR-24 PR 表記ゲート
 
 - **入力**: 公開前成果物（記事 HTML/ソース — git workspace、commit hash で特定）／アフィリエイト判定用 ASP ドメインリスト（config）／PR 表記ブロックの検証規則（固定値 — 必須文言・配置）
-- **出力**: 通過判定（アフィリエイト非該当 or 表記検証合格）／拒否時: PrLabelMissing 例外＋operation_log 行（公開ゲート不通過）
+- **出力**: 通過判定（アフィリエイト非該当 or 表記検証合格）／拒否時: PrLabelMissing 例外＋秘匿化済み構造化拒否ログ（公開ゲート不通過）
 - **事前条件**: 成果物が commit hash で固定済み（FR-54）／ASP ドメインリストが config に存在する／公開ゲート（FR-21 経路）の前段として本検証が配線されている
 - **事後条件**: PR 表記ブロックなしのアフィリエイト成果物が公開ゲートを通過していない／拒否時、外部書込み（WP API 呼出し）が 0 件である
 - **不変条件**: 表記検証に合格しないアフィリエイト成果物の公開は存在しない（ステマ規制遵守 — BR-C2）／判定不能な成果物はアフィリエイト該当として扱う（fail-close）／検証は commit 固定済み成果物に対して行い、検証後の内容差し替えは pair 失効（FR-21）で無効化される
@@ -273,7 +273,7 @@
 - **副作用**: 構造化ログ出力（拒否時のみ — FN-704）
 - **冪等性**: 判定は pure（同一 commit＋同一リスト→同一判定）。拒否ログは公開試行単位で 1 行。
 - **証跡**: 拒否の構造化ログ（FN-704。状態遷移拒否は state_transitions の拒否行）（対象成果物 commit hash・検出リンク・欠落規則）／通過時は review_pass 証跡の checked_items に表記検証結果を含める
-- **使用テーブル・正本**: r: config（ASP ドメインリスト）／r: assets（成果物参照）／w: evidence（外部操作証跡 = operation_log kind）
+- **使用テーブル・正本**: r: config（ASP ドメインリスト）／r: assets（成果物参照）
 - **外部依存**: なし
 - **設定値**: config.affiliate_domainlist（ASP ドメインリスト — 媒体拡張時に追記） ／ **固定値**: PR 表記ブロックの検証規則（必須文言・配置 — 景表法ステマ規制準拠）
 - **trace**: 上流 = BR-C2 REQ-013 NFR-9 ／ 下流 = AC-24-1 AC-24-2 AC-24-3 FN-205 CMP-03 ／ スライス = S1
@@ -391,15 +391,15 @@
 - **事後条件**: draft の全値が出典 URL へ trace できる／出典なしの値が draft に 1 件も存在しない／媒体構造調査には structure_checked 日付が付与されている
 - **不変条件**: 出典 URL のない値は draft に書けない（記憶ベースの媒体仕様記述の禁止 — BR-D2）／draft は draft のまま正本にならない（正本昇格は人間承認経由）／検索取得は読み取り専用で外部書込みを行わない
 - **状態遷移**: なし
-- **正常動作**: fill=R スロットの充填要求 → Web 検索で候補値を取得 → 各値に出典 URL・取得日時を紐付けて型検証 → 出典・鮮度検証を通過した値のみで draft を起草し、出典 URL 列と structure_checked 日付を含めて保存する。
+- **正常動作**: fill=R スロットの充填要求 → Web 検索要求を external_operations(effect='read', correlation_key='read:<task_id>:<request_hash>:<request_sequence>') の prepared→sent→confirmed で記録し、external_operation_row_idと同じrequest_sequenceを持つ対応operation_logを派生 → 候補値を取得 → 各値に出典 URL・取得日時を紐付けて型検証 → 出典・鮮度検証を通過した値のみで draft を起草し、出典 URL 列と structure_checked 日付を含めて保存する。
 - **拒否・異常動作**: 出典 URL を欠く値の draft 書込みは UnsourcedValueRejected を raise し、その値を破棄して拒否理由を構造化ログに残す。鮮度上限（config.source_freshness_days）超過の出典は StaleSourceRejected で drop（G-SRC-FRESH）。出典検証不能（URL 解決失敗等）も拒否側へ倒す（fail-close）。
 - **境界動作**: 検索結果 0 件のスロットは draft に含めず未充足のまま残す（空 draft を正本化しない）。鮮度がちょうど上限日数の出典は有効（超過のみ拒否）。同一スロットへの複数出典は全出典を保持する。
-- **再試行・再開・復旧**: 起草途中のクラッシュは draft 未確定のため再実行で最初から起草し直す（検索は再取得 — 出典日時は新しくなる）。保存済み draft は残り、再実行は新 draft として区別される。
+- **再試行・再開・復旧**: 起草途中のクラッシュは draft 未確定のため再実行で最初から起草し直す（検索は再取得 — 出典日時は新しくなる）。同一task・operation・request_hashの再取得はrequest_sequenceを単調増加させて別external_operations行にし、保存済みdraftは残して新draftとして区別する。
 - **人間判断／escalation**: あり（draft の採否 — リサーチ値の正本昇格は人間承認を経る。起草自体は全自動）
-- **副作用**: draft の保存（出典 URL 列つき）／evidence INSERT（kind = operation_log — Web 取得の記録）／構造化ログ（出典なし値・鮮度切れの拒否）
-- **冪等性**: 同一スロット・同一出典 URL・同一値の再起草は draft 内で重複せず 1 件に正規化される。検索の再実行自体は安全（読み取り専用）。
-- **証跡**: draft の出典 URL 列／structure_checked 日付／出典なし値の拒否ログ（構造化ログ）／operation_log 証跡（Web 取得 — evidence kind）
-- **使用テーブル・正本**: r: config（source_freshness_days）／w: evidence（取得証跡）／r: kpi_nodes（KPI 初期形の突合先）
+- **副作用**: draft の保存（出典 URL 列つき）／external_operations INSERT/UPDATE（Web 取得 1 要求 = effect='read' 1 行。同一request_hashの再取得はrequest_sequenceを増分）＋対応する operation_log INSERT（同じrequest_sequence必須）／構造化ログ（出典なし値・鮮度切れの拒否）
+- **冪等性**: 同一スロット・同一出典 URL・同一値の再起草は draft 内で重複せず 1 件に正規化される。検索の再実行自体は安全（読み取り専用）。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。
+- **証跡**: draft の出典 URL 列／structure_checked 日付／出典なし値の拒否ログ（構造化ログ）／operation_log 証跡（Web取得。external_operation_row_idでexternal_operations.idへ束縛し、payloadのrequest_sequenceが一致。provider external_operation_idは任意）
+- **使用テーブル・正本**: r: config（source_freshness_days）／rw: external_operations（Web 取得要求）／w: evidence（external_operations に対応する取得証跡）／r: kpi_nodes（KPI 初期形の突合先）
 - **外部依存**: Web 検索（接続レジストリ経由の読み取り専用経路）
 - **設定値**: config.source_freshness_days（媒体構造調査の鮮度上限 — 暫定既定値 90 日） ／ **固定値**: fill=R スロットの定義（§4 — 変更は要件改訂）
 - **trace**: 上流 = BR-D2 REQ-017 ／ 下流 = AC-32-1 AC-32-2 AC-32-3 FN-303 FN-304 CMP-06 ／ スライス = S1
@@ -449,12 +449,12 @@
 ## FR-41 接続レジストリ
 
 - **入力**: 経路解決要求（service, operation — connectors 各層から）／レジストリ行（config `registry.<service>` の JSON 値 — 優先経路 MCP/ブラウザ/API・フォールバック経路・認証方式）／有償経路の例外宣言（config `registry.<service>.paid_exception` — 現状 Seedance のみ）
-- **出力**: 解決済み経路（route_type: mcp/browser/api/wp_rest/wp_cli — 呼出元コネクタへ）／解決不能時: RouteNotRegistered / PaidRouteDenied 例外／operation_log 行（拒否・フォールバック発動時）
+- **出力**: 解決済み経路（route_type: mcp/browser/api/wp_rest/wp_cli — 呼出元コネクタへ）／解決不能時: RouteNotRegistered / PaidRouteDenied 例外／秘匿化済み構造化ログ（拒否・フォールバック発動時）
 - **事前条件**: config にレジストリ行が投入済み（tech-stack §5 の初期表が seed）／経路選定ロジックがレジストリ参照のみで動く（コード内に service→経路の分岐が存在しない）／有償経路の宣言には spend_ledger 記録経路（FR-73）が配線済み
-- **事後条件**: 返却された経路はレジストリ行の宣言と一致している／有償 API 経路は例外宣言のあるサービスに限って返却されている／フォールバック発動・拒否は operation_log に理由つきで残っている
+- **事後条件**: 返却された経路はレジストリ行の宣言と一致している／有償 API 経路は例外宣言のあるサービスに限って返却されている／フォールバック発動・拒否は process logger の構造化ログに理由つきで残っている
 - **不変条件**: 経路優先順は MCP → ブラウザ → 有償 API（明示例外のみ — BR-F1）で、レジストリ行の変更のみで切替可能／X のブラウザ書込み経路はレジストリに登録できない（BR-M-X-4 — 登録要求自体を拒否）／媒体追加はレジストリ行＋ワークフロー＋攻略地図の追加のみで完結し、外殻コードを変更しない（NFR-8）
 - **状態遷移**: なし
-- **正常動作**: 経路解決要求を受け、config のレジストリ行から (service) の優先経路を読み、認証方式を添えて経路を返す。第一経路が利用不能（コネクタからの失敗通知）ならフォールバック経路へ切替え、切替を operation_log に記録する。経路の追加・変更は config INSERT（履歴保持 — FR-33）のみで反映される。
+- **正常動作**: 経路解決要求を受け、config のレジストリ行から (service) の優先経路を読み、認証方式を添えて経路を返す。第一経路が利用不能（コネクタからの失敗通知）ならフォールバック経路へ切替え、切替を process logger の秘匿化済み構造化ログに記録する。経路の追加・変更は config INSERT（履歴保持 — FR-33）のみで反映される。
 - **拒否・異常動作**: 未登録 service は RouteNotRegistered を raise し秘匿化済み構造化拒否ログに記録。例外宣言のないサービスへの有償 API 経路解決は PaidRouteDenied で拒否。X への browser 書込み経路の登録・解決要求は ProhibitedMediaWrite で拒否（BR-M-X-4）。レジストリ行 JSON の破損・型不一致は解決不能として拒否側へ倒す（fail-close）。
 - **境界動作**: フォールバック経路が未宣言で第一経路も不能な場合は経路なしとして呼出元タスクを escalated へ誘導（解決 API は RouteNotRegistered）。同一 service の複数レジストリ行は changed_at 最新の 1 行のみ有効。空レジストリ = 全 service 解決不能（安全側）。
 - **再試行・再開・復旧**: 解決は無状態（config 読取のみ）で再実行は同一結果を返す。config 行更新後は次回解決から反映。クラッシュ後の再開に固有の中間状態はない。
@@ -462,114 +462,114 @@
 - **副作用**: 秘匿化済み構造化ログ（拒否・フォールバック発動時）／なし（解決成功時は pure — 読取のみ）
 - **冪等性**: 同一 (service, operation) の解決は同一 config 状態で同一経路を返す pure 判定。拒否ログは解決要求単位で 1 行。
 - **証跡**: 秘匿化済み構造化ログ（拒否・フォールバック発動 — service・要求経路・理由）
-- **使用テーブル・正本**: r: config（registry.* 行）／w: evidence（外部操作証跡 = operation_log kind）／r: spend_ledger（有償経路の台帳配線検査）
+- **使用テーブル・正本**: r: config（registry.* 行）／r: spend_ledger（有償経路の台帳配線検査）
 - **外部依存**: なし
 - **設定値**: config.registry.<service>（優先経路・フォールバック・認証方式の JSON）／config.registry.<service>.paid_exception（有償経路の明示例外宣言） ／ **固定値**: 経路優先順 MCP → ブラウザ → 有償 API（BR-F1 — 変更は要件改訂）／route_type 語彙（mcp/browser/api/wp_rest/wp_cli — playbooks DDL と共通）
 - **trace**: 上流 = BR-F1 BR-F3 REQ-026 REQ-030 NFR-8 ／ 下流 = AC-41-1 AC-41-2 AC-41-3 AC-41-4 AC-41-5 AC-41-6 FN-401 FN-412 CMP-07 ／ スライス = S0
 
 ## FR-42 ブラウザ自動化基盤
 
-- **入力**: ブラウザ操作要求（service・operation・対象 URL・payload — タスク実行層から）／攻略地図行（playbooks: procedure_json・selector_json・status — FR-43 と共有）／headed/headless 切替値（config.browser.headed — bool）／Rng/Clock（注入 — 操作間隔乱数と seed 記録用）
-- **出力**: 操作結果（成功時: 取得値・スクショ参照 — 呼出元へ）／playbooks.last_success_at 更新（成功時）／書込み系: external_operations 行（prepared→sent→confirmed）＋ operation_log 証跡／拒否時: PlaybookMissing / RateLimitExceeded / ProhibitedMediaWrite / UrlDenied 例外
-- **事前条件**: 対象 (service, operation, route_type=browser) の playbooks 行が status=active で存在する／URL 許可リスト（FR-23）が config に存在する／credential は暗号化ストアから実行時注入済み（FR-47 — SQLite/ログに平文なし）／書込み系は成立済みペア ID・専用 idempotency key を呼出元が保持している
-- **事後条件**: 操作は playbooks の手順・セレクタどおりに実行され、成功時に last_success_at が更新されている／書込み系操作は external_operations 1 行（1 操作 = 1 行）と operation_log 証跡を残し、その後に状態遷移している／書込み系の連続操作間隔は 1〜5 秒の一様乱数で、seed・生成値が構造化ログに記録されている（NFR-7）
-- **不変条件**: X へのブラウザ書込みは常に拒否（BR-M-X-4 — バイパス経路なし）／書込み・公開系は 1 媒体 1 日 10 件以下（config.rate.<media>.daily_write_cap）を超えない／操作間隔は固定値でなく範囲乱数（固定間隔は機械署名 — BR-F5）／許可リスト外 URL への遷移は発生しない（FR-23 deny-by-default）
-- **状態遷移**: テーブル列: external_operations.status: prepared→sent→confirmed/rejected/unknown（書込み系操作ごと — s0-contract §1）
-- **正常動作**: 操作要求を受け playbooks から手順を解決し、Playwright を config.browser.headed に従い起動。書込み系は external_operations を prepared でコミット→ Rng（seed 記録済み）で 1〜5 秒待機→ 送信し sent コミット→ 結果確定で confirmed とし operation_log 証跡を派生→ その後に状態遷移。成功時 playbooks.last_success_at を更新。読取り系は通常速度で実行し乱数待機を課さない。
-- **拒否・異常動作**: playbooks 行なし/status=broken は PlaybookMissing/PlaybookBroken で拒否（自己修復は FR-43 へ委譲）。日次書込み上限超過は RateLimitExceeded で当日拒否。X 書込み要求は ProhibitedMediaWrite。許可リスト外 URL は UrlDenied（FR-23）。いずれも 拒否理由を構造化ログ（FN-704）へ記録し外部送信を行わない（fail-close）。
-- **境界動作**: 間隔乱数は範囲端 1 秒・5 秒を含む一様分布。日次 10 件目は許可・11 件目は拒否（日付境界は Clock 注入基準）。セレクタ不一致は失敗として consecutive_failures を加算し FR-43 の破損検知へ渡す。セッション失効は書込み前に検知し送信しない。
-- **再試行・再開・復旧**: 送信直後クラッシュは external_operations の status で再開: prepared は同一 idempotency key で再送可、sent はリモート照合で confirmed 化または unknown→escalate（再送しない — s0-contract §3.3）。乱数はログの seed から再現可能（NFR-2）。
+- **入力**: ブラウザ操作要求（service・operation・対象 URL・payload — タスク実行層から）／攻略地図の現役版行（playbooks: version・procedure_json・selector_json・status — FR-43 と共有）／headed/headless 切替値（config.browser.headed — bool）／Rng/Clock（注入 — 操作間隔乱数と seed 記録用）
+- **出力**: 操作結果（成功時: 取得値・スクショ参照 — 呼出元へ）／playbooks.last_success_at 更新（成功時）／実外部操作: external_operations行（effect・policy_category・rate_scope必須、prepared→sent）＋sent行をfinal化する対応operation_log証跡／拒否時: PlaybookMissing / RateLimitExceeded / ProhibitedMediaWrite / UrlDenied 例外
+- **事前条件**: 対象 (service, operation, route_type=browser) の playbooks 行が status=active で存在する／URL 許可リスト（FR-23）が config に存在する／credential は暗号化ストアから実行時注入済み（FR-47 — SQLite/ログに平文なし）／書込み系は成立済みペアID・専用idempotency key・policy_categoryを保持し、(policy_category, service, operation, target_endpoint)がconfig.external_write_policyの明示行に一致する
+- **事後条件**: 操作は playbooks の手順・セレクタどおりに実行され、成功時に last_success_at が更新されている／read/writeを問わず実外部操作はexternal_operations 1行（1操作=1行、effect/policy_category必須、writeのみcanonical rate_scope必須・readはNULL）をprepared→sentまで記録し、sent行への対応operation_log INSERTがtriggerでconfirmed/rejected/unknownへfinal化・evidence_id接続した後にだけ業務状態遷移している／書込み系の連続操作間隔は 1〜5 秒の一様乱数で、seed・生成値が構造化ログに記録されている（NFR-7）
+- **不変条件**: X へのブラウザ書込みは常に拒否（BR-M-X-4 — バイパス経路なし）／書込み・公開系はcanonical lowercase rate_scope別のconfig.rate.<rate_scope>.daily_write_cap（必須）を超えず、service alias・大小文字差・shared serviceで別scopeへ逃がさない／操作間隔は固定値でなく範囲乱数（固定間隔は機械署名 — BR-F5）／許可リスト外URLへの遷移は発生しない（FR-23 deny-by-default）／content_publishはDocker WPだけ、review_syncは承認済みNotionだけ、approval_notificationはbinding済みClaude Code appだけ、approved_paid_operationはPO承認済み有償操作だけ。readはexternal_read。その他は常時拒否
+- **状態遷移**: テーブル列: external_operations.status: prepared→sent→confirmed/rejected/unknown（read/write の実外部操作ごと。external_operations.effect='read'/'write' — s0-contract §1）
+- **正常動作**: 操作要求を受けplaybooksから手順を解決し、Playwrightをconfig.browser.headedに従い起動。実外部操作ごとにeffectを固定し、readはpolicy_category='external_read'・rate_scope=NULL・correlation_key='read:<task_id>:<request_hash>:<request_sequence>'、writeは閉集合content_publish/review_sync/approval_notification/approved_paid_operationのpolicy_category・canonical lowercase rate_scope・correlation_key=idempotency_keyを設定する。writeは(policy_category, service, operation, target_endpoint, rate_scope)のcategory別policyと必要なpair/approval/bindingをpreflight検証した後だけexternal_operationsをpreparedでコミットする。書込みだけRngで待機後送信しsentをコミットし、結果確定後も行がsentの間にoperation_logをINSERTしてtriggerでfinal化・evidence_id接続する。final化後にだけ業務状態遷移する。
+- **拒否・異常動作**: playbooks行なし/status=broken、policy_category/rate_scope欠落・未知・非canonical、category偽装、categoryとservice/operation/endpoint/rate_scopeのpolicy不一致、必要pair/approval/binding欠落、日次上限超過、X又はnote等スコープ外媒体へのwrite、URL許可外はいずれもpreflightで拒否する。Notionをcontent_publishへ偽装、本番WP、unknown endpoint/serviceも同様。外部呼出・external_operations・operation_logは各0、process loggerへ事由コードだけを記録する（fail-close）。
+- **境界動作**: 間隔乱数は範囲端1秒・5秒を含む一様分布。日次cap件目は許可しcap+1件目を拒否する（config.rate.<rate_scope>.daily_write_cap必須、Docker WPはrate_scope='wp'、UTC日境界はClock注入）。セレクタ不一致はFR-43へ渡し、セッション失効は送信前検知する。
+- **再試行・再開・復旧**: 送信直後クラッシュはexternal_operations.statusで再開する。preparedは同一idempotency keyで再送可。sentのリモート照合自体を別external_operations(effect='read', policy_category='external_read', rate_scope=NULL)行＋operation_log（payloadにrate_scope:nullキー必須）として記録し、照合結果に基づく元writeのoperation_log INSERTでconfirmed又はunknownへfinal化する（再送しない — s0-contract §3.3）。乱数はログのseedから再現可能（NFR-2）。
 - **人間判断／escalation**: なし（全自動。検知・警告兆候時の媒体停止判断は安全側自動調整＋escalated 経由で人間 — BR-F5）
-- **副作用**: 外部サイトへのブラウザ操作（書込みは external_operations 経由のみ）／external_operations INSERT/UPDATE／operation_log INSERT（外部取得操作のみ）／秘匿化済み構造化ログ（隔離・拒否）／playbooks.last_success_at / consecutive_failures UPDATE／構造化ログ行（seed・生成間隔値）
-- **冪等性**: 書込み系は操作単位の idempotency key（external_operations.idempotency_key UNIQUE）で二重実行を検出（BR-I7）。sent 照合により再送は発生しない。読取り系は再実行安全。
-- **証跡**: operation_log 行（external_operation_id・request_fingerprint つき）／screenshot evidence（操作確認）／構造化ログ（乱数 seed・間隔値 — NFR-7 再現用）
+- **副作用**: 外部サイトへのブラウザ操作（read/writeともexternal_operations経由のみ）／external_operations INSERT/UPDATE／operation_log INSERT（external_operations に対応する外部ブラウザ操作のみ）／秘匿化済み構造化拒否ログ（送信前拒否）／playbooks.last_success_at / consecutive_failures UPDATE／構造化ログ行（seed・生成間隔値）
+- **冪等性**: 実外部操作は1要求=1 external_operations行。書込み系は操作単位のidempotency key（external_operations.idempotency_key UNIQUE）で二重実行を検出し、sent照合により再送しない。読取り系は同一(task_id, operation, request_hash)内の各poll/再取得にrequest_sequenceを1から単調増加させ、correlation_key='read:<task_id>:<request_hash>:<request_sequence>'で一意化するため、同一内容の反復readも別要求として追跡できる。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。
+- **証跡**: operation_log行（external_operation_row_id・effect・policy_category・rate_scope・service・operation・correlation_key・request_hash・request_sequence・resultが外部行と同値。provider external_operation_idは任意）／screenshot evidence（操作確認）／構造化ログ（乱数 seed・間隔値 — NFR-7 再現用）
 - **使用テーブル・正本**: rw: playbooks／rw: external_operations／w: evidence（外部操作証跡 = operation_log kind）／r: config（browser.headed・rate.*・url_allowlist）／w: evidence（screenshot）
-- **外部依存**: Playwright（ブラウザ自動化）／対象媒体サイト（note/YouTube/stand.fm/KDP/ASP 等 — X 書込みは prohibited）
-- **設定値**: config.browser.headed（headed/headless 切替）／config.rate.<media>.daily_write_cap（暫定既定 10 件/日）／config.rate.write_interval_range（暫定既定 1〜5 秒一様） ／ **固定値**: 読取り系は乱数待機の対象外（NFR-7）／書込み間隔は一様分布（分布形は要件固定）
+- **外部依存**: Playwright（ブラウザ自動化）／対象媒体サイト（note/YouTube/stand.fm/KDP/ASP等はreadのみ。本FRでwriteが許可されるのは閉集合policyに根拠を持つDocker WP/Notion review sync/Claude Code app通知/PO承認済み有償操作だけ。X書込みは禁止）
+- **設定値**: config.browser.headed（headed/headless 切替）／config.rate.wp.daily_write_cap（Docker WP content_publishの必須日次上限）／config.external_write_policy.<category>.allowed_services/endpoints（policy_category×service×operation×target_endpointの必須許可行。content_publishのDocker-onlyとapproved_paid_operationのPO承認は固定要件）／config.rate.write_interval_range（暫定既定 1〜5 秒一様） ／ **固定値**: 読取り系は乱数待機の対象外（NFR-7）／書込み間隔は一様分布（分布形は要件固定）
 - **trace**: 上流 = BR-F2 BR-F5 BR-M-X-4 REQ-028 REQ-044 NFR-7 ／ 下流 = AC-42-1 AC-42-2 AC-42-3 FN-402 FN-403 FN-404 CMP-08 CMP-09 ／ スライス = S1
 
 ## FR-43 攻略地図の自己修復
 
-- **入力**: 破損シグナル（セレクタ不一致・手順失敗 — FR-42 の失敗通知）／対象 playbooks 行（id・procedure_json・selector_json・consecutive_failures）／対象ページの現 DOM（読取り専用の再解析対象）
-- **出力**: 再生成された playbooks 行（成功時: 新 selector_json/procedure_json・status=active）／失敗時: 対象タスクの escalated 遷移＋通知（FR-46 経路）／operation_log 行（破損検知・再生成試行・結果）
-- **事前条件**: 対象 playbooks 行が存在し status が active または broken である／破損シグナルが失敗の具体（不一致セレクタ・失敗ステップ）を含む／再解析はログイン済みセッションで読取りのみ可能
-- **事後条件**: 再生成は 1 回だけ試行されている（試行回数が operation_log で確認できる）／成功時: playbooks が新地図で UPDATE され status=active・consecutive_failures=0／失敗時: playbooks.status=broken のまま対象タスクが escalated で通知済み
-- **不変条件**: 再解析・再生成の過程で外部サイトへの書込みを行わない（読取りのみ）／自動再試行は 1 回まで（2 回目以降の自動試行経路が存在しない — 要件固定）／破損中（status=broken）の地図を参照する書込み操作は開始されない
-- **状態遷移**: テーブル列: playbooks.status: active→broken（破損検知）・broken→active（再生成成功）／tasks: in_progress→escalated（再生成失敗, event=escalate — BR-H3）
-- **正常動作**: FR-42 からの失敗通知で破損を検知し playbooks.status を broken に更新・operation_log に記録。対象ページを読取り専用で再解析し、地図（selector_json/procedure_json）を再生成して検証手順（対象要素の存在確認）が通れば playbooks を UPDATE し status=active・consecutive_failures=0 とし、元操作の再実行を呼出元へ返す。
-- **拒否・異常動作**: 再生成 1 回の失敗（再解析不能・検証不通過）で追加試行せず、playbooks は broken のまま対象タスクを escalated へ遷移させ FR-46 経路で通知する（BR-H3）。ページ到達不能・認証失効も同様に escalated へ倒す（fail-close — 地図を推測で書き換えない）。
-- **境界動作**: 同一 playbook への並行破損通知は 1 件のみ再生成し後続は結果待ち。status=retired は自己修復対象外（即 escalated）。再生成成功直後の再失敗は新たな破損検知として再度 1 回だけ試行可（試行カウントは破損イベント単位）。
-- **再試行・再開・復旧**: 再生成中クラッシュは playbooks.status=broken が残るため、再開時は破損検知済みとして再生成を最初からやり直す（読取りのみで外部副作用なし）。escalated 後の復旧は人間対処→地図修正→タスク再投入。
+- **入力**: 破損シグナル（セレクタ不一致・手順失敗 — FR-42 の失敗通知）／対象 playbooks 現役版行（id・version・procedure_json・selector_json・consecutive_failures）／起点 task と破損 fingerprint（決定的な repair task idempotency key の材料）／対象ページの現 DOM（読取り専用の再解析対象）
+- **出力**: 成功時: 旧版を supersede する version+1 の playbooks 行（status=active）／失敗時: repair task と起点 task の escalated 遷移＋通知（FR-46 経路）／内部の検知・試行・結果を表す秘匿化済み構造化ログと、外部 DOM 読取りだけに対応する operation_log 行
+- **事前条件**: 対象 playbooks 行が存在し status が active または broken である／破損シグナルが失敗の具体（不一致セレクタ・失敗ステップ）を含む／再解析はログイン済みセッションで読取りのみ可能／自動repair task発行にはconfig.playbook_repair_limit=1が必須（欠落・1以外は発行前にfail-close）
+- **事後条件**: 同一破損イベントの playbook_repair task は決定的 idempotency_key により 1 行だけで、retry_count=0 のまま config.playbook_repair_limit=1 を超えない／成功時: 旧 broken 版が retired、新しい version+1 行が active・consecutive_failures=0 で INSERT され、created_by_task_id が repair task を指す／失敗時: 旧版は broken のまま新版 0 件で、repair task と起点 task が escalated となり通知済み
+- **不変条件**: 再解析・再生成の過程で外部サイトへの書込みを行わない（読取りのみ）／自動修復の試行数は config.playbook_repair_limit（現行値 1）以下で、同一破損イベントの終端 repair task を再発行しない／破損中（status=broken）の地図を参照する書込み操作は開始されない
+- **状態遷移**: テーブル列: playbooks.status: active→broken（破損検知）・broken→retired（修復成功時。新版 active 行を INSERT）／tasks: repair task は pending→in_progress→verifying→done（成功）、失敗時は repair task と起点 task が in_progress→escalated（event=escalate — BR-H3）
+- **正常動作**: FR-42の失敗通知を受け、playbooksのactive→broken条件付き更新に勝った実行だけが同じtransaction内でconfig.playbook_repair_limitを検証する。値が正確に1の場合だけ、(playbook_id, 起点task_id, failure_fingerprint)をinput_jsonへ束縛したtask_type=playbook_repair子taskを決定的idempotency_key・attempt=1・retry_count=0でINSERTする。子taskは外部DOM読取りをexternal_operations(effect='read', request_sequence=1, correlation_key='read:<task_id>:<request_hash>:1')→external_operation_row_id・request_sequence一致のoperation_logに証跡化して候補地図を生成し、別principalの検証合格時に旧broken版をretired、新version+1版をactiveでINSERTしてdoneへ進む。内部の検知・候補生成・検証結果はprocess loggerへ記録する。
+- **拒否・異常動作**: config.playbook_repair_limitが欠落又は1以外ならactive→brokenは保持するがrepair子taskを発行せず外部DOM readも行わず、起点taskだけをevent=escalateでescalatedへ遷移し新版をINSERTしない。値1で発行後の候補生成不能・検証不通過・対象要素不在は追加試行せず、旧版をbrokenのまま、新版0件としてrepair taskと起点taskをescalatedへ遷移しFR-46経路で通知する。ページ到達不能・認証失効も同様にfail-closeとする。
+- **境界動作**: 同一現役版への並行破損通知は active→broken の条件付き更新に勝った 1 件だけが repair task を発行し、後続は同じ idempotency_key の非終端 task を参照して結果待ちする。status=retired は対象外で即 escalated。新版 active の再失敗は、別 playbook_id と別 failure_fingerprint に束縛された新しい破損イベントとしてのみ修復 task を 1 行発行できる。
+- **再試行・再開・復旧**: 再生成中クラッシュ後は同じ非終端 playbook_repair task と external_operations 状態を再読込み、既存 task を再開する。プロセス再起動を新たな試行と数えず、終端の done/escalated task は同一破損イベントで再発行しない。escalated 後は元 task を終端のまま保持し、人が明示発行した新 task による新版登録だけを許す。
 - **人間判断／escalation**: 再生成失敗時の対処（地図手動修正・媒体運用判断）は escalated 経由で人間（BR-H3）。それ以外は全自動
-- **副作用**: playbooks UPDATE（status・selector_json・procedure_json・consecutive_failures）／秘匿化済み構造化ログ（検知・試行・結果）／tasks の escalated 遷移（失敗時）／外部サイトへの読取りアクセス（書込みなし）
-- **冪等性**: 再生成は破損イベント単位で 1 回（operation_log の試行記録で重複試行を検出）。再解析は読取りのみで再実行安全。
-- **証跡**: 秘匿化済み構造化ログ（破損検知: 不一致セレクタ・失敗ステップ）／秘匿化済み構造化ログ（再生成試行と結果）／screenshot evidence（再解析時のページ状態）
-- **使用テーブル・正本**: rw: playbooks／w: evidence（外部操作証跡 = operation_log kind）／rw: tasks（escalated 遷移は状態機械 FR-11 経由）／w: evidence（screenshot）
+- **副作用**: playbooks UPDATE（旧版の status・失敗数）＋成功時の新版 INSERT／playbook_repair 子 task INSERT と状態遷移／external_operations(effect='read')／対応operation_log（外部DOM読取り1件だけ）／秘匿化済み構造化ログ（検知・試行・結果）／tasks の escalated 遷移（失敗時）／外部サイトへの読取りアクセス（書込みなし）
+- **冪等性**: 破損イベントの正本は決定的 idempotency_key を持つ playbook_repair task 1 行であり、UNIQUE(idempotency_key) と attempt=1・retry_count=0 で二重試行を拒否する。新版は UNIQUE(service, operation, route_type, version) と UNIQUE(supersedes_playbook_id) で二重発行を拒否する。operation_log は外部 DOM 読取りの証跡であって修復試行数の正本にはしない。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。
+- **証跡**: 秘匿化済み構造化ログ（破損検知: 不一致セレクタ・失敗ステップ）／playbook_repair task 行（破損イベント・試行上限・結果の永続正本）／旧版と supersedes_playbook_id で接続した新版 playbooks 行／operation_log 行（external_operation_row_id・correlation_key・request_hash・request_sequence=1つき外部DOM読取りのみ。provider external_operation_idは任意）／screenshot evidence（再解析時のページ状態）
+- **使用テーブル・正本**: rw: playbooks（版行・現役状態）／rw: tasks（playbook_repair 子 task・escalated 遷移は状態機械 FR-11 経由）／rw: external_operations（外部 DOM 読取り）／w: evidence（外部 DOM 読取り証跡 = operation_log kind）／w: evidence（screenshot）
 - **外部依存**: 対象媒体サイト（読取り専用の再解析）／Playwright（FR-42 基盤を利用）
-- **設定値**: なし ／ **固定値**: 自動再生成の試行回数 = 1 回（要件固定 — 変更は要件改訂）
+- **設定値**: config.playbook_repair_limit（現行値 1。欠落は fail-close） ／ **固定値**: なし
 - **trace**: 上流 = BR-F2 BR-H3 REQ-029 ／ 下流 = AC-43-1 AC-43-2 AC-43-3 FN-405 CMP-09 ／ スライス = S2
 
 ## FR-44 WP コネクタ
 
 - **入力**: REST 書込み要求（投稿・メディア・下書き・公開 — WF-WP-2 から。成立済みペア ID・専用 idempotency key つき）／WP-CLI 構築要求（子テーマ・プラグイン配備・テーマ解析 — 構築タスクから）／接続先（接続レジストリ経由 — Application Password は暗号化ストアから実行時注入）
 - **出力**: REST 成功時: WP draft ID / post ID / canonical URL / media ID（external_operations・evidence へ）／WP-CLI 成功時: 実行結果＋テーマ解析結果の playbooks 構造化保存（BR-G4）／拒否時: PairRequired / ProductionWriteDenied / ApprovalRequired 例外
-- **事前条件**: 書込み系は pair_plan_quality に status=passed のペア行が存在する（FR-21 — 成立済みペア ID）／書込み先 endpoint がローカル Docker WP である（環境契約 §6 — 唯一の実 WP 書込み先）／公開操作は decision=approved の approvals 行（binding 3 項目一致）が存在する（FR-46）／操作ごとの専用 idempotency key を保持（下書き作成と公開は別 key）
-- **事後条件**: 外部書込み 1 件につき external_operations 1 行が prepared→sent→confirmed で遷移し operation_log 証跡が派生している／公開成功時 published_url evidence と assets 参照（canonical_url・wp_post_id）が登録されている／テーマ解析結果は playbooks（route_type=wp_cli）に構造化保存されている
+- **事前条件**: 書込み系は pair_plan_quality に status=passed のペア行が存在する（FR-21 — 成立済みペア ID）／書込み先 endpoint がローカル Docker WP である（環境契約 §6 — 唯一の実 WP 書込み先）／公開操作は decision=approved の approvals 行（binding 3 項目一致）が存在する（FR-46）／操作ごとの専用idempotency keyを保持（下書き作成と公開は別key）／policy_category='content_publish'かつ(service='wp', operation, target_endpoint)がDocker WP固定policyに一致する
+- **事後条件**: 外部書込み1件につきexternal_operations(effect='write', policy_category='content_publish', rate_scope='wp') 1行がprepared→sentまで遷移し、sent行への対応operation_log INSERT triggerでfinal化している／公開成功時published_url evidenceがoperation_log_evidence_idで先行operation_logへ束縛され、payloadのexternal_operation_row_idが同じlocal WP write行、provider IDは任意で、assets参照（canonical_url・wp_post_id）が登録されている／テーマ解析結果は playbooks（route_type=wp_cli）に構造化保存されている
 - **不変条件**: 本番 WP・Docker 以外の WP への自動書込みは発生しない（設定検出時は実行拒否 — 環境契約 §6）／ペア ID なしの書込み呼出しは常に拒否（fail-close — requirements §1）／credential は SQLite/repo/ログ/evidence に平文で残らない（FR-47）／REST 書込みはバースト上限 30 req/分・公開 10 件/日以内（MR-WP-5 — config.rate.wp.*）
 - **状態遷移**: テーブル列: external_operations.status: prepared→sent→confirmed/rejected/unknown（書込み操作ごと）／tasks: WF-WP-2 の in_progress→verifying 等は状態機械（FR-11）経由 — 本 FR は証跡化までを担う
-- **正常動作**: 書込み要求のペア ID・endpoint・（公開時は）approval を検証し、external_operations を prepared でコミット→ REST 送信→ sent コミット→ WP 応答（post ID・リビジョン）で confirmed とし operation_log 証跡（response_hash・external_operation_id）を派生→ その後に状態遷移。公開時は canonical URL を published_url evidence と assets に登録。WP-CLI 構築系はテーマ解析結果を playbooks に保存。
-- **拒否・異常動作**: 成立済みペア ID なしは PairRequired、Docker 以外の WP endpoint への書込み設定は ProductionWriteDenied、公開時の approved approval なし・binding 不一致は ApprovalRequired/ApprovalBindingMismatch で拒否し、いずれも外部送信 0 回で 拒否理由を構造化ログ（FN-704）へ記録（fail-close）。WP 側エラー（4xx/5xx）は rejected とし証跡化して呼出元へ失敗を返す。
+- **正常動作**: 書込み要求のpair・endpoint・公開approvalと固定policyを検証し、external_operations(effect='write', policy_category='content_publish', rate_scope='wp', service='wp', operation, target_endpoint=Docker WP)をpreparedでコミット→REST送信→sentコミット→operation_log INSERT triggerでfinal化する。provider IDは任意。公開時はcanonical URLをassetsへ登録後、published_urlをoperation_log_evidence_id＋payload external_operation_row_idで先行operation_logへ束縛する。
+- **拒否・異常動作**: pairなし、policy_category欠落/不一致、service/operation/endpoint policy欠落、Docker以外のWP、公開approvalなし/binding不一致はpreflight拒否し、外部送信・external_operations・operation_log各0でprocess loggerへ事由コードを記録。送信後WPエラーだけはsent行へoperation_logをINSERTしrejected化する。
 - **境界動作**: レート上限（30 req/分）到達時はバースト待機し上限を超えない。下書きと公開は別 idempotency key の別 external_operations 行（1 操作 = 1 行）。同一 idempotency key の再要求は UNIQUE 制約で既存行に照合され二重送信しない。
-- **再試行・再開・復旧**: sent のままクラッシュした最危険 kill point（WP 側成功・ローカル sent）は、WP 側を post ID / idempotency key で照合し成功確認できれば confirmed 化して証跡補完、照合不能なら unknown とし再送せず escalate（s0-contract §3.3・§8）。prepared は同一 key で再送可。
+- **再試行・再開・復旧**: sentのままクラッシュした最危険kill pointは、WP側照合自体を別external_operations(effect='read', policy_category='external_read', rate_scope=NULL)行＋operation_log（payload rate_scope:null）として記録する。成功確認後に元writeのoperation_log INSERTでconfirmed化し、照合不能は元writeをunknown化して再送せずescalateする（s0-contract §3.3・§8）。preparedは同一keyで再送可。
 - **人間判断／escalation**: 公開の束縛承認（FR-46 経由）。unknown 照合不能時の対処は escalated 経由で人間。それ以外は全自動
 - **副作用**: Docker WP への REST 書込み（投稿・メディア・公開）／WP-CLI 実行（構築系）／external_operations INSERT/UPDATE／operation_log / published_url evidence INSERT／assets INSERT（canonical_url・wp_media_id）／playbooks INSERT/UPDATE（テーマ解析）
-- **冪等性**: 操作単位の idempotency key（external_operations.idempotency_key UNIQUE）で二重実行を検出（BR-I7）。下書きと公開は別 key。sent 照合により再送は発生しない。
-- **証跡**: operation_log 行（service=wp・external_operation_id・request_fingerprint）／published_url evidence（url・wp_post_id・external_operation_id・asset_id）／screenshot evidence（公開確認 — WF-WP-2）
+- **冪等性**: 操作単位の idempotency key（external_operations.idempotency_key UNIQUE）で二重実行を検出（BR-I7）。下書きと公開は別 key。sent 照合により再送は発生しない。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。
+- **証跡**: operation_log行（service=wp・external_operation_row_id・policy_category・rate_scope・correlation_key・request_hash・request_sequence。provider external_operation_idは任意）／published_url evidence（url・wp_post_id・asset_id・operation_log_evidence_id必須、payload external_operation_row_id必須一致、provider_operation_id任意）／screenshot evidence（公開確認 — WF-WP-2）
 - **使用テーブル・正本**: rw: external_operations／w: evidence（外部操作証跡 = operation_log kind） / published_url（evidence）／w: assets／r: pair_plan_quality（ペア成立検証）／r: approvals（公開時）／rw: playbooks（テーマ解析）／r: config（rate.wp.*・接続レジストリ行）
 - **外部依存**: ローカル Docker WP（wordpress + mariadb — 唯一の実書込み先）／WP REST API（Application Passwords）／WP-CLI
-- **設定値**: config.rate.wp.burst_per_min（暫定既定 30 req/分）／config.rate.wp.publish_daily_cap（暫定既定 10 件/日） ／ **固定値**: 下書き作成と公開は別 idempotency key の別行（s0-contract §1）／書込み許可 endpoint = ローカル Docker WP のみ（環境契約 §6）
+- **設定値**: config.rate.wp.burst_per_min（暫定既定 30 req/分）／config.rate.wp.publish_daily_cap（暫定既定 10 件/日）／config.external_write_policy.content_publish.allowed_services/endpoints（service=wp・Docker WP endpoint固定） ／ **固定値**: 下書き作成と公開は別 idempotency key の別行（s0-contract §1）／書込み許可 endpoint = ローカル Docker WP のみ（環境契約 §6）
 - **trace**: 上流 = BR-G4 BR-I7 REQ-036 REQ-008 ／ 下流 = AC-44-1 AC-44-2 AC-44-3 FN-406 FN-407 CMP-10 ／ スライス = S1
 
 ## FR-45 Notion 同期
 
 - **入力**: スプリント開始イベント（読取りトリガ — オーケストレータから）／レビュー成立イベント（書戻しトリガ — pair 成立後）／Notion 側計画ページ（接続レジストリ経由: MCP 優先／ブラウザ fallback）／書戻し対象の結果データ（sprints・learnings 由来の要約）
 - **出力**: 読取り時: 計画データの SQLite 側 draft（sprints/action_plans への参照材料 — 判定には使わない）／書戻し時: Notion ページ更新＋external_operations/operation_log 証跡／障害時: NotionUnavailable 記録（同期タスクのみ失敗 — ループは継続）
-- **事前条件**: 接続レジストリに Notion 行（MCP 優先・ブラウザ fallback）が存在する／credential は暗号化ストアから実行時注入（FR-47）／書戻しは操作単位の idempotency key を保持する
+- **事前条件**: 接続レジストリに Notion 行（MCP 優先・ブラウザ fallback）が存在する／credential は暗号化ストアから実行時注入（FR-47）／書戻しは操作単位のidempotency keyを保持する／config.external_write_policy.review_syncがNotion service/operation/target_endpointを明示し、書戻し対象へbindingしたapproved approvalが存在する
 - **事後条件**: 読取り結果は SQLite に draft として保存され、ループ判定は SQLite のみで行われている／書戻し 1 件につき external_operations 1 行と operation_log 証跡が残っている／Notion 障害時も loop_runs / tasks の進行が Notion 応答に依存していない
 - **不変条件**: Notion はループ判定・ゲート判定に関与しない（SQLite が唯一の正本 — FR-45）／同期は低頻度バッチ（3 req/秒・2,000 字分割を前提 — BR-M-NOTION-1）でレート超過しない／変更検知はポーリング（last_edited_time・分単位精度）でカーソルに余裕を持たせ取りこぼさない（BR-M-NOTION-2）
 - **状態遷移**: テーブル列: external_operations.status: prepared→sent→confirmed/rejected/unknown（書戻し操作ごと）
-- **正常動作**: スプリント開始時に Notion 計画ページを last_edited_time ポーリング（カーソルに分単位の余裕）で読取り、SQLite に draft 保存。レビュー成立時に結果要約を 2,000 字分割・3 req/秒以下のバッチで書戻し、external_operations を prepared→sent→confirmed で遷移させ operation_log 証跡を派生する。
-- **拒否・異常動作**: Notion 応答不能・認証失効は NotionUnavailable として同期タスクのみ failed とし operation_log に記録 — ループ本体は SQLite のみで継続する（Notion 障害をループ停止に波及させない）。レート応答（429）は同期を中断しバックオフ後の次回バッチへ繰越す。書戻しデータに秘匿情報が混入した場合はマスキング検査で送信前に拒否（NFR-4）。
+- **正常動作**: Notion計画ページreadはpolicy_category='external_read'・rate_scope=NULL、結果要約書戻しはexternal_operations(effect='write', policy_category='review_sync', rate_scope='notion', service='notion', operation='sync_result', target_endpoint=config登録値)とする。書戻しは明示policyとbinding済みapproved approvalをpreflight検証した後だけprepared化し、各実要求をoperation_log INSERT triggerでfinal化する。
+- **拒否・異常動作**: allow-list/config/approved approval/binding/credential/マスキングの欠落・不一致はpreflight拒否し外部呼出・external_operations・operation_log各0、process loggerへ事由コードを記録する。送信済み要求の応答不能・429だけはsent行とoperation_logをrejected/unknownへ確定し同期taskのみ失敗又は繰越す。
 - **境界動作**: 2,000 字境界はブロック分割で送信（1 ブロック超過を作らない）。ポーリング精度が分単位のため境界更新はカーソル余裕で重複取得し、取得側の冪等 upsert で吸収。空の計画ページは draft なしとして正常終了。
 - **再試行・再開・復旧**: 書戻し中クラッシュは external_operations の prepared/sent 照合で再開（sent 照合不能は unknown・再送なし）。読取りはカーソル位置から再実行安全。同期失敗は次回トリガで最初から再試行してよい（低頻度・冪等）。
 - **人間判断／escalation**: なし（全自動。恒常的な Notion 障害の運用判断は escalated 経由で人間）
 - **副作用**: Notion ページ読取り・書戻し（外部）／external_operations INSERT/UPDATE／operation_log INSERT／SQLite への計画 draft 保存
-- **冪等性**: 書戻しは操作単位の idempotency key で二重実行を検出（BR-I7）。読取りは last_edited_time カーソル＋冪等 upsert で重複取得を吸収。
-- **証跡**: operation_log 行（service=notion・external_operation_id・request_fingerprint）／読取り draft の file_hash / measurement 系証跡（取得物の同定）
+- **冪等性**: 書戻しは操作単位の idempotency key で二重実行を検出（BR-I7）。読取りはlast_edited_timeカーソル＋冪等upsertで重複取得を吸収し、同一request_hashの境界poll/再取得はrequest_sequenceを単調増加して各要求を区別する。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。
+- **証跡**: operation_log 行（service=notion・external_operation_row_id・correlation_key・request_hash・request_sequence。対応external_operations.idを必須とし、provider external_operation_idは任意）／読取り draft の file_hash / measurement 系証跡（取得物の同定）
 - **使用テーブル・正本**: rw: external_operations／w: evidence（外部操作証跡 = operation_log kind）（evidence）／r: sprints / learnings（書戻し元）／w: action_plans / sprints への draft 参照材料／r: config（registry.notion・rate.notion.*）
 - **外部依存**: Notion（公式 MCP 優先／ブラウザ fallback — 接続レジストリ準拠）
-- **設定値**: config.rate.notion.req_per_sec（暫定既定 3 req/秒）／config.sync.notion.cursor_margin_min（ポーリングカーソル余裕・分） ／ **固定値**: Notion 本文分割単位 2,000 字（BR-M-NOTION-1）／webhook はループ判定に使わない（ポーリング基本 — BR-M-NOTION-2）
+- **設定値**: config.rate.notion.req_per_sec（暫定既定 3 req/秒）／config.sync.notion.cursor_margin_min（ポーリングカーソル余裕・分）／config.external_write_policy.review_sync.allowed_services/endpoints（Notion operation・endpointの必須許可行） ／ **固定値**: Notion 本文分割単位 2,000 字（BR-M-NOTION-1）／webhook はループ判定に使わない（ポーリング基本 — BR-M-NOTION-2）
 - **trace**: 上流 = BR-M-NOTION-1 BR-M-NOTION-2 BR-A1 ／ 下流 = AC-45-1 AC-45-2 AC-45-3 FN-408 CMP-07 ／ スライス = S1
 
 ## FR-46 承認チャネル
 
 - **入力**: 承認要求（対象 binding_subject・操作 binding_operation・時点 binding_at — 公開系タスクから）／承認応答（approved/rejected/expired/pending — Claude Code アプリ通知への応答）／オートモード判定材料（config.auto_mode_criteria＋実績証跡 — 機械判定用）
 - **出力**: approvals 行（channel=claude_code_app・binding 3 項目・decision・responder_ref）／approval evidence（kind=approval — decision=approved 時、approvals.evidence_id と相互整合）／拒否時: ApprovalBindingMismatch / NonRetryableFailure 例外と対応する task 遷移
-- **事前条件**: Claude Code アプリで通知を受け取れる利用者が構成済み（環境契約 §6 — transport は mock 可）／承認要求は binding 3 項目（対象・操作・時点）を欠落なく明記している／config.approval_retry_limit が存在する
+- **事前条件**: Claude Code アプリで通知を受け取れる利用者が構成済み（環境契約 §6 — transport は mock 可）／承認要求は binding 3 項目（対象・操作・時点）を欠落なく明記している／config.approval_retry_limitが存在する／config.external_write_policy.approval_notificationがservice='claude_code_app'・operation='approval_request'・endpointを明示し、通知payloadのbinding 3項目が完全である
 - **事後条件**: 承認要求 1 件につき approvals 1 行が (task_id, binding 3 項目) UNIQUE で存在する／approved 時のみ後続の公開操作が binding 3 項目の完全一致照合を通過できる／decision と task 状態が対応している（approved→進行／rejected→failed／expired→再要求または escalated／pending→waiting）
 - **不変条件**: pending の間、対象タスクは進行せず親 loop_run は waiting のまま（AC-46 系 — 先行公開経路なし）／binding 3 項目のいずれか 1 つでも不一致なら公開は通らない（部分一致許容なし）／承認応答の書換え・削除は不可（approvals は証跡 — decision 変更は新規要求で行う）
 - **状態遷移**: tasks: in_progress→failed（non_retryable_failure — rejected）／in_progress→escalated（escalate — expired 上限到達）／tasks: verifying→done（verify_pass — 承認証跡完備が前提）／テーブル列: approvals.decision: pending / approved / rejected / expired
-- **正常動作**: 公開系タスクが承認要求を出すと binding 3 項目を明記した通知を Claude Code アプリへ送り、approvals に decision=pending で INSERT。応答受領で decision を更新し、approved なら approval evidence を登録して binding 3 項目の完全一致を条件に後続公開を許可する。オートモード移行は config.auto_mode_criteria と実績証跡から機械判定する（人手の主観判定を挟まない — BR-H2）。
-- **拒否・異常動作**: rejected は non_retryable_failure として task を failed へ（再試行しない — 承認拒否は自動リトライ対象外）。公開時の binding 3 項目不一致は ApprovalBindingMismatch で公開拒否し秘匿化済み構造化拒否ログに記録。承認なしの公開呼出しは ApprovalRequired で拒否（fail-close）。
+- **正常動作**: binding 3項目を明記した実通知だけをexternal_operations(effect='write', policy_category='approval_notification', rate_scope='claude_code_app', service='claude_code_app', operation='approval_request', target_endpoint=config登録値)、実応答pollをeffect='read'/policy_category='external_read'/rate_scope=NULLとして記録する。通知writeはpolicyとbinding完全性をpreflight検証後だけprepared化し、未成立ApprovalPassを循環的に要求せず、各実要求をoperation_log INSERT triggerでfinal化する。mock/dry-runは外部操作両テーブル0。
+- **拒否・異常動作**: notification allow-list/config欠落、service/operation/endpoint不一致、binding欠落はpreflightで拒否し、外部呼出・external_operations・operation_log各0、process loggerへ事由コードを記録する。送信後の人間rejectedは応答readを証跡化してtaskをfailedへ倒す。
 - **境界動作**: expired は承認を再要求して待機継続し、再要求回数が config.approval_retry_limit に到達したら escalated へ（無限待機しない）。同一 (task, binding 3 項目) の重複要求は UNIQUE 制約で既存行に照合。binding_at と実公開時点の乖離は不一致として拒否。
 - **再試行・再開・復旧**: クラッシュ後は approvals.decision から再開: pending は応答待ちを継続、approved は evidence 整合を確認して公開へ、rejected/expired は各遷移規則を適用。通知の再送は同一 binding の再要求として扱い二重承認を作らない。
 - **人間判断／escalation**: 承認応答そのもの（approve/reject）が人間判断の正規経路（BR-H1 — 束縛承認）。オートモード移行後は基準充足の機械判定で承認を省略
-- **副作用**: Claude Code アプリへの通知送出（transport は mock 可）／approvals INSERT/UPDATE（decision）／evidence INSERT（kind=approval）／秘匿化済み構造化拒否ログ（照合拒否時）／tasks の状態遷移（状態機械 FR-11 経由）
-- **冪等性**: 承認要求は (task_id, binding_subject, binding_operation, binding_at) UNIQUE で重複要求を検出。応答の重複受信は decision 確定済み行への no-op。
-- **証跡**: approvals 行（binding 3 項目・decision・responder_ref・decided_at）／approval evidence（decision=approved・approvals.evidence_id と相互整合）／秘匿化済み構造化拒否ログ（binding 不一致の公開拒否）
-- **使用テーブル・正本**: rw: approvals／w: evidence（approval）／w: evidence（外部操作証跡 = operation_log kind）／rw: tasks（遷移は FR-11 経由）／r: config（approval_retry_limit・auto_mode_criteria）
+- **副作用**: Claude Code アプリへの通知送出（transport は mock 可）／external_operations INSERT/UPDATE＋対応operation_log INSERT（実通知write／実応答poll readだけ）／approvals INSERT/UPDATE（decision）／evidence INSERT（kind=approval）／秘匿化済み構造化拒否ログ（照合拒否時）／tasks の状態遷移（状態機械 FR-11 経由）
+- **冪等性**: 承認要求は (task_id, binding_subject, binding_operation, binding_at) UNIQUE で重複要求を検出。応答の重複受信は decision 確定済み行への no-op。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。
+- **証跡**: approvals 行（binding 3 項目・decision・responder_ref・decided_at）／approval evidence（decision=approved・approvals.evidence_id と相互整合）／operation_log（実通知write／実応答poll readのexternal_operation_row_id・correlation_key・request_hash・request_sequence。provider external_operation_idは任意）／秘匿化済み構造化拒否ログ（binding 不一致の公開拒否）
+- **使用テーブル・正本**: rw: approvals／rw: external_operations（承認通知の送出）／w: evidence（approval）／w: evidence（外部操作証跡 = operation_log kind）／rw: tasks（遷移は FR-11 経由）／r: config（approval_retry_limit・auto_mode_criteria）
 - **外部依存**: Claude Code アプリ通知（承認 transport — テストは mock）
-- **設定値**: config.approval_retry_limit（expired 再要求の上限）／config.auto_mode_criteria（オートモード移行基準 — C） ／ **固定値**: channel = claude_code_app（approvals DDL CHECK — 変更は要件改訂）／binding 照合は 3 項目完全一致（部分一致なし）
+- **設定値**: config.approval_retry_limit（expired 再要求の上限）／config.auto_mode_criteria（オートモード移行基準 — C）／config.external_write_policy.approval_notification.allowed_services/endpoints（Claude Code app operation・endpointの必須許可行） ／ **固定値**: channel = claude_code_app（approvals DDL CHECK — 変更は要件改訂）／binding 照合は 3 項目完全一致（部分一致なし）
 - **trace**: 上流 = BR-H1 BR-H2 REQ-038 ／ 下流 = AC-46-1 AC-46-2 AC-46-3 AC-46-4 FN-409 FN-410 CMP-11 ／ スライス = S0
 
 ## FR-47 秘匿情報
@@ -579,16 +579,16 @@
 - **事前条件**: OS キーチェーンまたは暗号化ストアが利用可能である／テスト用と本番用 credential が別発行・別保管されている（環境契約 §6）／マスキング規則（既知 secret 値・パターン）がロード済み
 - **事後条件**: リポジトリ・SQLite・ログ・evidence の全文検索で平文 credential 検出 0 件（AC-47）／秘匿値はメモリ内でのみ使用され、外部操作後に永続化されていない／テスト credential が本番 endpoint に、本番 credential が Docker/mock に使われていない
 - **不変条件**: 平文 credential ゼロ（NFR-4 — SQLite/repo/ログ/evidence のいずれにも置かない）／evidence.external_operation_id 等の記録は秘匿情報を除いて行われる（s0-contract §1）／秘匿ストアを迂回して credential をコードや config に埋め込む経路が存在しない
-- **状態遷移**: なし
-- **正常動作**: コネクタが接続時に service 名で秘匿値を要求すると、暗号化ストア（OS キーチェーン優先）から復号してメモリ上でのみ注入する。ログ・operation_log・evidence への全書出しはマスキング層を通過し、既知 secret 値・credential パターンを伏字化してから永続化する。
-- **拒否・異常動作**: 秘匿値の取得不能（未投入・復号失敗・ストア不能）は SecretUnavailable を raise し外部操作を開始しない（fail-close）。書出し内容に平文 credential を検知した場合はマスクした上で CredentialLeakDetected を秘匿化済み構造化検知ログに記録し、当該書出し元のタスクを escalated へ誘導する。credential とテスト/本番 endpoint の組合せ不一致は実行拒否（環境契約 §6）。
+- **状態遷移**: tasks: in_progress→escalated（credential再投入・失効/再発行が必要なSecretUnavailable/CredentialLeakDetected, event=escalate）／tasks: pending→in_progress（credential再投入後に明示発行したreplacement task, event=claim）
+- **正常動作**: コネクタが接続時に service 名で秘匿値を要求すると、暗号化ストア（OS キーチェーン優先）から復号してメモリ上でのみ注入する。process log・外部操作証跡・その他 evidence への全書出しはマスキング層を通過し、既知 secret 値・credential パターンを伏字化してから永続化する。
+- **拒否・異常動作**: 秘匿値の取得不能（未投入・復号失敗・ストア不能）は SecretUnavailable を raise し外部操作を開始しない（fail-close）。credential再投入が必要な場合は当該tasks.in_progressをevent=escalateでescalatedへ遷移する。書出し内容に平文credentialを検知した場合は永続化前に拒否・マスクし、CredentialLeakDetectedを秘匿化済み構造化検知ログへ記録して、当該taskをevent=escalateでescalatedへ遷移しcredential失効・再発行を要求する。credentialとテスト/本番endpointの組合せ不一致も送信前に拒否する（環境契約 §6）。
 - **境界動作**: セッション失効・期限切れは取得時に検知し、再投入が必要なら escalated（credential 再投入は人の関与 — s0-contract §3.1 escalate ガード）。マスキングは部分一致（URL 埋込・JSON 内包）も対象。空ストア = 全接続不能（安全側）。
-- **再試行・再開・復旧**: 秘匿ストアは SQLite 外のため DB 再開手順に依存しない。SecretUnavailable で止まったタスクは credential 再投入後に同一状態から再実行可能。マスキングは書出しごとの純検査で再実行安全。
+- **再試行・再開・復旧**: 秘匿ストアは SQLite 外のため DB 再開手順に依存しない。escalated は終端なのでcredential再投入後も元taskを変更・再開せず、人が元taskをparent/sourceとしてreplacement taskを明示発行し、新taskをpending→in_progress（event=claim）で開始する。マスキングは書出しごとの純検査で再実行安全。
 - **人間判断／escalation**: 人間: credential の初回投入・失効時の再投入（環境契約 §6）。検査・マスキング・拒否は全自動
 - **副作用**: OS キーチェーン／暗号化ストアの読取り／秘匿化済み構造化検知ログ（漏洩検知・取得不能時）／なし（正常注入は永続化を伴わない）
-- **冪等性**: 取得・マスキングは pure（同一入力→同一結果）。漏洩検知ログは書出し操作単位で 1 行。再投入は上書きで冪等。
+- **冪等性**: 取得・マスキングは pure（同一入力→同一結果）。漏洩検知ログは書出し操作単位で1行。再投入は上書きで冪等だが終端元taskを復活させず、replacement taskは元task IDを含む決定的idempotency keyで重複発行を拒否する。
 - **証跡**: 秘匿化済み構造化ログ（SecretUnavailable・CredentialLeakDetected — 秘匿値そのものは含まない）／全文検索 0 件の検査結果（AC-47 の検証観測）
-- **使用テーブル・正本**: w: evidence（外部操作証跡 = operation_log kind）（evidence kind — 検知時のみ）／r: config（マスキング規則の非秘匿設定）
+- **使用テーブル・正本**: r: config（マスキング規則の非秘匿設定）／rw: tasks（escalateとreplacement task発行）／w: state_transitions（escalate/claim）
 - **外部依存**: OS キーチェーンまたは暗号化ストア（SQLite 外 — 鍵分離 BR-F4）
 - **設定値**: config.secret.masking_patterns（credential パターンの非秘匿定義） ／ **固定値**: 秘匿値の保管先 = OS キーチェーン／暗号化ストアのみ（SQLite・repo・ログ禁止 — BR-F4）
 - **trace**: 上流 = BR-F4 REQ-031 NFR-4 ／ 下流 = AC-47-1 AC-47-2 AC-47-3 AC-47-4 AC-47-5 AC-47-6 FN-411 CMP-07 ／ スライス = S0
@@ -601,15 +601,15 @@
 - **事後条件**: 出力ファイルの SHA-256 が evidence（kind=file_hash）に記録されている／WP アップロード成功時は assets に参照行が 1 件存在し content_hash が出力 hash と一致する／失敗時は assets・WP に部分成果物が残っていない
 - **不変条件**: 同一 commit ＋同一プロファイル→同一出力 hash（決定性 — NFR-2。時刻・乱数は Clock/Rng 注入でレンダリングに混入させない）／コンテンツ実体は WP へ収束し SQLite には参照（hash・ID・URL）のみを置く（BR-G2）／外部書込み先は Docker WP のみ（本番 WP への書込みは常時拒否）
 - **状態遷移**: なし
-- **正常動作**: task の workflow step から出力プロファイルを解決 → git ワークスペースの commit を特定 → レンダリング実行（HTML/SVG→ブラウザスクショ、HTML→PDF、原稿は FN-501 生成）→ 出力の SHA-256 算出 → Docker WP メディアへアップロード → assets へ参照 INSERT ＋ evidence（file_hash）INSERT を同一 transaction で行う。
-- **拒否・異常動作**: 入力ソースが未 commit・commit 解決不能なら UnversionedSourceRejected で拒否（BR-G1）。接続先が Docker WP 以外なら WpTargetDenied で拒否し operation_log に記録。レンダリング途中失敗は RenderFailed を raise し、WP アップ済み断片があれば削除を試みたうえで assets/evidence を書かない（fail-close）。
+- **正常動作**: 出力生成・SHA-256算出後、固定policy一致をpreflight検証し、Docker WPメディアアップロードをexternal_operations(effect='write', policy_category='content_publish', service='wp', operation='upload_media', target_endpoint=Docker WP)とoperation_logで証跡化する。
+- **拒否・異常動作**: 入力ソースが未 commit・commit 解決不能なら UnversionedSourceRejected、接続先が Docker WP 以外なら WpTargetDenied で送信前に拒否し、external_operations/operation_log を作らず process logger の構造化拒否 event に記録する。レンダリング途中失敗は RenderFailed を raise し、WP アップ済み断片があれば削除を別の外部操作として external_operations/operation_log に記録したうえで assets/evidence を書かない（fail-close）。
 - **境界動作**: 空の入力ソース（対象ファイル 0 件）は RenderFailed で拒否。同一 commit＋同一プロファイルの再実行は同一 hash を得て assets の UNIQUE(canonical_url/wp_media_id) で重複登録されない。巨大出力はサイズ上限（config）超過で拒否。
 - **再試行・再開・復旧**: assets/evidence 書込みは同一 transaction のためクラッシュで中間行が残らない。WP アップ後・登録前のクラッシュは、再実行時に content_hash 一致の既存メディアを照合して再アップせず登録のみ行う（冪等再開）。
 - **人間判断／escalation**: なし（全自動。成果物の合否は FR-27 審査ゲートの領分）
-- **副作用**: Docker WP メディアへのアップロード／assets INSERT／evidence INSERT（file_hash）／operation_log INSERT（外部操作・拒否時）
-- **冪等性**: 出力 hash と assets の UNIQUE 制約が冪等キー。同一入力の再実行は同一 hash に収束し、参照行・証跡は重複しない。
-- **証跡**: evidence 行（kind=file_hash — file_path・file_hash・algorithm=SHA-256）／operation_log 行（WP アップロード操作・拒否）
-- **使用テーブル・正本**: r: tasks／r: workflows（出力プロファイル）／w: assets／w: evidence／w: evidence（外部操作証跡 = operation_log kind）／r: config（サイズ上限・WP 接続参照）
+- **副作用**: Docker WP メディアへのアップロード／assets INSERT／evidence INSERT（file_hash）／external_operations INSERT/UPDATE＋対応する operation_log INSERT（Docker WP のアップロード／補償削除だけ）／秘匿化済み構造化拒否ログ（送信前拒否）
+- **冪等性**: 出力 hash と assets の UNIQUE 制約が冪等キー。同一入力の再実行は同一 hash に収束し、参照行・証跡は重複しない。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。
+- **証跡**: evidence 行（kind=file_hash — file_path・file_hash・algorithm=SHA-256）／operation_log 行（WPアップロード／補償削除のexternal_operation_row_id。provider external_operation_idは任意）
+- **使用テーブル・正本**: r: tasks／r: workflows（出力プロファイル）／w: assets／rw: external_operations（WP アップロード／補償削除）／w: evidence／r: config（サイズ上限・WP 接続参照）
 - **外部依存**: ヘッドレスブラウザ（スクショ・PDF 化）／Docker WP（メディア API）／git（commit 解決）
 - **設定値**: config.render_output_max_bytes／config.wp_target（Docker WP 接続参照） ／ **固定値**: hash アルゴリズム = SHA-256／出力プロファイル種別（screenshot|pdf|manuscript）
 - **trace**: 上流 = BR-G1 BR-G2 NFR-2 REQ-041 ／ 下流 = AC-51-1 AC-51-2 AC-51-3 AC-51-4 AC-51-5 FN-501 FN-502 FN-503 CMP-12 ／ スライス = S0
@@ -622,15 +622,15 @@
 - **事後条件**: レンダリング出力に適用されたトークンの版数・hash が証跡に残っている／正本取得成功時はキャッシュが取得内容で更新されている／トークン外の恣意的スタイル指定が注入されていない（BR-G3 禁止事項）
 - **不変条件**: トークンは Claude Design 正本（またはその同期キャッシュ）からのみ取得し、複製・手書き定義を持たない／同一トークン版＋同一ソース→同一出力（決定性 — NFR-2。トークン版 hash を証跡化して非決定要素を固定）
 - **状態遷移**: なし
-- **正常動作**: DesignSync からトークンを取得 → 版数・hash を算出しキャッシュを更新 → レンダリング入力へトークンを注入（CSS 変数・テーマ値展開）→ 適用トークンの版数・hash をレンダリング証跡の payload に記録する。
-- **拒否・異常動作**: トークン取得不能かつキャッシュも存在しない場合は DesignTokenUnavailable を raise しレンダリングを実行しない（トークンなし出力を作らない — fail-close）。キャッシュ破損（hash 不一致・JSON 不正）は破損キャッシュを使用せず同様に拒否し秘匿化済み構造化拒否ログに記録。
+- **正常動作**: DesignSync取得要求をexternal_operations(effect='read', correlation_key='read:<task_id>:<request_hash>:<request_sequence>')のprepared→sent→confirmedとexternal_operation_row_id・request_sequence一致の対応operation_logで証跡化 → 版数・hashを算出しキャッシュを更新 → レンダリング入力へトークンを注入（CSS変数・テーマ値展開）→ 適用トークンの版数・hashをレンダリング証跡payloadに記録する。
+- **拒否・異常動作**: DesignSync へ送信済みの取得要求が失敗した場合は external_operations を rejected 又は unknown に確定し、対応する operation_log を記録する。取得不能かつキャッシュも存在しない場合は DesignTokenUnavailable を raise しレンダリングを実行しない。キャッシュ破損（hash 不一致・JSON 不正）とキャッシュなしの最終拒否は内部判定のため operation_log を作らず、process logger の秘匿化済み構造化拒否 event に記録する。
 - **境界動作**: 正本取得不能でキャッシュありは直近同期済みキャッシュで継続し、キャッシュ利用（stale）フラグと版数を証跡に残す。トークン集合が空の応答は取得失敗と同等に扱う。
-- **再試行・再開・復旧**: 取得はタイムアウト後に規定回数まで再試行し、失敗はキャッシュ経路へフォールバック。キャッシュ更新はアトミック（temp 書込み→rename）で中間状態を残さない。
+- **再試行・再開・復旧**: 取得はタイムアウト後に規定回数まで再試行し、同一request_hashの各実試行はrequest_sequenceを1から単調増加して別external_operations行・別operation_logへ記録する。失敗はキャッシュ経路へフォールバックし、キャッシュ更新はアトミック（temp 書込み→rename）で中間状態を残さない。
 - **人間判断／escalation**: なし（デザインシステム自体の改訂承認は BR-G3 の PO 領分）
-- **副作用**: トークンキャッシュ ファイル更新／秘匿化済み構造化ログ（取得・フォールバック・拒否）
-- **冪等性**: 同一トークン版での再適用は同一出力。取得は read-only で何度実行しても正本を変更しない。
-- **証跡**: レンダリング証跡 payload 内のトークン版数・hash・stale フラグ／秘匿化済み構造化ログ（取得失敗・フォールバック）
-- **使用テーブル・正本**: w: evidence（外部操作証跡 = operation_log kind）／r: config（DesignSync 接続参照・再試行回数）
+- **副作用**: トークンキャッシュ ファイル更新／external_operations INSERT/UPDATE＋対応する operation_log INSERT（DesignSync 取得要求だけ）／秘匿化済み構造化ログ（フォールバック・内部拒否）
+- **冪等性**: 同一トークン版での再適用は同一出力。取得は read-only で何度実行しても正本を変更しない。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。
+- **証跡**: レンダリング証跡 payload 内のトークン版数・hash・stale フラグ／operation_log（DesignSync取得のexternal_operation_row_id・correlation_key・request_hash・request_sequence。provider external_operation_idは任意）／秘匿化済み構造化ログ（フォールバック・内部拒否）
+- **使用テーブル・正本**: rw: external_operations（DesignSync 取得要求）／w: evidence（external_operations に対応する operation_log）／r: config（DesignSync 接続参照・再試行回数）
 - **外部依存**: Claude Design（DesignSync — トークン正本）
 - **設定値**: config.designsync_source（正本参照）／config.designsync_fetch_retry_max／config.designsync_cache_path ／ **固定値**: キャッシュ検証 = SHA-256 hash 一致／トークン注入方式（CSS 変数展開）
 - **trace**: 上流 = BR-G3 REQ-035 NFR-2 ／ 下流 = AC-52-1 AC-52-2 AC-52-3 FN-504 CMP-12 ／ スライス = S1
@@ -643,15 +643,15 @@
 - **事後条件**: 入力（台本・素材参照）から出力までが再現可能なコード実行として記録されている（ツール版数・パラメータ・出力 hash）／生成物は WP 資産として登録され、元資産への parent_asset_id 参照を保持する（リパーパス系譜 — FR-55）
 - **不変条件**: 同一入力＋同一ツール版→同一出力（決定性 — NFR-2。エンコーダ等の非決定要素は出力 hash を証跡化して固定し、乱数種・時刻は Clock/Rng 注入）／コンテンツ実体は WP 収束・SQLite は参照のみ（BR-G2）／外部書込みは Docker WP のみ
 - **状態遷移**: なし
-- **正常動作**: パイプライン種別を解決 → 入力（台本 commit・素材 asset_id）を固定 → ツール実行（VOICEVOX localhost API／Remotion+ffmpeg(NVENC)／pandoc）→ 出力の SHA-256 算出 → Docker WP へアップし assets へ parent_asset_id つきで参照 INSERT ＋ evidence（file_hash・実行記録 payload）INSERT。
+- **正常動作**: パイプライン出力のSHA-256算出後、固定policy一致をpreflight検証し、Docker WPアップロードをexternal_operations(effect='write', policy_category='content_publish', service='wp', operation='upload_media', target_endpoint=Docker WP)とoperation_logで証跡化する。
 - **拒否・異常動作**: 入力参照が解決不能（存在しない asset_id・未 commit 台本）は UnversionedSourceRejected で拒否。ツール到達不能・実行失敗は PipelineExecutionFailed を raise し、部分出力を assets/WP に登録しない。実行記録を残せない場合も成果物を登録せず拒否する（記録なし成果物の禁止 — fail-close）。
 - **境界動作**: 長尺入力は config の実行タイムアウト・サイズ上限で打ち切り拒否。VOICEVOX は localhost のみ許可（外部 TTS への送信は経路として存在しない）。同一入力の再実行は出力 hash 一致で assets 重複登録されない。
 - **再試行・再開・復旧**: ツール実行は task 単位で最初から再実行（中間ファイルは temp 領域に置き、成功時のみ採用）。クラッシュ時は temp を破棄して再実行すれば同一出力に収束する。
 - **人間判断／escalation**: なし（全自動。成果物の公開可否は審査・承認ゲートの領分）
-- **副作用**: ツールプロセス実行（VOICEVOX/ffmpeg/Remotion/pandoc）／Docker WP メディアアップロード／assets INSERT／evidence INSERT／operation_log INSERT
-- **冪等性**: 同一入力・同一ツール版の再実行は同一 hash に収束し、assets/evidence の UNIQUE 制約で重複しない。
-- **証跡**: evidence 行（kind=file_hash — 出力 hash）／実行記録 payload（入力参照・ツール版数・パラメータ）／operation_log 行（外部操作）
-- **使用テーブル・正本**: r: tasks／r: assets（素材参照・parent 解決）／w: assets／w: evidence／w: evidence（外部操作証跡 = operation_log kind）／r: config
+- **副作用**: ツールプロセス実行（VOICEVOX/ffmpeg/Remotion/pandoc）／Docker WP メディアアップロード／assets INSERT／evidence INSERT／external_operations INSERT/UPDATE＋対応する operation_log INSERT（Docker WP アップロードだけ）
+- **冪等性**: 同一入力・同一ツール版の再実行は同一 hash に収束し、assets/evidence の UNIQUE 制約で重複しない。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。
+- **証跡**: evidence 行（kind=file_hash — 出力 hash）／実行記録 payload（入力参照・ツール版数・パラメータ）／operation_log 行（Docker WPアップロードのexternal_operation_row_id。provider external_operation_idは任意）
+- **使用テーブル・正本**: r: tasks／r: assets（素材参照・parent 解決）／w: assets／rw: external_operations（Docker WP アップロード）／w: evidence／r: config
 - **外部依存**: VOICEVOX（localhost）／Remotion / ffmpeg（NVENC）／pandoc／Blender ヘッドレス（3D — S3）／Docker WP
 - **設定値**: config.pipeline_exec_timeout_sec／config.pipeline_output_max_bytes／config.voicevox_endpoint（localhost 固定値の参照） ／ **固定値**: VOICEVOX 接続先 = localhost のみ／hash アルゴリズム = SHA-256／動画比率別プロファイル定義
 - **trace**: 上流 = BR-G1 BR-G2 NFR-2 ／ 下流 = AC-53-1 AC-53-2 AC-53-3 FN-505 FN-506 FN-507 FN-508 CMP-12 ／ スライス = S3+
@@ -672,7 +672,7 @@
 - **副作用**: evidence INSERT（commit_hash / review_pass）／構造化ログ出力（拒否時 — FN-704）
 - **冪等性**: 同一 (task_id, kind, commit_hash) の再記録は UNIQUE 制約で 1 行に収束。判定（一致検査）は pure。
 - **証跡**: evidence 行（kind=commit_hash）／evidence 行（kind=review_pass — commit_hash 束縛）／秘匿化済み構造化拒否ログ
-- **使用テーブル・正本**: r: tasks／w: evidence／w: evidence（外部操作証跡 = operation_log kind）／r: pair_plan_quality（審査経路整合の参照）
+- **使用テーブル・正本**: r: tasks／w: evidence／r: pair_plan_quality（審査経路整合の参照）
 - **外部依存**: git（hash 取得・checkout 復元）
 - **設定値**: なし ／ **固定値**: commit_hash 桁数 = 40 または 64（DDL CHECK と同値）／evidence kind = commit_hash / review_pass（s0-contract §2.1）
 - **trace**: 上流 = BR-G1 BR-B3 REQ-032 ／ 下流 = AC-54-1 AC-54-2 AC-54-3 AC-54-4 AC-54-5 FN-511 CMP-12 ／ スライス = S0
@@ -693,7 +693,7 @@
 - **副作用**: assets INSERT／構造化ログ出力（拒否時 — FN-704）
 - **冪等性**: UNIQUE(canonical_url)・UNIQUE(wp_media_id) が冪等キー。同一資産の再登録は行を増やさない。
 - **証跡**: assets 行自体（参照＋系譜の正本）／秘匿化済み構造化拒否ログ／公開時は evidence（kind=published_url — asset_id 列で接続）
-- **使用テーブル・正本**: rw: assets／r: tasks（source_task_id 整合）／w: evidence（外部操作証跡 = operation_log kind）
+- **使用テーブル・正本**: rw: assets／r: tasks（source_task_id 整合）
 - **外部依存**: Docker WP（実体の置き場 — 本 FR 自体は参照登録のみ）
 - **設定値**: config.asset_metadata_max_bytes（参照サイズ上限 — 実体混入検知） ／ **固定値**: 系譜構造 = parent_asset_id による単方向ツリー（循環禁止）
 - **trace**: 上流 = BR-G2 REQ-033 REQ-034 ／ 下流 = AC-55-1 AC-55-2 AC-55-3 AC-55-4 FN-512 CMP-12 ／ スライス = S0
@@ -714,7 +714,7 @@
 - **副作用**: kpi_nodes INSERT/UPDATE(status)／構造化ログ出力（拒否時 — FN-704）
 - **冪等性**: UNIQUE(business_profile_id, node_key) が冪等キー。集計は pure（同一 DB 状態→同一結果）。
 - **証跡**: 秘匿化済み構造化拒否ログ（有料指標拒否・定義不正拒否）／kpi_nodes 行（階層定義の正本）
-- **使用テーブル・正本**: rw: kpi_nodes／r: business_profiles／r: measurements（集計）／w: evidence（外部操作証跡 = operation_log kind）
+- **使用テーブル・正本**: rw: kpi_nodes／r: business_profiles／r: measurements（集計）
 - **外部依存**: なし
 - **設定値**: なし ／ **固定値**: 5 階層 enum（exposure/micro_cv/conversion/relationship/revenue — DDL CHECK と同値）／有料指標型の禁止リスト（cac/roas/ad_spend — FR-23 と共有）
 - **trace**: 上流 = BR-E1 REQ-020 REQ-021 ／ 下流 = AC-61-1 AC-61-2 AC-61-3 AC-61-4 AC-61-5 AC-61-6 FN-601 FN-604 CMP-13 ／ スライス = S0
@@ -727,15 +727,15 @@
 - **事後条件**: 取得物の SHA-256 が evidence（kind=measurement の value／file_hash）として投入前に記録されている／正常行のみが measurements に存在し、失敗行は隔離先に件数つきで残っている／全 measurements 行の evidence_id が取得証跡へ FK 接続している
 - **不変条件**: 証跡（hash・ブラウザ経路時はスクショ）なしの計測値は measurements に存在しない（BR-E2 禁止事項）／投入は冪等 — 同一エクスポートの再取込で行が重複しない／手動入力値を実測として投入する経路が存在しない
 - **状態遷移**: なし
-- **正常動作**: 取得（GA4/GSC は正規 Data API、他はブラウザエクスポート）→ 取得物の SHA-256 算出と evidence（measurement: source・file_hash・period・row_count）INSERT → サービス別パーサで行解釈 → kpi_node 解決 → measurements へ一括 INSERT（1 取込 = 1 transaction）。ブラウザ経路では取得画面スクショも evidence 化する。
+- **正常動作**: 取得要求（GA4/GSCは正規Data API、他はブラウザエクスポート）をexternal_operations(effect='read', correlation_key='read:<task_id>:<request_hash>:<request_sequence>')のprepared→sent→confirmedとexternal_operation_row_id・request_sequence一致の対応operation_logで証跡化 → 取得物のSHA-256算出とevidence（measurement: source・file_hash・period・row_count）INSERT → サービス別パーサで行解釈 → kpi_node解決 → measurementsへ一括INSERT（1取込=1 transaction）。ブラウザ経路では取得画面スクショもevidence化する。
 - **拒否・異常動作**: パース失敗行はエラー隔離（隔離ファイル＋件数記録）し、正常行のみ投入する（部分投入許容）。全行失敗・ファイル破損・hash 算出不能は ImportSourceInvalid で全体拒否。未登録 kpi_node 宛の行・有料指標由来の行は投入せず隔離し秘匿化済み構造化拒否ログに記録（fail-close）。
 - **境界動作**: 空エクスポート（データ 0 行）は measurements 差分なしで正常終了し、取得証跡のみ残る。同一 (kpi_node_id, period, dimensions) の重複行は UNIQUE 制約で 2 行目以降を投入しない。期間逆転（period_end < period_start）行は隔離。
-- **再試行・再開・復旧**: 投入 transaction 失敗は全行 rollback（部分コミットなし）。再実行は同一 source hash の evidence UNIQUE(task_id, kind, value) と measurements の UNIQUE で冪等に収束。API 阻害時はブラウザエクスポートへ一時フォールバックし、同一 evidence 契約に収束させる。
+- **再試行・再開・復旧**: 投入 transaction 失敗は全行 rollback（部分コミットなし）。同一task・operation・request_hashで外部取得を反復する場合はrequest_sequenceを単調増加して別要求として記録し、同一source hashのevidence UNIQUE(task_id, kind, value)とmeasurementsのUNIQUEで業務差分は冪等に収束する。API阻害時はブラウザエクスポートへ一時フォールバックし、同一evidence契約に収束させる。
 - **人間判断／escalation**: なし（取得失敗の escalation は BR-H3 経由）
-- **副作用**: measurements INSERT／evidence INSERT（measurement/file_hash/screenshot）／隔離ファイル生成／operation_log INSERT／外部 read（GA4 Data API・ブラウザ）
-- **冪等性**: source hash（evidence UNIQUE）と measurements の UNIQUE(kpi_node_id, period_start, period_end, dimensions_json) の二重冪等キー。同一エクスポートの再投入は差分ゼロ。
-- **証跡**: evidence 行（kind=measurement — source・file_hash・period・row_count）／evidence 行（kind=file_hash／kind=screenshot — ブラウザ経路）／operation_log 行（外部取得操作）／秘匿化済み構造化ログ（隔離・拒否）
-- **使用テーブル・正本**: w: measurements／r: kpi_nodes／r: tasks／w: evidence／w: evidence（外部操作証跡 = operation_log kind）／r: playbooks（ブラウザ経路手順）／r: config
+- **副作用**: measurements INSERT／evidence INSERT（measurement/file_hash/screenshot）／隔離ファイル生成／external_operations INSERT/UPDATE＋対応する operation_log INSERT（外部取得要求だけ）／外部 read（GA4 Data API・ブラウザ）
+- **冪等性**: source hash（evidence UNIQUE）と measurements の UNIQUE(kpi_node_id, period_start, period_end, dimensions_json) の二重冪等キー。同一エクスポートの再投入は差分ゼロ。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。
+- **証跡**: evidence 行（kind=measurement — source・file_hash・period・row_count）／evidence 行（kind=file_hash／kind=screenshot — ブラウザ経路）／operation_log 行（外部取得のexternal_operation_row_id・correlation_key・request_hash・request_sequence。provider external_operation_idは任意）／秘匿化済み構造化ログ（隔離・拒否）
+- **使用テーブル・正本**: w: measurements／r: kpi_nodes／r: tasks／rw: external_operations（外部取得要求）／w: evidence／w: evidence（外部操作証跡 = operation_log kind）／r: playbooks（ブラウザ経路手順）／r: config
 - **外部依存**: GA4 / GSC 正規 API（read-only — ADR-006）／ブラウザエクスポート（フォールバック経路）
 - **設定値**: config.import_quarantine_dir（隔離先）／config.ga4_property_ref（接続参照 — credential は秘匿ストア） ／ **固定値**: hash アルゴリズム = SHA-256／1 取込 = 1 transaction（部分コミット禁止）
 - **trace**: 上流 = BR-E2 REQ-022 REQ-023 ／ 下流 = AC-62-1 AC-62-2 AC-62-3 AC-62-4 AC-62-5 AC-62-6 AC-62-7 FN-602 FN-603 CMP-13 ／ スライス = S0
@@ -756,7 +756,7 @@
 - **副作用**: HTML/xlsx ファイル生成／evidence INSERT（dashboard）／構造化ログ出力（拒否時 — FN-704）
 - **冪等性**: 同一 DB 状態→同一出力 hash（pure な変換）。証跡は hash を value とする UNIQUE で重複しない。
 - **証跡**: evidence 行（kind=dashboard — file_path・file_hash・period_end）／秘匿化済み構造化実行・拒否ログ
-- **使用テーブル・正本**: r: kpi_nodes／r: measurements／r: pair_kpi_measure／r: sprints／w: evidence／w: evidence（外部操作証跡 = operation_log kind）／r: config
+- **使用テーブル・正本**: r: kpi_nodes／r: measurements／r: pair_kpi_measure／r: sprints／w: evidence／r: config
 - **外部依存**: なし
 - **設定値**: config.dashboard_output_dir／config.dashboard_gen_timeout_sec ／ **固定値**: 自己完結制約（外部 CDN・外部 URL 参照の禁止）／hash アルゴリズム = SHA-256／HTML 主・xlsx 従の序列
 - **trace**: 上流 = BR-E3 REQ-024 REQ-025 NFR-2 ／ 下流 = AC-63-1 AC-63-2 AC-63-3 FN-605 FN-606 CMP-13 ／ スライス = S1
@@ -805,21 +805,21 @@
 
 ## FR-73 例外支出台帳（spend_ledger）
 
-- **入力**: 支出記録要求（service, amount_minor, currency, purpose, task_id, approval_id, external_operation_id, occurred_at）／月間累計の照会要求（対象月）
-- **出力**: spend_ledger 行（例外利用 1 件 = 1 行）／月間累計額（NFR-6 の上限判定入力）／拒否時: SpendRecordIncomplete／DuplicateSpendEntry 例外
-- **事前条件**: 参照先 tasks 行が存在する（task_id FK）／有償操作の external_operations 証跡が先行して記録済み（証跡化 → 状態遷移の順）
-- **事後条件**: Seedance 等の例外利用が全件 spend_ledger に存在する（記録なしの有償操作 0 件）／amount_minor >= 0・currency 3 文字が制約で保証されている／月間累計が spend_ledger の SELECT だけで算出できる
-- **不変条件**: 有償経路の実行は spend_ledger 記録とペアである（台帳なしの支出は存在しない — BR-F1）／同一 (service, external_operation_id) の行は 1 件のみ（UNIQUE — 二重計上禁止）／台帳行は事後修正しない（訂正は逆仕訳の追加行）
+- **入力**: charge記録要求（entry_type='charge', external_operation_row_id, amount_minor>0, currency='JPY', purpose, approval_id, occurred_at。service/task_idは外部操作行から取得）／reversal記録要求（entry_type='reversal', reverses_spend_ledger_id, amount_minor>0, currency='JPY', purpose, approval_id, occurred_at。別のapproved correction taskへ束縛）／月間累計の照会要求（対象月）
+- **出力**: spend_ledger仕訳行（entry_type=charge|reversal。例外利用1件=charge 1行、取消しは元chargeに対するreversal最大1行）／月間累計額（NFR-6 の上限判定入力）／拒否時: SpendRecordIncomplete／DuplicateSpendEntry 例外／設計境界: S1詳細設計未着手（専用spend ledger component/DUへ再降下必須。既存CMP-13/DU-23は計測専用で代用しない）
+- **事前条件**: chargeはexternal_operation_row_idが指すexternal_operations行がexecution_mode='actual'・effect='write'・policy_category='approved_paid_operation'・status='confirmed'で、対応operation_logが確定済み／chargeのservice/task_idがexternal_operations行と一致し、approval_idは同じtask・操作へ束縛済み／reversalはreverses_spend_ledger_idが未取消しのentry_type='charge'行を指し、別のdecision=approved correction task/approvalへ束縛済み
+- **事後条件**: Seedance等のconfirmed approved_paid_operationが全件entry_type='charge'のspend_ledgerに存在する（記録なしの有償操作0件）／全仕訳でamount_minor>0・currency='JPY'が保証され、無料・amount=0・手動charge・FX通貨はspend_ledgerへ混入しない／月間純額がSUM(CASE WHEN entry_type='charge' THEN amount_minor ELSE -amount_minor END)のSELECTだけで算出できる
+- **不変条件**: confirmed有償actual write（policy_category='approved_paid_operation'）とcharge行はexternal_operation_row_idで双方向exactly-one（台帳なし支出・孤児chargeとも0 — BR-F1）／chargeだけexternal_operation_row_id NOT NULL UNIQUE・reverses_spend_ledger_id NULL、reversalだけexternal_operation_row_id NULL・reverses_spend_ledger_id NOT NULL UNIQUEで元chargeを指す。provider external_operation_idは任意の補助属性にすぎない／reversalは元chargeとamount_minor/service/currencyが完全一致し、1 chargeにつき最大1行。台帳行のUPDATE/DELETEは禁止し、訂正は別approved correction taskに束縛したreversal追加だけで行う
 - **状態遷移**: なし
-- **正常動作**: 有償 API の外部操作確定（external_operations = confirmed）時に、サービス・金額（amount_minor）・用途（purpose）・タスク参照（task_id）・承認参照（approval_id）を spend_ledger へ INSERT する。月間累計は occurred_at で集計し、NFR-6 の上限判定（config.spend_cap_monthly）へ供給する。
-- **拒否・異常動作**: service・amount_minor・purpose・task_id のいずれかを欠く記録要求は SpendRecordIncomplete で INSERT 前に拒否（NOT NULL/FK 制約と二重に強制）。同一 (service, external_operation_id) の再 INSERT は UNIQUE 制約で DuplicateSpendEntry。負の金額は CHECK 制約で拒否。台帳記録に失敗した有償操作は成功扱いにしない（fail-close）。
-- **境界動作**: amount_minor = 0（無償枠内利用）も 1 行として記録する（全件記録 — 閾値なし）。月跨ぎの支出は occurred_at の属する月に計上。external_operation_id が NULL の手動記録は UNIQUE の対象外として許容。
-- **再試行・再開・復旧**: INSERT は外部操作の確定と同一フローで行い、クラッシュ時は external_operations の status 照合（§3.3）で再開し、同一 external_operation_id の再記録は UNIQUE で吸収される。
+- **正常動作**: chargeは有償APIのexternal_operations行がactual write・policy_category='approved_paid_operation'としてoperation_log triggerでconfirmed化した時だけ、その内部idをexternal_operation_row_idへNOT NULLでINSERTする。reversalは別approved correction taskから未取消しchargeをreverses_spend_ledger_idで参照し、元と同額・同service・JPYでINSERTする。provider IDは同一性に使わない。月間純額はUTC半開区間に対しSUM(CASE WHEN entry_type='charge' THEN amount_minor ELSE -amount_minor END)で集計する。
+- **拒否・異常動作**: chargeのexternal_operation_row_id/amount/purpose/approval欠落、参照外部行不在、actual/write/approved_paid_operation/confirmed不一致、task/service不一致、reversalの元charge不在・既取消し・同額/同service/JPY不一致・correction task/approval欠落はINSERT前拒否。同一external_operation_row_id又はreverses_spend_ledger_idの再INSERTはUNIQUEでDuplicateSpendEntry。amount_minor<=0、currency!='JPY'、FX、無料・手動chargeを拒否し、台帳記録失敗の有償操作は成功扱いにしない。UPDATE/DELETEも常時拒否する。
+- **境界動作**: amount_minor=0の無料利用と手動分類はspend_ledgerへINSERTせず、process usage又は別の手動会計分類へ記録する。reversalは元chargeと同額全額取消しだけで部分取消し不可。月跨ぎcharge/reversalは各occurred_atのUTC月に符号付き計上する。provider IDがNULLでも内部row IDで一意性を保つ。
+- **再試行・再開・復旧**: charge前クラッシュ時は元writeのsent状態を別の実外部read行＋operation_logで照合し、元writeをoperation_log triggerでconfirmed化した後にexternal_operation_row_idで台帳記録を再開する。chargeは内部row ID UNIQUE、reversalはreverses_spend_ledger_id UNIQUEで各1行に収束し、provider ID欠落時も挙動は変わらない。
 - **人間判断／escalation**: あり（例外支出の事前承認 = approval_id 参照。記録・集計は全自動）
-- **副作用**: spend_ledger INSERT（例外利用ごとに 1 行）
-- **冪等性**: (service, external_operation_id) が冪等キー: 同一操作の再記録は重複せず拒否される。集計は pure（同一台帳→同一累計）。
-- **証跡**: spend_ledger 行そのもの（サービス・金額・用途・タスク参照）／operation_log 証跡（external_operation_id で台帳と紐付く — evidence kind）
+- **副作用**: spend_ledger INSERT（charge又はreversal。UPDATE/DELETEなし）
+- **冪等性**: chargeはspend_ledger.external_operation_row_id UNIQUE、reversalはreverses_spend_ledger_id UNIQUEを各冪等キーとする。同一actual writeの再記録と同一chargeの再取消しは各1行へ収束し、集計はpure（同一台帳→同一純額）。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。
+- **証跡**: spend_ledger行そのもの（entry_type・chargeのexternal_operation_row_id又はreversalのreverses_spend_ledger_id・サービス・正額・用途・タスク/approval参照）／operation_log証跡（同じexternal_operations.idへexternal_operation_row_idで束縛。provider external_operation_idは任意）
 - **使用テーブル・正本**: w: spend_ledger／r: tasks（task_id FK）／r: approvals（approval_id FK）／r: external_operations（操作確定の照合）／r: config（spend_cap_monthly — 上限判定は NFR-6）
 - **外部依存**: 有償 API サービス（Seedance 等 — 支出の発生源。台帳自体は外部呼出しなし）
-- **設定値**: config.spend_cap_monthly（C・暫定既定値 5,000 円/月 — 上限判定は NFR-6 側） ／ **固定値**: currency 既定値 JPY（DDL DEFAULT）／amount_minor >= 0（DDL CHECK）
-- **trace**: 上流 = BR-F1 REQ-027 NFR-6 ／ 下流 = AC-73-1 AC-73-2 AC-73-3 FN-607 CMP-13 ／ スライス = S1
+- **設定値**: config.spend_cap_monthly（C・暫定既定値 5,000 円/月 — 上限判定は NFR-6 側） ／ **固定値**: entry_type = charge | reversal（閉集合）／currency = JPYのみ（FX換算規則未定義のため他通貨fail-close）／amount_minor > 0（符号はentry_typeから導出）
+- **trace**: 上流 = BR-F1 REQ-027 NFR-6 ／ 下流 = AC-73-1 AC-73-2 AC-73-3 ／ スライス = S1

@@ -11,8 +11,8 @@
     {
       "update": "S0.2",
       "design_closure": "open",
-      "current_state_claim": "S0.2 設計クロージャー未了（planned・未被覆 API 5）",
-      "note": "DU-13〜20。list_declared／launch／screenshot／record_failure／commit_workspace の受入基準が未設定"
+      "current_state_claim": "S0.2 設計クロージャー未了（planned・未被覆 API 4）",
+      "note": "DU-13〜20。list_declared／launch／screenshot／commit_workspace の受入基準が未設定。record_failure は AC-43/TCC-43 で解消済み"
     },
     {
       "update": "S0.3",

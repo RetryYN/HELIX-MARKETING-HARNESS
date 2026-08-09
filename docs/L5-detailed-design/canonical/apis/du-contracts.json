@@ -323,9 +323,9 @@
         "SCM-03"
       ],
       "semantic_refs": {
-        "table_refs": [
-          "agent_executions",
-          "agents",
+      "table_refs": [
+        "agent_executions",
+        "agents",
           "brand_plans",
           "config",
           "evidence",
@@ -333,10 +333,10 @@
           "sprints",
           "state_transitions",
           "strategic_briefs",
-          "tasks",
-          "workflows"
-        ],
-        "column_refs": [],
+        "tasks",
+        "workflows"
+      ],
+      "column_refs": [],
         "state_refs": [
           "loop_runs.cancelled",
           "loop_runs.completed",
@@ -404,6 +404,10 @@
             {
               "clause_id": "API-DU02-01-PRE-03",
               "text": "T-PUB は pair_plan_quality（status=passed）成立済みのみ発行可"
+            },
+            {
+              "clause_id": "API-DU02-01-PRE-04",
+              "text": "playbook_repair は step.key=playbook_repair:<playbook_id>、input に broken 版 ID・起点 task ID・64文字小文字 hex failure_fingerprint を持ち、config.playbook_repair_limit=1 である"
             }
           ],
           "postcondition": [
@@ -413,11 +417,15 @@
             },
             {
               "clause_id": "API-DU02-01-POST-02",
-              "text": "なければ attempt = 終端行数 + 1、idempotency_key = f\"{loop_run_id}:{step.key}:{attempt}\" で INSERT（採番と発行は単一 transaction）"
+              "text": "通常 task に非終端行がなければ attempt = 終端行数 + 1、idempotency_key = f\"{loop_run_id}:{step.key}:{attempt}\" で INSERT（採番と発行は単一 transaction）"
             },
             {
               "clause_id": "API-DU02-01-POST-03",
               "text": "UNIQUE (loop_run_id, step_key, attempt) 衝突時は再読して既存 id を返す（並行発行の最終防衛）"
+            },
+            {
+              "clause_id": "API-DU02-01-POST-04",
+              "text": "playbook_repair は broken playbook_id を episode 正本とし、全状態の既存 task を再読して終端行も同じ id で返す。不在時だけ attempt=1・retry_count=0・idempotency_key=playbook-repair:<playbook_id> で子 task を INSERT し、attempt+1 を発行しない"
             }
           ],
           "raises": [
@@ -438,7 +446,9 @@
             {
               "nodeid": "test_kernel_orchestrator.py::test_issue_task_inserts_with_deterministic_idempotency_key",
               "clause_refs": [
-                "API-DU02-01-POST-02"
+                "API-DU02-01-POST-02",
+                "API-DU02-01-PRE-04",
+                "API-DU02-01-POST-04"
               ]
             },
             {
@@ -456,7 +466,8 @@
             {
               "nodeid": "test_kernel_orchestrator.py::test_issue_task_attempt_increments_after_terminal_rows",
               "clause_refs": [
-                "API-DU02-01-POST-02"
+                "API-DU02-01-POST-02",
+                "API-DU02-01-POST-04"
               ]
             },
             {
@@ -968,7 +979,7 @@
         }
       ],
       "dtos": [
-        "WorkflowStep(key: str, task_type: str, expected_output_kind: str) — WF ステップ定義の値オブジェクト",
+        "WorkflowStep(key: str, task_type: str, expected_output_kind: str, input: dict) — WF ステップ定義の値オブジェクト。playbook_repair は broken 版 ID・起点 task・失敗 fingerprint を input に束縛",
         "MicroloopResult(task_id: int, outcome: str, retry_count: int) — frozen dataclass のマイクロループ結果",
         "ResumeAction(entity: str, action: str, basis_rows: tuple) — 再開分岐の決定（根拠は DB 行 id のみ）",
         "StrategicBriefDraft(brief_key: str, payload: dict) — schema 検証前の brief 起草値",
@@ -991,20 +1002,22 @@
         "external_operations",
         "evidence",
         "sprints",
-        "config"
+        "config",
+        "playbooks"
       ],
       "db_write": [
         "tasks",
         "loop_runs",
         "agent_executions",
         "strategic_briefs",
-        "tactical_learning_packets"
+        "tactical_learning_packets",
+        "playbooks"
       ],
-      "transaction_boundary": "issue_task = 採番＋INSERT の単一 transaction／claim = lease 更新の単一 transaction（遷移は DU-01 の tx）／supersede = 新版 INSERT＋旧版 superseded の単一 transaction／generate_tactical_learning_packet = DU-01 の下位終端遷移 transaction に参加（独自 BEGIN しない）／resume は read-only 判断＋各分岐先の所有 tx",
+      "transaction_boundary": "通常 issue_task = 採番＋INSERT の単一 transaction。playbook_repair 発行は DU-16 record_failure の active→broken CAS と同じ caller transaction に参加し独自 COMMIT しない。成功時は DU-01 verify_pass＋DU-16 install_repaired_version を同一 transaction で確定する。claim = lease 更新の単一 transaction（遷移は DU-01）／brief supersede = 新版 INSERT＋旧版 superseded／TLP 生成 = 下位終端遷移 transaction に参加／resume は read-only 判断＋各分岐先の所有 tx",
       "purity": "digest 計算・idempotency_key 組立・再開分岐判断・schema 検証は純関数部。副作用端点は tasks/strategic_briefs/tactical_learning_packets への INSERT と lease UPDATE のみ。Clock/Rng は注入（NFR-7 の書込み間隔は Rng 注入）",
-      "idempotency": "issue_task は決定的 idempotency_key と非終端再利用で冪等（クラッシュ後再実行は既存 id 返却）。brief digest は同一入力から常に同一値で再計算可能。TLP は UNIQUE(loop_run_id) で 1 run 1 packet。claim の二重要求は row_version/lease で拒否",
-      "retry_resume": "resume() が s0-contract §3.3 の正本実装: DB 行のみを根拠に pending/in_progress/verifying/waiting を分岐し、sent 照合不能は unknown 化して再送せず escalate（最危険 kill point の再送禁止）。verifying の既存 PASS/FAIL 再採用で retry 二重加算なし",
-      "concurrency": "claim は row_version 楽観ロック（UPDATE 条件一致・0 行更新は GateRejected）＋ lease 排他（失効前の他 execution 拒否・失効後は author agent の新 execution のみ）。issue_task の並行発行は UNIQUE 制約→再読で収束。書込みは kernel 単一 writer（BR-I7）",
+      "idempotency": "通常 issue_task は決定的 idempotency_key と非終端再利用で冪等。playbook_repair は broken playbook_id ごとの部分 UNIQUE、attempt=1、retry_count=0、idempotency_key=playbook-repair:<id> により終端後も同じ task ID へ収束し、attempt+1 を発行しない。brief digest は決定的、TLP は UNIQUE(loop_run_id)、claim は row_version/lease で二重要求を拒否",
+      "retry_resume": "resume() は DB 行だけを根拠に分岐する。playbook_repair はpending/in_progress/verifyingの同一 taskを再開し、confirmed の DOM read は再送せず、done/escalated は終端のまま再発行しない。通常外部操作はsent照合不能をunknown化し再送せずescalate、verifyingは既存PASS/FAILを再採用する",
+      "concurrency": "claim は row_version 楽観ロック＋lease 排他。通常 issue_task は UNIQUE(loop_run_id,step_key,attempt) 衝突後の再読で収束し、playbook_repair は active→broken CAS に勝った1実行だけが発行して UNIQUE(json_extract(input_json,'$.playbook_id')) で最終防衛する。版切替は旧 broken 版の条件付き retired 化と新版制約で並行発行を1件へ収束する",
       "logging_evidence": "タスク発行・claim・再開分岐を構造化ログへ（task_id/step_key/attempt/execution_id — 本文なし）。brief 発行・supersede・TLP 生成は strategic_briefs/tactical_learning_packets の append-only 行自体が証跡。ステップ出力の証跡化は DU-09 record() 経由",
       "depends_on_apis": [
         "DU-01: transition()（全状態変更）",
@@ -1014,7 +1027,8 @@
         "DU-08: check_complete()（done 前の証跡完備）",
         "DU-09: record()（ステップ出力の証跡化）",
         "DU-10: connect()",
-        "DU-12: get()（retry_limit・lease_ttl_sec・approval_retry_limit）"
+        "DU-12: get()（retry_limit・lease_ttl_sec・approval_retry_limit・playbook_repair_limit）",
+        "DU-16: record_failure()／install_repaired_version()（repair episode の CAS と append-only 版切替）"
       ],
       "trace": {
         "ac": [
@@ -1032,6 +1046,9 @@
           "AC-27-3",
           "AC-27-4",
           "AC-27-5",
+          "AC-43-1",
+          "AC-43-2",
+          "AC-43-3",
           "AC-SR-01",
           "AC-SR-02",
           "AC-SR-03",
@@ -1077,6 +1094,9 @@
           "TCC-27-3",
           "TCC-27-4",
           "TCC-27-5",
+          "TCC-43-1",
+          "TCC-43-2",
+          "TCC-43-3",
           "TCC-CONFLICT-2",
           "TCC-KILL-2",
           "TCC-SR-01",
@@ -1161,6 +1181,7 @@
           "external_operations",
           "loop_runs",
           "pair_plan_quality",
+          "playbooks",
           "sprints",
           "state_transitions",
           "strategic_briefs",
@@ -1169,7 +1190,14 @@
           "workflows"
         ],
         "column_refs": [
-          "external_operations.status"
+          "external_operations.status",
+          "playbooks.created_by_task_id",
+          "playbooks.status",
+          "playbooks.supersedes_playbook_id",
+          "playbooks.version",
+          "tasks.idempotency_key",
+          "tasks.retry_count",
+          "tasks.state"
         ],
         "state_refs": [
           "loop_runs.cancelled",
@@ -1193,8 +1221,10 @@
           "resume",
           "retryable_failure",
           "start",
+          "submit_for_verification",
           "verify_fail",
           "verify_fail_exhausted",
+          "verify_pass",
           "wait"
         ],
         "evidence_kind_refs": [],
@@ -1214,10 +1244,12 @@
           "generate_tactical_learning_packet",
           "get",
           "get_tactical_learning_packet",
+          "install_repaired_version",
           "issue_strategic_brief",
           "issue_task",
           "load",
           "record",
+          "record_failure",
           "register_guard",
           "resume",
           "run_microloop",
@@ -1468,7 +1500,7 @@
             },
             {
               "clause_id": "API-DU04-02-POST-02",
-              "text": "外部操作は external_operations を prepared→sent→confirmed の順で各々コミットし、confirmed 後に operation_log 証跡→状態遷移の順を固定（NFR-3）"
+          "text": "実外部操作はread/writeを問わずexternal_operations（effect・policy_category必須、writeはcanonical rate_scope必須・readはNULL）をprepared→sentまで個別commitし、結果確定時もsentのまま対応operation_logをINSERTしてtriggerでconfirmed/rejected/unknownへfinal化・evidence_id接続し、その後にだけ業務状態遷移する（NFR-3）。operation_log payloadはreadでもrate_scope:nullキーを必須とする。mock/dry-run・接続前拒否は行もoperation_logも作らずprocess loggerだけに記録する"
             },
             {
               "clause_id": "API-DU04-02-POST-03",
@@ -1564,12 +1596,12 @@
       "db_write": [
         "external_operations"
       ],
-      "transaction_boundary": "external_operations の prepared・sent・confirmed/rejected/unknown を各々単独コミット（送信直後クラッシュの検出窓 — s0-contract §1）。外部 I/O は業務遷移 transaction の外。証跡 INSERT は DU-09 の transaction",
+      "transaction_boundary": "external_operations のprepared・sentを各々単独コミット（送信直後クラッシュの検出窓 — s0-contract §1）。外部I/Oは業務遷移transactionの外。結果確定時はsent行に対するDU-09のoperation_log INSERT transactionがtriggerでconfirmed/rejected/unknownへのfinal化とevidence_id接続を原子的に行う",
       "purity": "定義 schema 検証・required kind 検証は純関数部。副作用端点は external_operations の状態コミットとコネクタ呼出し（コネクタ自体は業務状態を書かない）。Clock/Rng は StepContext 経由で注入",
-      "idempotency": "外部書込みは操作単位 idempotency key を必須とし、実行前に同 key の external_operations を照合（confirmed 済みは再送せず結果補完）。下書きと公開は別 idempotency key の別行。1 外部操作 = 1 行",
+  "idempotency": "実外部操作1要求=effect・policy_category・rate_scope（writeはcanonical値、readはNULL）を固定したexternal_operations 1行=対応operation_log 1行。外部書込みは操作単位idempotency keyを必須とし、実行前に同key行を照合（confirmed済みは再送せず結果補完）。下書きと公開は別keyの別行。外部readは同一(task_id, operation, request_hash)内の各poll/再取得でrequest_sequenceを1から単調増加し、correlation_key='read:<task_id>:<request_hash>:<request_sequence>'により反復要求を別行として追跡する",
       "retry_resume": "再開時は external_operations.status を先に照合: prepared=同一 key で再送可、sent=リモート照合成功で confirmed 化し証跡補完、照合不能=unknown で escalate・再送禁止（最危険 kill point で再送 0 回 — s0-contract §8）。分岐実行は DU-02 resume と協働",
       "concurrency": "idempotency_key の UNIQUE で並行実行の二重行を拒否。操作状態の前進のみ許可（confirmed からの巻き戻し不可）。単一プロセス・kernel 単一 writer 前提（BR-I7）",
-      "logging_evidence": "外部操作ごとに request_hash・external_operation_id・response_hash を external_operations に、confirmed 後に operation_log 証跡（service/operation/external_operation_id/request_fingerprint/result — secret/本文禁止）を DU-09 経由で派生記録",
+  "logging_evidence": "実外部操作ごとにeffect・policy_category・rate_scope・request_hash・request_sequence・provider external_operation_id（任意）・response_hashをexternal_operationsへ保持する。結果確定時も行がsentの間にDU-09経由でoperation_logをINSERTし、external_operation_row_id・task/effect/policy_category/rate_scope/service/operation/correlation_key/request_hash/request_sequence/resultを同値束縛してtriggerでfinal化する。mock/dry-run・接続前拒否はprocess loggerのみで両テーブル差分0",
       "depends_on_apis": [
         "DU-09: record()（operation_log・ステップ出力の証跡化）",
         "DU-10: connect()",
@@ -1625,6 +1657,14 @@
           "workflows"
         ],
         "column_refs": [
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
           "external_operations.status"
         ],
         "state_refs": [
@@ -2387,7 +2427,7 @@
       "apis": [
         {
           "api_id": "API-DU09-01",
-          "signature": "def record(conn: Connection, task_id: int, kind: str, value: str, payload: dict, clock: Clock, *, asset_id: int | None = None, commit_hash: str | None = None, external_operation_id: str | None = None, file_path: str | None = None, file_hash: str | None = None, created_by_agent_id: int | None = None) -> int",
+          "signature": "def record(conn: Connection, task_id: int, kind: str, value: str, payload: dict, clock: Clock, *, asset_id: int | None = None, commit_hash: str | None = None, external_operation_row_id: int | None = None, external_operation_id: str | None = None, operation_log_evidence_id: int | None = None, file_path: str | None = None, file_hash: str | None = None, created_by_agent_id: int | None = None) -> int",
           "verification_level": "acceptance",
           "precondition": [
             {
@@ -2409,7 +2449,7 @@
           "postcondition": [
             {
               "clause_id": "API-DU09-01-POST-01",
-              "text": "kind 別必須キー・列整合（asset_id/external_operation_id/file_path/file_hash/commit_hash）・追加検証（review_pass は result=PASS かつ reviewer≠author、commit_hash は 40/64 桁、file_hash は 64 桁、approval は approvals 相互整合、operation_log は secret/本文/credential 禁止）を全通過した場合のみ INSERT し evidence_id を返す"
+          "text": "kind別必須キー・列整合（asset_id/external_operation_row_id/external_operation_id/operation_log_evidence_id/file_path/file_hash/commit_hash）・追加検証（review_passはresult=PASSかつreviewer≠author、commit_hashは40/64桁、file_hashは64桁、approvalはapprovals相互整合）を全通過した場合のみINSERTしevidence_idを返す。operation_logはsecret/本文/credential禁止に加え、external_operation_row_idがNOT NULLかつ実在するsentのexternal_operations.idで、task_id・effect・policy_category・rate_scope・service・operation・correlation_key・request_hash・request_sequence・resultを対応行と一致させ、当該外部行に既存operation_logがない場合だけ双方向1:1でINSERTしtriggerでfinal化する。provider external_operation_idは任意で、存在時だけ対応外部行と一致させる。published_urlはoperation_log_evidence_idがNOT NULLで同一taskのkind=operation_logを指し、そのpayloadのexternal_operation_row_idとpublished_url payloadの同値を必須とし、provider IDは任意とする"
             },
             {
               "clause_id": "API-DU09-01-POST-02",
@@ -2425,7 +2465,7 @@
             {
               "clause_id": "API-DU09-01-RAISE-01",
               "type": "GateRejected",
-              "when": "kind 別必須キー欠落・列整合違反・PASS 値不正・桁数不正・approvals 相互整合違反（SchemaVerificationFailed 相当 — INSERT しない・DB 不変）",
+          "when": "kind別必須キー欠落・列整合違反・PASS値不正・桁数不正・approvals相互整合違反、published_urlのoperation_log_evidence_id欠落・別task/別kind・payload内部row不一致、又はoperation_logのexternal_operation_row_id欠落・対応sent external_operations不在・task/effect/policy_category/rate_scope/service/operation/correlation/request_hash/request_sequence/result不一致・provider ID存在時の不一致・2件目（SchemaVerificationFailed相当 — INSERTせずDB不変）",
               "na_reason": "単体検証: 割当 UT が本節を直接検証する（GateRejectedの個別入力拒否を直接観測する受入基準がない）"
             },
             {
@@ -2586,7 +2626,7 @@
         }
       ],
       "dtos": [
-        "Evidence(id: int, task_id: int, kind: str, value: str, payload: dict, created_at: str) — 読取り専用の証跡行ビュー（frozen）"
+        "Evidence(id: int, task_id: int, kind: str, value: str, payload: dict, external_operation_row_id: int | None, external_operation_id: str | None, operation_log_evidence_id: int | None, created_at: str) — 読取り専用の証跡行ビュー（frozen）。operation_logでは内部row ID必須・provider ID任意、published_urlではoperation_log_evidence_id必須"
       ],
       "state_transitions": [],
       "db_read": [
@@ -2606,7 +2646,7 @@
       "idempotency": "重複投入は UNIQUE(task_id, kind, value) で拒否（クラッシュ後リトライの二重到達は冪等拒否で収束 — AC-54-3）。同一入力の再検証・再 INSERT は安全",
       "retry_resume": "stateless（テーブル以外の状態なし）。INSERT 失敗は transaction ごと消え中間状態なし。再開後の証跡補完は同一 value キーで冪等",
       "concurrency": "UNIQUE 制約が並行 INSERT の二重登録を防衛。append-only のため更新競合は構造的に不存在。呼出し側 transaction 参加時は所有者の直列化に従う",
-      "logging_evidence": "evidence テーブル自体が証跡正本（append-only・保護トリガで改竄不能）。拒否は例外＋構造化ログ（task_id/kind/事由コード — payload 本文・secret は記録しない）",
+  "logging_evidence": "evidenceテーブル自体が証跡正本（append-only・保護トリガで改竄不能）。operation_logは実外部操作のexternal_operations.idへexternal_operation_row_idで双方向1:1に束縛し、task/effect/policy_category/rate_scope/service/operation/correlation_key/request_hash/request_sequence/resultを一致させる。provider external_operation_idは任意。readのcorrelation_keyはread:<task_id>:<request_hash>:<request_sequence>で、同一poll/再取得を単調増加request_sequenceで区別する。published_urlはoperation_log_evidence_idで先行operation_logへ束縛しpayloadのexternal_operation_row_idを一致させる。mock/dry-run・接続前拒否・内部処理には生成せず、拒否は例外＋process loggerの構造化event（task_id/kind/事由コード — payload本文・secretなし）",
       "depends_on_apis": [
         "DU-10: connect()",
         "DU-14: scan() と共有する credential パターン集合（正本は registry/secrets 側）"
@@ -2681,7 +2721,18 @@
           "state_transitions",
           "tasks"
         ],
-        "column_refs": [],
+        "column_refs": [
+          "evidence.external_operation_row_id",
+          "evidence.operation_log_evidence_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
+          "external_operations.status"
+        ],
         "state_refs": [],
         "event_refs": [
           "escalate"
@@ -2730,7 +2781,7 @@
             },
             {
               "clause_id": "API-DU10-01-POST-02",
-              "text": "保護トリガ（config/evidence/state_transitions/strategic_briefs/tactical_learning_packets の append-only／整合トリガ 16 本）の存在を確認してから返す",
+              "text": "保護トリガ（config/evidence/state_transitions/strategic_briefs/tactical_learning_packets/playbooks 等の append-only／整合トリガ 37 本）の存在を確認してから返す",
               "na_reason": "単体検証: 割当 UT が本節を直接検証する（全ACはDDLトリガ自体を観測し、connectの事前確認を観測しない）"
             }
           ],
@@ -2878,7 +2929,7 @@
             },
             {
               "clause_id": "API-DU11-01-POST-03",
-              "text": "0001 適用後は 25 テーブル（業務 23＋インフラ 2）＋保護トリガ 16 本が成立する"
+              "text": "0001 適用後は 25 テーブル（業務 23＋インフラ 2）＋保護トリガ 37 本が成立する"
             }
           ],
           "raises": [
@@ -2897,7 +2948,7 @@
           "pure": false,
           "ut": [
             {
-              "nodeid": "test_db_migrate.py::test_apply_all_empty_db_creates_25_tables_and_16_triggers",
+              "nodeid": "test_db_migrate.py::test_apply_all_empty_db_creates_25_tables_and_37_triggers",
               "clause_refs": [
                 "API-DU11-01-POST-03"
               ]
@@ -2972,7 +3023,7 @@
           "postcondition": [
             {
               "clause_id": "API-DU11-02-POST-01",
-              "text": "PRAGMA foreign_key_check／integrity_check 違反 0 件・25 テーブルと保護トリガ 16 本の存在・TLP 孤児検査（packet を持たない終端 lower run = 0 件）・相互整合検査（approvals.evidence_id ↔ approval 証跡、pair passed の review 証跡実在、measurements.evidence_id の kind=measurement）を全通過した場合のみ返る"
+              "text": "PRAGMA foreign_key_check／integrity_check 違反 0 件・25 テーブルと保護トリガ 37 本の存在・TLP 孤児検査（packet を持たない終端 lower run = 0 件）・相互整合検査（approvals.evidence_id ↔ approval 証跡、pair passed の review 証跡実在、measurements.evidence_id の kind=measurement）を全通過した場合のみ返る"
             },
             {
               "clause_id": "API-DU11-02-POST-02",
@@ -3093,7 +3144,7 @@
           "TCC-SR-11-6"
         ],
         "ut": [
-          "test_db_migrate.py::test_apply_all_empty_db_creates_25_tables_and_16_triggers",
+          "test_db_migrate.py::test_apply_all_empty_db_creates_25_tables_and_37_triggers",
           "test_db_migrate.py::test_apply_all_records_version_checksum_applied_at_by",
           "test_db_migrate.py::test_apply_all_skips_applied_versions_idempotent",
           "test_db_migrate.py::test_apply_all_duplicate_version_stops_fatal",
@@ -3390,8 +3441,8 @@
             },
             {
               "clause_id": "API-DU13-01-POST-04",
-              "text": "拒否時は operation_log 証跡へ理由を記録する経路（呼出元 DU-09 経由）に必要な事由コードを例外へ載せる",
-              "na_reason": "受入基準未設定: DU-09 への証跡事由引渡しであり AC は観測しない"
+              "text": "拒否・fallback時はprocess loggerの秘匿化済み構造化eventへ理由を記録できる事由コードを例外へ載せる",
+              "na_reason": "単体検証: 例外の事由コードを割当UTで直接検証し、業務証跡は生成しない"
             }
           ],
           "raises": [
@@ -3427,22 +3478,25 @@
               ]
             },
             {
-              "nodeid": "test_registry_resolver.py::test_unregistered_service_route_not_registered",
-              "clause_refs": [
-                "API-DU13-01-RAISE-01"
+          "nodeid": "test_registry_resolver.py::test_unregistered_service_route_not_registered",
+          "clause_refs": [
+            "API-DU13-01-POST-04",
+            "API-DU13-01-RAISE-01"
               ]
             },
             {
-              "nodeid": "test_registry_resolver.py::test_paid_route_denied_without_exception",
-              "clause_refs": [
-                "API-DU13-01-RAISE-02"
+          "nodeid": "test_registry_resolver.py::test_paid_route_denied_without_exception",
+          "clause_refs": [
+            "API-DU13-01-POST-04",
+            "API-DU13-01-RAISE-02"
               ]
             },
             {
-              "nodeid": "test_registry_resolver.py::test_x_browser_write_route_prohibited",
-              "clause_refs": [
-                "API-DU13-01-POST-03",
-                "API-DU13-01-RAISE-03"
+          "nodeid": "test_registry_resolver.py::test_x_browser_write_route_prohibited",
+          "clause_refs": [
+            "API-DU13-01-POST-03",
+            "API-DU13-01-POST-04",
+            "API-DU13-01-RAISE-03"
               ]
             }
           ]
@@ -3502,7 +3556,7 @@
       "idempotency": "同一レジストリ状態に対する resolve は決定的に同一 Route を返す。解決自体は外部副作用を持たない",
       "retry_resume": "リトライ不要（読取のみ）。RouteNotRegistered/PaidRouteDenied/ProhibitedMediaWrite は自動リトライ経路を持たず external-if-design §5 の写像（escalate 又は non_retryable_failure／blocked は拒否）へ倒す",
       "concurrency": "読取専用のため競合制御なし。config の append-only 履歴により解決中の宣言書換えは新行としてのみ現れ、読取スナップショットは transaction 内で一貫",
-      "logging_evidence": "解決成功・拒否の事由（service/operation/route_type/事由コード）を構造化ログへ記録。拒否は呼出元が operation_log 証跡（DU-09 経由）に残す — 秘匿値は含めない",
+      "logging_evidence": "解決成功・fallback・拒否の事由（service/operation/route_type/事由コード）はprocess loggerの秘匿化済み構造化eventへ記録する。外部操作を開始しないためoperation_logは生成しない",
       "depends_on_apis": [
         "DU-10: connect()",
         "DU-12: get()"
@@ -3549,9 +3603,7 @@
           "escalate",
           "non_retryable_failure"
         ],
-        "evidence_kind_refs": [
-          "operation_log"
-        ],
+        "evidence_kind_refs": [],
         "error_type_refs": [
           "PaidRouteDenied"
         ],
@@ -3726,7 +3778,7 @@
           "precondition": [
             {
               "clause_id": "API-DU14-04-PRE-01",
-              "text": "text はログ・operation_log・evidence へ書き出す直前の任意文字列",
+              "text": "text は構造化ログ又は永続化チャネルへ書き出す直前の任意文字列",
               "na_reason": "配線時保証: マスク対象文字列の提供時点は呼出側配線の責務である"
             }
           ],
@@ -3781,7 +3833,7 @@
       "transaction_boundary": "なし（読み取りのみ — 秘匿ストアは SQLite 外の暗号化ファイル/OS キーチェーン）",
       "purity": "check_endpoint・mask・パターン照合は pure。復号（ファイル/キーチェーン読取）と DB/ファイル走査だけが副作用端点",
       "idempotency": "get_credential・scan は同一ストア状態で決定的。副作用を持たないため再実行に補償は不要",
-      "retry_resume": "SecretUnavailable・CredentialEndpointMismatch は自動リトライしない（kind=auth — 再投入は人の関与で escalate。再投入後は同一タスク状態から再実行 — AC-47-3）",
+      "retry_resume": "SecretUnavailable・CredentialEndpointMismatch は自動リトライしない（kind=auth — 再投入は人の関与で呼出元taskをescalate）。escalatedは終端のため元taskを復活させず、再投入後は人が元taskをparent/sourceとする決定的idempotency keyのreplacement taskを明示発行し、pendingからclaimして実行する（AC-47-3）",
       "concurrency": "読取専用・ファイルは open 時スナップショット。秘匿ストアの更新（人手投入）とは排他不要（次回 get_credential から反映）",
       "logging_evidence": "取得・検査・走査の結果（name・scope・endpoint ホスト・検出件数）のみ構造化ログへ記録。秘匿値・平文パターン一致部分はいかなる書出しにも含めない（全書出しは mask 通過）",
       "depends_on_apis": [
@@ -3837,9 +3889,7 @@
         "event_refs": [
           "escalate"
         ],
-        "evidence_kind_refs": [
-          "operation_log"
-        ],
+        "evidence_kind_refs": [],
         "error_type_refs": [
           "CredentialEndpointMismatch",
           "CredentialLeakDetected"
@@ -3983,7 +4033,7 @@
             },
             {
               "clause_id": "API-DU15-03-PRE-02",
-              "text": "書込み系 intent は idempotency_key と pair_pass を保持（外部 IF §2 前提。1 外部操作 = 1 key = external_operations 1 行）",
+              "text": "書込み系 intent は idempotency_key・pair_pass・閉集合内policy_category・canonical lowercase rate_scopeを保持し、service/operation/target_endpointとの固定policyを満たす（外部 IF §2 前提。1 外部操作 = 1 key = external_operations 1 行）",
               "na_reason": "呼出側義務: idempotency key とpair_passは外部IF呼出側の前提であるため"
             },
             {
@@ -3998,22 +4048,22 @@
             }
           ],
           "postcondition": [
-            {
-              "clause_id": "API-DU15-03-POST-01",
-              "text": "書込み系は external_operations を prepared→sent→confirmed の順で各々コミットして遷移させ、confirmed 後に operation_log 証跡（DU-09 経由）を派生させてから結果を返す（証跡が先、遷移が後）"
+        {
+          "clause_id": "API-DU15-03-POST-01",
+          "text": "書込み系はpolicy_category/rate_scopeを固定したexternal_operations(effect='write')をprepared→sentまで各々コミットし、結果確定時もsentのまま1:1のoperation_log証跡（DU-09経由）をINSERTしてtriggerでconfirmed/rejected/unknownへfinal化・evidence_id接続してから結果を返す（証跡が先、業務遷移が後）"
             },
             {
               "clause_id": "API-DU15-03-POST-02",
               "text": "連続書込み操作間に config.rate_interval_min_sec〜rate_interval_max_sec（暫定 1〜5 秒）の一様乱数待機を挿入し、seed と生成間隔値を構造化ログへ 100% 記録する（NFR-7・BR-F5 — 同一 seed で間隔列を再現可能）"
             },
-            {
-              "clause_id": "API-DU15-03-POST-03",
-              "text": "読取り系はレート節度の対象外（通常速度）で external_operations 行を作らない",
+        {
+          "clause_id": "API-DU15-03-POST-03",
+          "text": "実外部読取りはレート節度の対象外で、1要求ごとにexternal_operations(effect='read', policy_category='external_read', rate_scope=NULL)をprepared→sentまで記録する。同一(task_id, operation, request_hash)内の各poll/再取得はrequest_sequenceを単調増加しcorrelation_key='read:<task_id>:<request_hash>:<request_sequence>'とする。結果確定時はpayloadにrate_scope:nullキーを持つ1:1のoperation_logをsent行へINSERTしてtriggerでfinal化する。mock/dry-runはfixture結果と予定fingerprintをprocess loggerへ記録するだけでexternal_operations/operation_logは0件",
               "na_reason": "受入基準未設定: 読取り操作の節度除外は書込みACの観測対象外であるため"
             },
-            {
-              "clause_id": "API-DU15-03-POST-04",
-              "text": "BrowserResult は operation_log 証跡への参照（evidence_refs）を成功時に必ず持つ"
+        {
+          "clause_id": "API-DU15-03-POST-04",
+          "text": "実外部read/writeのBrowserResultはlocal external_operation_row_idと対応operation_log_evidence_idを必ず持ち、provider_operation_idはstr又はNoneとする。mock/dry-runは外部参照を持たない別型SimulatedBrowserResultを返す"
             }
           ],
           "raises": [
@@ -4022,10 +4072,10 @@
               "type": "ProhibitedMediaWrite",
               "when": "X への書込み手順の実行要求（kind=blocked — 送信 0 回・バイパスなし）"
             },
-            {
-              "clause_id": "API-DU15-03-RAISE-02",
-              "type": "RateLimitExceeded",
-              "when": "媒体別日次 cap（config.rate.<media>.daily_write_cap）到達・外部 429（kind=rate-limit — 実行前拒否し operation_log 記録、当日拒否・翌日まで waiting）"
+        {
+          "clause_id": "API-DU15-03-RAISE-02",
+          "type": "RateLimitExceeded",
+          "when": "媒体別日次cap到達は送信前拒否としてprocess loggerだけに記録しexternal_operations/operation_log差分0。送信済み外部要求の429は当該external_operations(effectに応じread/write)をrejected又はunknownへ確定し、対応operation_logを記録してwaitingへ倒す"
             },
             {
               "clause_id": "API-DU15-03-RAISE-03",
@@ -4080,12 +4130,13 @@
       ],
       "dtos": [
         "BrowserSession(scope: ScopeContext, storage_state_path: Path) — frozen ハンドル。低レベル page/driver は非公開",
-        "ConnectorIntent(service: str, operation: str, target: str, payload_ref: str, idempotency_key: str | None, pair_pass: PairPass | None) — frozen（external-if-design §3）",
-        "BrowserResult(ok: bool, external_operation_id: int | None, remote_object_id: str | None, response_hash: str | None, evidence_refs: tuple) — frozen"
+        "ConnectorIntent(service: str, operation: str, target_endpoint: str, payload_ref: str, effect: Literal['read','write'], policy_category: Literal['external_read','content_publish','review_sync','approval_notification','approved_paid_operation'], rate_scope: str | None, idempotency_key: str | None, request_hash: str, request_sequence: int, pair_pass: PairPass | None) — frozen。writeのrate_scopeはcanonical lowercase key、readはNone",
+        "BrowserResult(ok: bool, external_operation_row_id: int, operation_log_evidence_id: int, provider_operation_id: str | None, remote_object_id: str | None, response_hash: str | None) — frozen、actual専用",
+        "SimulatedBrowserResult(ok: bool, response_hash: str | None) — frozen、mock/dry-run専用で外部操作参照を持たない"
       ],
-      "state_transitions": [
-        "external_operations.status: prepared→sent→confirmed／rejected／unknown（書込み系のみ・各段階を各々コミット — loop/task の状態機械遷移は行わず呼出元が DU-01 経由で発火）"
-      ],
+  "state_transitions": [
+    "external_operations.status: prepared→sent→confirmed／rejected／unknown（実外部read/write各要求。effect='read'/'write'を作成時に固定し、各段階を個別commit — loop/task遷移は呼出元がDU-01経由で発火）"
+  ],
       "db_read": [
         "external_operations",
         "config"
@@ -4093,12 +4144,12 @@
       "db_write": [
         "external_operations"
       ],
-      "transaction_boundary": "external_operations の prepared・sent・confirmed/rejected/unknown を各々独立 transaction でコミット（送信直後クラッシュの検出窓 — s0-contract §1）。operation_log 証跡は confirmed 後に DU-09 の transaction で記録",
+  "transaction_boundary": "実外部read/writeのexternal_operationsをprepared・sentまで各独立transactionでcommit（送信直後クラッシュの検出窓）。結果確定時も行がsentの間にoperation_logをDU-09のtransactionで1:1 INSERTし、triggerでconfirmed/rejected/unknownへfinal化・evidence_id接続する。mock/dry-run・接続前拒否は両テーブルを書かない",
       "purity": "手順展開・待機間隔計算（rng から一様乱数）・結果分類は pure 関数に分離。Playwright I/O・external_operations 書込み・ファイル保存が副作用端点",
-      "idempotency": "書込み 1 操作 = 1 idempotency key = external_operations 1 行（UNIQUE が二重送信検出 — BR-I7）。再実行は同 key 行の status 照合から始め、confirmed 済みは再送せず結果補完のみ",
+  "idempotency": "実外部1要求=effect・policy_category・rate_scope（write canonical値/read NULL）を固定したexternal_operations 1行=対応operation_log 1行。writeはUNIQUE idempotency keyで二重送信を検出する。readは同一(task_id, operation, request_hash)内の各poll/再取得でrequest_sequenceを1から単調増加し、correlation_key='read:<task_id>:<request_hash>:<request_sequence>'により反復要求も別行で追跡する。confirmed済みwriteは再送せず結果補完のみ",
       "retry_resume": "rate-limit／送信前 timeout のみ retryable（retry_count 無消費の同一 key 再送）。sent はリモート照合（external operation ID／remote object ID／idempotency key）で成功確認時のみ confirmed 化＋証跡補完、照合不能は unknown で再送 0 回・escalate（s0-contract §3.3 — AC-42-3）",
       "concurrency": "external_operations の status 更新は現 status を WHERE に含む条件付き UPDATE（変更行数 0 は競合として FatalError）。ブラウザセッションは execution 単位で専有し共有しない",
-      "logging_evidence": "全書込み操作の operation_log 証跡（service/operation/external_operation_id/request_fingerprint/result — 秘匿値・本文なし）を DU-09 経由で記録。rate 待機の seed・間隔値・拒否事由を構造化ログへ記録（マスキング層通過）",
+  "logging_evidence": "全実外部read/writeのoperation_log（external_operation_row_id・task/effect/policy_category/rate_scope/service/operation/correlation_key/request_hash/request_sequence/result、provider_operation_id任意 — 秘匿値・本文なし）をexternal_operations行と1:1でDU-09経由記録する。mock/dry-run・daily cap等の送信前拒否はprocess loggerのみ。rate待機seed・間隔値・拒否事由もマスキング済みprocess eventへ記録する",
       "depends_on_apis": [
         "DU-13: resolve()",
         "DU-14: get_credential()",
@@ -4140,10 +4191,19 @@
       "semantic_refs": {
         "table_refs": [
           "config",
+          "evidence",
           "external_operations",
           "state_transitions"
         ],
         "column_refs": [
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
           "external_operations.status"
         ],
         "state_refs": [],
@@ -4201,7 +4261,7 @@
           "postcondition": [
             {
               "clause_id": "API-DU16-01-POST-01",
-              "text": "UNIQUE(service, operation, route_type) の行を status=active の場合のみ Playbook として返す"
+              "text": "部分 UNIQUE(service, operation, route_type) WHERE status IN ('active','broken') で一意な現役版を参照し、status=active の場合だけ版束縛付き Playbook を返す"
             },
             {
               "clause_id": "API-DU16-01-POST-02",
@@ -4244,14 +4304,9 @@
               ]
             },
             {
-              "nodeid": "test_connectors_playbooks.py::test_get_missing_rejected",
+              "nodeid": "test_connectors_playbooks.py::test_get_missing_broken_and_retired_rejected",
               "clause_refs": [
-                "API-DU16-01-RAISE-01"
-              ]
-            },
-            {
-              "nodeid": "test_connectors_playbooks.py::test_get_broken_and_retired_rejected",
-              "clause_refs": [
+                "API-DU16-01-RAISE-01",
                 "API-DU16-01-RAISE-02"
               ]
             },
@@ -4271,7 +4326,7 @@
           "precondition": [
             {
               "clause_id": "API-DU16-02-PRE-01",
-              "text": "playbook_id は実行に成功した地図の行 id",
+              "text": "playbook_id は実行に成功した現役 status=active 版の行 id（broken／retired の健全性列は更新禁止）",
               "na_reason": "呼出側義務: 成功済みplaybook IDの呼出側前提であり、ACを持たない"
             },
             {
@@ -4283,7 +4338,7 @@
           "postcondition": [
             {
               "clause_id": "API-DU16-02-POST-01",
-              "text": "last_success_at を clock から更新し、consecutive_failures を 0 に戻し、last_verified_by_agent_id を更新する"
+              "text": "status=active を条件に last_success_at を clock から更新し、consecutive_failures を 0 に戻し、last_verified_by_agent_id を更新する（過去版への stale 更新は 0 行で拒否）"
             },
             {
               "clause_id": "API-DU16-02-POST-02",
@@ -4304,12 +4359,12 @@
         },
         {
           "api_id": "API-DU16-03",
-          "signature": "def record_failure(conn: Connection, playbook_id: int, clock: Clock) -> None",
+          "signature": "def record_failure(conn: Connection, playbook_id: int, clock: Clock) -> FailureRecord",
           "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU16-03-PRE-01",
-              "text": "playbook_id は実行に失敗した地図の行 id",
+              "text": "playbook_id は実行に失敗した現役 active 版の行 id。同一外部操作の二重通知は呼出元がexternal_operationsを照合済み",
               "na_reason": "呼出側義務: 失敗済みplaybook IDの呼出側前提であり、ACを持たない"
             },
             {
@@ -4321,13 +4376,12 @@
           "postcondition": [
             {
               "clause_id": "API-DU16-03-POST-01",
-              "text": "consecutive_failures を 1 加算し last_failure_at を clock から更新する",
+              "text": "status=active を条件に consecutive_failures を 1 加算し last_failure_at を clock から更新する",
               "na_reason": "単体検証: 割当 UT が本節を直接検証する（失敗記録の加算・時刻更新を直接観測するACがない）"
             },
             {
               "clause_id": "API-DU16-03-POST-02",
-              "text": "加算後に閾値到達なら同一 transaction 内で status を broken へ降格する（以後の get は PlaybookBroken で拒否）",
-              "na_reason": "単体検証: 割当 UT が本節を直接検証する（閾値到達時のbroken降格を直接観測するACがない）"
+              "text": "加算後に閾値到達なら active→broken の条件付き更新を行い、FailureRecord(playbook_id, became_broken=True) を返す。この分岐は独自 COMMIT せず、CMP-02 が同一 transaction で playbook_repair 子 task を発行する（以後の get は PlaybookBroken）"
             },
             {
               "clause_id": "API-DU16-03-POST-03",
@@ -4347,28 +4401,80 @@
               ]
             }
           ]
+        },
+        {
+          "api_id": "API-DU16-04",
+          "signature": "def install_repaired_version(conn: Connection, broken_playbook_id: int, repair_task_id: int, procedure: dict, selectors: dict | None, agent_id: int, clock: Clock) -> Playbook",
+          "verification_level": "acceptance",
+          "precondition": [
+            {
+              "clause_id": "API-DU16-04-PRE-01",
+              "text": "conn は CMP-02 が所有する repair 複合 transaction 中で、broken_playbook_id は (a) 同一 route の現役 status=broken 版、または (b) status=retired で supersedes_playbook_id=旧版ID・created_by_task_id=repair_task_id の既存 successor が一意に存在する旧版である。(a) は原子的 install、(b) は既存 successor のread-return だけを行う"
+            },
+            {
+              "clause_id": "API-DU16-04-PRE-02",
+              "text": "repair_task_id は同じ transaction で verify_pass 済みの done playbook_repair task（attempt=1・retry_count=0・input.playbook_id 一致）で、procedure/selectors は別 principal が schema 検証済み",
+              "na_reason": "呼出側義務: verify_passと候補地図の別principal検証はCMP-02/repair workflowが先に成立させる"
+            }
+          ],
+          "postcondition": [
+            {
+              "clause_id": "API-DU16-04-POST-01",
+              "text": "旧 broken 版を retired にし、同一 service/operation/route_type に version=old.version+1・supersedes_playbook_id=old.id・created_by_task_id=repair_task_id・status=active の新版を INSERT する"
+            },
+            {
+              "clause_id": "API-DU16-04-POST-02",
+              "text": "旧版の procedure_json/selector_json/版束縛列は不変で、新版は consecutive_failures=0・last_verified_by_agent_id=agent_id とし、同一 route の現役 active/broken は常に最大1行"
+            },
+            {
+              "clause_id": "API-DU16-04-POST-03",
+              "text": "新版の全版束縛とschema検証済み手順を持つ Playbook を返す。同一 repair task の再実行で旧版がすでに retired の場合は、supersedes_playbook_id・created_by_task_id の両束縛が一致する既存 successor を再読して同じ Playbook を返し、UPDATE/二重 INSERT しない"
+            }
+          ],
+          "raises": [
+            {
+              "clause_id": "API-DU16-04-RAISE-01",
+              "type": "GateRejected",
+              "when": "旧版が broken でも、retired かつ同一 repair task 束縛の既存 successor ありでもない、repair task が done/束縛不一致、候補 JSON 不正、版競合・UNIQUE/FK 違反のいずれか。書込み分岐では呼出元の複合 transaction 全体を rollback し broken 旧版を現役のまま保つ"
+            }
+          ],
+          "pure": false,
+          "ut": [
+            {
+              "nodeid": "test_connectors_playbooks.py::test_install_repaired_version_atomic_lineage",
+              "clause_refs": [
+                "API-DU16-04-PRE-01",
+                "API-DU16-04-POST-01",
+                "API-DU16-04-POST-02",
+                "API-DU16-04-POST-03",
+                "API-DU16-04-RAISE-01"
+              ]
+            }
+          ]
         }
       ],
       "dtos": [
-        "Playbook(id: int, service: str, operation: str, route_type: str, procedure: dict, selectors: dict | None, status: str) — frozen。検証済み地図"
+        "Playbook(id: int, service: str, operation: str, route_type: str, version: int, supersedes_playbook_id: int | None, created_by_task_id: int, procedure: dict, selectors: dict | None, status: str, created_at: str) — frozen。検証済み版束縛付き地図",
+        "FailureRecord(playbook_id: int, became_broken: bool, consecutive_failures: int) — frozen。active→broken CAS の結果と repair episode ID を呼出元へ返す"
       ],
       "state_transitions": [],
       "db_read": [
         "playbooks",
-        "config"
+        "config",
+        "tasks"
       ],
       "db_write": [
         "playbooks"
       ],
-      "transaction_boundary": "record_success／record_failure が各々単一 transaction（失敗加算と broken 降格は同一 transaction — 中間状態を外部に見せない）。get は読み取りのみ",
-      "purity": "schema 検証・閾値判定は pure 関数。playbooks 行の読み書き（ストア副層 `_store`）だけが副作用端点",
-      "idempotency": "get は決定的。record_success は同値上書きで冪等。record_failure は呼出し 1 回 = 失敗 1 件の加算（呼出元は 1 実行失敗につき 1 回だけ呼ぶ契約 — 再開時は external_operations 照合で二重加算を防ぐ）",
-      "retry_resume": "missing/broken は自動リトライなし（kind=absent — フォールバック経路があれば DU-13 の再解決、なければ escalate/failed）。クラッシュ後再開時は playbooks の現 status を読み直して判断（メモリ状態禁止）",
-      "concurrency": "consecutive_failures の加算は UPDATE ... SET consecutive_failures = consecutive_failures + 1 の相対更新（読み書き競合で失われない）。降格判定は同一 transaction 内の再読で確定",
-      "logging_evidence": "get の拒否事由（missing/broken/retired）と降格イベントを構造化ログへ記録し、呼出元が operation_log 証跡（DU-09 経由）へ理由を残す",
+      "transaction_boundary": "record_success は active 版の単発 transaction。record_failure の閾値未満は単発 transaction、active→broken 分岐は CMP-02 所有の repair task 発行 transaction に参加し独自 COMMIT しない。install_repaired_version の broken 分岐も verify_pass と同じ caller transaction に参加し、旧版 retired＋新版 INSERT のどちらか一部だけを commit しない。retired＋既存 successor 分岐は read-only で同一版を返す。get は read-only",
+      "purity": "schema 検証・閾値判定・版候補検証は pure 関数。playbooks の読み書きはストア副層 `_store` に限定し、tasks は repair creator 束縛の read-only 照合だけ行う",
+      "idempotency": "get は決定的。record_success は active 版の同値上書きで冪等。record_failure は呼出元の external_operations 照合で1失敗を1回に限定し、status=active CAS で broken episode の重複発行を防ぐ。install_repaired_version は UNIQUE(route,version)・UNIQUE(supersedes_playbook_id)・created_by_task_id 照合により、再実行時は既存 successor を返して二重発行しない",
+      "retry_resume": "broken 参照は常に拒否するが、修復は CMP-02 が同じ playbook_repair task を再開する。版切替前クラッシュは旧版 broken と task/external_operations を再読し、confirmed DOM read を再送せず install_repaired_version を再実行する。終端 repair task に対する新しい自動試行は発行しない",
+      "concurrency": "record_success/failure は status=active の条件付き相対 UPDATE。active→broken CAS の勝者だけがrepair task発行へ進み、後続は既存episodeを再読する。install_repaired_version は旧版status=brokenを条件にretired化し、部分 UNIQUE と版鎖 UNIQUE で並行 successor を1行へ収束させ、CAS 敗者は同一 repair task の既存 successor を再読する",
+      "logging_evidence": "get の拒否事由、active→broken CAS、新版発行・競合を秘匿化済み process 構造化ログへ記録する。repair task 行と playbooks 版鎖が内部修復の永続正本で、外部 DOM 読取りの実操作証跡は実行呼出元だけが記録する",
       "depends_on_apis": [
         "DU-10: connect()",
-        "DU-12: get()"
+        "DU-12: get()（playbook_broken_threshold／playbook_repair_limit）"
       ],
       "trace": {
         "ac": [
@@ -4391,11 +4497,11 @@
         ],
         "ut": [
           "test_connectors_playbooks.py::test_get_active_playbook_validated",
-          "test_connectors_playbooks.py::test_get_missing_rejected",
-          "test_connectors_playbooks.py::test_get_broken_and_retired_rejected",
+          "test_connectors_playbooks.py::test_get_missing_broken_and_retired_rejected",
           "test_connectors_playbooks.py::test_record_failure_increments_and_demotes_at_threshold",
           "test_connectors_playbooks.py::test_record_success_resets_failures_and_verifier",
-          "test_connectors_playbooks.py::test_broken_schema_json_fatal"
+          "test_connectors_playbooks.py::test_broken_schema_json_fatal",
+          "test_connectors_playbooks.py::test_install_repaired_version_atomic_lineage"
         ],
         "feature_design": [
           "docs/L6-feature-design/S0/external-operations.md"
@@ -4406,16 +4512,26 @@
           "config",
           "external_operations",
           "playbooks",
-          "state_transitions"
+          "state_transitions",
+          "tasks"
         ],
-        "column_refs": [],
-        "state_refs": [],
+    "column_refs": [
+      "external_operations.effect",
+      "external_operations.status",
+      "playbooks.created_by_task_id",
+          "playbooks.status",
+          "playbooks.supersedes_playbook_id",
+          "playbooks.version",
+          "tasks.retry_count",
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.done"
+        ],
         "event_refs": [
           "escalate"
         ],
-        "evidence_kind_refs": [
-          "operation_log"
-        ],
+    "evidence_kind_refs": [],
         "error_type_refs": [
           "FatalError",
           "PlaybookMissing"
@@ -4423,6 +4539,7 @@
         "api_refs": [
           "connect",
           "get",
+          "install_repaired_version",
           "record_failure",
           "record_success"
         ]
@@ -4449,14 +4566,14 @@
             },
             {
               "clause_id": "API-DU17-01-PRE-03",
-              "text": "base URL が Docker WP allow-list（config）内であることを接続前に検査済み",
+              "text": "base URL がDocker WP allow-list（config）内で、policy_category='content_publish'・rate_scope='wp'・service/operation/target_endpoint固定policy一致を接続前に検査済み",
               "na_reason": "配線時保証: 接続前allow-list検査は配線時の安全前提であり、AC対象外である"
             }
           ],
           "postcondition": [
             {
               "clause_id": "API-DU17-01-POST-01",
-              "text": "external_operations 行を prepared→sent→confirmed で遷移させ（各々コミット）、confirmed 後に operation_log 証跡（DU-09 経由）を派生記録してから DraftRef を返す"
+          "text": "external_operations(effect='write', policy_category='content_publish', rate_scope='wp', service='wp', target_endpoint=Docker WP)行をprepared→sentまで各々commitし、結果確定時もsentのまま1:1のoperation_log証跡（DU-09経由）をINSERTしてtriggerでfinal化・evidence_id接続してからDraftRefを返す"
             },
             {
               "clause_id": "API-DU17-01-POST-02",
@@ -4545,11 +4662,11 @@
           "postcondition": [
             {
               "clause_id": "API-DU17-02-POST-01",
-              "text": "external_operations 行を prepared→sent→confirmed で遷移させ、confirmed 後に operation_log 証跡を派生記録し、canonical URL・WP post ID を PublishedRef で返す"
+          "text": "external_operations(effect='write', policy_category='content_publish', rate_scope='wp', service='wp', target_endpoint=Docker WP)行をprepared→sentまで遷移させ、結果確定時もsentのまま1:1のoperation_log証跡をINSERTしてtriggerでfinal化・evidence_id接続し、canonical URL・WP post IDをPublishedRefで返す"
             },
             {
               "clause_id": "API-DU17-02-POST-02",
-              "text": "published_url 証跡は register_asset で asset_id を得てから記録する（s0-contract §2.1 の整合列を先に成立 — WF-WP-2 ステップ 6）",
+              "text": "published_url証跡はregister_assetでasset_idを得た後、先行operation_logのevidence.idをoperation_log_evidence_idへ必須設定し、payloadのexternal_operation_row_idをPublishedRefのlocal row IDと一致させて記録する。provider_operation_idは任意（s0-contract §2.1 — WF-WP-2 ステップ6）",
               "na_reason": "受入基準未設定: asset登録後にevidence記録する処理順を直接観測しないため"
             },
             {
@@ -4641,14 +4758,14 @@
             },
             {
               "clause_id": "API-DU17-03-PRE-02",
-              "text": "idempotency_key はメディア登録専用 key（1 外部操作 = 1 key = 1 行）",
+              "text": "idempotency_keyはメディア登録専用key（1外部操作=1 key=1行）で、policy_category='content_publish'・rate_scope='wp'・Docker WP固定policyを満たす",
               "na_reason": "呼出側義務: メディア専用keyは呼出側の識別子規約であり、ACを持たない"
             }
           ],
           "postcondition": [
             {
               "clause_id": "API-DU17-03-POST-01",
-              "text": "external_operations を prepared→sent→confirmed で遷移させ、wp_media_id を MediaRef で返す",
+              "text": "external_operations(effect='write', policy_category='content_publish', rate_scope='wp')をprepared→sentまで遷移させ、結果確定時もsentのまま1:1のoperation_logをINSERTしてtriggerでfinal化・evidence_id接続し、wp_media_idをMediaRefで返す",
               "na_reason": "受入基準未設定: 操作遷移とMediaRef返却を直接観測するACがこの入力にはない"
             },
             {
@@ -4715,7 +4832,7 @@
             },
             {
               "clause_id": "API-DU17-04-POST-02",
-              "text": "published_url 証跡（DU-09 経由）はこの asset_id 取得後に記録される順序を呼出しフローとして保証する"
+              "text": "published_url証跡（DU-09経由）はこのasset_id取得後に記録し、published.operation_log_evidence_idとpublished.external_operation_row_idを自己FK列・payloadへそのまま束縛する順序を保証する"
             }
           ],
           "raises": [
@@ -4739,9 +4856,9 @@
         }
       ],
       "dtos": [
-        "DraftRef(draft_post_id: str, draft_url: str, external_operation_id: int) — frozen",
-        "PublishedRef(wp_post_id: str, canonical_url: str, content_hash: str, external_operation_id: int) — frozen",
-        "MediaRef(wp_media_id: str, media_url: str, content_hash: str, external_operation_id: int) — frozen",
+        "DraftRef(draft_post_id: str, draft_url: str, external_operation_row_id: int, operation_log_evidence_id: int, provider_operation_id: str | None) — frozen。local row/evidence ID必須・provider ID任意",
+        "PublishedRef(wp_post_id: str, canonical_url: str, content_hash: str, external_operation_row_id: int, operation_log_evidence_id: int, provider_operation_id: str | None) — frozen。published_url束縛元のlocal row/evidence ID必須・provider ID任意",
+        "MediaRef(wp_media_id: str, media_url: str, content_hash: str, external_operation_row_id: int, operation_log_evidence_id: int, provider_operation_id: str | None) — frozen。local row/evidence ID必須・provider ID任意",
         "PairPass／ApprovalPass は消費のみ（生成は CMP-03 側 — 本 DU は型で受領を強制）"
       ],
       "state_transitions": [
@@ -4757,12 +4874,12 @@
         "external_operations",
         "assets"
       ],
-      "transaction_boundary": "external_operations の各 status 遷移を独立 transaction でコミット（送信直後クラッシュの検出窓）。assets INSERT は register_asset の単一 transaction。operation_log／published_url 証跡は DU-09 の transaction",
+      "transaction_boundary": "external_operationsのprepared・sentを独立transactionでコミット（送信直後クラッシュの検出窓）。結果確定時はsent行へのoperation_log INSERTがtriggerでfinal化・evidence_id接続する。assets INSERTはregister_assetの単一transaction、published_urlはその後にoperation_log_evidence_id自己FK付きでDU-09 transactionへ記録する",
       "purity": "request fingerprint 計算・allow-list 判定・照合ロジックは pure。HTTP I/O（低レベル client は `_client` 非公開）と external_operations/assets 書込みが副作用端点",
       "idempotency": "下書き・公開・メディアは各々専用 idempotency key の別 external_operations 行（UNIQUE で二重送信検出）。実行前に同 key 行を照合し confirmed 済みは再送せず結果補完。WP 側 meta key／content_hash 照合で key 非対応面も決定化",
-      "retry_resume": "prepared は同一 key で再送可、sent はリモート照合（post ID／meta key／idempotency key）で成功確認時のみ confirmed 化＋証跡補完し verifying へ、照合不能は unknown とし再送 0 回で escalate（最危険 kill point — s0-contract §3.3・AC-44-3）",
+      "retry_resume": "preparedは同一keyで再送可。sentはWPへの照合自体を別external_operations(effect='read', policy_category='external_read', rate_scope=NULL, request_sequence単調増加)行＋payload rate_scope:nullのoperation_logとして記録し、成功確認時だけ元writeのoperation_logをINSERTしてconfirmed化、照合不能は元writeをunknown化し再送0回でescalateする（最危険kill point — s0-contract §3.3・AC-44-3）",
       "concurrency": "status 遷移は現 status を条件に含む UPDATE（更新 0 行 = 競合検出で FatalError）。同 key の並行実行は idempotency_key UNIQUE が最終防衛。assets は canonical_url／wp_media_id UNIQUE で重複吸収",
-      "logging_evidence": "全操作の operation_log 証跡（external_operation_id・request_fingerprint・result — 本文・credential なし）と published_url 証跡（url・wp_post_id・external_operation_id・asset_id）を DU-09 経由で記録。拒否（PairRequired/ApprovalRequired/ProductionWriteDenied/RateLimitExceeded）は送信 0 回で理由を operation_log へ",
+      "logging_evidence": "実外部WP書込みだけをexternal_operations(effect='write', policy_category='content_publish', rate_scope='wp')と1:1のoperation_log（external_operation_row_id・task/effect/policy_category/rate_scope/service/operation/correlation_key/request_hash/request_sequence/result、provider ID任意 — 本文・credentialなし）へDU-09経由で記録し、公開成功のpublished_urlはoperation_log_evidence_id＋payload local row IDで先行operation_logへ束縛する。PairRequired/ApprovalRequired/ProductionWriteDenied/daily cap等の送信前拒否はprocess loggerだけに記録し外部両テーブル差分0",
       "depends_on_apis": [
         "DU-06: check_publishable()",
         "DU-05: require_pair()",
@@ -4822,6 +4939,15 @@
           "tasks"
         ],
         "column_refs": [
+          "evidence.external_operation_row_id",
+          "evidence.operation_log_evidence_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
           "external_operations.status"
         ],
         "state_refs": [
@@ -4890,9 +5016,9 @@
               "clause_id": "API-DU18-01-POST-01",
               "text": "approvals 行を decision=pending・channel='claude_code_app' で INSERT（ストア副層 approvals_store 経由 — 生 SQL はここだけ）し approval_id を返す"
             },
-            {
-              "clause_id": "API-DU18-01-POST-02",
-              "text": "Claude Code アプリへ binding 3 項目を明記した通知を transport 経由で送出する"
+        {
+          "clause_id": "API-DU18-01-POST-02",
+          "text": "Claude Codeアプリへの実通知送出はexternal_operations(effect='write', policy_category='approval_notification', rate_scope='claude_code_app', service='claude_code_app', operation='approval_request')をprepared→sentまで記録し、結果確定時もsentのまま1:1のoperation_logをINSERTしてtriggerでconfirmed/rejected/unknownへfinal化する。binding 3項目は必須だが未成立ApprovalPassは要求しない。mock/dry-runは外部操作行・operation_logを作らずprocess loggerへ予定fingerprintだけを記録する"
             },
             {
               "clause_id": "API-DU18-01-POST-03",
@@ -4947,13 +5073,13 @@
             }
           ],
           "postcondition": [
-            {
-              "clause_id": "API-DU18-02-POST-01",
-              "text": "approved（binding 3 項目完全一致）は `_record_decision` で approval 証跡 INSERT（DU-09 経由）と approvals.evidence_id 更新を単一 transaction で行い、相互整合の中間状態を外部に見せない"
+        {
+          "clause_id": "API-DU18-02-POST-01",
+          "text": "実transportからの応答取得はexternal_operations(effect='read', policy_category='external_read', rate_scope=NULL)と1:1のoperation_log（payload rate_scope:null必須）で記録する。各pollは同一(task_id, operation, request_hash)内でrequest_sequenceを単調増加しcorrelation_key='read:<task_id>:<request_hash>:<request_sequence>'とする。approved（binding 3項目完全一致）は取得行がoperation_log INSERT triggerでfinal化した後、`_record_decision`でapproval証跡INSERT（DU-09経由）とapprovals.evidence_id更新を単一transactionで行う"
             },
-            {
-              "clause_id": "API-DU18-02-POST-02",
-              "text": "binding 1 項目でも不一致の応答は無効（ApprovalBindingMismatch を記録し decision は pending のまま waiting 継続 — 部分一致許容なし）。binding_at と実公開時点の乖離も不一致として扱う"
+        {
+          "clause_id": "API-DU18-02-POST-02",
+          "text": "binding 1項目でも不一致の応答は無効（decisionはpendingのままwaiting継続）。不一致判定はprocess loggerの秘匿化済み構造化拒否eventへ記録し、内部判定用operation_logは生成しない。binding_atと実公開時点の乖離も不一致として扱う"
             },
             {
               "clause_id": "API-DU18-02-POST-03",
@@ -5006,9 +5132,9 @@
             }
           ],
           "postcondition": [
-            {
-              "clause_id": "API-DU18-03-POST-01",
-              "text": "同一 binding 3 項目の新規 approvals 行として再要求を INSERT し、系列（要求・再要求・応答の全履歴）を証跡に残す"
+        {
+          "clause_id": "API-DU18-03-POST-01",
+          "text": "同一binding 3項目の新規approvals行として再要求をINSERTし、実通知ごとにexternal_operations(effect='write', policy_category='approval_notification', rate_scope='claude_code_app')と1:1のoperation_logを記録して要求・再要求・応答の全履歴を残す"
             },
             {
               "clause_id": "API-DU18-03-POST-02",
@@ -5048,21 +5174,23 @@
       "state_transitions": [
         "approvals.decision: pending→approved／rejected／expired（decision 列の一方向確定 — loop_run の waiting/resume、task の failed/escalated への遷移は呼出元が DU-01 transition() 経由で発火）"
       ],
-      "db_read": [
-        "approvals",
-        "config",
-        "tasks"
-      ],
-      "db_write": [
-        "approvals",
-        "evidence"
-      ],
-      "transaction_boundary": "request の INSERT＋（transport 送出は transaction 外 — 一時失敗は状態を巻き戻さず通知のみ再送）。approved 確定時は approval 証跡 INSERT と approvals.evidence_id 更新を単一 transaction（`_record_decision`）",
+  "db_read": [
+    "approvals",
+    "config",
+    "external_operations",
+    "tasks"
+  ],
+  "db_write": [
+    "approvals",
+    "evidence",
+    "external_operations"
+  ],
+  "transaction_boundary": "approvals INSERTは単一transaction。実通知writeと応答poll readは各external_operationsのprepared/sentを個別commitし、結果確定時もsentの間に対応operation_logをDU-09 transactionでINSERTしてtrigger final化する（transport I/Oは業務transaction外）。approved確定時はその後にapproval証跡INSERTとapprovals.evidence_id更新を単一transaction（`_record_decision`）。mock/dry-runは外部操作両テーブル差分0",
       "purity": "binding 照合（3 項目完全一致）・decision→分類写像（承認設計 §3）は pure 関数。approvals/evidence 書込みと transport I/O が副作用端点",
-      "idempotency": "同一 binding の要求は UNIQUE (task_id, binding_subject, binding_operation, binding_at) で既存行に収束。poll の再実行は approvals.decision の現在値から決定的に同じ Decision を返す（クラッシュ後は decision から再開 — 「承認されたはず」の推測禁止）",
-      "retry_resume": "transport 一時失敗は通知のみ再送（状態不変 — FR-16）。再起動後は approvals.decision を正本に再開: pending=待機継続、approved=evidence 整合確認後に公開へ、rejected/expired=写像適用（s0-contract §3.3 waiting 行・承認設計 §6）",
+  "idempotency": "同一binding要求はUNIQUE(task_id,binding_subject,binding_operation,binding_at)で既存行に収束。通知writeはapproval_id・request generation由来のUNIQUE idempotency keyを使う。poll readは同一(task_id, operation, request_hash)内でpoll attemptごとにrequest_sequenceを1から単調増加し、correlation_key='read:<task_id>:<request_hash>:<request_sequence>'で各1 external_operations行へ区別し、各行にoperation_logは1件だけ。再実行はapprovals.decisionと外部操作statusから決定的に再開する",
+  "retry_resume": "transport一時失敗は該当external_operations.statusから同keyで再開し、sentは照合不能ならunknownとして再送しない。再起動後はapprovals.decisionを正本にpending=待機継続、approved=evidence整合確認後に公開、rejected/expired=写像適用する。mock/dry-run結果を実通知成功と推測しない",
       "concurrency": "decision 更新は decision='pending' を条件に含む UPDATE（更新 0 行 = 既確定として現在値を再読 — 二重確定なし）。UNIQUE 制約が並行要求の最終防衛",
-      "logging_evidence": "approval 証跡（approval_id・decision=approved・binding 3 項目 — approvals.evidence_id と相互整合）を DU-09 経由で記録。binding 不一致・rejected・expired・再要求系列は operation_log／構造化ログへ理由を記録",
+      "logging_evidence": "approval証跡（approved・binding 3項目）をDU-09経由で記録する。operation_logは実通知write／実応答poll readのexternal_operations行とだけexternal_operation_row_idで1:1に束縛し、task/effect/policy_category/rate_scope/service/operation/correlation_key/request_hash/request_sequence/resultを同値にする。provider IDは任意。binding不一致・rejected/expired分類・上限拒否等の内部判断はprocess loggerへ記録しoperation_logを生成しない actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
       "depends_on_apis": [
         "DU-09: record()",
         "DU-01: transition()",
@@ -5103,12 +5231,22 @@
           "approvals",
           "config",
           "evidence",
+          "external_operations",
           "state_transitions",
           "tasks"
         ],
         "column_refs": [
           "approvals.decision",
-          "approvals.evidence_id"
+          "approvals.evidence_id",
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
+          "external_operations.status"
         ],
         "state_refs": [
           "tasks.escalated",
@@ -5832,18 +5970,18 @@
               "clause_id": "API-DU22-01-POST-01",
               "text": "取得物（CSV/xlsx 又は API 応答）を out_dir へ保存し、即 SHA-256 で固定する（投入前の改竄検出基準値）"
             },
-            {
-              "clause_id": "API-DU22-01-POST-02",
-              "text": "operation_log 証跡（service/operation/external_operation_id 又は mock operation ID/request_fingerprint/result）を投入より先に DU-09 経由で記録する（AC-62-1 — 取得証跡が投入前に記録）"
+        {
+          "clause_id": "API-DU22-01-POST-02",
+          "text": "実外部取得1要求ごとにexternal_operations(effect='read', policy_category='external_read', rate_scope=NULL)をprepared→sentまで記録し、同一(task_id, operation, request_hash)内でrequest_sequenceを単調増加、correlation_key='read:<task_id>:<request_hash>:<request_sequence>'とする。結果確定時もsentのままexternal_operation_row_id一致・payload rate_scope:nullのoperation_logを1:1でDU-09経由INSERTしtriggerでfinal化する。provider IDは任意。confirmed行と対応operation_logは投入より先に確定する（AC-62-1）"
             },
             {
               "clause_id": "API-DU22-01-POST-03",
               "text": "ブラウザフォールバック時は screenshot 証跡も取得する（DU-15 経由）。いずれの経路も同一の evidence 契約に収束",
               "na_reason": "単体検証: 割当 UT が本節を直接検証する（ブラウザ時スクリーンショットは経路固有補助証跡で直接観測されないため）"
             },
-            {
-              "clause_id": "API-DU22-01-POST-04",
-              "text": "読取り系のためレート節度（NFR-7）の対象外・external_operations 行は作らない。mock/dry-run は fixture を返し予定 request の fingerprint を operation_log に残す",
+        {
+          "clause_id": "API-DU22-01-POST-04",
+          "text": "読取り系はレート節度（NFR-7）の対象外だが、実外部取得はexternal_operations(effect='read')と対応operation_logを必須とする。mock/dry-runはfixtureを返し予定request fingerprintをprocess loggerへ記録するだけでexternal_operations/operation_logは0件",
               "na_reason": "単体検証: 割当 UT が本節を直接検証する（dry-run予定指紋とレート対象外は受入基準が直接観測しないため）"
             },
             {
@@ -5933,22 +6071,24 @@
       ],
       "dtos": [
         "Period(start: str, end: str) — frozen。UTC ISO 8601、end >= start",
-        "FetchResult(file_path: Path, file_hash: str, route_used: str, operation_log_evidence_id: int, screenshot_evidence_id: int | None) — frozen。file_hash は取得直後に固定した SHA-256"
+    "FetchResult(file_path: Path, file_hash: str, route_used: str, external_operation_row_id: int | None, operation_log_evidence_id: int | None, screenshot_evidence_id: int | None) — frozen。実外部取得では外部操作・operation_log参照が必須、mock/dry-runでは両方None。file_hashは取得直後に固定したSHA-256"
       ],
       "state_transitions": [],
-      "db_read": [
-        "config",
-        "tasks"
-      ],
-      "db_write": [
-        "evidence"
-      ],
-      "transaction_boundary": "operation_log／screenshot 証跡の INSERT は DU-09 record() の各単一 transaction（取得ファイル保存はファイル系 — temp→rename）。業務状態の遷移は行わない",
-      "purity": "request 組み立て・read-only 判定・fingerprint/hash 計算は pure 関数。GA4 I/O・ファイル保存・証跡 INSERT が副作用端点",
-      "idempotency": "読取のみで外部副作用なし — 同一 property・同一 period の再取得は安全。file_hash 固定により同一エクスポートの再取得は同一 hash に収束し、下流 ingest の UNIQUE が重複投入を防ぐ（AC-62-1）",
-      "retry_resume": "timeout・429 は再試行可（読取りのため送信後照合は不要）。クラッシュ後は out_dir の取得物と operation_log 証跡の実在を照合し、証跡未記録なら取得からやり直す（推測禁止）",
+  "db_read": [
+    "config",
+    "external_operations",
+    "tasks"
+  ],
+  "db_write": [
+    "evidence",
+    "external_operations"
+  ],
+  "transaction_boundary": "実外部取得はexternal_operations(effect='read', policy_category='external_read')のprepared・sentを各独立transactionでcommitし、結果確定時もsentの間にoperation_logをDU-09の単一transactionで1:1 INSERTしてtriggerでfinal化・evidence_id接続する。取得ファイルはtemp→rename。mock/dry-run・接続前拒否は両テーブルを書かない",
+  "purity": "request組立て・read-only判定・fingerprint/hash計算はpure関数。GA4 I/O・external_operations/operation_log・ファイル保存・取得証跡INSERTが副作用端点",
+  "idempotency": "実外部readは同一(task_id, operation, request_hash)内の各取得attemptでrequest_sequenceを1から単調増加し、correlation_key='read:<task_id>:<request_hash>:<request_sequence>'により1要求=external_operations 1行=対応operation_log 1行として区別する。read-onlyのため外部変更はなく、file_hashと下流UNIQUEが重複投入を防ぐ（AC-62-1）",
+  "retry_resume": "timeout・429の各実外部試行はattempt別effect='read'行と対応operation_logへ記録する。クラッシュ後はexternal_operations.status・out_dir取得物・対応operation_logを照合し、preparedは同keyで再送可、sentはリモート照合不能ならunknownとして推測完了しない。mock/dry-runは再開対象の外部行なし",
       "concurrency": "取得は task 単位で専有（lease が保証）。out_dir への書出しは temp→rename で部分ファイルを公開しない",
-      "logging_evidence": "operation_log 証跡（投入前に必ず記録 — 秘匿値なし・読取専用の result）と、フォールバック時の screenshot 証跡を DU-09 経由で記録。経路選択（api/browser）と拒否事由を構造化ログへ記録",
+  "logging_evidence": "実外部取得のoperation_log（external_operation_row_id・task/effect='read'/policy_category='external_read'/rate_scope/service/operation/correlation_key/request_hash/request_sequence/result、provider ID任意・秘匿値なし）をexternal_operations行と1:1で投入前に記録し、browser fallback時はscreenshotもDU-09経由で記録する。mock/dry-run・接続前拒否・経路選択はprocess loggerだけに記録する",
       "depends_on_apis": [
         "DU-13: resolve()",
         "DU-14: get_credential()",
@@ -5998,7 +6138,17 @@
           "state_transitions",
           "tasks"
         ],
-        "column_refs": [],
+        "column_refs": [
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
+          "external_operations.status"
+        ],
         "state_refs": [
           "tasks.failed"
         ],
@@ -6294,5 +6444,5 @@
     "ARCHIVE-UT-LEGACY",
     "docs/L5-detailed-design/canonical/detailed-design_v0.1.md §3（API 正本宣言）"
   ],
-  "approval_digest": "90e5256f2295"
+  "approval_digest": "9c20b7e09797"
 }

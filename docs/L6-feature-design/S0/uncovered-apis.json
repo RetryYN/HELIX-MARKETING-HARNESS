@@ -24,13 +24,6 @@
       "resolution_update": "S0.2"
     },
     {
-      "api_id": "API-DU16-03",
-      "du_id": "DU-16",
-      "function": "record_failure",
-      "reason": "この API の契約節を観測する受入基準が AC カタログに存在しない（S0 設計時点の穴）",
-      "resolution_update": "S0.2"
-    },
-    {
       "api_id": "API-DU20-01",
       "du_id": "DU-20",
       "function": "commit_workspace",

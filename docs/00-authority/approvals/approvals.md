@@ -384,3 +384,40 @@
 | 2026-08-09 | nfr-contracts | v0.1 | confirmed | PO | 16bce183a922 | 最終approval digest同期後のNFR生成ビュー再生成 |
 | 2026-08-09 | tc-catalog | v0.1 | confirmed | PO | a03ac65b9cd6 | 最終approval digest同期後のTCC生成ビュー再生成 |
 | 2026-08-09 | du-contracts | v0.1 | confirmed | PO | c0cbce023e6b | 最終approval digest同期後のDU生成ビュー再生成 |
+
+## 全要求意味監査・HELIX再降下（2026-08-10）
+
+> 2026-08-10 PO 指示による要求・要件定義の全層監査、意味矛盾是正、外部 I/O 証跡／状態遷移／
+> playbook 版管理／NFR 測定契約の再降下、および mutation ベースのデグレ防止ゲート整備に対する内容束縛承認。
+
+| 日付 | 対象 | 版 | 判定 | 承認者 | digest | 備考 |
+|---|---|---|---|---|---|---|
+| 2026-08-10 | br-contracts.json | v0.1 | confirmed | PO | 6bfd434b51fb | 媒体上限と上位制約の判定可能化 |
+| 2026-08-10 | fr-contracts.json | v0.1 | confirmed | PO | c313be37fc53 | 状態遷移・外部I/O・playbook版管理・支出台帳境界の意味再降下 |
+| 2026-08-10 | sr-contracts.json | v0.1 | confirmed | PO | 977ec7ae5c0c | 戦略ゲートと外部操作証跡の責務分離 |
+| 2026-08-10 | nfr-contracts.json | v0.1 | confirmed | PO | 4cd61e728300 | NFRの計測SQL・意味参照・境界fixtureの実行可能化 |
+| 2026-08-10 | ac-contracts.json | v0.1 | confirmed | PO | 6281f2db8aa8 | 全NFR観点・外部I/O属性・拒否経路の受入降下 |
+| 2026-08-10 | tc-contracts.json | v0.1 | confirmed | PO | 1f2b0bb2d810 | aspect別assert・境界・原子性fixtureの検証降下 |
+| 2026-08-10 | cmp-contracts.json | v0.1 | confirmed | PO | e0c45722a185 | component責務とactual外部I/O lifecycleの一意化 |
+| 2026-08-10 | du-contracts.json | v0.1 | confirmed | PO | 9c20b7e09797 | API契約・local row ID・版切替・UT接続の再降下 |
+| 2026-08-10 | implementation-units.json | v0.1 | confirmed | PO | 2f08d683c1c7 | L6責務・API・契約節・AC・UT接続の同期 |
+| 2026-08-10 | br-contracts | v0.1 | confirmed | PO | f95dc7ffc558 | JSON正本から生成ビューを再生成（手編集なし） |
+| 2026-08-10 | ac-catalog | v0.1 | confirmed | PO | 3c8d2bf8f6cb | JSON正本から生成ビューを再生成（手編集なし） |
+| 2026-08-10 | fr-contracts | v0.1 | confirmed | PO | 1d320bae6a93 | JSON正本から生成ビューを再生成（手編集なし） |
+| 2026-08-10 | nfr-contracts | v0.1 | confirmed | PO | a21145feb1d8 | JSON正本から生成ビューを再生成（手編集なし） |
+| 2026-08-10 | sr-contracts | v0.1 | confirmed | PO | 569935e07017 | JSON正本から生成ビューを再生成（手編集なし） |
+| 2026-08-10 | tc-catalog | v0.1 | confirmed | PO | 74391ecefe36 | JSON正本から生成ビューを再生成（手編集なし） |
+| 2026-08-10 | cmp-contracts | v0.1 | confirmed | PO | 31e32985d121 | JSON正本から生成ビューを再生成（手編集なし） |
+| 2026-08-10 | du-contracts | v0.1 | confirmed | PO | c753d0ffc9b1 | JSON正本から生成ビューを再生成（手編集なし） |
+| 2026-08-10 | s0-contract | v0.1 | confirmed | PO | 4f5ac5fe3bc8 | DDL・外部I/O・証跡・playbook版・支出台帳の正準化 |
+| 2026-08-10 | approval-design | v0.1 | confirmed | PO | 3a403cdb2ff4 | 承認transportと業務writeの外部操作分離 |
+| 2026-08-10 | basic-design | v0.1 | confirmed | PO | 6ef47350715b | policy category・rate scope・証跡順序の基本設計同期 |
+| 2026-08-10 | db-design | v0.1 | confirmed | PO | 87e38658e04b | 25 tables／37 triggers・双方向1:1・append-only設計同期 |
+| 2026-08-10 | external-if-design | v0.1 | confirmed | PO | 82adce1bdb8d | actual read/write lifecycleとpreflight拒否境界の同期 |
+| 2026-08-10 | error-taxonomy | v0.1 | confirmed | PO | 97b1bea7c697 | internal/pre-call拒否をprocess loggerへ統一 |
+| 2026-08-10 | approval | - | confirmed | PO | 8e5a8b45c389 | 承認通知／pollのexternal operation契約同期 |
+| 2026-08-10 | evidence | - | confirmed | PO | 6fb1aa60ea03 | operation_log／published_urlのlocal row束縛同期 |
+| 2026-08-10 | external-operations | - | confirmed | PO | 57bb3214b260 | lifecycle・policy・cap・recovery・atomicity契約同期 |
+| 2026-08-10 | kpi-handoff | - | confirmed | PO | 646394a36687 | actual readとmock/fixture境界の同期 |
+| 2026-08-10 | migration | - | confirmed | PO | 68e2a643d754 | 25 tables／37 triggersへの物理数同期 |
+| 2026-08-10 | pair-gate | - | confirmed | PO | 17e4bb8a1c94 | preflight拒否の外部2表0行契約同期 |

@@ -11,6 +11,7 @@
     "update",
     "note",
     "derivation",
+    "ut_nodeid_renames",
     "worksets"
   ],
   "properties": {
@@ -56,6 +57,38 @@
         },
         "deviation": {
           "type": "string"
+        }
+      }
+    },
+    "ut_nodeid_renames": {
+      "description": "DDL物理数の正本同期でpytest nodeidの数字部分だけが変わる場合の明示的rename台帳。G-WORKSET-RATCHETは同一Workset・同一test file・数字以外同一・1対1の置換だけをUT縮小の例外とする。",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "workset_id",
+          "from",
+          "to",
+          "reason"
+        ],
+        "properties": {
+          "workset_id": {
+            "type": "string",
+            "pattern": "^WS-S0\\.1-[A-Z]$"
+          },
+          "from": {
+            "type": "string",
+            "pattern": "^tests/unit/test_[a-z0-9_]+\\.py::test_[a-z0-9_]+$"
+          },
+          "to": {
+            "type": "string",
+            "pattern": "^tests/unit/test_[a-z0-9_]+\\.py::test_[a-z0-9_]+$"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 20
+          }
         }
       }
     },

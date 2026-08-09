@@ -588,9 +588,7 @@
         "upstream": [
           "BR-F1"
         ],
-        "downstream": [
-          "FN-607"
-        ]
+        "downstream": []
       }
     },
     {

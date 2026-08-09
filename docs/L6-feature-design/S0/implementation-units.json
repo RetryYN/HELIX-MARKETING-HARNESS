@@ -6,7 +6,7 @@
       "unit_id": "IU-APPROVAL-01",
       "doc": "docs/L6-feature-design/S0/approval.md",
       "du_id": "DU-18",
-      "responsibility": "`poll`・`approvals`: approved（binding 3 項目完全一致）は `_record_decision` で approval 証跡 INSERT（DU-09 経由）と approvals.evidence_id 更新を単一 transaction で行い、相互整合の中間状態を外部に見せない",
+      "responsibility": "`poll`・`approvals`: 実provider pollはeffect=read, policy_category=external_read, rate_scope=NULL, request_sequence=1,2,...とread:<task_id>:<request_hash>:<request_sequence>をintent/request/resultへ同値降下し、logのrate_scopeはJSON nullとする。CMP-02 ExternalOpRecorderがterminal＋row ID束縛operation_log exact-1を確定する。connectorは材料だけを返す。mock/dry-runは外部2表0行。approved（binding完全一致）はその後にapproval証跡INSERT（DU-09）とapprovals.evidence_id更新をローカル単一transactionで確定する",
       "api_ref": "API-DU18-02",
       "clause_refs": [
         "API-DU18-02-POST-01",
@@ -31,7 +31,7 @@
       "unit_id": "IU-APPROVAL-02",
       "doc": "docs/L6-feature-design/S0/approval.md",
       "du_id": "DU-18",
-      "responsibility": "`request`・`binding`: approvals 行を decision=pending・channel='claude_code_app' で INSERT（ストア副層 approvals_store 経由 — 生 SQL はここだけ）し approval_id を返す",
+      "responsibility": "`request`・`binding`: CMP-02承認フローがapprovals_storeを呼ぶローカルtransactionでdecision=pending・channel='claude_code_app'を先にINSERTし、実通知はconnectorがeffect=write, policy_category=approval_notification, operation=approval_request, rate_scope, exact policyのrequest/result材料だけを返してExternalOpRecorderがlifecycleとrow ID束縛operation_log exact-1を所有する。binding/category/rate_scope/policy preflight拒否とmock/dry-runは外部2表0行",
       "api_ref": "API-DU18-01",
       "clause_refs": [
         "API-DU18-01-POST-01",
@@ -52,7 +52,7 @@
       "unit_id": "IU-APPROVAL-03",
       "doc": "docs/L6-feature-design/S0/approval.md",
       "du_id": "DU-18",
-      "responsibility": "`rerequest_on_expired`・`approvals`: 同一 binding 3 項目の新規 approvals 行として再要求を INSERT し、系列（要求・再要求・応答の全履歴）を証跡に残す",
+      "responsibility": "`rerequest_on_expired`・`approvals`: limit未到達時だけCMP-02→approvals_storeのローカルtransactionで同一bindingの新規pending行をINSERTし、各実再通知は別effect=write, policy_category=approval_notification, rate_scopeのrequestとしてExternalOpRecorderへ委譲する。limit到達・preflight拒否・mock/dry-runは外部2表0行",
       "api_ref": "API-DU18-03",
       "clause_refs": [
         "API-DU18-03-POST-01",
@@ -160,7 +160,7 @@
       "unit_id": "IU-EVIDENCE-04",
       "doc": "docs/L6-feature-design/S0/evidence.md",
       "du_id": "DU-09",
-      "responsibility": "`record`・`kind`: kind 別必須キー・列整合（asset_id/external_operation_id/file_path/file_hash/commit_hash）・追加検証（review_pass は result=PASS かつ reviewer≠author、commit_hash は 40/64…",
+      "responsibility": "`record`・`kind`: kind別必須キー・列整合と秘匿検査を行う。operation_logはterminal external_operationsへexternal_operation_row_idでexactly-oneに束縛し、task/effect/policy_category/rate_scope/service/operation/correlation_key/request_hash/request_sequence/result一致（readはrate_scope JSON null）を強制する。published_urlはexternal_operation_row_id必須FKとoperation_log_evidence_id NOT NULL UNIQUE self-FKで同taskのconfirmed content_publish row/logへ1:1としprovider IDは任意。orphan・重複・1:0/1:N/N:1とpreflight拒否・mock/dry-run由来logを拒否する",
       "api_ref": "API-DU09-01",
       "clause_refs": [
         "API-DU09-01-POST-01",
@@ -263,7 +263,7 @@
       "unit_id": "IU-EXTERNALOPERATIONS-02",
       "doc": "docs/L6-feature-design/S0/external-operations.md",
       "du_id": "DU-04",
-      "responsibility": "`run_step`・`task`: ステップ出力の証跡保存は DU-09 record() 経由のみ（evidence 直 INSERT しない）",
+      "responsibility": "`run_step`・`task`: CMP-02 ExternalOpRecorderをexternal_operations唯一のwriterとして、全preflight後の実read/writeだけをeffect/policy_category必須の同一lifecycleへ入れる。writeは閉集合category・canonical lowercase rate_scope・idempotency key、readはexternal_read・rate_scope NULL・request_sequence・exact read keyを使い、全5面を同値降下する。sent terminalはDU-09経由row ID束縛operation_log exact-1を先に確定する。コネクタは材料のみ。rate_scope別日次capのUTC半開COUNT＋次prepared予約はsingle-writer境界で直列化する。spend_ledgerはS1専用component/API/DU未降下のdesign debtで本IUの責務に含めない",
       "api_ref": "API-DU04-02",
       "clause_refs": [
         "API-DU04-02-POST-02",
@@ -289,7 +289,7 @@
       "unit_id": "IU-EXTERNALOPERATIONS-04",
       "doc": "docs/L6-feature-design/S0/external-operations.md",
       "du_id": "DU-13",
-      "responsibility": "`resolve`・`conn`: 優先順 mcp → api → browser →（例外宣言時のみ）有償 の順で最初の有効経路を Route として返す",
+      "responsibility": "`resolve`・`conn`: 優先順mcp→api→browser→（例外宣言時のみ）有償で最初の有効Route材料を返す。Recorder前preflightでpolicy_category×service×operation×target_endpointを別途exact照合し、有償はapproved_paid_operationだけを候補にする。経路不在・有償例外なしの拒否はexternal_operations/operation_log 0行、秘匿化済みprocess loggerのみ",
       "api_ref": "API-DU13-01",
       "clause_refs": [
         "API-DU13-01-POST-01",
@@ -318,7 +318,7 @@
       "unit_id": "IU-EXTERNALOPERATIONS-05",
       "doc": "docs/L6-feature-design/S0/external-operations.md",
       "du_id": "DU-14",
-      "responsibility": "`check_endpoint`・`secret`: scope×endpoint が正当（test→Docker/mock、prod→本番）の場合のみ正常復帰し、接続を許可する",
+      "responsibility": "`check_endpoint`・`secret`: credential scope×target_endpointが正当な場合だけ正常復帰し、ExternalPreflightのexact policy照合材料を返す。mismatch、policy_category/rate_scope/policy欠落は接続・prepare前に拒否しexternal_operations/operation_log 0行、秘匿化済みprocess loggerのみ",
       "api_ref": "API-DU14-02",
       "clause_refs": [
         "API-DU14-02-POST-01",
@@ -339,7 +339,7 @@
       "unit_id": "IU-EXTERNALOPERATIONS-06",
       "doc": "docs/L6-feature-design/S0/external-operations.md",
       "du_id": "DU-14",
-      "responsibility": "`get_credential`・`credential`: 復号値はメモリ内の Secret ハンドルのみとして返り、SQLite・repo・ログ・evidence へは書かれない（参照ハンドル設計 — NFR-4）",
+      "responsibility": "`get_credential`・`credential`: 復号値はメモリ内Secretハンドルだけで返しSQLite/repo/log/evidenceへ平文を書かない。未投入・失効はRecorder前に拒否しexternal_operations/operation_log 0行、秘匿化済みprocess loggerからescalationへ誘導する",
       "api_ref": "API-DU14-01",
       "clause_refs": [
         "API-DU14-01-POST-01",
@@ -385,7 +385,7 @@
       "unit_id": "IU-EXTERNALOPERATIONS-08",
       "doc": "docs/L6-feature-design/S0/external-operations.md",
       "du_id": "DU-14",
-      "responsibility": "`scan`・`targets`: 平文 credential パターン（鍵語・トークン形状の正規表現集合 — 正本は本モジュール、DU-09 と共有・config 拡張可）の検出結果を Finding のリストで返す（TC-047 の実装点）",
+      "responsibility": "`scan`・`targets`: 平文credentialパターンのFindingを秘匿値なしで返す。検出時は永続化・Recorder.prepare・接続より前に拒否し、外部2表0行のまま秘匿化済みprocess loggerとtask escalationへ渡す",
       "api_ref": "API-DU14-03",
       "clause_refs": [
         "API-DU14-03-POST-01",
@@ -406,7 +406,7 @@
       "unit_id": "IU-EXTERNALOPERATIONS-10",
       "doc": "docs/L6-feature-design/S0/external-operations.md",
       "du_id": "DU-15",
-      "responsibility": "`run_playbook`・`playbook`: 書込み系は external_operations を prepared→sent→confirmed の順で各々コミットして遷移させ、confirmed 後に operation_log 証跡（DU-09 経由）を派生させてから結果を返す（証跡が先、遷移が後）",
+      "responsibility": "`run_playbook`・`playbook`: connectorはeffect/policy_category/rate_scope/request_sequenceを含むConnectorIntent/Resultとrequest/result材料だけを返しDBを書かない。CMP-02 Recorderが実read/writeの同一lifecycleを所有し、writeは閉集合category・rate_scope・idem、readはexternal_read・rate_scope NULL・read:<task_id>:<request_hash>:<request_sequence>、sent terminalはrow ID束縛operation_log exact-1。preflight拒否・mock/dry-runは外部2表0行",
       "api_ref": "API-DU15-03",
       "clause_refs": [
         "API-DU15-03-POST-01",
@@ -439,7 +439,7 @@
       "unit_id": "IU-EXTERNALOPERATIONS-12",
       "doc": "docs/L6-feature-design/S0/external-operations.md",
       "du_id": "DU-16",
-      "responsibility": "`get`・`conn`: UNIQUE(service, operation, route_type) の行を status=active の場合のみ Playbook として返す",
+      "responsibility": "`get`・`conn`: route（service, operation, route_type）の部分 UNIQUE 現役行（status IN ('active','broken')）を特定し、status=active の版束縛（version・系譜）だけを Playbook として返す",
       "api_ref": "API-DU16-01",
       "clause_refs": [
         "API-DU16-01-POST-01"
@@ -455,10 +455,31 @@
       ]
     },
     {
+      "unit_id": "IU-EXTERNALOPERATIONS-13",
+      "doc": "docs/L6-feature-design/S0/external-operations.md",
+      "du_id": "DU-16",
+      "responsibility": "`record_failure`・`playbook_id`: status=active の条件付き更新で連続失敗を加算し、閾値到達時は active→broken CAS を行い、CMP-02 所有の同一 transaction で repair task 発行へ進むための FailureRecord を返す",
+      "api_ref": "API-DU16-03",
+      "clause_refs": [
+        "API-DU16-03-POST-02"
+      ],
+      "ac_refs": [
+        "AC-43-1",
+        "AC-43-2"
+      ],
+      "ut_refs": [
+        "test_connectors_playbooks.py::test_record_failure_increments_and_demotes_at_threshold"
+      ],
+      "tc_refs": [
+        "TCC-43-1",
+        "TCC-43-2"
+      ]
+    },
+    {
       "unit_id": "IU-EXTERNALOPERATIONS-14",
       "doc": "docs/L6-feature-design/S0/external-operations.md",
       "du_id": "DU-16",
-      "responsibility": "`record_success`・`playbook_id`: last_success_at を clock から更新し、consecutive_failures を 0 に戻し、last_verified_by_agent_id を更新する",
+      "responsibility": "`record_success`・`playbook_id`: status=active の現役版だけを条件付き更新し、last_success_at・last_verified_by_agent_id を記録して consecutive_failures を 0 に戻す（broken／retired 過去版の stale 更新は拒否）",
       "api_ref": "API-DU16-02",
       "clause_refs": [
         "API-DU16-02-POST-01"
@@ -477,7 +498,7 @@
       "unit_id": "IU-EXTERNALOPERATIONS-15",
       "doc": "docs/L6-feature-design/S0/external-operations.md",
       "du_id": "DU-17",
-      "responsibility": "`create_draft`・`pair_pass`: external_operations 行を prepared→sent→confirmed で遷移させ（各々コミット）、confirmed 後に operation_log 証跡（DU-09 経由）を派生記録してから DraftRef を返す",
+      "responsibility": "`create_draft`・`pair_pass`: WP connectorはeffect=write・policy_category=content_publish・canonical lowercase rate_scope・専用idempotency keyのrequest/result材料だけを返し、CMP-02 Recorderがexact Docker WP policy合格後のlifecycleとrow ID束縛operation_log exact-1を所有する。PairPass/category/rate_scope/endpoint/cap拒否はprepare前・外部2表0行",
       "api_ref": "API-DU17-01",
       "clause_refs": [
         "API-DU17-01-POST-01",
@@ -502,7 +523,7 @@
       "unit_id": "IU-EXTERNALOPERATIONS-16",
       "doc": "docs/L6-feature-design/S0/external-operations.md",
       "du_id": "DU-17",
-      "responsibility": "`publish`・`approval_pass`: external_operations 行を prepared→sent→confirmed で遷移させ、confirmed 後に operation_log 証跡を派生記録し、canonical URL・WP post ID を PublishedRef で返す",
+      "responsibility": "`publish`・`approval_pass`: WP connectorはeffect=write・policy_category=content_publish・canonical lowercase rate_scope・公開専用idempotency keyのrequest/result材料だけを返し、CMP-02 Recorderがexact Docker WP policy、lifecycle、sent terminalのrow ID束縛operation_log exact-1を所有してからPublishedRefを返す。PairPass/ApprovalPass/category/rate_scope/endpoint/cap拒否は外部2表0行",
       "api_ref": "API-DU17-02",
       "clause_refs": [
         "API-DU17-02-POST-01",
@@ -531,7 +552,7 @@
       "unit_id": "IU-EXTERNALOPERATIONS-17",
       "doc": "docs/L6-feature-design/S0/external-operations.md",
       "du_id": "DU-17",
-      "responsibility": "`register_asset`・`published`: assets 行（wp_media_id・canonical_url・content_hash）をストア副層 `_assets_store` で INSERT し asset_id を返す",
+      "responsibility": "`register_asset`・`published`: confirmed content_publish operation_logを先に確定し、assets行（wp_media_id・canonical_url・content_hash）をストア副層 `_assets_store` でINSERT後、published_urlをexternal_operation_row_id必須FKとoperation_log_evidence_id NOT NULL UNIQUE self-FKで同taskの対応row/logへ1:1束縛する。provider operation IDは任意",
       "api_ref": "API-DU17-04",
       "clause_refs": [
         "API-DU17-04-POST-01",
@@ -551,7 +572,7 @@
       "unit_id": "IU-EXTERNALOPERATIONS-18",
       "doc": "docs/L6-feature-design/S0/external-operations.md",
       "du_id": "DU-17",
-      "responsibility": "`upload_media`・`media_path`: external_operations を prepared→sent→confirmed で遷移させ、wp_media_id を MediaRef で返す",
+      "responsibility": "`upload_media`・`media_path`: WP connectorはeffect=write・policy_category=content_publish・canonical lowercase rate_scope・media専用idempotency keyのrequest/result材料だけを返し、CMP-02 Recorderがexact Docker WP policy、実送信lifecycle、全terminalのrow ID束縛operation_log exact-1を所有してからwp_media_idをMediaRefで返す。preflight拒否・mock/dry-runは外部2表0行",
       "api_ref": "API-DU17-03",
       "clause_refs": [
         "API-DU17-03-POST-02"
@@ -564,6 +585,31 @@
       ],
       "tc_refs": [
         "TCC-51-3"
+      ]
+    },
+    {
+      "unit_id": "IU-EXTERNALOPERATIONS-19",
+      "doc": "docs/L6-feature-design/S0/external-operations.md",
+      "du_id": "DU-16",
+      "responsibility": "`install_repaired_version`・`broken_playbook_id`: done repair task と旧版を束縛照合する。broken 分岐は旧版内容を不変のまま retired 化し version+1・supersedes・created_by_task 付き active 新版 INSERT を同一 transaction で確定、retired 分岐は同一task束縛の既存 successor をread-returnする。不正束縛は rollback し、二重版を作らない",
+      "api_ref": "API-DU16-04",
+      "clause_refs": [
+        "API-DU16-04-PRE-01",
+        "API-DU16-04-POST-01",
+        "API-DU16-04-POST-02",
+        "API-DU16-04-POST-03",
+        "API-DU16-04-RAISE-01"
+      ],
+      "ac_refs": [
+        "AC-43-1",
+        "AC-43-3"
+      ],
+      "ut_refs": [
+        "test_connectors_playbooks.py::test_install_repaired_version_atomic_lineage"
+      ],
+      "tc_refs": [
+        "TCC-43-1",
+        "TCC-43-3"
       ]
     },
     {
@@ -673,7 +719,7 @@
       "unit_id": "IU-KPIHANDOFF-06",
       "doc": "docs/L6-feature-design/S0/kpi-handoff.md",
       "du_id": "DU-22",
-      "responsibility": "`fetch`・`route`: 取得物（CSV/xlsx 又は API 応答）を out_dir へ保存し、即 SHA-256 で固定する（投入前の改竄検出基準値）",
+      "responsibility": "`fetch`・`route`: 実取得はeffect=read・policy_category=external_read・rate_scope=NULL、同一logical fetchのrequest_hashとrequest_sequence=1,2,...からread:<task_id>:<request_hash>:<request_sequence>を作りintent/request/resultへ同値降下し、logはrate_scope JSON nullとする。connectorは材料だけを返し、CMP-02 Recorderが1 request 1行とterminal operation_log exact-1を確定後、confirmed取得物だけをout_dirへ保存して即SHA-256固定する。preflight拒否・mock/dry-run/local fixtureは外部2表0行",
       "api_ref": "API-DU22-01",
       "clause_refs": [
         "API-DU22-01-POST-01",
@@ -800,7 +846,7 @@
       "unit_id": "IU-MIGRATION-03",
       "doc": "docs/L6-feature-design/S0/migration.md",
       "du_id": "DU-11",
-      "responsibility": "`verify`・`conn`: PRAGMA foreign_key_check／integrity_check 違反 0 件・25 テーブルと保護トリガ 16 本の存在・TLP 孤児検査（packet を持たない終端 lower run = 0 件）・相互整合検査（approvals.evidence_id ↔ approv…",
+      "responsibility": "`verify`・`conn`: PRAGMA foreign_key_check／integrity_check 違反 0 件・25 テーブルと保護トリガ 37 本の存在・TLP 孤児検査（packet を持たない終端 lower run = 0 件）・相互整合検査（approvals.evidence_id ↔ approv…",
       "api_ref": "API-DU11-02",
       "clause_refs": [
         "API-DU11-02-POST-01",
@@ -849,7 +895,7 @@
       "unit_id": "IU-PAIRGATE-02",
       "doc": "docs/L6-feature-design/S0/pair-gate.md",
       "du_id": "DU-05",
-      "responsibility": "`require_pair`・`conn`: status=passed の pair 行が存在する場合のみ PairPass を返す（read-only）",
+      "responsibility": "`require_pair`・`conn`: status=passedのpair行が存在する場合だけPairPassを返すread-only preflight。不在/revokedはconnector・Recorder.prepareより前に拒否しexternal_operations/operation_log 0行、秘匿化済みprocess loggerから正準state transitionへ渡す",
       "api_ref": "API-DU05-03",
       "clause_refs": [
         "API-DU05-03-POST-01",
@@ -896,7 +942,7 @@
       "unit_id": "IU-PAIRGATE-04",
       "doc": "docs/L6-feature-design/S0/pair-gate.md",
       "du_id": "DU-06",
-      "responsibility": "`check_publishable`・`commit_hash`: require_pair（passed 存在）＋ pair の review_pass hash と commit_hash の一致 ＋ 公開前必須証跡（review_pass/commit_hash）完備をまとめて検証し、全成立時のみ PairPass を返す",
+      "responsibility": "`check_publishable`・`commit_hash`: require_pair＋review_pass hash一致＋公開前必須証跡完備をRecorder前に検証し、全成立時だけPairPassを返す。不成立は外部request・external_operations・operation_log 0、秘匿化済みprocess loggerのみで、operation_logを内部ゲート拒否の記録先にしない",
       "api_ref": "API-DU06-01",
       "clause_refs": [
         "API-DU06-01-POST-01",
@@ -1010,13 +1056,15 @@
       "unit_id": "IU-STATEMACHINE-04",
       "doc": "docs/L6-feature-design/S0/state-machine.md",
       "du_id": "DU-02",
-      "responsibility": "`issue_task`・`loop_run`: 同一 (loop_run_id, step_key) に非終端の既存 task があればその id を返す（新規発行しない — 冪等）",
+      "responsibility": "`issue_task`・`loop_run`: 通常 task は同一 (loop_run_id, step_key) の非終端行を冪等再利用する。playbook_repair は broken playbook_id を episode 正本とし、全状態の既存 task（終端含む）を再利用し、不在時だけ attempt=1・retry_count=0 で一意発行する",
       "api_ref": "API-DU02-01",
       "clause_refs": [
         "API-DU02-01-POST-01",
         "API-DU02-01-POST-02",
         "API-DU02-01-POST-03",
+        "API-DU02-01-POST-04",
         "API-DU02-01-PRE-03",
+        "API-DU02-01-PRE-04",
         "API-DU02-01-RAISE-01"
       ],
       "ac_refs": [
@@ -1024,7 +1072,10 @@
         "AC-12-2",
         "AC-12-3",
         "AC-12-4",
-        "AC-27-1"
+        "AC-27-1",
+        "AC-43-1",
+        "AC-43-2",
+        "AC-43-3"
       ],
       "ut_refs": [
         "test_kernel_orchestrator.py::test_issue_task_attempt_increments_after_terminal_rows",
@@ -1038,7 +1089,10 @@
         "TCC-12-2",
         "TCC-12-3",
         "TCC-12-4",
-        "TCC-27-1"
+        "TCC-27-1",
+        "TCC-43-1",
+        "TCC-43-2",
+        "TCC-43-3"
       ]
     },
     {
@@ -1213,7 +1267,7 @@
         "test_db_migrate.py::test_apply_all_checksum_mismatch_stops_before_apply",
         "test_db_migrate.py::test_apply_all_crash_mid_migration_rolls_back_whole_version",
         "test_db_migrate.py::test_apply_all_duplicate_version_stops_fatal",
-        "test_db_migrate.py::test_apply_all_empty_db_creates_25_tables_and_16_triggers",
+        "test_db_migrate.py::test_apply_all_empty_db_creates_25_tables_and_37_triggers",
         "test_db_migrate.py::test_apply_all_records_version_checksum_applied_at_by",
         "test_db_migrate.py::test_apply_all_skips_applied_versions_idempotent",
         "test_db_migrate.py::test_strategic_briefs_content_update_rejected_status_transition_allowed",
@@ -1263,5 +1317,5 @@
   "status": "confirmed",
   "approved_at": "2026-08-02",
   "authority": "PO",
-  "approval_digest": "d53fba0e2c56"
+  "approval_digest": "2f08d683c1c7"
 }

@@ -237,19 +237,61 @@ CREATE TABLE external_operations (
   task_id INTEGER NOT NULL,
   service TEXT NOT NULL,
   operation TEXT NOT NULL,
+  effect TEXT NOT NULL CHECK (effect IN ('read', 'write')),
+  policy_category TEXT NOT NULL CHECK (policy_category IN (
+    'external_read', 'content_publish', 'review_sync',
+    'approval_notification', 'approved_paid_operation')),
+  rate_scope TEXT,
+  execution_mode TEXT NOT NULL CHECK (execution_mode = 'actual'),
   target_endpoint TEXT NOT NULL,
-  idempotency_key TEXT NOT NULL UNIQUE,
-  request_hash TEXT NOT NULL CHECK (length(request_hash) = 64),
+  idempotency_key TEXT UNIQUE,
+  correlation_key TEXT NOT NULL UNIQUE,
+  request_hash TEXT NOT NULL CHECK (
+    length(request_hash) = 64 AND request_hash NOT GLOB '*[^0-9a-f]*'),
+  request_sequence INTEGER NOT NULL CHECK (request_sequence >= 1),
   status TEXT NOT NULL CHECK (status IN ('prepared', 'sent', 'confirmed', 'rejected', 'unknown')),
   external_operation_id TEXT,
   remote_object_id TEXT,
-  response_hash TEXT CHECK (response_hash IS NULL OR length(response_hash) = 64),
-  evidence_id INTEGER,
+  response_hash TEXT CHECK (response_hash IS NULL OR (
+    length(response_hash) = 64 AND response_hash NOT GLOB '*[^0-9a-f]*')),
+  evidence_id INTEGER UNIQUE,
   prepared_at TEXT NOT NULL,
   sent_at TEXT,
   confirmed_at TEXT,
   FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE RESTRICT,
-  FOREIGN KEY (evidence_id) REFERENCES evidence(id) ON DELETE RESTRICT
+  FOREIGN KEY (evidence_id) REFERENCES evidence(id) ON DELETE RESTRICT,
+  UNIQUE (task_id, effect, operation, request_hash, request_sequence),
+  CHECK ((policy_category = 'external_read' AND effect = 'read')
+      OR (policy_category IN ('content_publish', 'review_sync',
+                              'approval_notification', 'approved_paid_operation')
+          AND effect = 'write')),
+  CHECK ((effect = 'read' AND rate_scope IS NULL)
+      OR (effect = 'write'
+          AND rate_scope IS NOT NULL
+          AND length(rate_scope) > 0
+          AND rate_scope NOT GLOB '*[^a-z0-9_]*')),
+  CHECK ((effect = 'write'
+          AND idempotency_key IS NOT NULL
+          AND length(idempotency_key) > 0
+          AND request_sequence = 1
+          AND correlation_key = idempotency_key)
+      OR (effect = 'read'
+          AND idempotency_key IS NULL
+          AND correlation_key = printf('read:%d:%s:%d', task_id, request_hash, request_sequence))),
+  CHECK (length(prepared_at) = 20
+      AND prepared_at GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T[0-9][0-9]:[0-9][0-9]:[0-9][0-9]Z'
+      AND COALESCE(strftime('%Y-%m-%dT%H:%M:%SZ', prepared_at, '+0 seconds') = prepared_at, 0)),
+  CHECK (sent_at IS NULL OR (
+      length(sent_at) = 20
+      AND sent_at GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T[0-9][0-9]:[0-9][0-9]:[0-9][0-9]Z'
+      AND COALESCE(strftime('%Y-%m-%dT%H:%M:%SZ', sent_at, '+0 seconds') = sent_at, 0)
+      AND sent_at >= prepared_at)),
+  CHECK (confirmed_at IS NULL OR (
+      sent_at IS NOT NULL
+      AND length(confirmed_at) = 20
+      AND confirmed_at GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T[0-9][0-9]:[0-9][0-9]:[0-9][0-9]Z'
+      AND COALESCE(strftime('%Y-%m-%dT%H:%M:%SZ', confirmed_at, '+0 seconds') = confirmed_at, 0)
+      AND confirmed_at >= sent_at))
 );
 
 CREATE TABLE pair_plan_quality (
@@ -273,6 +315,8 @@ CREATE TABLE evidence (
   payload_json TEXT NOT NULL CHECK (json_valid(payload_json)),
   asset_id INTEGER,
   commit_hash TEXT,
+  external_operation_row_id INTEGER,
+  operation_log_evidence_id INTEGER UNIQUE,
   external_operation_id TEXT,
   file_path TEXT,
   file_hash TEXT,
@@ -280,11 +324,31 @@ CREATE TABLE evidence (
   created_by_agent_id INTEGER,
   FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE RESTRICT,
   FOREIGN KEY (asset_id) REFERENCES assets(id) ON DELETE RESTRICT,
+  FOREIGN KEY (external_operation_row_id) REFERENCES external_operations(id) ON DELETE RESTRICT,
+  FOREIGN KEY (operation_log_evidence_id) REFERENCES evidence(id) ON DELETE RESTRICT,
   FOREIGN KEY (created_by_agent_id) REFERENCES agents(id) ON DELETE RESTRICT,
   UNIQUE (task_id, kind, value),
+  CHECK ((kind = 'operation_log'
+          AND external_operation_row_id IS NOT NULL
+          AND operation_log_evidence_id IS NULL)
+      OR (kind = 'published_url'
+          AND external_operation_row_id IS NOT NULL
+          AND operation_log_evidence_id IS NOT NULL
+          AND asset_id IS NOT NULL)
+      OR (kind NOT IN ('operation_log', 'published_url')
+          AND external_operation_row_id IS NULL
+          AND operation_log_evidence_id IS NULL)),
   CHECK (commit_hash IS NULL OR length(commit_hash) IN (40, 64)),
   CHECK (file_hash IS NULL OR length(file_hash) = 64)
 );
+
+CREATE UNIQUE INDEX evidence_operation_log_external_row_one
+ON evidence(external_operation_row_id)
+WHERE kind = 'operation_log';
+
+CREATE UNIQUE INDEX evidence_published_url_external_row_one
+ON evidence(external_operation_row_id)
+WHERE kind = 'published_url';
 
 CREATE TABLE kpi_nodes (
   id INTEGER PRIMARY KEY,
@@ -351,6 +415,9 @@ CREATE TABLE playbooks (
   service TEXT NOT NULL,
   operation TEXT NOT NULL,
   route_type TEXT NOT NULL CHECK (route_type IN ('mcp', 'browser', 'api', 'wp_rest', 'wp_cli')),
+  version INTEGER NOT NULL DEFAULT 1 CHECK (version >= 1),
+  supersedes_playbook_id INTEGER,
+  created_by_task_id INTEGER NOT NULL,
   procedure_json TEXT NOT NULL CHECK (json_valid(procedure_json)),
   selector_json TEXT CHECK (selector_json IS NULL OR json_valid(selector_json)),
   status TEXT NOT NULL CHECK (status IN ('active', 'broken', 'retired')),
@@ -358,9 +425,23 @@ CREATE TABLE playbooks (
   last_failure_at TEXT,
   last_success_at TEXT,
   last_verified_by_agent_id INTEGER,
+  created_at TEXT NOT NULL,
   FOREIGN KEY (last_verified_by_agent_id) REFERENCES agents(id) ON DELETE RESTRICT,
-  UNIQUE (service, operation, route_type)
+  FOREIGN KEY (supersedes_playbook_id) REFERENCES playbooks(id) ON DELETE RESTRICT,
+  FOREIGN KEY (created_by_task_id) REFERENCES tasks(id) ON DELETE RESTRICT,
+  CHECK ((version = 1 AND supersedes_playbook_id IS NULL)
+      OR (version > 1 AND supersedes_playbook_id IS NOT NULL)),
+  UNIQUE (service, operation, route_type, version),
+  UNIQUE (supersedes_playbook_id)
 );
+
+CREATE UNIQUE INDEX playbooks_one_current
+ON playbooks(service, operation, route_type)
+WHERE status IN ('active', 'broken');
+
+CREATE UNIQUE INDEX playbook_repair_one_per_episode
+ON tasks(json_extract(input_json, '$.playbook_id'))
+WHERE task_type = 'playbook_repair';
 
 CREATE TABLE assets (
   id INTEGER PRIMARY KEY,
@@ -416,17 +497,34 @@ CREATE TABLE config (
 CREATE TABLE spend_ledger (
   id INTEGER PRIMARY KEY,
   task_id INTEGER NOT NULL,
-  approval_id INTEGER,
+  entry_type TEXT NOT NULL CHECK (entry_type IN ('charge', 'reversal')),
+  approval_id INTEGER NOT NULL,
   service TEXT NOT NULL,
-  amount_minor INTEGER NOT NULL CHECK (amount_minor >= 0),
-  currency TEXT NOT NULL DEFAULT 'JPY' CHECK (length(currency) = 3),
-  purpose TEXT NOT NULL,
+  amount_minor INTEGER NOT NULL CHECK (amount_minor > 0),
+  currency TEXT NOT NULL DEFAULT 'JPY' CHECK (currency = 'JPY'),
+  purpose TEXT NOT NULL CHECK (length(purpose) > 0),
+  external_operation_row_id INTEGER UNIQUE,
   external_operation_id TEXT,
-  occurred_at TEXT NOT NULL,
-  created_at TEXT NOT NULL,
+  reverses_spend_ledger_id INTEGER UNIQUE,
+  occurred_at TEXT NOT NULL CHECK (
+    length(occurred_at) = 20
+    AND occurred_at GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T[0-9][0-9]:[0-9][0-9]:[0-9][0-9]Z'
+    AND COALESCE(strftime('%Y-%m-%dT%H:%M:%SZ', occurred_at, '+0 seconds') = occurred_at, 0)),
+  created_at TEXT NOT NULL CHECK (
+    length(created_at) = 20
+    AND created_at GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T[0-9][0-9]:[0-9][0-9]:[0-9][0-9]Z'
+    AND COALESCE(strftime('%Y-%m-%dT%H:%M:%SZ', created_at, '+0 seconds') = created_at, 0)),
   FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE RESTRICT,
   FOREIGN KEY (approval_id) REFERENCES approvals(id) ON DELETE RESTRICT,
-  UNIQUE (service, external_operation_id)
+  FOREIGN KEY (external_operation_row_id) REFERENCES external_operations(id) ON DELETE RESTRICT,
+  FOREIGN KEY (reverses_spend_ledger_id) REFERENCES spend_ledger(id) ON DELETE RESTRICT,
+  CHECK ((entry_type = 'charge'
+          AND external_operation_row_id IS NOT NULL
+          AND reverses_spend_ledger_id IS NULL)
+      OR (entry_type = 'reversal'
+          AND external_operation_row_id IS NULL
+          AND external_operation_id IS NULL
+          AND reverses_spend_ledger_id IS NOT NULL))
 );
 
 CREATE TRIGGER config_no_update BEFORE UPDATE ON config
@@ -441,6 +539,341 @@ CREATE TRIGGER state_transitions_no_update BEFORE UPDATE ON state_transitions
 BEGIN SELECT RAISE(ABORT, 'state_transitions is append-only'); END;
 CREATE TRIGGER state_transitions_no_delete BEFORE DELETE ON state_transitions
 BEGIN SELECT RAISE(ABORT, 'state_transitions is append-only'); END;
+CREATE TRIGGER external_operations_insert_prepared BEFORE INSERT ON external_operations
+WHEN NEW.status != 'prepared'
+  OR NEW.evidence_id IS NOT NULL
+  OR NEW.sent_at IS NOT NULL
+  OR NEW.confirmed_at IS NOT NULL
+  OR NEW.external_operation_id IS NOT NULL
+  OR NEW.remote_object_id IS NOT NULL
+  OR NEW.response_hash IS NOT NULL
+  OR (NEW.effect = 'read' AND (
+      NEW.request_sequence != COALESCE((
+        SELECT MAX(prior.request_sequence) + 1
+        FROM external_operations AS prior
+        WHERE prior.task_id = NEW.task_id
+          AND prior.operation = NEW.operation
+          AND prior.request_hash = NEW.request_hash
+          AND prior.effect = 'read'
+      ), 1)
+      OR EXISTS (
+        SELECT 1 FROM external_operations AS prior
+        WHERE prior.task_id = NEW.task_id
+          AND prior.operation = NEW.operation
+          AND prior.request_hash = NEW.request_hash
+          AND prior.effect = 'read'
+          AND prior.request_sequence = (
+            SELECT MAX(latest.request_sequence)
+            FROM external_operations AS latest
+            WHERE latest.task_id = NEW.task_id
+              AND latest.operation = NEW.operation
+              AND latest.request_hash = NEW.request_hash
+              AND latest.effect = 'read'
+          )
+          AND prior.status NOT IN ('confirmed', 'rejected', 'unknown')
+      )))
+BEGIN SELECT RAISE(ABORT, 'external operation must be an empty prepared actual-I/O row; reads start at sequence 1 and advance only after final'); END;
+CREATE TRIGGER external_operations_binding_immutable BEFORE UPDATE OF
+  id, task_id, service, operation, effect, policy_category, rate_scope,
+  execution_mode, target_endpoint,
+  idempotency_key, correlation_key, request_hash, request_sequence, prepared_at ON external_operations
+WHEN NEW.id IS NOT OLD.id
+  OR NEW.task_id IS NOT OLD.task_id
+  OR NEW.service IS NOT OLD.service
+  OR NEW.operation IS NOT OLD.operation
+  OR NEW.effect IS NOT OLD.effect
+  OR NEW.policy_category IS NOT OLD.policy_category
+  OR NEW.rate_scope IS NOT OLD.rate_scope
+  OR NEW.execution_mode IS NOT OLD.execution_mode
+  OR NEW.target_endpoint IS NOT OLD.target_endpoint
+  OR NEW.idempotency_key IS NOT OLD.idempotency_key
+  OR NEW.correlation_key IS NOT OLD.correlation_key
+  OR NEW.request_hash IS NOT OLD.request_hash
+  OR NEW.request_sequence IS NOT OLD.request_sequence
+  OR NEW.prepared_at IS NOT OLD.prepared_at
+BEGIN SELECT RAISE(ABORT, 'external operation binding is immutable'); END;
+CREATE TRIGGER external_operations_result_sent_only BEFORE UPDATE OF
+  external_operation_id, remote_object_id, response_hash ON external_operations
+WHEN OLD.status != 'sent' OR NEW.status != 'sent'
+  OR (OLD.external_operation_id IS NOT NULL
+      AND NEW.external_operation_id IS NOT OLD.external_operation_id)
+  OR (OLD.remote_object_id IS NOT NULL
+      AND NEW.remote_object_id IS NOT OLD.remote_object_id)
+  OR (OLD.response_hash IS NOT NULL
+      AND NEW.response_hash IS NOT OLD.response_hash)
+BEGIN SELECT RAISE(ABORT, 'external operation result metadata is write-once while sent'); END;
+CREATE TRIGGER external_operations_lifecycle BEFORE UPDATE OF
+  status, evidence_id, sent_at, confirmed_at ON external_operations
+WHEN NOT (
+  (OLD.status = 'prepared'
+    AND NEW.status = 'sent'
+    AND OLD.evidence_id IS NULL AND NEW.evidence_id IS NULL
+    AND OLD.sent_at IS NULL AND NEW.sent_at IS NOT NULL
+    AND OLD.confirmed_at IS NULL AND NEW.confirmed_at IS NULL)
+  OR
+  (OLD.status = 'sent'
+    AND NEW.status IN ('confirmed', 'rejected', 'unknown')
+    AND OLD.evidence_id IS NULL AND NEW.evidence_id IS NOT NULL
+    AND NEW.sent_at IS OLD.sent_at
+    AND OLD.confirmed_at IS NULL AND NEW.confirmed_at IS NOT NULL
+    AND EXISTS (
+      SELECT 1 FROM evidence AS ev
+      WHERE ev.id = NEW.evidence_id
+        AND ev.kind = 'operation_log'
+        AND ev.external_operation_row_id = NEW.id
+        AND ev.task_id = NEW.task_id
+        AND ev.value = printf('external-operation:%d', NEW.id)
+        AND (ev.external_operation_id IS NULL
+             OR ev.external_operation_id IS NEW.external_operation_id)
+        AND json_extract(ev.payload_json, '$.external_operation_row_id') IS NEW.id
+        AND json_extract(ev.payload_json, '$.effect') IS NEW.effect
+        AND json_extract(ev.payload_json, '$.policy_category') IS NEW.policy_category
+        AND json_type(ev.payload_json, '$.rate_scope') IS NOT NULL
+        AND json_extract(ev.payload_json, '$.rate_scope') IS NEW.rate_scope
+        AND json_extract(ev.payload_json, '$.service') IS NEW.service
+        AND json_extract(ev.payload_json, '$.operation') IS NEW.operation
+        AND json_extract(ev.payload_json, '$.correlation_key') IS NEW.correlation_key
+        AND json_extract(ev.payload_json, '$.request_hash') IS NEW.request_hash
+        AND json_extract(ev.payload_json, '$.request_sequence') IS NEW.request_sequence
+        AND json_extract(ev.payload_json, '$.result') IS NEW.status
+        AND (json_type(ev.payload_json, '$.provider_operation_id') IS NULL
+             OR json_extract(ev.payload_json, '$.provider_operation_id') IS NEW.external_operation_id)
+    ))
+)
+BEGIN SELECT RAISE(ABORT, 'external operation lifecycle must be prepared->sent->final with one matching operation_log'); END;
+CREATE TRIGGER external_operations_final_immutable BEFORE UPDATE ON external_operations
+WHEN OLD.status IN ('confirmed', 'rejected', 'unknown')
+BEGIN SELECT RAISE(ABORT, 'final external operation is immutable'); END;
+CREATE TRIGGER external_operations_no_delete BEFORE DELETE ON external_operations
+BEGIN SELECT RAISE(ABORT, 'external_operations is append-only'); END;
+CREATE TRIGGER evidence_operation_log_insert AFTER INSERT ON evidence
+WHEN NEW.kind = 'operation_log'
+BEGIN
+  SELECT RAISE(ABORT, 'operation_log created_at must be canonical UTC RFC3339')
+  WHERE length(NEW.created_at) != 20
+     OR NEW.created_at NOT GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T[0-9][0-9]:[0-9][0-9]:[0-9][0-9]Z'
+     OR NOT COALESCE(strftime('%Y-%m-%dT%H:%M:%SZ', NEW.created_at, '+0 seconds') = NEW.created_at, 0);
+  SELECT RAISE(ABORT, 'operation_log must match one sent external operation by row, task, binding, request, result, and optional provider ID')
+  WHERE NOT EXISTS (
+    SELECT 1 FROM external_operations AS op
+    WHERE op.id = NEW.external_operation_row_id
+      AND op.status = 'sent'
+      AND op.evidence_id IS NULL
+      AND op.task_id = NEW.task_id
+      AND NEW.value = printf('external-operation:%d', op.id)
+      AND (NEW.external_operation_id IS NULL
+           OR NEW.external_operation_id IS op.external_operation_id)
+      AND json_extract(NEW.payload_json, '$.external_operation_row_id') IS op.id
+      AND json_extract(NEW.payload_json, '$.effect') IS op.effect
+      AND json_extract(NEW.payload_json, '$.policy_category') IS op.policy_category
+      AND json_type(NEW.payload_json, '$.rate_scope') IS NOT NULL
+      AND json_extract(NEW.payload_json, '$.rate_scope') IS op.rate_scope
+      AND json_extract(NEW.payload_json, '$.service') IS op.service
+      AND json_extract(NEW.payload_json, '$.operation') IS op.operation
+      AND json_extract(NEW.payload_json, '$.correlation_key') IS op.correlation_key
+      AND json_extract(NEW.payload_json, '$.request_hash') IS op.request_hash
+      AND json_extract(NEW.payload_json, '$.request_sequence') IS op.request_sequence
+      AND json_extract(NEW.payload_json, '$.result') IN ('confirmed', 'rejected', 'unknown')
+      AND (json_type(NEW.payload_json, '$.provider_operation_id') IS NULL
+           OR json_extract(NEW.payload_json, '$.provider_operation_id') IS op.external_operation_id)
+      AND (op.policy_category != 'approved_paid_operation' OR (
+        json_type(NEW.payload_json, '$.approval_id') = 'integer'
+        AND json_type(NEW.payload_json, '$.amount_minor') = 'integer'
+        AND json_extract(NEW.payload_json, '$.amount_minor') > 0
+        AND json_extract(NEW.payload_json, '$.currency') = 'JPY'
+        AND json_type(NEW.payload_json, '$.purpose') = 'text'
+        AND length(json_extract(NEW.payload_json, '$.purpose')) > 0
+        AND json_type(NEW.payload_json, '$.occurred_at') = 'text'
+      ))
+  );
+  UPDATE external_operations
+  SET status = json_extract(NEW.payload_json, '$.result'),
+      evidence_id = NEW.id,
+      confirmed_at = NEW.created_at
+  WHERE id = NEW.external_operation_row_id;
+  INSERT INTO spend_ledger (
+    task_id, entry_type, approval_id, service, amount_minor, currency, purpose,
+    external_operation_row_id, external_operation_id, occurred_at, created_at
+  )
+  SELECT
+    op.task_id, 'charge', json_extract(NEW.payload_json, '$.approval_id'), op.service,
+    json_extract(NEW.payload_json, '$.amount_minor'),
+    json_extract(NEW.payload_json, '$.currency'),
+    json_extract(NEW.payload_json, '$.purpose'), op.id, op.external_operation_id,
+    json_extract(NEW.payload_json, '$.occurred_at'), NEW.created_at
+  FROM external_operations AS op
+  WHERE op.id = NEW.external_operation_row_id
+    AND op.policy_category = 'approved_paid_operation'
+    AND op.status = 'confirmed';
+END;
+CREATE TRIGGER evidence_published_url_insert BEFORE INSERT ON evidence
+WHEN NEW.kind = 'published_url'
+BEGIN
+  SELECT RAISE(ABORT, 'published_url must bind one same-task confirmed content_publish write, its operation_log, asset URL, local IDs, and optional provider ID')
+  WHERE NOT EXISTS (
+    SELECT 1
+    FROM external_operations AS op
+    JOIN evidence AS operation_log
+      ON operation_log.id = NEW.operation_log_evidence_id
+     AND operation_log.kind = 'operation_log'
+     AND operation_log.task_id = NEW.task_id
+     AND operation_log.external_operation_row_id = op.id
+    JOIN assets AS asset
+      ON asset.id = NEW.asset_id
+     AND asset.source_task_id = NEW.task_id
+     AND asset.canonical_url = NEW.value
+    WHERE op.id = NEW.external_operation_row_id
+      AND op.evidence_id = operation_log.id
+      AND op.task_id = NEW.task_id
+      AND op.execution_mode = 'actual'
+      AND op.status = 'confirmed'
+      AND op.policy_category = 'content_publish'
+      AND op.effect = 'write'
+      AND json_extract(NEW.payload_json, '$.external_operation_row_id') IS op.id
+      AND json_extract(NEW.payload_json, '$.operation_log_evidence_id') IS operation_log.id
+      AND json_extract(NEW.payload_json, '$.asset_id') IS asset.id
+      AND json_extract(NEW.payload_json, '$.url') IS NEW.value
+      AND op.remote_object_id IS NOT NULL
+      AND json_extract(NEW.payload_json, '$.wp_post_id') IS op.remote_object_id
+      AND (NEW.external_operation_id IS NULL
+           OR NEW.external_operation_id IS op.external_operation_id)
+      AND (json_type(NEW.payload_json, '$.provider_operation_id') IS NULL
+           OR json_extract(NEW.payload_json, '$.provider_operation_id') IS op.external_operation_id)
+  );
+END;
+CREATE TRIGGER spend_ledger_binding_insert BEFORE INSERT ON spend_ledger
+WHEN NOT EXISTS (
+    SELECT 1 FROM approvals AS approval
+    WHERE approval.id = NEW.approval_id
+      AND approval.task_id = NEW.task_id
+      AND approval.decision = 'approved'
+  )
+  OR NOT (
+    (NEW.entry_type = 'charge'
+      AND NEW.reverses_spend_ledger_id IS NULL
+      AND EXISTS (
+        SELECT 1 FROM external_operations AS op
+        WHERE op.id = NEW.external_operation_row_id
+          AND op.task_id = NEW.task_id
+          AND op.service = NEW.service
+          AND op.external_operation_id IS NEW.external_operation_id
+          AND op.execution_mode = 'actual'
+          AND op.status = 'confirmed'
+          AND op.policy_category = 'approved_paid_operation'
+          AND op.effect = 'write'
+      ))
+    OR
+    (NEW.entry_type = 'reversal'
+      AND NEW.external_operation_row_id IS NULL
+      AND NEW.external_operation_id IS NULL
+      AND EXISTS (
+        SELECT 1 FROM spend_ledger AS original
+        WHERE original.id = NEW.reverses_spend_ledger_id
+          AND original.entry_type = 'charge'
+          AND original.amount_minor = NEW.amount_minor
+          AND original.service = NEW.service
+          AND original.currency = NEW.currency
+      ))
+  )
+BEGIN SELECT RAISE(ABORT, 'spend entry must be an approved paid-operation charge or one exact approved reversal'); END;
+CREATE TRIGGER spend_ledger_no_update BEFORE UPDATE ON spend_ledger
+BEGIN SELECT RAISE(ABORT, 'spend_ledger is append-only'); END;
+CREATE TRIGGER spend_ledger_no_delete BEFORE DELETE ON spend_ledger
+BEGIN SELECT RAISE(ABORT, 'spend_ledger is append-only'); END;
+CREATE TRIGGER playbook_repair_task_insert BEFORE INSERT ON tasks
+WHEN NEW.task_type = 'playbook_repair'
+  AND (NEW.state != 'pending'
+    OR NEW.expected_output_kind != 'playbook_version'
+    OR NEW.attempt != 1
+    OR NEW.retry_count != 0
+    OR NEW.parent_task_id IS NULL
+    OR json_type(NEW.input_json, '$.playbook_id') IS NOT 'integer'
+    OR json_type(NEW.input_json, '$.source_task_id') IS NOT 'integer'
+    OR json_extract(NEW.input_json, '$.source_task_id') IS NOT NEW.parent_task_id
+    OR json_type(NEW.input_json, '$.failure_fingerprint') IS NOT 'text'
+    OR length(COALESCE(json_extract(NEW.input_json, '$.failure_fingerprint'), '')) != 64
+    OR json_extract(NEW.input_json, '$.failure_fingerprint') GLOB '*[^0-9a-f]*'
+    OR NEW.step_key != printf('playbook_repair:%d', json_extract(NEW.input_json, '$.playbook_id'))
+    OR NEW.idempotency_key != printf('playbook-repair:%d', json_extract(NEW.input_json, '$.playbook_id'))
+    OR NOT EXISTS (
+      SELECT 1 FROM playbooks AS broken
+      JOIN tasks AS source ON source.id = NEW.parent_task_id
+      WHERE broken.id = json_extract(NEW.input_json, '$.playbook_id')
+        AND broken.status = 'broken'
+        AND source.loop_run_id = NEW.loop_run_id
+    ))
+BEGIN SELECT RAISE(ABORT, 'playbook repair task must start pending, output playbook_version, and bind one source task and broken episode with attempt=1/retry_count=0'); END;
+CREATE TRIGGER playbook_repair_task_no_retry BEFORE UPDATE OF
+  loop_run_id, parent_task_id, workflow_id, task_type, step_key,
+  attempt, retry_count, idempotency_key, input_json ON tasks
+WHEN OLD.task_type = 'playbook_repair'
+  AND (NEW.loop_run_id IS NOT OLD.loop_run_id
+    OR NEW.parent_task_id IS NOT OLD.parent_task_id
+    OR NEW.workflow_id IS NOT OLD.workflow_id
+    OR NEW.task_type IS NOT OLD.task_type
+    OR NEW.step_key IS NOT OLD.step_key
+    OR NEW.attempt IS NOT OLD.attempt
+    OR NEW.retry_count IS NOT OLD.retry_count
+    OR NEW.idempotency_key IS NOT OLD.idempotency_key
+    OR NEW.input_json IS NOT OLD.input_json)
+BEGIN SELECT RAISE(ABORT, 'playbook repair task binding is immutable and non-retryable'); END;
+CREATE TRIGGER playbook_repair_no_verify_retry BEFORE INSERT ON state_transitions
+WHEN NEW.entity_type = 'task'
+  AND NEW.event IN ('verify_fail', 'verify_fail_exhausted')
+  AND EXISTS (SELECT 1 FROM tasks WHERE id = NEW.entity_id AND task_type = 'playbook_repair')
+BEGIN SELECT RAISE(ABORT, 'playbook repair task cannot consume verification retry'); END;
+CREATE TRIGGER playbooks_initial_insert BEFORE INSERT ON playbooks
+WHEN NEW.version = 1 AND NEW.status != 'active'
+BEGIN SELECT RAISE(ABORT, 'initial playbook version must be active'); END;
+CREATE TRIGGER playbooks_version_insert BEFORE INSERT ON playbooks
+WHEN NEW.version > 1 AND (NEW.status != 'active' OR NOT EXISTS (
+  SELECT 1 FROM playbooks AS previous
+  JOIN tasks AS creator ON creator.id = NEW.created_by_task_id
+  WHERE previous.id = NEW.supersedes_playbook_id
+    AND previous.service = NEW.service
+    AND previous.operation = NEW.operation
+    AND previous.route_type = NEW.route_type
+    AND previous.version + 1 = NEW.version
+    AND previous.status = 'retired'
+    AND creator.state = 'done'
+    AND ((creator.task_type = 'playbook_repair'
+          AND creator.attempt = 1
+          AND creator.retry_count = 0
+          AND json_extract(creator.input_json, '$.playbook_id') = previous.id)
+      OR creator.task_type = 'playbook_manual_revision')
+))
+BEGIN SELECT RAISE(ABORT, 'playbook version must supersede the retired previous version of the same route'); END;
+CREATE TRIGGER playbooks_content_no_update BEFORE UPDATE OF
+  service, operation, route_type, version, supersedes_playbook_id,
+  created_by_task_id, procedure_json, selector_json, created_at ON playbooks
+WHEN NEW.service IS NOT OLD.service
+  OR NEW.operation IS NOT OLD.operation
+  OR NEW.route_type IS NOT OLD.route_type
+  OR NEW.version IS NOT OLD.version
+  OR NEW.supersedes_playbook_id IS NOT OLD.supersedes_playbook_id
+  OR NEW.created_by_task_id IS NOT OLD.created_by_task_id
+  OR NEW.procedure_json IS NOT OLD.procedure_json
+  OR NEW.selector_json IS NOT OLD.selector_json
+  OR NEW.created_at IS NOT OLD.created_at
+BEGIN SELECT RAISE(ABORT, 'playbook version content is append-only; issue a superseding version'); END;
+CREATE TRIGGER playbooks_status_transition BEFORE UPDATE OF status ON playbooks
+WHEN NEW.status IS NOT OLD.status
+  AND NOT ((OLD.status = 'active' AND NEW.status IN ('broken', 'retired'))
+        OR (OLD.status = 'broken' AND NEW.status = 'retired'))
+BEGIN SELECT RAISE(ABORT, 'playbook status transition denied'); END;
+CREATE TRIGGER playbooks_health_active_only BEFORE UPDATE OF
+  consecutive_failures, last_failure_at, last_success_at, last_verified_by_agent_id ON playbooks
+WHEN OLD.status != 'active'
+  AND (NEW.consecutive_failures IS NOT OLD.consecutive_failures
+    OR NEW.last_failure_at IS NOT OLD.last_failure_at
+    OR NEW.last_success_at IS NOT OLD.last_success_at
+    OR NEW.last_verified_by_agent_id IS NOT OLD.last_verified_by_agent_id)
+BEGIN SELECT RAISE(ABORT, 'only active playbook health fields may change'); END;
+CREATE TRIGGER playbooks_retired_no_update BEFORE UPDATE ON playbooks
+WHEN OLD.status = 'retired'
+BEGIN SELECT RAISE(ABORT, 'retired playbook version is immutable'); END;
+CREATE TRIGGER playbooks_no_delete BEFORE DELETE ON playbooks
+BEGIN SELECT RAISE(ABORT, 'playbook versions are append-only'); END;
 CREATE TRIGGER strategic_briefs_no_update BEFORE UPDATE ON strategic_briefs
 WHEN OLD.brief_key != NEW.brief_key OR OLD.version != NEW.version
   OR OLD.strategic_choice_id != NEW.strategic_choice_id

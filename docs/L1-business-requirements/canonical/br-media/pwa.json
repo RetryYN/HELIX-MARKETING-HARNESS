@@ -11,7 +11,7 @@
       "media": "PWA",
       "media_name": "PWA",
       "structure": "自前配備のため規約リスクなし。Lighthouse PWA スコアが Play 展開（TWA）の前提。",
-      "text": "診断ツール等は PWA 化を標準とし、Lighthouse スコア 80 以上（目安）を品質ゲートに含めること",
+      "text": "診断ツール等は PWA 化を標準とし、Lighthouse PWA スコア 80 以上を合格条件とする品質ゲートに含めること（79 以下は拒否）",
       "trace": {
         "upstream": [],
         "downstream": [
