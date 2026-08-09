@@ -1,0 +1,96 @@
+{
+  "review_id": "REV-CLAUDE-REQUIREMENTS-SEMANTICS-05",
+  "reviewer_principal": "claude-opus-reviewer",
+  "author_principal": "codex-primary",
+  "author_execution_id": "codex-primary-20260810-design-closure",
+  "reviewer_execution_id": "a8f0465b-42cd-4a37-981e-aa376ed03ee7",
+  "review_run_id": "REV-CLAUDE-REQUIREMENTS-SEMANTICS-05-R4",
+  "reviewer_provider": "anthropic-claude-cli",
+  "review_log_path": "docs/00-authority/reviews/logs/REV-CLAUDE-REQUIREMENTS-SEMANTICS-05.jsonl",
+  "review_log_digest": "5d814449f55d940a",
+  "separation_status": "self_attested",
+  "model": "claude-opus-5",
+  "target_commit": "f9ad9ee24bccbef8ee519972397fe6de0a307e02",
+  "target_tree": "52c5729324326da08ee79f17b8dd3b146a25e16c",
+  "scope": "S0.1/S0.2/S0.3設計クロージャー、59 API・215 API UT、受入観測の反証可能性、HELIX層間接続、mutationデグレ検出、authority/baseline同期のClaude Opus最終クロスレビュー",
+  "supersedes_review": [
+    "REV-CLAUDE-REQUIREMENTS-SEMANTICS-04"
+  ],
+  "reviewed_artifact_digests": {
+    "AGENTS.md": "38b94025c6a14d26",
+    "CLAUDE.md": "708650750c18c550",
+    "README.md": "a16582d0d7f63702",
+    "docs/00-authority/approvals/approvals.md": "edb62126e50c3696",
+    "docs/00-authority/artifact-manifest.json": "be2bbdc03a3c0b2f",
+    "docs/00-authority/baselines/baseline.json": "b8c1a3e5edff0d42",
+    "docs/00-authority/requirements-gates.md": "749f2f26f19fb1df",
+    "docs/00-authority/reviews/claude-review-requirements-semantics-04.json": "d27d875229057db3",
+    "docs/00-authority/reviews/logs/REV-CLAUDE-REQUIREMENTS-SEMANTICS-04.jsonl": "e4b0a44ccefad5f5",
+    "docs/L3-system-requirements/canonical/acceptance/ac-contract.schema.json": "161677fd56da74ca",
+    "docs/L3-system-requirements/canonical/acceptance/ac-contracts.json": "f176d20ef555c968",
+    "docs/L3-system-requirements/verification/tc-contracts.json": "d43b7e4f0bb67631",
+    "docs/L3-system-requirements/views/ac-catalog_v0.1.md": "6aa774e744a7b3ae",
+    "docs/L3-system-requirements/views/tc-catalog_v0.1.md": "ac84cb7d4e13ab43",
+    "docs/L5-detailed-design/canonical/apis/du-contracts.json": "268a2761c0963c8d",
+    "docs/L5-detailed-design/views/du-contracts_v0.1.md": "500911ae15516037",
+    "docs/L6-feature-design/S0/external-operations.md": "4330f2eceff37f92",
+    "docs/L6-feature-design/S0/implementation-unit.schema.json": "ff463456dc95b015",
+    "docs/L6-feature-design/S0/implementation-units.json": "fbd4e0577ec72dc0",
+    "docs/L6-feature-design/S0/kpi-handoff.md": "6d17e4688cc39a14",
+    "docs/L6-feature-design/S0/uncovered-apis.json": "32a830224d0afa9b",
+    "docs/L6-feature-design/S0/update-closure.json": "16832305f814b336",
+    "docs/L6-feature-design/S1/campaign.md": "a2da64eaca51bcbe",
+    "junit.xml": "4264bd5a7cf86225",
+    "tests/gates/test_detailed_design.py": "1b102ad6417ec619",
+    "tests/gates/test_requirements.py": "77ee4daabd13f44f",
+    "tests/skip-budget.json": "f781c99baa23d1ba",
+    "tests/unit/test_connectors_browser.py": "68ba7da38613d0d4",
+    "tests/unit/test_connectors_playbooks.py": "24a755f9bff86242",
+    "tests/unit/test_connectors_wp.py": "cea0c6038a9e5c5d",
+    "tests/unit/test_measure_fetch.py": "176f8e228231eec4",
+    "tests/unit/test_measure_parse.py": "9e4691d37048fcb3",
+    "tests/unit/test_registry_secrets.py": "4332a94495904810",
+    "tools/gates/authority.py": "6453b7df12fff0e2",
+    "tools/gates/detailed_design.py": "b87237f7250be3e9"
+  },
+  "resolution_commits": [
+    "e38b134",
+    "f201bfa",
+    "f9ad9ee"
+  ],
+  "verdict": "Go",
+  "completed_at": "2026-08-10",
+  "rounds": 4,
+  "findings": [
+    {
+      "severity": "major",
+      "status": "resolved",
+      "summary": "treeとlist_declaredの受入fixtureがscope・親子解決を反証できず、API戻り値も観測していなかった",
+      "resolution": "複数profile/service、親子、schema不適合行、戻り値・順序・DB不変をAC/TCCへ構造化して反証可能にした"
+    },
+    {
+      "severity": "major",
+      "status": "resolved",
+      "summary": "節ID追記だけで未被覆APIを閉鎖でき、screenshotとrun_playbookのAPI固有観測を取り違えた",
+      "resolution": "元の未被覆5APIをresolved_items履歴に保持し、exactly-one API固有fixture/action/observation/assertと公開API名を検査するmutationラチェットを追加した"
+    },
+    {
+      "severity": "minor",
+      "status": "resolved",
+      "summary": "commit_workspaceのfixtureが既存H1と未commit workspaceを同時に前提として矛盾した",
+      "resolution": "初期commit H0と未commit workspaceを分離し、返却H1のhex長・tree一致・証跡束縛を観測する契約へ修正した"
+    },
+    {
+      "severity": "minor",
+      "status": "resolved",
+      "summary": "S0.2設計クロージャーがplanned状態のcampaign設計文書へ依存していた",
+      "resolution": "campaign設計を内容束縛receipt付きconfirmed正本へ昇格しmanifestとbaselineを同期した"
+    },
+    {
+      "severity": "blocker",
+      "status": "resolved",
+      "summary": "観測ラチェット定数削除時にトップレベル関数前の空行が消えRuff E302となった",
+      "resolution": "PEP8どおり空行2行を復元しRuff実行とbaseline同期を完了した"
+    }
+  ]
+}
