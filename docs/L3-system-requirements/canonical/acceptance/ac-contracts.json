@@ -3255,8 +3255,8 @@
       "target": "FR-41",
       "polarity": "normal",
       "given": "config に notion のレジストリ行（優先 mcp・fallback browser）が投入済みで、経路をコードに埋め込んだ分岐が存在しない状態",
-      "when": "notion の経路解決を実行し、その後 config INSERT で優先経路を browser に変更して再解決する",
-      "then": "1 回目は mcp、2 回目は browser が返り、切替はレジストリ行の変更のみで反映される（コード変更なし — AC-41 原文）",
+      "when": "notionの経路解決後、list_declared(service='notion')で診断読取し、schema不適合の別行を投入して再読取し、その後config INSERTで優先経路をbrowserへ変更して再解決する",
+      "then": "診断結果はnotion行だけをDB変更なしで返し不正行を除外報告する。解決は1回目mcp、2回目browserとなり、切替はレジストリ行の変更だけで反映される",
       "fixture": "seed: config('registry.notion', {\"primary\":\"mcp\",\"fallback\":\"browser\",\"auth\":\"mcp_oauth\"})、変更は同 key の config INSERT（履歴保持）",
       "observation_point": "resolve_route の戻り値（route_type）／config SELECT（2 行の履歴）／operation_log 件数",
       "expected_state": "最新 config 行の宣言どおりの経路が返る",
@@ -3281,7 +3281,10 @@
       },
       "verifies_clause_refs": [
         "API-DU13-01-POST-01",
-        "API-DU13-01-POST-02"
+        "API-DU13-01-POST-02",
+        "API-DU13-02-PRE-02",
+        "API-DU13-02-POST-01",
+        "API-DU13-02-POST-02"
       ]
     },
     {
@@ -3458,11 +3461,11 @@
       "id": "AC-42-1",
       "target": "FR-42",
       "polarity": "normal",
-      "given": "status=active な playbooks 行（Docker WP の書込み操作）と、seed 固定の Rng・Clock 注入、日次上限未達（当日書込み 0 件）",
-      "when": "mock 媒体への書込み系ブラウザ操作を 3 連続で実行する",
-      "then": "操作は playbook の手順どおり成功し、last_success_at が更新され、連続操作の間隔がすべて 1〜5 秒の範囲内で seed から再現可能な値として構造化ログに残る",
+      "given": "status=active な playbooks 行（Docker WP の書込み操作）、未使用profile名前空間、seed固定のRng・Clock、日次上限未達（当日書込み0件）",
+      "when": "当該profileでbrowser sessionを起動し、URL到達確認付きscreenshotを取得してからmock媒体への書込み系ブラウザ操作を3連続で実行する",
+      "then": "sessionは同じScopeContextを保持しstorage_stateをprofile配下だけへ保存、captureは指定Pathへ保存され、操作はplaybookどおり成功してlast_success_atが更新され、連続間隔はすべて1〜5秒かつseedから再現可能に記録される",
       "fixture": "seed: playbooks(service='wp', operation='post', route_type='browser', status='active')、config.rate.wp.daily_write_cap=10、Rng(seed=42) 注入、mock Docker WP ブラウザ。外部I/O test doubleはexecution_mode='actual'で呼び出す（mock/dry-run経路ではない）",
-      "observation_point": "playbooks.last_success_at SELECT／構造化ログ（seed・間隔値）／external_operations.effect・status",
+      "observation_point": "BrowserSession.scope・storage_state_path／capture Path・最終URL／playbooks.last_success_at SELECT／構造化ログ（seed・間隔値）／external_operations.effect・status",
       "expected_state": "external_operations 3行すべてeffect='write'・confirmed、playbookはactiveのまま",
       "expected_db_delta": "external_operations(effect='write') +3行、対応operation_log +3行、playbooks.last_success_at UPDATE",
       "expected_evidence": "operation_log 行（external_operation_id つき）＋構造化ログの seed=42 と間隔 3 値。operation_logはexternal_operation_row_idで該当external_operations.idへexactly-oneに束縛し、provider external_operation_idは任意。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
@@ -3501,6 +3504,9 @@
       },
       "verifies_clause_refs": [
         "API-DU04-02-POST-02",
+        "API-DU15-01-POST-01",
+        "API-DU15-01-POST-02",
+        "API-DU15-02-POST-01",
         "API-DU15-03-POST-01",
         "API-DU15-03-POST-02",
         "API-DU15-03-POST-04",
@@ -5029,8 +5035,8 @@
       "id": "AC-54-1",
       "target": "FR-54",
       "polarity": "normal",
-      "given": "commit 済み成果物ソース（commit hash H1、40 桁）を持つ T-PROD task と、対応する審査 PASS 要求",
-      "when": "commit_hash 証跡化→review_pass 記録（commit_hash=H1）→hash からのソース復元を順に実行する",
+      "given": "DU-19が生成した未commit成果物workspaceと初期化済みfixture repository、T-PROD task、対応する審査PASS要求",
+      "when": "commit_workspaceで成果物をcommitしてH1を取得し、commit_hash証跡化→review_pass記録（commit_hash=H1）→hashからのソース復元を順に実行する",
       "then": "PASS が H1 に束縛されて記録され、H1 の checkout で審査時と同一内容のソースが復元できる",
       "fixture": "seed: fixture リポジトリ commit H1（記事ソース）、tasks に T-PROD/T-REVIEW 各 1 行、reviewer は author と別 agent",
       "observation_point": "evidence SELECT（kind IN ('commit_hash','review_pass') の commit_hash 列）／checkout 後のファイル hash 比較",
@@ -5060,6 +5066,8 @@
       },
       "verifies_clause_refs": [
         "API-DU09-01-POST-01",
+        "API-DU20-01-POST-01",
+        "API-DU20-01-POST-02",
         "API-DU20-02-POST-01",
         "API-DU20-03-POST-01"
       ]
@@ -5420,7 +5428,7 @@
       "polarity": "boundary-recovery",
       "given": "measurements から参照されているノード N1 と、根ノード（parent なし）だけの最小ツリー",
       "when": "N1 の DELETE を試み、次に N1 を archived 化し、根ノードのみで横断集計を実行する",
-      "then": "DELETE は FK RESTRICT で失敗し、archived 化は成功して参照整合が保たれ、最小ツリーでも集計が空でなく決定的に返る",
+      "then": "DELETEはFK RESTRICTで失敗し、archived化後も参照整合が保たれる。treeは対象profileの親子解決済み最小ツリーを決定的に返し、別profileノードを含まない",
       "fixture": "seed: kpi_nodes に根 N1、measurements に N1 参照 1 行",
       "observation_point": "DELETE の失敗（sqlite3.IntegrityError）／kpi_nodes.status／集計クエリ結果",
       "expected_state": "N1 は status='archived' で存続、measurements の FK は不変",
@@ -5449,6 +5457,8 @@
         "api_refs": []
       },
       "verifies_clause_refs": [
+        "API-DU21-02-POST-01",
+        "API-DU21-02-POST-02",
         "API-DU21-03-POST-01"
       ]
     },
@@ -9075,5 +9085,5 @@
   "supersedes": [
     "ARCHIVE-AC-LEGACY"
   ],
-  "approval_digest": "8d88e42f46d0"
+  "approval_digest": "f218cf9efd35"
 }

@@ -15,6 +15,12 @@ def test_get_credential_unavailable_fail_close() -> None:
     raise NotImplementedError
 
 
+@pytest.mark.skip(reason="test-first DU-14: get_credential")
+def test_decrypted_value_not_persisted_after_external_operation() -> None:
+    """外部操作後も復号値がDB・証跡・ログ・repoへ永続化されないことを検証する。"""
+    raise NotImplementedError
+
+
 @pytest.mark.skip(reason="test-first DU-14: check_endpoint")
 def test_endpoint_mismatch_rejected_before_connect() -> None:
     """du-contracts DU-14 の契約観点を検証する（red→green は実装スライスで）。"""

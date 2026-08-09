@@ -341,7 +341,11 @@ def test_mutation_duplicate_clause_id_is_detected(monkeypatch, tmp_path) -> None
 def test_mutation_duplicate_ledger_entry_is_detected(tmp_path) -> None:
     """変異: uncovered-apis.json の重複登録を黙って上書きしない（独立レビュー R2-02）。"""
     src = json.loads(detailed_design.UNCOVERED_APIS.read_text(encoding="utf-8"))
-    src["items"].append(dict(src["items"][0]))
+    sample = {
+        "api_id": "API-DU15-01", "du_id": "DU-15", "function": "launch",
+        "reason": "mutation fixture", "resolution_update": "S0.2",
+    }
+    src["items"] = [sample, dict(sample)]
     p = tmp_path / "uncovered-apis.json"
     p.write_text(json.dumps(src, ensure_ascii=False), encoding="utf-8")
     covered = {c for a in CTX.acc for c in (a.get("verifies_clause_refs") or [])}
@@ -352,7 +356,11 @@ def test_mutation_duplicate_ledger_entry_is_detected(tmp_path) -> None:
 def test_mutation_ledger_metadata_mismatch_is_detected(tmp_path) -> None:
     """変異: 台帳の du_id／function に虚偽を書けない。"""
     src = json.loads(detailed_design.UNCOVERED_APIS.read_text(encoding="utf-8"))
-    src["items"][0]["function"] = "totally_other_function"
+    src["items"] = [{
+        "api_id": "API-DU15-01", "du_id": "DU-15",
+        "function": "totally_other_function", "reason": "mutation fixture",
+        "resolution_update": "S0.2",
+    }]
     p = tmp_path / "uncovered-apis.json"
     p.write_text(json.dumps(src, ensure_ascii=False), encoding="utf-8")
     covered = {c for a in CTX.acc for c in (a.get("verifies_clause_refs") or [])}
@@ -365,6 +373,11 @@ def test_mutation_ledger_metadata_mismatch_is_detected(tmp_path) -> None:
 
 def _ledger(tmp_path, mutate):
     src = json.loads(detailed_design.UNCOVERED_APIS.read_text(encoding="utf-8"))
+    if not src["items"]:
+        src["items"] = [{
+            "api_id": "API-DU15-01", "du_id": "DU-15", "function": "launch",
+            "reason": "mutation fixture", "resolution_update": "S0.2",
+        }]
     mutate(src)
     p = tmp_path / "uncovered-apis.json"
     p.write_text(json.dumps(src, ensure_ascii=False), encoding="utf-8")
@@ -411,7 +424,12 @@ def test_update_closure_declaration_matches_reality() -> None:
     computed, uncovered, bad = detailed_design.compute_update_closure(CTX)
     assert bad == []
     assert computed["S0.1"] == "closed" and uncovered["S0.1"] == 0
-    assert computed["S0.2"] == "open" and computed["S0.3"] == "open"
+    assert computed["S0.2"] == "closed" and computed["S0.3"] == "closed"
+
+
+def test_all_closed_updates_satisfy_s0_design_completion() -> None:
+    """全更新が導出上closedのときだけS0全体完遂が成立する。"""
+    assert detailed_design.detect_s0_design_completion_faults(CTX) == []
 
 
 def test_mutation_unresolved_gap_reopens_the_update(monkeypatch, tmp_path) -> None:
@@ -427,10 +445,12 @@ def test_mutation_unresolved_gap_reopens_the_update(monkeypatch, tmp_path) -> No
     assert computed["S0.1"] == "open"
     faults = detailed_design.detect_update_closure_faults(ctx)
     assert any("S0.1" in f and "実態" in f for f in faults), faults
+    completion_faults = detailed_design.detect_s0_design_completion_faults(ctx)
+    assert any("S0.1" in f for f in completion_faults), completion_faults
 
 
 def test_mutation_closed_claim_without_closure_is_detected(tmp_path) -> None:
-    """変異: open の更新が現在地で『設計クロージャー完了』を名乗れない。"""
+    """変異: 実態closedでも虚偽の未被覆件数を現在地へ書けない。"""
     src = json.loads(detailed_design.UPDATE_CLOSURE.read_text(encoding="utf-8"))
     for it in src["items"]:
         if it["update"] == "S0.2":
@@ -439,7 +459,7 @@ def test_mutation_closed_claim_without_closure_is_detected(tmp_path) -> None:
     p = tmp_path / "update-closure.json"
     p.write_text(json.dumps(src, ensure_ascii=False), encoding="utf-8")
     faults = detailed_design.detect_update_closure_faults(CTX, p)
-    assert any("S0.2" in f and "実態 open" in f for f in faults), faults
+    assert any("S0.2" in f and "未被覆 API 0" in f for f in faults), faults
 
 
 def test_mutation_claim_absent_from_current_state_is_detected(tmp_path) -> None:
@@ -461,7 +481,9 @@ def test_every_api_declares_a_verification_level() -> None:
     levels = {a["api_id"]: a["verification_level"] for d in CTX.duc for a in d["apis"]}
     assert set(levels.values()) <= {"acceptance", "unit", "integration"}
     internal = sorted(k for k, v in levels.items() if v != "acceptance")
-    assert internal == ["API-DU01-02", "API-DU02-09", "API-DU09-02", "API-DU09-03"]
+    assert internal == [
+        "API-DU01-02", "API-DU02-09", "API-DU09-02", "API-DU09-03",
+    ]
     for d in CTX.duc:
         for a in d["apis"]:
             if a["verification_level"] != "acceptance":

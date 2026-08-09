@@ -2,7 +2,7 @@
 
 # テストケース 検証契約カタログ（TC contracts）v0.1
 
-> status: **confirmed**（2026-08-01 PO 承認 — receipt e68e5ca4cfcc）。JSON 内容正本の生成ビュー（全層再降下 §5）
+> status: **confirmed**（2026-08-01 PO 承認 — receipt 717b2f1638e0）。JSON 内容正本の生成ビュー（全層再降下 §5）
 > 全 AC 検証契約と双方向接続（G-TRACE-BIDIR）。状態・DB 差分・証跡・禁止副作用・外部呼出回数を検証。
 > 旧体系のテストケースは historical 記録のみ（現行分母は本カタログ）。
 

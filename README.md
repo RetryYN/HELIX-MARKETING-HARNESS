@@ -13,8 +13,8 @@
 
 - 構造・権威移行完了（L0〜L6 の正本と機械ゲートを確定）
 - S0.1 設計クロージャー完了（未被覆 API 0）
-- S0.2 設計クロージャー未了（planned・未被覆 API 4）
-- S0.3 設計クロージャー未了（planned・未被覆 API 1）
+- S0.2 設計クロージャー完了（未被覆 API 0）
+- S0.3 設計クロージャー完了（未被覆 API 0）
 - 今回追加した Kanban／bounded domain／media binding は L3 要求定義まで完了、S1 設計は未着手
 - ロジックツリー／統合因果分析（SR-17〜19）は L3 要求定義まで完了、実装は S2 スライス・未着手
 - S0.1 実装未着手
@@ -56,7 +56,7 @@ S0.1 の進行方法（本リポジトリ内か他経路か）は PO が決定�
 | CMP/SCM | [cmp-contracts.json](docs/L4-basic-design/canonical/components/cmp-contracts.json) |
 | DU/API/UT | [du-contracts.json](docs/L5-detailed-design/canonical/apis/du-contracts.json) |
 
-現行分母は **AC=237 ／ TCC=243 ／ API=59 ／ API_UT=199**（件数の正本は
+現行分母は **AC=237 ／ TCC=243 ／ API=59 ／ API_UT=215**（件数の正本は
 [baseline.json](docs/00-authority/baselines/baseline.json)）。旧体系の分母は `historical_counts` にのみ保持する。
 
 第 9 正本の implementation-units.json は **手編集の confirmed 正本**であり、DU 契約や L6 文書からの

@@ -2,7 +2,7 @@
 
 # 受入条件 検証契約カタログ（AC contracts）v0.1
 
-> status: **confirmed**（2026-08-01 PO 承認 — receipt 8d88e42f46d0）。JSON 内容正本の生成ビュー（全層再降下 §4）
+> status: **confirmed**（2026-08-01 PO 承認 — receipt f218cf9efd35）。JSON 内容正本の生成ビュー（全層再降下 §4）
 > 各 AC に GWT＋fixture・観測点・期待状態・DB 差分・証跡・禁止副作用・エラー型・対象更新を必須化
 > （G-AC-COVERAGE／G-AC-POLARITY）。旧体系の受入条件は historical 記録のみ（現行分母は本カタログ）。
 
@@ -775,7 +775,7 @@
 
 ### AC-41-1（正常）
 
-- **Given**: config に notion のレジストリ行（優先 mcp・fallback browser）が投入済みで、経路をコードに埋め込んだ分岐が存在しない状態 ／ **When**: notion の経路解決を実行し、その後 config INSERT で優先経路を browser に変更して再解決する ／ **Then**: 1 回目は mcp、2 回目は browser が返り、切替はレジストリ行の変更のみで反映される（コード変更なし — AC-41 原文）
+- **Given**: config に notion のレジストリ行（優先 mcp・fallback browser）が投入済みで、経路をコードに埋め込んだ分岐が存在しない状態 ／ **When**: notionの経路解決後、list_declared(service='notion')で診断読取し、schema不適合の別行を投入して再読取し、その後config INSERTで優先経路をbrowserへ変更して再解決する ／ **Then**: 診断結果はnotion行だけをDB変更なしで返し不正行を除外報告する。解決は1回目mcp、2回目browserとなり、切替はレジストリ行の変更だけで反映される
 - **fixture**: seed: config('registry.notion', {"primary":"mcp","fallback":"browser","auth":"mcp_oauth"})、変更は同 key の config INSERT（履歴保持）
 - **観測点**: resolve_route の戻り値（route_type）／config SELECT（2 行の履歴）／operation_log 件数 ／ **期待状態**: 最新 config 行の宣言どおりの経路が返る
 - **期待 DB 差分**: config +1 行（経路変更 INSERT）。構造化ログ差分なし ／ **期待証跡**: なし（正常解決は証跡不要）
@@ -831,9 +831,9 @@
 
 ### AC-42-1（正常）
 
-- **Given**: status=active な playbooks 行（Docker WP の書込み操作）と、seed 固定の Rng・Clock 注入、日次上限未達（当日書込み 0 件） ／ **When**: mock 媒体への書込み系ブラウザ操作を 3 連続で実行する ／ **Then**: 操作は playbook の手順どおり成功し、last_success_at が更新され、連続操作の間隔がすべて 1〜5 秒の範囲内で seed から再現可能な値として構造化ログに残る
+- **Given**: status=active な playbooks 行（Docker WP の書込み操作）、未使用profile名前空間、seed固定のRng・Clock、日次上限未達（当日書込み0件） ／ **When**: 当該profileでbrowser sessionを起動し、URL到達確認付きscreenshotを取得してからmock媒体への書込み系ブラウザ操作を3連続で実行する ／ **Then**: sessionは同じScopeContextを保持しstorage_stateをprofile配下だけへ保存、captureは指定Pathへ保存され、操作はplaybookどおり成功してlast_success_atが更新され、連続間隔はすべて1〜5秒かつseedから再現可能に記録される
 - **fixture**: seed: playbooks(service='wp', operation='post', route_type='browser', status='active')、config.rate.wp.daily_write_cap=10、Rng(seed=42) 注入、mock Docker WP ブラウザ。外部I/O test doubleはexecution_mode='actual'で呼び出す（mock/dry-run経路ではない）
-- **観測点**: playbooks.last_success_at SELECT／構造化ログ（seed・間隔値）／external_operations.effect・status ／ **期待状態**: external_operations 3行すべてeffect='write'・confirmed、playbookはactiveのまま
+- **観測点**: BrowserSession.scope・storage_state_path／capture Path・最終URL／playbooks.last_success_at SELECT／構造化ログ（seed・間隔値）／external_operations.effect・status ／ **期待状態**: external_operations 3行すべてeffect='write'・confirmed、playbookはactiveのまま
 - **期待 DB 差分**: external_operations(effect='write') +3行、対応operation_log +3行、playbooks.last_success_at UPDATE ／ **期待証跡**: operation_log 行（external_operation_id つき）＋構造化ログの seed=42 と間隔 3 値。operation_logはexternal_operation_row_idで該当external_operations.idへexactly-oneに束縛し、provider external_operation_idは任意。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。
 - **禁止副作用**: 固定間隔での連続送信（3 間隔が全一致）・範囲外（1 秒未満/5 秒超）の間隔・idempotency key の重複 ／ **エラー型**: なし
 - **対象更新**: S1（CMP-08 ブラウザ基盤）／browser.execute_playbook ／ **TC**: TCC-42-1
@@ -1146,7 +1146,7 @@
 
 ### AC-54-1（正常）
 
-- **Given**: commit 済み成果物ソース（commit hash H1、40 桁）を持つ T-PROD task と、対応する審査 PASS 要求 ／ **When**: commit_hash 証跡化→review_pass 記録（commit_hash=H1）→hash からのソース復元を順に実行する ／ **Then**: PASS が H1 に束縛されて記録され、H1 の checkout で審査時と同一内容のソースが復元できる
+- **Given**: DU-19が生成した未commit成果物workspaceと初期化済みfixture repository、T-PROD task、対応する審査PASS要求 ／ **When**: commit_workspaceで成果物をcommitしてH1を取得し、commit_hash証跡化→review_pass記録（commit_hash=H1）→hashからのソース復元を順に実行する ／ **Then**: PASS が H1 に束縛されて記録され、H1 の checkout で審査時と同一内容のソースが復元できる
 - **fixture**: seed: fixture リポジトリ commit H1（記事ソース）、tasks に T-PROD/T-REVIEW 各 1 行、reviewer は author と別 agent
 - **観測点**: evidence SELECT（kind IN ('commit_hash','review_pass') の commit_hash 列）／checkout 後のファイル hash 比較 ／ **期待状態**: review_pass 証跡の commit_hash 列 = H1、復元ソースの内容 hash = 証跡化時と一致
 - **期待 DB 差分**: evidence +2 行（commit_hash・review_pass） ／ **期待証跡**: evidence（kind=commit_hash、value=H1、payload に repository・paths）／evidence（kind=review_pass、payload に result=PASS・commit_hash=H1・reviewer）
@@ -1249,7 +1249,7 @@
 
 ### AC-61-3（境界・復旧）
 
-- **Given**: measurements から参照されているノード N1 と、根ノード（parent なし）だけの最小ツリー ／ **When**: N1 の DELETE を試み、次に N1 を archived 化し、根ノードのみで横断集計を実行する ／ **Then**: DELETE は FK RESTRICT で失敗し、archived 化は成功して参照整合が保たれ、最小ツリーでも集計が空でなく決定的に返る
+- **Given**: measurements から参照されているノード N1 と、根ノード（parent なし）だけの最小ツリー ／ **When**: N1 の DELETE を試み、次に N1 を archived 化し、根ノードのみで横断集計を実行する ／ **Then**: DELETEはFK RESTRICTで失敗し、archived化後も参照整合が保たれる。treeは対象profileの親子解決済み最小ツリーを決定的に返し、別profileノードを含まない
 - **fixture**: seed: kpi_nodes に根 N1、measurements に N1 参照 1 行
 - **観測点**: DELETE の失敗（sqlite3.IntegrityError）／kpi_nodes.status／集計クエリ結果 ／ **期待状態**: N1 は status='archived' で存続、measurements の FK は不変
 - **期待 DB 差分**: kpi_nodes 1 行 UPDATE（status）のみ、行数不変 ／ **期待証跡**: なし（構造保護は DDL の領分）

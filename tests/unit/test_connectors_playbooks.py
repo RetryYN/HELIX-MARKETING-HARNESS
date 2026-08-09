@@ -33,6 +33,18 @@ def test_broken_schema_json_fatal() -> None:
     raise NotImplementedError
 
 
+@pytest.mark.skip(reason="test-first DU-16: get")
+def test_playbook_definition_contains_no_brand_specific_values() -> None:
+    """playbook正本がブランド値を持たずprofile実行時だけ充填されることを検証する。"""
+    raise NotImplementedError
+
+
+@pytest.mark.skip(reason="test-first DU-16: record_success")
+def test_record_success_persists_only_through_store() -> None:
+    """record_successの永続化端点が_storeだけであることを検証する。"""
+    raise NotImplementedError
+
+
 @pytest.mark.skip(reason="test-first DU-16: install_repaired_version")
 def test_install_repaired_version_atomic_lineage() -> None:
     """repair 版切替の原子性・系譜・同task再呼出しの冪等性を検証する。"""

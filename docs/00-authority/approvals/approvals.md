@@ -84,6 +84,7 @@
 |---|---|---|---|---|---|
 | 2026-08-01 | skip-budget | 0→194 | approved | PO | 全層再降下 §8 — DU 23 契約の API 58 本に対する test-first スタブ 185 本＋⑥既存分（S0.1 実装で解消） |
 | 2026-08-02 | skip-budget | 194→204 | approved | PO | 未被覆 API／更新境界最終是正 — S0.1 の契約節を UT へ直接接続するための test-first スタブ 10 本の追加（S0.1 実装で red→green 化して解消） |
+| 2026-08-10 | skip-budget | 204→220 | approved | PO | S0.2/S0.3設計クロージャー — 未被覆API・未解決契約節を直接観測するtest-firstスタブ16本を追加し、各実装sliceでred→green化して解消 |
 
 ## Kanban-first・複数 domain 要求定義（2026-08-05）
 
@@ -433,6 +434,15 @@
 | 2026-08-10 | fr-contracts.json | v0.1 | confirmed | PO | 7413d0e4506b | reversal訂正taskの構造契約を明示 |
 | 2026-08-10 | nfr-contracts.json | v0.1 | confirmed | PO | f69c6e989f78 | reversal完全性へtask種別・親・元仕訳IDを追加 |
 | 2026-08-10 | tc-contracts.json | v0.1 | confirmed | PO | e68e5ca4cfcc | 訂正task不一致のDB拒否assertを追加 |
+| 2026-08-10 | ac-contracts.json | v0.1 | confirmed | PO | f218cf9efd35 | S0.2/S0.3設計クロージャー — browser・registry・KPI・commitの受入観測をAPI契約節へ接続 |
+| 2026-08-10 | tc-contracts.json | v0.1 | confirmed | PO | 717b2f1638e0 | S0.2/S0.3設計クロージャー — AC追加観測を実行可能なfixture・assertへ同期 |
+| 2026-08-10 | du-contracts.json | v0.1 | confirmed | PO | 0aa153729de3 | 未被覆API・受入基準未設定節をゼロ化し、215 UTへ直接束縛 |
+| 2026-08-10 | implementation-units.json | v0.1 | confirmed | PO | a7bb36740a05 | update軸とslice軸を分離したS0/S1横断L6責務接続 |
+| 2026-08-10 | external-operations | - | confirmed | PO | 4330f2eceff3 | browser launch・screenshot・registry診断責務を追加 |
+| 2026-08-10 | kpi-handoff | - | confirmed | PO | 6d17e4688cc3 | profile限定KPI tree責務を追加 |
+| 2026-08-10 | ac-catalog | v0.1 | confirmed | PO | 745bde2de743 | ac-contracts正本から再生成した受入カタログview |
+| 2026-08-10 | tc-catalog | v0.1 | confirmed | PO | d9653171b7d2 | tc-contracts正本から再生成した検証カタログview |
+| 2026-08-10 | du-contracts | v0.1 | confirmed | PO | 500911ae1551 | du-contracts正本から再生成した詳細設計view |
 | 2026-08-10 | s0-contract | v0.1 | confirmed | PO | 3c1210a2b730 | finalized_at命名とspend_correction DDL拘束を正準化 |
 | 2026-08-10 | ac-catalog | v0.1 | confirmed | PO | 7f0ecf2fc0f8 | 更新済みJSON正本から再生成 |
 | 2026-08-10 | fr-contracts | v0.1 | confirmed | PO | 7ec09d3dea38 | 更新済みJSON正本から再生成 |

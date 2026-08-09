@@ -173,9 +173,10 @@ def detect_impl_unit_faults(ctx: Ctx, units_path: Path = IMPL_UNITS) -> list[str
                 bad.append(f"{uid}: {prev} と同じ API の契約節 {sorted(dup)[:2]} を重複して主張している")
         owned.setdefault(u["api_ref"], []).append(u["unit_id"])
 
-    # 被覆: S0 文書が機能設計を担う DU は、全 API・全 AC がどれかの責務へ接続している
+    # 被覆: L6 文書が機能設計を担う DU はsliceを問わず、全 API・全 ACが責務へ接続している。
+    # updates.json の更新軸と L6 のslice軸を混同し、S1責務をS0文書へ偽装配置してはならない。
     for did, du in du_by_id.items():
-        if not any("/S0/" in f for f in du["trace"].get("feature_design", [])):
+        if not du["trace"].get("feature_design"):
             continue
         mine_u = [u for u in items if isinstance(u, dict) and u.get("du_id") == did]
         covered_api = {u["api_ref"] for u in mine_u if isinstance(u.get("api_ref"), str)}
@@ -495,6 +496,22 @@ def detect_update_closure_faults(ctx: Ctx, closure_path: Path = UPDATE_CLOSURE) 
     return bad
 
 
+def detect_s0_design_completion_faults(ctx: Ctx) -> list[str]:
+    """S0 全更新の設計完遂を検査する。
+
+    更新ごとの closure ゲートは、open を正直に宣言すれば PASS する状態整合検査である。
+    それを S0 全体の完遂と取り違えないよう、導出状態がすべて closed であることを別に要求する。
+    """
+    computed, uncovered, bad = compute_update_closure(ctx)
+    for update, state in sorted(computed.items()):
+        if state != "closed":
+            bad.append(
+                f"{update}: design_closure={state}"
+                f"（未被覆 API={uncovered.get(update, 0)}。S0 全体の設計完遂を名乗れない）"
+            )
+    return bad
+
+
 def ctx_root(rel_path: str) -> Path:
     from tools.gates.common import ROOT
     return ROOT / rel_path
@@ -568,6 +585,11 @@ def run(ctx: Ctx) -> None:
          "契約節ゼロ・AC を持つ API の実装単位実在）と一致し、README／CLAUDE.md の現在地が"
          "その宣言と実数まで一致する（closed のときだけ設計クロージャー完了を名乗れる） "
          f"(違反={uc[:3]})")
+    complete = detect_s0_design_completion_faults(ctx)
+    gate("G-S0-DESIGN-COMPLETE", not complete,
+         "S0.1／S0.2／S0.3 がすべて導出上 closed で、open 更新・未被覆 API・"
+         "受入基準未設定の契約節を残さない（状態整合PASSを全体完遂と取り違えない） "
+         f"(違反={complete[:3]})")
 
 
 def _ledger(ctx: Ctx) -> None:

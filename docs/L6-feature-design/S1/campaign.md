@@ -125,6 +125,8 @@ flowchart TB
 
 | 実装単位 | DU | AC | TCC | 備考 |
 |---|---|---|---|---|
+| IU-CAMPAIGN-01 | DU-19 | AC-51-1, AC-51-2 | TCC-51-1, TCC-51-2 | `generate`: version固定入力とseedから決定的なGeneratedSourceを生成し、未version入力を拒否 |
+| IU-CAMPAIGN-02 | DU-20 | AC-54-1 | TCC-54-1 | `commit_workspace`: 生成成果物をcommitし検証済みhashへ固定 |
 | campaigns テーブル・expand migration | DU-11（migrate）＋ S1 採番 DU | —（S1 採番） | —（S1 採番） | FR-72 規律に従う |
 | issue_campaign 発行検証・役割台帳照合 | S1 採番 DU（SR-14 照合器は brief 発行と共用） | S1 で AC 新設（campaign 発行の決定性） | S1 で STC 新設 | brief 発行の AC を借りず固有 AC を起こす。MediaRoleRejected は既存 G-MEDIA-ROLE |
 | brief 束ね発注（campaign_id） | DU-02（issue_strategic_brief 拡張） | AC-SR-01・AC-SR-02 | STC-I-03・STC-I-04 | lower run 開始ガードは S0 と不変 |

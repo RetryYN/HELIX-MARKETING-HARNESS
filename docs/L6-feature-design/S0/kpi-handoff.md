@@ -175,6 +175,7 @@ DU／API の実在・pre/post への責務の明記・AC／TC／UT の実在と�
 | IU-KPIHANDOFF-02 | DU-07 | API-DU07-01 | POST-01・POST-02・RAISE-01 | `check_metric_type`・`metric_type`: deny 型（cac/roas/ad_spend — 有料… | AC-23-1, AC-23-2, AC-23-4 |
 | IU-KPIHANDOFF-03 | DU-21 | API-DU21-03 | POST-01 | `archive_node`・`node_id`: status を archived へ更新し、measurements・子ノ… | AC-61-3 |
 | IU-KPIHANDOFF-04 | DU-21 | API-DU21-01 | POST-01・POST-02・POST-03・PRE-01・PRE-02・PRE-03・RAISE-01・RAISE-02 | `create_node`・`node`: 階層・媒体タグ・集計式（aggregation_formula の構文検証）を通過し… | AC-61-1, AC-61-2 |
+| IU-KPIHANDOFF-05 | DU-21 | API-DU21-02 | POST-01・POST-02 | `tree`: profile限定の親子解決済みツリーを決定的に返す | AC-61-3 |
 | IU-KPIHANDOFF-06 | DU-22 | API-DU22-01 | POST-01・POST-02 | `fetch`: actual readはexternal_read・rate_scope NULL・request_sequence付き、log確定後にhash固定。mockは外部2表0行… | AC-62-1, AC-62-2 |
 | IU-KPIHANDOFF-07 | DU-23 | API-DU23-02 | POST-02・POST-03 | `ingest`・`expected_hash`: 投入前に raw の SHA-256 を再計算し expected_hash… | AC-62-1, AC-62-3, AC-62-4, AC-62-6 |
 | IU-KPIHANDOFF-08 | DU-23 | API-DU23-01 | POST-01・POST-02・RAISE-01 | `parse`・`schema`: schema/type 検証を通過した正常行と、壊れた行の隔離ファイル（正常行と分離）を返す… | AC-62-2, AC-62-3 |
@@ -183,4 +184,3 @@ DU／API の実在・pre/post への責務の明記・AC／TC／UT の実在と�
 
 | 外した unit_id | 理由 |
 |---|---|
-| IU-KPIHANDOFF-05 | この API の契約節を AC と UT の双方で検証している節が無い（全節が理由付き N/A） |

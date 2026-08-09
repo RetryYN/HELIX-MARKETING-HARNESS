@@ -1094,7 +1094,7 @@
       "previous_paths": [
         "docs/requirements/json/ac/ac-contracts.json"
       ],
-      "approval_digest": "8d88e42f46d0",
+      "approval_digest": "f218cf9efd35",
       "review_digest": null
     },
     {
@@ -2668,7 +2668,7 @@
       "previous_paths": [
         "docs/requirements/json/verification/tc-contracts.json"
       ],
-      "approval_digest": "e68e5ca4cfcc",
+      "approval_digest": "717b2f1638e0",
       "review_digest": null
     },
     {
@@ -3154,7 +3154,7 @@
       "previous_paths": [
         "docs/design/json/du-contracts.json"
       ],
-      "approval_digest": "9c20b7e09797",
+      "approval_digest": "0aa153729de3",
       "review_digest": null
     },
     {
@@ -3368,7 +3368,7 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [],
       "previous_paths": [],
-      "approval_digest": "57bb3214b260",
+      "approval_digest": "4330f2eceff3",
       "review_digest": null
     },
     {
@@ -3388,7 +3388,7 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [],
       "previous_paths": [],
-      "approval_digest": "646394a36687",
+      "approval_digest": "6d17e4688cc3",
       "review_digest": null
     },
     {
@@ -3614,7 +3614,7 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [],
       "previous_paths": [],
-      "approval_digest": "2f08d683c1c7",
+      "approval_digest": "a7bb36740a05",
       "review_digest": null
     },
     {

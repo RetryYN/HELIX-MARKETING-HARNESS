@@ -3513,20 +3513,17 @@
             },
             {
               "clause_id": "API-DU13-02-PRE-02",
-              "text": "service 指定時は当該 service の宣言行のみに絞る",
-              "na_reason": "呼出側義務: service 絞込み条件を観測する AC が存在しない"
+              "text": "service 指定時は当該 service の宣言行のみに絞る"
             }
           ],
           "postcondition": [
             {
               "clause_id": "API-DU13-02-POST-01",
-              "text": "レジストリ宣言行を読取専用で返す（診断・ヘルスチェック用。DB を変更しない）",
-              "na_reason": "単体検証: 割当 UT が本節を直接検証する（診断用読取返却を観測する AC が存在しない）"
+              "text": "レジストリ宣言行を読取専用で返す（診断・ヘルスチェック用。DB を変更しない）"
             },
             {
               "clause_id": "API-DU13-02-POST-02",
-              "text": "宣言 JSON が schema 不適合の行は結果に含めず不正行として報告する（fail-close）",
-              "na_reason": "単体検証: 割当 UT が本節を直接検証する（list_declared の不正行除外を観測する AC が存在しない）"
+              "text": "宣言 JSON が schema 不適合の行は結果に含めず不正行として報告する（fail-close）"
             }
           ],
           "raises": [],
@@ -3535,6 +3532,7 @@
             {
               "nodeid": "test_registry_resolver.py::test_list_declared_readonly_and_schema_failclose",
               "clause_refs": [
+                "API-DU13-02-PRE-02",
                 "API-DU13-02-POST-01",
                 "API-DU13-02-POST-02"
               ]
@@ -3654,7 +3652,7 @@
             {
               "clause_id": "API-DU14-01-POST-03",
               "text": "外部操作後も復号値を永続化しない（メモリ内のみ）",
-              "na_reason": "受入基準未設定: 外部操作後の非永続化をこのAPI節として直接観測するACがない"
+              "na_reason": "単体検証: 専用UTが外部操作完了後にSQLite・evidence・ログ・repoを走査し復号値0件を直接検証する"
             }
           ],
           "raises": [
@@ -3672,6 +3670,12 @@
                 "API-DU14-01-POST-01",
                 "API-DU14-01-POST-02",
                 "API-DU14-01-RAISE-01"
+              ]
+            },
+            {
+              "nodeid": "test_registry_secrets.py::test_decrypted_value_not_persisted_after_external_operation",
+              "clause_refs": [
+                "API-DU14-01-POST-03"
               ]
             }
           ]
@@ -3861,6 +3865,7 @@
         "ut": [
           "test_registry_secrets.py::test_secret_repr_and_exception_masked",
           "test_registry_secrets.py::test_get_credential_unavailable_fail_close",
+          "test_registry_secrets.py::test_decrypted_value_not_persisted_after_external_operation",
           "test_registry_secrets.py::test_endpoint_mismatch_rejected_before_connect",
           "test_registry_secrets.py::test_scan_repo_sqlite_logs_zero_plaintext",
           "test_registry_secrets.py::test_scan_finding_contains_no_plaintext",
@@ -3928,13 +3933,11 @@
           "postcondition": [
             {
               "clause_id": "API-DU15-01-POST-01",
-              "text": "Playwright セッションを起動し、storage_state をプロファイル別ファイルへ保存/再利用する",
-              "na_reason": "受入基準未設定: ブラウザ起動と状態保存の受入観測は本DUのACに存在しないため"
+              "text": "Playwright セッションを起動し、storage_state をプロファイル別ファイルへ保存/再利用する"
             },
             {
               "clause_id": "API-DU15-01-POST-02",
-              "text": "セッションは ScopeContext を保持し、以後の操作がプロファイル帰属を持つ",
-              "na_reason": "受入基準未設定: セッション内部の帰属保持であり受入観測点を持たないため"
+              "text": "セッションは ScopeContext を保持し、以後の操作がプロファイル帰属を持つ"
             }
           ],
           "raises": [
@@ -3965,6 +3968,13 @@
                 "API-DU15-01-PRE-02",
                 "API-DU15-01-RAISE-02"
               ]
+            },
+            {
+              "nodeid": "test_connectors_browser.py::test_launch_persists_profile_state_and_scope",
+              "clause_refs": [
+                "API-DU15-01-POST-01",
+                "API-DU15-01-POST-02"
+              ]
             }
           ]
         },
@@ -3987,13 +3997,12 @@
           "postcondition": [
             {
               "clause_id": "API-DU15-02-POST-01",
-              "text": "URL 到達確認（最終 URL 一致）つきで capture を out_path へ保存しパスを返す",
-              "na_reason": "単体検証: 割当 UT が本節を直接検証する（スクリーンショット保存を観測するACが本DUに存在しないため）"
+              "text": "URL 到達確認（最終 URL 一致）つきで capture を out_path へ保存しパスを返す"
             },
             {
               "clause_id": "API-DU15-02-POST-02",
               "text": "file_hash の固定（SHA-256）と screenshot 証跡化は呼出し側（DU-09 経由）で行う",
-              "na_reason": "受入基準未設定: ハッシュと証跡化はDU-09呼出側の責務であるため"
+              "na_reason": "単体検証: 専用UTがscreenshot APIはPathだけを返し、呼出側がSHA-256固定後にDU-09へ渡す責務境界を直接検証する"
             }
           ],
           "raises": [
@@ -4007,7 +4016,7 @@
               "clause_id": "API-DU15-02-RAISE-02",
               "type": "RetryableError",
               "when": "到達 timeout・描画失敗（読取り系 — 再試行可。上限到達で escalated は呼出元の遷移判断）",
-              "na_reason": "受入基準未設定: 到達timeoutの再試行は呼出元の遷移判断であるため"
+              "na_reason": "単体検証: 専用UTが到達timeout・描画失敗をRetryableErrorへ正規化し、状態遷移を行わないことを直接検証する"
             }
           ],
           "pure": false,
@@ -4017,6 +4026,18 @@
               "clause_refs": [
                 "API-DU15-02-POST-01",
                 "API-DU15-02-RAISE-01"
+              ]
+            },
+            {
+              "nodeid": "test_connectors_browser.py::test_screenshot_hash_evidence_is_caller_owned",
+              "clause_refs": [
+                "API-DU15-02-POST-02"
+              ]
+            },
+            {
+              "nodeid": "test_connectors_browser.py::test_screenshot_timeout_retryable_without_state_change",
+              "clause_refs": [
+                "API-DU15-02-RAISE-02"
               ]
             }
           ]
@@ -4059,7 +4080,7 @@
         {
           "clause_id": "API-DU15-03-POST-03",
           "text": "実外部読取りはレート節度の対象外で、1要求ごとにexternal_operations(effect='read', policy_category='external_read', rate_scope=NULL)をprepared→sentまで記録する。同一(task_id, operation, request_hash)内の各poll/再取得はrequest_sequenceを単調増加しcorrelation_key='read:<task_id>:<request_hash>:<request_sequence>'とする。結果確定時はpayloadにrate_scope:nullキーを持つ1:1のoperation_logをsent行へINSERTしてtriggerでfinal化する。mock/dry-runはfixture結果と予定fingerprintをprocess loggerへ記録するだけでexternal_operations/operation_logは0件",
-              "na_reason": "受入基準未設定: 読取り操作の節度除外は書込みACの観測対象外であるため"
+              "na_reason": "単体検証: 専用UTがactual readの連番・相関・1対1証跡とmock/dry-runの外部行0件を直接検証する"
             },
         {
           "clause_id": "API-DU15-03-POST-04",
@@ -4081,7 +4102,7 @@
               "clause_id": "API-DU15-03-RAISE-03",
               "type": "RetryableError",
               "when": "送信前 timeout・一時的操作失敗（同一 idempotency key の無消費再送で回復可）",
-              "na_reason": "受入基準未設定: 送信前一時失敗の再試行経路は受入シナリオにないため"
+              "na_reason": "単体検証: 専用UTが送信前一時失敗をRetryableErrorへ正規化しidempotency key未消費・外部行0件を直接検証する"
             },
             {
               "clause_id": "API-DU15-03-RAISE-04",
@@ -4123,6 +4144,18 @@
               "nodeid": "test_connectors_browser.py::test_sent_unverifiable_marked_unknown_no_resend",
               "clause_refs": [
                 "API-DU15-03-RAISE-04"
+              ]
+            },
+            {
+              "nodeid": "test_connectors_browser.py::test_actual_read_lifecycle_and_simulation_zero_external_rows",
+              "clause_refs": [
+                "API-DU15-03-POST-03"
+              ]
+            },
+            {
+              "nodeid": "test_connectors_browser.py::test_pre_send_retryable_failure_consumes_no_idempotency_key",
+              "clause_refs": [
+                "API-DU15-03-RAISE-03"
               ]
             }
           ]
@@ -4176,12 +4209,17 @@
         "ut": [
           "test_connectors_browser.py::test_launch_failure_retryable",
           "test_connectors_browser.py::test_storage_state_profile_scoped_cross_denied",
+          "test_connectors_browser.py::test_launch_persists_profile_state_and_scope",
           "test_connectors_browser.py::test_screenshot_url_reachability_and_mismatch_denied",
+          "test_connectors_browser.py::test_screenshot_hash_evidence_is_caller_owned",
+          "test_connectors_browser.py::test_screenshot_timeout_retryable_without_state_change",
           "test_connectors_browser.py::test_run_playbook_write_interval_uniform_and_seed_logged",
           "test_connectors_browser.py::test_x_write_rejected_zero_send",
           "test_connectors_browser.py::test_daily_cap_rejected_before_send",
           "test_connectors_browser.py::test_sent_reconcile_confirms_without_resend",
-          "test_connectors_browser.py::test_sent_unverifiable_marked_unknown_no_resend"
+          "test_connectors_browser.py::test_sent_unverifiable_marked_unknown_no_resend",
+          "test_connectors_browser.py::test_actual_read_lifecycle_and_simulation_zero_external_rows",
+          "test_connectors_browser.py::test_pre_send_retryable_failure_consumes_no_idempotency_key"
         ],
         "feature_design": [
           "docs/L6-feature-design/S0/external-operations.md",
@@ -4271,7 +4309,7 @@
             {
               "clause_id": "API-DU16-01-POST-03",
               "text": "セレクタ・手順にブランド固有値を焼き込まない前提を検証（充填は config/profile_json 側 — 隔離設計 §3）",
-              "na_reason": "受入基準未設定: ブランド値隔離の設計制約であり、ACの観測対象ではない"
+              "na_reason": "単体検証: 専用UTが複数profile fixtureでselector/procedure正本にブランド値がなく実行時充填だけが変わることを直接検証する"
             }
           ],
           "raises": [
@@ -4316,6 +4354,12 @@
                 "API-DU16-01-POST-02",
                 "API-DU16-01-RAISE-03"
               ]
+            },
+            {
+              "nodeid": "test_connectors_playbooks.py::test_playbook_definition_contains_no_brand_specific_values",
+              "clause_refs": [
+                "API-DU16-01-POST-03"
+              ]
             }
           ]
         },
@@ -4343,7 +4387,7 @@
             {
               "clause_id": "API-DU16-02-POST-02",
               "text": "永続化はストア副層 `_store` 経由のみ（生 SQL はここだけ — 基本設計 §1 規約 3）",
-              "na_reason": "受入基準未設定: _store経由の実装規約であり、ACの観測対象ではない"
+              "na_reason": "単体検証: 専用UTがrecord_successの永続化を_storeへ一度だけ委譲しAPI本体に生SQL経路がないことを直接検証する"
             }
           ],
           "raises": [],
@@ -4353,6 +4397,12 @@
               "nodeid": "test_connectors_playbooks.py::test_record_success_resets_failures_and_verifier",
               "clause_refs": [
                 "API-DU16-02-POST-01"
+              ]
+            },
+            {
+              "nodeid": "test_connectors_playbooks.py::test_record_success_persists_only_through_store",
+              "clause_refs": [
+                "API-DU16-02-POST-02"
               ]
             }
           ]
@@ -4498,8 +4548,10 @@
         "ut": [
           "test_connectors_playbooks.py::test_get_active_playbook_validated",
           "test_connectors_playbooks.py::test_get_missing_broken_and_retired_rejected",
+          "test_connectors_playbooks.py::test_playbook_definition_contains_no_brand_specific_values",
           "test_connectors_playbooks.py::test_record_failure_increments_and_demotes_at_threshold",
           "test_connectors_playbooks.py::test_record_success_resets_failures_and_verifier",
+          "test_connectors_playbooks.py::test_record_success_persists_only_through_store",
           "test_connectors_playbooks.py::test_broken_schema_json_fatal",
           "test_connectors_playbooks.py::test_install_repaired_version_atomic_lineage"
         ],
@@ -4578,12 +4630,12 @@
             {
               "clause_id": "API-DU17-01-POST-02",
               "text": "WP 側に決定的な meta key として idempotency key を保存し、再開時のリモート照合キーとする",
-              "na_reason": "受入基準未設定: 下書きmeta key保存は再開用の内部照合仕様であり、ACを持たない"
+              "na_reason": "単体検証: 専用UTがWP metaへ決定的idempotency keyを保存し再開照合に使用することを直接検証する"
             },
             {
               "clause_id": "API-DU17-01-POST-03",
               "text": "同 key の既 confirmed 行があれば再送せず結果補完のみ行う（冪等）",
-              "na_reason": "受入基準未設定: confirmed済み下書きの結果補完は個別受入シナリオを持たない"
+              "na_reason": "単体検証: 専用UTがconfirmed済み同keyでHTTP送信0回・既存結果補完のみとなることを直接検証する"
             }
           ],
           "raises": [
@@ -4601,19 +4653,19 @@
               "clause_id": "API-DU17-01-RAISE-03",
               "type": "RateLimitExceeded",
               "when": "config.rate.wp.daily_write_cap／burst_per_min 到達（kind=rate-limit — 実行前拒否・待機）",
-              "na_reason": "受入基準未設定: 下書き時レート制限は個別受入シナリオを持たない"
+              "na_reason": "単体検証: 専用UTがdaily/burst cap到達を送信前RateLimitExceeded・外部行0件として直接検証する"
             },
             {
               "clause_id": "API-DU17-01-RAISE-04",
               "type": "RetryableError",
               "when": "送信前 timeout・一時的接続失敗（同一 key の無消費再送で回復可）",
-              "na_reason": "受入基準未設定: 送信前一時障害の再試行はコネクタ内部の回復責務である"
+              "na_reason": "単体検証: 専用UTが送信前障害をRetryableError化しkey未消費・外部行0件を直接検証する"
             },
             {
               "clause_id": "API-DU17-01-RAISE-05",
               "type": "OperationUnverifiable",
               "when": "sent のままリモート照合不能（kind=unknown — unknown 化し FatalError → escalated。再送 0 回）",
-              "na_reason": "受入基準未設定: 下書きsentの照合不能は個別受入シナリオを持たない"
+              "na_reason": "単体検証: 専用UTがsent照合不能をunknown化し再送0回・OperationUnverifiableとすることを直接検証する"
             }
           ],
           "pure": false,
@@ -4635,6 +4687,16 @@
               "nodeid": "test_connectors_wp.py::test_production_endpoint_denied_before_connect",
               "clause_refs": [
                 "API-DU17-01-RAISE-02"
+              ]
+            },
+            {
+              "nodeid": "test_connectors_wp.py::test_draft_remote_idempotency_and_failure_boundaries",
+              "clause_refs": [
+                "API-DU17-01-POST-02",
+                "API-DU17-01-POST-03",
+                "API-DU17-01-RAISE-03",
+                "API-DU17-01-RAISE-04",
+                "API-DU17-01-RAISE-05"
               ]
             }
           ]
@@ -4667,12 +4729,12 @@
             {
               "clause_id": "API-DU17-02-POST-02",
               "text": "published_url証跡はregister_assetでasset_idを得た後、先行operation_logのevidence.idをoperation_log_evidence_idへ必須設定し、payloadのexternal_operation_row_idをPublishedRefのlocal row IDと一致させて記録する。provider_operation_idは任意（s0-contract §2.1 — WF-WP-2 ステップ6）",
-              "na_reason": "受入基準未設定: asset登録後にevidence記録する処理順を直接観測しないため"
+              "na_reason": "単体検証: 専用UTがasset登録後のpublished_url記録順とoperation_log/local row IDの1対1束縛を直接検証する"
             },
             {
               "clause_id": "API-DU17-02-POST-03",
               "text": "承認なしの公開は operation_log 上 0 件が不変条件（ApprovalRequired で送信 0 回拒否）",
-              "na_reason": "受入基準未設定: 承認なし公開ゼロ件は拒否節で間接保証され、個別ACを持たない"
+              "na_reason": "単体検証: 専用UTがApprovalPassなしでHTTP・external_operations・operation_logすべて0件を直接検証する"
             }
           ],
           "raises": [
@@ -4696,7 +4758,7 @@
               "clause_id": "API-DU17-02-RAISE-04",
               "type": "RateLimitExceeded",
               "when": "日次 cap・バースト上限到達（実行前拒否）",
-              "na_reason": "受入基準未設定: 公開時レート制限は個別受入シナリオを持たない"
+              "na_reason": "単体検証: 専用UTがdaily/burst cap到達を送信前RateLimitExceeded・外部行0件として直接検証する"
             },
             {
               "clause_id": "API-DU17-02-RAISE-05",
@@ -4743,6 +4805,14 @@
               "clause_refs": [
                 "API-DU17-02-RAISE-05"
               ]
+            },
+            {
+              "nodeid": "test_connectors_wp.py::test_publish_evidence_order_approval_and_rate_boundaries",
+              "clause_refs": [
+                "API-DU17-02-POST-02",
+                "API-DU17-02-POST-03",
+                "API-DU17-02-RAISE-04"
+              ]
             }
           ]
         },
@@ -4766,7 +4836,7 @@
             {
               "clause_id": "API-DU17-03-POST-01",
               "text": "external_operations(effect='write', policy_category='content_publish', rate_scope='wp')をprepared→sentまで遷移させ、結果確定時もsentのまま1:1のoperation_logをINSERTしてtriggerでfinal化・evidence_id接続し、wp_media_idをMediaRefで返す",
-              "na_reason": "受入基準未設定: 操作遷移とMediaRef返却を直接観測するACがこの入力にはない"
+              "na_reason": "単体検証: 専用UTがmedia writeのprepared→sent→final、1対1operation_logとMediaRef返却を直接検証する"
             },
             {
               "clause_id": "API-DU17-03-POST-02",
@@ -4778,25 +4848,25 @@
               "clause_id": "API-DU17-03-RAISE-01",
               "type": "PairRequired",
               "when": "PairPass 未提示・無効",
-              "na_reason": "受入基準未設定: メディア操作のPairPass不備は個別受入シナリオを持たない"
+              "na_reason": "単体検証: 専用UTがPairPass不備をHTTP・外部行0件でPairRequired拒否することを直接検証する"
             },
             {
               "clause_id": "API-DU17-03-RAISE-02",
               "type": "ProductionWriteDenied",
               "when": "Docker 以外の endpoint への書込み設定",
-              "na_reason": "受入基準未設定: ACのWpTargetDeniedは本節のProductionWriteDeniedと一致しない"
+              "na_reason": "単体検証: 専用UTがDocker外endpointを接続前ProductionWriteDenied・外部行0件で拒否することを直接検証する"
             },
             {
               "clause_id": "API-DU17-03-RAISE-03",
               "type": "RateLimitExceeded",
               "when": "cap・バースト上限到達",
-              "na_reason": "受入基準未設定: メディア操作のレート制限は個別受入シナリオを持たない"
+              "na_reason": "単体検証: 専用UTがmedia cap到達を送信前RateLimitExceeded・外部行0件として直接検証する"
             },
             {
               "clause_id": "API-DU17-03-RAISE-04",
               "type": "OperationUnverifiable",
               "when": "sent 照合不能（unknown・再送なし）",
-              "na_reason": "受入基準未設定: メディアsent照合不能は個別受入シナリオを持たない"
+              "na_reason": "単体検証: 専用UTがmedia sent照合不能をunknown化し再送0回とすることを直接検証する"
             }
           ],
           "pure": false,
@@ -4805,6 +4875,16 @@
               "nodeid": "test_connectors_wp.py::test_upload_media_content_hash_idempotent",
               "clause_refs": [
                 "API-DU17-03-POST-02"
+              ]
+            },
+            {
+              "nodeid": "test_connectors_wp.py::test_upload_media_lifecycle_and_fail_close_boundaries",
+              "clause_refs": [
+                "API-DU17-03-POST-01",
+                "API-DU17-03-RAISE-01",
+                "API-DU17-03-RAISE-02",
+                "API-DU17-03-RAISE-03",
+                "API-DU17-03-RAISE-04"
               ]
             }
           ]
@@ -4840,7 +4920,7 @@
               "clause_id": "API-DU17-04-RAISE-01",
               "type": "FatalError",
               "when": "confirmed でない external_operations に紐づく登録要求・FK 不整合（IntegrityError の境界正規化）",
-              "na_reason": "受入基準未設定: 未確認操作のFK不整合は境界正規化の内部責務であり、ACを持たない"
+              "na_reason": "単体検証: 専用UTがunconfirmed外部行とFK不整合をFatalErrorへ正規化しassets差分0件とすることを直接検証する"
             }
           ],
           "pure": false,
@@ -4850,6 +4930,12 @@
               "clause_refs": [
                 "API-DU17-04-POST-01",
                 "API-DU17-04-POST-02"
+              ]
+            },
+            {
+              "nodeid": "test_connectors_wp.py::test_register_asset_rejects_unconfirmed_or_invalid_binding",
+              "clause_refs": [
+                "API-DU17-04-RAISE-01"
               ]
             }
           ]
@@ -4922,8 +5008,12 @@
           "test_connectors_wp.py::test_production_endpoint_denied_before_connect",
           "test_connectors_wp.py::test_sent_reconcile_confirms_without_resend",
           "test_connectors_wp.py::test_sent_unverifiable_unknown_escalates",
+          "test_connectors_wp.py::test_draft_remote_idempotency_and_failure_boundaries",
+          "test_connectors_wp.py::test_publish_evidence_order_approval_and_rate_boundaries",
           "test_connectors_wp.py::test_upload_media_content_hash_idempotent",
-          "test_connectors_wp.py::test_register_asset_before_published_url_evidence"
+          "test_connectors_wp.py::test_upload_media_lifecycle_and_fail_close_boundaries",
+          "test_connectors_wp.py::test_register_asset_before_published_url_evidence",
+          "test_connectors_wp.py::test_register_asset_rejects_unconfirmed_or_invalid_binding"
         ],
         "feature_design": [
           "docs/L6-feature-design/S0/external-operations.md"
@@ -5035,7 +5125,7 @@
               "clause_id": "API-DU18-01-RAISE-01",
               "type": "FatalError",
               "when": "binding 3 項目の欠落・空文字（承認要求として不成立 — fail-close）",
-              "na_reason": "受入基準未設定: 不正binding入力の防御契約を直接観測するACがない"
+              "na_reason": "単体検証: request専用UTがbinding各項目の欠落・空文字をFatalErrorで拒否しapprovals・外部操作差分0件を直接検証する"
             }
           ],
           "pure": false,
@@ -5045,7 +5135,8 @@
               "clause_refs": [
                 "API-DU18-01-POST-01",
                 "API-DU18-01-POST-02",
-                "API-DU18-01-POST-04"
+                "API-DU18-01-POST-04",
+                "API-DU18-01-RAISE-01"
               ]
             },
             {
@@ -5324,7 +5415,7 @@
             {
               "clause_id": "API-DU19-01-POST-03",
               "text": "GeneratedSource は出力パス一覧と出力 SHA-256 を持ち、後続の commit 固定（DU-20）へ渡る",
-              "na_reason": "受入基準未設定: GeneratedSourceのパスとハッシュ引渡しを直接観測するACは存在しない"
+              "na_reason": "単体検証: 決定性UTがGeneratedSourceの全出力Pathと各SHA-256を再計算照合しDU-20入力へ渡せることを直接検証する"
             },
             {
               "clause_id": "API-DU19-01-POST-04",
@@ -5342,7 +5433,7 @@
               "clause_id": "API-DU19-01-RAISE-02",
               "type": "FatalError",
               "when": "テンプレート欠落・plan 入力の型不整合（自動回復不可 — 局所失敗として代替発行可）",
-              "na_reason": "受入基準未設定: テンプレート欠落・入力型不整合の局所失敗を観測するACは存在しない"
+              "na_reason": "単体検証: 拒否UTがテンプレート欠落とplan型不整合をFatalErrorへ正規化し部分出力0件とすることを直接検証する"
             }
           ],
           "pure": false,
@@ -5350,7 +5441,8 @@
             {
               "nodeid": "test_content_generate.py::test_same_input_same_seed_same_sha256",
               "clause_refs": [
-                "API-DU19-01-POST-01"
+                "API-DU19-01-POST-01",
+                "API-DU19-01-POST-03"
               ]
             },
             {
@@ -5363,7 +5455,8 @@
               "nodeid": "test_content_generate.py::test_unversioned_source_rejected_no_output",
               "clause_refs": [
                 "API-DU19-01-PRE-02",
-                "API-DU19-01-RAISE-01"
+                "API-DU19-01-RAISE-01",
+                "API-DU19-01-RAISE-02"
               ]
             },
             {
@@ -5470,13 +5563,11 @@
           "postcondition": [
             {
               "clause_id": "API-DU20-01-POST-01",
-              "text": "commit を実行し、40 又は 64 桁の 16 進 hash を検証して返す",
-              "na_reason": "単体検証: 割当 UT が本節を直接検証する（commit hashの返却はUTのみが検証し、ACはこのAPIを実行しない。）"
+              "text": "commit を実行し、40 又は 64 桁の 16 進 hash を検証して返す"
             },
             {
               "clause_id": "API-DU20-01-POST-02",
-              "text": "commit 後の workspace 内容と hash は一対一（後続の review_pass はこの hash に束縛される）",
-              "na_reason": "単体検証: 割当 UT が本節を直接検証する（commit後内容とhashの対応はUTのみが検証し、ACはこのAPIを実行しない。）"
+              "text": "commit 後の workspace 内容と hash は一対一（後続の review_pass はこの hash に束縛される）"
             }
           ],
           "raises": [
@@ -5484,13 +5575,13 @@
               "clause_id": "API-DU20-01-RAISE-01",
               "type": "InvalidCommitHash",
               "when": "得られた hash が 40/64 桁の 16 進でない（AC-54-3 — 拒否）",
-              "na_reason": "受入基準未設定: commit時の不正hash拒否はACの証跡化API実行では観測しない。"
+              "na_reason": "単体検証: commit UTがgit出力の39桁・非hex hashをInvalidCommitHashで拒否し返却しないことを直接検証する。"
             },
             {
               "clause_id": "API-DU20-01-RAISE-02",
               "type": "FatalError",
               "when": "git 実行失敗・repo 不整合（commit 不可は failed — WF-WP-1 ステップ 3）",
-              "na_reason": "受入基準未設定: git実行失敗・repo不整合は基盤失敗経路で受入基準を持たない。"
+              "na_reason": "単体検証: commit UTがgit失敗・repo不整合をFatalErrorへ正規化しcommit hashを返さないことを直接検証する。"
             }
           ],
           "pure": false,
@@ -5499,7 +5590,9 @@
               "nodeid": "test_content_versioning.py::test_commit_returns_valid_40_or_64_hex_hash",
               "clause_refs": [
                 "API-DU20-01-POST-01",
-                "API-DU20-01-POST-02"
+                "API-DU20-01-POST-02",
+                "API-DU20-01-RAISE-01",
+                "API-DU20-01-RAISE-02"
               ]
             }
           ]
@@ -5539,7 +5632,7 @@
               "clause_id": "API-DU20-02-RAISE-02",
               "type": "GateRejected",
               "when": "payload 必須キー欠落・kind 規則違反（DU-09 の検証で拒否 — 状態・DB 不変）",
-              "na_reason": "受入基準未設定: DU-09のpayload・kind検証の拒否は下位境界の失敗経路である。"
+              "na_reason": "単体検証: link UTがpayload必須キー欠落・kind違反をDU-09境界で拒否し状態・DB不変を直接検証する。"
             }
           ],
           "pure": false,
@@ -5547,7 +5640,8 @@
             {
               "nodeid": "test_content_versioning.py::test_link_records_commit_hash_evidence",
               "clause_refs": [
-                "API-DU20-02-POST-01"
+                "API-DU20-02-POST-01",
+                "API-DU20-02-RAISE-02"
               ]
             },
             {
@@ -5597,13 +5691,13 @@
               "clause_id": "API-DU20-03-RAISE-01",
               "type": "InvalidCommitHash",
               "when": "不正桁・16 進以外の hash 指定",
-              "na_reason": "受入基準未設定: 不正hash指定は下位APIの入力境界であり、このDUのACでは未観測。"
+              "na_reason": "単体検証: restore UTが入力の不正桁・非hexをgit実行前に拒否することを直接検証する。"
             },
             {
               "clause_id": "API-DU20-03-RAISE-02",
               "type": "FatalError",
               "when": "hash が repo に存在しない・抽出失敗（復元不能の fail-close）",
-              "na_reason": "受入基準未設定: 存在しないhashの抽出失敗は復元基盤の失敗経路で受入基準を持たない。"
+              "na_reason": "単体検証: restore UTがrepo不在hash・抽出失敗をfail-closeし部分復元物0件とすることを直接検証する。"
             }
           ],
           "pure": false,
@@ -5612,7 +5706,9 @@
               "nodeid": "test_content_versioning.py::test_restore_reproduces_reviewed_source",
               "clause_refs": [
                 "API-DU20-03-POST-01",
-                "API-DU20-03-POST-02"
+                "API-DU20-03-POST-02",
+                "API-DU20-03-RAISE-01",
+                "API-DU20-03-RAISE-02"
               ]
             }
           ]
@@ -5796,13 +5892,11 @@
           "postcondition": [
             {
               "clause_id": "API-DU21-02-POST-01",
-              "text": "当該プロファイルの親子解決済みツリー（layer×medium の断面クエリ可能な形）を返す",
-              "na_reason": "単体検証: 割当 UT が本節を直接検証する（ACは横断集計を観測しtree APIの戻り値を観測しない）"
+              "text": "当該プロファイルの親子解決済みツリー（layer×medium の断面クエリ可能な形）を返す"
             },
             {
               "clause_id": "API-DU21-02-POST-02",
-              "text": "最小ツリー（根ノードのみ）でも決定的に返る（AC-61-3）。他プロファイルのノードは含まれない",
-              "na_reason": "単体検証: 割当 UT が本節を直接検証する（ACは集計結果を観測しtree APIの戻り値を観測しない）"
+              "text": "最小ツリー（根ノードのみ）でも決定的に返る（AC-61-3）。他プロファイルのノードは含まれない"
             }
           ],
           "raises": [],
@@ -5839,7 +5933,7 @@
               "clause_id": "API-DU21-03-RAISE-01",
               "type": "FatalError",
               "when": "node_id 不在（IntegrityError の境界正規化 — 業務層で IntegrityError 名は使わない）",
-              "na_reason": "受入基準未設定: 不在node_idの業務例外正規化をACは観測しない"
+              "na_reason": "単体検証: 割当 UT が不在node_idをFatalErrorへ正規化しDB不変であることを直接検証する"
             }
           ],
           "pure": false,
@@ -5847,7 +5941,8 @@
             {
               "nodeid": "test_measure_kpi.py::test_archive_keeps_reference_integrity",
               "clause_refs": [
-                "API-DU21-03-POST-01"
+                "API-DU21-03-POST-01",
+                "API-DU21-03-RAISE-01"
               ]
             }
           ]
@@ -5997,29 +6092,29 @@
               "when": "書込み系 operation の組立要求・property 不一致（read-only 保証の fail-close — 外部呼出 0 回）",
               "na_reason": "単体検証: 割当 UT が本節を直接検証する（fetchでの接続前拒否は受入基準が直接観測していないため）"
             },
-            {
-              "clause_id": "API-DU22-01-RAISE-02",
-              "type": "RetryableError",
-              "when": "接続・応答 timeout、外部 429（読取り再試行可 — retry 上限は呼出元）",
-              "na_reason": "受入基準未設定: 一時的通信障害の再試行は受入基準が直接観測していないため"
+          {
+            "clause_id": "API-DU22-01-RAISE-02",
+            "type": "RetryableError",
+            "when": "接続・応答 timeout、外部 429（読取り再試行可 — retry 上限は呼出元）",
+            "na_reason": "単体検証: 割当 UT がtimeoutと429をRetryableErrorへ正規化し、各試行を別request_sequenceで記録することを直接検証する"
             },
             {
               "clause_id": "API-DU22-01-RAISE-03",
               "type": "SecretUnavailable",
               "when": "読取 credential 未投入・失効（外部操作を開始せず escalate 誘導 — DU-14 から透過）",
-              "na_reason": "受入基準未設定: credential未投入時の透過エラーは受入基準が直接観測しないため"
+            "na_reason": "単体検証: 割当 UT がSecretUnavailableを外部呼出前に透過し外部操作行を作らないことを直接検証する"
             },
             {
               "clause_id": "API-DU22-01-RAISE-04",
               "type": "CredentialEndpointMismatch",
               "when": "credential と property/endpoint の不正組合せ（接続前拒否 — DU-14 から透過）",
-              "na_reason": "受入基準未設定: credential endpoint不一致はDU-14検査で受入基準が直接観測しないため"
+            "na_reason": "単体検証: 割当 UT がCredentialEndpointMismatchを外部呼出前に透過し外部操作行を作らないことを直接検証する"
             },
             {
               "clause_id": "API-DU22-01-RAISE-05",
               "type": "FatalError",
-              "when": "本番取得不能の確定（公開を巻き戻さず当該 T-MEAS を failed — WF-MEAS-1 ステップ 1）",
-              "na_reason": "受入基準未設定: 本番取得不能時のtask失敗遷移は上位WF責務で直接観測しないため"
+            "when": "本番取得不能の確定をFatalErrorとして返す（公開を巻き戻さず当該 T-MEAS を failed にする状態遷移は呼出元WF-MEAS-1の責務）",
+            "na_reason": "単体検証: 割当 UT が取得不能確定をFatalErrorへ正規化し、公開資産へ副作用を与えないことを直接検証する"
             }
           ],
           "pure": false,
@@ -6059,13 +6154,32 @@
                 "API-DU22-01-POST-02"
               ]
             },
-            {
-              "nodeid": "test_measure_fetch.py::test_dry_run_records_fingerprint_only",
+          {
+            "nodeid": "test_measure_fetch.py::test_dry_run_records_fingerprint_only",
               "clause_refs": [
                 "API-DU22-01-POST-02",
-                "API-DU22-01-POST-04"
-              ]
-            }
+              "API-DU22-01-POST-04"
+            ]
+          },
+          {
+            "nodeid": "test_measure_fetch.py::test_timeout_and_429_are_retryable_per_attempt",
+            "clause_refs": [
+              "API-DU22-01-RAISE-02"
+            ]
+          },
+          {
+            "nodeid": "test_measure_fetch.py::test_credential_errors_fail_before_external_call",
+            "clause_refs": [
+              "API-DU22-01-RAISE-03",
+              "API-DU22-01-RAISE-04"
+            ]
+          },
+          {
+            "nodeid": "test_measure_fetch.py::test_terminal_fetch_failure_is_fatal_without_publish_rollback",
+            "clause_refs": [
+              "API-DU22-01-RAISE-05"
+            ]
+          }
           ]
         }
       ],
@@ -6123,8 +6237,11 @@
           "test_measure_fetch.py::test_browser_fallback_converges_same_evidence_contract",
           "test_measure_fetch.py::test_write_operation_assembly_rejected",
           "test_measure_fetch.py::test_property_mismatch_rejected_before_call",
-          "test_measure_fetch.py::test_hash_fixed_and_operation_log_before_ingest",
-          "test_measure_fetch.py::test_dry_run_records_fingerprint_only"
+        "test_measure_fetch.py::test_hash_fixed_and_operation_log_before_ingest",
+        "test_measure_fetch.py::test_dry_run_records_fingerprint_only",
+        "test_measure_fetch.py::test_timeout_and_429_are_retryable_per_attempt",
+        "test_measure_fetch.py::test_credential_errors_fail_before_external_call",
+        "test_measure_fetch.py::test_terminal_fetch_failure_is_fatal_without_publish_rollback"
         ],
         "feature_design": [
           "docs/L6-feature-design/S0/kpi-handoff.md"
@@ -6213,9 +6330,9 @@
               "text": "隔離件数・正常件数を ParseResult に含め、件数は証跡化（measurement 証跡 payload の row_count）に使う"
             },
             {
-              "clause_id": "API-DU23-01-POST-03",
-              "text": "PV 以外・有料指標系の列は取り込まない（S0 スコープ — 有料指標型は下流 DU-21/DU-07 でも拒否）",
-              "na_reason": "受入基準未設定: PV以外の列除外を観測するACがこのDUにはない。"
+            "clause_id": "API-DU23-01-POST-03",
+            "text": "PV 以外・有料指標系の列は取り込まない（S0 スコープ — 有料指標型は下流 DU-21/DU-07 でも拒否）",
+            "na_reason": "単体検証: 割当 UT がPV列だけをParseResultへ残し、非PV・有料指標列を除外することを直接検証する。"
             }
           ],
           "raises": [
@@ -6240,11 +6357,17 @@
                 "API-DU23-01-RAISE-01"
               ]
             },
-            {
-              "nodeid": "test_measure_parse.py::test_empty_export_zero_rows_evidence_only",
+          {
+            "nodeid": "test_measure_parse.py::test_empty_export_zero_rows_evidence_only",
               "clause_refs": [
-                "API-DU23-01-POST-02"
-              ]
+              "API-DU23-01-POST-02"
+            ]
+          },
+          {
+            "nodeid": "test_measure_parse.py::test_non_pv_and_paid_metric_columns_excluded",
+            "clause_refs": [
+              "API-DU23-01-POST-03"
+            ]
             }
           ]
         },
@@ -6397,7 +6520,8 @@
           "test_measure_parse.py::test_ingest_single_transaction_full_rollback",
           "test_measure_parse.py::test_ingest_rerun_idempotent_zero_delta",
           "test_measure_parse.py::test_fk_missing_rejected_before_insert",
-          "test_measure_parse.py::test_empty_export_zero_rows_evidence_only",
+      "test_measure_parse.py::test_empty_export_zero_rows_evidence_only",
+      "test_measure_parse.py::test_non_pv_and_paid_metric_columns_excluded",
           "test_measure_parse.py::test_imported_at_supplied_by_clock"
         ],
         "feature_design": [
@@ -6444,5 +6568,5 @@
     "ARCHIVE-UT-LEGACY",
     "docs/L5-detailed-design/canonical/detailed-design_v0.1.md §3（API 正本宣言）"
   ],
-  "approval_digest": "9c20b7e09797"
+  "approval_digest": "0aa153729de3"
 }

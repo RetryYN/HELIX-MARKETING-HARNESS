@@ -55,3 +55,27 @@ def test_upload_media_content_hash_idempotent() -> None:
 def test_register_asset_before_published_url_evidence() -> None:
     """du-contracts DU-17 の契約観点を検証する（red→green は実装スライスで）。"""
     raise NotImplementedError
+
+
+@pytest.mark.skip(reason="test-first DU-17: create_draft")
+def test_draft_remote_idempotency_and_failure_boundaries() -> None:
+    """remote meta冪等性、confirmed補完、cap、pre-send、sent unknownを独立fixtureで検証する。"""
+    raise NotImplementedError
+
+
+@pytest.mark.skip(reason="test-first DU-17: publish")
+def test_publish_evidence_order_approval_and_rate_boundaries() -> None:
+    """asset後証跡順序、承認なしゼロ送信、rate capのfail-closeを検証する。"""
+    raise NotImplementedError
+
+
+@pytest.mark.skip(reason="test-first DU-17: upload_media")
+def test_upload_media_lifecycle_and_fail_close_boundaries() -> None:
+    """media外部操作lifecycleとPair/endpoint/rate/unknown境界を個別fixtureで検証する。"""
+    raise NotImplementedError
+
+
+@pytest.mark.skip(reason="test-first DU-17: register_asset")
+def test_register_asset_rejects_unconfirmed_or_invalid_binding() -> None:
+    """unconfirmed操作・FK不整合の境界正規化とDB不変を検証する。"""
+    raise NotImplementedError

@@ -1312,10 +1312,95 @@
         "TCC-SR-09-1",
         "TCC-SR-09-2"
       ]
+    },
+    {
+      "unit_id": "IU-EXTERNALOPERATIONS-20",
+      "doc": "docs/L6-feature-design/S0/external-operations.md",
+      "du_id": "DU-15",
+      "responsibility": "`launch`: 検証済みScopeContextでPlaywright sessionを起動し、storage_stateを当該profile名前空間だけへ保存・再利用して、後続操作へ同一scopeを伝播する",
+      "api_ref": "API-DU15-01",
+      "clause_refs": [
+        "API-DU15-01-POST-01",
+        "API-DU15-01-POST-02"
+      ],
+      "ac_refs": ["AC-42-1"],
+      "ut_refs": ["test_connectors_browser.py::test_launch_persists_profile_state_and_scope"],
+      "tc_refs": ["TCC-42-1"]
+    },
+    {
+      "unit_id": "IU-EXTERNALOPERATIONS-21",
+      "doc": "docs/L6-feature-design/S0/external-operations.md",
+      "du_id": "DU-15",
+      "responsibility": "`screenshot`: 要求URLと最終URLを照合し、許可されたcaptureだけを指定Pathへ原子的に保存して返す",
+      "api_ref": "API-DU15-02",
+      "clause_refs": ["API-DU15-02-POST-01"],
+      "ac_refs": ["AC-42-1"],
+      "ut_refs": ["test_connectors_browser.py::test_screenshot_url_reachability_and_mismatch_denied"],
+      "tc_refs": ["TCC-42-1"]
+    },
+    {
+      "unit_id": "IU-CAMPAIGN-02",
+      "doc": "docs/L6-feature-design/S1/campaign.md",
+      "du_id": "DU-20",
+      "responsibility": "`commit_workspace`: DU-19成果物をcommitし40/64桁hex hashを検証して返し、workspace内容と後続review_passの版を1対1に固定する",
+      "api_ref": "API-DU20-01",
+      "clause_refs": [
+        "API-DU20-01-POST-01",
+        "API-DU20-01-POST-02"
+      ],
+      "ac_refs": ["AC-54-1"],
+      "ut_refs": ["test_content_versioning.py::test_commit_returns_valid_40_or_64_hex_hash"],
+      "tc_refs": ["TCC-54-1"]
+    },
+    {
+      "unit_id": "IU-CAMPAIGN-01",
+      "doc": "docs/L6-feature-design/S1/campaign.md",
+      "du_id": "DU-19",
+      "responsibility": "`generate`: version固定plan・templateと注入seedからworkspace内へ決定的に生成し、同一入力で同一SHA-256のGeneratedSourceを返す",
+      "api_ref": "API-DU19-01",
+      "clause_refs": [
+        "API-DU19-01-POST-01",
+        "API-DU19-01-RAISE-01"
+      ],
+      "ac_refs": ["AC-51-1", "AC-51-2"],
+      "ut_refs": [
+        "test_content_generate.py::test_same_input_same_seed_same_sha256",
+        "test_content_generate.py::test_unversioned_source_rejected_no_output"
+      ],
+      "tc_refs": ["TCC-51-1", "TCC-51-2"]
+    },
+    {
+      "unit_id": "IU-EXTERNALOPERATIONS-22",
+      "doc": "docs/L6-feature-design/S0/external-operations.md",
+      "du_id": "DU-13",
+      "responsibility": "`list_declared`: service指定の宣言行だけをDB変更なしで返し、schema不適合行を結果から除外して診断対象として報告する",
+      "api_ref": "API-DU13-02",
+      "clause_refs": [
+        "API-DU13-02-PRE-02",
+        "API-DU13-02-POST-01",
+        "API-DU13-02-POST-02"
+      ],
+      "ac_refs": ["AC-41-1"],
+      "ut_refs": ["test_registry_resolver.py::test_list_declared_readonly_and_schema_failclose"],
+      "tc_refs": ["TCC-41-1"]
+    },
+    {
+      "unit_id": "IU-KPIHANDOFF-05",
+      "doc": "docs/L6-feature-design/S0/kpi-handoff.md",
+      "du_id": "DU-21",
+      "responsibility": "`tree`: business_profile_idで閉じた親子解決済みKPIツリーを返し、根だけの最小構成でも決定的かつ他profile非混入とする",
+      "api_ref": "API-DU21-02",
+      "clause_refs": [
+        "API-DU21-02-POST-01",
+        "API-DU21-02-POST-02"
+      ],
+      "ac_refs": ["AC-61-3"],
+      "ut_refs": ["test_measure_kpi.py::test_tree_resolves_hierarchy_per_profile"],
+      "tc_refs": ["TCC-61-3"]
     }
   ],
   "status": "confirmed",
   "approved_at": "2026-08-02",
   "authority": "PO",
-  "approval_digest": "2f08d683c1c7"
+  "approval_digest": "a7bb36740a05"
 }

@@ -263,6 +263,9 @@ DU／API の実在・pre/post への責務の明記・AC／TC／UT の実在と�
 | IU-EXTERNALOPERATIONS-07 | DU-14 | API-DU14-04 | POST-01 | `mask`・`text`: config.secret.masking_patterns と本モジュールのパターン集合に一致す… | AC-47-2, AC-47-4 |
 | IU-EXTERNALOPERATIONS-08 | DU-14 | API-DU14-03 | POST-01・POST-02 | `scan`: 平文検知はprepare前・外部2表0行… | AC-47-1 |
 | IU-EXTERNALOPERATIONS-10 | DU-15 | API-DU15-03 | POST-01・POST-02・POST-04・RAISE-01・RAISE-02・RAISE-04 | `run_playbook`: connectorはeffect/category/rate_scope/sequence付き材料のみ… | AC-42-1, AC-42-2, AC-42-3 |
+| IU-EXTERNALOPERATIONS-20 | DU-15 | API-DU15-01 | POST-01・POST-02 | `launch`: profile別storage stateとScopeContextを保持するbrowser sessionを生成 | AC-42-1 |
+| IU-EXTERNALOPERATIONS-21 | DU-15 | API-DU15-02 | POST-01 | `screenshot`: 最終URL一致を確認してcaptureを指定Pathへ保存 | AC-42-1 |
+| IU-EXTERNALOPERATIONS-22 | DU-13 | API-DU13-02 | PRE-02・POST-01・POST-02 | `list_declared`: service限定の診断読取とschema不適合行のfail-close除外 | AC-41-1 |
 | IU-EXTERNALOPERATIONS-12 | DU-16 | API-DU16-01 | POST-01 | `get`: 現役routeのactive版だけを返す… | AC-42-1 |
 | IU-EXTERNALOPERATIONS-13 | DU-16 | API-DU16-03 | POST-02 | `record_failure`: active→broken CASとCMP-02 repair task編成へ接続… | AC-43-1, AC-43-2 |
 | IU-EXTERNALOPERATIONS-14 | DU-16 | API-DU16-02 | POST-01 | `record_success`: active現役版だけを条件付き更新… | AC-42-1 |

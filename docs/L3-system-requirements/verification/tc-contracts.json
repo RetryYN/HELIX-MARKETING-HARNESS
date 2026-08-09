@@ -1719,7 +1719,7 @@
       "verifies_evidence": "なし（正常解決は証跡不要）",
       "verifies_forbidden": "コード側分岐による経路決定・構造化ログ以外への拒否記録（evidence への拒否行の混入）追加・外部 HTTP 呼出（0 回）",
       "external_calls": "0 回",
-      "method": "pytest: seed: config('registry.notion', {\"primary\":\"mcp\",\"fallback\":\"browser\",\"auth\":\"mcp_oauth\"})、変更は同 key の config INSERT（履歴保持） を seed し、resolve_route の戻り値（route_type）／config SELECT（2 行の履歴）／operation_log 件数 を assert（notion の経路解決を実行し、その後 config INSERT で優先経路を browser に変更して再解決する）",
+      "method": "pytest: notionのmcp/browser宣言とschema不適合別行をseedし、resolve→list_declared(service='notion')→config切替→resolveを実行。service絞込み、不正行除外報告、診断読取DB差分0、mcp→browser切替を個別assertする",
       "slice": "S0",
       "semantic_refs": {
         "table_refs": [
@@ -1795,7 +1795,7 @@
       "verifies_evidence": "operation_log 行（external_operation_id つき）＋構造化ログの seed=42 と間隔 3 値。operation_logはexternal_operation_row_idで該当external_operations.idへexactly-oneに束縛し、provider external_operation_idは任意。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
       "verifies_forbidden": "固定間隔での連続送信（3 間隔が全一致）・範囲外（1 秒未満/5 秒超）の間隔・idempotency key の重複",
       "external_calls": "actual-mode browser write 3回",
-      "method": "pytest: seed: playbooks(service='wp', operation='post', route_type='browser', status='active')、config.rate.wp.daily_write_cap=10、Rng(seed=42) 注入、mock Docker WP ブラウザを seed し、playbooks.last_success_at SELECT／構造化ログ（seed・間隔値）／external_operations.status を assert（mock 媒体への書込み系ブラウザ操作を 3 連続で実行する）。外部I/O test doubleはexecution_mode='actual'で呼び出す（mock/dry-run経路ではない）",
+      "method": "pytest: active playbook、未使用profile名前空間、Rng(seed=42)、actual-mode Docker WP test doubleをseedし、launch→URL到達確認付きscreenshot→書込み3回を実行。BrowserSession.scope、profile配下storage_state、capture Pathと最終URL、playbooks.last_success_at、seed・間隔、external_operations.statusを個別assertする",
       "slice": "S1",
       "semantic_refs": {
         "table_refs": [
@@ -2877,7 +2877,7 @@
       "verifies_evidence": "evidence（kind=commit_hash、value=H1、payload に repository・paths）／evidence（kind=review_pass、payload に result=PASS・commit_hash=H1・reviewer）",
       "verifies_forbidden": "既存証跡行の UPDATE/DELETE（append-only トリガ違反）",
       "external_calls": "0 回",
-      "method": "pytest: seed: fixture リポジトリ commit H1（記事ソース）、tasks に T-PROD/T-REVIEW 各 1 行、reviewer は author と別 agent を seed し、evidence SELECT（kind IN ('commit_hash','review_pass') の commit_hash 列）／checkout 後のファイル hash 比較 を assert（commit_hash 証跡化→review_pass 記録（commit_hash=H1）→hash からのソース復元を順に実行する）",
+      "method": "pytest: DU-19相当の未commit成果物workspace、初期化済みfixture repository、T-PROD/T-REVIEW task、分離reviewerをseedし、commit_workspace→commit_hash証跡→review_pass→restoreを順に実行。返却H1が40/64桁hex、commit内容とworkspaceが1対1、両証跡hash一致、復元ファイルhash一致をassertする",
       "slice": "S0",
       "semantic_refs": {
         "table_refs": [
@@ -3093,7 +3093,7 @@
       "verifies_evidence": "なし（構造保護は DDL の領分）",
       "verifies_forbidden": "参照中ノードの物理削除・measurements の孤児化",
       "external_calls": "0 回",
-      "method": "pytest: seed: kpi_nodes に根 N1、measurements に N1 参照 1 行 を seed し、DELETE の失敗（sqlite3.IntegrityError）／kpi_nodes.status／集計クエリ結果 を assert（N1 の DELETE を試み、次に N1 を archived 化し、根ノードのみで横断集計を実行する）",
+      "method": "pytest: profile A/Bのkpi_nodes、profile Aの根N1とmeasurements参照をseedし、DELETE拒否→archive_node→tree(profile A)を実行。参照整合、親子解決、最小ツリー決定性、profile B非混入を個別assertする",
       "slice": "S0",
       "semantic_refs": {
         "table_refs": [
@@ -7043,5 +7043,5 @@
   "supersedes": [
     "ARCHIVE-TC-LEGACY"
   ],
-  "approval_digest": "e68e5ca4cfcc"
+  "approval_digest": "717b2f1638e0"
 }
