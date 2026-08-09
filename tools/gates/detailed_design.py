@@ -36,6 +36,8 @@ IMPL_UNIT_SCHEMA = L6 / "S0/implementation-unit.schema.json"
 # trace を「借りて」済ませる言い回し。ID の代わりにこれらが立つと意味接続が空洞になる
 TRACE_SUBSTITUTES = ("準用", "準じる", "準ずる", "同等", "相当をもって", "に倣う", "に習う",
                      "同様に扱う", "踏襲", "流用", "借用", "代用")
+
+
 def api_index(du: dict) -> dict[str, dict]:
     return {a["api_id"]: a for a in du["apis"]}
 

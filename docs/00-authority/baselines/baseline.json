@@ -376,7 +376,7 @@
     "tools/gates/authority.py": "6453b7df12fff0e2cc4ccdf951f51b71e2e1b8c4ddf41a9798df0ffd1aaca4ad",
     "tools/gates/baseline.py": "982f4641441a808d110afb63ff221c3a04e24f03d6338faeede81f9acb922864",
     "tools/gates/common.py": "3ad80e28fff35811ff38cd711a3b039b5ee09e558bb59ccf012191d6067e9d62",
-    "tools/gates/detailed_design.py": "6886903fd62c72f1a6e5ecff76737060fbc47c84fe86728d04fc681019e54cc1",
+    "tools/gates/detailed_design.py": "b87237f7250be3e93d74cb9ddd5d00009feab0bb54770e8c71e0fa6fd06dab4d",
     "tools/gates/requirements.py": "d4f91d484299d8cc37ec098e1c258914fb91fcca3b0990e7515369739cf76fa9",
     "tools/gates/review_binding.py": "49bda166c233c84a9dd085d00dffac49eca515121f7e6a9ff527be57600315a4",
     "tools/gates/run_all.py": "9c5844be5e3261bbca618ac88be65dc4b775c0b54eea6b07224b6a1c54aca990",
