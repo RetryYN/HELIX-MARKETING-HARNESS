@@ -48,7 +48,7 @@
       "id": "MR-KDP-3",
       "media": "KDP",
       "media_name": "5.1 Amazon KDP",
-      "text": "（レート・BR-F5）: 低頻度媒体。書き込み間隔 1〜5 秒の一様乱数、出版系操作 1 件/日 （C: `rate.kdp.*`）。Amazon アカウントは購買と共用のため凍結影響が大きく、警告兆候で即停止（RSK-01）",
+      "text": "（レート・BR-F5）: 書き込み間隔 1〜5 秒の一様乱数、出版系操作 1 件/日（必須 C: `rate.kdp.interval_min_sec=1`／`interval_max_sec=5`／`daily_write_cap=1`、欠落時は拒否）。Amazon アカウントは購買と共用のため凍結影響が大きく、警告兆候で即停止（RSK-01）",
       "trace": {
         "upstream": [
           "BR-M-KDP-3"

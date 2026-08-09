@@ -46,47 +46,89 @@ transaction を開閉する層。
 | loop_runs | 可変 | 行生成 = CMP-02。**state 列は CMP-01 のみ** | CMP-01（DU-01） | 生成 = 単独 tx／state 更新 = 遷移 tx |
 | tactical_learning_packets | append-only | CMP-02（DU-02 packet ビルダ） | — | **下位 run 終端の遷移 tx と同一 tx**（s0-contract §3） |
 | tasks | 可変 | 行生成 = CMP-02。state 列は CMP-01 のみ。lease/row_version は kernel claim 経路のみ | CMP-01 | 生成 = 単独 tx／state・lease 更新 = 遷移 tx |
-| external_operations | 可変 | CMP-02 WF 実行器（コネクタは行を書かない — request/response 材料の提供のみ） | status（prepared→sent→confirmed/rejected/unknown）は CMP-02 | **prepared・sent を各々単独コミット**（送信直後クラッシュの検出窓 — s0-contract §1） |
+| external_operations | 可変 | CMP-02 `ExternalOpRecorder`（唯一の INSERT／status 更新者。コネクタは request/result 材料の提供のみ） | status（prepared→sent→confirmed/rejected/unknown）は CMP-02 | **prepared・sent を各々単独コミット**。sent 後の終端確定と operation_log 証跡（CMP-04）の row ID 束縛は同一 tx（s0-contract §1） |
 | pair_plan_quality | 可変 | CMP-03（DU-05） | status（passed/revoked）は CMP-03 のみ | 成立/revoke の各単独 tx |
-| evidence | append-only | CMP-04（DU-09。型契約検証つき INSERT のみ） | — | 呼出し元 tx に参加（証跡化→遷移の順序は NFR-3） |
+| evidence | append-only | CMP-04（DU-09。型契約検証つき INSERT のみ） | — | 呼出し元 tx に参加（証跡化→遷移の順序は NFR-3）。published_url は先行 confirmed write operation_log へ1:1 self-FK |
 | kpi_nodes | 可変 | CMP-13（DU-21。登録は CMP-03 ゼロ広告費ゲート通過後のみ） | status は CMP-13 | 登録単位 tx |
 | measurements | 可変 | CMP-13（DU-23） | — | **投入一括 tx**（失敗は全 rollback — s0-contract §4.3） |
 | pair_kpi_measure | 可変 | CMP-03（ペア成立判定。材料は CMP-13 が供給） | status は CMP-03 | 成立単位 tx |
 | learnings | 可変 | CMP-02（スプリントレビュー工程。S0 は最小） | status は CMP-02 | 単独 tx |
-| playbooks | 可変 | CMP-09 の `playbooks_store` 副層のみ | status（active/broken/retired）は CMP-09 | 操作結果反映の単独 tx |
+| playbooks | 版付き・内容 append-only | CMP-09 の `playbooks_store` 副層（修復workflowの編成は CMP-02） | status（active/broken/retired）は CMP-09 の CAS API | 破損時は active→broken＋repair task発行、成功時はrepair task done＋旧版retired＋新版active INSERTを、それぞれCMP-02所有の複合txで確定 |
 | assets | 可変 | CMP-02 WF 実行器（WF-WP-2 手順 6 の資産登録） | — | 登録単位 tx |
-| approvals | 可変 | CMP-11 の `approvals_store` 副層のみ | decision は CMP-11（応答受領時） | 要求/応答の各単独 tx |
+| approvals | 可変 | 生 SQL は CMP-11 の `approvals_store` 副層のみ（CMP-02 承認フローから呼出し） | decision の判断材料は CMP-11、更新編成は CMP-02 | pending INSERT／応答反映の各ローカル単独 tx。transport I/O を含めない |
 | config | append-only | CMP-06（DU-12） | — | 1 変更 = 1 INSERT tx |
-| spend_ledger | 可変（追記運用） | CMP-02（有償外部操作の記帳。S0 はゼロ広告費で 0 行が正常 — CMP-03 が拒否） | — | 記帳単位 tx |
+| spend_ledger | 追記専用 | **S1 専用 component／DU 未割当（design debt）** | — | actual approved_paid_operation confirmed のみ。operation_log と同一 terminal tx での記帳 API・所有者を S1 で再降下するまで実装 confirmed 禁止 |
 
 横断規則:
 
 - 上記以外の CMP からの書込み SQL はレビュー・CI で禁止する（基本設計 §1.3 のストア層一元化）。
 - `loop_runs.state`・`tasks.state` の UPDATE は DU-01 `transition()` 以外に存在してはならない
   （状態所有の一点化 — 遷移表外の状態変更をコード構造で塞ぐ）。
-- コネクタ（CMP-08〜11）は業務状態テーブルに触れない。所掌はストア副層 2 表（playbooks・approvals）のみ。
+- コネクタ（CMP-08〜11）は `external_operations`／`evidence` への生 SQL を持たず、
+  `ConnectorIntent`／`ConnectorResult` と request/result 材料だけを CMP-02 `ExternalOpRecorder`
+  へ渡す。コネクタ所掌の永続化例外はストア副層 2 表（playbooks・approvals）に限る。
+- 実 read/write はどちらも `effect` 必須で同一 lifecycle を辿る。write は決定的
+  idempotency key 必須かつ correlation key と同値、read は idempotency key を持たず正整数 `request_sequence` と
+  `read:<task_id>:<request_hash>:<request_sequence>` を要する。同一 logical poll の sequence は
+  1, 2, ... と増やし、intent／request payload／result／operation_log まで同値で降下する。
+  1 connector request = 1 行であり、Notion の read と分割 write 各要求は別行とする。
+- 実外部操作は policy_category 必須。read は `external_read`、write は
+  `content_publish`／`review_sync`／`approval_notification`／`approved_paid_operation` の閉集合で、
+  Recorder は exact `(policy_category, service, operation, target_endpoint)` policy 合格値を lifecycle 中不変にする。
+  content_publish は Docker WP のみ、review_sync は Notion の明示 config＋ApprovalPass、
+  approval_notification は Claude Code アプリ＋確定済み binding、approved_paid_operation は
+  PO 承認＋有償 route に限定する。write は canonical lowercase rate_scope 必須、read は NULL。
+  intent／request／result／external row／operation_log で category／rate_scope を同値降下し、
+  operation_log payload は read にも `rate_scope: null` を常設する。category／policy／rate_scope 欠落は行作成前拒否。
+- published_url evidence は provider operation ID を必須とせず、`external_operation_row_id` 必須 FK と
+  `operation_log_evidence_id` NOT NULL・UNIQUE self-FK で同一 task の external row／operation_log 1 行に束縛する。
+  参照先 operation_log は `effect=write`・`policy_category=content_publish` の confirmed external row に
+  `external_operation_row_id` で束縛済みであり、published_url の asset URL と task が一致しなければならない。
+  provider ID は両証跡にある場合だけ一致を要する。
+- `spend_ledger.external_operation_row_id` は NOT NULL・UNIQUE・`external_operations.id` FK とし、
+  provider operation ID ではなく内部 row ID を記帳の正準束縛にする。対象は
+  `execution_mode=actual AND effect=write AND policy_category=approved_paid_operation AND status=confirmed` だけ。
+  ledger の task_id／service は外部行と一致し、provider ID は両側に存在する場合だけ一致させる。
+  無料 route・手動経路・実 read・provider rejected／unknown・mock／dry-run に ledger 行を作らない。
+  この不変条件は S0 schema 境界だが、記帳所有者・API・DU／UT は S1 専用 component へ再降下が必要な design debt。
+  CMP-13／DU-23（計測 ingest）や CMP-02／DU-04 の既存 API に記帳責務を混在させない。
 
-## 3. append-only 群・可変群とトリガ 16 本の意図
+## 3. append-only 群・可変群とトリガ 37 本の意図
 
 ### 3.1 群の区分
 
-- **append-only 群（5 表）**: `config`・`evidence`・`state_transitions`・`strategic_briefs`（内容列）・
-  `tactical_learning_packets`。履歴・証跡・上流正本であり、過去の書換えは監査可能性そのものを壊すため、
+- **append-only 保護群（6 表）**: `config`・`evidence`・`state_transitions`・`strategic_briefs`（内容列）・
+  `tactical_learning_packets`・`playbooks`（版内容・系譜、および retired 版全体）。履歴・証跡・上流正本・
+  攻略地図の版履歴であり、過去の書換えは監査可能性そのものを壊すため、
   アプリ層の規律ではなく **DB トリガで常時拒否**する（プロセス外からの sqlite3 直叩きにも効く）。
 - **可変群（残り）**: 状態列・lease 等の UPDATE を許すが、変更経路は §2 の所有 CMP に限定する。
   可変群でも DELETE は業務上使わない（FK は全て ON DELETE RESTRICT — 暗黙カスケードなし）。
 
-### 3.2 トリガ 16 本の意図（本文は s0-contract §2 が正準）
+### 3.2 トリガ 37 本の意図（本文は s0-contract §2 が正準）
 
 | # | トリガ | 意図 |
 |---|---|---|
 | 1–2 | config_no_update / no_delete | 設定変更の履歴化（FR-33）。「いつ誰がなぜ変えたか」を消せなくする |
 | 3–4 | evidence_no_update / no_delete | 証跡の改竄不可（BR-B3/BR-I7）。done 判定の根拠を事後に書換えられない |
 | 5–6 | state_transitions_no_update / no_delete | 遷移ログの不可逆性（NFR-5）。拒否記録の抹消も不可 |
-| 7 | strategic_briefs_no_update（条件付き） | 上流戦略正本の**内容列凍結**。status/valid_until の運用遷移だけを許し、内容変更は supersedes_id 付き新版 INSERT に強制（下流からの直接変更不可 — AC-SR-04） |
-| 8 | strategic_briefs_no_delete | 上流正本の系譜（supersedes 連鎖）を破壊させない |
-| 9–10 | tactical_learning_packets_no_update / no_delete | 下流からの還流（TLP）は提出のみ・撤回不可（AC-SR-05） |
-| 11 | tactical_learning_packets_integrity | INSERT 時に「lower・終端・run/brief/digest 三者一致」を DB 層でも強制（AC-SR-06）。kernel 契約（§ 終端処理）の二重防御 |
+| 7 | external_operations_insert_prepared | preflight 通過後の新規行を prepared 開始に限定し、時刻・結果列の先行充填を拒否 |
+| 8 | external_operations_binding_immutable | task/service/operation/effect/policy_category/rate_scope/request key/hash/sequence/target_endpoint の lifecycle 中差替えを拒否 |
+| 9 | external_operations_result_sent_only | sent 到達前の provider 結果・response hash 充填を拒否 |
+| 10 | external_operations_lifecycle | prepared→sent→confirmed/rejected/unknown の正準遷移・時刻・結果必須条件を強制 |
+| 11–12 | external_operations_final_immutable / no_delete | terminal 行の改変と外部操作履歴の削除を拒否 |
+| 13 | evidence_operation_log_insert | operation_log の内部 row ID 束縛・terminal 1:1・policy_category/rate_scope を含む対応属性一致を INSERT 時に強制 |
+| 14 | evidence_published_url_insert | published_url を同 task の confirmed content_publish external row／operation_log へ2つのローカルIDで1:1束縛 |
+| 15 | spend_ledger_binding_insert | approved_paid_operation confirmed の内部 external row ID 1:1、task/service/provider任意ID一致を強制 |
+| 16–17 | spend_ledger_no_update / no_delete | 支出台帳の追記専用性を強制 |
+| 18–20 | playbook_repair_task_insert / task_no_retry / no_verify_retry | 破損版1件につきpending修復task 1件、attempt=1・retry=0・束縛不変を強制 |
+| 21–22 | playbooks_initial_insert / version_insert | 初版active、新版はdoneの修復/人手改訂taskとretired直前版へ連続束縛 |
+| 23–27 | playbooks_content_no_update / status_transition / health_active_only / retired_no_update / no_delete | 版内容・系譜の上書き、状態逆行、非active健全性更新、retired改変、削除を拒否 |
+| 28–29 | strategic_briefs_no_update / no_delete | 上流正本の内容列・系譜を凍結し、内容変更を supersedes_id 付き新版 INSERT に強制 |
+| 30–31 | strategic_briefs_status_transition / valid_until_no_extend | brief の状態逆行と既存版の期限延長を拒否 |
+| 32–33 | tactical_learning_packets_no_update / no_delete | 下流からの還流（TLP）は提出のみ・撤回不可（AC-SR-05） |
+| 34 | tactical_learning_packets_integrity | INSERT 時に「lower・終端・run/brief/digest 三者一致」を DB 層でも強制（AC-SR-06） |
+| 35 | loop_runs_brief_immutable | run 開始後の brief ID/digest 差替えを拒否 |
+| 36–37 | tlp_kind_matches_terminal_state / tlp_kind_field_rules | 終端状態と packet 種別・必須/禁止フィールドの意味整合を強制 |
 
 トリガは「最大 1 件・整合」を守る側であり、「終端 lower run に最低 1 件」は kernel の同一 tx 契約＋
 DU-11 `verify()` の孤児検査が守る（役割分担 — s0-contract §3）。
@@ -121,24 +163,43 @@ DU-11 `verify()` の孤児検査が守る（役割分担 — s0-contract §3）�
   `SQLITE_BUSY` は busy_timeout 内待機→タイムアウトで retryable_failure に正規化する。
 - **1 状態遷移 = 1 transaction**: guard 判定・状態更新・`state_transitions` INSERT・（下位 run 終端では）
   TLP INSERT を単一 tx でコミットする。遷移 tx に外部 I/O を入れない。
-- **外部操作は tx 外**: `external_operations` の prepared・sent は各々単独コミットし
-  （クラッシュ検出窓）、`operation_log` 証跡化 → 状態遷移の順を固定する（NFR-3）。
+- **外部 I/O は tx 外、lifecycle 記録は短い tx**: route・credential・endpoint・
+  PairPass・ApprovalPass・cap をすべて preflight し、合格後にだけ Recorder が prepared を
+  commit → sent を commit → 実 read/write を tx 外で実行する。sent 後は provider の
+  confirmed／rejected／unknown を問わず、終端結果と `external_operation_row_id` で束縛した
+  operation_log を確定してから状態遷移する（NFR-3）。provider operation ID は任意である。
+- **行を作らない経路**: preflight／credential／pair／approval／cap 拒否と mock／fixture／
+  dry-run は `external_operations`／operation_log とも 0 行。予定 fingerprint・拒否理由・
+  模擬結果は秘匿化済み process logger にだけ残す。
 - 遷移 tx は `BEGIN IMMEDIATE` で開始し、書込みロックを先取して guard 評価中のロスト
   アップデートを防ぐ（設計判断 — 競合制御の詳細は
   [state-machine-design_v0.1.md §5](../state-machine/state-machine-design_v0.1.md)）。
 
 ## 6. インデックス・整合性検査方針
 
-- **S0 は DDL の UNIQUE / PK / FK を唯一のインデックス源とする**: 決定性キー
+- **S0 は正準 DDL の UNIQUE / 部分 UNIQUE / PK / FK を唯一のインデックス源とする**: 決定性キー
   （idempotency_key・`(loop_run_id, step_key, attempt)`・`(brief_key, version)` 等）は正準 DDL が
   既に UNIQUE で被覆しており、S0 のデータ量（単一ブランド・記事単位）で追加 index は不要。
   性能目的の index は計測証跡（クエリ実測）を伴う **expand migration** としてのみ追加する
   （推測での index 追加禁止 — 書込みコストと引換えのため）。
 - **定常整合性検査**（DU-11 `verify()` — 起動時・昇格時・LP-OPS ヘルスチェックで実行）:
   1. `PRAGMA foreign_key_check` / `PRAGMA integrity_check` 違反 0 件。
-  2. 25 テーブル・トリガ 16 本の存在。
+  2. 25 テーブル・トリガ 37 本の存在。
   3. TLP 孤児検査（terminal lower run で packet 0 件 → escalate）。
   4. 相互整合の追加検査（read-only SQL）: `approvals.evidence_id` ↔ approval 証跡の相互参照、
      `pair_plan_quality` passed の review 証跡実在、`measurements.evidence_id` の kind = measurement。
+  5. status が confirmed／rejected／unknown の全 terminal `external_operations` 行に、
+     `external_operation_row_id = id` の operation_log がちょうど 1 行あること。
+     逆方向の orphan／重複も 0 件とし、task_id, service, operation, effect, policy_category, rate_scope,
+     correlation_key, request_hash, request_sequence, result の同値を照合する。read は rate_scope IS NULL、
+     operation_log JSON の rate_scope=null も必須。provider operation ID の有無は照合成否に用いない。
+     status=sent は timeout 内の in-flight だけを許し、超過行は reconcile 対象として別に列挙する。
+  6. published_url 全行が `external_operation_row_id` と `operation_log_evidence_id` で同 task の
+     confirmed content_publish external row／operation_log ちょうど 1 組へ接続し、self-FK／UNIQUE・asset URL 一致を満たすこと。
+     provider ID が NULL でも正常とし、存在時のみ双方一致を検査する。
+  7. spend_ledger 全行が `external_operation_row_id` で actual・write・approved_paid_operation・confirmed の外部行ちょうど
+     1 件へ接続し、task_id・service と任意 provider ID が一致すること。逆方向は検証済み有償 route の
+     confirmed approved_paid_operation だけが ledger ちょうど 1 行、無料／手動 route・read・rejected／unknown は
+     0 行であること。provider ID の欠落は row ID 束縛を無効にしない。
 - 検査はすべて read-only であり何度でも安全（冪等）。違反検出は自動修復せず fail-close で
   escalate する（BR-I7 — 人の関与が必要な破損）。

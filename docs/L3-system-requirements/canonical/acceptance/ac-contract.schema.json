@@ -40,6 +40,29 @@
         "boundary-recovery"
       ]
     },
+    "verification_aspects": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^NFR-[0-9]+:[a-z0-9-]+$"},
+      "description": "NFR target のときに必須。親NFRの検証意味単位を過不足なく列挙する"
+    },
+    "transition_refs": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["entity", "from", "event", "to"],
+        "properties": {
+          "entity": {"type": "string", "enum": ["loop_runs", "tasks"]},
+          "from": {"type": "string", "pattern": "^[a-z_]+$"},
+          "event": {"type": "string", "pattern": "^[a-z_]+$"},
+          "to": {"type": "string", "pattern": "^[a-z_]+$"}
+        }
+      },
+      "description": "成立を検証する (entity, from, event, to)。transitions.json と完全照合し、親FR/SR/NFRおよび対応TCCの集合に一致させる"
+    },
     "given": {
       "type": "string",
       "minLength": 10
@@ -187,6 +210,24 @@
         "pattern": "^API-DU[0-9]{2}-[0-9]{2}-(PRE|POST|RAISE)-[0-9]{2}$"
       },
       "description": "この AC が検証する API 契約節（du-contracts の clause_id）。どの節を検証しているかを構造参照で示し、語彙一致で代替しない（G-L6-IMPLEMENTATION-TRACE）"
+    },
+    "api_observation_assertions": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^API-DU[0-9]{2}-[0-9]{2}$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["fixture", "action", "observation", "assert"],
+        "properties": {
+          "fixture": {"type": "string", "minLength": 20},
+          "action": {"type": "string", "minLength": 20},
+          "observation": {"type": "string", "minLength": 20},
+          "assert": {"type": "string", "minLength": 20}
+        }
+      },
+      "description": "複数APIを束ねる既存ACへAPIを追加するときの、API固有かつ反証可能なfixture／呼出／観測／assert。節IDの追記だけで被覆を名乗ることを禁止する"
     },
     "clause_na_reason": {
       "type": "string",

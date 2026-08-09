@@ -29,7 +29,7 @@
       ],
       "state_transitions": [],
       "normal_behavior": "run 生成時に loop_kind を確定し、成果物提出時に「型 × loop_kind」対応表で照合する。上流 run は意味モデルのみ、下流 run は公開物・計測・TLP のみを受理し、それぞれの学習正本へ書き込む。",
-      "rejection_behavior": "下流 run からの意味モデル・strategy_revision 提出、上流 run からの TLP 提出は LoopScopeViolation を raise し、DB を変更せず operation_log 証跡に拒否理由を記録する（fail-close）。DDL 整合トリガは lower 以外の run への TLP INSERT を常時拒否する。",
+      "rejection_behavior": "下流 run からの意味モデル・strategy_revision 提出、上流 run からの TLP 提出は LoopScopeViolation を raise し、DB を変更せず 構造化拒否ログに拒否理由を記録する（fail-close）。DDL 整合トリガは lower 以外の run への TLP INSERT を常時拒否する。",
       "boundary_behavior": "micro run は下流の内部検証ループであり、どちらの学習正本にも直接書かない（親 task 経由のみ）。loop_kind 判定不能（対応表にない型）は拒否側へ倒す。",
       "retry_resume_recovery": "対応表照合は無状態のため再実行安全。クラッシュ時は提出 transaction ごと消え、越境した中間状態は残らない。再開は loop_runs の現状態から続行。",
       "human_judgement": "なし（全自動。責務分離の変更は要件改訂 = PO 承認事項）",
@@ -83,7 +83,6 @@
         "state_refs": [],
         "event_refs": [],
         "evidence_kind_refs": [
-          "operation_log"
         ],
         "error_type_refs": [
           "LoopScopeViolation"
@@ -116,7 +115,7 @@
       ],
       "state_transitions": [],
       "normal_behavior": "リサーチ工程の出力を market_observation schema で検証し、fact（観測事実）のみを受理する。解釈は TLP の causal_interpretation／revision の reason へ別レコードとして経路分離する。",
-      "rejection_behavior": "schema 非適合（解釈フィールドの付加・必須 fact 欠落）は ObservationInterpretationMixRejected で拒否し、operation_log 証跡に理由を記録する。schema 判定不能（fixture/schema 破損）も拒否側へ倒す（fail-close）。",
+      "rejection_behavior": "schema 非適合（解釈フィールドの付加・必須 fact 欠落）は ObservationInterpretationMixRejected で拒否し、構造化拒否ログに理由を記録する。schema 判定不能（fixture/schema 破損）も拒否側へ倒す（fail-close）。",
       "boundary_behavior": "同一テキストでも別レコード（TLP.causal_interpretation）としての提出は受理する — 分離の単位はフィールド・レコードであり字句ではない。空の fact は必須欠落として拒否。",
       "retry_resume_recovery": "schema 検証は無状態。再実行は同一判定。受理 transaction がクラッシュで消えた場合は再投入で冪等に再受理。",
       "human_judgement": "なし（全自動。schema 改訂は要件改訂）",
@@ -164,7 +163,6 @@
         "state_refs": [],
         "event_refs": [],
         "evidence_kind_refs": [
-          "operation_log"
         ],
         "error_type_refs": [
           "ObservationInterpretationMixRejected"
@@ -197,7 +195,7 @@
       ],
       "state_transitions": [],
       "normal_behavior": "観測事実を統合して market_model／segment_context／problem_model を生成し、各 JSON Schema で必須フィールド完全性を検証してから版付きで受理する。",
-      "rejection_behavior": "必須フィールド欠落・schema 外の型・3 モデル以外の自由 JSON は ModelSchemaRejected で受理を拒否し、欠落フィールド一覧を operation_log 証跡へ記録する。判定不能も拒否側へ倒す。",
+      "rejection_behavior": "必須フィールド欠落・schema 外の型・3 モデル以外の自由 JSON は ModelSchemaRejected で受理を拒否し、欠落フィールド一覧を 構造化拒否ログへ記録する。判定不能も拒否側へ倒す。",
       "boundary_behavior": "additionalProperties は schema 準拠で拒否（未知フィールドの黙認をしない）。観測 0 件からのモデル生成は根拠欠落として拒否。",
       "retry_resume_recovery": "schema 検証は無状態。生成失敗は入力（観測 ID 群）から再実行可能。受理は版単位で冪等（同一内容 = 同一版）。",
       "human_judgement": "なし（全自動。schema 改訂は要件改訂）",
@@ -240,7 +238,6 @@
         "state_refs": [],
         "event_refs": [],
         "evidence_kind_refs": [
-          "operation_log"
         ],
         "error_type_refs": [
           "ModelSchemaRejected"
@@ -273,7 +270,7 @@
       ],
       "state_transitions": [],
       "normal_behavior": "segment_context を schema 検証し、状況ベースフィールド（状況・制約・代替行動・意思決定条件等）が実質記入されていることを確認して受理する。人口統計は補助フィールドとして併記可。",
-      "rejection_behavior": "状況フィールドが全て空・欠落で人口統計属性のみの segment は PersonaSegmentRejected（G-SEGMENT-CONTEXT）で拒否し、operation_log 証跡へ記録する。判定不能は拒否。",
+      "rejection_behavior": "状況フィールドが全て空・欠落で人口統計属性のみの segment は PersonaSegmentRejected（G-SEGMENT-CONTEXT）で拒否し、構造化拒否ログへ記録する。判定不能は拒否。",
       "boundary_behavior": "人口統計＋状況の混在は受理（人口統計が補助である限り）。状況フィールドが空文字・空配列のみの場合は「実質未記入」として人口統計のみと同等に拒否。",
       "retry_resume_recovery": "ゲートは無状態（判定のみ）。再実行は同一判定。修正後の segment は新版として再投入。",
       "human_judgement": "なし（全自動。状況フィールド定義の変更は要件改訂）",
@@ -315,7 +312,6 @@
         "state_refs": [],
         "event_refs": [],
         "evidence_kind_refs": [
-          "operation_log"
         ],
         "error_type_refs": [
           "PersonaSegmentRejected"
@@ -349,7 +345,7 @@
       ],
       "state_transitions": [],
       "normal_behavior": "マーケティング戦略工程の出力（VH/CAT/POS/CA/SC）を各 schema で検証し、strategic_choice は rejected_options（棄却理由つき）を、value_hypothesis は disconfirming_conditions を必須確認して版付きで受理する。",
-      "rejection_behavior": "rejected_options 空・棄却理由欠落・disconfirming_conditions 欠落は IncompleteStrategyRejected で拒否し、operation_log 証跡へ欠落要素を記録する。schema 判定不能も拒否。",
+      "rejection_behavior": "rejected_options 空・棄却理由欠落・disconfirming_conditions 欠落は IncompleteStrategyRejected で拒否し、構造化拒否ログへ欠落要素を記録する。schema 判定不能も拒否。",
       "boundary_behavior": "rejected_options ちょうど 1 件（minItems 境界）は受理。棄却理由が空文字の場合は欠落と同等に拒否。反証条件が「なし」と明記された仮説は反証不能として拒否。",
       "retry_resume_recovery": "schema 検証は無状態。欠落補完後は新版として再投入（append-only — SR-11）。",
       "human_judgement": "なし（検証は全自動。戦略内容そのものの妥当性判断は上流ループの改善工程 = SR-10 側）",
@@ -393,7 +389,6 @@
         "state_refs": [],
         "event_refs": [],
         "evidence_kind_refs": [
-          "operation_log"
         ],
         "error_type_refs": [
           "IncompleteStrategyRejected"
@@ -447,7 +442,6 @@
       ],
       "tables": [
         "w: strategic_briefs",
-        "w: evidence（外部操作証跡 = operation_log kind）",
         "r: config（シード投入時の検証設定）"
       ],
       "external_deps": [],
@@ -499,7 +493,6 @@
         "state_refs": [],
         "event_refs": [],
         "evidence_kind_refs": [
-          "operation_log"
         ],
         "error_type_refs": [
           "BriefSchemaRejected"
@@ -751,7 +744,7 @@
       ],
       "state_transitions": [],
       "normal_behavior": "下流は終端時に TLP を提出するだけで完結する。上流正本の変更は上流ループの改善工程（strategy_revision — SR-10）だけが新版 INSERT で行い、書込みはストア副層・kernel 経由に限定される。",
-      "rejection_behavior": "下流・コネクタ・計測処理からの strategic_briefs への UPDATE/DELETE は保護トリガが IntegrityError で常時拒否し、kernel 外経路の INSERT は WritePathDenied で拒否して operation_log に記録する。request_strategy_review 推奨を含む TLP も正本を変更しない（fail-close）。",
+      "rejection_behavior": "下流・コネクタ・計測処理からの strategic_briefs への UPDATE/DELETE は保護トリガが IntegrityError で常時拒否し、kernel 外経路の INSERT は WritePathDenied で拒否して 構造化拒否ログに記録する。request_strategy_review 推奨を含む TLP も正本を変更しない（fail-close）。",
       "boundary_behavior": "status/valid_until 列のみの遷移（superseded 化等）は上流 API 経由でのみ許可 — トリガ WHEN 条件の境界。TLP 大量提出（同一 brief への多 run）でも正本は 1 バイトも変わらない。",
       "retry_resume_recovery": "拒否は DB 無変更のため再実行安全。トリガは接続・プロセスに依存せず DDL として常時有効（クラッシュ後も防御が残る）。",
       "human_judgement": "なし（PO でもトリガ・経路制限をバイパスできない。戦略変更は SR-10 の revision 手続きのみ）",
@@ -766,8 +759,7 @@
       ],
       "tables": [
         "r: strategic_briefs（保護対象）",
-        "w: tactical_learning_packets（唯一の還流経路）",
-        "w: evidence（外部操作証跡 = operation_log kind）"
+        "w: tactical_learning_packets（唯一の還流経路）"
       ],
       "external_deps": [],
       "config_values": [],
@@ -806,7 +798,6 @@
       ],
       "semantic_refs": {
         "table_refs": [
-          "evidence",
           "kpi_nodes",
           "measurements",
           "state_transitions",
@@ -817,7 +808,6 @@
         "state_refs": [],
         "event_refs": [],
         "evidence_kind_refs": [
-          "operation_log"
         ],
         "error_type_refs": [
           "IntegrityError"
@@ -1124,7 +1114,7 @@
       ],
       "state_transitions": [],
       "normal_behavior": "T-PLAN の plan_record payload を content-plan-contract.json で検証し、defined_problem・recognition_change・comparison_axes・defined_value・target_hypothesis_ids の 5 キーが実質記入されている企画のみ承認して evidence（plan_record）へ記録する。",
-      "rejection_behavior": "5 キーのいずれかが欠落・schema 非適合の企画は ContentValueDeclarationRejected（G-CONTENT-VALUE-DEFINITION）で承認を拒否し、operation_log に欠落キーを記録する。集客目的であることは免除理由にならない（fail-close）。",
+      "rejection_behavior": "5 キーのいずれかが欠落・schema 非適合の企画は ContentValueDeclarationRejected（G-CONTENT-VALUE-DEFINITION）で承認を拒否し、構造化拒否ログに欠落キーを記録する。集客目的であることは免除理由にならない（fail-close）。",
       "boundary_behavior": "5 キーが存在しても空文字・空配列は「未宣言」として欠落と同等に拒否。target_hypothesis_ids は実在する戦略仮説 ID を最低 1 件参照する。",
       "retry_resume_recovery": "検証は無状態。宣言補完後の再提出で承認可。S0/S1 前半は docs ゲート（CI）、S1 で実行時強制（SCM-10）へ昇格 — いずれも同一契約。",
       "human_judgement": "なし（宣言の存在検証は全自動。企画内容の質は T-REVIEW の別 agent 審査が担う）",
@@ -1139,7 +1129,6 @@
       ],
       "tables": [
         "w: evidence（plan_record）",
-        "w: evidence（外部操作証跡 = operation_log kind）",
         "r: tasks（T-PLAN 対象判定）"
       ],
       "external_deps": [],
@@ -1173,7 +1162,6 @@
         "state_refs": [],
         "event_refs": [],
         "evidence_kind_refs": [
-          "operation_log",
           "plan_record"
         ],
         "error_type_refs": [
@@ -1207,7 +1195,7 @@
       ],
       "state_transitions": [],
       "normal_behavior": "brief 発行時に media_role を media-roles.json の語彙と照合し、一致のみ通す。台帳は設定可能な管理台帳（S1 で config 経由の追加・変更 — SCM-09）として維持する。",
-      "rejection_behavior": "台帳外の語彙（媒体名・自由記述・typo）は MediaRoleRejected（G-MEDIA-ROLE）で brief 発行を拒否し、operation_log に宣言値と台帳語彙を記録する（fail-close）。",
+      "rejection_behavior": "台帳外の語彙（媒体名・自由記述・typo）は MediaRoleRejected（G-MEDIA-ROLE）で brief 発行を拒否し、構造化拒否ログに宣言値と台帳語彙を記録する（fail-close）。",
       "boundary_behavior": "台帳ファイル欠損・空・パース不能時は全宣言を拒否する（deny-by-default）。大文字小文字・前後空白の揺れは正規化せず不一致として拒否（宣言の厳密性を優先）。",
       "retry_resume_recovery": "照合は無状態。台帳更新（語彙追加）後は次回発行から反映。既発行 brief は digest 固定のため遡及変更されない。",
       "human_judgement": "台帳への語彙追加・変更は PO 承認（S1 の config 経由変更 — 履歴は config の append-only 契約に従う）。照合は全自動。",
@@ -1221,7 +1209,6 @@
       ],
       "tables": [
         "r: strategic_briefs（media_role 列）",
-        "w: evidence（外部操作証跡 = operation_log kind）",
         "r: config（S1 — 台帳変更履歴）"
       ],
       "external_deps": [],
@@ -1259,7 +1246,6 @@
         "state_refs": [],
         "event_refs": [],
         "evidence_kind_refs": [
-          "operation_log"
         ],
         "error_type_refs": [
           "MediaRoleRejected"
@@ -1467,7 +1453,7 @@
       ],
       "state_transitions": [],
       "normal_behavior": "logic_tree を schema 検証し、node_kind 語彙・意味モデル参照の実在・非循環を確認して受理する。ツリーは戦略判断工程（strategic_choice）と同時に構築・改版される。",
-      "rejection_behavior": "語彙外 node_kind・参照先不在・循環を持つツリーは拒否し、operation_log 証跡へ記録する。判定不能は拒否。",
+      "rejection_behavior": "語彙外 node_kind・参照先不在・循環を持つツリーは拒否し、構造化拒否ログへ記録する。判定不能は拒否。",
       "boundary_behavior": "観測指標参照のみで意味モデル参照を欠くノードは葉ノードに限り受理（観測端点）。中間ノードは意味モデル参照必須。",
       "retry_resume_recovery": "ゲートは無状態（判定のみ）。再実行は同一判定。修正後の成果物は新版として再投入。",
       "human_judgement": "なし（全自動。語彙・schema の変更は要件改訂）",
@@ -1498,7 +1484,6 @@
         "state_refs": [],
         "event_refs": [],
         "evidence_kind_refs": [
-          "operation_log"
         ],
         "error_type_refs": [],
         "api_refs": []
@@ -1532,7 +1517,7 @@
       ],
       "state_transitions": [],
       "normal_behavior": "TLP 受領時に、その因果解釈・仮説判定を logic_tree の宛先ノードへ突き当て、node_verdict を証跡参照付きで追記する。SR-16 の一周判定はノード更新の有無で機械判定できる。",
-      "rejection_behavior": "証跡参照を欠く判定・語彙外の判定・既存判定の変更は拒否し、operation_log 証跡へ記録する。",
+      "rejection_behavior": "証跡参照を欠く判定・語彙外の判定・既存判定の変更は拒否し、構造化拒否ログへ記録する。",
       "boundary_behavior": "どのノードにも突き当たらない TLP は受理するが inconclusive 判定すら生まない（突き当てゼロは許容し、未接続として可視化する）。",
       "retry_resume_recovery": "ゲートは無状態（判定のみ）。再実行は同一判定。修正後の成果物は新版として再投入。",
       "human_judgement": "なし（全自動。語彙・schema の変更は要件改訂）",
@@ -1563,7 +1548,6 @@
         "state_refs": [],
         "event_refs": [],
         "evidence_kind_refs": [
-          "operation_log"
         ],
         "error_type_refs": [],
         "api_refs": []
@@ -1599,7 +1583,7 @@
       ],
       "state_transitions": [],
       "normal_behavior": "分析成果物を schema 検証し、claim 水準・不確実性・交絡検討・入力 digest を確認して受理する。受理 claim は SR-18 の判定証拠となり、検証済みの強み・差別化候補は USP／SWOT 型の演出プラン起草（positioning 調整）の入力として strategy_revision 経由で還流する。",
-      "rejection_behavior": "水準未宣言・不確実性欠落・digest なし・交絡検討なしで causal を名乗る成果物は拒否し、operation_log 証跡へ記録する。",
+      "rejection_behavior": "水準未宣言・不確実性欠落・digest なし・交絡検討なしで causal を名乗る成果物は拒否し、構造化拒否ログへ記録する。",
       "boundary_behavior": "少データ期は correlation／spurious_candidate 水準のみの成果物も受理する（causal は名乗れない）。単一介入の前後比較は介入時点と反実仮想の根拠を宣言すれば causal 候補として受理。",
       "retry_resume_recovery": "ゲートは無状態（判定のみ）。再実行は同一判定。修正後の成果物は新版として再投入。",
       "human_judgement": "なし（全自動。語彙・schema の変更は要件改訂）",
@@ -1630,7 +1614,6 @@
         "state_refs": [],
         "event_refs": [],
         "evidence_kind_refs": [
-          "operation_log"
         ],
         "error_type_refs": [],
         "api_refs": []
@@ -1642,5 +1625,5 @@
   "approved_at": "2026-08-05T00:00:00+09:00",
   "authority": "PO",
   "supersedes": [],
-  "approval_digest": "9af2b10b3147"
+  "approval_digest": "977ec7ae5c0c"
 }

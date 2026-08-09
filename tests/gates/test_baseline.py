@@ -44,6 +44,56 @@ def test_historical_counts_are_kept_out_of_live_denominators() -> None:
     assert not set(base["counts"]) & {"AC", "UTC"}
 
 
+def test_readme_major_counts_match_canonical_denominators() -> None:
+    text = (ROOT / "README.md").read_text(encoding="utf-8")
+    assert baseline.detect_readme_count_faults(text, baseline.current_counts(baseline.Ctx())) == []
+
+
+@pytest.mark.parametrize("name", ["README.md", "CLAUDE.md", "AGENTS.md"])
+def test_root_contract_denominators_match_canonical_counts(name: str) -> None:
+    text = (ROOT / name).read_text(encoding="utf-8")
+    counts = baseline.current_counts(baseline.Ctx())
+    assert baseline.detect_root_contract_count_faults(name, text, counts) == []
+
+
+def test_mutation_stale_readme_requirement_count_is_detected() -> None:
+    text = ("BR 背骨 41 / 要求一覧 52 / 要件定義 FR39/NFR10 / 機能一覧 61\n"
+            "現行分母は **AC=237 ／ TCC=243 ／ API=58 ／ API_UT=199**")
+    counts = {"BR": 41, "REQ": 55, "FR": 39, "NFR": 10, "FN": 61,
+              "AC_CONTRACT": 237, "TCC": 243, "API": 58, "API_UT": 199}
+    faults = baseline.detect_readme_count_faults(text, counts)
+    assert faults == ["README:REQ=[52]!=55"]
+
+
+def test_mutation_stale_readme_contract_denominator_is_detected() -> None:
+    text = "現行分母は **AC=999 ／ TCC=243 ／ API=58 ／ API_UT=199**"
+    counts = {"BR": 41, "REQ": 55, "FR": 39, "NFR": 10, "FN": 61,
+              "AC_CONTRACT": 237, "TCC": 243, "API": 58, "API_UT": 199}
+    faults = baseline.detect_root_contract_count_faults("README.md", text, counts)
+    assert faults
+
+
+@pytest.mark.parametrize("index", range(4))
+def test_mutation_each_root_contract_denominator_is_checked(index: int) -> None:
+    expected = [237, 243, 58, 199]
+    mutated = expected.copy()
+    mutated[index] = 999
+    text = (f"現行分母は AC={mutated[0]} ／ TCC={mutated[1]} ／ "
+            f"API={mutated[2]} ／ API_UT={mutated[3]} のみ。")
+    counts = {"AC_CONTRACT": 237, "TCC": 243, "API": 58, "API_UT": 199}
+    assert baseline.detect_root_contract_count_faults("AGENTS.md", text, counts)
+
+
+@pytest.mark.parametrize("text", [
+    "契約分母の権威行なし",
+    ("現行分母は AC=237 ／ TCC=243 ／ API=58 ／ API_UT=199\n"
+     "現行分母は **AC=237 ／ TCC=243 ／ API=58 ／ API_UT=199**"),
+])
+def test_mutation_root_contract_line_missing_or_duplicated_is_detected(text: str) -> None:
+    counts = {"AC_CONTRACT": 237, "TCC": 243, "API": 58, "API_UT": 199}
+    assert baseline.detect_root_contract_count_faults("CLAUDE.md", text, counts)
+
+
 PREV = {
     "counts": {"BR": 38, "REQ": 52, "AC": 19},
     "contract_counts": {"AC_CONTRACT": 211, "TCC": 217},
@@ -408,4 +458,3 @@ def test_mutation_skip_raise_without_design_addition_is_detected() -> None:
 def test_mutation_skip_raise_without_parent_ut_count_is_failclose() -> None:
     faults = baseline.skip_raise_backing_faults({}, {"API_UT": 199}, 194, 204)
     assert any("親コミットの API_UT が無い" in f for f in faults), faults
-

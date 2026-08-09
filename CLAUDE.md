@@ -40,12 +40,12 @@
   戦略層は strategy-loop-requirements／strategy-learning-contract ↔ strategy-loop-design／
   strategy-loop-test-design のペア（SR 19／SCM 10／STC）。
   DDL・状態遷移・evidence 型・WF 契約の正準は docs/L3-system-requirements/canonical/s0-contract_v0.1.md。
-- 現在地（この 7 行が正本。他所へ現在地を書かない。完了宣言は**更新単位**で、
+- 現在地（この 8 行が正本。他所へ現在地を書かない。完了宣言は**更新単位**で、
   docs/L6-feature-design/S0/update-closure.json の宣言と実態の一致を G-UPDATE-DESIGN-CLOSURE が検査する）:
   - 構造・権威移行完了（L0〜L6 の正本と機械ゲートを確定）
   - S0.1 設計クロージャー完了（未被覆 API 0）
-  - S0.2 設計クロージャー未了（planned・未被覆 API 5）
-  - S0.3 設計クロージャー未了（planned・未被覆 API 1）
+  - S0.2 設計クロージャー完了（未被覆 API 0）
+  - S0.3 設計クロージャー完了（未被覆 API 0）
   - 今回追加した Kanban／bounded domain／media binding は L3 要求定義まで完了、S1 設計は未着手
   - ロジックツリー／統合因果分析（SR-17〜19）は L3 要求定義まで完了、実装は S2 スライス・未着手
   - S0.1 実装未着手
@@ -74,7 +74,7 @@
   `resolution_update`（DU の fn_ids → updates.json から機械導出 — G-UNCOVERED-API-UPDATE）付きで登録する。
   更新ごとの設計クロージャー宣言は docs/L6-feature-design/S0/update-closure.json が正本で、
   実態との一致と現在地との一致を G-UPDATE-DESIGN-CLOSURE が検査する（slice と update を混同しない）。
-- 現行分母は **AC=227 ／ TCC=233 ／ API=58 ／ API_UT=199** のみ。旧体系の分母は baseline.json の
+- 現行分母は **AC=237 ／ TCC=243 ／ API=59 ／ API_UT=215** のみ。旧体系の分母は baseline.json の
   `historical_counts` にのみ保持し、現役導線では使わない。
 - 次 = **S0.1 実装**（DU-01〜12 の API を test-first。各 API の UT は du-contracts の `apis[].ut` が正本）。
   実装パッケージは **`src/helix/`**。着手は**自動検出**される（`src/helix/` への実装追加・
@@ -129,6 +129,8 @@ codex exec -s workspace-write -m gpt-5.6-<sol|terra|luna> -c model_reasoning_eff
 - コネクタは業務状態を直接書かない。永続化はストア副層・kernel・evidence API 経由のみ。
 - 1 状態遷移 = 1 transaction。外部操作は「operation_log 証跡化 → 状態遷移」の順。
 - 時刻・乱数は Clock/Rng 注入。設定値はすべて config 行（ハードコード禁止）。
-- 外部書込みは Docker WP のみ（本番 WP・実 GA4 への書込みは禁止 — 環境契約 §6）。
+- 公開コンテンツの外部書込み先は Docker WP のみ（本番 WP・実 GA4 への書込みは禁止 — 環境契約 §6）。
+  Notion 審査同期と Claude Code 承認通知は、明示 `policy_category`・service・operation・endpoint
+  allow-list と承認に束縛された非公開 write として別管理する。
 - 上流戦略正本は DB で保護する: brief の状態遷移は draft→active／active→superseded|retired のみ、
   valid_until の延長は禁止（新版発行）、TLP の空配列判定は `json_array_length()` を使う。

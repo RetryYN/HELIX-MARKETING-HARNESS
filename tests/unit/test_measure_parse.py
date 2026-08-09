@@ -45,6 +45,12 @@ def test_empty_export_zero_rows_evidence_only() -> None:
     raise NotImplementedError
 
 
+@pytest.mark.skip(reason="test-first DU-23: parse")
+def test_non_pv_and_paid_metric_columns_excluded() -> None:
+    """S0で許可するPV以外の列と有料指標列が結果へ混入しないことを検証する。"""
+    raise NotImplementedError
+
+
 @pytest.mark.skip(reason="test-first DU-23: ingest")
 def test_imported_at_supplied_by_clock() -> None:
     """du-contracts DU-23 の契約観点を検証する（red→green は実装スライスで）。"""

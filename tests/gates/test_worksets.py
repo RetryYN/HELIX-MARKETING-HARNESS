@@ -225,6 +225,54 @@ def test_ratchet_faults_accept_identical_parent() -> None:
     assert worksets.ratchet_faults(data, copy.deepcopy(data), "HEAD") == []
 
 
+def test_ratchet_accepts_declared_numeric_physical_count_nodeid_rename() -> None:
+    """正例: 同一UTのDDL物理数部分だけの改名は、明示台帳で意味継承する。"""
+    now = _doc()
+    rename = now["ut_nodeid_renames"][0]
+    prev = copy.deepcopy(now)
+    nodeids = prev["worksets"][0]["ut_nodeids"]
+    nodeids[nodeids.index(rename["to"])] = rename["from"]
+    assert worksets.ratchet_faults(now, prev, "HEAD") == []
+
+
+def test_mutation_ratchet_rejects_undeclared_or_semantically_different_nodeid_rename() -> None:
+    """変異: rename台帳の削除や別file／数字以外の改名でUT縮小を隠せない。"""
+    now = _doc()
+    rename = now["ut_nodeid_renames"][0]
+    prev = copy.deepcopy(now)
+    nodeids = prev["worksets"][0]["ut_nodeids"]
+    nodeids[nodeids.index(rename["to"])] = rename["from"]
+
+    undeclared = copy.deepcopy(now)
+    undeclared["ut_nodeid_renames"] = []
+    assert any("ut_nodeids が縮小" in fault
+               for fault in worksets.ratchet_faults(undeclared, prev, "HEAD"))
+
+    other_file = copy.deepcopy(now)
+    other_file["ut_nodeid_renames"][0]["from"] = (
+        "tests/unit/test_other.py::test_apply_all_empty_db_creates_25_tables_and_16_triggers")
+    assert any("同一test file" in fault for fault in worksets.schema_faults(other_file))
+
+    other_meaning = copy.deepcopy(now)
+    other_meaning["ut_nodeid_renames"][0]["from"] = (
+        "tests/unit/test_db_migrate.py::test_unrelated_25_tables_and_16_triggers")
+    assert any("数字以外が変化" in fault for fault in worksets.schema_faults(other_meaning))
+
+
+def test_mutation_ratchet_keeps_nodeid_rename_ledger_append_only() -> None:
+    """変異: 改名後の次commitでrename台帳を削除・改竄して監査跡を消せない。"""
+    prev = _doc()
+    removed = copy.deepcopy(prev)
+    removed["ut_nodeid_renames"] = []
+    assert any("ut_nodeid_renames が縮小・改変" in fault
+               for fault in worksets.ratchet_faults(removed, prev, "HEAD"))
+
+    rewritten = copy.deepcopy(prev)
+    rewritten["ut_nodeid_renames"][0]["reason"] += "（改竄）"
+    assert any("ut_nodeid_renames が縮小・改変" in fault
+               for fault in worksets.ratchet_faults(rewritten, prev, "HEAD"))
+
+
 def test_mutation_ratchet_rejects_removal_shrink_regression_floor_and_receipt_change() -> None:
     """変異: Workset／UT を縮小し、status・coverage・既存 red 証跡を後退させる。"""
     prev = _doc()

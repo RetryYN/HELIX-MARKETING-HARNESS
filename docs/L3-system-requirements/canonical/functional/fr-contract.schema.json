@@ -90,6 +90,23 @@
       },
       "description": "関与する状態遷移（(entity, from→to, event)。遷移なし = 空配列）"
     },
+    "transition_refs": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["entity", "from", "event", "to"],
+        "properties": {
+          "entity": {"type": "string", "enum": ["loop_runs", "tasks"]},
+          "from": {"type": "string", "pattern": "^[a-z_]+$"},
+          "event": {"type": "string", "pattern": "^[a-z_]+$"},
+          "to": {"type": "string", "pattern": "^[a-z_]+$"}
+        }
+      },
+      "description": "成立を要求する (entity, from, event, to)。transitions.json と完全照合し、対応AC/TCCが同じ集合を被覆する"
+    },
     "normal_behavior": {
       "type": "string",
       "minLength": 20

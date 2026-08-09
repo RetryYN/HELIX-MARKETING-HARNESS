@@ -1,0 +1,37 @@
+{
+  "review_id": "REV-CLAUDE-REQUIREMENTS-SEMANTICS-03",
+  "reviewer_principal": "claude-opus-reviewer",
+  "author_principal": "codex-primary",
+  "author_execution_id": "codex-primary-20260810-mypy-followup",
+  "reviewer_execution_id": "a8f0465b-42cd-4a37-981e-aa376ed03ee7",
+  "review_run_id": "REV-CLAUDE-REQUIREMENTS-SEMANTICS-03-R1",
+  "reviewer_provider": "anthropic-claude-cli",
+  "review_log_path": "docs/00-authority/reviews/logs/REV-CLAUDE-REQUIREMENTS-SEMANTICS-03.jsonl",
+  "review_log_digest": "69521f9f8d32e854",
+  "separation_status": "self_attested",
+  "model": "claude-opus-5",
+  "target_commit": "4585ef908e56ab661387bf40bffacd5b4370c8e0",
+  "target_tree": "cac45c1da94d3e26e94dca63299c0960c511f850",
+  "scope": "Python CI strict mypyが検出したarchitecture DML mutation helperの型契約是正とbaseline再束縛に対するClaude Opusフォローアップレビュー",
+  "supersedes_review": [
+    "REV-CLAUDE-REQUIREMENTS-SEMANTICS-02"
+  ],
+  "reviewed_artifact_digests": {
+    "docs/00-authority/baselines/baseline.json": "f98be1866dde7921",
+    "tools/gates/architecture.py": "c871dba39ac506b5"
+  },
+  "resolution_commits": [
+    "4585ef908e56ab661387bf40bffacd5b4370c8e0"
+  ],
+  "verdict": "Go",
+  "completed_at": "2026-08-10",
+  "rounds": 1,
+  "findings": [
+    {
+      "severity": "minor",
+      "status": "resolved",
+      "summary": "拡張したDML mutation helperの戻り値とheterogeneous fixture listがstrict mypyで型不成立だった",
+      "resolution": "fixtureを明示型化しDML helperの実戻り値sqlite3.Cursorを契約化して実行意味を保持した"
+    }
+  ]
+}

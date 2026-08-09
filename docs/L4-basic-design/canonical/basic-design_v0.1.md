@@ -158,7 +158,13 @@ S0 の 25 機能（FN）を 13 コンポーネントに割り当てる。**割�
   kernel 側 `publish(pair_pass: PairPass, ...)` とし、`PairPass` は CMP-03 の `require_pair` だけが
   生成できる検証済み値オブジェクト。低レベル WP client はモジュール非公開（`_client`）とし、
   ゲート未通過の呼出し経路をコード構造で塞ぐ。
-  書込み先はローカル Docker WP のみ（環境契約 §6。base URL の allow-list 検査）。
+  **公開コンテンツ write**（policy_category=content_publish）の書込み先はローカル Docker WP のみ
+  （環境契約 §6。category＋service＋operation＋base URL の exact policy 検査）。この制約は
+  review_sync／approval_notification／approved_paid_operation を公開経路として扱うものではない。
+- 公開成功時は confirmed content_publish の operation_log を先に確定し、asset 登録後に
+  published_url evidence を必須の `external_operation_row_id` と `operation_log_evidence_id`
+  NOT NULL・UNIQUE self-FK で同 task の external row／operation_log へ1:1 束縛する。
+  provider operation ID は任意であり、欠落で公開証跡を拒否しない。
 
 ### CMP-11 承認通知（connectors/approval.py）
 
@@ -166,7 +172,9 @@ S0 の 25 機能（FN）を 13 コンポーネントに割り当てる。**割�
   （ストア副層 `approvals_store` 経由）＋ approval 証跡（evidence API 経由）へ記録。承認 pending 中は
   **親 loop_run を waiting** にし task は進行させない（tasks に waiting 状態はない — s0-contract §3.2）。
   rejected は non_retryable_failure で task を failed へ、expired は承認再要求で待機継続し approval_retry_limit 到達で escalated（同 §4.2）。
-  transport は差替可能な interface（本番: 通知、テスト: mock fixture）。
+  transport は差替可能な interface（本番: 通知、テスト: mock fixture）。実通知は
+  policy_category=approval_notification とし、binding 確定＋Claude Code アプリの exact
+  `(approval_notification, claude_code_app, approval_request, target_endpoint)` policy を preflight する。
 
 ### CMP-12 制作・版管理（content/）
 
@@ -194,6 +202,10 @@ S0 の 25 機能（FN）を 13 コンポーネントに割り当てる。**割�
 - **時間・乱数**: 現在時刻と乱数は `Clock`/`Rng` 注入で受け取り、直接呼ばない（テスト決定性、NFR-7 の
   ランダム間隔も同注入点で実装）。
 - **設定値**: リトライ上限・間隔範囲・denylist 等はすべて config 行。ハードコード禁止（型×動的充填）。
+- **外部操作 policy**: actual read は policy_category=external_read／rate_scope=NULL。actual write は
+  content_publish／review_sync／approval_notification／approved_paid_operation のいずれかと
+  canonical lowercase rate_scope が必須。intent／request／result／external row／operation_log へ同値で降下し、
+  operation_log の rate_scope key は read でも JSON null として常設する。
 
 ## 5. 実装体制（エージェント割当）
 
@@ -210,4 +222,8 @@ S0 の 25 機能（FN）を 13 コンポーネントに割り当てる。**割�
 
 FN-605（ダッシュボード HTML 生成）、import-linter による依存方向の機械検査、本番 WP 書込み、
 Notion 正式連携（FN-408）は本設計の構造（レジストリ・ゲート・証跡）に追加コンポーネントとして
-載せる前提であり、S0 構造の変更を要しない。
+載せる。実 write は policy_category=review_sync、明示 config の exact
+`(review_sync, notion, sync_result, target_endpoint)` policy と完全一致 ApprovalPass を必須とし、
+read 1 要求・分割 write 各要求を別 lifecycle 行にする。category／config／承認欠落は行作成前に拒否する。
+有償 actual write は policy_category=approved_paid_operation とし、spend_ledger 記帳所有者・API・DU／UT を
+S1 専用 component として再降下する。これは未解消 design debt であり、CMP-13／DU-23 の計測責務へ混在させない。

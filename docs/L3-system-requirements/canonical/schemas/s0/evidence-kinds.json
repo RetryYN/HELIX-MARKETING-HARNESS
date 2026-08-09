@@ -25,8 +25,8 @@
     {
       "kind": "published_url",
       "value_semantics": "canonical URL",
-      "required_payload_keys": ["url", "wp_post_id", "external_operation_id", "asset_id"],
-      "column_rules": "`asset_id`、`external_operation_id` 列必須。URL は `assets.canonical_url` と整合"
+      "required_payload_keys": ["url", "wp_post_id", "external_operation_row_id", "operation_log_evidence_id", "asset_id"],
+      "column_rules": "同じtaskのactual・confirmed・`content_publish` write、対応operation_log、`assets.canonical_url`へローカルIDで1:1束縛。`external_operation_row_id`と`operation_log_evidence_id`は必須・UNIQUE・FK。`provider_operation_id` payload／`external_operation_id`列は任意で、記録時だけ外部行と一致"
     },
     {
       "kind": "measurement",
@@ -54,9 +54,12 @@
     },
     {
       "kind": "operation_log",
-      "value_semantics": "external operation ID",
-      "required_payload_keys": ["service", "operation", "external_operation_id", "request_fingerprint", "result"],
-      "column_rules": "`external_operation_id` 列必須。secret・本文・credential は禁止"
+      "value_semantics": "`external-operation:<external_operations.id>` 形式のローカル external operation row ID",
+      "required_payload_keys": ["external_operation_row_id", "effect", "policy_category", "rate_scope", "service", "operation", "correlation_key", "request_hash", "request_sequence", "result"],
+      "conditional_payload_keys": {
+        "approved_paid_operation": ["approval_id", "amount_minor", "currency", "purpose", "occurred_at"]
+      },
+      "column_rules": "`external_operation_row_id`は必須・UNIQUE・`external_operations.id` FK。task/effect/policy_category/rate_scope/service/operation/correlation/request/request_sequence/resultは外部行と一致し、readのrate_scopeはJSON null。反対向`external_operations.evidence_id`もUNIQUE。provider IDは任意で記録時だけ一致。created_atは実在する秒精度のcanonical UTC RFC3339。paid+confirmedは同じINSERT文で正額JPY・非空purpose・canonical UTC occurred_atのchargeまで自動記帳し、失敗時はoperation_log/final/ledgerを全rollback。secret・本文・credentialは禁止"
     },
     {
       "kind": "dashboard",

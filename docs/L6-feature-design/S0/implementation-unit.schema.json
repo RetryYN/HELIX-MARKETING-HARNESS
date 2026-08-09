@@ -22,8 +22,8 @@
     },
     "doc": {
       "type": "string",
-      "pattern": "^docs/L6-feature-design/S0/[a-z0-9-]+\\.md$",
-      "description": "この責務を記述する L6 機能設計文書（本文に unit_id が現れること）"
+      "pattern": "^docs/L6-feature-design/(S0|S1|later)/[a-z0-9-]+\\.md$",
+      "description": "この責務を記述する L6 機能設計文書。更新軸とslice軸を混同せず、S0/S1/laterの実配置・frontmatterへ接続し、本文にunit_idが現れること"
     },
     "du_id": {
       "type": "string",

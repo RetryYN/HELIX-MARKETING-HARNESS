@@ -10,15 +10,15 @@
     },
     {
       "update": "S0.2",
-      "design_closure": "open",
-      "current_state_claim": "S0.2 設計クロージャー未了（planned・未被覆 API 5）",
-      "note": "DU-13〜20。list_declared／launch／screenshot／record_failure／commit_workspace の受入基準が未設定"
+      "design_closure": "closed",
+      "current_state_claim": "S0.2 設計クロージャー完了（未被覆 API 0）",
+      "note": "DU-13〜20。全APIの受入またはinternal分類、全契約節の検証束縛、全実装責務を接続済み。DU-19/20は更新軸S0.2を維持しつつslice軸S1のcampaign.mdへ実装単位を構造接続した"
     },
     {
       "update": "S0.3",
-      "design_closure": "open",
-      "current_state_claim": "S0.3 設計クロージャー未了（planned・未被覆 API 1）",
-      "note": "DU-21〜23。tree の受入基準が未設定"
+      "design_closure": "closed",
+      "current_state_claim": "S0.3 設計クロージャー完了（未被覆 API 0）",
+      "note": "DU-21〜23。treeをプロファイル限定の読取専用APIとしてUTへ確定し、取得エラー正規化・credential fail-close・非PV/有料列除外を個別UTへ束縛。未被覆API・受入基準未設定とも0"
     }
   ]
 }

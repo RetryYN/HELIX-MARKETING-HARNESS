@@ -84,6 +84,7 @@
 |---|---|---|---|---|---|
 | 2026-08-01 | skip-budget | 0→194 | approved | PO | 全層再降下 §8 — DU 23 契約の API 58 本に対する test-first スタブ 185 本＋⑥既存分（S0.1 実装で解消） |
 | 2026-08-02 | skip-budget | 194→204 | approved | PO | 未被覆 API／更新境界最終是正 — S0.1 の契約節を UT へ直接接続するための test-first スタブ 10 本の追加（S0.1 実装で red→green 化して解消） |
+| 2026-08-10 | skip-budget | 204→220 | approved | PO | S0.2/S0.3設計クロージャー — 未被覆API・未解決契約節を直接観測するtest-firstスタブ16本を追加し、各実装sliceでred→green化して解消 |
 
 ## Kanban-first・複数 domain 要求定義（2026-08-05）
 
@@ -356,3 +357,124 @@
 | 2026-08-05 | sr-contracts | v0.1 | confirmed | PO | cc6280f98d7c | SR-17〜19（ロジックツリー構築／運用後ノード検証／統合データ分析 3 水準・演出プラン還流）追加に伴う内容束縛承認（2026-08-05 PO 指示） |
 | 2026-08-05 | strategy-loop-requirements | v0.1 | confirmed | PO | a037537fa88c | SR-17〜19（ロジックツリー構築／運用後ノード検証／統合データ分析 3 水準・演出プラン還流）追加に伴う内容束縛承認（2026-08-05 PO 指示） |
 | 2026-08-05 | strategy-loop-test-design | v0.1 | confirmed | PO | 818f9be8eda1 | SR-17〜19（ロジックツリー構築／運用後ノード検証／統合データ分析 3 水準・演出プラン還流）追加に伴う内容束縛承認（2026-08-05 PO 指示） |
+| 2026-08-09 | br-media | v0.1 | confirmed | PO | 1b547bab2fd9 | 全意味監査: KDP公式上限の最新一次情報への是正、KDP/note公開頻度の判定可能化（2026-08-09 PO 指示） |
+| 2026-08-09 | fr-contracts.json | v0.1 | confirmed | PO | e7417d45b728 | 全意味監査: FR-11拒否時の業務状態不変とstate_transitions拒否証跡への一元化（2026-08-09 PO 指示） |
+| 2026-08-09 | sr-contracts.json | v0.1 | confirmed | PO | ecf2afd626b4 | 全意味監査: 内部schema/戦略ゲート拒否と外部操作operation_logの証跡責務分離（2026-08-09 PO 指示） |
+| 2026-08-09 | nfr-contracts.json | v0.1 | confirmed | PO | 6671df06142d | 全意味監査: NFR10の実行可能な測定方法と専用AC/TCC接続、状態語彙の正規化（2026-08-09 PO 指示） |
+| 2026-08-09 | ac-contracts.json | v0.1 | confirmed | PO | 515b85f36367 | 全意味監査: NFR10専用受入基準AC-901〜910追加（2026-08-09 PO 指示） |
+| 2026-08-09 | tc-contracts.json | v0.1 | confirmed | PO | c09d6df06c3b | 全意味監査: NFR10専用検証契約TCC-NFR-01〜10追加（2026-08-09 PO 指示） |
+| 2026-08-09 | ac-catalog | v0.1 | confirmed | PO | a11580f52410 | 全意味監査後のAC生成ビュー再生成（scripts/render_views.py、手編集なし） |
+| 2026-08-09 | fr-contracts | v0.1 | confirmed | PO | bf4a78314452 | 全意味監査後のFR生成ビュー再生成（scripts/render_views.py、手編集なし） |
+| 2026-08-09 | nfr-contracts | v0.1 | confirmed | PO | c25391c21acb | 全意味監査後のNFR生成ビュー再生成（scripts/render_views.py、手編集なし） |
+| 2026-08-09 | sr-contracts | v0.1 | confirmed | PO | a8b0777f4b9d | 全意味監査後のSR生成ビュー再生成（scripts/render_views.py、手編集なし） |
+| 2026-08-09 | tc-catalog | v0.1 | confirmed | PO | bb33fde752bc | 全意味監査後のTCC生成ビュー再生成（scripts/render_views.py、手編集なし） |
+| 2026-08-09 | br-media | v0.1 | confirmed | PO | 223b093b46be | Sol意味監査Go: KDP週次作成上限と内部出版節度の分離、note上限同期 |
+| 2026-08-09 | s0-contract | v0.1 | confirmed | PO | f77330da3aae | Sol意味監査Go: process logger構造化ログと外部操作operation_logの責務分離 |
+| 2026-08-09 | fr-contracts.json | v0.1 | confirmed | PO | ea275cdd9508 | Sol意味監査Go: 拒否証跡型と状態遷移意味の正規化 |
+| 2026-08-09 | nfr-contracts.json | v0.1 | confirmed | PO | d9e5b037af9c | Sol意味監査Go: NFR計測境界・復旧・乱数・証跡契約の実行可能化 |
+| 2026-08-09 | ac-contracts.json | v0.1 | confirmed | PO | 5dd171616681 | Sol意味監査Go: NFR受入観点、境界、拒否状態の全層再降下 |
+| 2026-08-09 | tc-contracts.json | v0.1 | confirmed | PO | 66b03428ea58 | Sol意味監査Go: NFR観点別assertと独立fixtureの構造化 |
+| 2026-08-09 | du-contracts.json | v0.1 | confirmed | PO | 90e5256f2295 | Sol意味監査Go: credential検知のpre-operation構造化ログ統一 |
+| 2026-08-09 | ac-catalog | v0.1 | confirmed | PO | 6146370311e4 | Sol意味監査Go後のAC生成ビュー再生成（scripts/render_views.py、手編集なし） |
+| 2026-08-09 | fr-contracts | v0.1 | confirmed | PO | 038e6274de3d | Sol意味監査Go後のFR生成ビュー再生成（scripts/render_views.py、手編集なし） |
+| 2026-08-09 | nfr-contracts | v0.1 | confirmed | PO | 429e4727c340 | Sol意味監査Go後のNFR生成ビュー再生成（scripts/render_views.py、手編集なし） |
+| 2026-08-09 | tc-catalog | v0.1 | confirmed | PO | 633426c319ac | Sol意味監査Go後のTCC生成ビュー再生成（scripts/render_views.py、手編集なし） |
+| 2026-08-09 | du-contracts | v0.1 | confirmed | PO | b802689881bd | Sol意味監査Go後のDU生成ビュー再生成（scripts/render_views.py、手編集なし） |
+| 2026-08-09 | ac-catalog | v0.1 | confirmed | PO | d8cdb7987e7c | 最終approval digest同期後のAC生成ビュー再生成 |
+| 2026-08-09 | fr-contracts | v0.1 | confirmed | PO | ebe0900a6c41 | 最終approval digest同期後のFR生成ビュー再生成 |
+| 2026-08-09 | nfr-contracts | v0.1 | confirmed | PO | 16bce183a922 | 最終approval digest同期後のNFR生成ビュー再生成 |
+| 2026-08-09 | tc-catalog | v0.1 | confirmed | PO | a03ac65b9cd6 | 最終approval digest同期後のTCC生成ビュー再生成 |
+| 2026-08-09 | du-contracts | v0.1 | confirmed | PO | c0cbce023e6b | 最終approval digest同期後のDU生成ビュー再生成 |
+
+## 全要求意味監査・HELIX再降下（2026-08-10）
+
+> 2026-08-10 PO 指示による要求・要件定義の全層監査、意味矛盾是正、外部 I/O 証跡／状態遷移／
+> playbook 版管理／NFR 測定契約の再降下、および mutation ベースのデグレ防止ゲート整備に対する内容束縛承認。
+
+| 日付 | 対象 | 版 | 判定 | 承認者 | digest | 備考 |
+|---|---|---|---|---|---|---|
+| 2026-08-10 | br-contracts.json | v0.1 | confirmed | PO | 6bfd434b51fb | 媒体上限と上位制約の判定可能化 |
+| 2026-08-10 | fr-contracts.json | v0.1 | confirmed | PO | c313be37fc53 | 状態遷移・外部I/O・playbook版管理・支出台帳境界の意味再降下 |
+| 2026-08-10 | sr-contracts.json | v0.1 | confirmed | PO | 977ec7ae5c0c | 戦略ゲートと外部操作証跡の責務分離 |
+| 2026-08-10 | nfr-contracts.json | v0.1 | confirmed | PO | 4cd61e728300 | NFRの計測SQL・意味参照・境界fixtureの実行可能化 |
+| 2026-08-10 | ac-contracts.json | v0.1 | confirmed | PO | 6281f2db8aa8 | 全NFR観点・外部I/O属性・拒否経路の受入降下 |
+| 2026-08-10 | tc-contracts.json | v0.1 | confirmed | PO | 1f2b0bb2d810 | aspect別assert・境界・原子性fixtureの検証降下 |
+| 2026-08-10 | cmp-contracts.json | v0.1 | confirmed | PO | e0c45722a185 | component責務とactual外部I/O lifecycleの一意化 |
+| 2026-08-10 | du-contracts.json | v0.1 | confirmed | PO | 9c20b7e09797 | API契約・local row ID・版切替・UT接続の再降下 |
+| 2026-08-10 | implementation-units.json | v0.1 | confirmed | PO | 2f08d683c1c7 | L6責務・API・契約節・AC・UT接続の同期 |
+| 2026-08-10 | br-contracts | v0.1 | confirmed | PO | f95dc7ffc558 | JSON正本から生成ビューを再生成（手編集なし） |
+| 2026-08-10 | ac-catalog | v0.1 | confirmed | PO | 3c8d2bf8f6cb | JSON正本から生成ビューを再生成（手編集なし） |
+| 2026-08-10 | fr-contracts | v0.1 | confirmed | PO | 1d320bae6a93 | JSON正本から生成ビューを再生成（手編集なし） |
+| 2026-08-10 | nfr-contracts | v0.1 | confirmed | PO | a21145feb1d8 | JSON正本から生成ビューを再生成（手編集なし） |
+| 2026-08-10 | sr-contracts | v0.1 | confirmed | PO | 569935e07017 | JSON正本から生成ビューを再生成（手編集なし） |
+| 2026-08-10 | tc-catalog | v0.1 | confirmed | PO | 74391ecefe36 | JSON正本から生成ビューを再生成（手編集なし） |
+| 2026-08-10 | cmp-contracts | v0.1 | confirmed | PO | 31e32985d121 | JSON正本から生成ビューを再生成（手編集なし） |
+| 2026-08-10 | du-contracts | v0.1 | confirmed | PO | c753d0ffc9b1 | JSON正本から生成ビューを再生成（手編集なし） |
+| 2026-08-10 | s0-contract | v0.1 | confirmed | PO | 4f5ac5fe3bc8 | DDL・外部I/O・証跡・playbook版・支出台帳の正準化 |
+| 2026-08-10 | approval-design | v0.1 | confirmed | PO | 3a403cdb2ff4 | 承認transportと業務writeの外部操作分離 |
+| 2026-08-10 | basic-design | v0.1 | confirmed | PO | 6ef47350715b | policy category・rate scope・証跡順序の基本設計同期 |
+| 2026-08-10 | db-design | v0.1 | confirmed | PO | 87e38658e04b | 25 tables／37 triggers・双方向1:1・append-only設計同期 |
+| 2026-08-10 | external-if-design | v0.1 | confirmed | PO | 82adce1bdb8d | actual read/write lifecycleとpreflight拒否境界の同期 |
+| 2026-08-10 | error-taxonomy | v0.1 | confirmed | PO | 97b1bea7c697 | internal/pre-call拒否をprocess loggerへ統一 |
+| 2026-08-10 | approval | - | confirmed | PO | 8e5a8b45c389 | 承認通知／pollのexternal operation契約同期 |
+| 2026-08-10 | evidence | - | confirmed | PO | 6fb1aa60ea03 | operation_log／published_urlのlocal row束縛同期 |
+| 2026-08-10 | external-operations | - | confirmed | PO | 57bb3214b260 | lifecycle・policy・cap・recovery・atomicity契約同期 |
+| 2026-08-10 | kpi-handoff | - | confirmed | PO | 646394a36687 | actual readとmock/fixture境界の同期 |
+| 2026-08-10 | migration | - | confirmed | PO | 68e2a643d754 | 25 tables／37 triggersへの物理数同期 |
+| 2026-08-10 | pair-gate | - | confirmed | PO | 17e4bb8a1c94 | preflight拒否の外部2表0行契約同期 |
+
+## 意味監査 Low 指摘の完封（2026-08-10）
+
+> 2026-08-10 PO の「直して」指示に基づき、訂正taskのDB構造束縛、外部操作終端時刻の語義、
+> および正本と生成Markdownの責務分離を是正した内容束縛承認。
+
+| 日付 | 対象 | 版 | 判定 | 承認者 | digest | 備考 |
+|---|---|---|---|---|---|---|
+| 2026-08-10 | ac-contracts.json | v0.1 | confirmed | PO | 8d88e42f46d0 | spend_correction taskのDB束縛fixtureとDesignSync bare URL正本化 |
+| 2026-08-10 | fr-contracts.json | v0.1 | confirmed | PO | 7413d0e4506b | reversal訂正taskの構造契約を明示 |
+| 2026-08-10 | nfr-contracts.json | v0.1 | confirmed | PO | f69c6e989f78 | reversal完全性へtask種別・親・元仕訳IDを追加 |
+| 2026-08-10 | tc-contracts.json | v0.1 | confirmed | PO | e68e5ca4cfcc | 訂正task不一致のDB拒否assertを追加 |
+| 2026-08-10 | ac-contracts.json | v0.1 | confirmed | PO | f218cf9efd35 | S0.2/S0.3設計クロージャー — browser・registry・KPI・commitの受入観測をAPI契約節へ接続 |
+| 2026-08-10 | tc-contracts.json | v0.1 | confirmed | PO | 717b2f1638e0 | S0.2/S0.3設計クロージャー — AC追加観測を実行可能なfixture・assertへ同期 |
+| 2026-08-10 | du-contracts.json | v0.1 | confirmed | PO | 0aa153729de3 | 未被覆API・受入基準未設定節をゼロ化し、215 UTへ直接束縛 |
+| 2026-08-10 | implementation-units.json | v0.1 | confirmed | PO | a7bb36740a05 | update軸とslice軸を分離したS0/S1横断L6責務接続 |
+| 2026-08-10 | external-operations | - | confirmed | PO | 4330f2eceff3 | browser launch・screenshot・registry診断責務を追加 |
+| 2026-08-10 | kpi-handoff | - | confirmed | PO | 6d17e4688cc3 | profile限定KPI tree責務を追加 |
+| 2026-08-10 | ac-catalog | v0.1 | confirmed | PO | 745bde2de743 | ac-contracts正本から再生成した受入カタログview |
+| 2026-08-10 | tc-catalog | v0.1 | confirmed | PO | d9653171b7d2 | tc-contracts正本から再生成した検証カタログview |
+| 2026-08-10 | du-contracts | v0.1 | confirmed | PO | 500911ae1551 | du-contracts正本から再生成した詳細設計view |
+| 2026-08-10 | s0-contract | v0.1 | confirmed | PO | 3c1210a2b730 | finalized_at命名とspend_correction DDL拘束を正準化 |
+| 2026-08-10 | ac-catalog | v0.1 | confirmed | PO | 7f0ecf2fc0f8 | 更新済みJSON正本から再生成 |
+| 2026-08-10 | fr-contracts | v0.1 | confirmed | PO | 7ec09d3dea38 | 更新済みJSON正本から再生成 |
+| 2026-08-10 | nfr-contracts | v0.1 | confirmed | PO | dec031072e2f | 更新済みJSON正本から再生成 |
+| 2026-08-10 | tc-catalog | v0.1 | confirmed | PO | d9157f765d6f | 更新済みJSON正本から再生成 |
+| 2026-08-10 | s0-contract | v0.1 | confirmed | PO | d1572cdde443 | workflow/task typeを非空canonical lowercase語彙へDB拘束 |
+| 2026-08-10 | s0-contract | v0.1 | confirmed | PO | 2b290bc9fe49 | L1正準IDを許容する英数・underscore・hyphen語彙へDB拘束 |
+
+## CI lint follow-up（2026-08-10）
+
+> GitHub Actions の Markdown lint／Ruff が検出した表区切り、bare URL、動的 SQL 警告を、
+> 要求意味を変えずに正本と生成ビューへ反映した内容束縛承認。
+
+| 日付 | 対象 | 版 | 判定 | 承認者 | digest | 備考 |
+|---|---|---|---|---|---|---|
+| 2026-08-10 | ac-contracts.json | v0.1 | confirmed | PO | 6c8d0093fd6c | DesignSync test URLをMarkdown安全なautolink表現へ正規化 |
+| 2026-08-10 | ac-catalog | v0.1 | confirmed | PO | 0bee0240a3f8 | JSON正本からAC生成ビューを再生成（手編集なし） |
+| 2026-08-10 | s0-contract | v0.1 | confirmed | PO | 8da21fce99bf | 状態列挙の表セル内区切りを意味不変のMarkdown安全表現へ正規化 |
+| 2026-08-10 | ac-contracts.json | v0.1 | confirmed | PO | 77b7c88d9758 | Opus再監査: API固有の反証可能fixture・action・observation・assertを構造化 |
+| 2026-08-10 | tc-contracts.json | v0.1 | confirmed | PO | c54931a6eaec | Opus再監査: list_declared・commit_workspace・treeの観測と期待状態を同期 |
+| 2026-08-10 | ac-catalog | v0.1 | confirmed | PO | 5e315691f946 | 更新済みAC正本から生成ビューを再生成（手編集なし） |
+| 2026-08-10 | tc-catalog | v0.1 | confirmed | PO | 3b9c24d24b71 | 更新済みTCC正本から生成ビューを再生成（手編集なし） |
+| 2026-08-10 | campaign | - | confirmed | PO | a2da64eaca51 | S0.2のDU-19/DU-20責務を担うS1設計正本を内容束縛して確定 |
+| 2026-08-10 | ac-contracts.json | v0.1 | confirmed | PO | 9f10f2429d7b | API固有観測assertion追加後の正準JSON digestへ同期 |
+| 2026-08-10 | tc-contracts.json | v0.1 | confirmed | PO | 099d477b1351 | API固有観測のTCC再降下後の正準JSON digestへ同期 |
+| 2026-08-10 | ac-catalog | v0.1 | confirmed | PO | c305b041364e | 最終approval digestを含むAC生成ビューへ同期 |
+| 2026-08-10 | tc-catalog | v0.1 | confirmed | PO | e5ed39a40dfd | 最終approval digestを含むTCC生成ビューへ同期 |
+| 2026-08-10 | ac-contracts.json | v0.1 | confirmed | PO | f37c3d890ed0 | 公開API語彙をlist_declaredへ正規化した最終AC正本 |
+| 2026-08-10 | tc-contracts.json | v0.1 | confirmed | PO | 20097c61f972 | 公開API語彙をlist_declaredへ正規化した最終TCC正本 |
+| 2026-08-10 | ac-catalog | v0.1 | confirmed | PO | c348c80c94eb | 最終AC正本から生成ビューを再生成（手編集なし） |
+| 2026-08-10 | tc-catalog | v0.1 | confirmed | PO | b9f5bfb74aa5 | 最終TCC正本から生成ビューを再生成（手編集なし） |
+| 2026-08-10 | ac-contracts.json | v0.1 | confirmed | PO | af80ad5f5927 | screenshot API ID取り違えを修正し解消履歴由来の観測ラチェットへ同期 |
+| 2026-08-10 | tc-contracts.json | v0.1 | confirmed | PO | 829ca45b5672 | launch・screenshot・run_playbookの公開API観測をTCCへ同期 |
+| 2026-08-10 | ac-catalog | v0.1 | confirmed | PO | 6aa774e744a7 | screenshot観測修正後のAC生成ビュー |
+| 2026-08-10 | tc-catalog | v0.1 | confirmed | PO | ac84cb7d4e13 | screenshot観測修正後のTCC生成ビュー |

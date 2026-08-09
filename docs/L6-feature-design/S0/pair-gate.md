@@ -57,7 +57,10 @@ DU-05（`gates/pair.py`）が状態所有者（CMP-03）であり、公開系（
   受け取れないコード経路から外部書込みへ進めない（型で強制）。
 - 拒否は task 文脈で `non_retryable_failure`（failed）へ写像する。外部 API は 1 度も呼ばれない
   （拒否がコネクタ呼出しに先行する — [external-operations.md](external-operations.md) §1 の順序契約）。
-- 拒否の証跡は `operation_log` と `state_transitions`（guard_result = rejected）に残す。
+- 拒否は external preflight 内で完了し、`external_operations`／operation_log はともに
+  0 行。秘匿化済み process logger に `PairNotEstablished` と安定識別子だけを残す。
+  その後の task `non_retryable_failure` は状態機械の正準経路で
+  `state_transitions` に記録するが、外部操作証跡の記録先にはしない。
 
 ## §4 テスト実装方針
 
@@ -69,7 +72,7 @@ DU-05（`gates/pair.py`）が状態所有者（CMP-03）であり、公開系（
 | 2 | hash 不一致 | `CommitHashMismatch`＋`SELECT COUNT` 前後不変 |
 | 3 | 重複成立 | 同一 (plan_id, review_evidence_id) の再要求が `GateRejected`（冪等拒否） |
 | 4 | 失効 | 再 commit で `revoke_if_changed` が True・status=revoked |
-| 5 | 未成立・失効での要求 | `PairNotEstablished`（AC-21-2／AC-21-3） |
+| 5 | 未成立・失効での要求 | `PairNotEstablished`（AC-21-2／AC-21-3）に加え、external_operations／operation_log と実外部 request がすべて 0 |
 | 6 | 偽造 | sentinel なしの `PairPass(...)` 構築が `FatalError`（AC-21-5） |
 
 ## §5 trace 表
@@ -91,6 +94,6 @@ DU／API の実在・pre/post への責務の明記・AC／TC／UT の実在と�
 | unit_id | DU | API | 契約節 | 責務 | AC |
 |---|---|---|---|---|---|
 | IU-PAIRGATE-01 | DU-05 | API-DU05-01 | POST-01 | `establish`・`review_evidence_id`: hash 一致時のみ pair_plan_quality(s… | AC-21-3 |
-| IU-PAIRGATE-02 | DU-05 | API-DU05-03 | POST-01・RAISE-01 | `require_pair`・`conn`: status=passed の pair 行が存在する場合のみ PairPass … | AC-21-1, AC-21-2, AC-21-3, AC-21-4 |
+| IU-PAIRGATE-02 | DU-05 | API-DU05-03 | POST-01・RAISE-01 | `require_pair`: Recorder前preflight。不成立は外部2表0行… | AC-21-1, AC-21-2, AC-21-3, AC-21-4 |
 | IU-PAIRGATE-03 | DU-05 | API-DU05-02 | POST-02 | `revoke_if_changed`・`plan_id`: 企画又は commit の変更検知時に該当 pair を stat… | AC-21-3 |
-| IU-PAIRGATE-04 | DU-06 | API-DU06-01 | POST-01・POST-02・RAISE-01 | `check_publishable`・`commit_hash`: require_pair（passed 存在）＋ pair… | AC-21-1, AC-21-2, AC-21-3, AC-21-4 |
+| IU-PAIRGATE-04 | DU-06 | API-DU06-01 | POST-01・POST-02・RAISE-01 | `check_publishable`: 全成立時のみPairPass。拒否にoperation_logを使わない… | AC-21-1, AC-21-2, AC-21-3, AC-21-4 |

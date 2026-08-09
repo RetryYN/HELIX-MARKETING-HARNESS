@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+import json
 import re
 import sqlite3
-import subprocess
 from pathlib import Path
 
 from tools.gates.common import (
@@ -14,6 +14,7 @@ from tools.gates.common import (
     L4,
     L5,
     L6,
+    LTW_DIR,
     MIGRATION_RULES,
     ROOT,
     S0_CONTRACT,
@@ -29,7 +30,7 @@ from tools.gates.common import (
 )
 
 EXPECTED_TABLES = 25
-EXPECTED_TRIGGERS = 16  # append-only 10＋TLP 整合 3＋brief 不変 1＋brief 状態遷移 1＋valid_until 1
+EXPECTED_TRIGGERS = 37  # 既存16＋playbook10＋外部I/O7＋published_url1＋spend_ledger3
 INITIAL = {"loop_runs": {"pending"}, "tasks": {"pending"}}
 TERMINAL = {"loop_runs": {"completed", "failed", "escalated", "cancelled"},
             "tasks": {"done", "failed", "escalated"}}
@@ -189,8 +190,1257 @@ def detect_tlp_json_predicate_faults(ddl: str) -> list[str]:
     return bad
 
 
+def _detect_published_spend_faults(ddl: str) -> list[str]:
+    """published_url と paid spend の物理 1:1・原子性を実 DML で検査する。"""
+    bad: list[str] = []
+
+    # published_url は provider ID ではなく local external row + operation_log へ 1:1 束縛。
+    def _prepare_publish(c: sqlite3.Connection, *, policy: str = "content_publish",
+                         result: str = "confirmed") -> None:
+        _insert_external_operation(c, policy_category=policy, rate_scope=policy)
+        _send_external_operation(c)
+        c.execute("UPDATE external_operations SET external_operation_id='provider-1',"
+                  " remote_object_id='post-1', response_hash=? WHERE id=1", ("c" * 64,))
+        _insert_operation_log(c, provider_id="provider-1", result=result)
+        c.execute("INSERT INTO assets "
+                  "(id,source_task_id,asset_type,name,canonical_url,metadata_json,created_at) "
+                  "VALUES (1,1,'article','Post','https://example.test/post','{}',?)",
+                  (_IO_CONFIRMED_AT,))
+
+    c = _external_io_fixture(ddl)
+    try:
+        _prepare_publish(c)
+        _insert_published_url(c)  # provider ID は外部行に存在しても published_url では省略可。
+        row = c.execute(
+            "SELECT external_operation_row_id,operation_log_evidence_id,external_operation_id "
+            "FROM evidence WHERE id=2").fetchone()
+        if tuple(row or ()) != (1, 1, None):
+            bad.append(f"published_url local 1:1不成立:{tuple(row or ())}")
+        try:
+            _insert_published_url(c, evidence_id=3)
+            bad.append("同一publish operationへのpublished_url重複が通過")
+        except sqlite3.IntegrityError:
+            pass
+    except sqlite3.Error as e:
+        bad.append(f"published_url正常束縛が拒否:{e}")
+    finally:
+        c.close()
+
+    published_mismatches: list[tuple[str, dict]] = [
+        ("task不一致", {"task_id": 2}),
+        ("operation_log ID不一致", {"operation_log_evidence_id": 99}),
+        ("provider ID不一致", {"provider_id": "provider-2"}),
+        ("payload external row不一致",
+         {"payload_overrides": {"external_operation_row_id": 99}}),
+        ("payload operation_log不一致",
+         {"payload_overrides": {"operation_log_evidence_id": 99}}),
+        ("payload URL不一致", {"payload_overrides": {"url": "https://invalid.test"}}),
+        ("payload WP post不一致", {"payload_overrides": {"wp_post_id": "post-2"}}),
+        ("payload asset不一致", {"payload_overrides": {"asset_id": 99}}),
+    ]
+    for label, kwargs in published_mismatches:
+        c = _external_io_fixture(ddl)
+        try:
+            _prepare_publish(c)
+            try:
+                _insert_published_url(c, **kwargs)
+                bad.append(f"published_url {label}が通過")
+            except sqlite3.IntegrityError:
+                pass
+            if c.execute("SELECT count(*) FROM evidence WHERE kind='published_url'").fetchone()[0]:
+                bad.append(f"published_url {label}拒否後に行が残存")
+        finally:
+            c.close()
+
+    for policy, result, label in [
+        ("review_sync", "confirmed", "非content_publish"),
+        ("content_publish", "rejected", "非confirmed"),
+    ]:
+        c = _external_io_fixture(ddl)
+        try:
+            _prepare_publish(c, policy=policy, result=result)
+            try:
+                _insert_published_url(c)
+                bad.append(f"published_url {label}が通過")
+            except sqlite3.IntegrityError:
+                pass
+        finally:
+            c.close()
+
+    c = _external_io_fixture(ddl)
+    try:
+        _prepare_publish(c)
+        try:
+            c.execute("INSERT INTO evidence "
+                      "(id,task_id,kind,value,payload_json,operation_log_evidence_id,created_at) "
+                      "VALUES (2,1,'file_hash','x','{}',1,?)", (_IO_CONFIRMED_AT,))
+            bad.append("published_url以外がoperation_log_evidence_idを占有")
+        except sqlite3.IntegrityError:
+            pass
+    finally:
+        c.close()
+
+    # paid+confirmed は operation_log INSERT の同じ statement で charge まで原子的に作る。
+    paid_payload: dict[str, object] = {
+        "approval_id": 1,
+        "amount_minor": 100,
+        "currency": "JPY",
+        "purpose": "approved generation",
+        "occurred_at": _IO_CONFIRMED_AT,
+    }
+    c = _external_io_fixture(ddl)
+    try:
+        _insert_approved_approval(c)
+        _insert_external_operation(c, policy_category="approved_paid_operation",
+                                   rate_scope="approved_paid_operation")
+        _send_external_operation(c)
+        c.execute("UPDATE external_operations SET external_operation_id='paid-provider-1' WHERE id=1")
+        _insert_operation_log(c, provider_id="paid-provider-1", payload_overrides=paid_payload)
+        atomic = c.execute(
+            "SELECT op.status,op.evidence_id,ev.id,sl.entry_type,sl.amount_minor,sl.currency,"
+            " sl.external_operation_row_id FROM external_operations AS op "
+            "JOIN evidence AS ev ON ev.id=op.evidence_id "
+            "JOIN spend_ledger AS sl ON sl.external_operation_row_id=op.id WHERE op.id=1"
+        ).fetchone()
+        if tuple(atomic or ()) != ("confirmed", 1, 1, "charge", 100, "JPY", 1):
+            bad.append(f"paid operation原子3者束縛不成立:{tuple(atomic or ())}")
+        _insert_approved_approval(c, approval_id=2, task_id=2)
+        _insert_reversal(c)
+        net = c.execute("SELECT COALESCE(SUM(CASE entry_type WHEN 'charge' THEN amount_minor "
+                        "WHEN 'reversal' THEN -amount_minor END),0) FROM spend_ledger "
+                        "WHERE currency='JPY'").fetchone()[0]
+        if net != 0:
+            bad.append(f"charge/reversal符号付き集計不成立:{net}")
+        for label, action in [
+            ("charge二重化", lambda: c.execute(
+                "INSERT INTO spend_ledger (task_id,entry_type,approval_id,service,amount_minor,"
+                "currency,purpose,external_operation_row_id,external_operation_id,occurred_at,created_at) "
+                "VALUES (1,'charge',1,'provider',100,'JPY','duplicate',1,'paid-provider-1',?,?)",
+                (_IO_CONFIRMED_AT, _IO_CONFIRMED_AT))),
+            ("reversal二重化", lambda: _insert_reversal(c, ledger_id=3)),
+            ("spend更新", lambda: c.execute(
+                "UPDATE spend_ledger SET amount_minor=101 WHERE id=1")),
+            ("spend削除", lambda: c.execute("DELETE FROM spend_ledger WHERE id=1")),
+        ]:
+            try:
+                action()
+                bad.append(f"{label}が通過")
+            except sqlite3.IntegrityError:
+                pass
+    except sqlite3.Error as e:
+        bad.append(f"paid/reversal正常系検査不能:{e}")
+    finally:
+        c.close()
+
+    # ledger制約違反なら operation_log INSERT・final更新・charge の3者がすべてrollback。
+    paid_fault_cases: list[
+        tuple[str, dict[str, object], bool, tuple[str, ...], str]
+    ] = [
+        ("approval孤児", {"approval_id": 999}, False, (), _IO_CONFIRMED_AT),
+        ("amount 0", {"amount_minor": 0}, True, (), _IO_CONFIRMED_AT),
+        ("外貨", {"currency": "USD"}, True, (), _IO_CONFIRMED_AT),
+        ("purpose空", {"purpose": ""}, True, (), _IO_CONFIRMED_AT),
+        ("occurred_at欠落", {}, True, ("occurred_at",), _IO_CONFIRMED_AT),
+        ("occurred_at暦時刻不正", {"occurred_at": "2026-08-10T24:00:00Z"}, True, (),
+         _IO_CONFIRMED_AT),
+        ("created_at暦日不正", {}, True, (), "2026-08-32T00:00:03Z"),
+    ]
+    for label, payload_update, seed_approval, omit_keys, created_at in paid_fault_cases:
+        c = _external_io_fixture(ddl)
+        try:
+            if seed_approval:
+                _insert_approved_approval(c)
+            _insert_external_operation(c, policy_category="approved_paid_operation",
+                                       rate_scope="approved_paid_operation")
+            _send_external_operation(c)
+            payload = {**paid_payload, **payload_update}
+            try:
+                _insert_operation_log(c, payload_overrides=payload,
+                                      omit_payload_keys=omit_keys, created_at=created_at)
+                bad.append(f"paid {label}が通過")
+            except sqlite3.IntegrityError:
+                pass
+            state = tuple(c.execute(
+                "SELECT status,evidence_id FROM external_operations WHERE id=1").fetchone())
+            counts = tuple(c.execute(
+                "SELECT (SELECT count(*) FROM evidence),"
+                " (SELECT count(*) FROM spend_ledger)").fetchone())
+            if state != ("sent", None) or counts != (0, 0):
+                bad.append(f"paid {label}拒否が非原子的:{state}/{counts}")
+        finally:
+            c.close()
+
+    # reversal は元chargeの完全反転、approved、非空目的、canonical UTC時刻だけを受理する。
+    reversal_faults: list[tuple[str, dict, str]] = [
+        ("部分取消", {"amount_minor": 99}, "approved"),
+        ("service不一致", {"service": "other-provider"}, "approved"),
+        ("外貨", {"currency": "USD"}, "approved"),
+        ("purpose空", {"purpose": ""}, "approved"),
+        ("occurred_at暦時刻不正", {"occurred_at": "2026-08-10T24:00:00Z"}, "approved"),
+        ("created_at非canonical", {"created_at": "2026-08-10 00:00:03"}, "approved"),
+        ("未承認", {}, "rejected"),
+    ]
+    for label, reversal_kwargs, decision in reversal_faults:
+        c = _external_io_fixture(ddl)
+        try:
+            _insert_approved_approval(c)
+            _insert_external_operation(c, policy_category="approved_paid_operation",
+                                       rate_scope="approved_paid_operation")
+            _send_external_operation(c)
+            _insert_operation_log(c, payload_overrides=paid_payload)
+            _insert_approved_approval(c, approval_id=2, task_id=2, decision=decision)
+            try:
+                _insert_reversal(c, **reversal_kwargs)
+                bad.append(f"reversal {label}が通過")
+            except sqlite3.IntegrityError:
+                pass
+            if c.execute("SELECT count(*) FROM spend_ledger").fetchone()[0] != 1:
+                bad.append(f"reversal {label}拒否後に台帳行が変化")
+        finally:
+            c.close()
+
+    # reversal は散文上の approval だけでなく、元chargeへ構造束縛した専用訂正taskを必須とする。
+    correction_task_faults = [
+        ("task種別不一致",
+         lambda db: db.execute("UPDATE tasks SET task_type='external_io' WHERE id=2")),
+        ("元task親参照なし",
+         lambda db: db.execute("UPDATE tasks SET parent_task_id=NULL WHERE id=2")),
+        ("元仕訳入力不一致", lambda db: db.execute(
+            "UPDATE tasks SET input_json='{\"original_spend_ledger_id\":999}' WHERE id=2")),
+        ("元仕訳入力型不一致", lambda db: db.execute(
+            "UPDATE tasks SET input_json='{\"original_spend_ledger_id\":\"1\"}' WHERE id=2")),
+        ("loop不一致", lambda db: (
+            db.execute("INSERT INTO loop_runs "
+                       "(id,loop_kind,loop_type,state,idempotency_key,created_at) "
+                       "VALUES (2,'upper','LP-U','running','other-loop','t')"),
+            db.execute("UPDATE tasks SET loop_run_id=2 WHERE id=2"),
+        )),
+    ]
+    for label, corrupt_task in correction_task_faults:
+        c = _external_io_fixture(ddl)
+        try:
+            _insert_approved_approval(c)
+            _insert_external_operation(c, policy_category="approved_paid_operation",
+                                       rate_scope="approved_paid_operation")
+            _send_external_operation(c)
+            _insert_operation_log(c, payload_overrides=paid_payload)
+            _insert_approved_approval(c, approval_id=2, task_id=2)
+            corrupt_task(c)
+            try:
+                _insert_reversal(c)
+                bad.append(f"reversal correction task {label}が通過")
+            except sqlite3.IntegrityError:
+                pass
+            if c.execute("SELECT count(*) FROM spend_ledger").fetchone()[0] != 1:
+                bad.append(f"reversal correction task {label}拒否後に台帳行が変化")
+        finally:
+            c.close()
+
+    # 元charge task自身を訂正taskへ偽装しても「別task」条件を迂回できない。
+    c = _external_io_fixture(ddl)
+    try:
+        _insert_approved_approval(c)
+        _insert_external_operation(c, policy_category="approved_paid_operation",
+                                   rate_scope="approved_paid_operation")
+        _send_external_operation(c)
+        _insert_operation_log(c, payload_overrides=paid_payload)
+        c.execute("UPDATE tasks SET task_type='spend_correction', parent_task_id=1, "
+                  "input_json='{\"original_spend_ledger_id\":1}' WHERE id=1")
+        try:
+            _insert_reversal(c, task_id=1, approval_id=1)
+            bad.append("reversal correction task自己参照が通過")
+        except sqlite3.IntegrityError:
+            pass
+        if c.execute("SELECT count(*) FROM spend_ledger").fetchone()[0] != 1:
+            bad.append("reversal correction task自己参照拒否後に台帳行が変化")
+    finally:
+        c.close()
+
+    c = _external_io_fixture(ddl)
+    try:
+        _insert_approved_approval(c)
+        _insert_external_operation(c, policy_category="approved_paid_operation",
+                                   rate_scope="approved_paid_operation")
+        _send_external_operation(c)
+        _insert_operation_log(c, payload_overrides=paid_payload)
+        _insert_approved_approval(c, approval_id=2, task_id=2)
+        _insert_reversal(c)
+        try:
+            _insert_reversal(c, ledger_id=3, original_id=2)
+            bad.append("reversalのreversalが通過")
+        except sqlite3.IntegrityError:
+            pass
+    finally:
+        c.close()
+
+    # paid rejected/unknown とfree policyはchargeを作らない。
+    for policy, result in [
+        ("approved_paid_operation", "rejected"),
+        ("approved_paid_operation", "unknown"),
+        ("content_publish", "confirmed"),
+    ]:
+        c = _external_io_fixture(ddl)
+        try:
+            _insert_approved_approval(c)
+            _insert_external_operation(c, policy_category=policy, rate_scope=policy)
+            _send_external_operation(c)
+            payload = paid_payload if policy == "approved_paid_operation" else {}
+            _insert_operation_log(c, result=result, payload_overrides=payload)
+            if c.execute("SELECT count(*) FROM spend_ledger").fetchone()[0] != 0:
+                bad.append(f"非課金結果にcharge発生:{policy}/{result}")
+        except sqlite3.Error as e:
+            bad.append(f"非課金結果が拒否:{policy}/{result}:{e}")
+        finally:
+            c.close()
+
+    # 手入力・無料分類・0円chargeと不正reversalは直接INSERTでも拒否。
+    for label, setup, statement, params in [
+        ("manual charge", lambda c: _insert_approved_approval(c),
+         "INSERT INTO spend_ledger (task_id,entry_type,approval_id,service,amount_minor,currency,"
+         "purpose,occurred_at,created_at) VALUES (1,'charge',1,'provider',100,'JPY','manual',?,?)",
+         (_IO_CONFIRMED_AT, _IO_CONFIRMED_AT)),
+        ("amount 0 charge", lambda c: _insert_approved_approval(c),
+         "INSERT INTO spend_ledger (task_id,entry_type,approval_id,service,amount_minor,currency,"
+         "purpose,external_operation_row_id,occurred_at,created_at) "
+         "VALUES (1,'charge',1,'provider',0,'JPY','zero',999,?,?)",
+         (_IO_CONFIRMED_AT, _IO_CONFIRMED_AT)),
+    ]:
+        c = _external_io_fixture(ddl)
+        try:
+            setup(c)
+            try:
+                c.execute(statement, params)
+                bad.append(f"{label}が通過")
+            except sqlite3.IntegrityError:
+                pass
+        finally:
+            c.close()
+
+    c = _external_io_fixture(ddl)
+    try:
+        _insert_approved_approval(c)
+        _insert_external_operation(c)
+        _send_external_operation(c)
+        _insert_operation_log(c)
+        try:
+            c.execute("INSERT INTO spend_ledger (task_id,entry_type,approval_id,service,amount_minor,"
+                      "currency,purpose,external_operation_row_id,occurred_at,created_at) "
+                      "VALUES (1,'charge',1,'provider',100,'JPY','free',1,?,?)",
+                      (_IO_CONFIRMED_AT, _IO_CONFIRMED_AT))
+            bad.append("free policy chargeが通過")
+        except sqlite3.IntegrityError:
+            pass
+    finally:
+        c.close()
+    return bad
+
+
+def _playbook_fixture(ddl: str) -> sqlite3.Connection:
+    """playbook 版・修復episode検査用の最小実DBを返す。"""
+    c = _apply(ddl)
+    c.execute("INSERT INTO agents (id,agent_key,principal,role,display_name,status,created_at)"
+              " VALUES (1,'author','p1','author','Author','active','t')")
+    c.execute("INSERT INTO agents (id,agent_key,principal,role,display_name,status,created_at)"
+              " VALUES (2,'verifier','p2','verifier','Verifier','active','t')")
+    c.execute("INSERT INTO workflows (id,workflow_key,name,task_type,version,definition_json,"
+              " required_evidence_json,status,created_at)"
+              " VALUES (1,'wf','Workflow','source',1,'{}','[]','active','t')")
+    c.execute("INSERT INTO loop_runs (id,loop_kind,loop_type,state,idempotency_key,created_at)"
+              " VALUES (1,'upper','LP-U','running','loop-1','t')")
+    c.execute("INSERT INTO tasks (id,loop_run_id,workflow_id,task_type,author_agent_id,"
+              " verifier_agent_id,state,step_key,attempt,retry_count,idempotency_key,"
+              " expected_output_kind,input_json,created_at)"
+              " VALUES (1,1,1,'source',1,2,'in_progress','source',1,0,'source-1','source','{}','t')")
+    c.execute("INSERT INTO playbooks (id,service,operation,route_type,version,created_by_task_id,"
+              " procedure_json,selector_json,status,created_at)"
+              " VALUES (1,'svc','publish','browser',1,1,'{}','{}','active','t')")
+    c.execute("UPDATE playbooks SET status='broken', consecutive_failures=1,last_failure_at='t1'"
+              " WHERE id=1")
+    c.commit()
+    return c
+
+
+def _insert_repair(c: sqlite3.Connection, *, task_id: int = 2,
+                   fingerprint: str = "a" * 64, state: str = "pending",
+                   output_kind: str = "playbook_version") -> None:
+    input_json = (f'{{"playbook_id":1,"source_task_id":1,'
+                  f'"failure_fingerprint":"{fingerprint}"}}')
+    c.execute("INSERT INTO tasks (id,loop_run_id,parent_task_id,workflow_id,task_type,"
+              " author_agent_id,verifier_agent_id,state,step_key,attempt,retry_count,"
+              " idempotency_key,expected_output_kind,input_json,created_at)"
+              " VALUES (?,1,1,1,'playbook_repair',1,2,?,'playbook_repair:1',1,0,"
+              " 'playbook-repair:1',?,?, 't')", (task_id, state, output_kind, input_json))
+
+
+def detect_playbook_version_faults(ddl: str) -> list[str]:
+    """修復1回・版連鎖・atomic rollback・不変性を実DMLで検証する。"""
+    bad: list[str] = []
+    required_triggers = {
+        "playbook_repair_task_insert", "playbook_repair_task_no_retry",
+        "playbook_repair_no_verify_retry", "playbooks_initial_insert",
+        "playbooks_version_insert", "playbooks_content_no_update",
+        "playbooks_status_transition", "playbooks_health_active_only",
+        "playbooks_retired_no_update", "playbooks_no_delete",
+    }
+    required_indexes = {"playbooks_one_current", "playbook_repair_one_per_episode"}
+    schema = _apply(ddl)
+    try:
+        triggers = {row[0] for row in schema.execute(
+            "SELECT name FROM sqlite_master WHERE type='trigger'")}
+        indexes = {row[0] for row in schema.execute(
+            "SELECT name FROM sqlite_master WHERE type='index'")}
+        if missing := sorted(required_triggers - triggers):
+            bad.append(f"playbook保護trigger欠落:{missing}")
+        if missing := sorted(required_indexes - indexes):
+            bad.append(f"playbook一意index欠落:{missing}")
+    finally:
+        schema.close()
+
+    c = _playbook_fixture(ddl)
+    try:
+        _insert_repair(c)
+        for label, statement, params in [
+            ("同一episodeへの二重repair", None, ()),
+            ("repair束縛の変更", "UPDATE tasks SET retry_count=1 WHERE id=2", ()),
+            ("repairのverify retry", "INSERT INTO state_transitions "
+             "(entity_type,entity_id,from_state,event,to_state,guard_result,details_json,created_at) "
+             "VALUES ('task',2,'verifying','verify_fail','in_progress','passed','{}','t')", ()),
+        ]:
+            try:
+                if statement is None:
+                    _insert_repair(c, task_id=3, fingerprint="b" * 64)
+                else:
+                    c.execute(statement, params)
+                bad.append(f"{label}が通過")
+            except sqlite3.IntegrityError:
+                pass
+        c.rollback()
+    finally:
+        c.close()
+
+    for label, state, output_kind, fingerprint in [
+        ("非pending repair", "done", "playbook_version", "a" * 64),
+        ("出力型不一致repair", "pending", "other", "a" * 64),
+        ("fingerprint不正repair", "pending", "playbook_version", "xyz"),
+    ]:
+        c = _playbook_fixture(ddl)
+        try:
+            try:
+                _insert_repair(c, state=state, output_kind=output_kind,
+                               fingerprint=fingerprint)
+                bad.append(f"{label}が通過")
+            except sqlite3.IntegrityError:
+                pass
+        finally:
+            c.close()
+
+    c = _playbook_fixture(ddl)
+    try:
+        _insert_repair(c)
+        c.commit()
+        c.execute("BEGIN")
+        c.execute("UPDATE tasks SET state='done' WHERE id=2")
+        c.execute("UPDATE playbooks SET status='retired' WHERE id=1")
+        try:
+            c.execute("INSERT INTO playbooks (id,service,operation,route_type,version,"
+                      " supersedes_playbook_id,created_by_task_id,procedure_json,selector_json,"
+                      " status,created_at) VALUES (2,'svc','publish','browser',3,1,2,'{}','{}',"
+                      " 'active','t2')")
+            bad.append("不連続versionが通過")
+        except sqlite3.IntegrityError:
+            pass
+        c.rollback()
+        current = c.execute("SELECT status FROM playbooks WHERE id=1").fetchone()[0]
+        repair = c.execute("SELECT state FROM tasks WHERE id=2").fetchone()[0]
+        if (current, repair) != ("broken", "pending"):
+            bad.append(f"successor失敗時rollback不成立:{current}/{repair}")
+
+        c.execute("BEGIN")
+        c.execute("UPDATE tasks SET state='done' WHERE id=2")
+        c.execute("UPDATE playbooks SET status='retired' WHERE id=1")
+        c.execute("INSERT INTO playbooks (id,service,operation,route_type,version,"
+                  " supersedes_playbook_id,created_by_task_id,procedure_json,selector_json,"
+                  " status,created_at) VALUES (2,'svc','publish','browser',2,1,2,'{}','{}',"
+                  " 'active','t2')")
+        c.commit()
+        rows = c.execute("SELECT version,status,supersedes_playbook_id FROM playbooks ORDER BY version").fetchall()
+        if rows != [(1, "retired", None), (2, "active", 1)]:
+            bad.append(f"版連鎖不成立:{rows}")
+        for label, statement in [
+            ("retired版内容更新", "UPDATE playbooks SET procedure_json='{\"x\":1}' WHERE id=1"),
+            ("playbook版削除", "DELETE FROM playbooks WHERE id=2"),
+        ]:
+            try:
+                c.execute(statement)
+                bad.append(f"{label}が通過")
+            except sqlite3.IntegrityError:
+                pass
+    finally:
+        c.close()
+
+    c = _playbook_fixture(ddl)
+    try:
+        try:
+            c.execute("UPDATE playbooks SET procedure_json='{\"x\":1}' WHERE id=1")
+            bad.append("broken版内容更新が通過")
+        except sqlite3.IntegrityError:
+            pass
+        try:
+            c.execute("UPDATE playbooks SET consecutive_failures=2 WHERE id=1")
+            bad.append("broken版のhealth更新が通過")
+        except sqlite3.IntegrityError:
+            pass
+        try:
+            c.execute("INSERT INTO playbooks (id,service,operation,route_type,version,"
+                      " created_by_task_id,procedure_json,status,created_at)"
+                      " VALUES (2,'other','read','api',1,1,'{}','broken','t')")
+            bad.append("初版brokenが通過")
+        except sqlite3.IntegrityError:
+            pass
+    finally:
+        c.close()
+    return bad
+
+
+_IO_REQUEST_HASH = "b" * 64
+_IO_PREPARED_AT = "2026-08-10T00:00:01Z"
+_IO_SENT_AT = "2026-08-10T00:00:02Z"
+_IO_CONFIRMED_AT = "2026-08-10T00:00:03Z"
+_MISSING = object()
+
+
+def _external_io_fixture(ddl: str) -> sqlite3.Connection:
+    """外部 I/O 台帳と operation_log の DML 検査用最小 DB を返す。"""
+    c = _apply(ddl)
+    c.execute("PRAGMA foreign_keys = ON")
+    c.row_factory = sqlite3.Row
+    c.execute("INSERT INTO agents (id,agent_key,principal,role,display_name,status,created_at)"
+              " VALUES (1,'io-author','p1','author','I/O Author','active','t')")
+    c.execute("INSERT INTO agents (id,agent_key,principal,role,display_name,status,created_at)"
+              " VALUES (2,'io-verifier','p2','verifier','I/O Verifier','active','t')")
+    c.execute("INSERT INTO workflows (id,workflow_key,name,task_type,version,definition_json,"
+              " required_evidence_json,status,created_at)"
+              " VALUES (1,'io-wf','External I/O','external_io',1,'{}','[]','active','t')")
+    c.execute("INSERT INTO loop_runs (id,loop_kind,loop_type,state,idempotency_key,created_at)"
+              " VALUES (1,'upper','LP-U','running','io-loop','t')")
+    c.execute("INSERT INTO tasks (id,loop_run_id,workflow_id,task_type,author_agent_id,"
+              " verifier_agent_id,state,step_key,attempt,retry_count,idempotency_key,"
+              " expected_output_kind,input_json,created_at)"
+              " VALUES (1,1,1,'external_io',1,2,'in_progress','io-1',1,0,'io-task-1',"
+              " 'operation_log','{}','t')")
+    c.execute("INSERT INTO tasks (id,loop_run_id,parent_task_id,workflow_id,task_type,"
+              " author_agent_id,verifier_agent_id,state,step_key,attempt,retry_count,"
+              " idempotency_key,expected_output_kind,input_json,created_at)"
+              " VALUES (2,1,1,1,'spend_correction',1,2,'in_progress','spend-correction-1',"
+              " 1,0,'spend-correction-task-1','spend_reversal',"
+              " '{\"original_spend_ledger_id\":1}','t')")
+    c.execute("INSERT INTO config (id,key,value_json,value_type,changed_at,reason)"
+              " VALUES (1,'external_operation.sent_recovery_timeout_sec','300','integer',"
+              " '2026-08-10T00:00:00Z','required recovery timeout')")
+    c.commit()
+    return c
+
+
+def _insert_external_operation(
+        c: sqlite3.Connection, *, operation_id: int = 1, task_id: int = 1,
+        effect: str = "write", execution_mode: str = "actual", request_sequence: int = 1,
+        correlation_key: str | None = None, idempotency_key: object = _MISSING,
+        status: str = "prepared", operation: str | None = None,
+        policy_category: str | None = None, rate_scope: object = _MISSING,
+        service: str = "provider", request_hash: str = _IO_REQUEST_HASH,
+        prepared_at: str = _IO_PREPARED_AT) -> sqlite3.Cursor:
+    """prepared external row を追加する。拒否 DML 用に制約違反値も受け取る。"""
+    op_name = operation or ("publish" if effect == "write" else "poll")
+    policy = policy_category or ("external_read" if effect == "read" else "content_publish")
+    if rate_scope is _MISSING:
+        rate_scope = None if effect == "read" else policy
+    if idempotency_key is _MISSING:
+        idempotency_key = f"write-key-{operation_id}" if effect == "write" else None
+    if correlation_key is None:
+        correlation_key = (str(idempotency_key) if effect == "write" else
+                           f"read:{task_id}:{request_hash}:{request_sequence}")
+    return c.execute(
+        "INSERT INTO external_operations "
+        "(id,task_id,service,operation,effect,policy_category,rate_scope,execution_mode,"
+        " target_endpoint,idempotency_key,correlation_key,request_hash,request_sequence,status,"
+        " prepared_at) VALUES (?,?,?,?,?,?,?,?, '/endpoint',?,?,?,?,?,?)",
+        (operation_id, task_id, service, op_name, effect, policy, rate_scope, execution_mode,
+         idempotency_key, correlation_key, request_hash, request_sequence, status, prepared_at))
+
+
+def _send_external_operation(c: sqlite3.Connection, operation_id: int = 1,
+                             sent_at: str = _IO_SENT_AT) -> sqlite3.Cursor:
+    return c.execute("UPDATE external_operations SET status='sent', sent_at=? WHERE id=?",
+                     (sent_at, operation_id))
+
+
+def _insert_operation_log(
+        c: sqlite3.Connection, *, evidence_id: int = 1, operation_id: int = 1,
+        task_id: int | None = None, value: str | None = None,
+        external_operation_row_id: int | None = None, provider_id: object = _MISSING,
+        result: str = "confirmed", payload_overrides: dict | None = None,
+        omit_payload_keys: tuple[str, ...] = (),
+        created_at: str = _IO_CONFIRMED_AT) -> sqlite3.Cursor:
+    """sent row に対応する operation_log を追加する（AFTER trigger が同じ文で final 化）。"""
+    op = c.execute("SELECT * FROM external_operations WHERE id=?", (operation_id,)).fetchone()
+    if op is None:
+        raise ValueError(f"external operation {operation_id} does not exist")
+    if provider_id is _MISSING:
+        provider_id = op["external_operation_id"]
+    payload = {
+        "external_operation_row_id": op["id"],
+        "effect": op["effect"],
+        "policy_category": op["policy_category"],
+        "rate_scope": op["rate_scope"],
+        "service": op["service"],
+        "operation": op["operation"],
+        "correlation_key": op["correlation_key"],
+        "request_hash": op["request_hash"],
+        "request_sequence": op["request_sequence"],
+        "result": result,
+    }
+    if provider_id is not None:
+        payload["provider_operation_id"] = provider_id
+    payload.update(payload_overrides or {})
+    for key in omit_payload_keys:
+        payload.pop(key, None)
+    row_id = op["id"] if external_operation_row_id is None else external_operation_row_id
+    return c.execute(
+        "INSERT INTO evidence "
+        "(id,task_id,kind,value,payload_json,external_operation_row_id,external_operation_id,created_at) "
+        "VALUES (?,?,'operation_log',?,?,?,?, ?)",
+        (evidence_id, op["task_id"] if task_id is None else task_id,
+         value or f"external-operation:{op['id']}",
+         json.dumps(payload, sort_keys=True, separators=(",", ":")), row_id, provider_id,
+         created_at))
+
+
+def _insert_approved_approval(c: sqlite3.Connection, *, approval_id: int = 1,
+                              task_id: int = 1, decision: str = "approved") -> None:
+    c.execute(
+        "INSERT INTO approvals (id,task_id,requested_by_agent_id,channel,binding_subject,"
+        " binding_operation,binding_at,decision,decided_at,created_at) "
+        "VALUES (?, ?, 1, 'claude_code_app', 'external-operation', 'charge', ?, ?, ?, ?)",
+        (approval_id, task_id, _IO_PREPARED_AT, decision, _IO_PREPARED_AT, _IO_PREPARED_AT))
+
+
+def _insert_published_url(
+        c: sqlite3.Connection, *, evidence_id: int = 2, operation_id: int = 1,
+        operation_log_evidence_id: int = 1, task_id: int = 1, asset_id: int = 1,
+        url: str = "https://example.test/post", provider_id: object = _MISSING,
+        payload_overrides: dict | None = None) -> None:
+    op = c.execute("SELECT * FROM external_operations WHERE id=?", (operation_id,)).fetchone()
+    if op is None:
+        raise ValueError(f"external operation {operation_id} does not exist")
+    if provider_id is _MISSING:
+        provider_id = None
+    payload = {
+        "url": url,
+        "wp_post_id": op["remote_object_id"],
+        "external_operation_row_id": operation_id,
+        "operation_log_evidence_id": operation_log_evidence_id,
+        "asset_id": asset_id,
+    }
+    if provider_id is not None:
+        payload["provider_operation_id"] = provider_id
+    payload.update(payload_overrides or {})
+    c.execute(
+        "INSERT INTO evidence (id,task_id,kind,value,payload_json,asset_id,"
+        " external_operation_row_id,operation_log_evidence_id,external_operation_id,created_at) "
+        "VALUES (?,?,'published_url',?,?,?,?,?,?,?)",
+        (evidence_id, task_id, url,
+         json.dumps(payload, sort_keys=True, separators=(",", ":")), asset_id, operation_id,
+         operation_log_evidence_id, provider_id, _IO_CONFIRMED_AT))
+
+
+def _insert_reversal(c: sqlite3.Connection, *, ledger_id: int = 2, task_id: int = 2,
+                     approval_id: int = 2, original_id: int = 1,
+                     service: str = "provider", amount_minor: int = 100,
+                     currency: str = "JPY", purpose: str = "approved reversal",
+                     occurred_at: str = _IO_CONFIRMED_AT,
+                     created_at: str = _IO_CONFIRMED_AT) -> None:
+    c.execute(
+        "INSERT INTO spend_ledger (id,task_id,entry_type,approval_id,service,amount_minor,"
+        " currency,purpose,reverses_spend_ledger_id,occurred_at,created_at) "
+        "VALUES (?,?,'reversal',?,?,?,?, ?,?,?,?)",
+        (ledger_id, task_id, approval_id, service, amount_minor, currency, purpose, original_id,
+         occurred_at, created_at))
+
+
+def _unique_column_sets(c: sqlite3.Connection, table: str) -> set[tuple[str, ...]]:
+    """SQLite の自動 index を含む UNIQUE 列集合を返す。"""
+    result: set[tuple[str, ...]] = set()
+    for idx in c.execute(f"PRAGMA index_list('{table}')"):
+        if idx[2]:
+            cols = tuple(row[2] for row in c.execute(f"PRAGMA index_info('{idx[1]}')"))
+            if cols and all(cols):
+                result.add(cols)
+    return result
+
+
+def detect_operation_log_kind_faults(items: list[dict]) -> list[str]:
+    """operation_log／published_url のローカル束縛と原子的 final 化を検査する。"""
+    bad: list[str] = []
+    logs = [item for item in items if item.get("kind") == "operation_log"]
+    if len(logs) != 1:
+        return [f"operation_log kind件数={len(logs)}"]
+    item = logs[0]
+    expected = {
+        "external_operation_row_id", "effect", "policy_category", "rate_scope", "service",
+        "operation", "correlation_key", "request_hash", "request_sequence", "result",
+    }
+    actual = set(item.get("required_payload_keys", []))
+    if actual != expected:
+        bad.append(f"operation_log必須payload差分={sorted(actual ^ expected)}")
+    semantics = item.get("value_semantics", "")
+    if "external-operation:<external_operations.id>" not in semantics:
+        bad.append("operation_log valueがローカルexternal_operations.id形式でない")
+    rules = item.get("column_rules", "")
+    for token in ("external_operation_row_id", "external_operations.id", "UNIQUE",
+                  "external_operations.evidence_id", "provider", "final"):
+        if token not in rules:
+            bad.append(f"operation_log column_rules欠落:{token}")
+    if "external_operation_id" in actual or "provider_operation_id" in actual:
+        bad.append("provider IDが必須payloadになっている")
+    paid_expected = {"approval_id", "amount_minor", "currency", "purpose", "occurred_at"}
+    paid_actual = set(item.get("conditional_payload_keys", {}).get(
+        "approved_paid_operation", []))
+    if paid_actual != paid_expected:
+        bad.append(f"paid operation_log条件payload差分={sorted(paid_actual ^ paid_expected)}")
+
+    published = [candidate for candidate in items if candidate.get("kind") == "published_url"]
+    if len(published) != 1:
+        bad.append(f"published_url kind件数={len(published)}")
+        return bad
+    published_item = published[0]
+    published_expected = {
+        "url", "wp_post_id", "external_operation_row_id", "operation_log_evidence_id", "asset_id",
+    }
+    published_actual = set(published_item.get("required_payload_keys", []))
+    if published_actual != published_expected:
+        bad.append(f"published_url必須payload差分={sorted(published_actual ^ published_expected)}")
+    if {"external_operation_id", "provider_operation_id"} & published_actual:
+        bad.append("published_urlでprovider IDが必須payloadになっている")
+    published_rules = published_item.get("column_rules", "")
+    for token in ("external_operation_row_id", "operation_log_evidence_id", "UNIQUE",
+                  "confirmed", "content_publish", "provider"):
+        if token not in published_rules:
+            bad.append(f"published_url column_rules欠落:{token}")
+    return bad
+
+
+def detect_external_operation_evidence_faults(ddl: str) -> list[str]:
+    """外部 I/O と operation_log の双方向 1:1・原子化・状態機械を実 DML で検証する。"""
+    bad: list[str] = []
+    required_triggers = {
+        "external_operations_insert_prepared", "external_operations_binding_immutable",
+        "external_operations_result_sent_only", "external_operations_lifecycle",
+        "external_operations_final_immutable", "external_operations_no_delete",
+        "evidence_operation_log_insert", "evidence_published_url_insert",
+        "spend_ledger_binding_insert", "spend_ledger_no_update", "spend_ledger_no_delete",
+    }
+    try:
+        schema = _apply(ddl)
+    except sqlite3.Error as e:
+        return [f"外部I/O schema検査不能:{e}"]
+    try:
+        triggers = {row[0] for row in schema.execute(
+            "SELECT name FROM sqlite_master WHERE type='trigger'")}
+        if missing := sorted(required_triggers - triggers):
+            bad.append(f"外部I/O保護trigger欠落:{missing}")
+        indexes = {row[0] for row in schema.execute(
+            "SELECT name FROM sqlite_master WHERE type='index'")}
+        required_indexes = {
+            "evidence_operation_log_external_row_one",
+            "evidence_published_url_external_row_one",
+        }
+        if missing := sorted(required_indexes - indexes):
+            bad.append(f"外部証跡一意index欠落:{missing}")
+        ext_unique = _unique_column_sets(schema, "external_operations")
+        ev_unique = _unique_column_sets(schema, "evidence")
+        spend_unique = _unique_column_sets(schema, "spend_ledger")
+        for unique_columns, uniques, label in [
+            (("evidence_id",), ext_unique, "external_operations.evidence_id"),
+            (("correlation_key",), ext_unique, "external_operations.correlation_key"),
+            (("task_id", "effect", "operation", "request_hash", "request_sequence"),
+             ext_unique, "external_operations.read request sequence"),
+            (("external_operation_row_id",), ev_unique, "evidence.external_operation_row_id"),
+            (("operation_log_evidence_id",), ev_unique, "evidence.operation_log_evidence_id"),
+            (("external_operation_row_id",), spend_unique,
+             "spend_ledger.external_operation_row_id"),
+            (("reverses_spend_ledger_id",), spend_unique,
+             "spend_ledger.reverses_spend_ledger_id"),
+        ]:
+            if unique_columns not in uniques:
+                bad.append(f"UNIQUE欠落:{label}")
+        ext_fks = {(row[3], row[2], row[4]) for row in schema.execute(
+            "PRAGMA foreign_key_list('external_operations')")}
+        ev_fks = {(row[3], row[2], row[4]) for row in schema.execute(
+            "PRAGMA foreign_key_list('evidence')")}
+        spend_fks = {(row[3], row[2], row[4]) for row in schema.execute(
+            "PRAGMA foreign_key_list('spend_ledger')")}
+        if ("evidence_id", "evidence", "id") not in ext_fks:
+            bad.append("FK欠落:external_operations.evidence_id->evidence.id")
+        if ("external_operation_row_id", "external_operations", "id") not in ev_fks:
+            bad.append("FK欠落:evidence.external_operation_row_id->external_operations.id")
+        if ("operation_log_evidence_id", "evidence", "id") not in ev_fks:
+            bad.append("FK欠落:evidence.operation_log_evidence_id->evidence.id")
+        if ("external_operation_row_id", "external_operations", "id") not in spend_fks:
+            bad.append("FK欠落:spend_ledger.external_operation_row_id->external_operations.id")
+        if ("reverses_spend_ledger_id", "spend_ledger", "id") not in spend_fks:
+            bad.append("FK欠落:spend_ledger.reverses_spend_ledger_id->spend_ledger.id")
+        if ("approval_id", "approvals", "id") not in spend_fks:
+            bad.append("FK欠落:spend_ledger.approval_id->approvals.id")
+        if ("task_id", "tasks", "id") not in spend_fks:
+            bad.append("FK欠落:spend_ledger.task_id->tasks.id")
+        column_info_by_name = {row[1]: row for row in schema.execute(
+            "PRAGMA table_info('external_operations')")}
+        for column in ("effect", "policy_category", "execution_mode", "correlation_key",
+                       "request_sequence"):
+            if column not in column_info_by_name or column_info_by_name[column][3] != 1:
+                bad.append(f"外部I/O必須列欠落/nullable:{column}")
+        trigger_sql = schema.execute(
+            "SELECT sql FROM sqlite_master WHERE type='trigger' AND name='evidence_operation_log_insert'"
+        ).fetchone()
+        if trigger_sql and "AFTER INSERT" not in trigger_sql[0].upper():
+            bad.append("operation_log triggerがAFTER INSERT原子finalizeでない")
+    finally:
+        schema.close()
+    # 物理保護が欠落した mutation はここで十分検出済み。壊れた schema 上の後続DMLで
+    # 無関係な例外を漏らさず、gate fault として安定して返す。
+    if bad:
+        return bad
+
+    # confirmed/rejected/unknown、provider ID 有無、read/write の正常系。
+    for effect, result, provider_id, sequence in [
+        ("write", "confirmed", "provider-1", 1),
+        ("write", "rejected", None, 1),
+        ("read", "unknown", None, 1),
+    ]:
+        c = _external_io_fixture(ddl)
+        try:
+            _insert_external_operation(c, effect=effect, request_sequence=sequence)
+            c.commit()
+            _send_external_operation(c)
+            c.commit()
+            if provider_id is not None:
+                c.execute("UPDATE external_operations SET external_operation_id=?,"
+                          " remote_object_id='remote-1', response_hash=? WHERE id=1",
+                          (provider_id, "c" * 64))
+            _insert_operation_log(c, provider_id=provider_id, result=result)
+            c.commit()
+            state = c.execute(
+                "SELECT status,evidence_id,finalized_at FROM external_operations WHERE id=1"
+            ).fetchone()
+            links = c.execute(
+                "SELECT count(*) FROM external_operations AS op JOIN evidence AS ev "
+                "ON op.evidence_id=ev.id AND ev.external_operation_row_id=op.id WHERE op.id=1"
+            ).fetchone()[0]
+            if tuple(state) != (result, 1, _IO_CONFIRMED_AT) or links != 1:
+                bad.append(f"原子finalize不成立:{effect}/{result}/{tuple(state)}/{links}")
+        except sqlite3.Error as e:
+            bad.append(f"正常外部I/Oが拒否:{effect}/{result}:{e}")
+        finally:
+            c.close()
+
+    # provider ID は外部行に存在しても evidence/payload では任意。記録した場合だけ一致させる。
+    c = _external_io_fixture(ddl)
+    try:
+        _insert_external_operation(c)
+        _send_external_operation(c)
+        c.execute("UPDATE external_operations SET external_operation_id='provider-1' WHERE id=1")
+        _insert_operation_log(c, provider_id=None)
+        state = tuple(c.execute(
+            "SELECT status,evidence_id FROM external_operations WHERE id=1").fetchone())
+        evidence = tuple(c.execute(
+            "SELECT external_operation_id,json_type(payload_json,'$.provider_operation_id') "
+            "FROM evidence WHERE id=1").fetchone())
+        if state != ("confirmed", 1) or evidence != (None, None):
+            bad.append(f"provider ID省略のfinal束縛不成立:{state}/{evidence}")
+    except sqlite3.Error as e:
+        bad.append(f"provider ID任意の正常系が拒否:{e}")
+    finally:
+        c.close()
+
+    # 全write policy分類（paidは後段の原子charge検査）が同じwrite状態機械を共有する。
+    for policy in ("review_sync", "approval_notification"):
+        c = _external_io_fixture(ddl)
+        try:
+            _insert_external_operation(c, policy_category=policy, rate_scope=policy)
+            _send_external_operation(c)
+            _insert_operation_log(c)
+        except sqlite3.Error as e:
+            bad.append(f"write policy正常系が拒否:{policy}:{e}")
+        finally:
+            c.close()
+
+    # 同一 task/request の反復 read は1始まり、直前final後だけMAX+1。gap/reuse/sent迂回を拒否。
+    c = _external_io_fixture(ddl)
+    try:
+        _insert_external_operation(c, operation_id=1, effect="read", request_sequence=1)
+        _send_external_operation(c, 1)
+        _insert_operation_log(c, evidence_id=1, operation_id=1, result="confirmed")
+        _insert_external_operation(c, operation_id=2, effect="read", request_sequence=2)
+        keys = [row[0] for row in c.execute(
+            "SELECT correlation_key FROM external_operations ORDER BY request_sequence")]
+        expected_keys = [f"read:1:{_IO_REQUEST_HASH}:1", f"read:1:{_IO_REQUEST_HASH}:2"]
+        if keys != expected_keys:
+            bad.append(f"read correlation key非決定的:{keys}")
+        try:
+            _insert_external_operation(c, operation_id=3, effect="read", request_sequence=1)
+            bad.append("同一read request_sequence重複が通過")
+        except sqlite3.IntegrityError:
+            pass
+    except sqlite3.Error as e:
+        bad.append(f"read sequence 1/2が拒否:{e}")
+    finally:
+        c.close()
+
+    for label, action in [
+        ("read初回sequence 2",
+         lambda c: _insert_external_operation(c, effect="read", request_sequence=2)),
+        ("read未確定前回からsequence前進",
+         lambda c: (_insert_external_operation(c, effect="read", request_sequence=1),
+                    _insert_external_operation(c, operation_id=2, effect="read",
+                                               request_sequence=2))),
+        ("read sent timeoutから別rowへ前進",
+         lambda c: (_insert_external_operation(
+             c, effect="read", request_sequence=1, prepared_at="2026-08-09T00:00:00Z"),
+                    _send_external_operation(c, sent_at="2026-08-09T00:00:01Z"),
+                    _insert_external_operation(c, operation_id=2, effect="read",
+                                               request_sequence=2))),
+        ("write sequence 2",
+         lambda c: _insert_external_operation(c, request_sequence=2)),
+    ]:
+        c = _external_io_fixture(ddl)
+        try:
+            try:
+                action(c)
+                bad.append(f"{label}が通過")
+            except sqlite3.IntegrityError:
+                pass
+        finally:
+            c.close()
+
+    c = _external_io_fixture(ddl)
+    try:
+        _insert_external_operation(c, effect="read", request_sequence=1)
+        _send_external_operation(c)
+        _insert_operation_log(c)
+        try:
+            _insert_external_operation(c, operation_id=2, effect="read", request_sequence=3)
+            bad.append("read sequence gapが通過")
+        except sqlite3.IntegrityError:
+            pass
+    finally:
+        c.close()
+
+    # mock/dry-run/pre-call 拒否は業務 DB に一切残さない。
+    for mode in ("mock", "dry_run", "pre_call_rejected"):
+        c = _external_io_fixture(ddl)
+        try:
+            try:
+                _insert_external_operation(c, execution_mode=mode)
+                bad.append(f"非actual外部行が通過:{mode}")
+            except sqlite3.IntegrityError:
+                pass
+            counts = tuple(c.execute(
+                "SELECT (SELECT count(*) FROM external_operations),"
+                " (SELECT count(*) FROM evidence WHERE kind='operation_log')").fetchone())
+            if counts != (0, 0):
+                bad.append(f"{mode}がDB証跡を残した:{counts}")
+        finally:
+            c.close()
+
+    rejection_cases = [
+        ("write idempotency欠落",
+         lambda c: _insert_external_operation(c, idempotency_key=None,
+                                               correlation_key="not-idempotent")),
+        ("read correlation不正",
+         lambda c: _insert_external_operation(c, effect="read", correlation_key="random")),
+        ("read idempotency混入",
+         lambda c: _insert_external_operation(c, effect="read", idempotency_key="bad")),
+        ("effect不正",
+         lambda c: _insert_external_operation(c, effect="network")),
+        ("policy閉集合外",
+         lambda c: _insert_external_operation(c, policy_category="paid")),
+        ("policy/effect不一致",
+         lambda c: _insert_external_operation(c, effect="read",
+                                              policy_category="content_publish")),
+        ("write rate_scope NULL",
+         lambda c: _insert_external_operation(c, rate_scope=None)),
+        ("read rate_scope非NULL",
+         lambda c: _insert_external_operation(c, effect="read", rate_scope="external_read")),
+        ("rate_scope大文字",
+         lambda c: _insert_external_operation(c, rate_scope="Content_Publish")),
+        ("rate_scope alias",
+         lambda c: _insert_external_operation(c, rate_scope="content-publish")),
+        ("rate_scope空",
+         lambda c: _insert_external_operation(c, rate_scope="")),
+        ("request hash大文字",
+         lambda c: _insert_external_operation(c, request_hash="B" * 64)),
+        ("request hash非hex",
+         lambda c: _insert_external_operation(c, request_hash="z" * 64)),
+        ("prepared_at非canonical",
+         lambda c: _insert_external_operation(c, prepared_at="2026-08-10 00:00:01")),
+        ("prepared_at暦時刻不正",
+         lambda c: _insert_external_operation(c, prepared_at="2026-01-01T24:00:00Z")),
+        ("prepared以外の直接INSERT",
+         lambda c: _insert_external_operation(c, status="confirmed")),
+        ("束縛列変更",
+         lambda c: (_insert_external_operation(c),
+                    c.execute("UPDATE external_operations SET request_sequence=2 WHERE id=1"))),
+        ("policy束縛変更",
+         lambda c: (_insert_external_operation(c), c.execute(
+             "UPDATE external_operations SET policy_category='review_sync' WHERE id=1"))),
+        ("rate_scope束縛変更",
+         lambda c: (_insert_external_operation(c), c.execute(
+             "UPDATE external_operations SET rate_scope='review_sync' WHERE id=1"))),
+        ("prepared中のresult metadata記録",
+         lambda c: (_insert_external_operation(c), c.execute(
+             "UPDATE external_operations SET external_operation_id='provider-1' WHERE id=1"))),
+        ("preparedからfinalへ直行",
+         lambda c: (_insert_external_operation(c), c.execute(
+             "UPDATE external_operations SET status='confirmed',finalized_at='t3' WHERE id=1"))),
+        ("sentからpreparedへ逆行",
+         lambda c: (_insert_external_operation(c), _send_external_operation(c), c.execute(
+             "UPDATE external_operations SET status='prepared',sent_at=NULL WHERE id=1"))),
+        ("sent_at非canonical",
+         lambda c: (_insert_external_operation(c),
+                    _send_external_operation(c, sent_at="2026-08-10 00:00:02"))),
+        ("sent_at暦日不正",
+         lambda c: (_insert_external_operation(c),
+                    _send_external_operation(c, sent_at="2026-08-32T00:00:02Z"))),
+        ("sent_at時系列逆行",
+         lambda c: (_insert_external_operation(c),
+                    _send_external_operation(c, sent_at="2026-08-09T23:59:59Z"))),
+        ("sent_at cap窓付替え",
+         lambda c: (_insert_external_operation(c), _send_external_operation(c), c.execute(
+             "UPDATE external_operations SET sent_at='2026-08-09T00:00:00Z' WHERE id=1"))),
+        ("finalized_at非canonical",
+         lambda c: (_insert_external_operation(c), _send_external_operation(c),
+                    _insert_operation_log(c, created_at="2026-08-10 00:00:03"))),
+        ("operation_log created_at暦時刻不正",
+         lambda c: (_insert_external_operation(c), _send_external_operation(c),
+                    _insert_operation_log(c, created_at="2026-08-10T24:00:00Z"))),
+        ("response hash大文字",
+         lambda c: (_insert_external_operation(c), _send_external_operation(c), c.execute(
+             "UPDATE external_operations SET response_hash=? WHERE id=1", ("C" * 64,)))),
+        ("response hash非hex",
+         lambda c: (_insert_external_operation(c), _send_external_operation(c), c.execute(
+             "UPDATE external_operations SET response_hash=? WHERE id=1", ("z" * 64,)))),
+        ("sent writeの別idempotency再送",
+         lambda c: (_insert_external_operation(c), _send_external_operation(c),
+                    _insert_external_operation(c, operation_id=2, idempotency_key="write-key-2"))),
+        ("証跡なしfinal",
+         lambda c: (_insert_external_operation(c), _send_external_operation(c), c.execute(
+             "UPDATE external_operations SET status='unknown',finalized_at='t3' WHERE id=1"))),
+        ("sent前operation_log",
+         lambda c: (_insert_external_operation(c), _insert_operation_log(c))),
+    ]
+    for label, action in rejection_cases:
+        c = _external_io_fixture(ddl)
+        try:
+            try:
+                action(c)
+                bad.append(f"{label}が通過")
+            except sqlite3.IntegrityError:
+                pass
+            except sqlite3.Error as e:
+                bad.append(f"{label}検査不能:{e}")
+        finally:
+            c.close()
+
+    # sent 中の各結果メタデータは NULL→値の一度だけ。上書きも NULL 戻しも不可。
+    # 識別子は parameter bind できないため、外部入力を補間せず閉じた SQL literal 表から選ぶ。
+    metadata_sql = {
+        "external_operation_id": (
+            "UPDATE external_operations SET external_operation_id=? WHERE id=1",
+            "SELECT external_operation_id FROM external_operations WHERE id=1",
+        ),
+        "remote_object_id": (
+            "UPDATE external_operations SET remote_object_id=? WHERE id=1",
+            "SELECT remote_object_id FROM external_operations WHERE id=1",
+        ),
+        "response_hash": (
+            "UPDATE external_operations SET response_hash=? WHERE id=1",
+            "SELECT response_hash FROM external_operations WHERE id=1",
+        ),
+    }
+    for column, initial, replacement in [
+        ("external_operation_id", "provider-1", "provider-2"),
+        ("external_operation_id", "provider-1", None),
+        ("remote_object_id", "remote-1", "remote-2"),
+        ("remote_object_id", "remote-1", None),
+        ("response_hash", "c" * 64, "d" * 64),
+        ("response_hash", "c" * 64, None),
+    ]:
+        c = _external_io_fixture(ddl)
+        try:
+            _insert_external_operation(c)
+            _send_external_operation(c)
+            update_sql, select_sql = metadata_sql[column]
+            c.execute(update_sql, (initial,))
+            try:
+                c.execute(update_sql, (replacement,))
+                bad.append(f"sent metadata再変更が通過:{column}/{replacement}")
+            except sqlite3.IntegrityError:
+                pass
+            current = c.execute(select_sql).fetchone()[0]
+            if current != initial:
+                bad.append(f"sent metadata拒否後に値が変化:{column}/{current}")
+        except sqlite3.Error as e:
+            bad.append(f"sent metadata write-once検査不能:{e}")
+        finally:
+            c.close()
+
+    # operation_log の孤児・全束縛不一致・不正 result は INSERT 文全体を rollback する。
+    mismatch_cases: list[tuple[str, dict]] = [
+        ("task不一致", {"task_id": 2}),
+        ("value不一致", {"value": "external-operation:999"}),
+        ("effect不一致", {"payload_overrides": {"effect": "read"}}),
+        ("policy不一致", {"payload_overrides": {"policy_category": "review_sync"}}),
+        ("rate_scope不一致", {"payload_overrides": {"rate_scope": "other_scope"}}),
+        ("rate_scope key欠落", {"omit_payload_keys": ("rate_scope",)}),
+        ("service不一致", {"payload_overrides": {"service": "other"}}),
+        ("operation不一致", {"payload_overrides": {"operation": "other"}}),
+        ("correlation不一致", {"payload_overrides": {"correlation_key": "other"}}),
+        ("request hash不一致", {"payload_overrides": {"request_hash": "d" * 64}}),
+        ("request sequence不一致", {"payload_overrides": {"request_sequence": 2}}),
+        ("result不正", {"result": "success"}),
+    ]
+    for label, kwargs in mismatch_cases:
+        c = _external_io_fixture(ddl)
+        try:
+            _insert_external_operation(c)
+            _send_external_operation(c)
+            c.commit()
+            try:
+                _insert_operation_log(c, **kwargs)
+                bad.append(f"operation_log {label}が通過")
+            except sqlite3.IntegrityError:
+                pass
+            op = tuple(c.execute(
+                "SELECT status,evidence_id FROM external_operations WHERE id=1").fetchone())
+            ev_count = c.execute("SELECT count(*) FROM evidence").fetchone()[0]
+            if op != ("sent", None) or ev_count != 0:
+                bad.append(f"operation_log {label}拒否が非原子的:{op}/{ev_count}")
+        finally:
+            c.close()
+
+    c = _external_io_fixture(ddl)
+    try:
+        _insert_external_operation(c)
+        _send_external_operation(c)
+        c.execute("UPDATE external_operations SET external_operation_id='provider-1' WHERE id=1")
+        c.commit()
+        try:
+            _insert_operation_log(c, provider_id="provider-2")
+            bad.append("operation_log provider ID不一致が通過")
+        except sqlite3.IntegrityError:
+            pass
+        op = tuple(c.execute(
+            "SELECT status,evidence_id FROM external_operations WHERE id=1").fetchone())
+        if op != ("sent", None) or c.execute("SELECT count(*) FROM evidence").fetchone()[0]:
+            bad.append("provider ID不一致拒否が非原子的")
+    finally:
+        c.close()
+
+    c = _external_io_fixture(ddl)
+    try:
+        payload = json.dumps({
+            "external_operation_row_id": 999, "effect": "read",
+            "policy_category": "external_read", "rate_scope": None, "service": "provider",
+            "operation": "poll", "correlation_key": "read:1:x:1", "request_hash": "b" * 64,
+            "request_sequence": 1, "result": "unknown",
+        })
+        try:
+            c.execute("INSERT INTO evidence "
+                      "(id,task_id,kind,value,payload_json,external_operation_row_id,created_at) "
+                      "VALUES (1,1,'operation_log','external-operation:999',?,999,?)",
+                      (payload, _IO_CONFIRMED_AT))
+            bad.append("孤児operation_logが通過")
+        except sqlite3.IntegrityError:
+            pass
+        if c.execute("SELECT count(*) FROM evidence").fetchone()[0] != 0:
+            bad.append("孤児operation_log拒否後にevidenceが残存")
+    finally:
+        c.close()
+
+    c = _external_io_fixture(ddl)
+    try:
+        _insert_external_operation(c)
+        try:
+            c.execute("INSERT INTO evidence "
+                      "(id,task_id,kind,value,payload_json,external_operation_row_id,created_at) "
+                      "VALUES (1,1,'file_hash','hash','{}',1,?)", (_IO_CONFIRMED_AT,))
+            bad.append("operation_log以外がexternal_operation_row_idを占有")
+        except sqlite3.IntegrityError:
+            pass
+        if c.execute("SELECT count(*) FROM evidence").fetchone()[0] != 0:
+            bad.append("非operation_logの外部行束縛拒否後にevidenceが残存")
+    finally:
+        c.close()
+
+    # 成功 INSERT は即 final。重複、final 後の更新・削除は拒否し初回束縛を保持する。
+    c = _external_io_fixture(ddl)
+    try:
+        _insert_external_operation(c)
+        _send_external_operation(c)
+        _insert_operation_log(c)
+        c.commit()
+        for label, final_action in [
+            ("同一外部行への重複operation_log",
+             lambda: _insert_operation_log(c, evidence_id=2)),
+            ("final外部行更新",
+             lambda: c.execute(
+                 "UPDATE external_operations SET finalized_at='2026-08-10T00:00:04Z' WHERE id=1")),
+            ("final外部行削除",
+             lambda: c.execute("DELETE FROM external_operations WHERE id=1")),
+            ("operation_log更新",
+             lambda: c.execute("UPDATE evidence SET payload_json='{}' WHERE id=1")),
+            ("operation_log削除",
+             lambda: c.execute("DELETE FROM evidence WHERE id=1")),
+        ]:
+            try:
+                final_action()
+                bad.append(f"{label}が通過")
+            except sqlite3.IntegrityError:
+                pass
+        state = tuple(c.execute(
+            "SELECT status,evidence_id,finalized_at FROM external_operations WHERE id=1").fetchone())
+        evidence = c.execute(
+            "SELECT external_operation_row_id,json_extract(payload_json,'$.result') "
+            "FROM evidence WHERE id=1").fetchone()
+        if state != ("confirmed", 1, _IO_CONFIRMED_AT) or tuple(evidence or ()) != (1, "confirmed"):
+            bad.append(f"final束縛が拒否後に変化:{state}")
+    except sqlite3.Error as e:
+        bad.append(f"final不変/重複検査不能:{e}")
+    finally:
+        c.close()
+
+    # operation_log は相互 FK でも DELETE を防げるが、未参照 evidence も append-only である。
+    c = _external_io_fixture(ddl)
+    try:
+        c.execute("INSERT INTO evidence "
+                  "(id,task_id,kind,value,payload_json,file_path,file_hash,created_at) "
+                  "VALUES (99,1,'file_hash','file','{}','artifact','" + "f" * 64 + "','t')")
+        c.commit()
+        try:
+            c.execute("DELETE FROM evidence WHERE id=99")
+            bad.append("evidence削除が通過")
+        except sqlite3.IntegrityError:
+            pass
+        if c.execute("SELECT count(*) FROM evidence WHERE id=99").fetchone()[0] != 1:
+            bad.append("evidence削除拒否後に行が消失")
+    finally:
+        c.close()
+    bad.extend(_detect_published_spend_faults(ddl))
+    return bad
+
+
 # ---------------------------------------------------------------- 物理数の主張（PO 指示 §3）
-# 「25 テーブル」「保護トリガ 16 本」のような**物理数の主張**は、散文の記憶ではなく実 DDL から
+# 「25 テーブル」「保護トリガ 37 本」のような**物理数の主張**は、散文の記憶ではなく実 DDL から
 # 導出した数と突合する。部分集合を語る主張（特定テーブルに限定した本数）は、その文脈に現れる
 # テーブル名から**期待値を計算**して突合する（総数へ丸めない — 部分集合の主張も検証対象）。
 # 「トリガ 11」「トリガーは 11 本」「11 基のトリガ」のような表記ゆれも物理数の主張として拾う
@@ -229,7 +1479,20 @@ def _texts(root: Path = ROOT) -> list[tuple[str, str]]:
     for p in sorted(root.glob("docs/L*/**/*.json")):
         if is_frozen(p):
             continue
-        out.append((rel(p), p.read_text(encoding="utf-8")))
+        text = p.read_text(encoding="utf-8")
+        if p.name == "s0.1-worksets.json":
+            # ut_nodeid_renames[].from は、親commitの旧nodeidを失わず監査するための
+            # append-only履歴であり「現行物理数の主張」ではない。rename自体の妥当性・
+            # 1対1・数値以外同一・親実在は G-WORKSET-RATCHET が別に強制する。
+            try:
+                worksets = json.loads(text)
+                for rename in worksets.get("ut_nodeid_renames", []):
+                    if isinstance(rename, dict):
+                        rename.pop("from", None)
+                text = json.dumps(worksets, ensure_ascii=False)
+            except (json.JSONDecodeError, AttributeError):
+                pass  # 壊れたJSONはG-JSON/G-WORKSET-SCHEMAがfail-closeする
+        out.append((rel(p), text))
     for p in sorted(root.glob("tests/**/*.py")):
         for m in re.finditer(r"^def (test_\w+)", p.read_text(encoding="utf-8"), re.M):
             out.append((f"{rel(p)}::{m.group(1)}", m.group(1)))
@@ -279,6 +1542,31 @@ def detect_unknown_tables(dus: list[dict], tables: set[str]) -> list[str]:
                    if t.split("（")[0] not in tables})
 
 
+def extract_primary_ddl(contract_text: str) -> str:
+    """s0-contract の最初の SQL fence（DDL 正本ブロック）だけを抽出する。
+
+    後続節の計測 SQL 例まで連結すると、DDL が同一でも G-DDL-SYNC が偽陽性になる。
+    """
+    match = re.search(r"^```sql[ \t]*\n(.*?)^```[ \t]*$", contract_text, re.MULTILINE | re.DOTALL)
+    return match.group(1) if match else ""
+
+
+def detect_internal_task_type_registry_faults(ddl: str, items: list[dict]) -> list[str]:
+    """DDL が意味分岐に使う内部 task_type と L1 正本語彙を完全一致させる。"""
+    faults: list[str] = []
+    ddl_types = set(re.findall(
+        r"(?:NEW\.|OLD\.|creator\.|correction\.)?task_type\s*=\s*'([A-Za-z0-9_-]+)'", ddl
+    ))
+    registered = {item["id"] for item in items if item.get("internal") is True}
+    if ddl_types != registered:
+        faults.append(f"内部task_type語彙差分={sorted(ddl_types ^ registered)}")
+    invalid_ids = sorted(item.get("id", "") for item in items
+                         if not re.fullmatch(r"[A-Za-z0-9_-]+", item.get("id", "")))
+    if invalid_ids:
+        faults.append(f"DDL CHECKで格納不能なtask_type正本ID={invalid_ids}")
+    return faults
+
+
 # ---------------------------------------------------------------- ゲート本体
 def run(ctx: Ctx) -> None:
     _ddl(ctx)
@@ -289,15 +1577,14 @@ def run(ctx: Ctx) -> None:
 
 
 def _ddl(ctx: Ctx) -> None:
-    md_sql = subprocess.run(  # noqa: S603
-        ["awk", "/^```sql$/,/^```$/", str(S0_CONTRACT)],  # noqa: S607
-        capture_output=True, text=True, check=True).stdout
+    md_sql = extract_primary_ddl(S0_CONTRACT.read_text(encoding="utf-8"))
 
     def norm(s: str) -> list[str]:
         return [ln.rstrip() for ln in s.splitlines() if ln.rstrip() and not ln.startswith("```")]
 
     gate("G-DDL-SYNC", norm(md_sql) == norm(ctx.ddl), "ddl.sql == s0-contract の DDL ブロック")
 
+    external_faults = detect_external_operation_evidence_faults(ctx.ddl)
     con = sqlite3.connect(":memory:")
     try:
         con.executescript(ctx.ddl)
@@ -306,9 +1593,10 @@ def _ddl(ctx: Ctx) -> None:
         ntab = con.execute("SELECT count(*) FROM sqlite_master WHERE type='table'").fetchone()[0]
         ntrg = con.execute("SELECT count(*) FROM sqlite_master WHERE type='trigger'").fetchone()[0]
         gate("G-DDL-APPLY",
-             not fk and integ == "ok" and ntab == EXPECTED_TABLES and ntrg == EXPECTED_TRIGGERS,
+             not fk and integ == "ok" and ntab == EXPECTED_TABLES and
+             ntrg == EXPECTED_TRIGGERS and not external_faults,
              f"DDL 適用 (fk={fk}, integrity={integ}, tables={ntab}/{EXPECTED_TABLES}, "
-             f"triggers={ntrg}/{EXPECTED_TRIGGERS})")
+             f"triggers={ntrg}/{EXPECTED_TRIGGERS}, external_io={external_faults[:3]})")
     except sqlite3.Error as e:
         gate("G-DDL-APPLY", False, f"DDL 適用失敗: {e}")
     finally:
@@ -319,10 +1607,25 @@ def _ddl(ctx: Ctx) -> None:
          "現役文書・契約 JSON・テスト名の物理数（テーブル数・トリガ数）が**実 DDL から導出した数**と"
          f"一致（部分集合の本数を数値で書かない） (違反={phys[:3]})")
 
-    kinds = {k["kind"] for k in load(EVIDENCE_KINDS)["items"]}
+    playbook_faults = detect_playbook_version_faults(ctx.ddl)
+    gate("G-PLAYBOOK-VERSION", not playbook_faults,
+         "playbook修復はbroken版ごとに1 task、版連鎖・atomic rollback・旧版不変をDBで強制 "
+         f"(違反={playbook_faults[:3]})")
+
+    task_type_items = load(LTW_DIR / "task-types.json")["items"]
+    task_type_faults = detect_internal_task_type_registry_faults(ctx.ddl, task_type_items)
+    gate("G-TASK-TYPE-REGISTRY", not task_type_faults,
+         "DDL意味分岐の内部task_typeがL1正本語彙へ完全登録 "
+         f"(違反={task_type_faults})")
+
+    kind_items = load(EVIDENCE_KINDS)["items"]
+    kinds = {k["kind"] for k in kind_items}
+    operation_log_faults = detect_operation_log_kind_faults(kind_items)
     m = re.search(r"kind TEXT NOT NULL CHECK \(kind IN \(([^)]*)\)", ctx.ddl)
     dk = set(re.findall(r"'([a-z_]+)'", m.group(1))) if m else set()
-    gate("G-EVK", kinds == dk and len(kinds) == 10, f"evidence kind 10 種一致 (差分={sorted(kinds ^ dk)})")
+    gate("G-EVK", kinds == dk and len(kinds) == 10 and not operation_log_faults,
+         f"evidence kind 10 種一致・operation_log双方向束縛契約 "
+         f"(差分={sorted(kinds ^ dk)}, 違反={operation_log_faults[:3]})")
 
 
 def _transitions(ctx: Ctx) -> None:

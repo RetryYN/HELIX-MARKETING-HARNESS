@@ -890,13 +890,11 @@
       "title": "支出台帳",
       "summary": "spend_ledger 記録・上限監視",
       "related": [
-        "FR-73",
         "NFR-6"
       ],
       "slice": "S3",
       "trace": {
         "upstream": [
-          "FR-73",
           "NFR-6"
         ],
         "downstream": []

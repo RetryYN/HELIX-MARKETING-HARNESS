@@ -1109,7 +1109,7 @@
         "未知サイトの初回攻略の全自動化（人間の初回確認を許容）"
       ],
       "constraints": [
-        "自己修復の試行回数は config",
+        "自己修復の試行回数は config.playbook_repair_limit を正本とし、現行承認値は 1（変更は要件改訂を伴う）",
         "修復結果は地図へ版として記録"
       ],
       "prohibitions": [
@@ -1960,5 +1960,5 @@
   "approved_at": "2026-08-01T00:00:00+09:00",
   "authority": "PO",
   "supersedes": [],
-  "approval_digest": "3a8888403ce6"
+  "approval_digest": "6bfd434b51fb"
 }

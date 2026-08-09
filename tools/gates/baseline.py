@@ -242,12 +242,14 @@ def current_counts(ctx: Ctx) -> dict[str, int]:
              if p.stem != "index")
     mr = sum(len(load(p)["items"]) for p in sorted((L3 / "canonical/functional/mr").glob("*.json"))
              if p.stem != "index")
-    return {
+    counts = {
         "BR": len(ctx.br), "REQ": len(ctx.req), "FR": len(ctx.fr), "NFR": len(ctx.nfr),
         "FN": len(ctx.fn), "BRM": bm, "MR": mr,
         "WF": len(load(L1 / "canonical/ltw/workflows.json")["items"]),
         "CMP": len(ctx.comps), "SCM": len(ctx.scm), "ITC": len(ctx.itcs), "DU": len(ctx.dus),
     }
+    counts.update(current_denominators(ctx))
+    return counts
 
 
 # baseline の旧パス（物理移行前）。親コミットとの比較はここまで遡って解決する
@@ -539,7 +541,44 @@ def _count_sync(ctx: Ctx) -> None:
             n = int(next(x for x in m if x))
             if n != gc:
                 stale.append(f"{p.name}:{n}!={gc}")
-    gate("G-COUNT-SYNC", not stale, f"ゲート件数の手書き表記が実数と一致 (乖離={stale})")
+    stale += detect_readme_count_faults(
+        (ROOT / "README.md").read_text(encoding="utf-8"), current_counts(ctx))
+    for p in (ROOT / "README.md", ROOT / "CLAUDE.md", ROOT / "AGENTS.md"):
+        stale += detect_root_contract_count_faults(
+            p.name, p.read_text(encoding="utf-8"), current_counts(ctx))
+    gate("G-COUNT-SYNC", not stale,
+         f"ゲート件数・README主要分母・root 3文書の契約分母が正本の実数と一致 (乖離={stale})")
+
+
+def detect_readme_count_faults(text: str, counts: dict[str, int]) -> list[str]:
+    """README の入口導線に掲げる主要分母が JSON 正本からドリフトしていないか検出する。"""
+    claims = {
+        "BR": (r"BR 背骨\s+(\d+)", counts["BR"]),
+        "REQ": (r"要求一覧\s+(\d+)", counts["REQ"]),
+        "FR": (r"要件定義 FR(\d+)/NFR\d+", counts["FR"]),
+        "NFR": (r"要件定義 FR\d+/NFR(\d+)", counts["NFR"]),
+        "FN": (r"機能一覧\s+(\d+)", counts["FN"]),
+    }
+    bad: list[str] = []
+    for label, (pattern, expected) in claims.items():
+        found = [int(x) for x in re.findall(pattern, text)]
+        if found != [expected]:
+            bad.append(f"README:{label}={found or '欠落'}!={expected}")
+    return bad
+
+
+ROOT_DENOMINATOR = re.compile(
+    r"現行分母は\s+\*{0,2}AC=(\d+)\s*／\s*TCC=(\d+)\s*／\s*"
+    r"API=(\d+)\s*／\s*API_UT=(\d+)\*{0,2}")
+
+
+def detect_root_contract_count_faults(name: str, text: str, counts: dict[str, int]) -> list[str]:
+    """README/CLAUDE/AGENTS の権威行が1行だけ存在し、4分母が正本と一致するか検査する。"""
+    found = [tuple(map(int, match)) for match in ROOT_DENOMINATOR.findall(text)]
+    expected = (counts["AC_CONTRACT"], counts["TCC"], counts["API"], counts["API_UT"])
+    if found != [expected]:
+        return [f"{name}:契約分母={found or '欠落'}!={expected}"]
+    return []
 
 
 def _wiring(ctx: Ctx) -> None:

@@ -29,7 +29,7 @@
       "id": "MR-PLAY-2",
       "media": "PLAY",
       "media_name": "8.2 Google Play / TWA",
-      "text": "（レート・BR-F5）: 低頻度媒体。Console 操作は間隔 2〜8 秒の一様乱数、 リリース系操作 1 件/日（C: `rate.play.*`）",
+      "text": "（レート・BR-F5）: Console 操作は間隔 2〜8 秒の一様乱数、リリース系操作 1 件/日（必須 C: `rate.play.interval_min_sec=2`／`interval_max_sec=8`／`daily_write_cap=1`、欠落時は拒否）",
       "trace": {
         "upstream": [
           "BR-M-PLAY-2"

@@ -21,6 +21,19 @@ def test_ddl_applies_with_expected_tables_and_triggers() -> None:
         con.close()
 
 
+def test_primary_ddl_extraction_ignores_later_sql_examples() -> None:
+    contract = """# contract
+```sql
+CREATE TABLE example(id INTEGER);
+```
+## measurement
+```sql
+SELECT count(*) FROM example;
+```
+"""
+    assert architecture.extract_primary_ddl(contract) == "CREATE TABLE example(id INTEGER);\n"
+
+
 def test_brief_transitions_are_enforced_by_ddl() -> None:
     assert architecture.detect_brief_transition_faults(CTX.ddl) == []
 
@@ -53,6 +66,270 @@ def test_mutation_string_comparison_predicate_is_detected() -> None:
         "NEW.proposed_revision_targets_json IS NOT '[]'")
     faults = architecture.detect_tlp_json_predicate_faults(mutated)
     assert any("文字列比較" in f for f in faults)
+
+
+def test_playbook_versions_and_repair_episode_are_enforced_by_ddl() -> None:
+    assert architecture.detect_playbook_version_faults(CTX.ddl) == []
+
+
+def test_internal_task_types_are_registered_in_l1_canonical_vocabulary() -> None:
+    items = architecture.load(architecture.LTW_DIR / "task-types.json")["items"]
+    assert architecture.detect_internal_task_type_registry_faults(CTX.ddl, items) == []
+
+
+def test_mutation_unregistered_internal_task_type_is_detected() -> None:
+    items = architecture.load(architecture.LTW_DIR / "task-types.json")["items"]
+    mutated = [item for item in items if item["id"] != "spend_correction"]
+    faults = architecture.detect_internal_task_type_registry_faults(CTX.ddl, mutated)
+    assert any("spend_correction" in fault for fault in faults)
+
+
+def test_mutation_registry_id_rejected_by_ddl_character_contract_is_detected() -> None:
+    items = architecture.load(architecture.LTW_DIR / "task-types.json")["items"]
+    mutated = [*items, {"id": "bad task type", "internal": False}]
+    faults = architecture.detect_internal_task_type_registry_faults(CTX.ddl, mutated)
+    assert any("格納不能" in fault for fault in faults)
+
+
+def test_canonical_business_task_type_is_accepted_by_workflow_and_task_ddl() -> None:
+    con = sqlite3.connect(":memory:")
+    try:
+        con.executescript(CTX.ddl)
+        con.execute("INSERT INTO agents (id,agent_key,principal,role,display_name,status,created_at) "
+                    "VALUES (1,'a','p1','author','A','active','t'),"
+                    "(2,'v','p2','verifier','V','active','t')")
+        con.execute("INSERT INTO workflows (id,workflow_key,name,task_type,version,definition_json,"
+                    "required_evidence_json,status,created_at) "
+                    "VALUES (1,'WF-WP-1','Plan','T-PLAN',1,'{}','[]','active','t')")
+        con.execute("INSERT INTO loop_runs "
+                    "(id,loop_kind,loop_type,state,idempotency_key,created_at) "
+                    "VALUES (1,'upper','LP-U','running','loop','t')")
+        con.execute("INSERT INTO tasks (id,loop_run_id,workflow_id,task_type,author_agent_id,"
+                    "verifier_agent_id,state,step_key,idempotency_key,expected_output_kind,"
+                    "input_json,created_at) VALUES "
+                    "(1,1,1,'T-PLAN',1,2,'pending','plan','task','plan_record','{}','t')")
+    finally:
+        con.close()
+
+
+@pytest.mark.parametrize("misspelling", ["spend_correction2", "spend-correction", "SpendCorrection"])
+def test_mutation_noncanonical_internal_task_type_spelling_is_detected(misspelling: str) -> None:
+    items = architecture.load(architecture.LTW_DIR / "task-types.json")["items"]
+    mutated = CTX.ddl.replace("task_type = 'spend_correction'",
+                              f"task_type = '{misspelling}'")
+    faults = architecture.detect_internal_task_type_registry_faults(mutated, items)
+    assert any(misspelling in fault for fault in faults)
+
+
+def test_external_operation_evidence_one_to_one_is_enforced_by_ddl() -> None:
+    """実 DML で actual-only、状態機械、原子finalize、read反復、1:1、不変性を実証する。"""
+    assert architecture.detect_external_operation_evidence_faults(CTX.ddl) == []
+
+
+@pytest.mark.parametrize("trigger", [
+    "external_operations_insert_prepared",
+    "external_operations_binding_immutable",
+    "external_operations_result_sent_only",
+    "external_operations_lifecycle",
+    "external_operations_final_immutable",
+    "external_operations_no_delete",
+    "evidence_operation_log_insert",
+    "evidence_published_url_insert",
+    "spend_ledger_binding_insert",
+    "spend_ledger_no_update",
+    "spend_ledger_no_delete",
+])
+def test_mutation_dropping_external_operation_guard_is_detected(trigger: str) -> None:
+    mutated = _drop_trigger(CTX.ddl, trigger)
+    assert architecture.detect_external_operation_evidence_faults(mutated), trigger
+
+
+@pytest.mark.parametrize(("before", "after"), [
+    ("evidence_id INTEGER UNIQUE", "evidence_id INTEGER"),
+    ("operation_log_evidence_id INTEGER UNIQUE", "operation_log_evidence_id INTEGER"),
+    ("external_operation_row_id INTEGER UNIQUE", "external_operation_row_id INTEGER"),
+    ("reverses_spend_ledger_id INTEGER UNIQUE", "reverses_spend_ledger_id INTEGER"),
+    ("  UNIQUE (task_id, effect, operation, request_hash, request_sequence),\n", ""),
+])
+def test_mutation_dropping_external_operation_unique_is_detected(
+        before: str, after: str) -> None:
+    assert before in CTX.ddl
+    mutated = CTX.ddl.replace(before, after, 1)
+    faults = architecture.detect_external_operation_evidence_faults(mutated)
+    assert any("UNIQUE欠落" in fault for fault in faults), faults
+
+
+@pytest.mark.parametrize("index", [
+    "evidence_operation_log_external_row_one",
+    "evidence_published_url_external_row_one",
+])
+def test_mutation_dropping_external_evidence_partial_unique_is_detected(index: str) -> None:
+    marker = f"CREATE UNIQUE INDEX {index}"
+    start = CTX.ddl.index(marker)
+    end = CTX.ddl.index(";", start) + 2
+    mutated = CTX.ddl[:start] + CTX.ddl[end:]
+    faults = architecture.detect_external_operation_evidence_faults(mutated)
+    assert any("一意index欠落" in fault for fault in faults), faults
+
+
+@pytest.mark.parametrize("foreign_key", [
+    "  FOREIGN KEY (evidence_id) REFERENCES evidence(id) ON DELETE RESTRICT,\n",
+    "  FOREIGN KEY (external_operation_row_id) REFERENCES external_operations(id) ON DELETE RESTRICT,\n",
+    "  FOREIGN KEY (operation_log_evidence_id) REFERENCES evidence(id) ON DELETE RESTRICT,\n",
+    "  FOREIGN KEY (approval_id) REFERENCES approvals(id) ON DELETE RESTRICT,\n",
+    "  FOREIGN KEY (reverses_spend_ledger_id) REFERENCES spend_ledger(id) ON DELETE RESTRICT,\n",
+])
+def test_mutation_dropping_external_operation_bidirectional_fk_is_detected(
+        foreign_key: str) -> None:
+    assert foreign_key in CTX.ddl
+    mutated = CTX.ddl.replace(foreign_key, "", 1)
+    faults = architecture.detect_external_operation_evidence_faults(mutated)
+    assert any("FK欠落" in fault for fault in faults), faults
+
+
+def test_mutation_operation_log_trigger_before_insert_reopens_non_atomic_window() -> None:
+    mutated = CTX.ddl.replace(
+        "CREATE TRIGGER evidence_operation_log_insert AFTER INSERT ON evidence",
+        "CREATE TRIGGER evidence_operation_log_insert BEFORE INSERT ON evidence", 1)
+    faults = architecture.detect_external_operation_evidence_faults(mutated)
+    assert any("AFTER INSERT" in fault or "原子finalize" in fault for fault in faults), faults
+
+
+@pytest.mark.parametrize("trigger", ["evidence_no_update", "evidence_no_delete"])
+def test_mutation_external_operation_log_append_only_trigger_cannot_be_noop(
+        trigger: str) -> None:
+    """変異: evidence保護trigger名と本数だけを残し、WHEN 0で無効化できない。"""
+    marker = f"CREATE TRIGGER {trigger} BEFORE "
+    start = CTX.ddl.index(marker)
+    begin = CTX.ddl.index("\nBEGIN", start)
+    mutated = CTX.ddl[:begin] + "\nWHEN 0" + CTX.ddl[begin:]
+    faults = architecture.detect_external_operation_evidence_faults(mutated)
+    expected = "operation_log更新" if trigger.endswith("update") else "evidence削除"
+    assert any(expected in fault for fault in faults), faults
+
+
+def test_mutation_non_operation_log_can_never_bind_external_row() -> None:
+    check = ("  CHECK ((kind = 'operation_log'\n"
+             "          AND external_operation_row_id IS NOT NULL\n"
+             "          AND operation_log_evidence_id IS NULL)\n"
+             "      OR (kind = 'published_url'\n"
+             "          AND external_operation_row_id IS NOT NULL\n"
+             "          AND operation_log_evidence_id IS NOT NULL\n"
+             "          AND asset_id IS NOT NULL)\n"
+             "      OR (kind NOT IN ('operation_log', 'published_url')\n"
+             "          AND external_operation_row_id IS NULL\n"
+             "          AND operation_log_evidence_id IS NULL)),\n")
+    assert check in CTX.ddl
+    mutated = CTX.ddl.replace(check, "", 1)
+    faults = architecture.detect_external_operation_evidence_faults(mutated)
+    assert any("operation_log以外" in fault for fault in faults), faults
+
+
+def test_operation_log_evidence_kind_requires_local_row_and_sequence() -> None:
+    assert architecture.detect_operation_log_kind_faults(
+        architecture.load(architecture.EVIDENCE_KINDS)["items"]) == []
+
+
+def test_mutation_operation_log_kind_requiring_provider_id_is_detected() -> None:
+    items = architecture.load(architecture.EVIDENCE_KINDS)["items"]
+    mutated = [dict(item) for item in items]
+    operation_log = next(item for item in mutated if item["kind"] == "operation_log")
+    operation_log["required_payload_keys"] = [
+        key for key in operation_log["required_payload_keys"]
+        if key != "external_operation_row_id"
+    ] + ["external_operation_id"]
+    faults = architecture.detect_operation_log_kind_faults(mutated)
+    assert any("必須payload差分" in fault or "provider ID" in fault for fault in faults)
+
+
+@pytest.mark.parametrize(("kind", "key"), [
+    ("operation_log", "rate_scope"),
+    ("published_url", "operation_log_evidence_id"),
+    ("published_url", "external_operation_row_id"),
+])
+def test_mutation_evidence_kind_removing_local_binding_key_is_detected(
+        kind: str, key: str) -> None:
+    items = architecture.load(architecture.EVIDENCE_KINDS)["items"]
+    mutated = [dict(item) for item in items]
+    item = next(candidate for candidate in mutated if candidate["kind"] == kind)
+    item["required_payload_keys"] = [
+        candidate for candidate in item["required_payload_keys"] if candidate != key]
+    faults = architecture.detect_operation_log_kind_faults(mutated)
+    assert any("必須payload差分" in fault for fault in faults), faults
+
+
+def test_mutation_paid_operation_kind_removing_accounting_key_is_detected() -> None:
+    items = architecture.load(architecture.EVIDENCE_KINDS)["items"]
+    mutated = [dict(item) for item in items]
+    operation_log = next(item for item in mutated if item["kind"] == "operation_log")
+    operation_log["conditional_payload_keys"] = {
+        "approved_paid_operation": ["approval_id", "currency", "purpose", "occurred_at"]}
+    faults = architecture.detect_operation_log_kind_faults(mutated)
+    assert any("条件payload差分" in fault for fault in faults), faults
+
+
+@pytest.mark.parametrize(("before", "after", "expected"), [
+    ("COALESCE(strftime('%Y-%m-%dT%H:%M:%SZ', prepared_at, '+0 seconds') = prepared_at, 0)",
+     "1", "prepared_at暦時刻不正"),
+    ("COALESCE(strftime('%Y-%m-%dT%H:%M:%SZ', occurred_at, '+0 seconds') = occurred_at, 0)",
+     "1", "occurred_at暦時刻不正"),
+])
+def test_mutation_weakening_canonical_utc_check_is_detected(
+        before: str, after: str, expected: str) -> None:
+    assert before in CTX.ddl
+    mutated = CTX.ddl.replace(before, after, 1)
+    faults = architecture.detect_external_operation_evidence_faults(mutated)
+    assert any(expected in fault for fault in faults), faults
+
+
+def test_mutation_making_provider_id_mandatory_is_detected_by_dml() -> None:
+    before = ("AND (NEW.external_operation_id IS NULL\n"
+              "           OR NEW.external_operation_id IS op.external_operation_id)")
+    after = "AND NEW.external_operation_id IS op.external_operation_id"
+    assert before in CTX.ddl
+    mutated = CTX.ddl.replace(before, after, 1)
+    faults = architecture.detect_external_operation_evidence_faults(mutated)
+    assert any("provider ID任意" in fault for fault in faults), faults
+
+
+@pytest.mark.parametrize(("before", "after", "expected"), [
+    ("WHEN NEW.kind = 'published_url'", "WHEN 0 AND NEW.kind = 'published_url'", "published_url"),
+    ("WHEN NOT EXISTS (\n    SELECT 1 FROM approvals AS approval",
+     "WHEN 0 AND NOT EXISTS (\n    SELECT 1 FROM approvals AS approval",
+     "未承認"),
+])
+def test_mutation_named_binding_trigger_cannot_be_noop(
+        before: str, after: str, expected: str) -> None:
+    assert before in CTX.ddl
+    mutated = CTX.ddl.replace(before, after, 1)
+    faults = architecture.detect_external_operation_evidence_faults(mutated)
+    assert any(expected in fault for fault in faults), faults
+
+
+@pytest.mark.parametrize("trigger", [
+    "playbook_repair_task_insert",
+    "playbook_repair_task_no_retry",
+    "playbook_repair_no_verify_retry",
+    "playbooks_initial_insert",
+    "playbooks_version_insert",
+    "playbooks_content_no_update",
+    "playbooks_status_transition",
+    "playbooks_health_active_only",
+    "playbooks_retired_no_update",
+    "playbooks_no_delete",
+])
+def test_mutation_dropping_playbook_guard_is_detected(trigger: str) -> None:
+    mutated = _drop_trigger(CTX.ddl, trigger)
+    assert architecture.detect_playbook_version_faults(mutated), trigger
+
+
+@pytest.mark.parametrize("index", ["playbooks_one_current", "playbook_repair_one_per_episode"])
+def test_mutation_dropping_playbook_unique_index_is_detected(index: str) -> None:
+    marker = f"CREATE UNIQUE INDEX {index}"
+    start = CTX.ddl.index(marker)
+    end = CTX.ddl.index(";", start) + 2
+    mutated = CTX.ddl[:start] + CTX.ddl[end:]
+    assert architecture.detect_playbook_version_faults(mutated), index
 
 
 def test_strategy_canon_is_append_only() -> None:
@@ -130,11 +407,11 @@ def test_ddl_physical_is_derived_from_real_ddl() -> None:
     assert set(trg.values()) <= tables
 
 
-@pytest.mark.parametrize("claim", ["トリガ 14 本", "トリガ 11 本", "保護トリガ 4 本",
+@pytest.mark.parametrize("claim", ["トリガ 26 本", "トリガ 16 本", "トリガ 14 本", "トリガ 11 本", "保護トリガ 4 本",
                                    "整合トリガ 6 件", "15 本のトリガ", "トリガ 11",
                                    "トリガーは 11 本", "11 基のトリガ", "トリガー 14"])
 def test_mutation_stale_trigger_count_is_detected(tmp_path, monkeypatch, claim) -> None:
-    """変異: 旧いトリガ本数（11／14）や部分集合の本数を書くと検出される。"""
+    """変異: 旧いトリガ本数（11／14／16／26）や部分集合の本数を書くと検出される。"""
     monkeypatch.setattr(architecture, "_texts", lambda root=None: [("dummy.md", claim)])
     faults = architecture.detect_physical_count_faults(CTX.ddl)
     assert any("トリガ数の主張" in f for f in faults), claim
@@ -156,11 +433,19 @@ def test_mutation_stale_test_name_count_is_detected(monkeypatch) -> None:
     assert any("テスト名の物理数" in f for f in faults)
 
 
+def test_workset_rename_history_is_not_a_current_physical_count_claim() -> None:
+    """rename元は監査履歴であり、現行値はrename先だけを物理数として検査する。"""
+    texts = dict(architecture._texts())
+    worksets = texts["docs/L6-feature-design/S0/s0.1-worksets.json"]
+    assert "test_apply_all_empty_db_creates_25_tables_and_16_triggers" not in worksets
+    assert "test_apply_all_empty_db_creates_25_tables_and_37_triggers" in worksets
+
+
 def test_section_numbers_are_not_read_as_trigger_counts(monkeypatch) -> None:
-    """偽陽性回帰: 節番号（§2 の保護トリガ／3.2 トリガ 16 本）を本数の主張と読まない。"""
+    """偽陽性回帰: 節番号を本数と誤読せず、正しい本数主張は許可する。"""
     monkeypatch.setattr(architecture, "_texts", lambda root=None: [
         ("d.md", "config への UPDATE/DELETE は §2 の保護トリガが常時拒否する"),
-        ("e.md", "### 3.2 トリガ 16 本の意図"),
+        ("e.md", "### 3.2 トリガ 37 本の意図"),
         ("f.md", "ツール代替（tech-stack §7 トリガー）")])
     assert architecture.detect_physical_count_faults(CTX.ddl) == []
 

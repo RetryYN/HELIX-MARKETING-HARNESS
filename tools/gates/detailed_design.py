@@ -173,9 +173,10 @@ def detect_impl_unit_faults(ctx: Ctx, units_path: Path = IMPL_UNITS) -> list[str
                 bad.append(f"{uid}: {prev} と同じ API の契約節 {sorted(dup)[:2]} を重複して主張している")
         owned.setdefault(u["api_ref"], []).append(u["unit_id"])
 
-    # 被覆: S0 文書が機能設計を担う DU は、全 API・全 AC がどれかの責務へ接続している
+    # 被覆: L6 文書が機能設計を担う DU はsliceを問わず、全 API・全 ACが責務へ接続している。
+    # updates.json の更新軸と L6 のslice軸を混同し、S1責務をS0文書へ偽装配置してはならない。
     for did, du in du_by_id.items():
-        if not any("/S0/" in f for f in du["trace"].get("feature_design", [])):
+        if not du["trace"].get("feature_design"):
             continue
         mine_u = [u for u in items if isinstance(u, dict) and u.get("du_id") == did]
         covered_api = {u["api_ref"] for u in mine_u if isinstance(u.get("api_ref"), str)}
@@ -228,11 +229,13 @@ def detect_clause_coverage_faults(ctx: Ctx) -> list[str]:
     du_of_api: dict[str, str] = {}
     seen_api: set[str] = set()
     seen_clause: set[str] = set()
+    api_names: dict[str, str] = {}
     for d in ctx.duc:
         for a in d["apis"]:
             if a["api_id"] in seen_api:
                 bad.append(f"{a['api_id']}: api_id が重複している（安定 ID の一意性違反）")
             seen_api.add(a["api_id"])
+            api_names[a["api_id"]] = api_name(a)
             for c in clause_ids(a):
                 if c in seen_clause:
                     bad.append(f"{c}: clause_id が重複している（安定 ID の一意性違反）")
@@ -247,8 +250,22 @@ def detect_clause_coverage_faults(ctx: Ctx) -> list[str]:
                                f" {a['api_id']} の契約節でない")
     du_ac = {d["id"]: set(d["trace"].get("ac", [])) for d in ctx.duc}
     covered: set[str] = set()
+    observation_owners: dict[str, list[str]] = {}
     for ac in ctx.acc:
         refs = ac_clauses[ac["id"]]
+        referenced_apis = {all_clauses[c] for c in refs if c in all_clauses}
+        assertions = ac.get("api_observation_assertions") or {}
+        for asserted_api, assertion in assertions.items():
+            if asserted_api not in referenced_apis:
+                bad.append(f"{ac['id']}: api_observation_assertions の {asserted_api} は"
+                           " verifies_clause_refs で当該APIを参照していない")
+                continue
+            observation_owners.setdefault(asserted_api, []).append(ac["id"])
+            action = assertion.get("action", "") if isinstance(assertion, dict) else ""
+            function_name = api_names.get(asserted_api, "")
+            if function_name and function_name not in action:
+                bad.append(f"{ac['id']}:{asserted_api}: action が公開API {function_name} の"
+                           "実呼出を示さない（別API assertionのコピーを拒否）")
         for c in refs:
             if c not in all_clauses:
                 bad.append(f"{ac['id']}: verifies_clause_refs の {c} が実在しない")
@@ -309,6 +326,28 @@ def detect_clause_coverage_faults(ctx: Ctx) -> list[str]:
                         bad.append(f"{a['api_id']}: 内部 API（{lv}）なのに契約節 {cid} が"
                                    f"『{GAP_CATEGORY}』（内部分類と未解決 gap は併存しない）")
     bad += detect_uncovered_api_ledger_faults(ctx, covered)
+    ledger = load(UNCOVERED_APIS)
+    resolved = ledger.get("resolved_items") or []
+    if ledger.get("resolved_count") != len(resolved):
+        bad.append("uncovered-apis.json: resolved_count がappend-only解消履歴の実数と不一致")
+    resolved_ids = [it.get("api_id") for it in resolved]
+    if len(resolved_ids) != len(set(resolved_ids)):
+        bad.append("uncovered-apis.json: resolved_items の api_id が重複")
+    for it in resolved:
+        api_id = it.get("api_id")
+        expected_owner = it.get("resolution_ac")
+        if api_id not in api_names:
+            bad.append(f"{api_id}: resolved_items が実在しないAPIを参照")
+            continue
+        if it.get("function") != api_names[api_id] or it.get("du_id") != du_of_api[api_id]:
+            bad.append(f"{api_id}: resolved_items のdu_id/functionが現API契約と不一致")
+        if expected_owner not in observation_owners.get(api_id, []):
+            bad.append(f"{api_id}: resolution_ac={expected_owner} がAPI固有assertionを所有しない")
+    for api_id in sorted(set(resolved_ids)):
+        owners = observation_owners.get(api_id, [])
+        if len(owners) != 1:
+            bad.append(f"{api_id}: API固有の反証可能な api_observation_assertions が"
+                       f"exactly-one ACに必要（実={owners}）")
     return bad
 
 
@@ -495,6 +534,22 @@ def detect_update_closure_faults(ctx: Ctx, closure_path: Path = UPDATE_CLOSURE) 
     return bad
 
 
+def detect_s0_design_completion_faults(ctx: Ctx) -> list[str]:
+    """S0 全更新の設計完遂を検査する。
+
+    更新ごとの closure ゲートは、open を正直に宣言すれば PASS する状態整合検査である。
+    それを S0 全体の完遂と取り違えないよう、導出状態がすべて closed であることを別に要求する。
+    """
+    computed, uncovered, bad = compute_update_closure(ctx)
+    for update, state in sorted(computed.items()):
+        if state != "closed":
+            bad.append(
+                f"{update}: design_closure={state}"
+                f"（未被覆 API={uncovered.get(update, 0)}。S0 全体の設計完遂を名乗れない）"
+            )
+    return bad
+
+
 def ctx_root(rel_path: str) -> Path:
     from tools.gates.common import ROOT
     return ROOT / rel_path
@@ -568,6 +623,11 @@ def run(ctx: Ctx) -> None:
          "契約節ゼロ・AC を持つ API の実装単位実在）と一致し、README／CLAUDE.md の現在地が"
          "その宣言と実数まで一致する（closed のときだけ設計クロージャー完了を名乗れる） "
          f"(違反={uc[:3]})")
+    complete = detect_s0_design_completion_faults(ctx)
+    gate("G-S0-DESIGN-COMPLETE", not complete,
+         "S0.1／S0.2／S0.3 がすべて導出上 closed で、open 更新・未被覆 API・"
+         "受入基準未設定の契約節を残さない（状態整合PASSを全体完遂と取り違えない） "
+         f"(違反={complete[:3]})")
 
 
 def _ledger(ctx: Ctx) -> None:

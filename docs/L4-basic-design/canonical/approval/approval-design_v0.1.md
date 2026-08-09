@@ -30,13 +30,27 @@ slice: S0
 
 ## 2. 承認フロー（CMP-11 の実装構造）
 
-1. 公開系・金銭系 task が `request_approval(intent)` を発行 → approvals へ decision = pending で INSERT
-   （ストア副層 `approvals_store` 経由 — 生 SQL はここだけ）→ Claude Code アプリへ binding 3 項目を明記した通知を送出。
+1. CMP-02 承認フローが CMP-11 のローカルストア副層 `approvals_store` を呼び、
+   approvals へ decision = pending を単独 tx で INSERT して commit する（生 SQL は store 内だけ）。
+   その後に transport IF `request_approval(intent)` を呼ぶ。この IF は approvals を書かず、
+   実通知の ConnectorIntent と request/result 材料だけを返す。実 transport 通知は
+   `effect=write`・`policy_category=approval_notification`・canonical lowercase `rate_scope` とし、binding 3 項目と
+   exact `(approval_notification, claude_code_app, approval_request, target_endpoint)` policy を含む
+   route・credential・endpoint・cap の preflight 合格後にだけ、CMP-02
+   `ExternalOpRecorder` が external_operations lifecycle を所有する。
 2. pending の間、**親 loop_run を waiting** にし task は進行させない（tasks に waiting 状態はない — s0-contract §3.2。
    基本設計 CMP-11）。先行公開経路は存在しない。
-3. 応答受領で decision を更新し、§3 の写像で状態遷移イベントを発火する。
+3. 実 provider への poll は `effect=read` の別 request とし、同一 poll の request hash と
+   `request_sequence=1,2,...` から
+   `read:<task_id>:<request_hash>:<request_sequence>` を生成して Recorder の同一 lifecycle を通す。
+  policy_category=external_read／rate_scope=NULL とし、intent／request payload／result／operation_log の
+  category／rate_scope／sequence を一致させ、応答受領で decision を更新し、
+   §3 の写像で状態遷移イベントを発火する。
 4. transport は差替可能な interface（本番: アプリ通知、テスト: mock fixture で approve/reject/timeout を再現 —
-   環境契約 = s0-contract §6）。transport の一時失敗は状態遷移を巻き戻さず通知のみ再送する（FR-16）。
+   環境契約 = s0-contract §6）。mock／fixture／dry-run は外部 request ではないため
+   external_operations／operation_log を 0 行とし、模擬結果は秘匿化済み process logger にだけ残す。
+   実 transport の一時失敗は decision・状態遷移を巻き戻さず通知だけを再要求し、
+   各実 request を別の external_operations 行と operation_log に記録する（FR-16）。
 
 ## 3. 承認正準 — decision→分類写像
 
@@ -63,9 +77,15 @@ slice: S0
   該当時は**オートモード判定より先に**束縛承認を要求する。
 - **オートモード状態に関わらず金銭操作型は束縛承認を要する**（バイパス経路なし）。承認判断の機械化はしない。
 - 金銭該当か判定不能な操作型は金銭型として扱い承認を要求する（fail-close）。
-- approved（binding 完全一致）の確認 → approval evidence 記録 → 外部操作（prepared→sent→confirmed）の順を固定する。
-  承認なしの金銭系外部書込みは operation_log 上 0 件が不変条件。
-- 有償操作は spend_ledger 記録（FR-73 — approval_id への FK）と対で行う。
+- approved（binding 完全一致）の確認 → approval evidence 記録 → 実業務外部操作
+  （`effect` 必須の prepared→sent→confirmed／rejected／unknown）の順を固定する。
+  承認なしの金銭系外部書込みは external_operations／operation_log とも 0 件が不変条件。
+- 有償 actual write は policy_category=approved_paid_operation と approved な approval_id に加え、
+  confirmed になった `external_operations.id` を `spend_ledger.external_operation_row_id` NOT NULL・UNIQUE FK で束縛する。
+  task_id／service は一致必須、provider ID は任意で両側にある場合だけ一致する。
+  無料／手動経路・read・rejected／unknown・mock／dry-run は ledger 0 行。
+  operation_log と同一 terminal tx に参加する記帳所有者・API・DU／UT は S1 専用 component へ
+  再降下が必要な design debt であり、CMP-13／DU-23 の計測責務には組み込まない。
 
 ## 5. オートモード移行基準（BR-H2）
 

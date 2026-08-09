@@ -25,7 +25,7 @@ slice: cross
 | `test_pairing.py` | 文書ペア・テストファイル対応・S0.1 着手の自動検出・skip/coverage の逃げ道封じ（静的 AST） |
 | `test_reality.py` | pytest 実行結果（outcome）の取り込み・動的 skip の検出・間接束縛の着手検出・対象 UT の nodeid 単位突合 |
 | `worksets.py` | S0.1 依存 Workset（実装レーン）の分割・依存導出・スコープ一致・Workset 単位の着手強制とラチェット |
-| `semantic_refs.py` | 構造化参照（table/column/state/event/kind/error/api）の実在検査 |
+| `semantic_refs.py` | 構造化参照（table/column/state/event/kind/error/api）の実在検査、状態遷移4タプルの正準照合とFR/SR/NFR→AC→TCC被覆 |
 | `review_binding.py` | レビュー成果物の対象コミット・digest・後続レビュー束縛 |
 | `baseline.py` | デグレ検出（ラチェット）・件数表記の同期・ゲート配線と分割規律 |
 | `run_all.py` | 実行順序・終了コード・`--update-baseline` |
@@ -66,12 +66,12 @@ slice: cross
 | G-CNT-CONTRACT | AC/TCC は承認済み最小分母以上、API/API_UT は設計正本分母と一致し、縮小は baseline ratchet が拒否 | 分母のサイレント縮小・新規要件追加の阻害 |
 | G-HISTORICAL-COUNTS | 旧 AC/TC/UT 分母が baseline の historical_counts のみに存在し、現役分母・現役文書に混入しない | 旧体系の分母復活 |
 | G-UNIQ-* | BR/REQ/FR・NFR/FN の ID 重複ゼロ | ID 衝突 |
-| G-SUBSTANCE | 全エンティティに 8 文字以上の本文実体 | 空・スタブ本文の完了僭称 |
+| G-SUBSTANCE | 全エンティティに 8 文字以上の本文実体を要求し、媒体要求の規範 `items[].text` にある既知の判定不能量・失効確認済み仕様と同一媒体内のstructure分岐を拒否 | 空・スタブ本文の完了僭称・AC化不能な頻度表現・外部仕様の陳腐化・媒体内二重仕様 |
 | G-SRC-FRESH | br-media 各媒体の structure_checked が 90 日以内 | 出典腐敗 |
 | G-POC-EXIT | PoC が出口 2 軸 schema に適合、confirmed には promotion_strategy 必須 | PoC の独り歩き |
 | G-REQ-CONTRACT | BR 構造化契約が schema 適合で現役 BR 全件・12 要求群を被覆し、REQ 参照が実在し、生成ビューが同期 | 1 行要求の温存・手編集ビューの乖離 |
 | G-FRSR-CONTRACT | 現役 FR／SR 全件に 18 観点の実行契約が schema 適合で存在し、tables／state_transitions が DDL・遷移正本と一致 | 責務 1 行要件の温存・正本との乖離 |
-| G-NFR-MEASURABLE | 全 NFR10 に計測契約（対象・方法・閾値・環境・違反時動作・証跡） | 測定方法のない閾値 |
+| G-NFR-MEASURABLE | 全 NFR10 に計測契約と `verification_aspects` を要求し、NFR→AC→TCC の実在ID接続に加えて意味単位集合の完全一致を強制する。`SQL:`タグ付き契約SQLはnamed bindを与え、空SQLiteへ正準DDLを適用した上でprepareして表・列・構文・placeholderを検査する | 測定方法のない閾値・IDだけ接続した意味上の片肺・実在しない表/列や擬似placeholderを含む検証手順 |
 | G-AC-COVERAGE | AC 検証契約が schema 適合・ID 一意・target 実在で、S0 の全 FR/SR に AC ≥1 | AC なし実装対象 |
 | G-AC-POLARITY | S0 の各 FR/SR が正常／拒否／境界復旧の 3 極性を AC か理由付き N/A で被覆 | 正常系だけの受入 |
 | G-HUMAN-JUDGE | 全 FR/SR 契約に人間判断点の明示 | 人間判断点の暗黙化 |
@@ -98,8 +98,10 @@ slice: cross
 | ゲート | 検証内容 | 違反の意味 |
 |---|---|---|
 | G-DDL-SYNC | ddl.sql が s0-contract の DDL ブロックと一致 | 正準 DDL の二重化 |
-| G-DDL-APPLY | DDL が空 SQLite へ適用でき FK/integrity が通り、テーブル 25・トリガ 16 | 実行不能なスキーマ |
+| G-DDL-APPLY | DDL が空 SQLite へ適用でき FK/integrity が通り、テーブル 25・トリガ 37。実 external read/write と operation_log の双方向1:1、prepared→sent→final、final不変、mock/dry-run/pre-call行0、published_urlのローカル行束縛、有償操作とchargeの原子化を実DML mutationで検証 | 実行不能なスキーマ・孤児/重複外部証跡・結果改竄・非原子finalize・台帳外支出 |
 | G-DESIGN-PHYSICAL-COUNT | 現役文書・契約 JSON・テスト関数名が主張する物理数（テーブル総数・トリガ本数）が**実 DDL から導出した数**と一致し、部分集合の本数を数値で書いていない（監査記録・承認ログは当時の事実を保存する履歴なので対象外） | 設計文書の物理数が実スキーマから乖離（11／14 本のような化石表記の温存） |
+| G-PLAYBOOK-VERSION | playbook修復を実DMLで検査し、破損版ごとにrepair task 1件、attempt=1/retry=0、版の連続系譜、successor INSERT失敗時のatomic rollback、旧版内容・retired版・削除の拒否を確認 | 再起動や並行通知での多重修復・攻略地図の上書き・現役版消失 |
+| G-TASK-TYPE-REGISTRY | DDL が意味分岐に用いる内部 `task_type` 集合と L1 `task-types.json` の `internal=true` 語彙を完全一致で照合 | 未登録・誤記・失効した内部task typeによる要件とDB制約の分離 |
 | G-EVK | evidence kind 10 種が JSON 契約と DDL CHECK で同一集合 | 証跡語彙の乖離 |
 | G-TRN-ENT / G-TRN-ST | 遷移 entity が loop_runs/tasks、from/to が DDL enum 内 | 実装不能な状態機械 |
 | G-TRN-UNIQ/REACH/TERM/GUARD | (entity, from, event) 一意・全状態の到達可能性・終端からの遷移不在・全遷移に非空ガード | 非決定的な状態機械 |
@@ -124,9 +126,10 @@ slice: cross
 | G-DU-DBC | 全公開 API に precondition／postcondition | 契約なき API |
 | G-DU-ERROR | 全 API の raises 型がエラー分類正本に掲載 | 台帳外エラー型の発明 |
 | G-DU-DATA | 全 DU の DB read/write が DDL の実在テーブルのみ | 存在しないテーブルへの設計参照 |
-| G-L6-IMPLEMENTATION-TRACE | S0 L6 機能設計の責務（第 9 正本 `docs/L6-feature-design/S0/implementation-units.json`）が専用 schema（追加プロパティ禁止）に適合し、`api_ref`（API 安定 ID **1 件**・配列禁止）と `clause_refs`（当該 API の契約節 ID）で**構造接続**している。`ac_refs` の AC が `verifies_clause_refs` で、`ut_refs` の UT が`apis[].ut[].clause_refs` で、**同じ契約節**を参照していることを双方向に要求し、文書の trace 先や DU が同じだけではPASS にしない。API 名・テスト名・日本語語彙の部分一致は接続の根拠にしない（語彙一致検査は廃止）。同一 API の契約節を複数責務が重複主張することを禁止し、S0 文書が担う DU は全 API・全（契約節を検証する）AC が責務へ接続していることを要求する。さらに**全 API 契約節**が AC 被覆か理由付き `na_reason` のいずれかを持ち、AC 側も契約節を検証しない場合は`clause_na_reason` を要求する（被覆と理由は排他）。「準用」等の借用表現による trace 代替は L6 全体で拒否する。さらに `na_reason` は閉じた分類語彙（`呼出側義務:`／`配線時保証:`／`他 API で検証:`／`受入基準未設定:`）で始まることを要求し、AC が 1 節も検証していない API は `docs/L6-feature-design/S0/uncovered-apis.json` へ**明示登録**され（登録集合と実態が厳密一致）、その件数・AC 被覆節数・実装単位数は baseline のラチェットで保護する（自由記述の N/A だけで API や責務を台帳から消せない）。さらに各 API は `verification_level`（acceptance／unit／integration）を持ち、内部（unit・integration）は `internal_reason` と閉じた `internal_reason_code`（startup-wiring／read-only-accessor／internal-delegation）が必須で、**postcondition・raises の全契約節がUT の `clause_refs` へ直接接続**していなければならない（precondition だけが呼出側義務で逃げられる）。未被覆 API 台帳の対象外であり、契約節に `受入基準未設定:` を残せない。acceptance から内部分類への格下げは baseline のラチェットが拒否する。`na_reason` の閉じた語彙は `呼出側義務:`／`配線時保証:`／`他 API で検証:`／`単体検証:`／`受入基準未設定:` で、`単体検証:` は当該節が UT の `clause_refs` に実在する場合だけ名乗れ、UT が検証している節に `受入基準未設定:`（＝未解決 gap）を書くことはできない。api_id・clause_id の一意性も本番で検査する | 責務が API 契約節まで降りていない／語彙の一致だけで意味接続を名乗る／契約節が誰にも検証されないまま残る |
+| G-L6-IMPLEMENTATION-TRACE | S0 L6 機能設計の責務（第 9 正本 `docs/L6-feature-design/S0/implementation-units.json`）が専用 schema（追加プロパティ禁止）に適合し、`api_ref`（API 安定 ID **1 件**・配列禁止）と `clause_refs`（当該 API の契約節 ID）で**構造接続**している。`ac_refs` の AC が `verifies_clause_refs` で、`ut_refs` の UT が`apis[].ut[].clause_refs` で、**同じ契約節**を参照していることを双方向に要求し、文書の trace 先や DU が同じだけではPASS にしない。API 名・テスト名・日本語語彙の部分一致は接続の根拠にしない（語彙一致検査は廃止）。同一 API の契約節を複数責務が重複主張することを禁止し、S0 文書が担う DU は全 API・全（契約節を検証する）AC が責務へ接続していることを要求する。さらに**全 API 契約節**が AC 被覆か理由付き `na_reason` のいずれかを持ち、AC 側も契約節を検証しない場合は`clause_na_reason` を要求する（被覆と理由は排他）。「準用」等の借用表現による trace 代替は L6 全体で拒否する。さらに `na_reason` は閉じた分類語彙（`呼出側義務:`／`配線時保証:`／`他 API で検証:`／`受入基準未設定:`）で始まることを要求し、AC が 1 節も検証していない API は `docs/L6-feature-design/S0/uncovered-apis.json` へ**明示登録**され（登録集合と実態が厳密一致）、解消時も `resolved_items` の append-only 履歴から導出した API 集合について、exactly-one AC の `api_observation_assertions`（API固有fixture／action／observation／assert）を要求する。action は当該公開API名を含み、節IDだけの追記・別API assertionのコピー・解消履歴の件数不一致を拒否する。その件数・AC 被覆節数・実装単位数は baseline のラチェットで保護する。さらに各 API は `verification_level`（acceptance／unit／integration）を持ち、内部（unit・integration）は `internal_reason` と閉じた `internal_reason_code`（startup-wiring／read-only-accessor／internal-delegation）が必須で、**postcondition・raises の全契約節がUT の `clause_refs` へ直接接続**していなければならない。acceptance から内部分類への格下げは baseline のラチェットが拒否する。`na_reason` の閉じた語彙は `呼出側義務:`／`配線時保証:`／`他 API で検証:`／`単体検証:`／`受入基準未設定:` で、`単体検証:` は当該節が UT の `clause_refs` に実在する場合だけ名乗れ、UT が検証している節に `受入基準未設定:` を書けない。api_id・clause_id の一意性も検査する | 責務が API 契約節まで降りていない／節IDだけで意味被覆を名乗る／API固有観測が反証不能／契約節が誰にも検証されないまま残る |
 | G-UNCOVERED-API-UPDATE | 未被覆 API 台帳 `docs/L6-feature-design/S0/uncovered-apis.json` の解消先が`resolution_update`（updates.json の更新語彙）で宣言され、DU 台帳の `fn_ids` → `updates.json` から**機械導出**した更新と一致する。slice（S0／S1／later ＝ いつ作るか）を解消先に書くこと、および `resolution_slice` の残存を拒否する。FN が複数更新に跨る／どの更新にも属さない DU も更新境界の不定として落とす | slice と update の混同で「どの更新で閉じるか」が決まらないまま設計クロージャーを名乗る |
 | G-UPDATE-DESIGN-CLOSURE | 更新（updates.json の S0.1／S0.2／S0.3）ごとの設計クロージャー宣言`docs/L6-feature-design/S0/update-closure.json` が**実態から導出した状態**と一致する。closed の条件は「当該更新の未被覆 API = 0」「全 API 契約節が AC／ITC／UT か正当な internal 分類を持ち `受入基準未設定:` が残っていない」「AC を持つ API に実装単位が実在する」。さらに `current_state_claim` が README.md とCLAUDE.md の現在地に 1 回ずつ現れ、closed のときだけ『設計クロージャー完了』を名乗れ、未被覆 API の実数まで一致することを要求する | 更新境界を跨いだ完了僭称（S0.1 の穴を残したまま「S0 設計クロージャー完了」と宣言する） |
+| G-S0-DESIGN-COMPLETE | S0.1／S0.2／S0.3 の導出状態がすべて closed であることを要求する。open を正直に宣言して状態整合ゲートを通しても、未被覆 API または `受入基準未設定:` の契約節が残る限り全体完遂を認めない | planned／open を許容する通常ゲートの PASS を、S0 全体の設計完遂と誤認する |
 | G-API-UT | **API 単位**で UT ≥1・api.ut ⊆ trace.ut・宙吊り UT ゼロ・参照テスト関数が実在・スタブは設計リンク（DU＋API 名）を宣言 | UT なき API・匿名スタブ |
 | G-NO-HOLLOW-DESIGN | 全契約正本にプレースホルダ（TBD/TODO/仮置き等）が存在しない | 空洞設計の温存 |
 
@@ -142,9 +145,9 @@ slice: cross
 
 | ゲート | 検証内容 | 違反の意味 |
 |---|---|---|
-| G-SEMANTIC-REF | 全 FR/SR/AC/TC/CMP/DU の semantic_refs が正本語彙（DDL・遷移表・evidence kind・エラー分類・API）に実在 | 自由文に埋もれた意味矛盾 |
+| G-SEMANTIC-REF | 全 FR/SR/AC/TC/CMP/DU の semantic_refs が正本語彙に実在し、宣言済み `transition_refs` の `(entity, from, event, to)` が transitions.json に実在。FR/SR/NFR の遷移集合 = 対応 AC の和集合、各 AC の遷移集合 = 対応 TCC の和集合 | entity を無視した event 誤用（tasks.fatal_failure 等）・要求→AC→TCC 間の遷移意味欠落／過剰 |
 | G-COLUMN-REF | table_refs／column_refs が ddl.sql の実在テーブル・実在列 | 列名のドリフト |
-| G-STATE-EVIDENCE-CONSISTENCY | 状態遷移の拒否・成立は state_transitions／構造化ログで表現し operation_log は外部操作に限定 | 証跡種別の混同 |
+| G-STATE-EVIDENCE-CONSISTENCY | FR/SR/AC/TCC の状態遷移拒否・成立は state_transitions で表現し、operation_log は `external_operations` と effect（read/write）・`external_operation_row_id`・request束縛を持つ実外部I/Oに限定。mock/dry-run/pre-call拒否、「DB変更なし」と拒否証跡INSERTの自己矛盾を拒否 | 証跡種別の混同・外部表参照だけの偽装・拒否契約の自己矛盾 |
 
 ## test_pairing — ペアと test-first の実体化（PO 指示 §6）
 
@@ -194,7 +197,7 @@ slice: cross
 | G-WORKSET-SCOPE | `api_ids`／`ut_nodeids`／`itc_ids`／`modules` が DU／API／UT／ITC 正本からの導出と完全一致する（手入力での加除を拒否）。ITC は cmp→DU→Workset で写像し依存順で最後に成立する Workset へ 1 回だけ割り当てる。さらに**着手済み Workset に属さないモジュールへ製品実装が無い**ことを要求する | 台帳の手書きによるスコープ僭称・他 Workset の製品コード混入 |
 | G-WORKSET-TEST-REALITY | 着手済み Workset **だけ**に、対象 UT の skip／xfail／NotImplementedError／空 assert = 0（AST）・対象 UT が nodeid 単位で executed かつ passed（実行結果）・依存 Workset が done・`done` の `red_receipt`（40 桁 SHA の red_commit が HEAD の祖先・nodeids が Workset 内・green_commit も祖先）を強制する | 依存を飛ばした着手・skip を残した完了・実在しない red→green の主張 |
 | G-WORKSET-COVERAGE | coverage 80% を `helix` 全体ではなく **active＋done Workset の対象モジュール集合**へ適用し、その解決（`tools/coverage_scope.py`）と下限（`tools/coverage_floor.py`）の結果が CI の pytest へ実際に引き渡されていることを YAML＋argv 構造で検査する | 未着手 Workset の空モジュールで分母を薄める／逆に達成不能な下限で着手を塞ぐ |
-| G-WORKSET-RATCHET | 親コミット比で Workset の削除・`du_ids`／`api_ids`／`ut_nodeids`／`itc_ids`／`depends_on` の縮小・status 後退（done→in_progress／planned）・`coverage_floor` 低下・記録済み `red_receipt.red_commit` の改変が無い。`done` へ進めた Workset は、その Workset の UT 件数以上を `tests/skip-budget.json` の `max_skipped` から減らす | 完了の後退・依存の緩和・skip 上限を据え置いたままの完了宣言 |
+| G-WORKSET-RATCHET | 親コミット比で Workset の削除・`du_ids`／`api_ids`／`ut_nodeids`／`itc_ids`／`depends_on` の縮小・status 後退（done→in_progress／planned）・`coverage_floor` 低下・記録済み `red_receipt.red_commit` の改変が無い。DDL物理数同期のnodeid改名は `ut_nodeid_renames` に明示した同一Workset／同一file／数字以外同一の1対1だけを認め、rename台帳自体は縮小・改変不可。`done` へ進めた Workset は、その Workset の UT 件数以上を `tests/skip-budget.json` の `max_skipped` から減らす | 完了の後退・UT改名を使った縮小偽装・依存の緩和・skip 上限を据え置いたままの完了宣言 |
 
 ## review_binding — レビュー束縛
 
@@ -210,7 +213,7 @@ slice: cross
 | G-BASE-EXIST/HASH/STATUS/RATCHET | baseline.json に対し confirmed 文書のハッシュ一致・降格なし・分母縮小/ゲート削減なし・pytest skip 上限の未承認引き上げなし（引き上げは approvals.md の構造化 PO 承認行に加え、**同一変更の API 単位 UT 追加本数以内**であることを要求 — 承認行だけでは上げられない）・**S0.1 着手前提条件（plan-s0.1.json の preconditions[].id）の削除なし**（比較元は**親コミット**の baseline、引き上げには approvals.md の構造化 PO 承認行が必要） | デグレ：confirmed のサイレント改変・後退・スコープ縮小 |
 | G-BASE-ART | 実装入力（契約 JSON・DDL・manifest・ゲートモジュール・CI・規律文書・hook・skip/coverage 予算）のハッシュが baseline と一致・未登録なし | 実装入力のサイレント改変 |
 | G-BASE-ART-PATHS | baseline.json の `artifacts` が「**git 追跡下かつ作業ツリーに実在するパス** → sha256 64 桁」だけで構成される。この台帳は digest のみを持つため secret scanner（gitleaks）の allowlist で除外しているが、その除外が安全なのはキーが実在パスに限られることが機械保証されている場合だけであり、本ゲートがその保証を与える。allowlist の設定ファイル `.gitleaks.toml` 自体も baseline の改変検出対象に含める | 台帳に秘密らしきキー（`api_key.txt` 等）を紛れ込ませ、secret scan の allowlist を悪用する |
-| G-COUNT-SYNC | 手書きのゲート件数表記が実数と一致 | 散在する件数のドリフト |
+| G-COUNT-SYNC | 手書きのゲート件数、README の主要分母（BR/REQ/FR/NFR/FN）、README/CLAUDE/AGENTS各1行のAC/TCC/API/API_UT分母が各正本の実数と一致 | 入口・エージェント規約に残る旧件数・散在する件数のドリフト |
 | G-WIRING | 全ゲート ID が本台帳に掲載され、CI が `tools/gates/run_all.py` を呼ぶ | ルールの配線漏れ・死蔵 |
 | G-GATE-MODULES | ゲートが tools/gates/ の工程別モジュール（`common.GATE_MODULES` が正本）へ分割され、validate_requirements.py が薄い互換ラッパー（40 行以下・run_all 参照） | 巨大 validator への逆戻り |
 | G-GATE-UNITTEST | 各ゲートモジュールに単体テスト（tests/gates/test_<module>.py）が存在し、`test_mutation_*` 関数**それ自身**が当該モジュールの関数を到達しうる位置で呼び、その**結果を観測する** assert を持つ（assert 式が呼出しを含むか、呼出し結果に束縛された名前を参照する。タプル代入は位置対応、名前伝播は固定点で解決） | 検査されないゲート実装／`def test_mutation_x(): pass`・結果を捨てる・到達しない位置に置く形骸 mutation |

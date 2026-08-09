@@ -48,6 +48,7 @@ flowchart LR
 | `revoke_pair(pair_id, reason)` | 同上 | 計測の取り消し・目標改訂時の status = revoked 化 | revoked 後の learnings 参照は生成側で拒否 |
 | 還流処理 | `kernel/orchestrator.py`（DU-02・FN-15x 系） | 成立イベント受領 → learnings 1 行生成（source_pair_id FK・status = draft） | pair 未成立は `PairNotEstablished` で生成しない |
 | KPI ノード登録・ツリー解決 | `measure/kpi.py`（DU-21・FN-601） | kpi_nodes の階層検証つき登録。node_key → id 解決を TLP 生成側へ提供 | 有料指標型は DB CHECK＋zero_ad ゲート二重拒否 |
+| 計測取得 | `measure/fetch.py`（DU-22） | 実 API／browser／remote file 取得の `ConnectorIntent(effect=read, policy_category=external_read, rate_scope=NULL, request_sequence)` と request/result 材料を返す。CMP-02 Recorder が外部 lifecycle を所有し、取得物を hash 固定後に投入へ渡す | route・credential・endpoint 拒否と mock／dry-run／local fixture は外部行 0。実取得の rejected／unknown は ingest へ渡さない |
 | TLP metrics 充填 | `kernel/orchestrator.py`（DU-02） | 下位 run 終端時、`metrics_json` を **kpi_node_key 参照＋値**で記録（計測の再定義をしない — SR-12） | 未解決 node_key は TLP 生成を拒否（整合トリガと同格の fail-close） |
 
 ## §2 成立判定の契約
@@ -90,6 +91,25 @@ invariant: 判定は**達成/未達を問わない** — 目標と実測の両�
 | 目標改訂・計測取り消し | `revoke_pair` | status = revoked の UPDATE（成立行は削除しない — 履歴保持）。revoked ペアを source とする learnings 生成は拒否 |
 | 成立済みペアへの再実行 | 冪等 | UNIQUE 制約で既存行に照合し、差分ゼロ・イベント再発火なし |
 
+### §2.4 実外部計測 read の lifecycle
+
+- API／browser／remote file への実 request は preflight 合格後にだけ CMP-02
+  `ExternalOpRecorder` へ渡し、`effect=read`・`policy_category=external_read`・`rate_scope=NULL` の prepared→sent→confirmed／provider
+  rejected／unknown を辿る。DU-22 は ConnectorIntent／ConnectorResult と request/result 材料を
+  返すだけで、external_operations／evidence を直書きしない。
+- 同一 logical fetch の request hash を固定し、request ごとに `request_sequence=1,2,...` を
+  付ける。intent・request payload・result・external_operations・operation_log の sequence と
+  `read:<task_id>:<request_hash>:<request_sequence>` を一致させる。ページ分割／retry はそれぞれ
+  1 request = 1 行で、元行の上書き・複数 request の合算をしない。
+- intent・request payload・result・external row／operation_log の policy_category=external_read を同値とし、
+  intent／result／external row の rate_scope は NULL、operation_log payload は `rate_scope: null` を常設する。
+- sent 後は status にかかわらず terminal 行へ `external_operation_row_id` で operation_log を
+  ちょうど 1 行束縛する。provider operation ID は任意。confirmed の取得物だけを out_dir へ保存して
+  即 SHA-256 で固定し、operation_log 確定後に DU-23 ingest へ渡す。
+- mock／fixture／dry-run／既存 local file の投入は実外部 request ではないため
+  external_operations／operation_log 0 行。予定 fingerprint と模擬結果は秘匿化済み process logger
+  のみとし、mock operation ID を作らない。
+
 ## §3 レビュー成立イベント → learnings → TLP metrics
 
 1. **learnings 生成（FR-15）**: 成立イベントを受けた還流処理が learnings 1 行
@@ -126,6 +146,7 @@ invariant: 判定は**達成/未達を問わない** — 目標と実測の両�
   空目標境界（AC-22-3）→ 還流の生成・拒否・冪等（AC-15-1〜3）の順に赤→実装。
   突合純関数（§2.2）は fixture のみで検証し DB 不要、成立イベント〜learnings は
   in-memory SQLite の transaction 検証とする。
+- S0 の DU-22 は実 I/O 扱いの loopback transport で read sequence 1,2 を検証する。execution_mode=actual の sent→terminal read は operation_log exact-1。mock／dry-run／local fixture／preflight 拒否は external_operations／operation_log 0 行とし、preflight 拒否は transport 呼出しも 0 を assert する。
 
 ## §6 trace 表
 
@@ -138,7 +159,7 @@ invariant: 判定は**達成/未達を問わない** — 目標と実測の両�
 | pair 未成立時の還流拒否 | DU-02 | AC-15-2 | TCC-15-2 | PairNotEstablished |
 | 還流の冪等再実行 | DU-02 | AC-15-3 | TCC-15-3 | 同一 source_pair_id の重複生成なし |
 | KPI ノード登録・ツリー解決 | DU-21 | AC-61-1 | TCC-61-1 | 5 階層接地・非有料指標のみ |
-| 計測投入の冪等・証跡 FK | DU-22・DU-23 | AC-62-1 | TCC-62-1 | 観測背骨側の前提 |
+| 計測取得 read lifecycle・投入の冪等・証跡 FK | DU-22・DU-04・DU-23 | AC-62-1 | TCC-62-1 | effect=read・external_read・rate_scope NULL・request_sequence・operation_log 後に ingest |
 | 非有料指標の入口検査（ゼロ広告費ゲート） | DU-07 | AC-23-1 | TCC-23-1 | KPI ツリーへ入る指標種別・ドメインの fail-close 検査（FR-23） |
 | TLP metrics の KPI ノード参照・分離 | DU-02・DU-10 | AC-SR-03・AC-SR-04 | STC-I-05・STC-I-06 | SR-12 の実装固定（自動書込み経路の不在） |
 
@@ -154,7 +175,8 @@ DU／API の実在・pre/post への責務の明記・AC／TC／UT の実在と�
 | IU-KPIHANDOFF-02 | DU-07 | API-DU07-01 | POST-01・POST-02・RAISE-01 | `check_metric_type`・`metric_type`: deny 型（cac/roas/ad_spend — 有料… | AC-23-1, AC-23-2, AC-23-4 |
 | IU-KPIHANDOFF-03 | DU-21 | API-DU21-03 | POST-01 | `archive_node`・`node_id`: status を archived へ更新し、measurements・子ノ… | AC-61-3 |
 | IU-KPIHANDOFF-04 | DU-21 | API-DU21-01 | POST-01・POST-02・POST-03・PRE-01・PRE-02・PRE-03・RAISE-01・RAISE-02 | `create_node`・`node`: 階層・媒体タグ・集計式（aggregation_formula の構文検証）を通過し… | AC-61-1, AC-61-2 |
-| IU-KPIHANDOFF-06 | DU-22 | API-DU22-01 | POST-01・POST-02 | `fetch`・`route`: 取得物（CSV/xlsx 又は API 応答）を out_dir へ保存し、即 SHA-256… | AC-62-1, AC-62-2 |
+| IU-KPIHANDOFF-05 | DU-21 | API-DU21-02 | POST-01・POST-02 | `tree`: profile限定の親子解決済みツリーを決定的に返す | AC-61-3 |
+| IU-KPIHANDOFF-06 | DU-22 | API-DU22-01 | POST-01・POST-02 | `fetch`: actual readはexternal_read・rate_scope NULL・request_sequence付き、log確定後にhash固定。mockは外部2表0行… | AC-62-1, AC-62-2 |
 | IU-KPIHANDOFF-07 | DU-23 | API-DU23-02 | POST-02・POST-03 | `ingest`・`expected_hash`: 投入前に raw の SHA-256 を再計算し expected_hash… | AC-62-1, AC-62-3, AC-62-4, AC-62-6 |
 | IU-KPIHANDOFF-08 | DU-23 | API-DU23-01 | POST-01・POST-02・RAISE-01 | `parse`・`schema`: schema/type 検証を通過した正常行と、壊れた行の隔離ファイル（正常行と分離）を返す… | AC-62-2, AC-62-3 |
 
@@ -162,4 +184,3 @@ DU／API の実在・pre/post への責務の明記・AC／TC／UT の実在と�
 
 | 外した unit_id | 理由 |
 |---|---|
-| IU-KPIHANDOFF-05 | この API の契約節を AC と UT の双方で検証している節が無い（全節が理由付き N/A） |
