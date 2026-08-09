@@ -280,7 +280,7 @@ def _detect_published_spend_faults(ddl: str) -> list[str]:
         c.close()
 
     # paid+confirmed は operation_log INSERT の同じ statement で charge まで原子的に作る。
-    paid_payload = {
+    paid_payload: dict[str, object] = {
         "approval_id": 1,
         "amount_minor": 100,
         "currency": "JPY",
@@ -332,7 +332,9 @@ def _detect_published_spend_faults(ddl: str) -> list[str]:
         c.close()
 
     # ledger制約違反なら operation_log INSERT・final更新・charge の3者がすべてrollback。
-    for label, payload_update, seed_approval, omit_keys, created_at in [
+    paid_fault_cases: list[
+        tuple[str, dict[str, object], bool, tuple[str, ...], str]
+    ] = [
         ("approval孤児", {"approval_id": 999}, False, (), _IO_CONFIRMED_AT),
         ("amount 0", {"amount_minor": 0}, True, (), _IO_CONFIRMED_AT),
         ("外貨", {"currency": "USD"}, True, (), _IO_CONFIRMED_AT),
@@ -341,7 +343,8 @@ def _detect_published_spend_faults(ddl: str) -> list[str]:
         ("occurred_at暦時刻不正", {"occurred_at": "2026-08-10T24:00:00Z"}, True, (),
          _IO_CONFIRMED_AT),
         ("created_at暦日不正", {}, True, (), "2026-08-32T00:00:03Z"),
-    ]:
+    ]
+    for label, payload_update, seed_approval, omit_keys, created_at in paid_fault_cases:
         c = _external_io_fixture(ddl)
         try:
             if seed_approval:
@@ -557,15 +560,16 @@ def detect_playbook_version_faults(ddl: str) -> list[str]:
     finally:
         c.close()
 
-    for label, kwargs in [
-        ("非pending repair", {"state": "done"}),
-        ("出力型不一致repair", {"output_kind": "other"}),
-        ("fingerprint不正repair", {"fingerprint": "xyz"}),
+    for label, state, output_kind, fingerprint in [
+        ("非pending repair", "done", "playbook_version", "a" * 64),
+        ("出力型不一致repair", "pending", "other", "a" * 64),
+        ("fingerprint不正repair", "pending", "playbook_version", "xyz"),
     ]:
         c = _playbook_fixture(ddl)
         try:
             try:
-                _insert_repair(c, **kwargs)
+                _insert_repair(c, state=state, output_kind=output_kind,
+                               fingerprint=fingerprint)
                 bad.append(f"{label}が通過")
             except sqlite3.IntegrityError:
                 pass
@@ -681,7 +685,7 @@ def _insert_external_operation(
         status: str = "prepared", operation: str | None = None,
         policy_category: str | None = None, rate_scope: object = _MISSING,
         service: str = "provider", request_hash: str = _IO_REQUEST_HASH,
-        prepared_at: str = _IO_PREPARED_AT) -> None:
+        prepared_at: str = _IO_PREPARED_AT) -> sqlite3.Cursor:
     """prepared external row を追加する。拒否 DML 用に制約違反値も受け取る。"""
     op_name = operation or ("publish" if effect == "write" else "poll")
     policy = policy_category or ("external_read" if effect == "read" else "content_publish")
@@ -692,7 +696,7 @@ def _insert_external_operation(
     if correlation_key is None:
         correlation_key = (str(idempotency_key) if effect == "write" else
                            f"read:{task_id}:{request_hash}:{request_sequence}")
-    c.execute(
+    return c.execute(
         "INSERT INTO external_operations "
         "(id,task_id,service,operation,effect,policy_category,rate_scope,execution_mode,"
         " target_endpoint,idempotency_key,correlation_key,request_hash,request_sequence,status,"
@@ -702,9 +706,9 @@ def _insert_external_operation(
 
 
 def _send_external_operation(c: sqlite3.Connection, operation_id: int = 1,
-                             sent_at: str = _IO_SENT_AT) -> None:
-    c.execute("UPDATE external_operations SET status='sent', sent_at=? WHERE id=?",
-              (sent_at, operation_id))
+                             sent_at: str = _IO_SENT_AT) -> sqlite3.Cursor:
+    return c.execute("UPDATE external_operations SET status='sent', sent_at=? WHERE id=?",
+                     (sent_at, operation_id))
 
 
 def _insert_operation_log(
@@ -713,7 +717,7 @@ def _insert_operation_log(
         external_operation_row_id: int | None = None, provider_id: object = _MISSING,
         result: str = "confirmed", payload_overrides: dict | None = None,
         omit_payload_keys: tuple[str, ...] = (),
-        created_at: str = _IO_CONFIRMED_AT) -> None:
+        created_at: str = _IO_CONFIRMED_AT) -> sqlite3.Cursor:
     """sent row に対応する operation_log を追加する（AFTER trigger が同じ文で final 化）。"""
     op = c.execute("SELECT * FROM external_operations WHERE id=?", (operation_id,)).fetchone()
     if op is None:
@@ -738,7 +742,7 @@ def _insert_operation_log(
     for key in omit_payload_keys:
         payload.pop(key, None)
     row_id = op["id"] if external_operation_row_id is None else external_operation_row_id
-    c.execute(
+    return c.execute(
         "INSERT INTO evidence "
         "(id,task_id,kind,value,payload_json,external_operation_row_id,external_operation_id,created_at) "
         "VALUES (?,?,'operation_log',?,?,?,?, ?)",
@@ -892,7 +896,7 @@ def detect_external_operation_evidence_faults(ddl: str) -> list[str]:
         ext_unique = _unique_column_sets(schema, "external_operations")
         ev_unique = _unique_column_sets(schema, "evidence")
         spend_unique = _unique_column_sets(schema, "spend_ledger")
-        for columns, uniques, label in [
+        for unique_columns, uniques, label in [
             (("evidence_id",), ext_unique, "external_operations.evidence_id"),
             (("correlation_key",), ext_unique, "external_operations.correlation_key"),
             (("task_id", "effect", "operation", "request_hash", "request_sequence"),
@@ -904,7 +908,7 @@ def detect_external_operation_evidence_faults(ddl: str) -> list[str]:
             (("reverses_spend_ledger_id",), spend_unique,
              "spend_ledger.reverses_spend_ledger_id"),
         ]:
-            if columns not in uniques:
+            if unique_columns not in uniques:
                 bad.append(f"UNIQUE欠落:{label}")
         ext_fks = {(row[3], row[2], row[4]) for row in schema.execute(
             "PRAGMA foreign_key_list('external_operations')")}
@@ -926,11 +930,11 @@ def detect_external_operation_evidence_faults(ddl: str) -> list[str]:
             bad.append("FK欠落:spend_ledger.approval_id->approvals.id")
         if ("task_id", "tasks", "id") not in spend_fks:
             bad.append("FK欠落:spend_ledger.task_id->tasks.id")
-        columns = {row[1]: row for row in schema.execute(
+        column_info_by_name = {row[1]: row for row in schema.execute(
             "PRAGMA table_info('external_operations')")}
         for column in ("effect", "policy_category", "execution_mode", "correlation_key",
                        "request_sequence"):
-            if column not in columns or columns[column][3] != 1:
+            if column not in column_info_by_name or column_info_by_name[column][3] != 1:
                 bad.append(f"外部I/O必須列欠落/nullable:{column}")
         trigger_sql = schema.execute(
             "SELECT sql FROM sqlite_master WHERE type='trigger' AND name='evidence_operation_log_insert'"
@@ -1322,7 +1326,7 @@ def detect_external_operation_evidence_faults(ddl: str) -> list[str]:
         _send_external_operation(c)
         _insert_operation_log(c)
         c.commit()
-        for label, action in [
+        for label, final_action in [
             ("同一外部行への重複operation_log",
              lambda: _insert_operation_log(c, evidence_id=2)),
             ("final外部行更新",
@@ -1336,7 +1340,7 @@ def detect_external_operation_evidence_faults(ddl: str) -> list[str]:
              lambda: c.execute("DELETE FROM evidence WHERE id=1")),
         ]:
             try:
-                action()
+                final_action()
                 bad.append(f"{label}が通過")
             except sqlite3.IntegrityError:
                 pass

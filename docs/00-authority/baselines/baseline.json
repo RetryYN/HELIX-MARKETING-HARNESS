@@ -90,6 +90,7 @@
   ],
   "separation_verified_reviews": [
     "REV-CLAUDE-REQUIREMENTS-SEMANTICS-01",
+    "REV-CLAUDE-REQUIREMENTS-SEMANTICS-02",
     "REV-KIMI-KANBAN-01",
     "REV-KIMI-LOGIC-TREE-01",
     "REV-KIMI-WORKSPACE-02",
@@ -105,6 +106,7 @@
   ],
   "separation_statuses": {
     "REV-CLAUDE-REQUIREMENTS-SEMANTICS-01": "self_attested",
+    "REV-CLAUDE-REQUIREMENTS-SEMANTICS-02": "self_attested",
     "REV-KIMI-KANBAN-01": "self_attested",
     "REV-KIMI-LOGIC-TREE-01": "self_attested",
     "REV-KIMI-WORKSPACE-02": "self_attested",
@@ -371,7 +373,7 @@
     "tools/coverage_floor.py": "b5ae99db10257b628518ec1c46c80a012aca048c92a6ba13b133904289833689",
     "tools/coverage_scope.py": "2e8af00f28ef3d1c40fdc2c3d8194d20bd8584af61b4dfcb061a8c429caf89cd",
     "tools/gates/__init__.py": "8d138b1639d3824505398949db21a0b15ef9c9521c601b49de518f4ca0536005",
-    "tools/gates/architecture.py": "86b0519b98c3c3ec44af3181fad01f4e4a9301e71ca52e13124728d7ff4220a3",
+    "tools/gates/architecture.py": "c871dba39ac506b518f26178a23c1a4d5278340c61588251efec1b41f07c4f5a",
     "tools/gates/authority.py": "3d8c7226b4df9eca4e76318369cbb3ab071df34e8e0fda152bd5db1f8e4eeaf0",
     "tools/gates/baseline.py": "982f4641441a808d110afb63ff221c3a04e24f03d6338faeede81f9acb922864",
     "tools/gates/common.py": "3ad80e28fff35811ff38cd711a3b039b5ee09e558bb59ccf012191d6067e9d62",
