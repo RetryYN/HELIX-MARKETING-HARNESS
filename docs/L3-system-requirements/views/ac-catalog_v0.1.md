@@ -2,7 +2,7 @@
 
 # 受入条件 検証契約カタログ（AC contracts）v0.1
 
-> status: **confirmed**（2026-08-01 PO 承認 — receipt f218cf9efd35）。JSON 内容正本の生成ビュー（全層再降下 §4）
+> status: **confirmed**（2026-08-01 PO 承認 — receipt f37c3d890ed0）。JSON 内容正本の生成ビュー（全層再降下 §4）
 > 各 AC に GWT＋fixture・観測点・期待状態・DB 差分・証跡・禁止副作用・エラー型・対象更新を必須化
 > （G-AC-COVERAGE／G-AC-POLARITY）。旧体系の受入条件は historical 記録のみ（現行分母は本カタログ）。
 
@@ -776,8 +776,8 @@
 ### AC-41-1（正常）
 
 - **Given**: config に notion のレジストリ行（優先 mcp・fallback browser）が投入済みで、経路をコードに埋め込んだ分岐が存在しない状態 ／ **When**: notionの経路解決後、list_declared(service='notion')で診断読取し、schema不適合の別行を投入して再読取し、その後config INSERTで優先経路をbrowserへ変更して再解決する ／ **Then**: 診断結果はnotion行だけをDB変更なしで返し不正行を除外報告する。解決は1回目mcp、2回目browserとなり、切替はレジストリ行の変更だけで反映される
-- **fixture**: seed: config('registry.notion', {"primary":"mcp","fallback":"browser","auth":"mcp_oauth"})、変更は同 key の config INSERT（履歴保持）
-- **観測点**: resolve_route の戻り値（route_type）／config SELECT（2 行の履歴）／operation_log 件数 ／ **期待状態**: 最新 config 行の宣言どおりの経路が返る
+- **fixture**: seed: configにregistry.notionのschema適合行、registry.wpのschema適合行、registry.invalidのschema不適合行を各1件。変更はregistry.notionへの新version INSERT（履歴保持）
+- **観測点**: resolve_routeの戻り値（route_type）／list_declared(service='notion')の戻り行と不正行report／config SELECT（前後version）／operation_log件数 ／ **期待状態**: list_declaredはnotionの適合行だけを返し、wp行を除外し、invalid行を不正として報告する。DB行数は診断読取で不変。最新configの宣言どおりの経路が返る
 - **期待 DB 差分**: config +1 行（経路変更 INSERT）。構造化ログ差分なし ／ **期待証跡**: なし（正常解決は証跡不要）
 - **禁止副作用**: コード側分岐による経路決定・構造化ログ以外への拒否記録（evidence への拒否行の混入）追加・外部 HTTP 呼出（0 回） ／ **エラー型**: なし
 - **対象更新**: S0.2（CMP-07 接続レジストリ）／registry.resolve_route ／ **TC**: TCC-41-1
@@ -1147,8 +1147,8 @@
 ### AC-54-1（正常）
 
 - **Given**: DU-19が生成した未commit成果物workspaceと初期化済みfixture repository、T-PROD task、対応する審査PASS要求 ／ **When**: commit_workspaceで成果物をcommitしてH1を取得し、commit_hash証跡化→review_pass記録（commit_hash=H1）→hashからのソース復元を順に実行する ／ **Then**: PASS が H1 に束縛されて記録され、H1 の checkout で審査時と同一内容のソースが復元できる
-- **fixture**: seed: fixture リポジトリ commit H1（記事ソース）、tasks に T-PROD/T-REVIEW 各 1 行、reviewer は author と別 agent
-- **観測点**: evidence SELECT（kind IN ('commit_hash','review_pass') の commit_hash 列）／checkout 後のファイル hash 比較 ／ **期待状態**: review_pass 証跡の commit_hash 列 = H1、復元ソースの内容 hash = 証跡化時と一致
+- **fixture**: seed: 初期化済みfixture repository（初期commit H0）と、DU-19生成物を配置した未commit workspace、tasksにT-PROD/T-REVIEW各1行、reviewerはauthorと別agent
+- **観測点**: commit_workspace戻り値H1（40/64桁hex）／git show H1のtree／evidence SELECT（commit_hash・review_pass）／checkout後のファイルhash比較 ／ **期待状態**: H1はH0と異なる40/64桁hexで、git show H1の内容は未commit workspaceと一致。review_pass.commit_hash=H1、復元ソースhashも一致
 - **期待 DB 差分**: evidence +2 行（commit_hash・review_pass） ／ **期待証跡**: evidence（kind=commit_hash、value=H1、payload に repository・paths）／evidence（kind=review_pass、payload に result=PASS・commit_hash=H1・reviewer）
 - **禁止副作用**: 既存証跡行の UPDATE/DELETE（append-only トリガ違反） ／ **エラー型**: なし
 - **対象更新**: S0.2（制作層）／content/versioning.record_commit・bind_pass ／ **TC**: TCC-54-1
@@ -1249,9 +1249,9 @@
 
 ### AC-61-3（境界・復旧）
 
-- **Given**: measurements から参照されているノード N1 と、根ノード（parent なし）だけの最小ツリー ／ **When**: N1 の DELETE を試み、次に N1 を archived 化し、根ノードのみで横断集計を実行する ／ **Then**: DELETEはFK RESTRICTで失敗し、archived化後も参照整合が保たれる。treeは対象profileの親子解決済み最小ツリーを決定的に返し、別profileノードを含まない
-- **fixture**: seed: kpi_nodes に根 N1、measurements に N1 参照 1 行
-- **観測点**: DELETE の失敗（sqlite3.IntegrityError）／kpi_nodes.status／集計クエリ結果 ／ **期待状態**: N1 は status='archived' で存続、measurements の FK は不変
+- **Given**: profile P1に参照中の根N1と子N2、profile P2に根M1があり、P1の根だけに縮退した最小ケースも独立fixtureで用意された状態 ／ **When**: N1のDELETEを試みてarchived化し、tree(conn, P1)を2回呼ぶ。別fixtureではP1の子を除いた根だけのtreeを呼ぶ ／ **Then**: DELETEはFK RESTRICTで失敗し参照整合が保たれる。P1 treeはN1→N2の親子を決定的に解決しM1を含まず、最小fixtureはN1だけを返す
+- **fixture**: seed: business_profiles P1/P2、P1のkpi_nodes N1(parent NULL)・N2(parent=N1)、P2のM1(parent NULL)、measurementsにN1参照1行。最小tree用にP1根だけの独立fixture
+- **観測点**: DELETE失敗／kpi_nodes.status／tree(conn,P1)の2回の戻り値（node id・parent id・順序）／P2 node id集合／最小fixtureの戻り値 ／ **期待状態**: N1はarchivedで存続しFK不変。P1戻り値は同順序のN1→N2のみでM1なし、最小fixtureはN1のみ
 - **期待 DB 差分**: kpi_nodes 1 行 UPDATE（status）のみ、行数不変 ／ **期待証跡**: なし（構造保護は DDL の領分）
 - **禁止副作用**: 参照中ノードの物理削除・measurements の孤児化 ／ **エラー型**: IntegrityError（DELETE 試行のみ。archived 化・集計は正常）
 - **対象更新**: S0.3（計測層）／kpi_tree の退役・FK 保護 ／ **TC**: TCC-61-3

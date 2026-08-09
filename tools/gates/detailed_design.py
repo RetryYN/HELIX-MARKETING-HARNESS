@@ -36,6 +36,11 @@ IMPL_UNIT_SCHEMA = L6 / "S0/implementation-unit.schema.json"
 # trace を「借りて」済ませる言い回し。ID の代わりにこれらが立つと意味接続が空洞になる
 TRACE_SUBSTITUTES = ("準用", "準じる", "準ずる", "同等", "相当をもって", "に倣う", "に習う",
                      "同様に扱う", "踏襲", "流用", "借用", "代用")
+# 過去に節IDの追記だけで「未被覆=0」へ移したAPI。これらはAPI固有の反証可能な
+# fixture/action/observation/assertをACへ構造化し、同じ空洞化を再発させない。
+OBSERVATION_RATCHET_APIS = {
+    "API-DU13-02", "API-DU15-01", "API-DU15-03", "API-DU20-01", "API-DU21-02",
+}
 
 
 def api_index(du: dict) -> dict[str, dict]:
@@ -229,11 +234,13 @@ def detect_clause_coverage_faults(ctx: Ctx) -> list[str]:
     du_of_api: dict[str, str] = {}
     seen_api: set[str] = set()
     seen_clause: set[str] = set()
+    api_names: dict[str, str] = {}
     for d in ctx.duc:
         for a in d["apis"]:
             if a["api_id"] in seen_api:
                 bad.append(f"{a['api_id']}: api_id が重複している（安定 ID の一意性違反）")
             seen_api.add(a["api_id"])
+            api_names[a["api_id"]] = api_name(a)
             for c in clause_ids(a):
                 if c in seen_clause:
                     bad.append(f"{c}: clause_id が重複している（安定 ID の一意性違反）")
@@ -248,8 +255,22 @@ def detect_clause_coverage_faults(ctx: Ctx) -> list[str]:
                                f" {a['api_id']} の契約節でない")
     du_ac = {d["id"]: set(d["trace"].get("ac", [])) for d in ctx.duc}
     covered: set[str] = set()
+    observation_owners: dict[str, list[str]] = {}
     for ac in ctx.acc:
         refs = ac_clauses[ac["id"]]
+        referenced_apis = {all_clauses[c] for c in refs if c in all_clauses}
+        assertions = ac.get("api_observation_assertions") or {}
+        for asserted_api, assertion in assertions.items():
+            if asserted_api not in referenced_apis:
+                bad.append(f"{ac['id']}: api_observation_assertions の {asserted_api} は"
+                           " verifies_clause_refs で当該APIを参照していない")
+                continue
+            observation_owners.setdefault(asserted_api, []).append(ac["id"])
+            action = assertion.get("action", "") if isinstance(assertion, dict) else ""
+            function_name = api_names.get(asserted_api, "")
+            if function_name and function_name not in action:
+                bad.append(f"{ac['id']}:{asserted_api}: action が公開API {function_name} の"
+                           "実呼出を示さない（別API assertionのコピーを拒否）")
         for c in refs:
             if c not in all_clauses:
                 bad.append(f"{ac['id']}: verifies_clause_refs の {c} が実在しない")
@@ -310,6 +331,11 @@ def detect_clause_coverage_faults(ctx: Ctx) -> list[str]:
                         bad.append(f"{a['api_id']}: 内部 API（{lv}）なのに契約節 {cid} が"
                                    f"『{GAP_CATEGORY}』（内部分類と未解決 gap は併存しない）")
     bad += detect_uncovered_api_ledger_faults(ctx, covered)
+    for api_id in sorted(OBSERVATION_RATCHET_APIS):
+        owners = observation_owners.get(api_id, [])
+        if len(owners) != 1:
+            bad.append(f"{api_id}: API固有の反証可能な api_observation_assertions が"
+                       f"exactly-one ACに必要（実={owners}）")
     return bad
 
 

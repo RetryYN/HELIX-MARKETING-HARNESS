@@ -461,3 +461,16 @@
 | 2026-08-10 | ac-contracts.json | v0.1 | confirmed | PO | 6c8d0093fd6c | DesignSync test URLをMarkdown安全なautolink表現へ正規化 |
 | 2026-08-10 | ac-catalog | v0.1 | confirmed | PO | 0bee0240a3f8 | JSON正本からAC生成ビューを再生成（手編集なし） |
 | 2026-08-10 | s0-contract | v0.1 | confirmed | PO | 8da21fce99bf | 状態列挙の表セル内区切りを意味不変のMarkdown安全表現へ正規化 |
+| 2026-08-10 | ac-contracts.json | v0.1 | confirmed | PO | 77b7c88d9758 | Opus再監査: API固有の反証可能fixture・action・observation・assertを構造化 |
+| 2026-08-10 | tc-contracts.json | v0.1 | confirmed | PO | c54931a6eaec | Opus再監査: list_declared・commit_workspace・treeの観測と期待状態を同期 |
+| 2026-08-10 | ac-catalog | v0.1 | confirmed | PO | 5e315691f946 | 更新済みAC正本から生成ビューを再生成（手編集なし） |
+| 2026-08-10 | tc-catalog | v0.1 | confirmed | PO | 3b9c24d24b71 | 更新済みTCC正本から生成ビューを再生成（手編集なし） |
+| 2026-08-10 | campaign | - | confirmed | PO | a2da64eaca51 | S0.2のDU-19/DU-20責務を担うS1設計正本を内容束縛して確定 |
+| 2026-08-10 | ac-contracts.json | v0.1 | confirmed | PO | 9f10f2429d7b | API固有観測assertion追加後の正準JSON digestへ同期 |
+| 2026-08-10 | tc-contracts.json | v0.1 | confirmed | PO | 099d477b1351 | API固有観測のTCC再降下後の正準JSON digestへ同期 |
+| 2026-08-10 | ac-catalog | v0.1 | confirmed | PO | c305b041364e | 最終approval digestを含むAC生成ビューへ同期 |
+| 2026-08-10 | tc-catalog | v0.1 | confirmed | PO | e5ed39a40dfd | 最終approval digestを含むTCC生成ビューへ同期 |
+| 2026-08-10 | ac-contracts.json | v0.1 | confirmed | PO | f37c3d890ed0 | 公開API語彙をlist_declaredへ正規化した最終AC正本 |
+| 2026-08-10 | tc-contracts.json | v0.1 | confirmed | PO | 20097c61f972 | 公開API語彙をlist_declaredへ正規化した最終TCC正本 |
+| 2026-08-10 | ac-catalog | v0.1 | confirmed | PO | c348c80c94eb | 最終AC正本から生成ビューを再生成（手編集なし） |
+| 2026-08-10 | tc-catalog | v0.1 | confirmed | PO | b9f5bfb74aa5 | 最終TCC正本から生成ビューを再生成（手編集なし） |

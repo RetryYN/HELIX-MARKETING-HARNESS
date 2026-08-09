@@ -1094,7 +1094,7 @@
       "previous_paths": [
         "docs/requirements/json/ac/ac-contracts.json"
       ],
-      "approval_digest": "f218cf9efd35",
+      "approval_digest": "f37c3d890ed0",
       "review_digest": null
     },
     {
@@ -2668,7 +2668,7 @@
       "previous_paths": [
         "docs/requirements/json/verification/tc-contracts.json"
       ],
-      "approval_digest": "717b2f1638e0",
+      "approval_digest": "20097c61f972",
       "review_digest": null
     },
     {
@@ -3541,7 +3541,7 @@
       "artifact_type": "design-doc",
       "authority_format": "markdown",
       "authority_status": "active",
-      "lifecycle_status": "planned",
+      "lifecycle_status": "confirmed",
       "canonical_path": "docs/L6-feature-design/S1/campaign.md",
       "view_path": null,
       "view_generation": "none",
@@ -3552,7 +3552,7 @@
       "previous_paths": [
         "docs/L6-feature-design/S0/campaign.md"
       ],
-      "approval_digest": null,
+      "approval_digest": "a2da64eaca51",
       "review_digest": null
     },
     {

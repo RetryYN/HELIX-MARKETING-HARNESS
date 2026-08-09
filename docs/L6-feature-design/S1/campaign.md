@@ -1,6 +1,6 @@
 ---
 artifact_id: L6-S1-CAMPAIGN
-lifecycle_status: planned
+lifecycle_status: confirmed
 slice: S1
 traces: [SR-14]
 forward_refs: []
@@ -9,7 +9,7 @@ dus: [DU-19, DU-20]
 
 # 機能設計: 複数媒体キャンペーン（BR-I5・S1+）
 
-> status: **planned**（2026-08-01 全層再降下 §7 — AI 起草。構造分類是正で S1 へ再配置）
+> status: **confirmed**（2026-08-10 S0.2 API責務の観測契約を確定し、構造分類どおり S1 に配置）
 > 正準参照: 要求 = BR-I5（[br-contracts.json](../../L1-business-requirements/canonical/br/br-contracts.json)）・REQ-050・
 > SR-06/SR-14（[sr-contracts.json](../../L3-system-requirements/canonical/strategy/sr-contracts.json)）。
 > 役割語彙 = [media-roles.json](../../L3-system-requirements/canonical/strategy/media-roles.json)（12 役割台帳）。

@@ -490,6 +490,34 @@ def test_every_api_declares_a_verification_level() -> None:
                 assert len(a["internal_reason"]) >= 20
 
 
+def test_mutation_clause_id_only_closure_without_observation_assertion_is_detected(
+    monkeypatch, tmp_path,
+) -> None:
+    """変異: 節IDだけ残してAPI固有fixture/観測を消す空洞化を拒否する。"""
+    def m(acc):
+        ac = next(a for a in acc if a["id"] == "AC-61-3")
+        del ac["api_observation_assertions"]
+
+    ctx = _ctx_with(tmp_path, monkeypatch, mutate_ac=m)
+    faults = detailed_design.detect_clause_coverage_faults(ctx)
+    assert any("API-DU21-02" in f and "exactly-one" in f for f in faults), faults
+
+
+def test_mutation_copied_observation_assertion_for_another_api_is_detected(
+    monkeypatch, tmp_path,
+) -> None:
+    """変異: 長い定型文を別APIへコピーして意味被覆を装えない。"""
+    def m(acc):
+        ac = next(a for a in acc if a["id"] == "AC-61-3")
+        ac["api_observation_assertions"]["API-DU21-02"]["action"] = (
+            "list_declared(conn, service='notion')を呼び、十分に長い診断文として記録する"
+        )
+
+    ctx = _ctx_with(tmp_path, monkeypatch, mutate_ac=m)
+    faults = detailed_design.detect_clause_coverage_faults(ctx)
+    assert any("API-DU21-02" in f and "tree" in f for f in faults), faults
+
+
 def test_mutation_internal_level_without_reason_is_detected(monkeypatch, tmp_path) -> None:
     def m(duc):
         duc[0]["apis"][0]["verification_level"] = "unit"

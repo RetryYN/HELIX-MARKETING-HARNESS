@@ -3257,9 +3257,9 @@
       "given": "config に notion のレジストリ行（優先 mcp・fallback browser）が投入済みで、経路をコードに埋め込んだ分岐が存在しない状態",
       "when": "notionの経路解決後、list_declared(service='notion')で診断読取し、schema不適合の別行を投入して再読取し、その後config INSERTで優先経路をbrowserへ変更して再解決する",
       "then": "診断結果はnotion行だけをDB変更なしで返し不正行を除外報告する。解決は1回目mcp、2回目browserとなり、切替はレジストリ行の変更だけで反映される",
-      "fixture": "seed: config('registry.notion', {\"primary\":\"mcp\",\"fallback\":\"browser\",\"auth\":\"mcp_oauth\"})、変更は同 key の config INSERT（履歴保持）",
-      "observation_point": "resolve_route の戻り値（route_type）／config SELECT（2 行の履歴）／operation_log 件数",
-      "expected_state": "最新 config 行の宣言どおりの経路が返る",
+      "fixture": "seed: configにregistry.notionのschema適合行、registry.wpのschema適合行、registry.invalidのschema不適合行を各1件。変更はregistry.notionへの新version INSERT（履歴保持）",
+      "observation_point": "resolve_routeの戻り値（route_type）／list_declared(service='notion')の戻り行と不正行report／config SELECT（前後version）／operation_log件数",
+      "expected_state": "list_declaredはnotionの適合行だけを返し、wp行を除外し、invalid行を不正として報告する。DB行数は診断読取で不変。最新configの宣言どおりの経路が返る",
       "expected_db_delta": "config +1 行（経路変更 INSERT）。構造化ログ差分なし",
       "expected_evidence": "なし（正常解決は証跡不要）",
       "forbidden_side_effects": "コード側分岐による経路決定・構造化ログ以外への拒否記録（evidence への拒否行の混入）追加・外部 HTTP 呼出（0 回）",
@@ -3277,7 +3277,17 @@
         "event_refs": [],
         "evidence_kind_refs": [],
         "error_type_refs": [],
-        "api_refs": []
+        "api_refs": [
+          "list_declared"
+        ]
+      },
+      "api_observation_assertions": {
+        "API-DU13-02": {
+          "fixture": "notionとwpの2サービス、さらにschema不適合なinvalid行を同時にseedする",
+          "action": "list_declared(conn, service='notion')を呼び、診断前後のDB snapshotを取得する",
+          "observation": "戻り行集合、不正行report、およびconfig全行の診断前後snapshotを観測する",
+          "assert": "notion適合行のみ返却、wp除外、invalid報告、config差分0をそれぞれ独立assertする"
+        }
       },
       "verifies_clause_refs": [
         "API-DU13-01-POST-01",
@@ -3501,6 +3511,20 @@
         ],
         "error_type_refs": [],
         "api_refs": []
+      },
+      "api_observation_assertions": {
+        "API-DU15-01": {
+          "fixture": "未使用profile名前空間と既存別profileを用意しstorage stateの越境を判別可能にする",
+          "action": "launch(profile)を呼びBrowserSessionを取得して同profileで後続captureを実行する",
+          "observation": "BrowserSession.scopeとstorage_state_path、および別profile配下の前後snapshotを観測する",
+          "assert": "scopeが指定profile、保存先が同profile配下、別profile差分0を独立assertする"
+        },
+        "API-DU15-03": {
+          "fixture": "到達可能URLと不一致最終URLを返すfixtureを分け、capture保存先Pathを固定する",
+          "action": "run_playbook(session, playbook, ctx)のscreenshot stepを呼び到達確認と保存を実行する",
+          "observation": "返却capture Path、最終URL、保存ファイルhash、外部操作行のeffectとstatusを観測する",
+          "assert": "指定Path保存とURL一致をassertし、不一致fixtureは保存前に拒否されることを別ケースでassertする"
+        }
       },
       "verifies_clause_refs": [
         "API-DU04-02-POST-02",
@@ -5038,9 +5062,9 @@
       "given": "DU-19が生成した未commit成果物workspaceと初期化済みfixture repository、T-PROD task、対応する審査PASS要求",
       "when": "commit_workspaceで成果物をcommitしてH1を取得し、commit_hash証跡化→review_pass記録（commit_hash=H1）→hashからのソース復元を順に実行する",
       "then": "PASS が H1 に束縛されて記録され、H1 の checkout で審査時と同一内容のソースが復元できる",
-      "fixture": "seed: fixture リポジトリ commit H1（記事ソース）、tasks に T-PROD/T-REVIEW 各 1 行、reviewer は author と別 agent",
-      "observation_point": "evidence SELECT（kind IN ('commit_hash','review_pass') の commit_hash 列）／checkout 後のファイル hash 比較",
-      "expected_state": "review_pass 証跡の commit_hash 列 = H1、復元ソースの内容 hash = 証跡化時と一致",
+      "fixture": "seed: 初期化済みfixture repository（初期commit H0）と、DU-19生成物を配置した未commit workspace、tasksにT-PROD/T-REVIEW各1行、reviewerはauthorと別agent",
+      "observation_point": "commit_workspace戻り値H1（40/64桁hex）／git show H1のtree／evidence SELECT（commit_hash・review_pass）／checkout後のファイルhash比較",
+      "expected_state": "H1はH0と異なる40/64桁hexで、git show H1の内容は未commit workspaceと一致。review_pass.commit_hash=H1、復元ソースhashも一致",
       "expected_db_delta": "evidence +2 行（commit_hash・review_pass）",
       "expected_evidence": "evidence（kind=commit_hash、value=H1、payload に repository・paths）／evidence（kind=review_pass、payload に result=PASS・commit_hash=H1・reviewer）",
       "forbidden_side_effects": "既存証跡行の UPDATE/DELETE（append-only トリガ違反）",
@@ -5062,7 +5086,17 @@
           "review_pass"
         ],
         "error_type_refs": [],
-        "api_refs": []
+        "api_refs": [
+          "commit_workspace"
+        ]
+      },
+      "api_observation_assertions": {
+        "API-DU20-01": {
+          "fixture": "初期commit H0だけを持つrepositoryとDU-19生成物を置いた未commit workspaceを用意する",
+          "action": "commit_workspace(workspace, repo, message)を呼び返却hash H1を取得する",
+          "observation": "返却H1、git show H1のtree、commit前workspace hash、commit後checkout hashを観測する",
+          "assert": "H1がH0と異なる40/64桁hexで、treeとworkspaceが一対一一致することをassertする"
+        }
       },
       "verifies_clause_refs": [
         "API-DU09-01-POST-01",
@@ -5426,12 +5460,12 @@
       "id": "AC-61-3",
       "target": "FR-61",
       "polarity": "boundary-recovery",
-      "given": "measurements から参照されているノード N1 と、根ノード（parent なし）だけの最小ツリー",
-      "when": "N1 の DELETE を試み、次に N1 を archived 化し、根ノードのみで横断集計を実行する",
-      "then": "DELETEはFK RESTRICTで失敗し、archived化後も参照整合が保たれる。treeは対象profileの親子解決済み最小ツリーを決定的に返し、別profileノードを含まない",
-      "fixture": "seed: kpi_nodes に根 N1、measurements に N1 参照 1 行",
-      "observation_point": "DELETE の失敗（sqlite3.IntegrityError）／kpi_nodes.status／集計クエリ結果",
-      "expected_state": "N1 は status='archived' で存続、measurements の FK は不変",
+      "given": "profile P1に参照中の根N1と子N2、profile P2に根M1があり、P1の根だけに縮退した最小ケースも独立fixtureで用意された状態",
+      "when": "N1のDELETEを試みてarchived化し、tree(conn, P1)を2回呼ぶ。別fixtureではP1の子を除いた根だけのtreeを呼ぶ",
+      "then": "DELETEはFK RESTRICTで失敗し参照整合が保たれる。P1 treeはN1→N2の親子を決定的に解決しM1を含まず、最小fixtureはN1だけを返す",
+      "fixture": "seed: business_profiles P1/P2、P1のkpi_nodes N1(parent NULL)・N2(parent=N1)、P2のM1(parent NULL)、measurementsにN1参照1行。最小tree用にP1根だけの独立fixture",
+      "observation_point": "DELETE失敗／kpi_nodes.status／tree(conn,P1)の2回の戻り値（node id・parent id・順序）／P2 node id集合／最小fixtureの戻り値",
+      "expected_state": "N1はarchivedで存続しFK不変。P1戻り値は同順序のN1→N2のみでM1なし、最小fixtureはN1のみ",
       "expected_db_delta": "kpi_nodes 1 行 UPDATE（status）のみ、行数不変",
       "expected_evidence": "なし（構造保護は DDL の領分）",
       "forbidden_side_effects": "参照中ノードの物理削除・measurements の孤児化",
@@ -5454,7 +5488,17 @@
         "error_type_refs": [
           "IntegrityError"
         ],
-        "api_refs": []
+        "api_refs": [
+          "tree"
+        ]
+      },
+      "api_observation_assertions": {
+        "API-DU21-02": {
+          "fixture": "P1の親子N1→N2、P2の根M1、P1根だけの最小fixtureを別々にseedする",
+          "action": "tree(conn, P1)を同一fixtureで2回呼び、最小fixtureでも1回呼ぶ",
+          "observation": "各戻り値のnode id・parent id・順序とP2のnode id集合を観測する",
+          "assert": "N1→N2解決、M1除外、2回の決定性、最小fixtureが根1件だけを独立assertする"
+        }
       },
       "verifies_clause_refs": [
         "API-DU21-02-POST-01",
@@ -9085,5 +9129,5 @@
   "supersedes": [
     "ARCHIVE-AC-LEGACY"
   ],
-  "approval_digest": "f218cf9efd35"
+  "approval_digest": "f37c3d890ed0"
 }

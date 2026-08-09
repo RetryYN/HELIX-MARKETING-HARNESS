@@ -211,6 +211,24 @@
       },
       "description": "この AC が検証する API 契約節（du-contracts の clause_id）。どの節を検証しているかを構造参照で示し、語彙一致で代替しない（G-L6-IMPLEMENTATION-TRACE）"
     },
+    "api_observation_assertions": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^API-DU[0-9]{2}-[0-9]{2}$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["fixture", "action", "observation", "assert"],
+        "properties": {
+          "fixture": {"type": "string", "minLength": 20},
+          "action": {"type": "string", "minLength": 20},
+          "observation": {"type": "string", "minLength": 20},
+          "assert": {"type": "string", "minLength": 20}
+        }
+      },
+      "description": "複数APIを束ねる既存ACへAPIを追加するときの、API固有かつ反証可能なfixture／呼出／観測／assert。節IDの追記だけで被覆を名乗ることを禁止する"
+    },
     "clause_na_reason": {
       "type": "string",
       "minLength": 10,

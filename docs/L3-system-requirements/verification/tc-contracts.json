@@ -1714,7 +1714,7 @@
         "AC-41-1"
       ],
       "kind": "normal",
-      "verifies_state": "最新 config 行の宣言どおりの経路が返る",
+      "verifies_state": "list_declaredはnotion適合行だけを返しwpを除外、invalid行を報告し、診断前後DB差分0。最新configどおりの経路が返る",
       "verifies_db_delta": "config +1 行（経路変更 INSERT）。構造化ログ差分なし",
       "verifies_evidence": "なし（正常解決は証跡不要）",
       "verifies_forbidden": "コード側分岐による経路決定・構造化ログ以外への拒否記録（evidence への拒否行の混入）追加・外部 HTTP 呼出（0 回）",
@@ -1730,7 +1730,9 @@
         "event_refs": [],
         "evidence_kind_refs": [],
         "error_type_refs": [],
-        "api_refs": []
+        "api_refs": [
+          "list_declared"
+        ]
       }
     },
     {
@@ -2872,7 +2874,7 @@
         "AC-54-1"
       ],
       "kind": "normal",
-      "verifies_state": "review_pass 証跡の commit_hash 列 = H1、復元ソースの内容 hash = 証跡化時と一致",
+      "verifies_state": "返却H1はH0と異なる40/64桁hexで未commit workspaceとtreeが一致。review_pass.commit_hash=H1、復元ソースhashも一致",
       "verifies_db_delta": "evidence +2 行（commit_hash・review_pass）",
       "verifies_evidence": "evidence（kind=commit_hash、value=H1、payload に repository・paths）／evidence（kind=review_pass、payload に result=PASS・commit_hash=H1・reviewer）",
       "verifies_forbidden": "既存証跡行の UPDATE/DELETE（append-only トリガ違反）",
@@ -2892,7 +2894,9 @@
           "review_pass"
         ],
         "error_type_refs": [],
-        "api_refs": []
+        "api_refs": [
+          "commit_workspace"
+        ]
       }
     },
     {
@@ -3088,7 +3092,7 @@
         "AC-61-3"
       ],
       "kind": "boundary",
-      "verifies_state": "N1 は status='archived' で存続、measurements の FK は不変",
+      "verifies_state": "N1はarchivedで存続しFK不変。P1 treeは決定的なN1→N2のみでP2のM1を含まず、根だけfixtureはN1のみ",
       "verifies_db_delta": "kpi_nodes 1 行 UPDATE（status）のみ、行数不変",
       "verifies_evidence": "なし（構造保護は DDL の領分）",
       "verifies_forbidden": "参照中ノードの物理削除・measurements の孤児化",
@@ -3109,7 +3113,9 @@
         "error_type_refs": [
           "IntegrityError"
         ],
-        "api_refs": []
+        "api_refs": [
+          "tree"
+        ]
       }
     },
     {
@@ -7043,5 +7049,5 @@
   "supersedes": [
     "ARCHIVE-TC-LEGACY"
   ],
-  "approval_digest": "717b2f1638e0"
+  "approval_digest": "20097c61f972"
 }
