@@ -128,13 +128,28 @@
         "error_type_refs": [
           "TransitionRejected"
         ],
-        "api_refs": []
+        "api_refs": [
+          "transition"
+        ]
       },
       "verifies_clause_refs": [
         "API-DU01-01-POST-01",
         "API-DU01-01-POST-03",
         "API-DU01-01-RAISE-01"
-      ]
+      ],
+      "api_observation_assertions": {
+        "API-DU01-01": {
+          "fixture": "API-DU01-01/transition 固有fixture: seed: loop_runs A（state='completed'）、loop_runs B（state='running'）— B への wait 遷移をコミット前 kill で中断",
+          "action": "API-DU01-01: 公開API transition(...) を実呼出しし、A へ cancel イベントを適用し、B は再起動後に状態を読み直して続行する。",
+          "observation": "API-DU01-01: transition の戻り値・例外、raise される例外型／再起動後の loop_runs.state・state_transitions 行数、DB差分を個別に観測する。",
+          "assert": "API-DU01-01: 終端 A からの遷移は拒否され、B は中間状態が残らず遷移前の running から §3.3 の規則どおり再開できる。期待状態は A='completed' 不変、B='running'（未コミット遷移は transaction ごと消滅）。契約節 API-DU01-01-POST-01, API-DU01-01-POST-03, API-DU01-01-RAISE-01 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU01-01-POST-01",
+            "API-DU01-01-POST-03",
+            "API-DU01-01-RAISE-01"
+          ]
+        }
+      }
     },
     {
       "id": "AC-11-4",
@@ -225,7 +240,19 @@
       "verifies_clause_refs": [
         "API-DU02-04-POST-01",
         "API-DU02-04-POST-02"
-      ]
+      ],
+      "api_observation_assertions": {
+        "API-DU02-04": {
+          "fixture": "API-DU02-04/resume 固有fixture: seed: loop_runs 2 行（state='running' と state='waiting'）、tasks 3 行（state='pending'／'in_progress'／'verifying'）、各行に対応する evidence・agent_executions を投入",
+          "action": "API-DU02-04: 公開API resume(...) を実呼出しし、各 entity に対して resume を実行する。",
+          "observation": "API-DU02-04: resume の戻り値・例外、resume 戻り値（ResumeAction の分岐と根拠行 id）／tasks・loop_runs SELECT／state_transitions SELECT、DB差分を個別に観測する。",
+          "assert": "API-DU02-04: s0-contract §3.3 の分岐どおりの ResumeAction（根拠行 id 付き）が返り、状態変更が必要な場合も遷移は DU-01 経由でのみ実行される（プロセス内メモリや推測を根拠にしない）。期待状態は 各 entity は s0-contract §3.3 の規則どおりの状態（pending は再 claim 可のまま、外部操作前の in_progress は再読込のみ、waiting は充足条件の再判定）。契約節 API-DU02-04-POST-01, API-DU02-04-POST-02 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU02-04-POST-01",
+            "API-DU02-04-POST-02"
+          ]
+        }
+      }
     },
     {
       "id": "AC-11-6",
@@ -481,7 +508,19 @@
       "verifies_clause_refs": [
         "API-DU04-01-POST-01",
         "API-DU04-01-POST-02"
-      ]
+      ],
+      "api_observation_assertions": {
+        "API-DU04-01": {
+          "fixture": "API-DU04-01/load 固有fixture: seed: workflows 2 行（同一 workflow_key の version=1 と version=2、version=2 が active）、双方の definition_json／required_evidence_json は schema 適合・kind は evidence enum 内",
+          "action": "API-DU04-01: 公開API load(...) を実呼出しし、版を指定せずに load し、続けて旧版を指定して load する。",
+          "observation": "API-DU04-01: load の戻り値・例外、load 戻り値（WorkflowDef の version と required_evidence）／workflows SELECT（前後比較）、DB差分を個別に観測する。",
+          "assert": "API-DU04-01: 未指定では active 最新版、指定時はその版の WorkflowDef が返り、required_evidence_json の kind がすべて evidence enum 内であることが検証され、DB は読み取りのみで変化しない。期待状態は workflows の行・列は前後で不変（読み取りのみ）。契約節 API-DU04-01-POST-01, API-DU04-01-POST-02 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU04-01-POST-01",
+            "API-DU04-01-POST-02"
+          ]
+        }
+      }
     },
     {
       "id": "AC-12-6",
@@ -823,7 +862,19 @@
       "verifies_clause_refs": [
         "API-DU02-03-POST-01",
         "API-DU02-03-POST-02"
-      ]
+      ],
+      "api_observation_assertions": {
+        "API-DU02-03": {
+          "fixture": "API-DU02-03/run_microloop 固有fixture: seed: config 1 行（key='retry_limit', value_json='3', value_type='integer'）、agents 2 行（principal 相違）、agent_executions 2 行、tasks 1 行（state='in_progress', retry_count=0, lease 保持）、常時 FAIL の verifier スタブ注入",
+          "action": "API-DU02-03: 公開API run_microloop(...) を実呼出しし、run_microloop を 1 回呼び出して収束まで実行する。",
+          "observation": "API-DU02-03: run_microloop の戻り値・例外、run_microloop 戻り値（MicroloopResult）／tasks.state・tasks.retry_count SELECT／state_transitions SELECT、DB差分を個別に観測する。",
+          "assert": "API-DU02-03: submit→verify の反復が FAIL ごとに retry_count を 1 消費し、上限到達で verify_fail_exhausted により escalated へ収束して MicroloopResult を返す（反復・上限判定はすべて DU-01 の遷移経由で行われる）。期待状態は tasks.state = 'escalated'（終端）、retry_count = 3。契約節 API-DU02-03-POST-01, API-DU02-03-POST-02 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU02-03-POST-01",
+            "API-DU02-03-POST-02"
+          ]
+        }
+      }
     },
     {
       "id": "AC-13-8",
@@ -1516,7 +1567,12 @@
           "review_pass"
         ],
         "error_type_refs": [],
-        "api_refs": []
+        "api_refs": [
+          "establish",
+          "revoke_if_changed",
+          "require_pair",
+          "check_publishable"
+        ]
       },
       "verifies_clause_refs": [
         "API-DU05-01-POST-01",
@@ -1525,7 +1581,47 @@
         "API-DU05-03-RAISE-01",
         "API-DU06-01-POST-01",
         "API-DU06-01-RAISE-01"
-      ]
+      ],
+      "api_observation_assertions": {
+        "API-DU05-01": {
+          "fixture": "API-DU05-01/establish 固有fixture: seed: pair_plan_quality(status='revoked') 1 行 → 再審査 T-REVIEW done ＋新 review_pass ＋新 pair(passed) を追加投入",
+          "action": "API-DU05-01: 公開API establish(...) を実呼出しし、旧ペア ID を根拠に公開前検証を実行し、その後、再審査 PASS で新 pair を成立させて再実行する。",
+          "observation": "API-DU05-01: establish の戻り値・例外、1 回目の例外型／2 回目の検証戻り値／pair_plan_quality SELECT、DB差分を個別に観測する。",
+          "assert": "API-DU05-01: revoked ペアでの公開は PairNotEstablished で拒否され、再審査後の新 pair でのみ通過する（復旧経路 = 再審査のみ）。期待状態は 1 回目拒否・2 回目通過。revoked 行は revoked のまま保持（履歴保持）。契約節 API-DU05-01-POST-01 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU05-01-POST-01"
+          ]
+        },
+        "API-DU05-02": {
+          "fixture": "API-DU05-02/revoke_if_changed 固有fixture: seed: pair_plan_quality(status='revoked') 1 行 → 再審査 T-REVIEW done ＋新 review_pass ＋新 pair(passed) を追加投入",
+          "action": "API-DU05-02: 公開API revoke_if_changed(...) を実呼出しし、旧ペア ID を根拠に公開前検証を実行し、その後、再審査 PASS で新 pair を成立させて再実行する。",
+          "observation": "API-DU05-02: revoke_if_changed の戻り値・例外、1 回目の例外型／2 回目の検証戻り値／pair_plan_quality SELECT、DB差分を個別に観測する。",
+          "assert": "API-DU05-02: revoked ペアでの公開は PairNotEstablished で拒否され、再審査後の新 pair でのみ通過する（復旧経路 = 再審査のみ）。期待状態は 1 回目拒否・2 回目通過。revoked 行は revoked のまま保持（履歴保持）。契約節 API-DU05-02-POST-02 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU05-02-POST-02"
+          ]
+        },
+        "API-DU05-03": {
+          "fixture": "API-DU05-03/require_pair 固有fixture: seed: pair_plan_quality(status='revoked') 1 行 → 再審査 T-REVIEW done ＋新 review_pass ＋新 pair(passed) を追加投入",
+          "action": "API-DU05-03: 公開API require_pair(...) を実呼出しし、旧ペア ID を根拠に公開前検証を実行し、その後、再審査 PASS で新 pair を成立させて再実行する。",
+          "observation": "API-DU05-03: require_pair の戻り値・例外、1 回目の例外型／2 回目の検証戻り値／pair_plan_quality SELECT、DB差分を個別に観測する。",
+          "assert": "API-DU05-03: revoked ペアでの公開は PairNotEstablished で拒否され、再審査後の新 pair でのみ通過する（復旧経路 = 再審査のみ）。期待状態は 1 回目拒否・2 回目通過。revoked 行は revoked のまま保持（履歴保持）。契約節 API-DU05-03-POST-01, API-DU05-03-RAISE-01 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU05-03-POST-01",
+            "API-DU05-03-RAISE-01"
+          ]
+        },
+        "API-DU06-01": {
+          "fixture": "API-DU06-01/check_publishable 固有fixture: seed: pair_plan_quality(status='revoked') 1 行 → 再審査 T-REVIEW done ＋新 review_pass ＋新 pair(passed) を追加投入",
+          "action": "API-DU06-01: 公開API check_publishable(...) を実呼出しし、旧ペア ID を根拠に公開前検証を実行し、その後、再審査 PASS で新 pair を成立させて再実行する。",
+          "observation": "API-DU06-01: check_publishable の戻り値・例外、1 回目の例外型／2 回目の検証戻り値／pair_plan_quality SELECT、DB差分を個別に観測する。",
+          "assert": "API-DU06-01: revoked ペアでの公開は PairNotEstablished で拒否され、再審査後の新 pair でのみ通過する（復旧経路 = 再審査のみ）。期待状態は 1 回目拒否・2 回目通過。revoked 行は revoked のまま保持（履歴保持）。契約節 API-DU06-01-POST-01, API-DU06-01-RAISE-01 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU06-01-POST-01",
+            "API-DU06-01-RAISE-01"
+          ]
+        }
+      }
     },
     {
       "id": "AC-21-4",
@@ -1780,13 +1876,27 @@
         "error_type_refs": [
           "PaidMetricRejected"
         ],
-        "api_refs": []
+        "api_refs": [
+          "check_metric_type"
+        ]
       },
       "verifies_clause_refs": [
         "API-DU07-01-POST-02",
         "API-DU07-01-RAISE-01",
         "API-DU07-02-RAISE-01"
-      ]
+      ],
+      "api_observation_assertions": {
+        "API-DU07-01": {
+          "fixture": "API-DU07-01/check_metric_type 固有fixture: seed: config.url_allowlist=['blog.example.test']、登録要求 = {type:'ROAS'}、URL='`https://ads.example.com`'",
+          "action": "API-DU07-01: 公開API check_metric_type(...) を実呼出しし、KPI 登録とブラウザ遷移判定を実行する。",
+          "observation": "API-DU07-01: check_metric_type の戻り値・例外、raiseされる例外型／process loggerの構造化拒否event、DB差分を個別に観測する。",
+          "assert": "API-DU07-01: 登録はPaidMetricRejected、遷移はUrlDeniedで拒否され、それぞれ秘匿化済み構造化拒否ログに理由が残る。期待状態は kpi_nodes 空のまま。契約節 API-DU07-01-POST-02, API-DU07-01-RAISE-01 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU07-01-POST-02",
+            "API-DU07-01-RAISE-01"
+          ]
+        }
+      }
     },
     {
       "id": "AC-23-3",
@@ -1815,12 +1925,26 @@
         "event_refs": [],
         "evidence_kind_refs": [],
         "error_type_refs": [],
-        "api_refs": []
+        "api_refs": [
+          "check_domain"
+        ]
       },
       "verifies_clause_refs": [
         "API-DU07-02-POST-01",
         "API-DU07-02-RAISE-01"
-      ]
+      ],
+      "api_observation_assertions": {
+        "API-DU07-02": {
+          "fixture": "API-DU07-02/check_domain 固有fixture: seed: config から url_allowlist 行を削除",
+          "action": "API-DU07-02: 公開API check_domain(...) を実呼出しし、任意の URL への遷移判定を実行する。",
+          "observation": "API-DU07-02: check_domain の戻り値・例外、raiseされる例外型／process loggerの構造化拒否event、DB差分を個別に観測する。",
+          "assert": "API-DU07-02: deny-by-default によりすべて拒否される（判定不能は通さない側へ倒れる）。期待状態は 遷移 0 件許可。契約節 API-DU07-02-POST-01, API-DU07-02-RAISE-01 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU07-02-POST-01",
+            "API-DU07-02-RAISE-01"
+          ]
+        }
+      }
     },
     {
       "id": "AC-23-4",
@@ -2312,7 +2436,20 @@
         "API-DU02-02-POST-01",
         "API-DU02-02-POST-02",
         "API-DU02-02-PRE-01"
-      ]
+      ],
+      "api_observation_assertions": {
+        "API-DU02-02": {
+          "fixture": "API-DU02-02/claim 固有fixture: seed: agents 2 行（principal='claude-model'／'gate-engine'）、agent_executions 1 行（author 帰属）、workflow・loop_run(running)",
+          "action": "API-DU02-02: 公開API claim(...) を実呼出しし、task を発行し、author agent に属する execution が claim する。",
+          "observation": "API-DU02-02: claim の戻り値・例外、tasks INSERT の成否／tasks.state／state_transitions SELECT（claim, passed）、DB差分を個別に観測する。",
+          "assert": "API-DU02-02: tasks INSERT と claim がともに成功し、task は in_progress になる。期待状態は task = in_progress（lease_owner_execution_id = author の execution）。契約節 API-DU02-02-POST-01, API-DU02-02-POST-02, API-DU02-02-PRE-01 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU02-02-POST-01",
+            "API-DU02-02-POST-02",
+            "API-DU02-02-PRE-01"
+          ]
+        }
+      }
     },
     {
       "id": "AC-27-2",
@@ -2352,12 +2489,24 @@
           "SelfReviewRejected"
         ],
         "api_refs": [
-          "claim"
+          "claim",
+          "assign"
         ]
       },
       "verifies_clause_refs": [
         "API-DU03-01-RAISE-01"
-      ]
+      ],
+      "api_observation_assertions": {
+        "API-DU03-01": {
+          "fixture": "API-DU03-01/assign 固有fixture: seed: agents 3 行（うち 2 行は agent_key 相違・principal 同一）。(a) 同一 id 割当 SQL、(b) 同一 principal ペアの task＋claim 要求",
+          "action": "API-DU03-01: 公開API assign(...) を実呼出しし、(a) を tasks に直接 INSERT し、(b) をエンジン経由で claim する。",
+          "observation": "API-DU03-01: assign の戻り値・例外、(a) sqlite3.IntegrityError の捕捉／(b) raise される例外型と state_transitions SELECT（rejected）、DB差分を個別に観測する。",
+          "assert": "API-DU03-01: (a) は DB の CHECK 制約が IntegrityError で拒否し、(b) はエンジンが SelfReviewRejected で拒否する（二重拒否の両層をそれぞれ観測）。期待状態は (a) 行は作られず、(b) task は pending のまま。契約節 API-DU03-01-RAISE-01 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU03-01-RAISE-01"
+          ]
+        }
+      }
     },
     {
       "id": "AC-27-3",
@@ -2648,12 +2797,26 @@
         "error_type_refs": [
           "EvidenceIncomplete"
         ],
-        "api_refs": []
+        "api_refs": [
+          "check_complete"
+        ]
       },
       "verifies_clause_refs": [
         "API-DU08-01-POST-02",
         "API-DU08-01-RAISE-01"
-      ]
+      ],
+      "api_observation_assertions": {
+        "API-DU08-01": {
+          "fixture": "API-DU08-01/check_complete 固有fixture: seed: verifying 状態 task、必須証跡 3 件中 2 件のみ登録、retry_count=1",
+          "action": "API-DU08-01: 公開API check_complete(...) を実呼出しし、done 遷移を複数回連続で要求する。",
+          "observation": "API-DU08-01: check_complete の戻り値・例外、tasks 行のスナップショット比較（前後）／evidence 件数、DB差分を個別に観測する。",
+          "assert": "API-DU08-01: 毎回 EvidenceIncomplete で拒否され、task の状態・retry_count・証跡は一切変化しない（拒否は副作用を持たない）。期待状態は task は verifying・retry_count=1 のまま。契約節 API-DU08-01-POST-02, API-DU08-01-RAISE-01 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU08-01-POST-02",
+            "API-DU08-01-RAISE-01"
+          ]
+        }
+      }
     },
     {
       "id": "AC-28-5",
@@ -3035,12 +3198,26 @@
         "event_refs": [],
         "evidence_kind_refs": [],
         "error_type_refs": [],
-        "api_refs": []
+        "api_refs": [
+          "get"
+        ]
       },
       "verifies_clause_refs": [
         "API-DU12-02-POST-02",
         "API-DU12-02-RAISE-01"
-      ]
+      ],
+      "api_observation_assertions": {
+        "API-DU12-02": {
+          "fixture": "API-DU12-02/get 固有fixture: seed: config 空、既定値表 = {spend_cap_monthly: 5000}、参照 key = 'spend_cap_monthly' と 'unknown_key'",
+          "action": "API-DU12-02: 公開API get(...) を実呼出しし、有効値の解決を実行する。",
+          "observation": "API-DU12-02: get の戻り値・例外、参照 API の戻り値／raise される例外型、DB差分を個別に観測する。",
+          "assert": "API-DU12-02: 既定値表にある key は保守的既定値を返し、ない key は拒否側へ倒れる（暗黙の fail-open 値を返さない）。期待状態は spend_cap_monthly = 5000（保守的既定値）、unknown_key = 解決拒否。契約節 API-DU12-02-POST-02, API-DU12-02-RAISE-01 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU12-02-POST-02",
+            "API-DU12-02-RAISE-01"
+          ]
+        }
+      }
     },
     {
       "id": "AC-33-4",
@@ -3109,12 +3286,26 @@
         "error_type_refs": [
           "ConfigReasonMissing"
         ],
-        "api_refs": []
+        "api_refs": [
+          "set"
+        ]
       },
       "verifies_clause_refs": [
         "API-DU12-01-PRE-02",
         "API-DU12-01-RAISE-01"
-      ]
+      ],
+      "api_observation_assertions": {
+        "API-DU12-01": {
+          "fixture": "API-DU12-01/set 固有fixture: seed: config に既存行 1 件、変更要求 reason=''",
+          "action": "API-DU12-01: 公開API set(...) を実呼出しし、config の値を変更する。",
+          "observation": "API-DU12-01: set の戻り値・例外、raise される例外型／config 行数、DB差分を個別に観測する。",
+          "assert": "API-DU12-01: ConfigReasonMissing で拒否され、config に新しい履歴行が生まれない。期待状態は config は既存 1 行のまま。契約節 API-DU12-01-PRE-02, API-DU12-01-RAISE-01 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU12-01-PRE-02",
+            "API-DU12-01-RAISE-01"
+          ]
+        }
+      }
     },
     {
       "id": "AC-33-6",
@@ -3278,7 +3469,8 @@
         "evidence_kind_refs": [],
         "error_type_refs": [],
         "api_refs": [
-          "list_declared"
+          "list_declared",
+          "resolve"
         ]
       },
       "api_observation_assertions": {
@@ -3286,7 +3478,22 @@
           "fixture": "notionとwpの2サービス、さらにschema不適合なinvalid行を同時にseedする",
           "action": "list_declared(conn, service='notion')を呼び、診断前後のDB snapshotを取得する",
           "observation": "戻り行集合、不正行report、およびconfig全行の診断前後snapshotを観測する",
-          "assert": "notion適合行のみ返却、wp除外、invalid報告、config差分0をそれぞれ独立assertする"
+          "assert": "notion適合行のみ返却、wp除外、invalid報告、config差分0をそれぞれ独立assertする",
+          "clause_refs": [
+            "API-DU13-02-PRE-02",
+            "API-DU13-02-POST-01",
+            "API-DU13-02-POST-02"
+          ]
+        },
+        "API-DU13-01": {
+          "fixture": "API-DU13-01/resolve 固有fixture: seed: configにregistry.notionのschema適合行、registry.wpのschema適合行、registry.invalidのschema不適合行を各1件。変更はregistry.notionへの新version INSERT（履歴保持）",
+          "action": "API-DU13-01: 公開API resolve(...) を実呼出しし、notionの経路解決後、list_declared(service='notion')で診断読取し、schema不適合の別行を投入して再読取し、その後config INSERTで優先経路をbrowserへ変更して再解決する。",
+          "observation": "API-DU13-01: resolve の戻り値・例外、resolve_routeの戻り値（route_type）／list_declared(service='notion')の戻り行と不正行report／config SELECT（前後version）／operation_log件数、DB差分を個別に観測する。",
+          "assert": "API-DU13-01: 診断結果はnotion行だけをDB変更なしで返し不正行を除外報告する。解決は1回目mcp、2回目browserとなり、切替はレジストリ行の変更だけで反映される。期待状態は list_declaredはnotionの適合行だけを返し、wp行を除外し、invalid行を不正として報告する。DB行数は診断読取で不変。最新configの宣言どおりの経路が返る。契約節 API-DU13-01-POST-01, API-DU13-01-POST-02 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU13-01-POST-01",
+            "API-DU13-01-POST-02"
+          ]
         }
       },
       "verifies_clause_refs": [
@@ -3513,7 +3720,9 @@
         "api_refs": [
           "launch",
           "run_playbook",
-          "screenshot"
+          "screenshot",
+          "get",
+          "record_success"
         ]
       },
       "api_observation_assertions": {
@@ -3521,13 +3730,49 @@
           "fixture": "未使用profile名前空間と既存別profileを用意しstorage stateの越境を判別可能にする",
           "action": "launch(profile)を呼びBrowserSessionを取得して同profileで後続captureを実行する",
           "observation": "BrowserSession.scopeとstorage_state_path、および別profile配下の前後snapshotを観測する",
-          "assert": "scopeが指定profile、保存先が同profile配下、別profile差分0を独立assertする"
+          "assert": "scopeが指定profile、保存先が同profile配下、別profile差分0を独立assertする",
+          "clause_refs": [
+            "API-DU15-01-POST-01",
+            "API-DU15-01-POST-02"
+          ]
         },
         "API-DU15-02": {
           "fixture": "到達可能URLと不一致最終URLを返すfixtureを分け、capture保存先Pathを固定する",
           "action": "screenshot(session, url, out_path)を呼び到達確認とcapture保存を実行する",
           "observation": "返却capture Path、最終URL、保存ファイルhash、拒否時の保存先差分を観測する",
-          "assert": "指定Path保存とURL一致をassertし、不一致fixtureは保存前に拒否されることを別ケースでassertする"
+          "assert": "指定Path保存とURL一致をassertし、不一致fixtureは保存前に拒否されることを別ケースでassertする",
+          "clause_refs": [
+            "API-DU15-02-POST-01"
+          ]
+        },
+        "API-DU15-03": {
+          "fixture": "API-DU15-03/run_playbook 固有fixture: seed: playbooks(service='wp', operation='post', route_type='browser', status='active')、config.rate.wp.daily_write_cap=10、Rng(seed=42) 注入、mock Docker WP ブラウザ。外部I/O test doubleはexecution_mode='actual'で呼び出す（mock/dry-run経路ではない）",
+          "action": "API-DU15-03: 公開API run_playbook(...) を実呼出しし、当該profileでbrowser sessionを起動し、URL到達確認付きscreenshotを取得してからmock媒体への書込み系ブラウザ操作を3連続で実行する。",
+          "observation": "API-DU15-03: run_playbook の戻り値・例外、BrowserSession.scope・storage_state_path／capture Path・最終URL／playbooks.last_success_at SELECT／構造化ログ（seed・間隔値）／external_operations.effect・status、DB差分を個別に観測する。",
+          "assert": "API-DU15-03: sessionは同じScopeContextを保持しstorage_stateをprofile配下だけへ保存、captureは指定Pathへ保存され、操作はplaybookどおり成功してlast_success_atが更新され、連続間隔はすべて1〜5秒かつseedから再現可能に記録される。期待状態は external_operations 3行すべてeffect='write'・confirmed、playbookはactiveのまま。契約節 API-DU15-03-POST-01, API-DU15-03-POST-02, API-DU15-03-POST-04 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU15-03-POST-01",
+            "API-DU15-03-POST-02",
+            "API-DU15-03-POST-04"
+          ]
+        },
+        "API-DU16-01": {
+          "fixture": "API-DU16-01/get 固有fixture: seed: playbooks(service='wp', operation='post', route_type='browser', status='active')、config.rate.wp.daily_write_cap=10、Rng(seed=42) 注入、mock Docker WP ブラウザ。外部I/O test doubleはexecution_mode='actual'で呼び出す（mock/dry-run経路ではない）",
+          "action": "API-DU16-01: 公開API get(...) を実呼出しし、当該profileでbrowser sessionを起動し、URL到達確認付きscreenshotを取得してからmock媒体への書込み系ブラウザ操作を3連続で実行する。",
+          "observation": "API-DU16-01: get の戻り値・例外、BrowserSession.scope・storage_state_path／capture Path・最終URL／playbooks.last_success_at SELECT／構造化ログ（seed・間隔値）／external_operations.effect・status、DB差分を個別に観測する。",
+          "assert": "API-DU16-01: sessionは同じScopeContextを保持しstorage_stateをprofile配下だけへ保存、captureは指定Pathへ保存され、操作はplaybookどおり成功してlast_success_atが更新され、連続間隔はすべて1〜5秒かつseedから再現可能に記録される。期待状態は external_operations 3行すべてeffect='write'・confirmed、playbookはactiveのまま。契約節 API-DU16-01-POST-01 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU16-01-POST-01"
+          ]
+        },
+        "API-DU16-02": {
+          "fixture": "API-DU16-02/record_success 固有fixture: seed: playbooks(service='wp', operation='post', route_type='browser', status='active')、config.rate.wp.daily_write_cap=10、Rng(seed=42) 注入、mock Docker WP ブラウザ。外部I/O test doubleはexecution_mode='actual'で呼び出す（mock/dry-run経路ではない）",
+          "action": "API-DU16-02: 公開API record_success(...) を実呼出しし、当該profileでbrowser sessionを起動し、URL到達確認付きscreenshotを取得してからmock媒体への書込み系ブラウザ操作を3連続で実行する。",
+          "observation": "API-DU16-02: record_success の戻り値・例外、BrowserSession.scope・storage_state_path／capture Path・最終URL／playbooks.last_success_at SELECT／構造化ログ（seed・間隔値）／external_operations.effect・status、DB差分を個別に観測する。",
+          "assert": "API-DU16-02: sessionは同じScopeContextを保持しstorage_stateをprofile配下だけへ保存、captureは指定Pathへ保存され、操作はplaybookどおり成功してlast_success_atが更新され、連続間隔はすべて1〜5秒かつseedから再現可能に記録される。期待状態は external_operations 3行すべてeffect='write'・confirmed、playbookはactiveのまま。契約節 API-DU16-02-POST-01 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU16-02-POST-01"
+          ]
         }
       },
       "verifies_clause_refs": [
@@ -3628,7 +3873,9 @@
           "operation_log"
         ],
         "error_type_refs": [],
-        "api_refs": []
+        "api_refs": [
+          "run_step"
+        ]
       },
       "verifies_clause_refs": [
         "API-DU04-02-POST-02",
@@ -3636,7 +3883,19 @@
         "API-DU15-03-POST-01",
         "API-DU15-03-POST-04",
         "API-DU15-03-RAISE-04"
-      ]
+      ],
+      "api_observation_assertions": {
+        "API-DU04-02": {
+          "fixture": "API-DU04-02/run_step 固有fixture: seed: external_operations(effect='write', status='sent', idempotency_key='k1') 1行＋mock媒体にk1成功応答、照合不能ケース用にmockがk2を未知と応答するeffect='write'のsent行1行。外部I/O test doubleはexecution_mode='actual'で呼び出す（mock/dry-run経路ではない）",
+          "action": "API-DU04-02: 公開API run_step(...) を実呼出しし、再起動後に §3.3 の再開規則で当該操作を照合・再開する。",
+          "observation": "API-DU04-02: run_step の戻り値・例外、external_operations.status SELECT／mock 媒体の受信回数カウンタ／tasks.state、DB差分を個別に観測する。",
+          "assert": "API-DU04-02: リモート照合（idempotency key / remote object ID）で成功が確認され confirmed 化＋証跡補完され、再送は発生しない。照合不能ケースは unknown とし escalate する。期待状態は k1 = confirmed、k2 = unknown で対象タスク escalated。契約節 API-DU04-02-POST-02, API-DU04-02-RAISE-02 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU04-02-POST-02",
+            "API-DU04-02-RAISE-02"
+          ]
+        }
+      }
     },
     {
       "id": "AC-43-1",
@@ -3713,7 +3972,31 @@
         "API-DU16-04-POST-02",
         "API-DU16-04-POST-03",
         "API-DU16-04-RAISE-01"
-      ]
+      ],
+      "api_observation_assertions": {
+        "API-DU16-03": {
+          "fixture": "API-DU16-03/record_failure 固有fixture: seed: playbooks(service='note', version=3, status='active', consecutive_failures=2, selector_json=旧)、起点task=in_progress、同一episodeのrepair taskなし、mock DOMに新セレクタ。外部I/O test doubleはexecution_mode='actual'で呼び出す（mock/dry-run経路ではない）",
+          "action": "API-DU16-03: 公開API record_failure(...) を実呼出しし、破損検知から自己修復（再解析→地図再生成→検証）を実行する。",
+          "observation": "API-DU16-03: record_failure の戻り値・例外、playbooksの版鎖・tasksのidempotency/input/retry_count/state・state_transitions・external_operations/operation_log・process logger、DB差分を個別に観測する。",
+          "assert": "API-DU16-03: active→broken と同じtransactionで一意な playbook_repair 子taskが発行され、検証合格時に旧version=3はretired、新version=4がactiveでINSERTされ、子taskはdoneになる。期待状態は 旧version=3=retired、新version=4=active、repair task=done・retry_count=0。契約節 API-DU16-03-POST-02 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU16-03-POST-02"
+          ]
+        },
+        "API-DU16-04": {
+          "fixture": "API-DU16-04/install_repaired_version 固有fixture: seed: playbooks(service='note', version=3, status='active', consecutive_failures=2, selector_json=旧)、起点task=in_progress、同一episodeのrepair taskなし、mock DOMに新セレクタ。外部I/O test doubleはexecution_mode='actual'で呼び出す（mock/dry-run経路ではない）",
+          "action": "API-DU16-04: 公開API install_repaired_version(...) を実呼出しし、破損検知から自己修復（再解析→地図再生成→検証）を実行する。",
+          "observation": "API-DU16-04: install_repaired_version の戻り値・例外、playbooksの版鎖・tasksのidempotency/input/retry_count/state・state_transitions・external_operations/operation_log・process logger、DB差分を個別に観測する。",
+          "assert": "API-DU16-04: active→broken と同じtransactionで一意な playbook_repair 子taskが発行され、検証合格時に旧version=3はretired、新version=4がactiveでINSERTされ、子taskはdoneになる。期待状態は 旧version=3=retired、新version=4=active、repair task=done・retry_count=0。契約節 API-DU16-04-PRE-01, API-DU16-04-POST-01, API-DU16-04-POST-02, API-DU16-04-POST-03, API-DU16-04-RAISE-01 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU16-04-PRE-01",
+            "API-DU16-04-POST-01",
+            "API-DU16-04-POST-02",
+            "API-DU16-04-POST-03",
+            "API-DU16-04-RAISE-01"
+          ]
+        }
+      }
     },
     {
       "id": "AC-43-2",
@@ -3846,7 +4129,19 @@
         "API-DU16-04-POST-01",
         "API-DU16-04-POST-02",
         "API-DU16-04-POST-03"
-      ]
+      ],
+      "api_observation_assertions": {
+        "API-DU02-01": {
+          "fixture": "API-DU02-01/issue_task 固有fixture: seed: note version=3 broken＋同episode repair task=in_progress＋external_operations(effect='read', status='confirmed')と対応operation_log済み、kdp version=2 retired、note候補は検証合格",
+          "action": "API-DU02-01: 公開API issue_task(...) を実呼出しし、再起動後に既存repair taskから再開して版切替を完了後、同じrepair taskでinstallを再呼出し、retired行への新規修復要求も評価する。",
+          "observation": "API-DU02-01: issue_task の戻り値・例外、episode別tasks件数/idempotency_key、playbooks版鎖、state_transitions、external_operations/operation_log件数、DB差分を個別に観測する。",
+          "assert": "API-DU02-01: noteは同じtaskを再利用して旧版retired＋新版activeへ切替わり、install再呼出しは同じ新版をread-returnする。kdpは新版もrepair taskも作らず起点taskをescalatedにする。期待状態は note version=3 retired/version=4 active/既存repair task done、kdp version=2 retired/起点task escalated。契約節 API-DU02-01-PRE-04, API-DU02-01-POST-04 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU02-01-PRE-04",
+            "API-DU02-01-POST-04"
+          ]
+        }
+      }
     },
     {
       "id": "AC-44-1",
@@ -3894,7 +4189,9 @@
           "published_url"
         ],
         "error_type_refs": [],
-        "api_refs": []
+        "api_refs": [
+          "register_asset"
+        ]
       },
       "verifies_clause_refs": [
         "API-DU17-01-POST-01",
@@ -3903,7 +4200,19 @@
         "API-DU17-02-PRE-02",
         "API-DU17-04-POST-01",
         "API-DU17-04-POST-02"
-      ]
+      ],
+      "api_observation_assertions": {
+        "API-DU17-04": {
+          "fixture": "API-DU17-04/register_asset 固有fixture: seed: pair_plan_quality(passed) 1 行、approvals(approved・binding 一致) 1 行、Docker WP（または WP mock）稼働、idempotency key を操作別に付与。外部I/O test doubleはexecution_mode='actual'で呼び出す（mock/dry-run経路ではない）",
+          "action": "API-DU17-04: 公開API register_asset(...) を実呼出しし、下書き作成（key=k-draft）→公開（key=k-pub）を順に実行する。",
+          "observation": "API-DU17-04: register_asset の戻り値・例外、external_operations SELECT（2 行の status 遷移）／WP 側 post status／evidence・assets SELECT、DB差分を個別に観測する。",
+          "assert": "API-DU17-04: 各操作が別external_operations行としてprepared→sentまで遷移し、各sent行へのoperation_log INSERT triggerでconfirmed化する。公開後はcanonical URLのpublished_url evidenceがoperation_log_evidence_idとpayload external_operation_row_idで公開operation_logへ束縛され、assets参照も登録される。期待状態は 下書き行・公開行とも confirmed、WP 上で記事 published。契約節 API-DU17-04-POST-01, API-DU17-04-POST-02 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU17-04-POST-01",
+            "API-DU17-04-POST-02"
+          ]
+        }
+      }
     },
     {
       "id": "AC-44-2",
@@ -3937,14 +4246,39 @@
           "PairRequired",
           "ProductionWriteDenied"
         ],
-        "api_refs": []
+        "api_refs": [
+          "create_draft",
+          "publish"
+        ]
       },
       "verifies_clause_refs": [
         "API-DU17-01-RAISE-01",
         "API-DU17-01-RAISE-02",
         "API-DU17-02-RAISE-02",
         "API-DU17-02-RAISE-03"
-      ]
+      ],
+      "api_observation_assertions": {
+        "API-DU17-01": {
+          "fixture": "API-DU17-01/create_draft 固有fixture: seed: pair_plan_quality空、本番WP URL、policy_category=NULL/'unknown'/'content_publish'+service='notion'、rate_scope=NULL/'WP'/'wp-alias'、unknown operation/endpoint各fixture、WP mock受信カウンタ0",
+          "action": "API-DU17-01: 公開API create_draft(...) を実呼出しし、各WP REST書込みをpreflight評価する。",
+          "observation": "API-DU17-01: create_draft の戻り値・例外、raiseされる例外型／process loggerの構造化拒否event／external_operations・operation_log件数／WP mock受信カウンタ、DB差分を個別に観測する。",
+          "assert": "API-DU17-01: pair不成立はPairRequired、それ以外のcategory/rate scope/service/operation/endpoint不一致はProductionWriteDeniedで拒否され、外部HTTP呼出・external_operations・operation_logは全て0、process loggerに事由コードが残る。期待状態は external_operations に prepared 行すら作られない（検証は送信前）。契約節 API-DU17-01-RAISE-01, API-DU17-01-RAISE-02 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU17-01-RAISE-01",
+            "API-DU17-01-RAISE-02"
+          ]
+        },
+        "API-DU17-02": {
+          "fixture": "API-DU17-02/publish 固有fixture: seed: pair_plan_quality空、本番WP URL、policy_category=NULL/'unknown'/'content_publish'+service='notion'、rate_scope=NULL/'WP'/'wp-alias'、unknown operation/endpoint各fixture、WP mock受信カウンタ0",
+          "action": "API-DU17-02: 公開API publish(...) を実呼出しし、各WP REST書込みをpreflight評価する。",
+          "observation": "API-DU17-02: publish の戻り値・例外、raiseされる例外型／process loggerの構造化拒否event／external_operations・operation_log件数／WP mock受信カウンタ、DB差分を個別に観測する。",
+          "assert": "API-DU17-02: pair不成立はPairRequired、それ以外のcategory/rate scope/service/operation/endpoint不一致はProductionWriteDeniedで拒否され、外部HTTP呼出・external_operations・operation_logは全て0、process loggerに事由コードが残る。期待状態は external_operations に prepared 行すら作られない（検証は送信前）。契約節 API-DU17-02-RAISE-02, API-DU17-02-RAISE-03 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU17-02-RAISE-02",
+            "API-DU17-02-RAISE-03"
+          ]
+        }
+      }
     },
     {
       "id": "AC-44-3",
@@ -4188,14 +4522,29 @@
           "operation_log"
         ],
         "error_type_refs": [],
-        "api_refs": []
+        "api_refs": [
+          "request"
+        ]
       },
       "verifies_clause_refs": [
         "API-DU18-01-POST-01",
         "API-DU18-01-POST-02",
         "API-DU18-01-POST-04",
         "API-DU18-02-POST-01"
-      ]
+      ],
+      "api_observation_assertions": {
+        "API-DU18-01": {
+          "fixture": "API-DU18-01/request 固有fixture: seed: task(pending) 1 件、mock transport（approved・responder_ref='po'）、binding = (post:123, publish, 2026-08-01T10:00)。外部I/O test doubleはexecution_mode='actual'で呼び出す（mock/dry-run経路ではない）",
+          "action": "API-DU18-01: 公開API request(...) を実呼出しし、承認要求を送出し、応答受領後に binding 3 項目一致の公開を実行する。",
+          "observation": "API-DU18-01: request の戻り値・例外、approvals SELECT（decision・binding・evidence_id）／応答前後の tasks.state／公開ゲートの通過可否、DB差分を個別に観測する。",
+          "assert": "API-DU18-01: 要求が通知され、応答が approvals に証跡化されるまで対象タスクは進行せず（waiting）、approved 受領後に approval evidence が登録され公開が許可される（AC-46 原文）。期待状態は approvals = approved・evidence 相互整合、task = 進行再開。契約節 API-DU18-01-POST-01, API-DU18-01-POST-02, API-DU18-01-POST-04 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU18-01-POST-01",
+            "API-DU18-01-POST-02",
+            "API-DU18-01-POST-04"
+          ]
+        }
+      }
     },
     {
       "id": "AC-46-2",
@@ -4249,12 +4598,26 @@
         "error_type_refs": [
           "ApprovalBindingMismatch"
         ],
-        "api_refs": []
+        "api_refs": [
+          "poll"
+        ]
       },
       "verifies_clause_refs": [
         "API-DU18-02-POST-02",
         "API-DU18-02-POST-03"
-      ]
+      ],
+      "api_observation_assertions": {
+        "API-DU18-02": {
+          "fixture": "API-DU18-02/poll 固有fixture: seed: approvals(approved, binding_at='2026-08-01T10:00') に対し公開時点 '2026-08-01T11:00' を提示、別 task に mock transport が rejected 応答。外部I/O test doubleはexecution_mode='actual'で呼び出す（mock/dry-run経路ではない）",
+          "action": "API-DU18-02: 公開API poll(...) を実呼出しし、binding 不一致のままの公開と、rejected 後のタスク進行を試みる。",
+          "observation": "API-DU18-02: poll の戻り値・例外、raiseされる例外型／process loggerの構造化拒否event／tasks.state・state_transitions、DB差分を個別に観測する。",
+          "assert": "API-DU18-02: 公開は ApprovalBindingMismatch で拒否され（3 項目の 1 つでも不一致なら通らない）、rejected は non_retryable_failure として task が failed になり自動再試行されない。期待状態は 公開 0 件、rejected 側 task = failed（retry_count 増加なし）。契約節 API-DU18-02-POST-02, API-DU18-02-POST-03 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU18-02-POST-02",
+            "API-DU18-02-POST-03"
+          ]
+        }
+      }
     },
     {
       "id": "AC-46-3",
@@ -4310,13 +4673,28 @@
         "error_type_refs": [
           "ApprovalRetryExhausted"
         ],
-        "api_refs": []
+        "api_refs": [
+          "rerequest_on_expired"
+        ]
       },
       "verifies_clause_refs": [
         "API-DU18-03-POST-01",
         "API-DU18-03-POST-02",
         "API-DU18-03-RAISE-01"
-      ]
+      ],
+      "api_observation_assertions": {
+        "API-DU18-03": {
+          "fixture": "API-DU18-03/rerequest_on_expired 固有fixture: seed: config('approval_retry_limit', 2)、mock transport（常時 expired）、pending 行 1 件（UNIQUE binding）を残して再起動。外部I/O test doubleはexecution_mode='actual'で呼び出す（mock/dry-run経路ではない）",
+          "action": "API-DU18-03: 公開API rerequest_on_expired(...) を実呼出しし、expired の再要求ループを上限まで進め、pending 側は再起動後に待機再開する。",
+          "observation": "API-DU18-03: rerequest_on_expired の戻り値・例外、approvals 行数と decision 履歴／tasks.state／state_transitions SELECT、DB差分を個別に観測する。",
+          "assert": "API-DU18-03: expired は再要求で待機を継続し、再要求 2 回目（上限到達）で escalated に遷移する。pending 側は approvals.decision から待機状態が復元され、二重の承認要求は作られない。期待状態は expired 側 task = escalated、pending 側 = waiting 継続（要求は 1 件のまま）。契約節 API-DU18-03-POST-01, API-DU18-03-POST-02, API-DU18-03-RAISE-01 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU18-03-POST-01",
+            "API-DU18-03-POST-02",
+            "API-DU18-03-RAISE-01"
+          ]
+        }
+      }
     },
     {
       "id": "AC-46-4",
@@ -4392,20 +4770,49 @@
           "operation_log"
         ],
         "error_type_refs": [],
-        "api_refs": []
+        "api_refs": [
+          "get_credential",
+          "scan"
+        ]
       },
       "verifies_clause_refs": [
         "API-DU14-01-POST-01",
         "API-DU14-03-POST-01",
         "API-DU14-03-POST-02"
-      ]
+      ],
+      "api_observation_assertions": {
+        "API-DU14-01": {
+          "fixture": "API-DU14-01/get_credential 固有fixture: seed: mock キーチェーンに secret='wp-app-pass-XYZ'、操作後に repo/DB/ログへ 'wp-app-pass-XYZ' の全文検索を実行。外部I/O test doubleはexecution_mode='actual'で呼び出す（mock/dry-run経路ではない）",
+          "action": "API-DU14-01: 公開API get_credential(...) を実呼出しし、秘匿値を実行時注入してDocker WPのread-only health checkを1件実行し、リポジトリ・SQLite・ログ・evidenceを全文検索する。",
+          "observation": "API-DU14-01: get_credential の戻り値・例外、接続結果／全文検索ヒット件数（repo grep・SQLite LIKE・ログ grep）、DB差分を個別に観測する。",
+          "assert": "API-DU14-01: 接続は成功し、平文 credential の検出が 0 件である（AC-47 原文 — 秘匿値はメモリ上のみで永続化されない）。期待状態は 接続成功・平文検出 0 件。契約節 API-DU14-01-POST-01 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU14-01-POST-01"
+          ]
+        },
+        "API-DU14-03": {
+          "fixture": "API-DU14-03/scan 固有fixture: seed: mock キーチェーンに secret='wp-app-pass-XYZ'、操作後に repo/DB/ログへ 'wp-app-pass-XYZ' の全文検索を実行。外部I/O test doubleはexecution_mode='actual'で呼び出す（mock/dry-run経路ではない）",
+          "action": "API-DU14-03: 公開API scan(...) を実呼出しし、秘匿値を実行時注入してDocker WPのread-only health checkを1件実行し、リポジトリ・SQLite・ログ・evidenceを全文検索する。",
+          "observation": "API-DU14-03: scan の戻り値・例外、接続結果／全文検索ヒット件数（repo grep・SQLite LIKE・ログ grep）、DB差分を個別に観測する。",
+          "assert": "API-DU14-03: 接続は成功し、平文 credential の検出が 0 件である（AC-47 原文 — 秘匿値はメモリ上のみで永続化されない）。期待状態は 接続成功・平文検出 0 件。契約節 API-DU14-03-POST-01, API-DU14-03-POST-02 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU14-03-POST-01",
+            "API-DU14-03-POST-02"
+          ]
+        }
+      }
     },
     {
       "id": "AC-47-2",
       "target": "FR-47",
       "polarity": "reject",
       "transition_refs": [
-        {"entity": "tasks", "from": "in_progress", "event": "escalate", "to": "escalated"}
+        {
+          "entity": "tasks",
+          "from": "in_progress",
+          "event": "escalate",
+          "to": "escalated"
+        }
       ],
       "given": "秘匿ストアに未投入のサービス（notion）への接続要求と、operation_log へ書き出される文字列に secret 値が混入したケース",
       "when": "notion 接続と、混入文字列のログ書出しを実行する",
@@ -4423,21 +4830,21 @@
       ],
       "semantic_refs": {
         "table_refs": [
-        "state_transitions",
-        "tasks"
+          "state_transitions",
+          "tasks"
         ],
         "column_refs": [
-        "state_transitions.guard_result",
-        "tasks.state"
+          "state_transitions.guard_result",
+          "tasks.state"
         ],
         "state_refs": [
-        "tasks.escalated",
-        "tasks.in_progress"
+          "tasks.escalated",
+          "tasks.in_progress"
         ],
-      "event_refs": [
-        "escalate"
-      ],
-      "evidence_kind_refs": [],
+        "event_refs": [
+          "escalate"
+        ],
+        "evidence_kind_refs": [],
         "error_type_refs": [
           "CredentialLeakDetected"
         ],
@@ -4453,8 +4860,18 @@
       "target": "FR-47",
       "polarity": "boundary-recovery",
       "transition_refs": [
-        {"entity": "tasks", "from": "in_progress", "event": "escalate", "to": "escalated"},
-        {"entity": "tasks", "from": "pending", "event": "claim", "to": "in_progress"}
+        {
+          "entity": "tasks",
+          "from": "in_progress",
+          "event": "escalate",
+          "to": "escalated"
+        },
+        {
+          "entity": "tasks",
+          "from": "pending",
+          "event": "claim",
+          "to": "in_progress"
+        }
       ],
       "given": "保管済みセッションが期限切れになった状態と、テスト credential を本番 endpoint に組み合わせた設定（環境契約 §6 違反）",
       "when": "期限切れセッションでの接続と不一致組合せでの接続を実行し、credential再投入後にreplacement taskを明示発行してclaimする",
@@ -4476,30 +4893,45 @@
           "tasks"
         ],
         "column_refs": [
-        "tasks.parent_task_id",
-        "tasks.state"
+          "tasks.parent_task_id",
+          "tasks.state"
         ],
         "state_refs": [
-        "tasks.escalated",
-        "tasks.in_progress",
-        "tasks.pending"
+          "tasks.escalated",
+          "tasks.in_progress",
+          "tasks.pending"
         ],
         "event_refs": [
-        "claim",
-        "escalate"
+          "claim",
+          "escalate"
         ],
-      "evidence_kind_refs": [],
+        "evidence_kind_refs": [],
         "error_type_refs": [
           "CredentialEndpointMismatch"
         ],
-        "api_refs": []
+        "api_refs": [
+          "check_endpoint"
+        ]
       },
       "verifies_clause_refs": [
         "API-DU14-01-RAISE-01",
         "API-DU14-02-POST-01",
         "API-DU14-02-POST-02",
         "API-DU14-02-RAISE-01"
-      ]
+      ],
+      "api_observation_assertions": {
+        "API-DU14-02": {
+          "fixture": "API-DU14-02/check_endpoint 固有fixture: seed: mock キーチェーンに expired セッション、test credential ＋ production endpoint の組合せ設定、再投入手順で有効値に上書き",
+          "action": "API-DU14-02: 公開API check_endpoint(...) を実呼出しし、期限切れセッションでの接続と不一致組合せでの接続を実行し、credential再投入後にreplacement taskを明示発行してclaimする。",
+          "observation": "API-DU14-02: check_endpoint の戻り値・例外、raiseされる例外型／元taskとreplacement taskのID・parent_task_id・state／state_transitions／秘匿化済み構造化拒否ログ、DB差分を個別に観測する。",
+          "assert": "API-DU14-02: 期限切れ元taskはescalated終端のまま、credential/endpoint不一致は送信前拒否となる。再投入後は新replacement taskだけがpending→in_progressで開始し正常接続する。期待状態は 再投入前=元task escalated・接続0、再投入後=元task escalatedのままreplacement task in_progressで接続成功。契約節 API-DU14-02-POST-01, API-DU14-02-POST-02, API-DU14-02-RAISE-01 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU14-02-POST-01",
+            "API-DU14-02-POST-02",
+            "API-DU14-02-RAISE-01"
+          ]
+        }
+      }
     },
     {
       "id": "AC-47-4",
@@ -4530,13 +4962,37 @@
         "error_type_refs": [
           "CredentialLeakDetected"
         ],
-        "api_refs": []
+        "api_refs": [
+          "record",
+          "mask"
+        ]
       },
       "verifies_clause_refs": [
         "API-DU09-01-POST-02",
         "API-DU09-01-RAISE-03",
         "API-DU14-04-POST-01"
-      ]
+      ],
+      "api_observation_assertions": {
+        "API-DU09-01": {
+          "fixture": "API-DU09-01/record 固有fixture: seed: payload に 'Bearer sk-live-****' を含む外部操作記録要求",
+          "action": "API-DU09-01: 公開API record(...) を実呼出しし、operation の evidence 記録を実行する。",
+          "observation": "API-DU09-01: record の戻り値・例外、raise される例外型／evidence 行の本文検査、DB差分を個別に観測する。",
+          "assert": "API-DU09-01: CredentialLeakDetected で拒否されるか、秘匿情報がマスクされた形でのみ記録される（生の秘密は evidence に残らない）。期待状態は 秘密が evidence 本文に存在しない。契約節 API-DU09-01-POST-02, API-DU09-01-RAISE-03 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU09-01-POST-02",
+            "API-DU09-01-RAISE-03"
+          ]
+        },
+        "API-DU14-04": {
+          "fixture": "API-DU14-04/mask 固有fixture: seed: payload に 'Bearer sk-live-****' を含む外部操作記録要求",
+          "action": "API-DU14-04: 公開API mask(...) を実呼出しし、operation の evidence 記録を実行する。",
+          "observation": "API-DU14-04: mask の戻り値・例外、raise される例外型／evidence 行の本文検査、DB差分を個別に観測する。",
+          "assert": "API-DU14-04: CredentialLeakDetected で拒否されるか、秘匿情報がマスクされた形でのみ記録される（生の秘密は evidence に残らない）。期待状態は 秘密が evidence 本文に存在しない。契約節 API-DU14-04-POST-01 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU14-04-POST-01"
+          ]
+        }
+      }
     },
     {
       "id": "AC-47-5",
@@ -4652,11 +5108,24 @@
           "operation_log"
         ],
         "error_type_refs": [],
-        "api_refs": []
+        "api_refs": [
+          "generate"
+        ]
       },
       "verifies_clause_refs": [
         "API-DU19-01-POST-01"
-      ]
+      ],
+      "api_observation_assertions": {
+        "API-DU19-01": {
+          "fixture": "API-DU19-01/generate 固有fixture: seed: tasks に T-PROD 1 行（実行中）、fixture リポジトリ commit abc…（記事 HTML 1 件）、config.wp_target=docker、WP コネクタは mock（決定的応答）。外部I/O test doubleはexecution_mode='actual'で呼び出す（mock/dry-run経路ではない）",
+          "action": "API-DU19-01: 公開API generate(...) を実呼出しし、同一 commit・同一プロファイル（manuscript）でレンダリングを 2 回実行する。",
+          "observation": "API-DU19-01: generate の戻り値・例外、1 回目と 2 回目の出力ファイル SHA-256 比較／assets SELECT／evidence SELECT (kind='file_hash')、DB差分を個別に観測する。",
+          "assert": "API-DU19-01: 2 回とも同一の出力 SHA-256 が得られ（決定性）、assets 参照 1 行と file_hash 証跡が重複なく存在する。期待状態は assets 1 行（content_hash = 出力 hash、wp_media_id あり）。契約節 API-DU19-01-POST-01 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU19-01-POST-01"
+          ]
+        }
+      }
     },
     {
       "id": "AC-51-2",
@@ -4726,11 +5195,24 @@
           "file_hash"
         ],
         "error_type_refs": [],
-        "api_refs": []
+        "api_refs": [
+          "upload_media"
+        ]
       },
       "verifies_clause_refs": [
         "API-DU17-03-POST-02"
-      ]
+      ],
+      "api_observation_assertions": {
+        "API-DU17-03": {
+          "fixture": "API-DU17-03/upload_media 固有fixture: seed: WP モックに hash 一致のメディアを事前配置、assets/evidence は空（クラッシュ直後を再現）",
+          "action": "API-DU17-03: 公開API upload_media(...) を実呼出しし、同一 task で レンダリングを再実行する。",
+          "observation": "API-DU17-03: upload_media の戻り値・例外、WP モックのアップロード呼出回数／assets・evidence SELECT、DB差分を個別に観測する。",
+          "assert": "API-DU17-03: content_hash 一致の既存 WP メディアを照合して再アップロードせず、参照登録のみ完了する（冪等再開）。期待状態は assets 1 行（既存 wp_media_id を参照）、evidence 1 行。契約節 API-DU17-03-POST-02 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU17-03-POST-02"
+          ]
+        }
+      }
     },
     {
       "id": "AC-51-4",
@@ -5091,7 +5573,8 @@
         ],
         "error_type_refs": [],
         "api_refs": [
-          "commit_workspace"
+          "commit_workspace",
+          "restore"
         ]
       },
       "api_observation_assertions": {
@@ -5099,7 +5582,20 @@
           "fixture": "初期commit H0だけを持つrepositoryとDU-19生成物を置いた未commit workspaceを用意する",
           "action": "commit_workspace(workspace, repo, message)を呼び返却hash H1を取得する",
           "observation": "返却H1、git show H1のtree、commit前workspace hash、commit後checkout hashを観測する",
-          "assert": "H1がH0と異なる40/64桁hexで、treeとworkspaceが一対一一致することをassertする"
+          "assert": "H1がH0と異なる40/64桁hexで、treeとworkspaceが一対一一致することをassertする",
+          "clause_refs": [
+            "API-DU20-01-POST-01",
+            "API-DU20-01-POST-02"
+          ]
+        },
+        "API-DU20-03": {
+          "fixture": "API-DU20-03/restore 固有fixture: seed: 初期化済みfixture repository（初期commit H0）と、DU-19生成物を配置した未commit workspace、tasksにT-PROD/T-REVIEW各1行、reviewerはauthorと別agent",
+          "action": "API-DU20-03: 公開API restore(...) を実呼出しし、commit_workspaceで成果物をcommitしてH1を取得し、commit_hash証跡化→review_pass記録（commit_hash=H1）→hashからのソース復元を順に実行する。",
+          "observation": "API-DU20-03: restore の戻り値・例外、commit_workspace戻り値H1（40/64桁hex）／git show H1のtree／evidence SELECT（commit_hash・review_pass）／checkout後のファイルhash比較、DB差分を個別に観測する。",
+          "assert": "API-DU20-03: PASS が H1 に束縛されて記録され、H1 の checkout で審査時と同一内容のソースが復元できる。期待状態は H1はH0と異なる40/64桁hexで、git show H1の内容は未commit workspaceと一致。review_pass.commit_hash=H1、復元ソースhashも一致。契約節 API-DU20-03-POST-01 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU20-03-POST-01"
+          ]
         }
       },
       "verifies_clause_refs": [
@@ -5176,14 +5672,29 @@
           "commit_hash"
         ],
         "error_type_refs": [],
-        "api_refs": []
+        "api_refs": [
+          "link"
+        ]
       },
       "verifies_clause_refs": [
         "API-DU09-01-POST-01",
         "API-DU20-02-POST-02",
         "API-DU20-02-PRE-01",
         "API-DU20-02-RAISE-01"
-      ]
+      ],
+      "api_observation_assertions": {
+        "API-DU20-02": {
+          "fixture": "API-DU20-02/link 固有fixture: seed: 同一 (task, H1[40桁]) を 2 回投入／64 桁 hash を 1 回投入／39 桁文字列を 1 回投入",
+          "action": "API-DU20-02: 公開API link(...) を実呼出しし、commit_hash 証跡化をそれぞれ実行する。",
+          "observation": "API-DU20-02: link の戻り値・例外、evidence SELECT（kind='commit_hash' の件数・value）／raise される例外型、DB差分を個別に観測する。",
+          "assert": "API-DU20-02: 40 桁・64 桁は受理され再実行でも 1 行に収束し、その他桁数（39 桁）は拒否される。期待状態は commit_hash 証跡 = 2 行（40 桁 1・64 桁 1）。契約節 API-DU20-02-POST-02, API-DU20-02-PRE-01, API-DU20-02-RAISE-01 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU20-02-POST-02",
+            "API-DU20-02-PRE-01",
+            "API-DU20-02-RAISE-01"
+          ]
+        }
+      }
     },
     {
       "id": "AC-54-4",
@@ -5449,7 +5960,9 @@
         "error_type_refs": [
           "PaidMetricRejected"
         ],
-        "api_refs": []
+        "api_refs": [
+          "create_node"
+        ]
       },
       "verifies_clause_refs": [
         "API-DU21-01-POST-02",
@@ -5458,7 +5971,23 @@
         "API-DU21-01-PRE-03",
         "API-DU21-01-RAISE-01",
         "API-DU21-01-RAISE-02"
-      ]
+      ],
+      "api_observation_assertions": {
+        "API-DU21-01": {
+          "fixture": "API-DU21-01/create_node 固有fixture: seed: business_profiles 2 行、profile1 に node_key='exposure.blog' 登録済み、要求 = {metric_type:'roas'}／{node_key:'exposure.blog'}／{parent: profile2 のノード}",
+          "action": "API-DU21-01: 公開API create_node(...) を実呼出しし、それぞれ kpi_nodes 登録を実行する。",
+          "observation": "API-DU21-01: create_node の戻り値・例外、raiseされる例外型／kpi_nodes件数／process loggerの構造化拒否event、DB差分を個別に観測する。",
+          "assert": "API-DU21-01: 有料指標は PaidMetricRejected（FR-23 連携）、重複キー・越境親は KpiNodeInvalid で拒否され、いずれも行が作られない。期待状態は kpi_nodes は seed の行のみ。契約節 API-DU21-01-POST-02, API-DU21-01-POST-03, API-DU21-01-PRE-02, API-DU21-01-PRE-03, API-DU21-01-RAISE-01, API-DU21-01-RAISE-02 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU21-01-POST-02",
+            "API-DU21-01-POST-03",
+            "API-DU21-01-PRE-02",
+            "API-DU21-01-PRE-03",
+            "API-DU21-01-RAISE-01",
+            "API-DU21-01-RAISE-02"
+          ]
+        }
+      }
     },
     {
       "id": "AC-61-3",
@@ -5493,7 +6022,8 @@
           "IntegrityError"
         ],
         "api_refs": [
-          "tree"
+          "tree",
+          "archive_node"
         ]
       },
       "api_observation_assertions": {
@@ -5501,7 +6031,20 @@
           "fixture": "P1の親子N1→N2、P2の根M1、P1根だけの最小fixtureを別々にseedする",
           "action": "tree(conn, P1)を同一fixtureで2回呼び、最小fixtureでも1回呼ぶ",
           "observation": "各戻り値のnode id・parent id・順序とP2のnode id集合を観測する",
-          "assert": "N1→N2解決、M1除外、2回の決定性、最小fixtureが根1件だけを独立assertする"
+          "assert": "N1→N2解決、M1除外、2回の決定性、最小fixtureが根1件だけを独立assertする",
+          "clause_refs": [
+            "API-DU21-02-POST-01",
+            "API-DU21-02-POST-02"
+          ]
+        },
+        "API-DU21-03": {
+          "fixture": "API-DU21-03/archive_node 固有fixture: seed: business_profiles P1/P2、P1のkpi_nodes N1(parent NULL)・N2(parent=N1)、P2のM1(parent NULL)、measurementsにN1参照1行。最小tree用にP1根だけの独立fixture",
+          "action": "API-DU21-03: 公開API archive_node(...) を実呼出しし、N1のDELETEを試みてarchived化し、tree(conn, P1)を2回呼ぶ。別fixtureではP1の子を除いた根だけのtreeを呼ぶ。",
+          "observation": "API-DU21-03: archive_node の戻り値・例外、DELETE失敗／kpi_nodes.status／tree(conn,P1)の2回の戻り値（node id・parent id・順序）／P2 node id集合／最小fixtureの戻り値、DB差分を個別に観測する。",
+          "assert": "API-DU21-03: DELETEはFK RESTRICTで失敗し参照整合が保たれる。P1 treeはN1→N2の親子を決定的に解決しM1を含まず、最小fixtureはN1だけを返す。期待状態は N1はarchivedで存続しFK不変。P1戻り値は同順序のN1→N2のみでM1なし、最小fixtureはN1のみ。契約節 API-DU21-03-POST-01 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU21-03-POST-01"
+          ]
         }
       },
       "verifies_clause_refs": [
@@ -5656,13 +6199,27 @@
           "operation_log"
         ],
         "error_type_refs": [],
-        "api_refs": []
+        "api_refs": [
+          "fetch"
+        ]
       },
       "verifies_clause_refs": [
         "API-DU22-01-POST-01",
         "API-DU22-01-POST-02",
         "API-DU23-02-POST-03"
-      ]
+      ],
+      "api_observation_assertions": {
+        "API-DU22-01": {
+          "fixture": "API-DU22-01/fetch 固有fixture: seed: kpi_nodes 1 行（exposure/pv）、tasks に T-MEAS 1 行、fixture ファイル ga4_export.csv（10 行、SHA-256=S1）",
+          "action": "API-DU22-01: 公開API fetch(...) を実呼出しし、同一エクスポートで取り込みを 2 回実行する。",
+          "observation": "API-DU22-01: fetch の戻り値・例外、measurements 件数（1 回目 +10・2 回目 ±0）／evidence SELECT（kind='measurement'）の created_at と measurements.imported_at の順序、DB差分を個別に観測する。",
+          "assert": "API-DU22-01: 1 回目は取得証跡が投入前に記録されて 10 行が投入され、2 回目は冪等で measurements 差分ゼロになる。期待状態は measurements 10 行（全行 evidence_id が S1 証跡へ FK 接続）。契約節 API-DU22-01-POST-01, API-DU22-01-POST-02 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU22-01-POST-01",
+            "API-DU22-01-POST-02"
+          ]
+        }
+      }
     },
     {
       "id": "AC-62-2",
@@ -5693,13 +6250,27 @@
         "event_refs": [],
         "evidence_kind_refs": [],
         "error_type_refs": [],
-        "api_refs": []
+        "api_refs": [
+          "parse"
+        ]
       },
       "verifies_clause_refs": [
         "API-DU22-01-POST-02",
         "API-DU23-01-POST-01",
         "API-DU23-01-RAISE-01"
-      ]
+      ],
+      "api_observation_assertions": {
+        "API-DU23-01": {
+          "fixture": "API-DU23-01/parse 固有fixture: seed: fixture broken_partial.csv（破損 3/10）・broken_all.csv（全行破損）、config.import_quarantine_dir=scratch 隔離先",
+          "action": "API-DU23-01: 公開API parse(...) を実呼出しし、それぞれ取り込みを実行する。",
+          "observation": "API-DU23-01: parse の戻り値・例外、measurements 件数／隔離ファイルの行数・件数記録／raise される例外型、DB差分を個別に観測する。",
+          "assert": "API-DU23-01: 部分破損は正常 7 行のみ投入・3 行が隔離され、全行破損は ImportSourceInvalid で全体拒否される（AC-62 検証）。期待状態は 部分破損: measurements 7 行＋隔離 3 行。全破損: measurements 差分なし。契約節 API-DU23-01-POST-01, API-DU23-01-RAISE-01 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU23-01-POST-01",
+            "API-DU23-01-RAISE-01"
+          ]
+        }
+      }
     },
     {
       "id": "AC-62-3",
@@ -5731,13 +6302,27 @@
           "measurement"
         ],
         "error_type_refs": [],
-        "api_refs": []
+        "api_refs": [
+          "ingest"
+        ]
       },
       "verifies_clause_refs": [
         "API-DU23-01-POST-02",
         "API-DU23-02-POST-02",
         "API-DU23-02-POST-04"
-      ]
+      ],
+      "api_observation_assertions": {
+        "API-DU23-02": {
+          "fixture": "API-DU23-02/ingest 固有fixture: seed: AC-62-1 と同じ fixture＋5 行目 INSERT 後に例外を注入するフック／empty.csv（ヘッダのみ、hash S2）",
+          "action": "API-DU23-02: 公開API ingest(...) を実呼出しし、クラッシュ後に同一エクスポートを再実行し、続けて空エクスポートを取り込む。",
+          "observation": "API-DU23-02: ingest の戻り値・例外、クラッシュ直後の measurements 件数（0 件）／再実行後の件数（10 件）／空取込後の evidence、DB差分を個別に観測する。",
+          "assert": "API-DU23-02: クラッシュ分は全行 rollback されて部分コミットが残らず、再実行で 10 行が一括投入され、空エクスポートは証跡のみ残して正常終了する。期待状態は measurements 10 行（再実行分のみ）、空取込は行 0・証跡 1。契約節 API-DU23-02-POST-02, API-DU23-02-POST-04 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU23-02-POST-02",
+            "API-DU23-02-POST-04"
+          ]
+        }
+      }
     },
     {
       "id": "AC-62-4",
@@ -6127,12 +6712,25 @@
         "error_type_refs": [
           "IntegrityError"
         ],
-        "api_refs": []
+        "api_refs": [
+          "connect"
+        ]
       },
       "verifies_clause_refs": [
         "API-DU10-01-POST-01",
         "API-DU11-01-POST-03"
-      ]
+      ],
+      "api_observation_assertions": {
+        "API-DU10-01": {
+          "fixture": "API-DU10-01/connect 固有fixture: seed: loop_runs 1 行とそれを参照する tasks 1 行、DELETE 文 = DELETE FROM loop_runs WHERE id=R1",
+          "action": "API-DU10-01: 公開API connect(...) を実呼出しし、親行の DELETE を実行する。",
+          "observation": "API-DU10-01: connect の戻り値・例外、raise される例外型／loop_runs・tasks SELECT（行数の不変性）、DB差分を個別に観測する。",
+          "assert": "API-DU10-01: ON DELETE RESTRICT の FK が IntegrityError で拒否し、親子とも行は不変で残る（暗黙のカスケード削除は存在しない）。期待状態は loop_runs・tasks とも行数不変。契約節 API-DU10-01-POST-01 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU10-01-POST-01"
+          ]
+        }
+      }
     },
     {
       "id": "AC-72-1",
@@ -6199,12 +6797,26 @@
         "error_type_refs": [
           "MigrationChecksumMismatch"
         ],
-        "api_refs": []
+        "api_refs": [
+          "apply_all"
+        ]
       },
       "verifies_clause_refs": [
         "API-DU11-01-PRE-02",
         "API-DU11-01-RAISE-02"
-      ]
+      ],
+      "api_observation_assertions": {
+        "API-DU11-01": {
+          "fixture": "API-DU11-01/apply_all 固有fixture: seed: version=1 適用済み DB、0001_init.sql の内容を 1 文字改変（checksum 不一致を再現）",
+          "action": "API-DU11-01: 公開API apply_all(...) を実呼出しし、昇格の前提検証（checksum 照合）を実行する。",
+          "observation": "API-DU11-01: apply_all の戻り値・例外、raise される例外型／schema_version SELECT（行数不変）／DB ファイルの hash 比較、DB差分を個別に観測する。",
+          "assert": "API-DU11-01: MigrationChecksumMismatch で適用前に停止し、DB は一切変更されない（改竄・不変性違反を通さない）。期待状態は 昇格停止・DB 不変。契約節 API-DU11-01-PRE-02, API-DU11-01-RAISE-02 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU11-01-PRE-02",
+            "API-DU11-01-RAISE-02"
+          ]
+        }
+      }
     },
     {
       "id": "AC-72-3",
@@ -6241,7 +6853,19 @@
       "verifies_clause_refs": [
         "API-DU11-02-POST-01",
         "API-DU11-02-RAISE-01"
-      ]
+      ],
+      "api_observation_assertions": {
+        "API-DU11-02": {
+          "fixture": "API-DU11-02/verify 固有fixture: seed: version=1 の DB＋適用前 backup、0002 = FK 整合を壊す不正 DDL（verify() fail を再現）",
+          "action": "API-DU11-02: 公開API verify(...) を実呼出しし、昇格適用→verify() 失敗→backup 復元の復旧経路を実行する。",
+          "observation": "API-DU11-02: verify の戻り値・例外、raise される例外型／復元後の schema_version SELECT（version=1）／PRAGMA integrity_check、DB差分を個別に観測する。",
+          "assert": "API-DU11-02: MigrationVerifyFailed が raise され、backup から復元されて昇格前の状態・version に戻る（壊れた版で運転を続けない）。期待状態は version=1 に復元済み・integrity_check ok。契約節 API-DU11-02-POST-01, API-DU11-02-RAISE-01 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU11-02-POST-01",
+            "API-DU11-02-RAISE-01"
+          ]
+        }
+      }
     },
     {
       "id": "AC-72-4",
@@ -6342,8 +6966,8 @@
           "external_operations.rate_scope",
           "external_operations.request_hash",
           "external_operations.request_sequence",
-          "external_operations.status"
-          ,"spend_ledger.external_operation_row_id"
+          "external_operations.status",
+          "spend_ledger.external_operation_row_id"
         ],
         "state_refs": [],
         "event_refs": [],
@@ -6379,7 +7003,12 @@
           "external_operations",
           "spend_ledger"
         ],
-        "column_refs": ["external_operations.effect", "external_operations.execution_mode", "external_operations.status", "spend_ledger.external_operation_row_id"],
+        "column_refs": [
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.status",
+          "spend_ledger.external_operation_row_id"
+        ],
         "state_refs": [],
         "event_refs": [],
         "evidence_kind_refs": [],
@@ -6424,8 +7053,8 @@
           "external_operations.rate_scope",
           "external_operations.request_hash",
           "external_operations.request_sequence",
-          "external_operations.status"
-          ,"spend_ledger.external_operation_row_id"
+          "external_operations.status",
+          "spend_ledger.external_operation_row_id"
         ],
         "state_refs": [],
         "event_refs": [],
@@ -6947,12 +7576,26 @@
         "error_type_refs": [
           "BriefSchemaRejected"
         ],
-        "api_refs": []
+        "api_refs": [
+          "issue_strategic_brief"
+        ]
       },
       "verifies_clause_refs": [
         "API-DU02-05-PRE-01",
         "API-DU02-05-RAISE-01"
-      ]
+      ],
+      "api_observation_assertions": {
+        "API-DU02-05": {
+          "fixture": "API-DU02-05/issue_strategic_brief 固有fixture: seed: strategic_choice_id 空の draft＋measurement_plan_json = KPI 目標値のみの draft",
+          "action": "API-DU02-05: 公開API issue_strategic_brief(...) を実呼出しし、issue_strategic_brief（S0 シードコマンド）を実行する。",
+          "observation": "API-DU02-05: issue_strategic_brief の戻り値・例外、raiseされる例外型／strategic_briefs SELECT／process loggerの構造化拒否event、DB差分を個別に観測する。",
+          "assert": "API-DU02-05: 両方ともBriefSchemaRejectedでINSERTされず、process loggerの秘匿化済み構造化拒否eventに理由（trace欠落／計測計画の実質欠如）が残る。期待状態は strategic_briefs 空のまま。契約節 API-DU02-05-PRE-01, API-DU02-05-RAISE-01 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU02-05-PRE-01",
+            "API-DU02-05-RAISE-01"
+          ]
+        }
+      }
     },
     {
       "id": "AC-SR-06-2",
@@ -6987,11 +7630,24 @@
         ],
         "evidence_kind_refs": [],
         "error_type_refs": [],
-        "api_refs": []
+        "api_refs": [
+          "supersede_strategic_brief"
+        ]
       },
       "verifies_clause_refs": [
         "API-DU02-06-POST-01"
-      ]
+      ],
+      "api_observation_assertions": {
+        "API-DU02-06": {
+          "fixture": "API-DU02-06/supersede_strategic_brief 固有fixture: seed: brief v1（active）＋v1 参照の running lower run、v2 draft",
+          "action": "API-DU02-06: 公開API supersede_strategic_brief(...) を実呼出しし、supersede_strategic_brief で v2（supersedes_id = v1）を発行し、その後に新規 lower run の start と既存 run の完走を行う。",
+          "observation": "API-DU02-06: supersede_strategic_brief の戻り値・例外、strategic_briefs SELECT（status・supersedes_id）／loop_runs の digest 列／新規 start の参照先、DB差分を個別に観測する。",
+          "assert": "API-DU02-06: v1 は superseded へ遷移し内容列は不変、既存 run は v1 digest のまま完走でき、新規 run は v2 のみ参照して開始する。期待状態は v1 = superseded・v2 = active、既存 run = completed（v1 digest 保持）、新規 run = v2 参照。契約節 API-DU02-06-POST-01 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU02-06-POST-01"
+          ]
+        }
+      }
     },
     {
       "id": "AC-SR-06-3",
@@ -7124,11 +7780,24 @@
         "error_type_refs": [
           "GateRejected"
         ],
-        "api_refs": []
+        "api_refs": [
+          "validate_strategic_brief"
+        ]
       },
       "verifies_clause_refs": [
         "API-DU02-07-RAISE-01"
-      ]
+      ],
+      "api_observation_assertions": {
+        "API-DU02-07": {
+          "fixture": "API-DU02-07/validate_strategic_brief 固有fixture: fixtures/strategic-brief.*.invalid 系 seed 4 種",
+          "action": "API-DU02-07: 公開API validate_strategic_brief(...) を実呼出しし、lower loop_run の開始を要求する。",
+          "observation": "API-DU02-07: validate_strategic_brief の戻り値・例外、raise される GateRejected／loop_runs SELECT COUNT、DB差分を個別に観測する。",
+          "assert": "API-DU02-07: 4 状態すべてで開始が拒否され（DDL CHECK＋validate_strategic_brief）、loop_runs に行が増えない。期待状態は run 未作成。契約節 API-DU02-07-RAISE-01 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU02-07-RAISE-01"
+          ]
+        }
+      }
     },
     {
       "id": "AC-SR-07-1",
@@ -7360,12 +8029,26 @@
         "event_refs": [],
         "evidence_kind_refs": [],
         "error_type_refs": [],
-        "api_refs": []
+        "api_refs": [
+          "generate_tactical_learning_packet"
+        ]
       },
       "verifies_clause_refs": [
         "API-DU02-08-POST-01",
         "API-DU02-08-POST-02"
-      ]
+      ],
+      "api_observation_assertions": {
+        "API-DU02-08": {
+          "fixture": "API-DU02-08/generate_tactical_learning_packet 固有fixture: seed: running lower run（brief digest 保持）＋commit 直前で kill する pytest フック",
+          "action": "API-DU02-08: 公開API generate_tactical_learning_packet(...) を実呼出しし、プロセスを再起動し、終端処理を再実行する。",
+          "observation": "API-DU02-08: generate_tactical_learning_packet の戻り値・例外、再起動後の loop_runs.state／tactical_learning_packets 件数／state_transitions、DB差分を個別に観測する。",
+          "assert": "API-DU02-08: クラッシュ時は遷移と packet の両方が消えて中間状態が残らず、再実行で遷移＋learning packet が揃ってちょうど 1 回成立する。期待状態は 1 回目クラッシュ後 = running・TLP 0 件、再実行後 = completed・TLP 1 件。契約節 API-DU02-08-POST-01, API-DU02-08-POST-02 を反証可能な形でassertする。",
+          "clause_refs": [
+            "API-DU02-08-POST-01",
+            "API-DU02-08-POST-02"
+          ]
+        }
+      }
     },
     {
       "id": "AC-SR-08-3",
@@ -8813,10 +9496,26 @@
     {
       "id": "AC-901",
       "target": "NFR-1",
-      "verification_aspects": ["NFR-1:invalid-rejection", "NFR-1:disable-path-absence", "NFR-1:indeterminate-rejection", "NFR-1:evidence-channel", "NFR-1:fatal-escalation"],
+      "verification_aspects": [
+        "NFR-1:invalid-rejection",
+        "NFR-1:disable-path-absence",
+        "NFR-1:indeterminate-rejection",
+        "NFR-1:evidence-channel",
+        "NFR-1:fatal-escalation"
+      ],
       "transition_refs": [
-        {"entity": "tasks", "from": "in_progress", "event": "escalate", "to": "escalated"},
-        {"entity": "loop_runs", "from": "running", "event": "fatal_failure", "to": "escalated"}
+        {
+          "entity": "tasks",
+          "from": "in_progress",
+          "event": "escalate",
+          "to": "escalated"
+        },
+        {
+          "entity": "loop_runs",
+          "from": "running",
+          "event": "fatal_failure",
+          "to": "escalated"
+        }
       ],
       "polarity": "reject",
       "given": "invalid fixture、破損schema、未定義遷移、ゲート／遷移表破損を含む判定不能入力が各1件あり、破損時対象task=in_progress・親loop_run=runningである",
@@ -8830,15 +9529,48 @@
       "forbidden_side_effects": "判定不能入力の通過、ゲート無効化・bypass経路、業務状態更新、状態遷移拒否のoperation_log記録",
       "error_type": "TransitionRejected",
       "target_update": "cross（fail-close品質契約）",
-      "tc": ["TCC-NFR-01"],
-      "semantic_refs": {"table_refs": ["loop_runs", "state_transitions", "tasks"], "column_refs": ["loop_runs.state", "state_transitions.guard_result", "tasks.state"], "state_refs": ["loop_runs.escalated", "loop_runs.running", "tasks.escalated", "tasks.in_progress"], "event_refs": ["escalate", "fatal_failure"], "evidence_kind_refs": [], "error_type_refs": ["TransitionRejected"], "api_refs": []},
+      "tc": [
+        "TCC-NFR-01"
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "loop_runs",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "loop_runs.state",
+          "state_transitions.guard_result",
+          "tasks.state"
+        ],
+        "state_refs": [
+          "loop_runs.escalated",
+          "loop_runs.running",
+          "tasks.escalated",
+          "tasks.in_progress"
+        ],
+        "event_refs": [
+          "escalate",
+          "fatal_failure"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "TransitionRejected"
+        ],
+        "api_refs": []
+      },
       "verifies_clause_refs": [],
       "clause_na_reason": "個別API契約節ではなく全ゲートの判定不能時挙動を横断検証するNFR受入基準"
     },
     {
       "id": "AC-902",
       "target": "NFR-2",
-      "verification_aspects": ["NFR-2:deterministic-hash", "NFR-2:brief-digest", "NFR-2:nondeterministic-output-evidence", "NFR-2:clock-rng-injection"],
+      "verification_aspects": [
+        "NFR-2:deterministic-hash",
+        "NFR-2:brief-digest",
+        "NFR-2:nondeterministic-output-evidence",
+        "NFR-2:clock-rng-injection"
+      ],
       "polarity": "normal",
       "given": "同一の正準化済みbrief、固定Clock/Rng、同一制作・集計fixtureが2組ある",
       "when": "別プロセスを含む2回の実行でdigestと生成物hashを算出する",
@@ -8851,15 +9583,36 @@
       "forbidden_side_effects": "同一入力で異なる出力、未注入時刻・乱数、hash証跡欠落",
       "error_type": "なし",
       "target_update": "cross（決定性品質契約）",
-      "tc": ["TCC-NFR-02"],
-      "semantic_refs": {"table_refs": ["evidence", "strategic_briefs"], "column_refs": [], "state_refs": [], "event_refs": [], "evidence_kind_refs": ["file_hash", "commit_hash"], "error_type_refs": [], "api_refs": []},
+      "tc": [
+        "TCC-NFR-02"
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "strategic_briefs"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "file_hash",
+          "commit_hash"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      },
       "verifies_clause_refs": [],
       "clause_na_reason": "複数APIと成果物を横断する決定性NFRのため単一API契約節へ限定できない"
     },
     {
       "id": "AC-903",
       "target": "NFR-3",
-      "verification_aspects": ["NFR-3:all-kill-points", "NFR-3:no-resend", "NFR-3:evidence-before-transition", "NFR-3:unknown-escalation"],
+      "verification_aspects": [
+        "NFR-3:all-kill-points",
+        "NFR-3:no-resend",
+        "NFR-3:evidence-before-transition",
+        "NFR-3:unknown-escalation"
+      ],
       "polarity": "boundary-recovery",
       "given": "各非終端状態とDocker WPへの実書込み成功後sent記録直後のkill pointを持つfixtureがある",
       "when": "各kill pointで強制終了しSQLiteだけから再起動する",
@@ -8872,7 +9625,9 @@
       "forbidden_side_effects": "推測による完了、外部再送、プロセスメモリ依存の再開、証跡より先の業務状態遷移",
       "error_type": "なし",
       "target_update": "cross（再開性品質契約）",
-      "tc": ["TCC-NFR-03"],
+      "tc": [
+        "TCC-NFR-03"
+      ],
       "semantic_refs": {
         "table_refs": [
           "evidence",
@@ -8907,9 +9662,19 @@
     {
       "id": "AC-904",
       "target": "NFR-4",
-      "verification_aspects": ["NFR-4:secret-zero", "NFR-4:masking", "NFR-4:runtime-failure", "NFR-4:credential-rotation-escalation"],
+      "verification_aspects": [
+        "NFR-4:secret-zero",
+        "NFR-4:masking",
+        "NFR-4:runtime-failure",
+        "NFR-4:credential-rotation-escalation"
+      ],
       "transition_refs": [
-        {"entity": "tasks", "from": "in_progress", "event": "escalate", "to": "escalated"}
+        {
+          "entity": "tasks",
+          "from": "in_progress",
+          "event": "escalate",
+          "to": "escalated"
+        }
       ],
       "polarity": "reject",
       "given": "既知テストcredentialを暗号化ストアだけに投入しDocker WPへの実読取りを行う正常fixtureと、永続化直前にcredential混入を試みる違反fixtureがある",
@@ -8923,7 +9688,9 @@
       "forbidden_side_effects": "credentialのrepo・DB・ログ・evidence永続化",
       "error_type": "CredentialLeakDetected",
       "target_update": "cross（秘匿品質契約）",
-      "tc": ["TCC-NFR-04"],
+      "tc": [
+        "TCC-NFR-04"
+      ],
       "semantic_refs": {
         "table_refs": [
           "evidence",
@@ -8965,7 +9732,12 @@
     {
       "id": "AC-905",
       "target": "NFR-5",
-      "verification_aspects": ["NFR-5:transition-coverage", "NFR-5:gate-decision-coverage", "NFR-5:external-operation-coverage", "NFR-5:single-query-backlog"],
+      "verification_aspects": [
+        "NFR-5:transition-coverage",
+        "NFR-5:gate-decision-coverage",
+        "NFR-5:external-operation-coverage",
+        "NFR-5:single-query-backlog"
+      ],
       "polarity": "normal",
       "given": "loop_runs/tasksの全状態、許可/拒否遷移、effect='read'/'write'かつstatus=confirmed/rejected/unknown/sentのexternal_operations、正対応・orphan・重複・不一致operation_log、config.external_operation.sent_recovery_timeout_sec=300、注入UTC Clock固定値Tがある",
       "when": "NFR-5のUNION ALL滞留SQL、external_operations↔operation_log双方向anti-join/GROUP BY、SQL:`SELECT id FROM external_operations WHERE status='sent' AND sent_at < :recovery_cutoff_utc`を実行し、timeout config欠落/型不正/0以下も投入する",
@@ -8978,7 +9750,9 @@
       "forbidden_side_effects": "終端状態の滞留混入、複数query手作業結合、operation_logの内部row ID欠落、orphan、1:0/1:N/N:1、category/rate_scopeを含む対応属性不一致、timeout超過sent、wall clock直呼び、config欠落/不正時の既定値推測",
       "error_type": "なし",
       "target_update": "cross（可観測性品質契約）",
-      "tc": ["TCC-NFR-05"],
+      "tc": [
+        "TCC-NFR-05"
+      ],
       "semantic_refs": {
         "table_refs": [
           "config",
@@ -8995,10 +9769,10 @@
           "external_operations.correlation_key",
           "external_operations.effect",
           "external_operations.execution_mode",
-      "external_operations.operation",
-      "external_operations.policy_category",
-      "external_operations.rate_scope",
-      "external_operations.request_hash",
+          "external_operations.operation",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
           "external_operations.request_sequence",
           "external_operations.service",
           "external_operations.status",
@@ -9019,11 +9793,33 @@
     {
       "id": "AC-906",
       "target": "NFR-6",
-      "verification_aspects": ["NFR-6:projected-cap", "NFR-6:free-route-continuity", "NFR-6:ledger-completeness", "NFR-6:reversal-integrity", "NFR-6:append-only", "NFR-6:config-missing-failclose"],
+      "verification_aspects": [
+        "NFR-6:projected-cap",
+        "NFR-6:free-route-continuity",
+        "NFR-6:ledger-completeness",
+        "NFR-6:reversal-integrity",
+        "NFR-6:append-only",
+        "NFR-6:config-missing-failclose"
+      ],
       "transition_refs": [
-        {"entity": "tasks", "from": "pending", "event": "non_retryable_failure", "to": "failed"},
-        {"entity": "tasks", "from": "pending", "event": "escalate", "to": "escalated"},
-        {"entity": "tasks", "from": "pending", "event": "claim", "to": "in_progress"}
+        {
+          "entity": "tasks",
+          "from": "pending",
+          "event": "non_retryable_failure",
+          "to": "failed"
+        },
+        {
+          "entity": "tasks",
+          "from": "pending",
+          "event": "escalate",
+          "to": "escalated"
+        },
+        {
+          "entity": "tasks",
+          "from": "pending",
+          "event": "claim",
+          "to": "in_progress"
+        }
       ],
       "polarity": "boundary-recovery",
       "given": "charge−reversal純額と要求額の合計が月次上限の直前・一致・1円超過となる3組、config欠落、confirmed approved_paid_operation対応、正常/異額/二重/孤児reversal、UPDATE/DELETE fixtureがある",
@@ -9037,15 +9833,50 @@
       "forbidden_side_effects": "上限超過時の有償操作、config欠落時のfail-open、無償経路一律停止、charge欠落/二重、孤児/部分/二重reversal、FX/0円/manual charge、仕訳UPDATE/DELETE",
       "error_type": "なし",
       "target_update": "cross（支出上限品質契約）",
-      "tc": ["TCC-NFR-06"],
-      "semantic_refs": {"table_refs": ["config", "external_operations", "spend_ledger", "state_transitions", "tasks"], "column_refs": ["state_transitions.guard_result", "tasks.state"], "state_refs": ["tasks.escalated", "tasks.failed", "tasks.in_progress", "tasks.pending"], "event_refs": ["claim", "escalate", "non_retryable_failure"], "evidence_kind_refs": [], "error_type_refs": [], "api_refs": []},
+      "tc": [
+        "TCC-NFR-06"
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "external_operations",
+          "spend_ledger",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "state_transitions.guard_result",
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.escalated",
+          "tasks.failed",
+          "tasks.in_progress",
+          "tasks.pending"
+        ],
+        "event_refs": [
+          "claim",
+          "escalate",
+          "non_retryable_failure"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      },
       "verifies_clause_refs": [],
       "clause_na_reason": "支出台帳・config・task開始を横断するNFRで単一API契約節の検証ではない"
     },
     {
       "id": "AC-907",
       "target": "NFR-7",
-      "verification_aspects": ["NFR-7:interval-range", "NFR-7:uniformity", "NFR-7:daily-cap", "NFR-7:canonical-rate-scope", "NFR-7:seed-recording", "NFR-7:cap-wait-state"],
+      "verification_aspects": [
+        "NFR-7:interval-range",
+        "NFR-7:uniformity",
+        "NFR-7:daily-cap",
+        "NFR-7:canonical-rate-scope",
+        "NFR-7:seed-recording",
+        "NFR-7:cap-wait-state"
+      ],
       "polarity": "boundary-recovery",
       "given": "固定Rng seed 4種、整数秒操作間隔min/max、canonical rate_scope='wp'の日次cap=2についてstatusがconfirmed/rejected/unknownのsent write各fixture、effect='read'除外、rate_scope/cap欠落・大文字・alias/shared-service迂回fixture、cap-1から同時に到達するwrite予約2件がある",
       "when": "MT19937 randintで4 seed各10,000標本のχ²検定とseed再生を行い、UTC日次sent writeをrate_scope='wp'かつstatus不問で集計し、scope正準性・cap境界・欠落・single-writer下の2並行予約を実行する",
@@ -9058,15 +9889,47 @@
       "forbidden_side_effects": "範囲外・非一様分布・固定間隔・seed未記録、WP日次2件超過、service alias/case/shared serviceによるcap迂回、拒否後の外部呼出",
       "error_type": "なし",
       "target_update": "cross（レート節度品質契約）",
-      "tc": ["TCC-NFR-07"],
-      "semantic_refs": {"table_refs": ["config", "external_operations", "loop_runs", "tasks"], "column_refs": ["external_operations.effect", "external_operations.execution_mode", "external_operations.policy_category", "external_operations.rate_scope", "external_operations.sent_at", "external_operations.status", "loop_runs.state", "tasks.state"], "state_refs": ["loop_runs.waiting", "tasks.pending"], "event_refs": [], "evidence_kind_refs": [], "error_type_refs": [], "api_refs": []},
+      "tc": [
+        "TCC-NFR-07"
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "external_operations",
+          "loop_runs",
+          "tasks"
+        ],
+        "column_refs": [
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.sent_at",
+          "external_operations.status",
+          "loop_runs.state",
+          "tasks.state"
+        ],
+        "state_refs": [
+          "loop_runs.waiting",
+          "tasks.pending"
+        ],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      },
       "verifies_clause_refs": [],
       "clause_na_reason": "Clock/Rng・外部操作・日次集計を横断するNFRで単一API契約節の検証ではない"
     },
     {
       "id": "AC-908",
       "target": "NFR-8",
-      "verification_aspects": ["NFR-8:data-only-extension", "NFR-8:dry-run-e2e", "NFR-8:product-hash-zero-diff", "NFR-8:registry-row-only"],
+      "verification_aspects": [
+        "NFR-8:data-only-extension",
+        "NFR-8:dry-run-e2e",
+        "NFR-8:product-hash-zero-diff",
+        "NFR-8:registry-row-only"
+      ],
       "polarity": "normal",
       "given": "製品ファイル集合/SHA-256 mapを取得済みで、未知媒体のworkflow・playbook・接続レジストリ行だけを追加したfixtureがある",
       "when": "既存コードを変更せずdry-run E2Eを実行し、前後の製品ファイル集合とSHA-256 mapを比較する",
@@ -9079,15 +9942,34 @@
       "forbidden_side_effects": "媒体固有分岐のengine/gates/connectors追加、既存媒体の挙動変更",
       "error_type": "なし",
       "target_update": "cross（媒体追加保守性品質契約）",
-      "tc": ["TCC-NFR-08"],
-      "semantic_refs": {"table_refs": ["playbooks", "workflows"], "column_refs": [], "state_refs": [], "event_refs": [], "evidence_kind_refs": [], "error_type_refs": [], "api_refs": []},
+      "tc": [
+        "TCC-NFR-08"
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "playbooks",
+          "workflows"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      },
       "verifies_clause_refs": [],
       "clause_na_reason": "媒体追加時の差分種別を横断検証する保守性NFRで単一API契約節の検証ではない"
     },
     {
       "id": "AC-909",
       "target": "NFR-9",
-      "verification_aspects": ["NFR-9:pr-label", "NFR-9:opt-in", "NFR-9:unsubscribe", "NFR-9:supported-channel-only", "NFR-9:pii-purpose"],
+      "verification_aspects": [
+        "NFR-9:pr-label",
+        "NFR-9:opt-in",
+        "NFR-9:unsubscribe",
+        "NFR-9:supported-channel-only",
+        "NFR-9:pii-purpose"
+      ],
       "polarity": "reject",
       "given": "PR表記欠落affiliate成果物、opt-in欠落宛先、unsubscribe導線欠落message、収集目的に対応しないPII保持列の各fixtureがある",
       "when": "公開・配信前の法規ゲートとPII schema目的対応検査を各fixtureへ適用する",
@@ -9100,15 +9982,35 @@
       "forbidden_side_effects": "表記なし公開、同意なし配信、配信停止導線なし配信、目的外PII保持、外部呼出",
       "error_type": "なし",
       "target_update": "cross（法規遵守品質契約）",
-      "tc": ["TCC-NFR-09"],
-      "semantic_refs": {"table_refs": ["external_operations", "tasks"], "column_refs": [], "state_refs": [], "event_refs": [], "evidence_kind_refs": [], "error_type_refs": [], "api_refs": []},
+      "tc": [
+        "TCC-NFR-09"
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "external_operations",
+          "tasks"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      },
       "verifies_clause_refs": [],
       "clause_na_reason": "複数法規ゲートを横断するNFRで単一API契約節の検証ではない"
     },
     {
       "id": "AC-910",
       "target": "NFR-10",
-      "verification_aspects": ["NFR-10:daily-backup", "NFR-10:generations", "NFR-10:db-restore", "NFR-10:browser-session-copy", "NFR-10:wp-backup-check", "NFR-10:write-hold-on-failure"],
+      "verification_aspects": [
+        "NFR-10:daily-backup",
+        "NFR-10:generations",
+        "NFR-10:db-restore",
+        "NFR-10:browser-session-copy",
+        "NFR-10:wp-backup-check",
+        "NFR-10:write-hold-on-failure"
+      ],
       "polarity": "boundary-recovery",
       "given": "config.backup_generations=N（既定14）、直近N日の日次SQLite/file_hash証跡と破損除外後に正常N世代を確保できる履歴、最新破損・前世代正常、暗号化browser session、Docker WP backupのfixtureがある",
       "when": "日次/世代突合、DB前世代復元、browser session一時profile復元、Docker WP一時container復元を実行する",
@@ -9121,8 +10023,23 @@
       "forbidden_side_effects": "日次欠落、正常N世代未満、破損採用、DB/session/WP未検証での書込み再開、原本上書き",
       "error_type": "なし",
       "target_update": "cross（バックアップ復旧品質契約）",
-      "tc": ["TCC-NFR-10"],
-      "semantic_refs": {"table_refs": ["evidence", "external_operations"], "column_refs": [], "state_refs": [], "event_refs": [], "evidence_kind_refs": ["file_hash"], "error_type_refs": [], "api_refs": []},
+      "tc": [
+        "TCC-NFR-10"
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "external_operations"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "file_hash"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      },
       "verifies_clause_refs": [],
       "clause_na_reason": "バックアップ世代と復元DB全体を検証するNFRで単一API契約節の検証ではない"
     }
@@ -9133,5 +10050,5 @@
   "supersedes": [
     "ARCHIVE-AC-LEGACY"
   ],
-  "approval_digest": "af80ad5f5927"
+  "approval_digest": "0139bb74f02f"
 }

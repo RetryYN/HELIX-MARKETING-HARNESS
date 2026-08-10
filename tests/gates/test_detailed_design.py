@@ -519,15 +519,16 @@ def test_mutation_copied_observation_assertion_for_another_api_is_detected(
 
 
 def test_mutation_resolved_history_api_swap_is_detected(monkeypatch, tmp_path) -> None:
-    """変異: 解消履歴のscreenshotをrun_playbookへ取り違えても自己検出する。"""
+    """変異: 解消履歴へ内部 API を差し込んでも自己検出する。"""
     ledger = json.loads(detailed_design.UNCOVERED_APIS.read_text(encoding="utf-8"))
     target = next(i for i in ledger["resolved_items"] if i["api_id"] == "API-DU15-02")
-    target.update({"api_id": "API-DU15-03", "function": "run_playbook"})
+    target.update({"api_id": "API-DU01-02", "function": "register_guard",
+                   "du_id": "DU-01"})
     p = tmp_path / "uncovered-apis.json"
     p.write_text(json.dumps(ledger, ensure_ascii=False), encoding="utf-8")
     monkeypatch.setattr(detailed_design, "UNCOVERED_APIS", p)
     faults = detailed_design.detect_clause_coverage_faults(CTX)
-    assert any("API-DU15-03" in f and "exactly-one" in f for f in faults), faults
+    assert any("API-DU01-02" in f and "exactly-one" in f for f in faults), faults
 
 
 def test_mutation_internal_level_without_reason_is_detected(monkeypatch, tmp_path) -> None:

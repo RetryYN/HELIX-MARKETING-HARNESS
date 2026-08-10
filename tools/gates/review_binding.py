@@ -62,6 +62,21 @@ def successors(reviews: dict[str, dict], review_id: str) -> list[dict]:
     return out
 
 
+def successor_covers_current_artifacts(review: dict, successors_: list[dict]) -> bool:
+    """後続 Go が現行内容を同じ artifact key で再束縛しているか。"""
+    for artifact in review.get("reviewed_artifact_digests", {}):
+        current = ROOT / artifact
+        if not current.exists():
+            return False
+        digest = hashlib.sha256(current.read_bytes()).hexdigest()[:16]
+        if not any(
+            s.get("reviewed_artifact_digests", {}).get(artifact) == digest
+            for s in successors_
+        ):
+            return False
+    return True
+
+
 def commit_tree(commit: str) -> str | None:
     """コミットのルートツリー sha を返す（解決できなければ None）。
 
@@ -115,15 +130,31 @@ def detect_review_faults(ctx: Ctx, notes: list[str] | None = None) -> list[str]:
             if sid not in reviews:
                 bad.append(f"{p.name}: supersedes_review の {sid} が存在しない")
         is_go = r.get("verdict") == "Go"
-        if git("cat-file", "-e", f"{r['target_commit']}^{{commit}}").returncode != 0:
-            bad.append(f"{p.name}: target_commit がリポジトリに存在しない")
-            continue
+        # A later Go review is the immutable successor for a historical review.  A
+        # squash merge can legitimately make the old target commit unreachable in
+        # a fresh single-branch clone even though the successor re-reviewed the
+        # current tree.  Do not make the old, already-superseded object a permanent
+        # repository-object dependency; the latest review must still pass the
+        # strict target commit/tree checks below.
+        succ = successors(reviews, r["review_id"])
+        target_commit_exists = git(
+            "cat-file", "-e", f"{r['target_commit']}^{{commit}}"
+        ).returncode == 0
+        if not target_commit_exists:
+            if not succ or not successor_covers_current_artifacts(r, succ):
+                bad.append(f"{p.name}: target_commit がリポジトリに存在しない")
+            else:
+                continue
         if not r.get("target_tree"):
             # キー欠落で厳密一致検査ごとスキップさせない（束縛が amend 可能な commit 側へ退化する）
             bad.append(f"{p.name}: target_tree がない（レビュー対象ツリーへ束縛されていない）")
             continue
-        if git("cat-file", "-e", f"{r['target_tree']}^{{tree}}").returncode != 0:
-            bad.append(f"{p.name}: target_tree がリポジトリに存在しない")
+        target_tree_exists = git(
+            "cat-file", "-e", f"{r['target_tree']}^{{tree}}"
+        ).returncode == 0
+        if not target_tree_exists:
+            if not succ or not successor_covers_current_artifacts(r, succ):
+                bad.append(f"{p.name}: target_tree がリポジトリに存在しない")
             continue
         # target_tree は target_commit のルートツリーと**厳密一致**でなければならない。
         # `git write-tree` の dangling tree はローカルにしか無く push・clone 先で解決できない。
@@ -138,7 +169,6 @@ def detect_review_faults(ctx: Ctx, notes: list[str] | None = None) -> list[str]:
                 continue
             if notes is not None:
                 notes.append(f"{p.name}: 未コミットのため target_tree 一致検査を猶予")
-        succ = successors(reviews, r["review_id"])
         # 凍結対象: target_tree があればツリー（amend で動かせない）、無ければ target_commit
         frozen = r.get("target_tree") or r["target_commit"]
         where = "target_tree" if r.get("target_tree") else "target_commit"

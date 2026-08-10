@@ -443,6 +443,7 @@
 | 2026-08-10 | ac-catalog | v0.1 | confirmed | PO | 745bde2de743 | ac-contracts正本から再生成した受入カタログview |
 | 2026-08-10 | tc-catalog | v0.1 | confirmed | PO | d9653171b7d2 | tc-contracts正本から再生成した検証カタログview |
 | 2026-08-10 | du-contracts | v0.1 | confirmed | PO | 500911ae1551 | du-contracts正本から再生成した詳細設計view |
+| 2026-08-11 | ac-contracts.json | v0.1 | confirmed | PO | 0139bb74f02f | L5 API意味被覆の強化: acceptance API 55件へ fixture/action/observation/assert と契約節束縛を降下 |
 | 2026-08-10 | s0-contract | v0.1 | confirmed | PO | 3c1210a2b730 | finalized_at命名とspend_correction DDL拘束を正準化 |
 | 2026-08-10 | ac-catalog | v0.1 | confirmed | PO | 7f0ecf2fc0f8 | 更新済みJSON正本から再生成 |
 | 2026-08-10 | fr-contracts | v0.1 | confirmed | PO | 7ec09d3dea38 | 更新済みJSON正本から再生成 |

@@ -251,6 +251,7 @@ def detect_clause_coverage_faults(ctx: Ctx) -> list[str]:
     du_ac = {d["id"]: set(d["trace"].get("ac", [])) for d in ctx.duc}
     covered: set[str] = set()
     observation_owners: dict[str, list[str]] = {}
+    observation_records: dict[str, list[tuple[str, dict]]] = {}
     for ac in ctx.acc:
         refs = ac_clauses[ac["id"]]
         referenced_apis = {all_clauses[c] for c in refs if c in all_clauses}
@@ -261,11 +262,32 @@ def detect_clause_coverage_faults(ctx: Ctx) -> list[str]:
                            " verifies_clause_refs で当該APIを参照していない")
                 continue
             observation_owners.setdefault(asserted_api, []).append(ac["id"])
-            action = assertion.get("action", "") if isinstance(assertion, dict) else ""
+            if not isinstance(assertion, dict):
+                bad.append(f"{ac['id']}:{asserted_api}: api_observation_assertion が object でない")
+                continue
+            observation_records.setdefault(asserted_api, []).append((ac["id"], assertion))
+            assertion_refs = assertion.get("clause_refs")
+            if not isinstance(assertion_refs, list) or not assertion_refs:
+                bad.append(f"{ac['id']}:{asserted_api}: assertion の clause_refs が空")
+            else:
+                ac_refs = set(refs)
+                own_refs = set(clause_ids(next(
+                    a for d in ctx.duc for a in d["apis"] if a["api_id"] == asserted_api
+                )))
+                stray_assertion_refs = [c for c in assertion_refs if c not in ac_refs]
+                if stray_assertion_refs:
+                    bad.append(f"{ac['id']}:{asserted_api}: assertion の clause_refs {stray_assertion_refs[:2]} が"
+                               "同一 AC の verifies_clause_refs に無い")
+                if not (set(assertion_refs) & own_refs):
+                    bad.append(f"{ac['id']}:{asserted_api}: assertion が当該 API の契約節を検証していない")
+            action = assertion.get("action", "")
             function_name = api_names.get(asserted_api, "")
             if function_name and function_name not in action:
                 bad.append(f"{ac['id']}:{asserted_api}: action が公開API {function_name} の"
                            "実呼出を示さない（別API assertionのコピーを拒否）")
+            for field in ("fixture", "action", "observation", "assert"):
+                if not isinstance(assertion.get(field), str) or len(assertion[field]) < 20:
+                    bad.append(f"{ac['id']}:{asserted_api}: assertion の {field} が短い／欠落")
         for c in refs:
             if c not in all_clauses:
                 bad.append(f"{ac['id']}: verifies_clause_refs の {c} が実在しない")
@@ -281,6 +303,22 @@ def detect_clause_coverage_faults(ctx: Ctx) -> list[str]:
         if not refs and any(ac["id"] in v for v in du_ac.values()) and not reason:
             bad.append(f"{ac['id']}: DU に割当られているのに verifies_clause_refs が空"
                        "（API 契約節でないものを検証するなら clause_na_reason を書く）")
+    # 全 acceptance API に、節 ID をコピーしただけでは成立しない API 固有の
+    # fixture／呼出／観測／assert をちょうど 1 件要求する。内部 API は UT が
+    # 振る舞いを直接検証するため、この assertion ラチェットの対象外とする。
+    for d in ctx.duc:
+        for a in d["apis"]:
+            if a.get("verification_level") != "acceptance":
+                continue
+            owners = observation_records.get(a["api_id"], [])
+            if len(owners) != 1:
+                bad.append(f"{a['api_id']}: acceptance API 固有 assertion が exactly-one でない"
+                           f"（実={len(owners)}）")
+                continue
+            owner_id, assertion = owners[0]
+            api_fn = api_names[a["api_id"]]
+            if api_fn not in assertion.get("action", ""):
+                bad.append(f"{owner_id}:{a['api_id']}: action が公開関数 {api_fn} を呼び出していない")
     for d in ctx.duc:
         for a in d["apis"]:
             lv = a.get("verification_level")
