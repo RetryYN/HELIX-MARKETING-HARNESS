@@ -62,15 +62,18 @@ def successors(reviews: dict[str, dict], review_id: str) -> list[dict]:
     return out
 
 
-def successor_covers_current_artifacts(review: dict, successors_: list[dict]) -> bool:
+def successor_covers_current_artifacts(review: dict, successors_: list[dict],
+                                       resolver: dict[str, str] | None = None) -> bool:
     """後続 Go が現行内容を同じ artifact key で再束縛しているか。"""
     for artifact in review.get("reviewed_artifact_digests", {}):
-        current = ROOT / artifact
+        current_key = (resolver or {}).get(artifact, artifact)
+        current = ROOT / current_key
         if not current.exists():
             return False
         digest = hashlib.sha256(current.read_bytes()).hexdigest()[:16]
         if not any(
             s.get("reviewed_artifact_digests", {}).get(artifact) == digest
+            or s.get("reviewed_artifact_digests", {}).get(current_key) == digest
             for s in successors_
         ):
             return False
@@ -141,7 +144,7 @@ def detect_review_faults(ctx: Ctx, notes: list[str] | None = None) -> list[str]:
             "cat-file", "-e", f"{r['target_commit']}^{{commit}}"
         ).returncode == 0
         if not target_commit_exists:
-            if not succ or not successor_covers_current_artifacts(r, succ):
+            if not succ or not successor_covers_current_artifacts(r, succ, resolver):
                 bad.append(f"{p.name}: target_commit がリポジトリに存在しない")
             else:
                 continue
@@ -153,7 +156,7 @@ def detect_review_faults(ctx: Ctx, notes: list[str] | None = None) -> list[str]:
             "cat-file", "-e", f"{r['target_tree']}^{{tree}}"
         ).returncode == 0
         if not target_tree_exists:
-            if not succ or not successor_covers_current_artifacts(r, succ):
+            if not succ or not successor_covers_current_artifacts(r, succ, resolver):
                 bad.append(f"{p.name}: target_tree がリポジトリに存在しない")
             continue
         # target_tree は target_commit のルートツリーと**厳密一致**でなければならない。
