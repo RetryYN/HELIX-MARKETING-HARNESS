@@ -90,6 +90,7 @@
     "runtime-ut-outcome-gate"
   ],
   "separation_verified_reviews": [
+    "REV-CLAUDE-L5-DETAILED-DESIGN-01",
     "REV-CLAUDE-REQUIREMENTS-SEMANTICS-01",
     "REV-CLAUDE-REQUIREMENTS-SEMANTICS-02",
     "REV-CLAUDE-REQUIREMENTS-SEMANTICS-03",
@@ -109,6 +110,7 @@
     "REV-SOL-REQUIREMENTS-SEMANTICS-01"
   ],
   "separation_statuses": {
+    "REV-CLAUDE-L5-DETAILED-DESIGN-01": "self_attested",
     "REV-CLAUDE-REQUIREMENTS-SEMANTICS-01": "self_attested",
     "REV-CLAUDE-REQUIREMENTS-SEMANTICS-02": "self_attested",
     "REV-CLAUDE-REQUIREMENTS-SEMANTICS-03": "self_attested",
@@ -229,7 +231,7 @@
   "artifacts": {
     ".github/workflows/docs-ci.yml": "aee4cb5ba27b8663ea643113676f04e04c3d3ac0e8f0af0571cb744536bf2412",
     ".github/workflows/python-ci.yml": "38310d95b94112ca51d253377e6e8764691210ba497821d6f7506708278d776a",
-    ".gitleaks.toml": "bd5ef0ff23d45638fd05c87c6c8c856962111fc337468e2b3de119490e84aacb",
+    ".gitleaks.toml": "31dd7e19c0cd96b8a2acf33a8f2992a48e7b970a161ac7f69277657dd22e070b",
     "AGENTS.md": "38b94025c6a14d26798f532ffb035cdfe6bf7d242adf2558d25a1ff9b60ab36f",
     "CLAUDE.md": "708650750c18c5501c3f9f2ac666ef4524151d1499f74215b1c57e446221f7d7",
     "docs/00-authority/artifact-manifest.json": "ef26ca41d3580c27c289df4343667ab5013fee2bd9406c5a550185712bdf6532",
@@ -378,7 +380,7 @@
     "tools/gates/authority.py": "6453b7df12fff0e2cc4ccdf951f51b71e2e1b8c4ddf41a9798df0ffd1aaca4ad",
     "tools/gates/baseline.py": "982f4641441a808d110afb63ff221c3a04e24f03d6338faeede81f9acb922864",
     "tools/gates/common.py": "3ad80e28fff35811ff38cd711a3b039b5ee09e558bb59ccf012191d6067e9d62",
-    "tools/gates/detailed_design.py": "c3fe663c0ef766f2e220edb37dace86b6a737ad0eaa2f65c623b783a7e102156",
+    "tools/gates/detailed_design.py": "a68a615cf7d98d3128fe49e2e94c0eaf002ca28400d0a3e8cab42a21486c8072",
     "tools/gates/requirements.py": "d4f91d484299d8cc37ec098e1c258914fb91fcca3b0990e7515369739cf76fa9",
     "tools/gates/review_binding.py": "89a812eb399a1cfb44a03536cafcdcec399fbea95e52ffd30eba1dafb6fba744",
     "tools/gates/run_all.py": "9c5844be5e3261bbca618ac88be65dc4b775c0b54eea6b07224b6a1c54aca990",

@@ -382,10 +382,10 @@ def detect_clause_coverage_faults(ctx: Ctx) -> list[str]:
         if expected_owner not in observation_owners.get(api_id, []):
             bad.append(f"{api_id}: resolution_ac={expected_owner} がAPI固有assertionを所有しない")
     for api_id in sorted(set(resolved_ids)):
-        owners = observation_owners.get(api_id, [])
-        if len(owners) != 1:
+        owner_ids = observation_owners.get(api_id, [])
+        if len(owner_ids) != 1:
             bad.append(f"{api_id}: API固有の反証可能な api_observation_assertions が"
-                       f"exactly-one ACに必要（実={owners}）")
+                       f"exactly-one ACに必要（実={owner_ids}）")
     return bad
 
 

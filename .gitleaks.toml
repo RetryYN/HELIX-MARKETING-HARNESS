@@ -29,3 +29,21 @@ paths = ['''^docs/00-authority/baselines/baseline\.json$''']
 # 「台帳のキーは git 追跡下の実在パスのみ・値は sha256 64 桁」を fail-close で保証することで
 # 構造的に閉じている（実在しないキーは台帳に置けない — 独立レビュー R10-01）。
 regexes = ['''^\s*"(?:(?:docs|src|tools|scripts|tests|\.github)/(?:[A-Za-z0-9_][A-Za-z0-9._-]*/)*)?[A-Za-z0-9_][A-Za-z0-9._-]*\.[A-Za-z0-9]+":\s*"[0-9a-f]{64}",?\s*$''']
+
+# acceptance 正本の clause_refs は API 契約節 ID（秘密ではない）だが、追加された
+# assertion 行で隣接する ID を generic-api-key が誤検知する。除外対象は検出された
+# **secret tokenそのもの**の6値と正本パスに限定し、同じ行の別トークンや別ファイルを
+# 許可しない（allowlist を line/match 全体へ広げない）。
+[[rules.allowlists]]
+description = "Known non-secret API contract clause IDs in acceptance assertions"
+condition = "AND"
+regexTarget = "secret"
+paths = ['''^docs/L3-system-requirements/canonical/acceptance/ac-contracts\.json$''']
+regexes = [
+  '''^API-DU14-02-RAISE-01$''',
+  '''^API-DU16-04-RAISE-01$''',
+  '''^API-DU17-01-RAISE-02$''',
+  '''^API-DU17-02-RAISE-03$''',
+  '''^API-DU18-03-RAISE-01$''',
+  '''^API-DU23-01-RAISE-01$''',
+]
