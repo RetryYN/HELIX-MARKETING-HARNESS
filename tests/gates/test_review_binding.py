@@ -95,8 +95,10 @@ def _review_dir(tmp_path, **over):
     import shutil
     src = ROOT / "docs/00-authority/reviews"
     dst = tmp_path / "reviews"
-    shutil.copytree(src, dst)
-    victim = dst / "sol-review-s0-structure-02.json"
+    dst.mkdir()
+    shutil.copy(src / "review.schema.json", dst / "review.schema.json")
+    shutil.copy(src / "sol-review-s0-structure-02.json", dst / "victim.json")
+    victim = dst / "victim.json"
     data = json.loads(victim.read_text(encoding="utf-8"))
     for k, v in over.items():
         if v is None:
@@ -196,8 +198,10 @@ def test_historical_missing_target_is_allowed_only_with_go_successor(monkeypatch
 
     src = ROOT / "docs/00-authority/reviews"
     dst = tmp_path / "reviews"
-    shutil.copytree(src, dst)
-    victim = dst / "sol-review-s0-structure-02.json"
+    dst.mkdir()
+    shutil.copy(src / "review.schema.json", dst / "review.schema.json")
+    shutil.copy(src / "sol-review-s0-structure-02.json", dst / "victim.json")
+    victim = dst / "victim.json"
     data = json.loads(victim.read_text(encoding="utf-8"))
     data["target_commit"] = "0" * 40
     data["target_tree"] = "1" * 40
@@ -224,7 +228,18 @@ def test_historical_missing_target_is_allowed_only_with_go_successor(monkeypatch
 
 def test_missing_target_without_successor_remains_fail_close(monkeypatch, tmp_path) -> None:
     """後続レビューなしの最新成果物は target object 欠落を許容しない。"""
-    faults = _faults(monkeypatch, _review_dir(tmp_path, target_commit="0" * 40))
+    import shutil
+
+    src = ROOT / "docs/00-authority/reviews"
+    dst = tmp_path / "isolated-reviews"
+    dst.mkdir()
+    shutil.copy(src / "review.schema.json", dst / "review.schema.json")
+    shutil.copy(src / "sol-review-s0-structure-02.json", dst / "victim.json")
+    data = json.loads((dst / "victim.json").read_text(encoding="utf-8"))
+    data["target_commit"] = "0" * 40
+    (dst / "victim.json").write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n",
+                                      encoding="utf-8")
+    faults = _faults(monkeypatch, dst)
     assert any("target_commit がリポジトリに存在しない" in f for f in faults)
 
 
@@ -235,8 +250,13 @@ def test_historical_partial_successor_coverage_remains_fail_close(monkeypatch, t
 
     src = ROOT / "docs/00-authority/reviews"
     dst = tmp_path / "reviews"
-    shutil.copytree(src, dst)
-    victim = dst / "sol-review-s0-structure-02.json"
+    dst.mkdir()
+    # Isolate the synthetic chain from real review successors.  Copying the
+    # whole directory would let the current Go review supersede the victim and
+    # accidentally turn this fail-close mutation into a pass.
+    shutil.copy(src / "review.schema.json", dst / "review.schema.json")
+    shutil.copy(src / "sol-review-s0-structure-02.json", dst / "victim.json")
+    victim = dst / "victim.json"
     data = json.loads(victim.read_text(encoding="utf-8"))
     data["target_commit"] = "0" * 40
     data["target_tree"] = "1" * 40
@@ -247,8 +267,8 @@ def test_historical_partial_successor_coverage_remains_fail_close(monkeypatch, t
     }
     current.pop(next(iter(current)))
     successor = dict(data, review_id="REV-TEST-PARTIAL-SUCCESSOR",
-                     target_commit="5846ba66dac5c43187739e43d1fc7f9d4eda48c7",
-                     target_tree=review_binding.commit_tree("HEAD"),
+                     target_commit="4e7a85dcb5951602369c02108c1e1773d6be7529",
+                     target_tree=review_binding.commit_tree("4e7a85d"),
                      supersedes_review=[data["review_id"]],
                      reviewed_artifact_digests=current)
     (dst / "successor.json").write_text(
@@ -256,7 +276,7 @@ def test_historical_partial_successor_coverage_remains_fail_close(monkeypatch, t
     )
     monkeypatch.setattr(review_binding, "REVIEWS", dst)
     faults = review_binding.detect_review_faults(CTX)
-    assert any("sol-review-s0-structure-02.json" in f
+    assert any("victim.json" in f
                and "target_commit がリポジトリに存在しない" in f for f in faults), faults
 
 
