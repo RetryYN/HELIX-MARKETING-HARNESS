@@ -228,6 +228,38 @@ def test_missing_target_without_successor_remains_fail_close(monkeypatch, tmp_pa
     assert any("target_commit がリポジトリに存在しない" in f for f in faults)
 
 
+def test_historical_partial_successor_coverage_remains_fail_close(monkeypatch, tmp_path) -> None:
+    """後続 Go が1 artifactでも再束縛し忘れたら旧対象の欠落を許容しない。"""
+    import hashlib
+    import shutil
+
+    src = ROOT / "docs/00-authority/reviews"
+    dst = tmp_path / "reviews"
+    shutil.copytree(src, dst)
+    victim = dst / "sol-review-s0-structure-02.json"
+    data = json.loads(victim.read_text(encoding="utf-8"))
+    data["target_commit"] = "0" * 40
+    data["target_tree"] = "1" * 40
+    victim.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    current = {
+        a: hashlib.sha256((ROOT / a).read_bytes()).hexdigest()[:16]
+        for a in data["reviewed_artifact_digests"] if (ROOT / a).exists()
+    }
+    current.pop(next(iter(current)))
+    successor = dict(data, review_id="REV-TEST-PARTIAL-SUCCESSOR",
+                     target_commit="5846ba66dac5c43187739e43d1fc7f9d4eda48c7",
+                     target_tree=review_binding.commit_tree("HEAD"),
+                     supersedes_review=[data["review_id"]],
+                     reviewed_artifact_digests=current)
+    (dst / "successor.json").write_text(
+        json.dumps(successor, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+    monkeypatch.setattr(review_binding, "REVIEWS", dst)
+    faults = review_binding.detect_review_faults(CTX)
+    assert any("sol-review-s0-structure-02.json" in f
+               and "target_commit がリポジトリに存在しない" in f for f in faults), faults
+
+
 
 def test_committed_review_gets_no_grace_for_target_tree() -> None:
     """コミット済みのレビュー成果物には target_tree 猶予が効かない（CI で必ず厳密検査）。"""

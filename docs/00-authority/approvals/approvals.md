@@ -479,3 +479,4 @@
 | 2026-08-10 | tc-contracts.json | v0.1 | confirmed | PO | 829ca45b5672 | launch・screenshot・run_playbookの公開API観測をTCCへ同期 |
 | 2026-08-10 | ac-catalog | v0.1 | confirmed | PO | 6aa774e744a7 | screenshot観測修正後のAC生成ビュー |
 | 2026-08-10 | tc-catalog | v0.1 | confirmed | PO | ac84cb7d4e13 | screenshot観測修正後のTCC生成ビュー |
+| 2026-08-11 | ac-catalog | v0.1 | confirmed | PO | 8608d2ef73f4 | AC正本のAPI固有assertion束縛変更に伴う生成ビュー再生成 |
