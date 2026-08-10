@@ -5,3 +5,4 @@
 {"type":"review_result","payload":{"round":3,"verdict":"Go","summary":"ビュー・台帳・部分被覆mutationの是正、全55 API assertion節束縛、歴史レビュー完全再束縛条件を確認。内容Go。実行検証はCodex側で要再現。"}}
 {"type":"review_result","payload":{"round":4,"verdict":"No-Go","summary":"テストのみの追随コミットでレビュー束縛済みtests/gates/test_review_binding.pyが改変されたため、最新Goレビューの後続再束縛が必要と判定。L5内容と束縛機構の設計はGo継続。"}}
 {"type":"review_result","payload":{"round":5,"verdict":"No-Go","summary":"再束縛でB-1は解消したが、round 4追記後のreview_log_digest未更新を検出。ログdigestを再計算してレビューJSONへ反映すれば解消する管理上のブロッカー。L5内容はGo継続。"}}
+{"type":"review_result","payload":{"round":6,"verdict":"Go","summary":"target_commit/tree、全artifact digest、review_log_digest、reviewer session/modelの自己証明を実測照合し、B-1/B-2とも解消。L5詳細設計とレビュー束縛機構をGo判定。pytest/run_allはOpus環境では未実行のためCodex側で確認する。"}}
