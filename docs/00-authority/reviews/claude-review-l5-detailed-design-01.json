@@ -4,14 +4,14 @@
   "author_principal": "codex-primary",
   "author_execution_id": "codex-primary-20260811-l5-hardening",
   "reviewer_execution_id": "a8f0465b-42cd-4a37-981e-aa376ed03ee7",
-  "review_run_id": "REV-CLAUDE-L5-DETAILED-DESIGN-01-R3",
+  "review_run_id": "REV-CLAUDE-L5-DETAILED-DESIGN-01-R5-REBIND",
   "reviewer_provider": "anthropic-claude-cli",
   "review_log_path": "docs/00-authority/reviews/logs/REV-CLAUDE-L5-DETAILED-DESIGN-01.jsonl",
-  "review_log_digest": "975f0e4d8601fd04",
+  "review_log_digest": "cd4ccd44c4693d5f",
   "separation_status": "self_attested",
   "model": "claude-opus-5",
-  "target_commit": "4e7a85dcb5951602369c02108c1e1773d6be7529",
-  "target_tree": "f27284a69ec8ff46f9d104b2f0837bd7d9b57335",
+  "target_commit": "3e4c724c436a1e38a5e7c913c8f14a64444dbee2",
+  "target_tree": "f1255282e843ff7a0af923d6ec07fc0f627f0be1",
   "scope": "L5詳細設計（59 API・55 acceptance API固有観測・215 API UT・23 DU・契約節/L6責務接続）とHELIX検出ゲート・authority/baseline・レビュー束縛",
   "supersedes_review": [
     "REV-CLAUDE-REQUIREMENTS-SEMANTICS-05",
@@ -154,7 +154,7 @@
     "tests/gates/test_baseline.py": "508551a178b846c1",
     "tests/gates/test_detailed_design.py": "648193217a0ee23e",
     "tests/gates/test_requirements.py": "77ee4daabd13f44f",
-    "tests/gates/test_review_binding.py": "ad2eea096103dbf1",
+    "tests/gates/test_review_binding.py": "876f23088e29d551",
     "tests/gates/test_run_all.py": "7f3ea5372384f3d3",
     "tests/gates/test_semantic_refs.py": "79028b842d39c2af",
     "tests/gates/test_test_pairing.py": "7ca551c1e9d92c34",
@@ -193,11 +193,12 @@
     "7c95775",
     "1d2d401",
     "e84546d",
-    "4e7a85d"
+    "4e7a85d",
+    "3e4c724c436a1e38a5e7c913c8f14a64444dbee2"
   ],
   "verdict": "Go",
   "completed_at": "2026-08-11",
-  "rounds": 3,
+  "rounds": 5,
   "findings": [
     {
       "severity": "blocker",
