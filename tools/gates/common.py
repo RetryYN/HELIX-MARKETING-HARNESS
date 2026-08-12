@@ -333,6 +333,17 @@ TMAP: dict[str, Any] = {"string": str, "integer": int, "number": (int, float), "
 def schema_check(schema: dict, doc: Any, path: str = "$") -> list[str]:
     """最小 JSON Schema 検証器（外部依存なし）。"""
     errs: list[str] = []
+    # Union 型（例: artifact_snapshot = object|null）は、properties の有無より先に
+    # 判定する。従来の object 分岐だけだと null を object として再帰検査し、
+    # schema が正しいのに rejected event を拒否する。
+    declared = schema.get("type")
+    if isinstance(declared, list):
+        allowed = [TMAP[t] for t in declared if t in TMAP]
+        if not any(isinstance(doc, t) for t in allowed):
+            errs.append(f"{path}: 型不一致 {declared}")
+            return errs
+        if doc is None and "null" in declared:
+            return errs
     if schema.get("type") == "object" or "properties" in schema or "required" in schema:
         if not isinstance(doc, dict):
             return [f"{path}: object でない"]

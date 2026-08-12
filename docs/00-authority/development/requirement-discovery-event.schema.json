@@ -55,9 +55,33 @@
           },
           "payload": {
             "type": "object",
+            "additionalProperties": false,
             "properties": {
+              "title": {"type": "string", "minLength": 1},
+              "problem_statement": {"type": "string", "minLength": 1},
+              "value_hypothesis": {"type": "string", "minLength": 1},
+              "unresolved_questions": {"type": "array", "items": {"type": "string"}},
+              "question": {"type": "string", "minLength": 1},
+              "dimension": {"type": "string", "minLength": 1},
+              "question_event_id": {"type": "string", "minLength": 3},
+              "answer": {"type": "string", "minLength": 1},
+              "prototype_ref": {"type": "string", "minLength": 1},
+              "flows": {"type": "array", "items": {"type": "string"}},
+              "observation": {"type": "string", "minLength": 1},
+              "evidence_ref": {"type": "string", "minLength": 1},
+              "proposal_summary": {"type": "string", "minLength": 1},
+              "target_artifact_ids": {"type": "array", "items": {"type": "string"}},
+              "canonical_contract_mutation": {"type": "boolean"},
+              "requested_by": {"type": "string", "minLength": 1},
+              "proposal_author_principal": {"type": "string", "minLength": 1},
+              "approver_principal": {"type": "string", "minLength": 1},
+              "decision": {"type": "string", "enum": ["accepted", "rejected"]},
+              "artifact_id": {"type": "string", "minLength": 3},
+              "artifact_digest": {"type": "string", "pattern": "^[0-9a-f]{12}$"},
               "artifact_snapshot": {
                 "type": ["object", "null"],
+                "additionalProperties": false,
+                "required": ["artifact_commit", "canonical_path", "artifact_digest", "manifest_approval_digest", "receipt_digest"],
                 "properties": {
                   "artifact_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
                   "canonical_path": {"type": "string", "minLength": 5},
@@ -65,7 +89,9 @@
                   "manifest_approval_digest": {"type": "string", "pattern": "^[0-9a-f]{12}$"},
                   "receipt_digest": {"type": "string", "pattern": "^[0-9a-f]{12}$"}
                 }
-              }
+              },
+              "reason": {"type": "string", "minLength": 1},
+              "withdrawn_event_id": {"type": "string", "minLength": 3}
             }
           }
         }
