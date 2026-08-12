@@ -53,7 +53,21 @@
               }
             }
           },
-          "payload": {"type": "object"}
+          "payload": {
+            "type": "object",
+            "properties": {
+              "artifact_snapshot": {
+                "type": ["object", "null"],
+                "properties": {
+                  "artifact_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+                  "canonical_path": {"type": "string", "minLength": 5},
+                  "artifact_digest": {"type": "string", "pattern": "^[0-9a-f]{12}$"},
+                  "manifest_approval_digest": {"type": "string", "pattern": "^[0-9a-f]{12}$"},
+                  "receipt_digest": {"type": "string", "pattern": "^[0-9a-f]{12}$"}
+                }
+              }
+            }
+          }
         }
       }
     }

@@ -40,13 +40,19 @@ append-only で記録する前段監査証跡である。既存 BR／REQ／FR／
 これらの契約正本や製品 runtime を直接更新しない。status は `adapted` とし、空の台帳を adopted と称しない。
 
 - 親コミットの events は完全 prefix として保持し、参照は過去 event、source ID、manifest artifact ID に限る。
-- `approval_decided` は proposal author と approver を分離し、confirmed artifact の digest と approval receipt を束縛する。
+- `approval_decided` は event actor、proposal author、approver を分離し、accepted 時点の artifact commit／manifest／
+  receipt snapshot を束縛する。artifact ごとの最新 accepted だけを現行 manifest／canonical digest と照合し、履歴 accepted を
+  後年の現行 digest で失効扱いにしない。rejected は契約変更を成立させず、保留は `deferred:` 理由付き withdrawal として残す。
+- payload の型別厳格性（accepted の `artifact_snapshot` を含む）は schema と gate 実装の両方で定義する。内側の条件分岐は
+  最小 schema 実装器の表現域を超えるため、gate が追加属性・型・相互参照を fail-close で検査する。
 - 契約正本を変更するときは対象 artifact の `specification_proposed` と `approval_decided`、又は
   `reason: deferred: ...` を持つ `withdrawn` を残す。
-- credential、secret、PII、raw 外部本文は payload に置かず、参照 ID と要約だけを記録する。
+- credential、secret、PII、raw 外部本文は payload に置かず、参照 ID と要約だけを記録する。secret scanner は代表的な
+  token／email／電話番号／住所表記を fail-close で検出するが、難読化・画像・暗号化済み本文を完全検出する保証ではない。
 
-`tools/gates/requirement_discovery.py` が schema、prefix、coverage、参照、lifecycle、承認分離、secret、
-正本への自動 mutation を fail-close で検査する。台帳は承認済み工程を通じてのみ既存正本へ還流する。
+`tools/gates/requirement_discovery.py` が schema、prefix、BR／REQ／FR／SR／NFR／AC／TC coverage、参照、lifecycle、
+承認分離・snapshot、secret、正本への自動 mutation を fail-close で検査する。AST の alias 追跡は静的な Python 経路を
+対象とし、動的 import／eval／反射は完全列挙できないため実行権限を与えない運用・CI・コードレビューを別の防壁として残す。
 
 ## 4. 人間の判断境界
 
