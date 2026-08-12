@@ -10,8 +10,8 @@
  "review_log_digest": "30faed6c6c95d0b2",
  "separation_status": "self_attested",
  "model": "gpt-5.6-sol",
- "target_commit": "31e41dd359f762cd97ae707e8e724e567522b3a4",
- "target_tree": "43b33af02550a3d6e5e3d5f2cc2fd788b7e4cc24",
+ "target_commit": "2d7d9bfc9cb22014a3b87fccf50bf031e4f77d83",
+ "target_tree": "1ec4ab80e17efeed297354a73292519741c929d3",
  "scope": "L3 正本起票（PO 承認 2026-08-13: ブランド/アカウント統合 + UI セット出荷）の独立レビュー。FR-74 brand×media×account 台帳（canonical account rate_scope <service>_<account_key> 正規化含む）／FR-75 誤ブランド投稿拒否ゲート／FR-76 汎用運用通知（S1 expand migration 前提）／FR-77 evidence 閲覧 read-only API／NFR-11 月次 quota 窓、AC 15 件（受入 3 件則: 正常/異常/境界）・対応 TC、分母 FR=43/NFR=11/AC=252/TCC=258 への更新、G-CNT-NFR ゲート更新、approvals/manifest/baseline 同期。起票元 ops/drafts/l3-brand-account-ui-requirements-draft.md との意味一致・既存契約との無矛盾・ラチェット非違反を検査",
  "supersedes_review": [
   "REV-CLAUDE-REQUIREMENTS-SEMANTICS-01",
@@ -25,7 +25,7 @@
   "REV-SOL-APPROVAL-TRANSPORT-02"
  ],
  "resolution_commits": [
-  "31e41dd359f7"
+  "2d7d9bfc9cb2"
  ],
  "verdict": "Go",
  "completed_at": "2026-08-13",
