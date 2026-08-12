@@ -33,7 +33,7 @@ dus: [DU-18]
 | 承認フロー coordinator | `kernel/orchestrator.py`（CMP-02） | CMP-11 `approvals_store` の pending INSERT をローカル tx で commit → 通知 preflight → CMP-02 Recorder → transport の順を所有 | binding／preflight 拒否は transport 未呼出し・外部 2 表 0 行 |
 | `request_approval(intent)` | `connectors/approval.py`（DU-18・CMP-11） | 通知の `ConnectorIntent(effect=write, policy_category=approval_notification, rate_scope)` と request/result 材料だけを返す。approvals／external_operations／evidence を書かない | transport 例外を ConnectorError 材料へ正規化 |
 | `approvals_store` | 同モジュール内ストア副層 | CMP-02 から呼ばれる approvals 生 SQL の唯一の置き場（INSERT・decision UPDATE・照合 SELECT）。transport I/O を tx に含めない | decision の削除 API を持たず、再要求は新規行 |
-| `poll_decision(approval_ref)` | DU-18 | 応答照合。実 provider poll は `effect=read`、同一 poll 内で `request_sequence=1,2,...` を持つ intent/result 材料を返し、CMP-02 Recorder が lifecycle を所有 | 不一致応答は無効（waiting 継続 — 部分一致許容なし）。mock／fixture／dry-run は外部行 0 |
+| `receive_interaction(raw_body, signature, timestamp)` | DU-18 | Discord署名・鮮度・replay・application/guild/channel/user・approval ID・binding・expiryを照合し、pending限定CASで応答を確定 | 不一致応答は無効（waiting 継続）。inbound／mock／fixture／dry-run は外部行 0 |
 | `verify_approval(...) -> ApprovalPass` | `gates/`（CMP-03 — DU-05 と同じ独占生成パターン） | decision = approved ＋ binding 完全一致の照合を通過した場合のみ ApprovalPass を生成 | 生成失敗 = ApprovalRequired／ApprovalBindingMismatch |
 | 金銭操作判定 | `gates/monetary.py`（FN-207 — S3 だが判定表は S0 から固定値） | task の操作型を金銭型定義リストと照合。判定不能は金銭型扱い（fail-close） | 該当時はオートモード判定より先に承認要求 |
 | 遷移ガード接続 | `kernel/state.py`（DU-01）・`kernel/orchestrator.py`（DU-02） | decision → 状態機械イベントの発火（§3） | 写像外の decision 値は未定義遷移として拒否 |
@@ -58,16 +58,16 @@ sequenceDiagram
     O->>R: 実通知 intent（write, approval_notification, rate_scope）
     R->>R: prepared→sent→terminal＋operation_log
     K->>L: wait イベント → waiting
-    O->>R: 実 poll（effect=read, request_sequence）
-    R-->>O: transport result
-    O->>A: decision反映（local tx）
-    A-->>K: poll_decision の結果
+    R-->>O: Discord interaction（HTTPS inbound）
+    O->>O: 署名・鮮度・replay・identity・binding検証
+    O->>A: pending限定CAS（local tx）
+    A-->>K: receive_interaction の確定結果
     alt approved（binding 完全一致）
         K->>L: resume → running（ApprovalPass 生成 → 公開へ）
     else rejected
         K->>T: non_retryable_failure → failed
     else expired（< approval_retry_limit）
-        A->>A: 新規行で再要求（同一 binding）
+        A->>A: 新規行で再要求（新しい binding_at）
         K->>L: waiting 継続
     else expired（上限到達）
         K->>T: escalate → escalated
@@ -80,7 +80,7 @@ sequenceDiagram
 - **decision → イベント写像は承認設計 §3 が正準**。実装は写像を dict 定数（decision ×
   文脈 → イベント）として `kernel/orchestrator.py` に置き、if 分岐の散在を禁止する。
 - 遷移は通常どおり 1 遷移 1 transaction・rejected も state_transitions に記録（DU-01）。
-- route／credential／endpoint／cap・`(approval_notification, claude_code_app, approval_request, target_endpoint)` exact policy の
+- route／credential／endpoint／cap・`(approval_notification, discord_app, approval_request, target_endpoint)` exact policy の
   通知 preflight、又は ApprovalPass 不在・binding 不一致による
   後続業務操作の拒否は Recorder の prepare より前に行う。当該実 request は
   external_operations／operation_log 0 行で、秘匿化済み process logger だけに理由を残す。
@@ -89,8 +89,8 @@ sequenceDiagram
 
 | 分岐 | 実装 |
 |---|---|
-| **rejected → non_retryable_failure → failed** | decision = rejected の確認時、kernel は task へ `non_retryable_failure` を発火（failure_code = ApprovalRejected）。**escalate ではない**（局所失敗 — 代替 task 発行可）。後続業務 write の external_operations／operation_log は 0 件のまま（実 provider poll 自体の effect=read 行とは分ける。AC-26-2） |
-| **expired → 再要求待機** | decision = expired の確認時、同一 binding 3 項目の**新規 approvals 行**を INSERT して waiting を継続（failed にしない）。再要求回数は当該 task × binding の approvals 行数（expired 行数）で数える — **カウンタ列を持たず行数が正本**（再起動で失われない） |
+| **rejected → non_retryable_failure → failed** | decision = rejected の確認時、kernel は task へ `non_retryable_failure` を発火（failure_code = ApprovalRejected）。**escalate ではない**（局所失敗 — 代替 task 発行可）。後続業務 write と inbound interaction の external_operations／operation_log は 0 件のまま（AC-26-2） |
+| **expired → 再要求待機** | decision = expired の確認時、同じ subject/operation と**新しい binding_at**の approvals 行を INSERT して waiting を継続（failed にしない）。再要求回数は当該 task × binding subject/operation の expired 行数で数える — **カウンタ列を持たず行数が正本** |
 | **approval_retry_limit 到達 → escalated** | 再要求発行前に行数を検査し、`config.approval_retry_limit` 到達なら再要求せず `escalate`（failure_code = ApprovalRetryExhausted）で escalated（AC-26-3 — 無限待機しない）。limit は config 行（ハードコード禁止） |
 | **pending のままクラッシュ** | 再開時（s0-contract §3.3 waiting 行）は approvals.decision から復元: pending = 待機継続（**二重要求を作らない** — UNIQUE(task_id, binding_subject, binding_operation, binding_at) が既存行照合を保証）、approved = evidence 整合確認後に公開へ、rejected/expired = 上記写像を適用（AC-46-3） |
 | **binding 不一致応答** | ApprovalBindingMismatch — 応答無効・decision 不変・waiting 継続。後続業務 write は外部行 0。1 項目でも不一致なら通らない（AC-46-2）。binding_at と実公開時点の乖離も不一致（FR-46 boundary） |
@@ -110,15 +110,13 @@ sequenceDiagram
 4. **done 遷移の再検証**: T-PUB の done は required_evidence_json の approval kind 充足を
    証跡完備ゲート（DU-08・FN-208）が再検証する。承認→公開→done の各段で三重に確認される
    （要求時 binding・公開時 ApprovalPass・完了時 evidence）。
-5. **実 transport**: 通知は effect=write＋policy_category=approval_notification＋canonical lowercase
-   rate_scope＋決定的 idempotency key、poll は effect=read＋policy_category=external_read＋rate_scope=NULL＋
-   `read:<task_id>:<request_hash>:<request_sequence>`（同一 poll で sequence 1, 2, ...）とし、
-   通知は binding 3 項目確定済みかつ Claude Code アプリの exact tuple だけを許可する。
-   intent・request payload・result・external row・operation_log の category／rate_scope／request_sequence を一致させる。
-   operation_log payload の rate_scope key は poll でも JSON null として常設する。送信済みの
-   confirmed／provider rejected／unknown は provider operation ID の有無を問わず
-   `external_operation_row_id` に束縛した operation_log がちょうど 1 行。transport 一時失敗は
-   decision・状態を巻き戻さず、元行を terminal 化してから新しい通知／poll request を発行する。
+5. **実 transport**: 通知は effect=write＋policy_category=approval_notification＋rate_scope=discord＋
+   決定的 idempotency key とし、binding 3 項目確定済みかつ許可済みDiscord Appのexact tupleだけを許可する。
+   通知の intent・request payload・result・external row・operation_logを同値にし、送信済み通知には
+   `external_operation_row_id` に束縛したoperation_logをちょうど1行残す。Discord interactionはVPSの
+   HTTPS endpointでraw body署名・timestamp鮮度・replay nonce・application/guild/channel/user・approval ID・
+   binding・expiryを検証し、外部readではないためexternal_operations／operation_logを作らない。
+   transport一時失敗やinteraction再送でもdecisionを巻き戻さず、pending限定CASで二重確定を防ぐ。
 6. **模擬 transport**: mock／fixture／dry-run で approve/reject/timeout を再現する場合は
    external_operations／operation_log 0 行。予定 fingerprint と模擬結果は秘匿化済み process logger
    だけに残し、provider operation ID を捏造しない。
@@ -136,7 +134,7 @@ sequenceDiagram
 - **fail-close**: 操作型が判定表に載っていない・分類不能の場合は金銭型として扱い承認を要求する
   （承認設計 §4）。
 - **不変条件**: 承認なしの金銭系業務 write は external_operations／operation_log 上 0 件。
-  テストは transport 呼出し 0 と両テーブル 0 を assert する（AC-26-1/2）。承認通知／poll の
+  テストは transport 呼出し 0 と両テーブル 0 を assert する（AC-26-1/2）。承認通知／interaction の
   lifecycle と後続の業務 write は policy_category／service／operation で区別する。
   有償 actual write は policy_category=approved_paid_operation、approval_id、
   `spend_ledger.external_operation_row_id` NOT NULL・UNIQUE FK を要し、task/service は一致必須、provider ID は任意。
@@ -150,7 +148,7 @@ sequenceDiagram
   不一致／pending クラッシュ再開の 5 系統を⑥の割当 TC どおり赤→実装し、外部 2 表が 0 行と確認する。
   実 transport lifecycle は actual 扱いの loopback transport を用い、write idempotency key、read の
   request_sequence、sent terminal の operation_log exact-1 を別テストで検証する。
-- 実通知は policy_category=approval_notification／rate_scope／exact Claude Code アプリ tuple を assert し、
+- 実通知は policy_category=approval_notification／rate_scope／exact Discord App tuple を assert し、
   category／rate_scope／config 欠落、wildcard、Notion／WP endpoint への入替えは prepare 前に拒否して外部 2 表 0 行とする。
 - 「行数 = 再要求カウンタ」の正しさは、再起動を挟んだ expired 反復（transaction を切って
   再開関数を呼ぶ）で limit 到達が正しく検出されることを assert する。
@@ -176,6 +174,6 @@ DU／API の実在・pre/post への責務の明記・AC／TC／UT の実在と�
 
 | unit_id | DU | API | 契約節 | 責務 | AC |
 |---|---|---|---|---|---|
-| IU-APPROVAL-01 | DU-18 | API-DU18-02 | POST-01・POST-02・POST-03 | `poll`: actual readはexternal_read／rate_scope NULL／request_sequence付き… | AC-46-1, AC-46-2 |
+| IU-APPROVAL-01 | DU-18 | API-DU18-02 | POST-01・POST-02・POST-03・POST-04 | `receive_interaction`: Discord署名・replay・identity・binding・expiry検証、pending限定CAS。inbound外部操作行0 | AC-46-1, AC-46-2 |
 | IU-APPROVAL-02 | DU-18 | API-DU18-01 | POST-01・POST-02・POST-04 | `request`: pending local tx後、approval_notification exact tuple／rate_scopeの実通知writeをRecorderへ委譲… | AC-46-1 |
 | IU-APPROVAL-03 | DU-18 | API-DU18-03 | POST-01・POST-02・RAISE-01 | `rerequest_on_expired`: 新pending行と各approval_notification再通知を分離… | AC-46-3 |

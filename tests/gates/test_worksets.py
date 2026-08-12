@@ -228,7 +228,7 @@ def test_ratchet_faults_accept_identical_parent() -> None:
 def test_ratchet_accepts_declared_numeric_physical_count_nodeid_rename() -> None:
     """正例: 同一UTのDDL物理数部分だけの改名は、明示台帳で意味継承する。"""
     now = _doc()
-    rename = now["ut_nodeid_renames"][0]
+    rename = now["ut_nodeid_renames"][-1]
     prev = copy.deepcopy(now)
     nodeids = prev["worksets"][0]["ut_nodeids"]
     nodeids[nodeids.index(rename["to"])] = rename["from"]
@@ -238,7 +238,7 @@ def test_ratchet_accepts_declared_numeric_physical_count_nodeid_rename() -> None
 def test_mutation_ratchet_rejects_undeclared_or_semantically_different_nodeid_rename() -> None:
     """変異: rename台帳の削除や別file／数字以外の改名でUT縮小を隠せない。"""
     now = _doc()
-    rename = now["ut_nodeid_renames"][0]
+    rename = now["ut_nodeid_renames"][-1]
     prev = copy.deepcopy(now)
     nodeids = prev["worksets"][0]["ut_nodeids"]
     nodeids[nodeids.index(rename["to"])] = rename["from"]

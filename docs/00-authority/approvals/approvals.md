@@ -478,3 +478,122 @@
 | 2026-08-10 | tc-contracts.json | v0.1 | confirmed | PO | 829ca45b5672 | launch・screenshot・run_playbookの公開API観測をTCCへ同期 |
 | 2026-08-10 | ac-catalog | v0.1 | confirmed | PO | 6aa774e744a7 | screenshot観測修正後のAC生成ビュー |
 | 2026-08-10 | tc-catalog | v0.1 | confirmed | PO | ac84cb7d4e13 | screenshot観測修正後のTCC生成ビュー |
+| 2026-08-12 | ADR-010 approval transport and UI evolution | v0.1 | confirmed | PO | c4c1af0dfe13 | 承認正本をVPS側に置き、初期Discord・将来Web UI/PWA・Claude Code非依存を確定 |
+| 2026-08-12 | marketing-harness-charter | v0.4 | confirmed | PO | f84944b5e4b1 | ADR-010の承認入口と製品実行時非依存を反映 |
+| 2026-08-12 | br-backbone | v0.1 | confirmed | PO | edcace4be6f0 | スマホ承認入口を初期Discord・将来UIへ改訂 |
+| 2026-08-12 | br-contracts.json | v0.1 | confirmed | PO | 67de1e48ae41 | ApprovalTransportと構造化回答UI/APIへ要求を同期 |
+| 2026-08-12 | loop-task-workflow | v0.1 | confirmed | PO | 0cfa940828b5 | 初期充填を構造化回答UI/APIへ改訂 |
+| 2026-08-12 | ac-contracts.json | v0.1 | confirmed | PO | 04e0a8e6735e | Discord初期transportの受入観測へ同期 |
+| 2026-08-12 | fr-contracts.json | v0.1 | confirmed | PO | da987f56176a | 承認API・Discord署名/承認者/期限検証と将来UIを契約化 |
+| 2026-08-12 | requirements-functional | v0.1 | confirmed | PO | 0bc4ac7e50ff | Claude Code必須依存を除去し交換可能承認入口へ改訂 |
+| 2026-08-12 | s0-contract | v0.1 | confirmed | PO | 6ba4828019e8 | approvals channel閉語彙をdiscord/web_uiへ改訂 |
+| 2026-08-12 | tc-contracts.json | v0.1 | confirmed | PO | fad5b68d51bd | Discord通知・interaction観測へ同期 |
+| 2026-08-12 | approval-design | v0.1 | confirmed | PO | bce4bfa874bd | VPS承認APIと交換可能transportの設計へ改訂 |
+| 2026-08-12 | basic-design | v0.1 | confirmed | PO | 9c104c31f3aa | Discord初期アダプターと将来UIを反映 |
+| 2026-08-12 | cmp-contracts.json | v0.1 | confirmed | PO | f9a4bbae33e7 | CMP-11をApprovalTransport境界へ同期 |
+| 2026-08-12 | db-design | v0.1 | confirmed | PO | 6d902d8dbbe5 | 承認transport閉語彙へ同期 |
+| 2026-08-12 | external-if-design | v0.1 | confirmed | PO | 689632000441 | Discord App初期経路を外部IFへ同期 |
+| 2026-08-12 | tech-stack | v0.1 | confirmed | PO | db801e061bff | DiscordからWeb UI/PWAへの発展構想を反映 |
+| 2026-08-12 | du-contracts.json | v0.1 | confirmed | PO | 85988f44d99f | DU-18をDiscord初期アダプターと共通承認APIへ同期 |
+| 2026-08-12 | approval feature design | v0.1 | confirmed | PO | 755ecc072da7 | Discord exact policyへ同期 |
+| 2026-08-12 | external operations feature design | v0.1 | confirmed | PO | 1be27c76274c | approval_notificationをDiscord初期経路へ同期 |
+| 2026-08-12 | implementation-units.json | v0.1 | confirmed | PO | b009930f342e | 承認責務を交換可能connectorへ同期 |
+| 2026-08-12 | br-contracts view | v0.1 | confirmed | PO | 326717867645 | 更新済みBR正本から生成 |
+| 2026-08-12 | ac-catalog view | v0.1 | confirmed | PO | 4273a6a9985b | 更新済みAC正本から生成 |
+| 2026-08-12 | fr-contracts view | v0.1 | confirmed | PO | 76a0ef5fe15b | 更新済みFR正本から生成 |
+| 2026-08-12 | tc-catalog view | v0.1 | confirmed | PO | df44b7dea503 | 更新済みTC正本から生成 |
+| 2026-08-12 | cmp-contracts view | v0.1 | confirmed | PO | 507c3931ba74 | 更新済みCMP正本から生成 |
+| 2026-08-12 | du-contracts view | v0.1 | confirmed | PO | 3d976cc310fe | 更新済みDU正本から生成 |
+| 2026-08-12 | ADR-010-approval-transport-and-ui-evolution | - | confirmed | PO | c4c1af0dfe13 | 承認正本をVPS側に置き初期Discord・将来UIを確定 |
+| 2026-08-12 | requirements | v0.1 | confirmed | PO | 0bc4ac7e50ff | Claude Code必須依存を除去 |
+| 2026-08-12 | approval | - | confirmed | PO | 755ecc072da7 | Discord初期transportへ同期 |
+| 2026-08-12 | external-operations | - | confirmed | PO | 1be27c76274c | Discord初期transportへ同期 |
+| 2026-08-12 | br-contracts | v0.1 | confirmed | PO | 67e506eca253 | 更新済みBR正本から再生成 |
+| 2026-08-12 | ac-catalog | v0.1 | confirmed | PO | df1698e3f20e | 更新済みAC正本から再生成 |
+| 2026-08-12 | fr-contracts | v0.1 | confirmed | PO | 7f3f23e71175 | 更新済みFR正本から再生成 |
+| 2026-08-12 | tc-catalog | v0.1 | confirmed | PO | cfd8d3bbffae | 更新済みTC正本から再生成 |
+| 2026-08-12 | cmp-contracts | v0.1 | confirmed | PO | 29d4ab2f06d7 | 更新済みCMP正本から再生成 |
+| 2026-08-12 | du-contracts | v0.1 | confirmed | PO | 4d9cee0c0baf | 更新済みDU正本から再生成 |
+| 2026-08-12 | ADR-010-approval-transport-and-ui-evolution | - | confirmed | PO | 2ef76817df89 | Sol指摘を反映しS0 Discord限定・inbound API・CAS確定へ正準化 |
+| 2026-08-12 | ac-contracts.json | v0.1 | confirmed | PO | e8e476e6ca16 | inbound interactionとCAS確定の受入観測へ同期 |
+| 2026-08-12 | fr-contracts.json | v0.1 | confirmed | PO | df3a1b56c71f | Discord interactionを外部readから分離 |
+| 2026-08-12 | s0-contract | v0.1 | confirmed | PO | ac9d1c668232 | S0 channelをdiscord限定しdecision一度限りtrigger追加 |
+| 2026-08-12 | tc-contracts.json | v0.1 | confirmed | PO | b6d4f649a355 | inbound外部操作0とCAS確定を検証へ同期 |
+| 2026-08-12 | approval-design | v0.1 | confirmed | PO | f8acd4a1f20d | push interaction・CAS・新binding_at再要求へ正準化 |
+| 2026-08-12 | du-contracts.json | v0.1 | confirmed | PO | c03261686b96 | pollをreceive_interactionへ置換 |
+| 2026-08-12 | implementation-units.json | v0.1 | confirmed | PO | 71acf5992d87 | DU-18 interaction UT nodeidへ同期 |
+| 2026-08-12 | ac-catalog | v0.1 | confirmed | PO | c6e810bc4147 | inbound interaction正準化後の生成ビュー |
+| 2026-08-12 | fr-contracts | v0.1 | confirmed | PO | 497ead64a36a | inbound interaction正準化後の生成ビュー |
+| 2026-08-12 | tc-catalog | v0.1 | confirmed | PO | 82830241f7b1 | inbound interaction正準化後の生成ビュー |
+| 2026-08-12 | du-contracts | v0.1 | confirmed | PO | ec0976823703 | receive_interaction正準化後の生成ビュー |
+| 2026-08-12 | ac-contracts.json | v0.1 | confirmed | PO | e5a5f95c22bf | DDL物理数38へ同期 |
+| 2026-08-12 | cmp-contracts.json | v0.1 | confirmed | PO | 9dd181e41dd0 | CMP-11公開interfaceをreceive_interactionへ同期 |
+| 2026-08-12 | du-contracts.json | v0.1 | confirmed | PO | 817fbd2d50b8 | DDL物理数・semantic API語彙を同期 |
+| 2026-08-12 | implementation-units.json | v0.1 | confirmed | PO | 821ce0efe530 | 更新済みUT nodeidへ同期 |
+| 2026-08-12 | ac-catalog | v0.1 | confirmed | PO | f4693f1faf2f | DDL物理数同期後の生成ビュー |
+| 2026-08-12 | cmp-contracts | v0.1 | confirmed | PO | 90394ddbca1c | receive_interaction同期後の生成ビュー |
+| 2026-08-12 | du-contracts | v0.1 | confirmed | PO | 3b3f692d7b19 | API語彙同期後の生成ビュー |
+| 2026-08-12 | tc-contracts.json | v0.1 | confirmed | PO | e7bf5d4a1dc2 | DDL物理数38へ同期 |
+| 2026-08-12 | db-design | v0.1 | confirmed | PO | ea15cc862068 | DDL物理数38へ同期 |
+| 2026-08-12 | tc-catalog | v0.1 | confirmed | PO | f4c096651d38 | DDL物理数同期後の生成ビュー |
+| 2026-08-12 | tc-catalog | v0.1 | confirmed | PO | abb148e0a88a | 最終TC receipt反映後の生成ビュー |
+| 2026-08-12 | db-design | v0.1 | confirmed | PO | c5c092464020 | DDL物理数38の全記述を同期 |
+| 2026-08-12 | implementation-units.json | v0.1 | confirmed | PO | 81082a899426 | DDL物理数38のL6責務を同期 |
+| 2026-08-12 | s0-contract | v0.1 | confirmed | PO | 19751808d627 | S0 Discord限定・CAS確定契約、DDL物理数維持 |
+| 2026-08-12 | du-contracts.json | v0.1 | confirmed | PO | dcc0f269092f | receive_interaction維持・DDL物理数37へ復帰 |
+| 2026-08-12 | du-contracts | v0.1 | confirmed | PO | 4b46342320ab | 最終DU正本から生成 |
+| 2026-08-12 | ac-contracts.json | v0.1 | confirmed | PO | 1c75ac187026 | Discord interaction拒否行列・pending限定CASへ最終同期 |
+| 2026-08-12 | fr-contracts.json | v0.1 | confirmed | PO | bbb591341b15 | rejectedを含むinbound interactionを外部readから分離 |
+| 2026-08-12 | tc-contracts.json | v0.1 | confirmed | PO | fe15f7983c3a | 署名・replay・identity・binding・expiryとCASを検証 |
+| 2026-08-12 | approval-design | v0.1 | confirmed | PO | 22652c226334 | DDLトリガ誤記を除きapprovals_store CASを正本化 |
+| 2026-08-12 | cmp-contracts.json | v0.1 | confirmed | PO | e8b1aa487abe | CMP-11をDiscord push interactionへ最終同期 |
+| 2026-08-12 | external-if-design | v0.1 | confirmed | PO | 5926e1fa0e3f | poll_decisionをreceive_interactionへ置換 |
+| 2026-08-12 | du-contracts.json | v0.1 | confirmed | PO | 751f3a813622 | pending限定CASとinbound外部操作0を契約化 |
+| 2026-08-12 | error-taxonomy | v0.1 | confirmed | PO | 646f9996ab24 | binding不一致をinteraction受信モデルへ同期 |
+| 2026-08-12 | approval | - | confirmed | PO | cf09fbe520f1 | Discord interaction sequenceと再要求bindingを同期 |
+| 2026-08-12 | implementation-units.json | v0.1 | confirmed | PO | 0d535aff13db | IU-APPROVAL-01をreceive_interaction責務へ同期 |
+| 2026-08-12 | ac-catalog | v0.1 | confirmed | PO | 3b4f2a77a582 | 最終AC正本から生成 |
+| 2026-08-12 | fr-contracts | v0.1 | confirmed | PO | 6829cf488e09 | 最終FR正本から生成 |
+| 2026-08-12 | tc-catalog | v0.1 | confirmed | PO | e7b6964ee851 | 最終TC正本から生成 |
+| 2026-08-12 | cmp-contracts | v0.1 | confirmed | PO | abaff329d540 | 最終CMP正本から生成 |
+| 2026-08-12 | du-contracts | v0.1 | confirmed | PO | 0d9ab014f2af | 最終DU正本から生成 |
+| 2026-08-12 | ac-contracts.json | v0.1 | confirmed | PO | f2ceea057ce4 | 通知operation_logの全意味束縛を保持したinteraction受入契約 |
+| 2026-08-12 | tc-contracts.json | v0.1 | confirmed | PO | 7e6200623397 | 通知証跡の全フィールド束縛を検証 |
+| 2026-08-12 | cmp-contracts.json | v0.1 | confirmed | PO | 88ccb60cabc5 | Discord通知証跡とinbound非計上を明確化 |
+| 2026-08-12 | du-contracts.json | v0.1 | confirmed | PO | 1b2c9b9001af | DU-18通知証跡の意味束縛を明確化 |
+| 2026-08-12 | implementation-units.json | v0.1 | confirmed | PO | 3b93c4343bee | receive_interaction責務の最終内容束縛 |
+| 2026-08-12 | ac-catalog | v0.1 | confirmed | PO | 9eabe6b7967b | 最終AC正本から再生成 |
+| 2026-08-12 | tc-catalog | v0.1 | confirmed | PO | 88c34e69558b | 最終TC正本から再生成 |
+| 2026-08-12 | cmp-contracts | v0.1 | confirmed | PO | 4dd3c1597e59 | 最終CMP正本から再生成 |
+| 2026-08-12 | du-contracts | v0.1 | confirmed | PO | e8e9351aa011 | 最終DU正本から再生成 |
+| 2026-08-12 | tc-contracts.json | v0.1 | confirmed | PO | de41bc52f31c | actual通知証跡とinbound非計上の最終検証契約 |
+| 2026-08-12 | cmp-contracts.json | v0.1 | confirmed | PO | 21535337e2e4 | execution_mode actual束縛を明示 |
+| 2026-08-12 | du-contracts.json | v0.1 | confirmed | PO | 9e727979653a | execution_mode actual束縛を明示 |
+| 2026-08-12 | tc-catalog | v0.1 | confirmed | PO | 54d7701c3e93 | 最終TC生成ビュー |
+| 2026-08-12 | cmp-contracts | v0.1 | confirmed | PO | 3ac33acfa473 | 最終CMP生成ビュー |
+| 2026-08-12 | du-contracts | v0.1 | confirmed | PO | 94772c740f83 | 最終DU生成ビュー |
+| 2026-08-12 | ac-contracts.json | v0.1 | confirmed | PO | 9dda776a67c2 | AC fixtureを署名付きinteractionへ最終同期 |
+| 2026-08-12 | approval-design | v0.1 | confirmed | PO | ff73d3c8f399 | expired再要求を新しいbinding_atへ明記 |
+| 2026-08-12 | ac-catalog | v0.1 | confirmed | PO | 752672dee6ac | 最終AC生成ビュー |
+| 2026-08-12 | cmp-contracts.json | v0.1 | confirmed | PO | 2195391c9342 | CMP-11旧interaction external_read要求を除去 |
+| 2026-08-12 | cmp-contracts | v0.1 | confirmed | PO | 32272ad59c18 | 最終CMP生成ビュー |
+
+## 承認 decision 不変トリガ是正（2026-08-12）
+
+| Date | Artifact | Version | Status | Authority | Digest | Note |
+|---|---|---|---|---|---|---|
+| 2026-08-12 | s0-contract | v0.1 | confirmed | PO | 1f9e34c85664 | pending 限定の一方向 decision 確定と確定行 UPDATE/DELETE 拒否を DDL 正準へ追加 |
+| 2026-08-12 | db-design | v0.1 | confirmed | PO | 536c668992dc | approval 保護トリガ 2 本を含む物理数 39 と不変条件を同期 |
+| 2026-08-12 | migration | - | confirmed | PO | 7adcd9bcd3ee | DDL 物理数 39 を migration 設計へ同期 |
+| 2026-08-12 | ac-contracts.json | v0.1 | confirmed | PO | 8025cc997dc7 | 確定 approval の直接 SQL UPDATE/DELETE が SQLITE_CONSTRAINT で拒否される観測を追加 |
+| 2026-08-12 | tc-contracts.json | v0.1 | confirmed | PO | b1d92cfd984e | approval 直接 SQL 拒否テストの fixture と assertion を同期 |
+| 2026-08-12 | du-contracts.json | v0.1 | confirmed | PO | 0c2359066946 | DDL 保護 UT と物理数 39 を実装契約へ同期 |
+| 2026-08-12 | implementation-units.json | v0.1 | confirmed | PO | 00790c24cf47 | DDL 保護 UT と物理数 39 を L6 責務へ同期 |
+| 2026-08-12 | ac-catalog | v0.1 | confirmed | PO | f6779e0965df | 更新済み AC 正本から生成 |
+| 2026-08-12 | tc-catalog | v0.1 | confirmed | PO | 6c89b874393d | 更新済み TC 正本から生成 |
+| 2026-08-12 | du-contracts | v0.1 | confirmed | PO | b4e919ff45df | 更新済み DU 正本から生成 |
+| 2026-08-12 | ac-contracts.json | v0.1 | confirmed | PO | e2cfb402b79e | Sol R2: AC-46-4 を DU-18 pending 限定 CAS 契約節へ構造接続 |
+| 2026-08-12 | du-contracts.json | v0.1 | confirmed | PO | 4c7c646c2ef9 | Sol R2: interaction 再送・競合 CAS・確定後不変 UT を DU-18 へ接続 |
+| 2026-08-12 | implementation-units.json | v0.1 | confirmed | PO | 69b0d2c9ebcb | Sol R2: AC-46-4/TCC-46-4 と DU-18 UT の契約節接続を同期 |
+| 2026-08-12 | ac-catalog | v0.1 | confirmed | PO | 42146f101edf | Sol R2: AC-46-4 契約節接続を反映した生成ビュー |
+| 2026-08-12 | du-contracts | v0.1 | confirmed | PO | 2da034fb7f39 | Sol R2: DU-18 CAS UT 接続を反映した生成ビュー |

@@ -16,6 +16,12 @@
       "from": "tests/unit/test_db_migrate.py::test_apply_all_empty_db_creates_25_tables_and_16_triggers",
       "to": "tests/unit/test_db_migrate.py::test_apply_all_empty_db_creates_25_tables_and_37_triggers",
       "reason": "DDL保護triggerの追加に伴う物理数正本の同期で、同一UTの検査対象だけを更新する"
+    },
+    {
+      "workset_id": "WS-S0.1-A",
+      "from": "tests/unit/test_db_migrate.py::test_apply_all_empty_db_creates_25_tables_and_37_triggers",
+      "to": "tests/unit/test_db_migrate.py::test_apply_all_empty_db_creates_25_tables_and_39_triggers",
+      "reason": "approval decision の確定後 UPDATE/DELETE 拒否トリガ追加による物理数正本の同期"
     }
   ],
   "worksets": [
@@ -57,7 +63,7 @@
         "tests/unit/test_db_migrate.py::test_apply_all_checksum_mismatch_stops_before_apply",
         "tests/unit/test_db_migrate.py::test_apply_all_crash_mid_migration_rolls_back_whole_version",
         "tests/unit/test_db_migrate.py::test_apply_all_duplicate_version_stops_fatal",
-        "tests/unit/test_db_migrate.py::test_apply_all_empty_db_creates_25_tables_and_37_triggers",
+        "tests/unit/test_db_migrate.py::test_apply_all_empty_db_creates_25_tables_and_39_triggers",
         "tests/unit/test_db_migrate.py::test_apply_all_records_version_checksum_applied_at_by",
         "tests/unit/test_db_migrate.py::test_apply_all_skips_applied_versions_idempotent",
         "tests/unit/test_db_migrate.py::test_strategic_briefs_content_update_rejected_status_transition_allowed",

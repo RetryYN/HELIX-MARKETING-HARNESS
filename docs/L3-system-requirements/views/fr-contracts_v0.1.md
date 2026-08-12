@@ -2,7 +2,7 @@
 
 # 機能要件 実行契約（FR contracts） v0.1
 
-> status: **confirmed**（2026-08-01 PO 承認 — receipt 7413d0e4506b）。JSON 内容正本の生成ビュー（全層再降下 §3）
+> status: **confirmed**（2026-08-01 PO 承認 — receipt bbb591341b15）。JSON 内容正本の生成ビュー（全層再降下 §3）
 > 各 FR に 18 観点の実行・検証・拒否・復旧契約を必須化（G-REQ-CONTRACT／G-INVARIANT-TRACE）。
 
 ## FR-11 ループ状態機械
@@ -176,7 +176,7 @@
 ## FR-16 エスカレーション制御
 
 - **入力**: 異常検知シグナル（ゲート赤・予算超過・地図破損・リトライ超過 — ゲート層/コネクタ/kernel が事由コード付きで発火）／対象 task／loop_run（tasks・loop_runs 行）／config.approval_retry_limit・config.retry_limit（境界値 — config 有効値）
-- **出力**: escalated へ遷移した tasks 行（failure_code に事由コード記録）／安全停止: fatal_failure で escalated へ遷移した親 loop_runs 行（該当ループの保留）／通知送出（FR-46 経路 — Claude Code アプリ）／誤分類・不正遷移時: TransitionRejected 例外
+- **出力**: escalated へ遷移した tasks 行（failure_code に事由コード記録）／安全停止: fatal_failure で escalated へ遷移した親 loop_runs 行（該当ループの保留）／通知送出（FR-46 経路 — ApprovalTransport、初期 Discord）／誤分類・不正遷移時: TransitionRejected 例外
 - **事前条件**: 対象 task／loop_run が非終端状態で存在する／異常が事由コードへ分類済みである（分類は検出した層の責務 — §3.2）／遷移表（escalate／fatal_failure／retry_exhausted の行）がロード済み
 - **事後条件**: 人の関与が必要な異常の task は escalated、該当 loop_run は fatal_failure で escalated（安全停止）に遷移している／tasks.failure_code に事由コードが記録されている／通知が FR-46 経路へ 1 件送出されている（transport 失敗でも状態遷移は成立し、通知のみ再送する）
 - **不変条件**: escalate は常に escalated、non_retryable_failure は常に failed（同一 (現状態, イベント) から複数の次状態は存在しない — §3.2）／承認 decision = rejected は escalate に含めない（non_retryable_failure → failed が正準）／escalated は終端であり、人が新しい run/task を明示発行するまで遷移しない
@@ -190,7 +190,7 @@
 - **冪等性**: 同一異常の再発火は現状態不一致（escalated = 終端）で拒否され二重遷移しない。通知は task/run 単位で重複を抑止し、再送は同一内容に収束する。
 - **証跡**: state_transitions 行（escalate／fatal_failure／retry_exhausted の遷移と rejected 記録）／tasks.failure_code・failure_detail（事由コードと詳細）／approvals 行（expired 再要求の系列 — 境界の証跡）
 - **使用テーブル・正本**: rw: tasks／rw: loop_runs／w: state_transitions／r: config（approval_retry_limit・retry_limit）／r: approvals（expired／rejected の分類入力）／r: playbooks（地図破損の検出源）／r: spend_ledger（予算超過の検出源）
-- **外部依存**: 通知 transport（Claude Code アプリ — FR-46 経路。テストでは mock で approve/reject/timeout を再現）
+- **外部依存**: 通知 transport（ApprovalTransport — FR-46 経路、初期 Discord。テストでは mock で approve/reject/timeout を再現）
 - **設定値**: config.approval_retry_limit（expired 時の承認再要求上限）／config.retry_limit（retry_exhausted 境界 — FR-13 と共有） ／ **固定値**: 異常種別カタログ（ゲート赤・予算超過・地図破損・リトライ超過 — failure_code 分類の正本）
 - **trace**: 上流 = BR-H3 BR-F5 REQ-039 ／ 下流 = AC-16-1 AC-16-2 AC-16-3 AC-16-4 AC-16-5 AC-16-6 FN-110 CMP-01 ／ スライス = S0
 
@@ -301,9 +301,9 @@
 
 ## FR-26 金銭 escalation
 
-- **入力**: タスクの操作型（task_type — 金銭操作型判定の対象）／束縛承認要求（binding_subject・binding_operation・binding_at — FR-46 経路）／承認応答（approvals.decision — Claude Code アプリ）
+- **入力**: タスクの操作型（task_type — 金銭操作型判定の対象）／束縛承認要求（binding_subject・binding_operation・binding_at — FR-46 経路）／承認応答（approvals.decision — 許可済み ApprovalTransport）
 - **出力**: 承認要求: approvals 行（decision = pending）＋アプリ通知／approved 時: evidence.kind = approval ＋外部操作の実行許可／rejected/expired 時: 失敗分類イベント（non_retryable_failure／escalate）
-- **事前条件**: 金銭操作型の定義リスト（価格変更・返金・決済設定）がロード済み／承認チャネル（channel = claude_code_app）が構成済み（FR-46）／対象 task が in_progress で外部書込み前である
+- **事前条件**: 金銭操作型の定義リスト（価格変更・返金・決済設定）がロード済み／承認チャネル（初期 channel = discord）が構成済み（FR-46）／対象 task が in_progress で外部書込み前である
 - **事後条件**: 金銭操作型 task の外部書込みは approved な approval（binding 3 項目完全一致）を持つ場合のみ実行されている／rejected の task は failed、approval_retry_limit 到達の task は escalated になっている
 - **不変条件**: オートモード状態（config.auto_mode_criteria の充足）に関わらず金銭操作型は束縛承認を要する（バイパス不可 — BR-C4）／binding subject/operation/at の 3 項目が完全一致しない応答は承認として無効／承認なしの金銭系外部書込みが operation_log 上に 0 件
 - **状態遷移**: tasks: in_progress→failed（non_retryable_failure — 承認 decision = rejected）／tasks: in_progress→escalated（escalate — expired が config.approval_retry_limit 到達）／テーブル列: approvals.decision: pending / approved / rejected / expired
@@ -311,12 +311,12 @@
 - **拒否・異常動作**: approved な approval なしの金銭系外部書込み要求は ApprovalRequired で拒否し WP/決済系 API を呼ばない。decision = rejected は non_retryable_failure イベントで task を failed に倒す（代替 task の発行は可）。操作型が金銭該当か判定不能な場合は金銭型として扱い承認を要求する（fail-close）。
 - **境界動作**: decision = expired は承認の再要求を発行して待機を継続し、再要求回数が config.approval_retry_limit に到達したら escalate イベントで escalated へ倒す。binding 3 項目のいずれかが不一致の応答は無効として待機継続。pending のままの場合は waiting を維持する。
 - **再試行・再開・復旧**: クラッシュ後は approvals の現在行を再照合し、approved（binding 完全一致）なら実行再開、pending なら待機継続、expired なら再要求カウントから継続（§3.3 waiting 再開規則）。外部操作は idempotency key と external_operations 照合で二重実行を防ぐ。
-- **人間判断／escalation**: 実在: 承認者（利用者）が Claude Code アプリで approve/reject を決定する。オートモード移行後もこの判断は機械化されない（BR-C4 の escalation 境界）。escalated 後の対処も人間（BR-H3）。
+- **人間判断／escalation**: 実在: 承認者（利用者）が許可済み承認入口で approve/reject を決定する。オートモード移行後もこの判断は機械化されない（BR-C4 の escalation 境界）。escalated 後の対処も人間（BR-H3）。
 - **副作用**: approvals INSERT（要求・再要求ごと）／アプリ通知送信（FR-46 経路）／evidence INSERT（kind = approval — approved 時）／state_transitions INSERT（waiting 化・failed/escalated 遷移）
 - **冪等性**: 同一 (task, binding_subject, binding_operation, binding_at) の承認要求は UNIQUE 制約で 1 行。approved の再確認は pure。外部操作は専用 idempotency key で二重送信しない。
 - **証跡**: approvals 行（要求・応答の全履歴）／evidence.kind = approval（decision = approved、binding 3 項目）／秘匿化済み構造化拒否ログ（承認なし実行）
 - **使用テーブル・正本**: rw: approvals／r: tasks（操作型判定）／r: config（auto_mode_criteria・approval_retry_limit）／w: evidence（approval）／w: state_transitions／r: external_operations（再開照合）
-- **外部依存**: Claude Code アプリ通知（承認チャネル — transport はテストで mock 可）
+- **外部依存**: ApprovalTransport（初期 Discord、将来 Web UI / PWA — テストでは mock 可）
 - **設定値**: config.approval_retry_limit（expired 再要求の上限）／config.auto_mode_criteria（オートモード判定 — 本 FR はこれに優先する） ／ **固定値**: 金銭操作型の定義リスト（価格変更・返金・決済設定に類する操作型）
 - **trace**: 上流 = BR-C4 REQ-015 ／ 下流 = AC-26-1 AC-26-2 AC-26-3 FN-207 CMP-03 CMP-11 ／ スライス = S1
 
@@ -364,13 +364,13 @@
 
 ## FR-31 ヒアリングエンジン
 
-- **入力**: §4 スキーマの必須スロット定義（fill=H — JSON 正本）／対象 business_profile の現充填状態（business_profiles.profile_json）／人間回答（Claude Code 対話経由 — 構造化値）／依存タスクの開始前提判定要求（task_id）
+- **入力**: §4 スキーマの必須スロット定義（fill=H — JSON 正本）／対象 business_profile の現充填状態（business_profiles.profile_json）／人間回答（構造化回答 UI/API 経由 — 構造化値）／依存タスクの開始前提判定要求（task_id）
 - **出力**: 未充足スロットごとの質問リスト（構造化問診）／型検証済み充填値で更新された business_profiles 行／拒否時: SlotUnfilledRejected（依存タスク開始）／AnswerTypeInvalid（型不一致回答）
 - **事前条件**: §4 スキーマ（必須スロット・型定義）がロード済み／対象 business_profiles 行が存在する／DB マイグレーション適用済み（DU-11 verify() green）
 - **事後条件**: 充填された値はすべて型検証 PASS 済みの人間回答由来である／未充足スロットが残る限り依存タスクは pending のまま／問診・回答・型検証結果の紐付け証跡が残っている
 - **不変条件**: 未充足スロットを推測値で充填する経路がコード上に存在しない（値の出所は人間回答のみ — BR-D1 禁止事項）／型検証を通らない値は profile_json に一切書き込まれない／充填状態の判定は business_profiles の正本のみを根拠とする
 - **状態遷移**: tasks: pending → pending（依存タスクの開始イベントは前提スロット未充足のガード不成立で拒否 — 遷移せず）
-- **正常動作**: 必須スロットの空きをスキーマと profile_json の突合で検出 → 未充足スロットごとに質問リストを生成 → Claude Code 対話で人に照会 → 回答を型検証し、PASS した値のみ profile_json へ充填して証跡を残す。全スロット充足後に依存タスクの開始前提判定が通る。
+- **正常動作**: 必須スロットの空きをスキーマと profile_json の突合で検出 → 未充足スロットごとに質問リストを生成 → 構造化回答 UI/API で人に照会 → 回答を型検証し、PASS した値のみ profile_json へ充填して証跡を残す。Claude Code は任意クライアントに限り、全スロット充足後に依存タスクの開始前提判定が通る。
 - **拒否・異常動作**: 未充足スロットに依存するタスクの開始要求は SlotUnfilledRejected を raise し、タスク状態を変更せず拒否理由（未充足スロット名）を構造化ログに残す。型検証 NG の回答は AnswerTypeInvalid として充填せず、同一スロットを再照会する。エンジンによる推測充填要求は常に拒否（fail-close）。
 - **境界動作**: 全スロット充足時は質問リストが空（照会 0 件で正常終了）。回答が部分的な場合は充足分のみ充填し残りは未充足のまま維持。同一スロットへの再回答は新値で更新し、旧値は証跡に残る。
 - **再試行・再開・復旧**: 問診途中のクラッシュでも充填済みスロットは DB に確定済み。再開時は空き検出を再実行し、残りの未充足スロットのみ再照会する（申し送りなし）。
@@ -379,7 +379,7 @@
 - **冪等性**: 空き検出が冪等キー: 充填済みスロットは再照会されない。同一回答の再送は同値上書きで DB 差分を生まない。
 - **証跡**: 問診レコードと回答の紐付け行（evidence）／回答の型検証結果ログ／未充足時の開始拒否ログ（構造化ログ）
 - **使用テーブル・正本**: rw: business_profiles／w: evidence／r: tasks（依存タスクの開始前提判定）
-- **外部依存**: Claude Code 対話チャネル（人間への照会経路 — これ以外の照会経路は禁止）
+- **外部依存**: 構造化回答 UI/API（人間への正規照会契約。Discord／将来 Web UI／任意クライアントから利用可能）
 - **設定値**: なし ／ **固定値**: §4 スキーマの必須スロット定義（fill=H 指定 — 変更は要件改訂）
 - **trace**: 上流 = BR-D1 REQ-016 REQ-037 ／ 下流 = AC-31-1 AC-31-2 AC-31-3 FN-301 FN-302 CMP-06 ／ スライス = S1
 
@@ -473,7 +473,7 @@
 - **出力**: 操作結果（成功時: 取得値・スクショ参照 — 呼出元へ）／playbooks.last_success_at 更新（成功時）／実外部操作: external_operations行（effect・policy_category・rate_scope必須、prepared→sent）＋sent行をfinal化する対応operation_log証跡／拒否時: PlaybookMissing / RateLimitExceeded / ProhibitedMediaWrite / UrlDenied 例外
 - **事前条件**: 対象 (service, operation, route_type=browser) の playbooks 行が status=active で存在する／URL 許可リスト（FR-23）が config に存在する／credential は暗号化ストアから実行時注入済み（FR-47 — SQLite/ログに平文なし）／書込み系は成立済みペアID・専用idempotency key・policy_categoryを保持し、(policy_category, service, operation, target_endpoint)がconfig.external_write_policyの明示行に一致する
 - **事後条件**: 操作は playbooks の手順・セレクタどおりに実行され、成功時に last_success_at が更新されている／read/writeを問わず実外部操作はexternal_operations 1行（1操作=1行、effect/policy_category必須、writeのみcanonical rate_scope必須・readはNULL）をprepared→sentまで記録し、sent行への対応operation_log INSERTがtriggerでconfirmed/rejected/unknownへfinal化・evidence_id接続した後にだけ業務状態遷移している／書込み系の連続操作間隔は 1〜5 秒の一様乱数で、seed・生成値が構造化ログに記録されている（NFR-7）
-- **不変条件**: X へのブラウザ書込みは常に拒否（BR-M-X-4 — バイパス経路なし）／書込み・公開系はcanonical lowercase rate_scope別のconfig.rate.<rate_scope>.daily_write_cap（必須）を超えず、service alias・大小文字差・shared serviceで別scopeへ逃がさない／操作間隔は固定値でなく範囲乱数（固定間隔は機械署名 — BR-F5）／許可リスト外URLへの遷移は発生しない（FR-23 deny-by-default）／content_publishはDocker WPだけ、review_syncは承認済みNotionだけ、approval_notificationはbinding済みClaude Code appだけ、approved_paid_operationはPO承認済み有償操作だけ。readはexternal_read。その他は常時拒否
+- **不変条件**: X へのブラウザ書込みは常に拒否（BR-M-X-4 — バイパス経路なし）／書込み・公開系はcanonical lowercase rate_scope別のconfig.rate.<rate_scope>.daily_write_cap（必須）を超えず、service alias・大小文字差・shared serviceで別scopeへ逃がさない／操作間隔は固定値でなく範囲乱数（固定間隔は機械署名 — BR-F5）／許可リスト外URLへの遷移は発生しない（FR-23 deny-by-default）／content_publishはDocker WPだけ、review_syncは承認済みNotionだけ、approval_notificationはbinding済みの許可ApprovalTransportだけ、approved_paid_operationはPO承認済み有償操作だけ。readはexternal_read。その他は常時拒否
 - **状態遷移**: テーブル列: external_operations.status: prepared→sent→confirmed/rejected/unknown（read/write の実外部操作ごと。external_operations.effect='read'/'write' — s0-contract §1）
 - **正常動作**: 操作要求を受けplaybooksから手順を解決し、Playwrightをconfig.browser.headedに従い起動。実外部操作ごとにeffectを固定し、readはpolicy_category='external_read'・rate_scope=NULL・correlation_key='read:<task_id>:<request_hash>:<request_sequence>'、writeは閉集合content_publish/review_sync/approval_notification/approved_paid_operationのpolicy_category・canonical lowercase rate_scope・correlation_key=idempotency_keyを設定する。writeは(policy_category, service, operation, target_endpoint, rate_scope)のcategory別policyと必要なpair/approval/bindingをpreflight検証した後だけexternal_operationsをpreparedでコミットする。書込みだけRngで待機後送信しsentをコミットし、結果確定後も行がsentの間にoperation_logをINSERTしてtriggerでfinal化・evidence_id接続する。final化後にだけ業務状態遷移する。
 - **拒否・異常動作**: playbooks行なし/status=broken、policy_category/rate_scope欠落・未知・非canonical、category偽装、categoryとservice/operation/endpoint/rate_scopeのpolicy不一致、必要pair/approval/binding欠落、日次上限超過、X又はnote等スコープ外媒体へのwrite、URL許可外はいずれもpreflightで拒否する。Notionをcontent_publishへ偽装、本番WP、unknown endpoint/serviceも同様。外部呼出・external_operations・operation_logは各0、process loggerへ事由コードだけを記録する（fail-close）。
@@ -484,7 +484,7 @@
 - **冪等性**: 実外部操作は1要求=1 external_operations行。書込み系は操作単位のidempotency key（external_operations.idempotency_key UNIQUE）で二重実行を検出し、sent照合により再送しない。読取り系は同一(task_id, operation, request_hash)内の各poll/再取得にrequest_sequenceを1から単調増加させ、correlation_key='read:<task_id>:<request_hash>:<request_sequence>'で一意化するため、同一内容の反復readも別要求として追跡できる。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。
 - **証跡**: operation_log行（external_operation_row_id・effect・policy_category・rate_scope・service・operation・correlation_key・request_hash・request_sequence・resultが外部行と同値。provider external_operation_idは任意）／screenshot evidence（操作確認）／構造化ログ（乱数 seed・間隔値 — NFR-7 再現用）
 - **使用テーブル・正本**: rw: playbooks／rw: external_operations／w: evidence（外部操作証跡 = operation_log kind）／r: config（browser.headed・rate.*・url_allowlist）／w: evidence（screenshot）
-- **外部依存**: Playwright（ブラウザ自動化）／対象媒体サイト（note/YouTube/stand.fm/KDP/ASP等はreadのみ。本FRでwriteが許可されるのは閉集合policyに根拠を持つDocker WP/Notion review sync/Claude Code app通知/PO承認済み有償操作だけ。X書込みは禁止）
+- **外部依存**: Playwright（ブラウザ自動化）／対象媒体サイト（note/YouTube/stand.fm/KDP/ASP等はreadのみ。本FRでwriteが許可されるのは閉集合policyに根拠を持つDocker WP/Notion review sync/許可ApprovalTransport通知/PO承認済み有償操作だけ。X書込みは禁止）
 - **設定値**: config.browser.headed（headed/headless 切替）／config.rate.wp.daily_write_cap（Docker WP content_publishの必須日次上限）／config.external_write_policy.<category>.allowed_services/endpoints（policy_category×service×operation×target_endpointの必須許可行。content_publishのDocker-onlyとapproved_paid_operationのPO承認は固定要件）／config.rate.write_interval_range（暫定既定 1〜5 秒一様） ／ **固定値**: 読取り系は乱数待機の対象外（NFR-7）／書込み間隔は一様分布（分布形は要件固定）
 - **trace**: 上流 = BR-F2 BR-F5 BR-M-X-4 REQ-028 REQ-044 NFR-7 ／ 下流 = AC-42-1 AC-42-2 AC-42-3 FN-402 FN-403 FN-404 CMP-08 CMP-09 ／ スライス = S1
 
@@ -553,23 +553,23 @@
 
 ## FR-46 承認チャネル
 
-- **入力**: 承認要求（対象 binding_subject・操作 binding_operation・時点 binding_at — 公開系タスクから）／承認応答（approved/rejected/expired/pending — Claude Code アプリ通知への応答）／オートモード判定材料（config.auto_mode_criteria＋実績証跡 — 機械判定用）
-- **出力**: approvals 行（channel=claude_code_app・binding 3 項目・decision・responder_ref）／approval evidence（kind=approval — decision=approved 時、approvals.evidence_id と相互整合）／拒否時: ApprovalBindingMismatch / NonRetryableFailure 例外と対応する task 遷移
-- **事前条件**: Claude Code アプリで通知を受け取れる利用者が構成済み（環境契約 §6 — transport は mock 可）／承認要求は binding 3 項目（対象・操作・時点）を欠落なく明記している／config.approval_retry_limitが存在する／config.external_write_policy.approval_notificationがservice='claude_code_app'・operation='approval_request'・endpointを明示し、通知payloadのbinding 3項目が完全である
+- **入力**: 承認要求（対象 binding_subject・操作 binding_operation・時点 binding_at — 公開系タスクから）／承認応答（approved/rejected/expired/pending — 許可済み ApprovalTransport からの応答）／オートモード判定材料（config.auto_mode_criteria＋実績証跡 — 機械判定用）
+- **出力**: approvals 行（初期channel=discord・binding 3 項目・decision・responder_ref）／approval evidence（kind=approval — decision=approved 時、approvals.evidence_id と相互整合）／拒否時: ApprovalBindingMismatch / NonRetryableFailure 例外と対応する task 遷移
+- **事前条件**: 個人 Discord の許可済み承認者 user ID が構成済み（将来 Web UI / PWA 認証へ拡張可能、transport は mock 可）／承認要求は binding 3 項目（対象・操作・時点）を欠落なく明記している／config.approval_retry_limitが存在する／config.external_write_policy.approval_notificationが初期service='discord_app'・operation='approval_request'・endpointを明示し、通知payloadのbinding 3項目が完全である
 - **事後条件**: 承認要求 1 件につき approvals 1 行が (task_id, binding 3 項目) UNIQUE で存在する／approved 時のみ後続の公開操作が binding 3 項目の完全一致照合を通過できる／decision と task 状態が対応している（approved→進行／rejected→failed／expired→再要求または escalated／pending→waiting）
 - **不変条件**: pending の間、対象タスクは進行せず親 loop_run は waiting のまま（AC-46 系 — 先行公開経路なし）／binding 3 項目のいずれか 1 つでも不一致なら公開は通らない（部分一致許容なし）／承認応答の書換え・削除は不可（approvals は証跡 — decision 変更は新規要求で行う）
 - **状態遷移**: tasks: in_progress→failed（non_retryable_failure — rejected）／in_progress→escalated（escalate — expired 上限到達）／tasks: verifying→done（verify_pass — 承認証跡完備が前提）／テーブル列: approvals.decision: pending / approved / rejected / expired
-- **正常動作**: binding 3項目を明記した実通知だけをexternal_operations(effect='write', policy_category='approval_notification', rate_scope='claude_code_app', service='claude_code_app', operation='approval_request', target_endpoint=config登録値)、実応答pollをeffect='read'/policy_category='external_read'/rate_scope=NULLとして記録する。通知writeはpolicyとbinding完全性をpreflight検証後だけprepared化し、未成立ApprovalPassを循環的に要求せず、各実要求をoperation_log INSERT triggerでfinal化する。mock/dry-runは外部操作両テーブル0。
-- **拒否・異常動作**: notification allow-list/config欠落、service/operation/endpoint不一致、binding欠落はpreflightで拒否し、外部呼出・external_operations・operation_log各0、process loggerへ事由コードを記録する。送信後の人間rejectedは応答readを証跡化してtaskをfailedへ倒す。
+- **正常動作**: binding 3項目を明記した実通知だけをexternal_operations(effect='write', policy_category='approval_notification', rate_scope='discord', service='discord_app', operation='approval_request', target_endpoint=config登録値)として記録する。Discord interactionはVPS HTTPS endpointでraw body署名・timestamp/replay・application/guild/channel/user allow-list・approval ID・期限・bindingを検証し、合格時だけpending行をCAS確定する。inboundはexternal readではないためexternal_operations/operation_logを作らない。将来Web UIは認証契約を追加する将来スライスまで不許可。mock/dry-runは外部操作両テーブル0。
+- **拒否・異常動作**: notification allow-list/config欠落、service/operation/endpoint不一致、binding欠落はpreflightで拒否し、外部呼出・external_operations・operation_log各0、process loggerへ事由コードを記録する。署名・鮮度・replay・identity・approval ID・binding・expiry検証に失敗したinteractionはdecision不変で拒否する。正当な人間rejectedだけをpending限定CASで確定しtaskをfailedへ倒す。inbound用operation_logは作らない。
 - **境界動作**: expired は承認を再要求して待機継続し、再要求回数が config.approval_retry_limit に到達したら escalated へ（無限待機しない）。同一 (task, binding 3 項目) の重複要求は UNIQUE 制約で既存行に照合。binding_at と実公開時点の乖離は不一致として拒否。
 - **再試行・再開・復旧**: クラッシュ後は approvals.decision から再開: pending は応答待ちを継続、approved は evidence 整合を確認して公開へ、rejected/expired は各遷移規則を適用。通知の再送は同一 binding の再要求として扱い二重承認を作らない。
 - **人間判断／escalation**: 承認応答そのもの（approve/reject）が人間判断の正規経路（BR-H1 — 束縛承認）。オートモード移行後は基準充足の機械判定で承認を省略
-- **副作用**: Claude Code アプリへの通知送出（transport は mock 可）／external_operations INSERT/UPDATE＋対応operation_log INSERT（実通知write／実応答poll readだけ）／approvals INSERT/UPDATE（decision）／evidence INSERT（kind=approval）／秘匿化済み構造化拒否ログ（照合拒否時）／tasks の状態遷移（状態機械 FR-11 経由）
+- **副作用**: Discord App への初期通知送出（交換可能 transport、将来 Web UI / PWA、テストは mock 可）／external_operations INSERT/UPDATE＋対応operation_log INSERT（実通知writeだけ。inbound interactionは対象外）／approvals INSERT/UPDATE（decision）／evidence INSERT（kind=approval）／秘匿化済み構造化拒否ログ（照合拒否時）／tasks の状態遷移（状態機械 FR-11 経由）
 - **冪等性**: 承認要求は (task_id, binding_subject, binding_operation, binding_at) UNIQUE で重複要求を検出。応答の重複受信は decision 確定済み行への no-op。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。
-- **証跡**: approvals 行（binding 3 項目・decision・responder_ref・decided_at）／approval evidence（decision=approved・approvals.evidence_id と相互整合）／operation_log（実通知write／実応答poll readのexternal_operation_row_id・correlation_key・request_hash・request_sequence。provider external_operation_idは任意）／秘匿化済み構造化拒否ログ（binding 不一致の公開拒否）
+- **証跡**: approvals 行（binding 3 項目・decision・responder_ref・decided_at）／approval evidence（decision=approved・approvals.evidence_id と相互整合）／operation_log（実通知writeのexternal_operation_row_id・correlation_key・request_hash・request_sequence）とapproval evidence（Discord interaction ID・検証済みprincipal）／秘匿化済み構造化拒否ログ（binding 不一致の公開拒否）
 - **使用テーブル・正本**: rw: approvals／rw: external_operations（承認通知の送出）／w: evidence（approval）／w: evidence（外部操作証跡 = operation_log kind）／rw: tasks（遷移は FR-11 経由）／r: config（approval_retry_limit・auto_mode_criteria）
-- **外部依存**: Claude Code アプリ通知（承認 transport — テストは mock）
-- **設定値**: config.approval_retry_limit（expired 再要求の上限）／config.auto_mode_criteria（オートモード移行基準 — C）／config.external_write_policy.approval_notification.allowed_services/endpoints（Claude Code app operation・endpointの必須許可行） ／ **固定値**: channel = claude_code_app（approvals DDL CHECK — 変更は要件改訂）／binding 照合は 3 項目完全一致（部分一致なし）
+- **外部依存**: ApprovalTransport（初期 Discord App、将来 Web UI / PWA — テストは mock）
+- **設定値**: config.approval_retry_limit（expired 再要求の上限）／config.auto_mode_criteria（オートモード移行基準 — C）／config.external_write_policy.approval_notification.allowed_services/endpoints（初期 Discord App operation・endpointの必須許可行） ／ **固定値**: channel = discord（S0 DDL CHECK。web_uiは認証・CSRF・再認証・principal束縛のAC/TCを追加する将来要件まで不許可）／binding 照合は 3 項目完全一致（部分一致なし）
 - **trace**: 上流 = BR-H1 BR-H2 REQ-038 ／ 下流 = AC-46-1 AC-46-2 AC-46-3 AC-46-4 FN-409 FN-410 CMP-11 ／ スライス = S0
 
 ## FR-47 秘匿情報

@@ -56,7 +56,7 @@ S0.1 の進行方法（本リポジトリ内か他経路か）は PO が決定�
 | CMP/SCM | [cmp-contracts.json](docs/L4-basic-design/canonical/components/cmp-contracts.json) |
 | DU/API/UT | [du-contracts.json](docs/L5-detailed-design/canonical/apis/du-contracts.json) |
 
-現行分母は **AC=237 ／ TCC=243 ／ API=59 ／ API_UT=215**（件数の正本は
+現行分母は **AC=237 ／ TCC=243 ／ API=59 ／ API_UT=218**（件数の正本は
 [baseline.json](docs/00-authority/baselines/baseline.json)）。旧体系の分母は `historical_counts` にのみ保持する。
 
 第 9 正本の implementation-units.json は **手編集の confirmed 正本**であり、DU 契約や L6 文書からの

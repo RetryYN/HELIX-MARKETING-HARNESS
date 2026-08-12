@@ -14,7 +14,7 @@
       "update": "S0.2",
       "purpose": "記事制作、審査、束縛承認、ローカル WP 公開を一気通貫化",
       "fn_ids": ["FN-401", "FN-402", "FN-404", "FN-406", "FN-409", "FN-411", "FN-501", "FN-511"],
-      "acceptance": "WF-WP-1/2 により commit hash と review PASS を pair 化し、Claude Code アプリ承認後に Docker WP へ公開。URL・スクショ・approval を evidence に収束"
+      "acceptance": "WF-WP-1/2 により commit hash と review PASS を pair 化し、許可済み ApprovalTransport（初期 Discord）での承認後に Docker WP へ公開。URL・スクショ・approval を evidence に収束"
     },
     {
       "update": "S0.3",

@@ -78,7 +78,7 @@ slice: S0
 | EthicsViolation | P5 該当・境界事例（FR-25 — S1） | —（差戻し = verify_fail） | verify_fail → in_progress（上限で verify_fail_exhausted → escalated） | verifier FAIL 証跡・state_transitions |
 | EvidenceIncomplete | 必須証跡 kind の欠落・kind 規則違反での done 要求（FR-28） | — | done 拒否（verifying のまま） | state_transitions rejected |
 | ApprovalRequired | approved な承認なしの公開・金銭系書込み要求（FR-26/44/46） | — | 拒否（外部送信 0 回） | 秘匿 process event＋state_transitions。後続業務操作の外部 2 表は 0 行 |
-| ApprovalBindingMismatch | binding 3 項目の不一致応答・照合（FR-44/46） | — | 公開拒否・応答は無効として待機継続 | 秘匿 process event。実 provider poll 自体の operation_log とは別で、後続業務 write は外部 2 表 0 行 |
+| ApprovalBindingMismatch | binding 3 項目の不一致interaction・公開時照合（FR-44/46） | — | 公開拒否・interactionは無効として待機継続 | 秘匿 process event。inbound external_operations／operation_logと後続業務writeは0行 |
 | ApprovalRejected | 承認応答 decision = rejected（FR-26/46 — 正規名。§5 参照） | — | non_retryable_failure → failed（代替 task 発行可） | approvals 行・state_transitions |
 | ApprovalExpired | 承認応答 decision = expired（FR-26/46） | —（再要求で待機継続） | 再要求。config.approval_retry_limit 到達で escalate | approvals 再要求系列 |
 | ApprovalRetryExhausted | expired 再要求が approval_retry_limit 到達（FR-46） | — | escalate → escalated | approvals 系列・state_transitions |

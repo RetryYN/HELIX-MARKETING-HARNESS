@@ -2309,11 +2309,11 @@
       ],
       "kind": "normal",
       "verifies_state": "approvals = approved・evidence 相互整合、task = 進行再開",
-      "verifies_db_delta": "通知はapproval_notification/rate_scope='claude_code_app' write +1、pollはexternal_read/rate_scope=NULL +1、各operation_log、approvals UPDATE、approval evidence +1、state_transitions +2",
-      "verifies_evidence": "通知write・応答readの各operation_logは内部row ID/category/scope一致。通知はbinding 3項目必須だがApprovalPass循環要求なし。read correlation式/payload sequence一致。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
+      "verifies_db_delta": "通知はapproval_notification/rate_scope='discord' write +1とoperation_log +1、inbound interaction外部操作行0、approvals pending条件CAS UPDATE、approval evidence +1、state_transitions +2",
+      "verifies_evidence": "execution_mode='actual'でsentに到達したDiscord通知external_operations行だけがoperation_logを生成し、external_operation_row_id・effect='write'・policy_category='approval_notification'・rate_scope='discord'・correlation_key・request_hash・request_sequenceを同値束縛する。署名検証済みinteractionはprocess event、承認結果はapprovalsとapproval evidenceの相互整合として残り、inbound用operation_logは0。",
       "verifies_forbidden": "応答受領前の公開実行・approvals 行の書換えによる decision 変更",
-      "external_calls": "通知write 1回＋応答poll read 1回",
-      "method": "pytest: binding 3項目とnotification policyをseedし、ApprovalPassなしでも通知preflightが成立すること、通知category/scope、poll external_read/scope、operation_log同値、approval evidence、公開ゲート通過をassertする",
+      "external_calls": "Discord通知write 1回（inbound interactionは外部call計上0）",
+      "method": "pytest: binding 3項目とnotification policyをseedし、通知category/scope、正当な署名・identity・bindingのinteraction、pending限定CAS、inbound外部操作行0、approval evidence、公開ゲート通過をassertする",
       "slice": "S0",
       "semantic_refs": {
         "table_refs": [
@@ -2356,11 +2356,11 @@
       ],
       "kind": "reject",
       "verifies_state": "公開 0 件、rejected 側 task = failed（retry_count 増加なし）",
-      "verifies_db_delta": "rejected応答pollはexternal_operations(effect='read', policy_category='external_read', rate_scope=NULL) +1行と対応operation_log +1行、approvals UPDATE、failed遷移 +1。binding不一致判定自体はprocess loggerのみ",
-      "verifies_evidence": "rejected poll operation_log＋binding不一致process event＋approvals rejected行。operation_logはexternal_operation_row_idで該当external_operations.idへexactly-oneに束縛し、provider external_operation_idは任意。各read要求はcorrelation_key='read:<task_id>:<request_hash>:<request_sequence>'を用い、反復poll/再取得ではrequest_sequenceを単調増加し、operation_log payloadのrequest_sequence一致をassertする。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
+      "verifies_db_delta": "不正interactionは外部操作両表・approvals差分0。正当なrejectedだけがapprovalsをpending限定CAS UPDATEしfailed遷移+1",
+      "verifies_evidence": "署名・鮮度・replay・application/guild/channel/user・approval ID・binding・expiryごとの拒否process eventとapprovals rejected行。inbound operation_logは0",
       "verifies_forbidden": "不一致のままの公開（外部書込み 0 回）・rejected タスクの自動リトライ・escalated への迂回",
-      "external_calls": "rejected応答poll read 1回（binding不一致側0回）",
-      "method": "pytest: 既存approvalのbinding不一致はprocess event・外部操作差分0をassertし、別taskのrejected pollはeffect='read' external_operationsと対応operation_log、approvals rejected、task failedをassertする",
+      "external_calls": "0回（interaction受領は外部call計上外）",
+      "method": "pytest: 署名不正・timestamp期限外・replay・identity・approval ID・binding・expiry不正を個別に拒否し差分0をassert。別taskの正当なrejected interactionはpending限定CAS、inbound外部操作行0、task failedをassertする",
       "slice": "S0",
       "semantic_refs": {
         "table_refs": [
@@ -2402,11 +2402,11 @@
       ],
       "kind": "boundary",
       "verifies_state": "expired 側 task = escalated、pending 側 = waiting 継続（要求は 1 件のまま）",
-      "verifies_db_delta": "各再要求cycleはapproval_notification/rate_scope='claude_code_app' writeとexternal_read/rate_scope=NULL poll各1行・対応operation_log各1行。上限到達でescalate +1、pending再開側は差分なし",
-      "verifies_evidence": "通知write・応答read各operation_log（内部row ID一致）＋approvals expired履歴＋escalate遷移。operation_logはexternal_operation_row_idで該当external_operations.idへexactly-oneに束縛し、provider external_operation_idは任意。各read要求はcorrelation_key='read:<task_id>:<request_hash>:<request_sequence>'を用い、反復poll/再取得ではrequest_sequenceを単調増加し、operation_log payloadのrequest_sequence一致をassertする。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
+      "verifies_db_delta": "各再要求cycleは新binding_atのapprovals +1、approval_notification/rate_scope='discord' write +1・対応operation_log +1、inbound外部操作行0。上限到達でescalate +1、pending再開側は差分なし",
+      "verifies_evidence": "各cycleでexecution_mode='actual'かつsentのDiscord通知external_operations行に、external_operation_row_id・effect='write'・policy_category='approval_notification'・rate_scope='discord'・correlation_key・request_hash・request_sequenceを同値束縛したoperation_log＋approvals expired履歴＋inbound process event＋escalate遷移。inbound operation_logは0",
       "verifies_forbidden": "上限超過後の再要求継続（無限待機）・同一 binding の重複 approvals 行・expired の failed 化（rejected と混同）",
-      "external_calls": "各cycleで通知write 1回＋expired poll read 1回（approval_retry_limit=2で計4回）",
-      "method": "pytest: approval_retry_limit=2・expired transportで、各cycleの通知effect='write'とpoll effect='read'のexternal_operations/operation_log、上限escalate、pending再開側の外部操作重複0をassertする",
+      "external_calls": "各cycleでDiscord通知write 1回（expired interactionは外部call計上0）",
+      "method": "pytest: approval_retry_limit=2で、各cycleの通知write、正当なexpired interactionのpending限定CASと外部操作行0、新binding_at、上限escalate、pending再開側の外部操作重複0をassertする",
       "slice": "S0",
       "semantic_refs": {
         "table_refs": [
@@ -3312,7 +3312,7 @@
         "AC-71-1"
       ],
       "kind": "normal",
-      "verifies_state": "25 テーブル＋保護トリガ 37 本（append-only・TLP 整合・brief 不変／状態遷移／valid_until）存在、verify() = pass",
+      "verifies_state": "25 テーブル＋保護トリガ 39 本（append-only・TLP 整合・brief 不変／状態遷移／valid_until）存在、verify() = pass",
       "verifies_db_delta": "全 25 テーブル CREATE、schema_version +N 行（migration ごと）",
       "verifies_evidence": "schema_version 行（version・migration 名・checksum・適用者・時刻）",
       "verifies_forbidden": "DDL 正本にないテーブル・トリガの生成、FK OFF での使用開始",
@@ -5026,7 +5026,7 @@
       "kind": "reject",
       "verifies_state": "tasks 行なし",
       "verifies_db_delta": "差分なし",
-      "verifies_evidence": "なし（DB 層拒否）",
+      "verifies_evidence": "再送・競合拒否のprocess event（DB差分なし）",
       "verifies_forbidden": "verifier NULL 行の混入・CHECK 制約の三値すり抜け",
       "external_calls": "0 回",
       "method": "pytest: seed: agent 1 件・workflow 1 件、INSERT 文 = tasks(author_agent_id=A1, verifier_agent_id=NULL, ...) を seed し、raise される例外型／tasks SELECT（行数 0 の確認） を assert（INSERT を実行する）",
@@ -5101,10 +5101,10 @@
       "kind": "reject",
       "verifies_state": "approvals 1 行のまま decision='approved' 不変",
       "verifies_db_delta": "差分なし",
-      "verifies_evidence": "なし（DB 層拒否）",
-      "verifies_forbidden": "approvals 行の decision 変更・行削除",
+      "verifies_evidence": "なし（DB 層の SQLITE_CONSTRAINT 拒否）",
+      "verifies_forbidden": "approvals 行の decision 変更・行削除（直接 SQL を含む）",
       "external_calls": "0 回",
-      "method": "pytest: seed: approved の approvals 1 行（binding 3 項目つき）、UPDATE 文 = SET decision='rejected'、DELETE 文 を seed し、raise される例外型／approvals SELECT（行数・decision の不変性） を assert（approvals 行の UPDATE と DELETE をそれぞれ実行する）",
+      "method": "pytest: seed: approvedのapprovals 1行（binding 3項目つき）へ同一nonce再送とrejected競合interactionを投入し、さらに直接SQL UPDATE decision='rejected' と DELETE を各実行する。CAS更新0行・現在値approved・行数不変・削除API非公開、および両SQLのsqlite_errorcode基底値=SQLITE_CONSTRAINTをassertする",
       "slice": "S0",
       "semantic_refs": {
         "table_refs": [
@@ -7053,5 +7053,5 @@
   "supersedes": [
     "ARCHIVE-TC-LEGACY"
   ],
-  "approval_digest": "829ca45b5672"
+  "approval_digest": "b1d92cfd984e"
 }

@@ -390,7 +390,7 @@
       "previous_paths": [
         "docs/L0-charter/marketing-harness-charter_v0.4.md"
       ],
-      "approval_digest": "28d40aeec638",
+      "approval_digest": "f84944b5e4b1",
       "review_digest": null
     },
     {
@@ -412,7 +412,7 @@
       "previous_paths": [
         "docs/requirements/br-backbone_v0.1.md"
       ],
-      "approval_digest": "9e775f3f5173",
+      "approval_digest": "edcace4be6f0",
       "review_digest": null
     },
     {
@@ -918,7 +918,7 @@
       "previous_paths": [
         "docs/requirements/json/br/br-contracts.json"
       ],
-      "approval_digest": "6bfd434b51fb",
+      "approval_digest": "67de1e48ae41",
       "review_digest": null
     },
     {
@@ -984,7 +984,7 @@
       "previous_paths": [
         "docs/requirements/loop-task-workflow_v0.1.md"
       ],
-      "approval_digest": "83f2152e18c2",
+      "approval_digest": "0cfa940828b5",
       "review_digest": null
     },
     {
@@ -1154,7 +1154,7 @@
       "previous_paths": [
         "docs/requirements/json/ac/ac-contracts.json"
       ],
-      "approval_digest": "af80ad5f5927",
+      "approval_digest": "e2cfb402b79e",
       "review_digest": null
     },
     {
@@ -1220,7 +1220,7 @@
       "previous_paths": [
         "docs/requirements/json/fr/fr-contracts.json"
       ],
-      "approval_digest": "7413d0e4506b",
+      "approval_digest": "bbb591341b15",
       "review_digest": null
     },
     {
@@ -1748,7 +1748,7 @@
       "previous_paths": [
         "docs/requirements/requirements_v0.1.md"
       ],
-      "approval_digest": "ffe5af474f2a",
+      "approval_digest": "0bc4ac7e50ff",
       "review_digest": null
     },
     {
@@ -1814,7 +1814,7 @@
       "previous_paths": [
         "docs/requirements/s0-contract_v0.1.md"
       ],
-      "approval_digest": "2b290bc9fe49",
+      "approval_digest": "1f9e34c85664",
       "review_digest": null
     },
     {
@@ -2728,7 +2728,7 @@
       "previous_paths": [
         "docs/requirements/json/verification/tc-contracts.json"
       ],
-      "approval_digest": "829ca45b5672",
+      "approval_digest": "b1d92cfd984e",
       "review_digest": null
     },
     {
@@ -2816,7 +2816,7 @@
       "previous_paths": [
         "docs/design/approval-design_v0.1.md"
       ],
-      "approval_digest": "3a403cdb2ff4",
+      "approval_digest": "ff73d3c8f399",
       "review_digest": null
     },
     {
@@ -2838,7 +2838,7 @@
       "previous_paths": [
         "docs/design/basic-design_v0.1.md"
       ],
-      "approval_digest": "6ef47350715b",
+      "approval_digest": "9c104c31f3aa",
       "review_digest": null
     },
     {
@@ -2904,7 +2904,7 @@
       "previous_paths": [
         "docs/design/json/cmp-contracts.json"
       ],
-      "approval_digest": "e0c45722a185",
+      "approval_digest": "2195391c9342",
       "review_digest": null
     },
     {
@@ -2992,7 +2992,7 @@
       "previous_paths": [
         "docs/design/db-design_v0.1.md"
       ],
-      "approval_digest": "87e38658e04b",
+      "approval_digest": "536c668992dc",
       "review_digest": null
     },
     {
@@ -3014,7 +3014,7 @@
       "previous_paths": [
         "docs/design/external-if-design_v0.1.md"
       ],
-      "approval_digest": "82adce1bdb8d",
+      "approval_digest": "5926e1fa0e3f",
       "review_digest": null
     },
     {
@@ -3080,7 +3080,7 @@
       "previous_paths": [
         "docs/requirements/tech-stack_v0.1.md"
       ],
-      "approval_digest": "2cd72197b54f",
+      "approval_digest": "db801e061bff",
       "review_digest": null
     },
     {
@@ -3214,7 +3214,7 @@
       "previous_paths": [
         "docs/design/json/du-contracts.json"
       ],
-      "approval_digest": "0aa153729de3",
+      "approval_digest": "4c7c646c2ef9",
       "review_digest": null
     },
     {
@@ -3258,7 +3258,7 @@
       "previous_paths": [
         "docs/design/error-taxonomy_v0.1.md"
       ],
-      "approval_digest": "97b1bea7c697",
+      "approval_digest": "646f9996ab24",
       "review_digest": null
     },
     {
@@ -3366,7 +3366,7 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [],
       "previous_paths": [],
-      "approval_digest": "8e5a8b45c389",
+      "approval_digest": "cf09fbe520f1",
       "review_digest": null
     },
     {
@@ -3428,7 +3428,7 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [],
       "previous_paths": [],
-      "approval_digest": "4330f2eceff3",
+      "approval_digest": "1be27c76274c",
       "review_digest": null
     },
     {
@@ -3468,7 +3468,7 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [],
       "previous_paths": [],
-      "approval_digest": "68e2a643d754",
+      "approval_digest": "7adcd9bcd3ee",
       "review_digest": null
     },
     {
@@ -3674,7 +3674,7 @@
       "extends_artifact_ids": [],
       "depends_on_artifact_ids": [],
       "previous_paths": [],
-      "approval_digest": "a7bb36740a05",
+      "approval_digest": "69b0d2c9ebcb",
       "review_digest": null
     },
     {
@@ -3850,6 +3850,28 @@
       "depends_on_artifact_ids": [],
       "previous_paths": [],
       "approval_digest": null,
+      "review_digest": null
+    },
+    {
+      "artifact_id": "AUTH-ADR-ADR-010-APPROVAL-TRANSPORT-AND-UI-EVOLUTION",
+      "layer": "00-authority",
+      "slice": "cross",
+      "domain": "adr",
+      "artifact_type": "adr",
+      "authority_format": "markdown",
+      "authority_status": "active",
+      "lifecycle_status": "confirmed",
+      "canonical_path": "docs/00-authority/adr/ADR-010-approval-transport-and-ui-evolution.md",
+      "view_path": null,
+      "view_generation": "none",
+      "pair_artifact_id": null,
+      "supersedes": [],
+      "extends_artifact_ids": [
+        "AUTH-ADR-ADR-007-UNATTENDED-EXECUTION-VPS"
+      ],
+      "depends_on_artifact_ids": [],
+      "previous_paths": [],
+      "approval_digest": "2ef76817df89",
       "review_digest": null
     },
     {

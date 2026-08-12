@@ -510,7 +510,7 @@ CREATE TABLE approvals (
   id INTEGER PRIMARY KEY,
   task_id INTEGER NOT NULL,
   requested_by_agent_id INTEGER NOT NULL,
-  channel TEXT NOT NULL CHECK (channel = 'claude_code_app'),
+  channel TEXT NOT NULL CHECK (channel = 'discord'),
   binding_subject TEXT NOT NULL,
   binding_operation TEXT NOT NULL,
   binding_at TEXT NOT NULL,
@@ -585,6 +585,12 @@ CREATE TRIGGER state_transitions_no_update BEFORE UPDATE ON state_transitions
 BEGIN SELECT RAISE(ABORT, 'state_transitions is append-only'); END;
 CREATE TRIGGER state_transitions_no_delete BEFORE DELETE ON state_transitions
 BEGIN SELECT RAISE(ABORT, 'state_transitions is append-only'); END;
+CREATE TRIGGER approvals_decision_pending_only BEFORE UPDATE ON approvals
+WHEN OLD.decision != 'pending'
+BEGIN SELECT RAISE(ABORT, 'approval decision is final'); END;
+CREATE TRIGGER approvals_final_no_delete BEFORE DELETE ON approvals
+WHEN OLD.decision != 'pending'
+BEGIN SELECT RAISE(ABORT, 'final approval cannot be deleted'); END;
 CREATE TRIGGER external_operations_insert_prepared BEFORE INSERT ON external_operations
 WHEN NEW.status != 'prepared'
   OR NEW.evidence_id IS NOT NULL
@@ -1148,7 +1154,7 @@ S0 で seed する workflow は `WF-WP-1`、`WF-WP-2`、`WF-MEAS-1` である。
 |---|---|---|---|---|---|
 | 1. 公開前検証 | pair_plan_quality、commit hash、記事 | 公開可能判定 | review_pass, commit_hash | pair = passed、hash 一致、証跡完備 | 拒否して T-PUB を failed。WP API を呼ばない |
 | 2. 下書き作成 | 記事 HTML、WP 接続、専用 idempotency key | WP draft ID | operation_log | ローカル Docker WP のみ書込み可。`external_operations` を prepared→sent→confirmed で遷移 | timeout/クラッシュは §3.3 の sent 照合で再開、照合不能は escalated |
-| 3. 束縛承認 | draft URL/ID、対象、公開操作、時点 | approved approval | approval | channel = Claude Code アプリ、decision = approved、binding 3 項目完全一致 | rejected は non_retryable_failure で failed。expired は承認再要求で待機継続し `config.approval_retry_limit` 到達で escalated。pending は waiting |
+| 3. 束縛承認 | draft URL/ID、対象、公開操作、時点 | approved approval | approval | channel は許可済み ApprovalTransport、decision = approved、binding 3 項目完全一致 | rejected は non_retryable_failure で failed。expired は承認再要求で待機継続し `config.approval_retry_limit` 到達で escalated。pending は waiting |
 | 4. 公開 | approved approval、draft ID、下書きとは別の専用 idempotency key | canonical URL、WP post ID | published_url, operation_log | 承認・pair・証跡の再検証。`external_operations` を prepared→sent→confirmed で遷移 | 再送前照合。公開状態不明（unknown）は escalated |
 | 5. 公開確認 | canonical URL | capture | screenshot | URL 到達・URL 一致 | スクショ失敗は retry、上限到達で escalated |
 | 6. 資産登録と完了 | WP post/media ID、URL | assets 行、done | published_url, screenshot, approval | required_evidence_json の全充足 | 欠落は done 拒否 |
@@ -1194,7 +1200,7 @@ GA4 取り込みの外部 read は正規 Data API を第一経路とする（[AD
 | ローカル WP | Docker の `wordpress` + `mariadb`、テスト用サイト・管理者 | REST 接続、下書き→公開、URL/スクショ確認 | **唯一の実 WP 書込み先**。E2E はここで行う |
 | 本番 WP | 実サイト、Application Password を暗号化ストア経由で投入 | credential は暗号化ストアから実行時注入し、SQLite・repo・ログに保存しない | S0 は read 接続又は設定検証まで。自動テストの書込み禁止 |
 | GA4 | 既存 property、読取権限を持つ分離 credential | property ID は config の非秘匿値、認証値は暗号化ストア | fixture/mock 又は dry-run。実 property への書込みは存在しない |
-| 承認通知 | Claude Code アプリで通知を受け取れる利用者 | binding subject / operation / at を通知・照合し approvals/evidence に記録 | 通知 transport は mock 可。approve/reject/timeout を fixture で検証 |
+| 承認通知 | 個人 Discord の許可済み利用者（将来 Web UI / PWA の認証利用者を追加） | binding subject / operation / at を通知・照合し approvals/evidence に記録 | transport は mock 可。署名・承認者 ID・approve/reject/timeout を fixture で検証 |
 | credential 全般 | テスト用と本番用を別発行・別保管し、初回投入は人が行う | テスト credential を本番 endpoint に、本番 credential を Docker/mock に使用しない。平文出力禁止 | CI は mock/dry-run と test credential のみ |
 
 `dry-run` / mock は外部 I/O を行わず、予定 request の fingerprint と mock 結果は process logger にだけ残す。`external_operations` / `operation_log` はどちらも 0 行とする。mock は実サービスの成功・失敗・timeout・重複応答を再現し、外部副作用を持たない。テスト中にローカル Docker 以外の本物 WP を書換える設定を検出した場合、実行を拒否する。pre-call ガード拒否も同じく DB 行を作らない。
@@ -1206,7 +1212,7 @@ S0 のスコープと 25 機能を維持したまま、依存順に 3 更新へ�
 | 更新 | 目的・完了境界 | FN ID（件数） | 受入の要点 |
 |---|---|---|---|
 | S0.1 | DB、状態機械、ゲート、証跡の基盤を実働化 | FN-101, FN-102, FN-103, FN-104, FN-105, FN-201, FN-202, FN-204, FN-208, FN-305, FN-701, FN-702, FN-703, FN-704（14） | 23 業務テーブル＋インフラ 2 テーブル＋append-only トリガの生成、未定義遷移拒否、principal の異なる author/verifier、pair 未成立公開拒否、必須証跡欠落時の done 拒否、config INSERT 履歴、versioned strategic_brief のシードと digest 決定性、有効 brief なし／失効／digest 不一致の下位 loop_run 開始拒否、learning/failure packet の生成と run/brief/digest 整合、上流戦略正本への UPDATE/DELETE 拒否（下流からの直接変更不可）— 受入は AC-SR-01〜06・検証は **STC-I-01〜06 の pytest green**（python-ci で実行） |
-| S0.2 | 記事制作、審査、束縛承認、ローカル WP 公開を一気通貫化 | FN-401, FN-402, FN-404, FN-406, FN-409, FN-411, FN-501, FN-511（8） | WF-WP-1/2 により commit hash と review PASS を pair 化し、Claude Code アプリ承認後に Docker WP へ公開。URL・スクショ・approval を evidence に収束 |
+| S0.2 | 記事制作、審査、束縛承認、ローカル WP 公開を一気通貫化 | FN-401, FN-402, FN-404, FN-406, FN-409, FN-411, FN-501, FN-511（8） | WF-WP-1/2 により commit hash と review PASS を pair 化し、許可済み ApprovalTransport（初期 Discord）での承認後に Docker WP へ公開。URL・スクショ・approval を evidence に収束 |
 | S0.3 | GA4 計測、接続レジストリ、攻略地図、最小ダッシュボード用データ面を成立 | FN-601, FN-602, FN-603（3） | WF-MEAS-1 で PV を取得証跡付きで measurements に投入し、registry/playbooks を使う。S0 の DB クエリを最小ダッシュボードのデータソースとして固定（HTML 生成 FN-605 自体は S1） |
 
 合計は **14 + 8 + 3 = 25** 機能である。S0.3 の「ダッシュボード最小」は、SQLite の KPI node・measurement・状態クエリを表示可能なデータ契約までを指し、自己完結 HTML の自動生成は既存のスライス定義どおり S1（FN-605）に残す。

@@ -32,20 +32,20 @@ tech-stack v0.1 はスケジューラを「cron（WSL）+ ハーネス内 heartb
 | 車線 | 実行基盤 | 対象 |
 |---|---|---|
 | 無人車線 | **VPS helix-worker（systemd service / timer）** | スケジュール発火・キュー駆動ワーカー・Playwright 無人突破・証跡蓄積・KPI 収集 |
-| 有人車線 | **ローカル WSL + Claude Code（現行どおり）** | 承認通知・対話 BI（内蔵ブラウザ）・OAuth 初回ログイン取得・Notion 計画同期・Docker WP 検証・開発 |
+| 有人車線 | **スマホ／標準ブラウザ＋ローカル開発環境** | Discord初期承認・将来Web UI/PWA・OAuth初回ログイン取得・Notion計画同期・Docker WP検証・開発 |
 
 - tech-stack §1 の「cron（WSL）」を「systemd timer（helix-worker）」に改訂する。
   ハーネス内 heartbeat 判断は変更なし（OS は発火のみ、回転判断はエンジン、の原則は維持）
 - ブラウザ三段構え（ADR-003）・API 第一経路（ADR-006）は変更なし。実行場所が VPS になるのみ
-- 有人前提の要素（Claude Code 内蔵ブラウザ・アプリ通知・MCP 対話）は設計どおりローカルに残す。
-  これらを VPS に移さないことで、内蔵ブラウザの attended 前提との整合も維持される
+- 有人前提の操作入口はスマホ／標準ブラウザに置き、承認状態とAPIはVPS側に置く（ADR-010）。
+  Claude Codeは開発・対話デバッグ用の任意クライアントであり、製品実行時の必須依存にしない
 
 ## 車線間の接続契約
 
 1. **セッション搬入**: OAuth / ログインセッションはローカルの有人操作で取得し、
    ブラウザプロファイルとして VPS のブランド別プロファイル（brand-isolation 設計に従う）へ搬入する
-2. **承認**: 承認待ちタスクは VPS 側キューで停止し、ローカルの Claude Code セッションから
-   承認結果をキューへ書き込むことで再開する（承認 UI はローカル、承認状態の正本は VPS 側 DB）
+2. **承認**: 承認待ちタスクは VPS 側キューで停止し、交換可能な承認入口（初期Discord、将来Web UI/PWA）から
+   VPS側承認APIへ結果を書き込むことで再開する（承認状態の正本は VPS 側 DB）
 3. **デプロイ**: 正本は GitHub。VPS は pull + 全ゲート PASS を確認してからワーカーを再起動する
    （fail-close: ゲート不合格の版は稼働しない）
 4. **証跡**: 実行証跡の一次蓄積は VPS。ローカルの対話 BI は VPS から取得したデータを読む
@@ -69,6 +69,6 @@ tech-stack v0.1 はスケジューラを「cron（WSL）+ ハーネス内 heartb
 
 ## 未決事項（PO 判断）
 
-1. 承認通知の到達手段: Claude Code アプリ通知のみか、PushNotification 等の補助チャネルを併用するか
+1. 承認通知の到達手段は ADR-010 で解決済み（初期 Discord、将来 Web UI / PWA）
 2. 証跡バックアップ先: GitHub 証跡リポジトリ / オブジェクトストレージ / ローカル同期のいずれか
 3. Docker WP 検証環境を VPS 側にも複製するか（本番反映パイプラインの配置）

@@ -82,7 +82,7 @@ Claude Code 内蔵ブラウザ（2026-07 実装）は「対話的・人が監視
 | Seedance | 有償 API（例外台帳） | ブラウザ生成 AI |
 | Codex CLI（画像生成） | CLI 非対話実行（ChatGPT Pro サブスク枠） | ブラウザ生成 AI |
 | Claude Design | DesignSync | 同期済みキャッシュ |
-| 承認・通知 | Claude Code アプリ通知 | — |
+| 承認・通知 | VPS 側承認 API＋交換可能 `ApprovalTransport`。初期は Discord App、将来は Web UI / PWA | ADR-010 |
 
 ## 6. マーケティングサービス選定（確定済みの再掲）
 
@@ -92,8 +92,8 @@ Claude Code 内蔵ブラウザ（2026-07 実装）は「対話的・人が監視
 - **決済**: Stripe（取引手数料のみ）／ **販売**: note・KDP・アフィリエイト（ASP）
 - **音声配信**: Podcast RSS（WP 自前）主・stand.fm 従・Voicy 保留
 - **分析面**: Python 生成 HTML 主・xlsx→スプシ従・Notion チャート不使用。
-  **閲覧・対話分析は Claude Code 内蔵ブラウザを BI ビューアとして使う** — ローカル HTML なので
-  内蔵ブラウザの制約（クリーンプロファイル・attended 前提）が問題にならず、ダッシュボードを
+  **閲覧・対話分析は標準ブラウザで開ける UI を BI ビューアとする** — ローカル HTML でも提供でき、
+  Claude Code 内蔵ブラウザは任意の開発・確認クライアントとして、ダッシュボードを
   Claude と一緒に見ながら SQLite へ追加クエリを投げる対話型 BI が成立する。Notion 埋め込みは共有・常設用
 - **保留**: Shopify（固定費）・メルカリ（物理オペ）・iOS（$99/年）・R 言語（MMM 段階で再訪）
 

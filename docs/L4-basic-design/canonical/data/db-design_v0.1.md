@@ -76,7 +76,7 @@ transaction を開閉する層。
   `content_publish`／`review_sync`／`approval_notification`／`approved_paid_operation` の閉集合で、
   Recorder は exact `(policy_category, service, operation, target_endpoint)` policy 合格値を lifecycle 中不変にする。
   content_publish は Docker WP のみ、review_sync は Notion の明示 config＋ApprovalPass、
-  approval_notification は Claude Code アプリ＋確定済み binding、approved_paid_operation は
+  approval_notification は許可済み ApprovalTransport（初期 Discord App）＋確定済み binding、approved_paid_operation は
   PO 承認＋有償 route に限定する。write は canonical lowercase rate_scope 必須、read は NULL。
   intent／request／result／external row／operation_log で category／rate_scope を同値降下し、
   operation_log payload は read にも `rate_scope: null` を常設する。category／policy／rate_scope 欠落は行作成前拒否。
@@ -93,7 +93,7 @@ transaction を開閉する層。
   この不変条件は S0 schema 境界だが、記帳所有者・API・DU／UT は S1 専用 component へ再降下が必要な design debt。
   CMP-13／DU-23（計測 ingest）や CMP-02／DU-04 の既存 API に記帳責務を混在させない。
 
-## 3. append-only 群・可変群とトリガ 37 本の意図
+## 3. append-only 群・可変群とトリガ 39 本の意図
 
 ### 3.1 群の区分
 
@@ -104,31 +104,32 @@ transaction を開閉する層。
 - **可変群（残り）**: 状態列・lease 等の UPDATE を許すが、変更経路は §2 の所有 CMP に限定する。
   可変群でも DELETE は業務上使わない（FK は全て ON DELETE RESTRICT — 暗黙カスケードなし）。
 
-### 3.2 トリガ 37 本の意図（本文は s0-contract §2 が正準）
+### 3.2 トリガ 39 本の意図（本文は s0-contract §2 が正準）
 
 | # | トリガ | 意図 |
 |---|---|---|
 | 1–2 | config_no_update / no_delete | 設定変更の履歴化（FR-33）。「いつ誰がなぜ変えたか」を消せなくする |
 | 3–4 | evidence_no_update / no_delete | 証跡の改竄不可（BR-B3/BR-I7）。done 判定の根拠を事後に書換えられない |
 | 5–6 | state_transitions_no_update / no_delete | 遷移ログの不可逆性（NFR-5）。拒否記録の抹消も不可 |
-| 7 | external_operations_insert_prepared | preflight 通過後の新規行を prepared 開始に限定し、時刻・結果列の先行充填を拒否 |
-| 8 | external_operations_binding_immutable | task/service/operation/effect/policy_category/rate_scope/request key/hash/sequence/target_endpoint の lifecycle 中差替えを拒否 |
-| 9 | external_operations_result_sent_only | sent 到達前の provider 結果・response hash 充填を拒否 |
-| 10 | external_operations_lifecycle | prepared→sent→confirmed/rejected/unknown の正準遷移・時刻・結果必須条件を強制 |
-| 11–12 | external_operations_final_immutable / no_delete | terminal 行の改変と外部操作履歴の削除を拒否 |
-| 13 | evidence_operation_log_insert | operation_log の内部 row ID 束縛・terminal 1:1・policy_category/rate_scope を含む対応属性一致を INSERT 時に強制 |
-| 14 | evidence_published_url_insert | published_url を同 task の confirmed content_publish external row／operation_log へ2つのローカルIDで1:1束縛 |
-| 15 | spend_ledger_binding_insert | approved_paid_operation confirmed の内部 external row ID 1:1、task/service/provider任意ID一致を強制 |
-| 16–17 | spend_ledger_no_update / no_delete | 支出台帳の追記専用性を強制 |
-| 18–20 | playbook_repair_task_insert / task_no_retry / no_verify_retry | 破損版1件につきpending修復task 1件、attempt=1・retry=0・束縛不変を強制 |
-| 21–22 | playbooks_initial_insert / version_insert | 初版active、新版はdoneの修復/人手改訂taskとretired直前版へ連続束縛 |
-| 23–27 | playbooks_content_no_update / status_transition / health_active_only / retired_no_update / no_delete | 版内容・系譜の上書き、状態逆行、非active健全性更新、retired改変、削除を拒否 |
-| 28–29 | strategic_briefs_no_update / no_delete | 上流正本の内容列・系譜を凍結し、内容変更を supersedes_id 付き新版 INSERT に強制 |
-| 30–31 | strategic_briefs_status_transition / valid_until_no_extend | brief の状態逆行と既存版の期限延長を拒否 |
-| 32–33 | tactical_learning_packets_no_update / no_delete | 下流からの還流（TLP）は提出のみ・撤回不可（AC-SR-05） |
-| 34 | tactical_learning_packets_integrity | INSERT 時に「lower・終端・run/brief/digest 三者一致」を DB 層でも強制（AC-SR-06） |
-| 35 | loop_runs_brief_immutable | run 開始後の brief ID/digest 差替えを拒否 |
-| 36–37 | tlp_kind_matches_terminal_state / tlp_kind_field_rules | 終端状態と packet 種別・必須/禁止フィールドの意味整合を強制 |
+| 7–8 | approvals_decision_pending_only / final_no_delete | approval decision は pending 行から一度だけ確定する。確定済み行の UPDATE と DELETE は SQL 直叩きを含め常時拒否 |
+| 9 | external_operations_insert_prepared | preflight 通過後の新規行を prepared 開始に限定し、時刻・結果列の先行充填を拒否 |
+| 10 | external_operations_binding_immutable | task/service/operation/effect/policy_category/rate_scope/request key/hash/sequence/target_endpoint の lifecycle 中差替えを拒否 |
+| 11 | external_operations_result_sent_only | sent 到達前の provider 結果・response hash 充填を拒否 |
+| 12 | external_operations_lifecycle | prepared→sent→confirmed/rejected/unknown の正準遷移・時刻・結果必須条件を強制 |
+| 13–14 | external_operations_final_immutable / no_delete | terminal 行の改変と外部操作履歴の削除を拒否 |
+| 15 | evidence_operation_log_insert | operation_log の内部 row ID 束縛・terminal 1:1・policy_category/rate_scope を含む対応属性一致を INSERT 時に強制 |
+| 16 | evidence_published_url_insert | published_url を同 task の confirmed content_publish external row／operation_log へ2つのローカルIDで1:1束縛 |
+| 17 | spend_ledger_binding_insert | approved_paid_operation confirmed の内部 external row ID 1:1、task/service/provider任意ID一致を強制 |
+| 18–19 | spend_ledger_no_update / no_delete | 支出台帳の追記専用性を強制 |
+| 20–22 | playbook_repair_task_insert / task_no_retry / no_verify_retry | 破損版1件につきpending修復task 1件、attempt=1・retry=0・束縛不変を強制 |
+| 23–24 | playbooks_initial_insert / version_insert | 初版active、新版はdoneの修復/人手改訂taskとretired直前版へ連続束縛 |
+| 25–29 | playbooks_content_no_update / status_transition / health_active_only / retired_no_update / no_delete | 版内容・系譜の上書き、状態逆行、非active健全性更新、retired改変、削除を拒否 |
+| 30–31 | strategic_briefs_no_update / no_delete | 上流正本の内容列・系譜を凍結し、内容変更を supersedes_id 付き新版 INSERT に強制 |
+| 32–33 | strategic_briefs_status_transition / valid_until_no_extend | brief の状態逆行と既存版の期限延長を拒否 |
+| 34–35 | tactical_learning_packets_no_update / no_delete | 下流からの還流（TLP）は提出のみ・撤回不可（AC-SR-05） |
+| 36 | tactical_learning_packets_integrity | INSERT 時に「lower・終端・run/brief/digest 三者一致」を DB 層でも強制（AC-SR-06） |
+| 37 | loop_runs_brief_immutable | run 開始後の brief ID/digest 差替えを拒否 |
+| 38–39 | tlp_kind_matches_terminal_state / tlp_kind_field_rules | 終端状態と packet 種別・必須/禁止フィールドの意味整合を強制 |
 
 トリガは「最大 1 件・整合」を守る側であり、「終端 lower run に最低 1 件」は kernel の同一 tx 契約＋
 DU-11 `verify()` の孤児検査が守る（役割分担 — s0-contract §3）。
@@ -184,7 +185,7 @@ DU-11 `verify()` の孤児検査が守る（役割分担 — s0-contract §3）�
   （推測での index 追加禁止 — 書込みコストと引換えのため）。
 - **定常整合性検査**（DU-11 `verify()` — 起動時・昇格時・LP-OPS ヘルスチェックで実行）:
   1. `PRAGMA foreign_key_check` / `PRAGMA integrity_check` 違反 0 件。
-  2. 25 テーブル・トリガ 37 本の存在。
+  2. 25 テーブル・トリガ 39 本の存在。
   3. TLP 孤児検査（terminal lower run で packet 0 件 → escalate）。
   4. 相互整合の追加検査（read-only SQL）: `approvals.evidence_id` ↔ approval 証跡の相互参照、
      `pair_plan_quality` passed の review 証跡実在、`measurements.evidence_id` の kind = measurement。

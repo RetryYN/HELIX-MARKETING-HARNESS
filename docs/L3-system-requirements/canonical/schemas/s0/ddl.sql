@@ -468,7 +468,7 @@ CREATE TABLE approvals (
   id INTEGER PRIMARY KEY,
   task_id INTEGER NOT NULL,
   requested_by_agent_id INTEGER NOT NULL,
-  channel TEXT NOT NULL CHECK (channel = 'claude_code_app'),
+  channel TEXT NOT NULL CHECK (channel = 'discord'),
   binding_subject TEXT NOT NULL,
   binding_operation TEXT NOT NULL,
   binding_at TEXT NOT NULL,
@@ -543,6 +543,12 @@ CREATE TRIGGER state_transitions_no_update BEFORE UPDATE ON state_transitions
 BEGIN SELECT RAISE(ABORT, 'state_transitions is append-only'); END;
 CREATE TRIGGER state_transitions_no_delete BEFORE DELETE ON state_transitions
 BEGIN SELECT RAISE(ABORT, 'state_transitions is append-only'); END;
+CREATE TRIGGER approvals_decision_pending_only BEFORE UPDATE ON approvals
+WHEN OLD.decision != 'pending'
+BEGIN SELECT RAISE(ABORT, 'approval decision is final'); END;
+CREATE TRIGGER approvals_final_no_delete BEFORE DELETE ON approvals
+WHEN OLD.decision != 'pending'
+BEGIN SELECT RAISE(ABORT, 'final approval cannot be deleted'); END;
 CREATE TRIGGER external_operations_insert_prepared BEFORE INSERT ON external_operations
 WHEN NEW.status != 'prepared'
   OR NEW.evidence_id IS NOT NULL

@@ -48,7 +48,7 @@ slice: S0
 | `publish_content(intent) -> PublishResult` | CMP-10 | FR-44 | 承認済み下書きの公開（下書きとは別 key） | PairPass ＋ approved な ApprovalPass |
 | `upload_media(intent) -> MediaRef` | CMP-10 | FR-44 | WP メディア登録 | PairPass・専用 idempotency key |
 | `request_approval(intent) -> ApprovalRef` | CMP-11 | FR-46 | 実通知 transport の `ConnectorIntent(effect=write, policy_category=approval_notification)` と request/result 材料を返す（approvals を書かない） | CMP-02 が CMP-11 approval store のローカル tx で pending 行を先に確定済み |
-| `poll_decision(approval_ref) -> Decision` | CMP-11 | FR-46 | 承認応答の照合（読取りのみ — 判定写像は承認設計 §3） | approvals 行が存在 |
+| `receive_interaction(raw_body, signature, timestamp) -> Decision` | CMP-11 | FR-46 | Discord interaction の署名・鮮度・再送・application/guild/channel/user・approval ID・binding・expiry を検証し、pending 行をCAS確定する | approvals pending 行が存在。inbound は外部I/O計上しない |
 | `fetch_metrics(intent) -> FetchResult` | CMP-13 | FR-62 | GA4 Data API 第一経路の読取り（ADR-006）。阻害時のみブラウザエクスポート | 読取専用 credential・property 一致 |
 
 - 上表の実 I/O はすべて `ConnectorIntent.effect` を明示する。`create_draft`／`publish_content`／
@@ -58,7 +58,7 @@ slice: S0
 - 実外部操作は必ず `policy_category` を明示する。read は `external_read` だけ、write は
   `content_publish`（公開コンテンツ。service=wp、Docker WP endpoint のみ）、
   `review_sync`（Notion `sync_result` 書戻し。明示 config と完全一致 ApprovalPass 必須）、
-  `approval_notification`（Claude Code アプリ `approval_request`。binding 3 項目を確定済み）、
+  `approval_notification`（初期 Discord App `approval_request`。binding 3 項目を確定済み。将来 Web UI / PWA も同じ承認 API を使用）、
   `approved_paid_operation`（PO 承認と有償 route 必須）の閉集合とする。write は canonical lowercase の
   `rate_scope` も必須、read は NULL。`config.external_write_policy` の exact
   `(policy_category, service, operation, target_endpoint)` tuple と `rate.<rate_scope>.daily_write_cap` を

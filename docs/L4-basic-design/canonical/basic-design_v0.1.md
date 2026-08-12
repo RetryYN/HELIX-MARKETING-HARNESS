@@ -168,13 +168,13 @@ S0 の 25 機能（FN）を 13 コンポーネントに割り当てる。**割�
 
 ### CMP-11 承認通知（connectors/approval.py）
 
-- Claude Code アプリ通知で binding 3 項目（subject / operation / at）を提示し、応答を approvals
+- 交換可能な ApprovalTransport（初期 Discord App）で binding 3 項目（subject / operation / at）を提示し、応答を approvals
   （ストア副層 `approvals_store` 経由）＋ approval 証跡（evidence API 経由）へ記録。承認 pending 中は
   **親 loop_run を waiting** にし task は進行させない（tasks に waiting 状態はない — s0-contract §3.2）。
   rejected は non_retryable_failure で task を failed へ、expired は承認再要求で待機継続し approval_retry_limit 到達で escalated（同 §4.2）。
   transport は差替可能な interface（本番: 通知、テスト: mock fixture）。実通知は
-  policy_category=approval_notification とし、binding 確定＋Claude Code アプリの exact
-  `(approval_notification, claude_code_app, approval_request, target_endpoint)` policy を preflight する。
+  policy_category=approval_notification とし、binding 確定＋Discord App の exact
+  `(approval_notification, discord_app, approval_request, target_endpoint)` policy を preflight する。将来 Web UI / PWA も同じ承認 API を使う。
 
 ### CMP-12 制作・版管理（content/）
 

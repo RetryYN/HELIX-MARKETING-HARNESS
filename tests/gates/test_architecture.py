@@ -434,18 +434,18 @@ def test_mutation_stale_test_name_count_is_detected(monkeypatch) -> None:
 
 
 def test_workset_rename_history_is_not_a_current_physical_count_claim() -> None:
-    """rename元は監査履歴であり、現行値はrename先だけを物理数として検査する。"""
+    """rename連鎖は監査履歴であり、全履歴値を物理数主張として検査しない。"""
     texts = dict(architecture._texts())
     worksets = texts["docs/L6-feature-design/S0/s0.1-worksets.json"]
     assert "test_apply_all_empty_db_creates_25_tables_and_16_triggers" not in worksets
-    assert "test_apply_all_empty_db_creates_25_tables_and_37_triggers" in worksets
+    assert "test_apply_all_empty_db_creates_25_tables_and_37_triggers" not in worksets
 
 
 def test_section_numbers_are_not_read_as_trigger_counts(monkeypatch) -> None:
     """偽陽性回帰: 節番号を本数と誤読せず、正しい本数主張は許可する。"""
     monkeypatch.setattr(architecture, "_texts", lambda root=None: [
         ("d.md", "config への UPDATE/DELETE は §2 の保護トリガが常時拒否する"),
-        ("e.md", "### 3.2 トリガ 37 本の意図"),
+        ("e.md", "### 3.2 トリガ 39 本の意図"),
         ("f.md", "ツール代替（tech-stack §7 トリガー）")])
     assert architecture.detect_physical_count_faults(CTX.ddl) == []
 

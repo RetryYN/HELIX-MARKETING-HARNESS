@@ -30,7 +30,7 @@ from tools.gates.common import (
 )
 
 EXPECTED_TABLES = 25
-EXPECTED_TRIGGERS = 37  # 既存16＋playbook10＋外部I/O7＋published_url1＋spend_ledger3
+EXPECTED_TRIGGERS = 39  # 既存16＋approval2＋playbook10＋外部I/O7＋published_url1＋spend_ledger3
 INITIAL = {"loop_runs": {"pending"}, "tasks": {"pending"}}
 TERMINAL = {"loop_runs": {"completed", "failed", "escalated", "cancelled"},
             "tasks": {"done", "failed", "escalated"}}
@@ -820,7 +820,7 @@ def _insert_approved_approval(c: sqlite3.Connection, *, approval_id: int = 1,
     c.execute(
         "INSERT INTO approvals (id,task_id,requested_by_agent_id,channel,binding_subject,"
         " binding_operation,binding_at,decision,decided_at,created_at) "
-        "VALUES (?, ?, 1, 'claude_code_app', 'external-operation', 'charge', ?, ?, ?, ?)",
+        "VALUES (?, ?, 1, 'discord', 'external-operation', 'charge', ?, ?, ?, ?)",
         (approval_id, task_id, _IO_PREPARED_AT, decision, _IO_PREPARED_AT, _IO_PREPARED_AT))
 
 
@@ -1440,7 +1440,7 @@ def detect_external_operation_evidence_faults(ddl: str) -> list[str]:
 
 
 # ---------------------------------------------------------------- 物理数の主張（PO 指示 §3）
-# 「25 テーブル」「保護トリガ 37 本」のような**物理数の主張**は、散文の記憶ではなく実 DDL から
+# 「25 テーブル」「保護トリガ 39 本」のような**物理数の主張**は、散文の記憶ではなく実 DDL から
 # 導出した数と突合する。部分集合を語る主張（特定テーブルに限定した本数）は、その文脈に現れる
 # テーブル名から**期待値を計算**して突合する（総数へ丸めない — 部分集合の主張も検証対象）。
 # 「トリガ 11」「トリガーは 11 本」「11 基のトリガ」のような表記ゆれも物理数の主張として拾う
@@ -1489,6 +1489,7 @@ def _texts(root: Path = ROOT) -> list[tuple[str, str]]:
                 for rename in worksets.get("ut_nodeid_renames", []):
                     if isinstance(rename, dict):
                         rename.pop("from", None)
+                        rename.pop("to", None)
                 text = json.dumps(worksets, ensure_ascii=False)
             except (json.JSONDecodeError, AttributeError):
                 pass  # 壊れたJSONはG-JSON/G-WORKSET-SCHEMAがfail-closeする

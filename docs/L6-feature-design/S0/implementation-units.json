@@ -6,32 +6,38 @@
       "unit_id": "IU-APPROVAL-01",
       "doc": "docs/L6-feature-design/S0/approval.md",
       "du_id": "DU-18",
-      "responsibility": "`poll`・`approvals`: 実provider pollはeffect=read, policy_category=external_read, rate_scope=NULL, request_sequence=1,2,...とread:<task_id>:<request_hash>:<request_sequence>をintent/request/resultへ同値降下し、logのrate_scopeはJSON nullとする。CMP-02 ExternalOpRecorderがterminal＋row ID束縛operation_log exact-1を確定する。connectorは材料だけを返す。mock/dry-runは外部2表0行。approved（binding完全一致）はその後にapproval証跡INSERT（DU-09）とapprovals.evidence_id更新をローカル単一transactionで確定する",
+      "responsibility": "`receive_interaction`・`approvals`: raw bodyのDiscord署名・timestamp鮮度・replay nonce・application/guild/channel/user・approval ID・binding・expiryを検証する。inbound interactionはexternal_operations/operation_logを作らない。approved/rejected/expiredはdecision='pending'条件のCASで一度だけ確定し、approved時はapproval証跡INSERT（DU-09）とapprovals.evidence_id更新を同一transactionで確定する",
       "api_ref": "API-DU18-02",
       "clause_refs": [
         "API-DU18-02-POST-01",
         "API-DU18-02-POST-02",
-        "API-DU18-02-POST-03"
+        "API-DU18-02-POST-03",
+        "API-DU18-02-POST-04"
       ],
       "ac_refs": [
         "AC-46-1",
-        "AC-46-2"
+        "AC-46-2",
+        "AC-46-4"
       ],
       "ut_refs": [
-        "test_connectors_approval.py::test_binding_mismatch_response_invalid_keeps_waiting",
-        "test_connectors_approval.py::test_poll_approved_records_evidence_atomically",
+        "test_connectors_approval.py::test_invalid_interaction_keeps_waiting",
+        "test_connectors_approval.py::test_receive_interaction_approved_records_evidence_atomically",
+        "test_connectors_approval.py::test_receive_interaction_replay_does_not_double_finalize",
+        "test_connectors_approval.py::test_receive_interaction_competing_decisions_only_one_cas_succeeds",
+        "test_connectors_approval.py::test_finalized_approval_rejects_direct_update_and_delete",
         "test_connectors_approval.py::test_rejected_classified_non_retryable_failure"
       ],
       "tc_refs": [
         "TCC-46-1",
-        "TCC-46-2"
+        "TCC-46-2",
+        "TCC-46-4"
       ]
     },
     {
       "unit_id": "IU-APPROVAL-02",
       "doc": "docs/L6-feature-design/S0/approval.md",
       "du_id": "DU-18",
-      "responsibility": "`request`・`binding`: CMP-02承認フローがapprovals_storeを呼ぶローカルtransactionでdecision=pending・channel='claude_code_app'を先にINSERTし、実通知はconnectorがeffect=write, policy_category=approval_notification, operation=approval_request, rate_scope, exact policyのrequest/result材料だけを返してExternalOpRecorderがlifecycleとrow ID束縛operation_log exact-1を所有する。binding/category/rate_scope/policy preflight拒否とmock/dry-runは外部2表0行",
+      "responsibility": "`request`・`binding`: CMP-02承認フローがapprovals_storeを呼ぶローカルtransactionでdecision=pending・初期channel='discord'を先にINSERTし、実通知は交換可能connector（初期Discord、将来Web UI/PWA）がeffect=write, policy_category=approval_notification, operation=approval_request, rate_scope, exact policyのrequest/result材料だけを返してExternalOpRecorderがlifecycleとrow ID束縛operation_log exact-1を所有する。Discord interactionは署名・許可user ID・期限をfail-close検証し、binding/category/rate_scope/policy preflight拒否とmock/dry-runは外部2表0行",
       "api_ref": "API-DU18-01",
       "clause_refs": [
         "API-DU18-01-POST-01",
@@ -846,7 +852,7 @@
       "unit_id": "IU-MIGRATION-03",
       "doc": "docs/L6-feature-design/S0/migration.md",
       "du_id": "DU-11",
-      "responsibility": "`verify`・`conn`: PRAGMA foreign_key_check／integrity_check 違反 0 件・25 テーブルと保護トリガ 37 本の存在・TLP 孤児検査（packet を持たない終端 lower run = 0 件）・相互整合検査（approvals.evidence_id ↔ approv…",
+      "responsibility": "`verify`・`conn`: PRAGMA foreign_key_check／integrity_check 違反 0 件・25 テーブルと保護トリガ 39 本の存在・TLP 孤児検査（packet を持たない終端 lower run = 0 件）・相互整合検査（approvals.evidence_id ↔ approv…",
       "api_ref": "API-DU11-02",
       "clause_refs": [
         "API-DU11-02-POST-01",
@@ -1267,7 +1273,7 @@
         "test_db_migrate.py::test_apply_all_checksum_mismatch_stops_before_apply",
         "test_db_migrate.py::test_apply_all_crash_mid_migration_rolls_back_whole_version",
         "test_db_migrate.py::test_apply_all_duplicate_version_stops_fatal",
-        "test_db_migrate.py::test_apply_all_empty_db_creates_25_tables_and_37_triggers",
+        "test_db_migrate.py::test_apply_all_empty_db_creates_25_tables_and_39_triggers",
         "test_db_migrate.py::test_apply_all_records_version_checksum_applied_at_by",
         "test_db_migrate.py::test_apply_all_skips_applied_versions_idempotent",
         "test_db_migrate.py::test_strategic_briefs_content_update_rejected_status_transition_allowed",
@@ -1402,5 +1408,5 @@
   "status": "confirmed",
   "approved_at": "2026-08-02",
   "authority": "PO",
-  "approval_digest": "a7bb36740a05"
+  "approval_digest": "69b0d2c9ebcb"
 }

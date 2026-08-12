@@ -2,7 +2,7 @@
 
 # コンポーネント設計契約（CMP/SCM contracts）v0.1
 
-> status: **confirmed**（2026-08-01 PO 承認 — receipt e0c45722a185）。JSON 内容正本の生成ビュー（全層再降下 §6）
+> status: **confirmed**（2026-08-01 PO 承認 — receipt 2195391c9342）。JSON 内容正本の生成ビュー（全層再降下 §6）
 > 各 CMP/SCM に 11 観点の設計契約を必須化（G-CMP-INTERFACE）。独立設計書とペアで読む。
 
 ## CMP-01 状態機械カーネル（kernel/state.py）
@@ -147,14 +147,14 @@
 
 ## CMP-11 承認通知（connectors/approval.py）
 
-- **提供 interface**: request(conn, task_id, binding: Binding, transport, clock) -> int — binding 3 項目（subject/operation/at）提示の承認要求送出＋approvals 行 INSERT／poll(conn, approval_id, transport, clock) -> Decision — 応答取得。approved は approval 証跡 INSERT と approvals.evidence_id 更新を単一 transaction（`_record_decision`）／Binding(subject, operation, at) — frozen dataclass の束縛 3 項目
-- **要求 interface**: transport interface（本番: Claude Codeアプリ通知、テスト: test double — actual/mock execution modeを明示）／CMP-04 evidence.record()（approval 証跡）／CMP-01 transition()（waiting／failed／escalated 遷移は kernel 経由）／CMP-06 config.get()（approval_retry_limit・有効期限）／approvals テーブル（ストア副層 approvals_store 経由）／external_operations（通知approval_notification/rate_scope='claude_code_app' write、poll external_read/rate_scope=NULL）＋CMP-04 operation_log（read payloadはrate_scope:null）
-- **責務境界**: やる: binding 3項目束縛の承認要求、実通知approval_notification writeと実poll external_readの外部行/operation_log、応答受領、approvals＋approval証跡整合、binding不一致無効化。通知成立前のApprovalPassは循環するため要求しない。mock/dry-runは外部両テーブル0。やらない: 承認判断、承認対象操作、状態遷移直接実行。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。
+- **提供 interface**: request(conn, task_id, binding: Binding, transport, clock) -> int — binding 3 項目（subject/operation/at）提示の承認要求送出＋approvals 行 INSERT／receive_interaction(conn, raw_body, signature, timestamp, transport, clock) -> Decision — Discord署名・identity・replay・期限検証後にpendingをCAS確定／Binding(subject, operation, at) — frozen dataclass の束縛 3 項目
+- **要求 interface**: ApprovalTransport interface（初期: Discord App、将来: Web UI / PWA、テスト: test double — actual/mock execution modeを明示）／CMP-04 evidence.record()（approval 証跡）／CMP-01 transition()（waiting／failed／escalated 遷移は kernel 経由）／CMP-06 config.get()（approval_retry_limit・有効期限）／approvals テーブル（ストア副層 approvals_store 経由）／external_operations（初期Discord通知approval_notification/rate_scope='discord' writeのみ）＋CMP-04 operation_log。inbound interactionは外部2表へ記録しない
+- **責務境界**: やる: binding 3項目束縛の承認要求、実通知approval_notification writeの外部行/operation_log、署名検証済みDiscord interaction受領、approvalsのpending限定CAS＋approval証跡整合、binding不一致無効化。通知成立前のApprovalPassは循環するため要求しない。inbound interactionとmock/dry-runは外部両テーブル0。やらない: 承認判断、承認対象操作、状態遷移直接実行。 execution_mode='actual'でsentに到達した通知external_operations行だけがoperation_logを生成し、external_operation_row_id・effect='write'・policy_category='approval_notification'・rate_scope='discord'・correlation_key・request_hash・request_sequenceを同値束縛する。
 - **依存方向**: コネクタ層（connectors）。kernel から呼ばれ、transport・evidence・config に依存。業務状態は kernel 経由でのみ動かす。
-- **データフロー**: binding→approvals pending＋通知write prepared/sent→operation_log trigger final→poll read（sequence式）→operation_log trigger final→binding照合→approved証跡/evidence_id transaction、又はrejected/expired分類。preflight拒否・mockはprocess logのみ。
-- **状態所有者**: approvals テーブル（ストア副層 approvals_store 所有）。loop_runs/tasks の状態は所有しない（kernel 経由） ／ **transaction 所有者**: 通知write/poll readのprepared/sentを個別commitし、sent行へのoperation_log INSERT triggerでfinal化。`_record_decision`はその後にapproval証跡INSERT＋approvals.evidence_id更新を単一transaction。遷移transactionはCMP-01
+- **データフロー**: binding→approvals pending＋Discord通知write prepared/sent→operation_log trigger final→署名済みinteraction受領→identity・binding・expiry照合→pending限定CAS→approved証跡/evidence_id transaction、又はrejected/expired分類。inbound・preflight拒否・mockはprocess logのみ。
+- **状態所有者**: approvals テーブル（ストア副層 approvals_store 所有）。loop_runs/tasks の状態は所有しない（kernel 経由） ／ **transaction 所有者**: 通知writeのprepared/sentを個別commitし、sent行へのoperation_log INSERT triggerでfinal化。`receive_interaction`はpending限定CASと、approved時のapproval証跡INSERT＋approvals.evidence_id更新を単一transaction。遷移transactionはCMP-01
 - **エラー分類**: ApprovalBindingMismatch: 応答の binding 1 項目でも不一致 → 応答無効・pending 継続（GateRejected 系）／ApprovalRequired: 承認証跡なしでの後続操作要求 → GateRejected（CMP-10 側と対）／NonRetryableFailure: rejected 応答 → task failed（non_retryable_failure 遷移）／RetryableError: transport 送出の一時失敗 → 再送／FatalError: approval_retry_limit 到達（expired 反復）→ escalated
-- **degradation／復旧**: transport 不通は再送（承認要求は冪等 — 同一 binding の重複要求は既存 pending を再利用）。expired は再要求で待機継続し retry_limit 到達で escalated。クラッシュ後は approvals 行の状態から再開（応答の取りこぼしは poll 再実行で回収）。
+- **degradation／復旧**: Discord通知不通は再送（承認要求は冪等 — 同一 binding の重複要求は既存 pending を再利用）。expired は新しいbinding_atで再要求し、retry_limit 到達で escalated。interaction再送はnonce/idempotencyとpending限定CASで無害化し、クラッシュ後は approvals 行の状態から再開する。
 - **セキュリティ境界**: 承認は binding 3 項目で対象を一意束縛し、すり替え・再利用を排除（外部書込みの人間ゲート）。通知本文に credential・記事本文全文を含めない。transport は差替 interface で本番/テストを分離。
 - **人間判断点**: 承認・却下の判断そのもの（本 CMP の存在理由 — BR-H 系の実装点）
 - **trace**: FN = FN-207 FN-409 FN-410 ／ DU = DU-18 ／ 独立設計書 = external-if-design_v0.1.md、approval-design_v0.1.md、error-taxonomy_v0.1.md

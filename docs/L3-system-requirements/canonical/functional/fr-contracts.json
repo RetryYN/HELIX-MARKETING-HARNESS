@@ -862,7 +862,7 @@
       "output": [
         "escalated へ遷移した tasks 行（failure_code に事由コード記録）",
         "安全停止: fatal_failure で escalated へ遷移した親 loop_runs 行（該当ループの保留）",
-        "通知送出（FR-46 経路 — Claude Code アプリ）",
+        "通知送出（FR-46 経路 — ApprovalTransport、初期 Discord）",
         "誤分類・不正遷移時: TransitionRejected 例外"
       ],
       "precondition": [
@@ -913,7 +913,7 @@
         "r: spend_ledger（予算超過の検出源）"
       ],
       "external_deps": [
-        "通知 transport（Claude Code アプリ — FR-46 経路。テストでは mock で approve/reject/timeout を再現）"
+        "通知 transport（ApprovalTransport — FR-46 経路、初期 Discord。テストでは mock で approve/reject/timeout を再現）"
       ],
       "config_values": [
         "config.approval_retry_limit（expired 時の承認再要求上限）",
@@ -1517,7 +1517,7 @@
       "input": [
         "タスクの操作型（task_type — 金銭操作型判定の対象）",
         "束縛承認要求（binding_subject・binding_operation・binding_at — FR-46 経路）",
-        "承認応答（approvals.decision — Claude Code アプリ）"
+        "承認応答（approvals.decision — 許可済み ApprovalTransport）"
       ],
       "output": [
         "承認要求: approvals 行（decision = pending）＋アプリ通知",
@@ -1526,7 +1526,7 @@
       ],
       "precondition": [
         "金銭操作型の定義リスト（価格変更・返金・決済設定）がロード済み",
-        "承認チャネル（channel = claude_code_app）が構成済み（FR-46）",
+        "承認チャネル（初期 channel = discord）が構成済み（FR-46）",
         "対象 task が in_progress で外部書込み前である"
       ],
       "postcondition": [
@@ -1547,7 +1547,7 @@
       "rejection_behavior": "approved な approval なしの金銭系外部書込み要求は ApprovalRequired で拒否し WP/決済系 API を呼ばない。decision = rejected は non_retryable_failure イベントで task を failed に倒す（代替 task の発行は可）。操作型が金銭該当か判定不能な場合は金銭型として扱い承認を要求する（fail-close）。",
       "boundary_behavior": "decision = expired は承認の再要求を発行して待機を継続し、再要求回数が config.approval_retry_limit に到達したら escalate イベントで escalated へ倒す。binding 3 項目のいずれかが不一致の応答は無効として待機継続。pending のままの場合は waiting を維持する。",
       "retry_resume_recovery": "クラッシュ後は approvals の現在行を再照合し、approved（binding 完全一致）なら実行再開、pending なら待機継続、expired なら再要求カウントから継続（§3.3 waiting 再開規則）。外部操作は idempotency key と external_operations 照合で二重実行を防ぐ。",
-      "human_judgement": "実在: 承認者（利用者）が Claude Code アプリで approve/reject を決定する。オートモード移行後もこの判断は機械化されない（BR-C4 の escalation 境界）。escalated 後の対処も人間（BR-H3）。",
+      "human_judgement": "実在: 承認者（利用者）が許可済み承認入口で approve/reject を決定する。オートモード移行後もこの判断は機械化されない（BR-C4 の escalation 境界）。escalated 後の対処も人間（BR-H3）。",
       "side_effects": [
         "approvals INSERT（要求・再要求ごと）",
         "アプリ通知送信（FR-46 経路）",
@@ -1569,7 +1569,7 @@
         "r: external_operations（再開照合）"
       ],
       "external_deps": [
-        "Claude Code アプリ通知（承認チャネル — transport はテストで mock 可）"
+        "ApprovalTransport（初期 Discord、将来 Web UI / PWA — テストでは mock 可）"
       ],
       "config_values": [
         "config.approval_retry_limit（expired 再要求の上限）",
@@ -1885,7 +1885,7 @@
       "input": [
         "§4 スキーマの必須スロット定義（fill=H — JSON 正本）",
         "対象 business_profile の現充填状態（business_profiles.profile_json）",
-        "人間回答（Claude Code 対話経由 — 構造化値）",
+        "人間回答（構造化回答 UI/API 経由 — 構造化値）",
         "依存タスクの開始前提判定要求（task_id）"
       ],
       "output": [
@@ -1911,7 +1911,7 @@
       "state_transitions": [
         "tasks: pending → pending（依存タスクの開始イベントは前提スロット未充足のガード不成立で拒否 — 遷移せず）"
       ],
-      "normal_behavior": "必須スロットの空きをスキーマと profile_json の突合で検出 → 未充足スロットごとに質問リストを生成 → Claude Code 対話で人に照会 → 回答を型検証し、PASS した値のみ profile_json へ充填して証跡を残す。全スロット充足後に依存タスクの開始前提判定が通る。",
+      "normal_behavior": "必須スロットの空きをスキーマと profile_json の突合で検出 → 未充足スロットごとに質問リストを生成 → 構造化回答 UI/API で人に照会 → 回答を型検証し、PASS した値のみ profile_json へ充填して証跡を残す。Claude Code は任意クライアントに限り、全スロット充足後に依存タスクの開始前提判定が通る。",
       "rejection_behavior": "未充足スロットに依存するタスクの開始要求は SlotUnfilledRejected を raise し、タスク状態を変更せず拒否理由（未充足スロット名）を構造化ログに残す。型検証 NG の回答は AnswerTypeInvalid として充填せず、同一スロットを再照会する。エンジンによる推測充填要求は常に拒否（fail-close）。",
       "boundary_behavior": "全スロット充足時は質問リストが空（照会 0 件で正常終了）。回答が部分的な場合は充足分のみ充填し残りは未充足のまま維持。同一スロットへの再回答は新値で更新し、旧値は証跡に残る。",
       "retry_resume_recovery": "問診途中のクラッシュでも充填済みスロットは DB に確定済み。再開時は空き検出を再実行し、残りの未充足スロットのみ再照会する（申し送りなし）。",
@@ -1933,7 +1933,7 @@
         "r: tasks（依存タスクの開始前提判定）"
       ],
       "external_deps": [
-        "Claude Code 対話チャネル（人間への照会経路 — これ以外の照会経路は禁止）"
+        "構造化回答 UI/API（人間への正規照会契約。Discord／将来 Web UI／任意クライアントから利用可能）"
       ],
       "config_values": [],
       "fixed_values": [
@@ -2435,7 +2435,7 @@
         "書込み・公開系はcanonical lowercase rate_scope別のconfig.rate.<rate_scope>.daily_write_cap（必須）を超えず、service alias・大小文字差・shared serviceで別scopeへ逃がさない",
         "操作間隔は固定値でなく範囲乱数（固定間隔は機械署名 — BR-F5）",
         "許可リスト外URLへの遷移は発生しない（FR-23 deny-by-default）",
-        "content_publishはDocker WPだけ、review_syncは承認済みNotionだけ、approval_notificationはbinding済みClaude Code appだけ、approved_paid_operationはPO承認済み有償操作だけ。readはexternal_read。その他は常時拒否"
+        "content_publishはDocker WPだけ、review_syncは承認済みNotionだけ、approval_notificationはbinding済みの許可ApprovalTransportだけ、approved_paid_operationはPO承認済み有償操作だけ。readはexternal_read。その他は常時拒否"
       ],
       "state_transitions": [
     "テーブル列: external_operations.status: prepared→sent→confirmed/rejected/unknown（read/write の実外部操作ごと。external_operations.effect='read'/'write' — s0-contract §1）"
@@ -2467,7 +2467,7 @@
       ],
       "external_deps": [
         "Playwright（ブラウザ自動化）",
-        "対象媒体サイト（note/YouTube/stand.fm/KDP/ASP等はreadのみ。本FRでwriteが許可されるのは閉集合policyに根拠を持つDocker WP/Notion review sync/Claude Code app通知/PO承認済み有償操作だけ。X書込みは禁止）"
+        "対象媒体サイト（note/YouTube/stand.fm/KDP/ASP等はreadのみ。本FRでwriteが許可されるのは閉集合policyに根拠を持つDocker WP/Notion review sync/許可ApprovalTransport通知/PO承認済み有償操作だけ。X書込みは禁止）"
       ],
       "config_values": [
         "config.browser.headed（headed/headless 切替）",
@@ -2953,19 +2953,19 @@
       "title": "承認チャネル",
       "input": [
         "承認要求（対象 binding_subject・操作 binding_operation・時点 binding_at — 公開系タスクから）",
-        "承認応答（approved/rejected/expired/pending — Claude Code アプリ通知への応答）",
+        "承認応答（approved/rejected/expired/pending — 許可済み ApprovalTransport からの応答）",
         "オートモード判定材料（config.auto_mode_criteria＋実績証跡 — 機械判定用）"
       ],
       "output": [
-        "approvals 行（channel=claude_code_app・binding 3 項目・decision・responder_ref）",
+        "approvals 行（初期channel=discord・binding 3 項目・decision・responder_ref）",
         "approval evidence（kind=approval — decision=approved 時、approvals.evidence_id と相互整合）",
         "拒否時: ApprovalBindingMismatch / NonRetryableFailure 例外と対応する task 遷移"
       ],
       "precondition": [
-        "Claude Code アプリで通知を受け取れる利用者が構成済み（環境契約 §6 — transport は mock 可）",
+        "個人 Discord の許可済み承認者 user ID が構成済み（将来 Web UI / PWA 認証へ拡張可能、transport は mock 可）",
         "承認要求は binding 3 項目（対象・操作・時点）を欠落なく明記している",
         "config.approval_retry_limitが存在する",
-        "config.external_write_policy.approval_notificationがservice='claude_code_app'・operation='approval_request'・endpointを明示し、通知payloadのbinding 3項目が完全である"
+        "config.external_write_policy.approval_notificationが初期service='discord_app'・operation='approval_request'・endpointを明示し、通知payloadのbinding 3項目が完全である"
       ],
       "postcondition": [
         "承認要求 1 件につき approvals 1 行が (task_id, binding 3 項目) UNIQUE で存在する",
@@ -2982,14 +2982,14 @@
         "tasks: verifying→done（verify_pass — 承認証跡完備が前提）",
         "テーブル列: approvals.decision: pending / approved / rejected / expired"
       ],
-  "normal_behavior": "binding 3項目を明記した実通知だけをexternal_operations(effect='write', policy_category='approval_notification', rate_scope='claude_code_app', service='claude_code_app', operation='approval_request', target_endpoint=config登録値)、実応答pollをeffect='read'/policy_category='external_read'/rate_scope=NULLとして記録する。通知writeはpolicyとbinding完全性をpreflight検証後だけprepared化し、未成立ApprovalPassを循環的に要求せず、各実要求をoperation_log INSERT triggerでfinal化する。mock/dry-runは外部操作両テーブル0。",
-      "rejection_behavior": "notification allow-list/config欠落、service/operation/endpoint不一致、binding欠落はpreflightで拒否し、外部呼出・external_operations・operation_log各0、process loggerへ事由コードを記録する。送信後の人間rejectedは応答readを証跡化してtaskをfailedへ倒す。",
+      "normal_behavior": "binding 3項目を明記した実通知だけをexternal_operations(effect='write', policy_category='approval_notification', rate_scope='discord', service='discord_app', operation='approval_request', target_endpoint=config登録値)として記録する。Discord interactionはVPS HTTPS endpointでraw body署名・timestamp/replay・application/guild/channel/user allow-list・approval ID・期限・bindingを検証し、合格時だけpending行をCAS確定する。inboundはexternal readではないためexternal_operations/operation_logを作らない。将来Web UIは認証契約を追加する将来スライスまで不許可。mock/dry-runは外部操作両テーブル0。",
+      "rejection_behavior": "notification allow-list/config欠落、service/operation/endpoint不一致、binding欠落はpreflightで拒否し、外部呼出・external_operations・operation_log各0、process loggerへ事由コードを記録する。署名・鮮度・replay・identity・approval ID・binding・expiry検証に失敗したinteractionはdecision不変で拒否する。正当な人間rejectedだけをpending限定CASで確定しtaskをfailedへ倒す。inbound用operation_logは作らない。",
       "boundary_behavior": "expired は承認を再要求して待機継続し、再要求回数が config.approval_retry_limit に到達したら escalated へ（無限待機しない）。同一 (task, binding 3 項目) の重複要求は UNIQUE 制約で既存行に照合。binding_at と実公開時点の乖離は不一致として拒否。",
       "retry_resume_recovery": "クラッシュ後は approvals.decision から再開: pending は応答待ちを継続、approved は evidence 整合を確認して公開へ、rejected/expired は各遷移規則を適用。通知の再送は同一 binding の再要求として扱い二重承認を作らない。",
       "human_judgement": "承認応答そのもの（approve/reject）が人間判断の正規経路（BR-H1 — 束縛承認）。オートモード移行後は基準充足の機械判定で承認を省略",
       "side_effects": [
-        "Claude Code アプリへの通知送出（transport は mock 可）",
-    "external_operations INSERT/UPDATE＋対応operation_log INSERT（実通知write／実応答poll readだけ）",
+        "Discord App への初期通知送出（交換可能 transport、将来 Web UI / PWA、テストは mock 可）",
+        "external_operations INSERT/UPDATE＋対応operation_log INSERT（実通知writeだけ。inbound interactionは対象外）",
         "approvals INSERT/UPDATE（decision）",
         "evidence INSERT（kind=approval）",
         "秘匿化済み構造化拒否ログ（照合拒否時）",
@@ -2999,7 +2999,7 @@
       "evidence": [
         "approvals 行（binding 3 項目・decision・responder_ref・decided_at）",
         "approval evidence（decision=approved・approvals.evidence_id と相互整合）",
-        "operation_log（実通知write／実応答poll readのexternal_operation_row_id・correlation_key・request_hash・request_sequence。provider external_operation_idは任意）",
+        "operation_log（実通知writeのexternal_operation_row_id・correlation_key・request_hash・request_sequence）とapproval evidence（Discord interaction ID・検証済みprincipal）",
         "秘匿化済み構造化拒否ログ（binding 不一致の公開拒否）"
       ],
       "tables": [
@@ -3011,15 +3011,15 @@
         "r: config（approval_retry_limit・auto_mode_criteria）"
       ],
       "external_deps": [
-        "Claude Code アプリ通知（承認 transport — テストは mock）"
+        "ApprovalTransport（初期 Discord App、将来 Web UI / PWA — テストは mock）"
       ],
       "config_values": [
         "config.approval_retry_limit（expired 再要求の上限）",
         "config.auto_mode_criteria（オートモード移行基準 — C）"
-        ,"config.external_write_policy.approval_notification.allowed_services/endpoints（Claude Code app operation・endpointの必須許可行）"
+        ,"config.external_write_policy.approval_notification.allowed_services/endpoints（初期 Discord App operation・endpointの必須許可行）"
       ],
       "fixed_values": [
-        "channel = claude_code_app（approvals DDL CHECK — 変更は要件改訂）",
+        "channel = discord（S0 DDL CHECK。web_uiは認証・CSRF・再認証・principal束縛のAC/TCを追加する将来要件まで不許可）",
         "binding 照合は 3 項目完全一致（部分一致なし）"
       ],
       "trace_up": [
@@ -4490,5 +4490,5 @@
   "approved_at": "2026-08-01T00:00:00+09:00",
   "authority": "PO",
   "supersedes": [],
-  "approval_digest": "7413d0e4506b"
+  "approval_digest": "bbb591341b15"
 }

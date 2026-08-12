@@ -44,7 +44,7 @@ def _insert_approval(con: sqlite3.Connection, approval_id: int, task_id: int = 1
     con.execute(
         "INSERT INTO approvals (id,task_id,requested_by_agent_id,channel,binding_subject,"
         "binding_operation,binding_at,decision,decided_at,created_at) "
-        "VALUES (?,?,1,'claude_code_app',?,?,?,'approved',?,?)",
+        "VALUES (?,?,1,'discord',?,?,?,'approved',?,?)",
         (approval_id, task_id, f"subject-{approval_id}", f"operation-{approval_id}",
          f"2026-08-{approval_id:02d}T00:00:00Z", f"2026-08-{approval_id:02d}T00:00:01Z",
          f"2026-08-{approval_id:02d}T00:00:00Z"),

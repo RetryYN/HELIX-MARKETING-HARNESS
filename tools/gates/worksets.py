@@ -80,7 +80,7 @@ def _ut_rename_map(data: dict | None) -> tuple[dict[tuple[str, str], str], list[
         return {}, ["ut_nodeid_renames が配列でない"]
     current = {str(w.get("workset_id")): {str(n) for n in (w.get("ut_nodeids") or [])}
                for w in worksets_of(data)}
-    mapping: dict[tuple[str, str], str] = {}
+    direct: dict[tuple[str, str], str] = {}
     targets: set[tuple[str, str]] = set()
     bad: list[str] = []
     for index, row in enumerate(rows):
@@ -89,11 +89,11 @@ def _ut_rename_map(data: dict | None) -> tuple[dict[tuple[str, str], str], list[
             continue
         wid, old, new = (str(row.get(k) or "") for k in ("workset_id", "from", "to"))
         key, target = (wid, old), (wid, new)
-        if key in mapping:
+        if key in direct:
             bad.append(f"{wid}: rename from 重複:{old}")
         if target in targets:
             bad.append(f"{wid}: rename to 重複:{new}")
-        mapping[key] = new
+        direct[key] = new
         targets.add(target)
         old_file, _, old_test = old.partition("::")
         new_file, _, new_test = new.partition("::")
@@ -101,8 +101,20 @@ def _ut_rename_map(data: dict | None) -> tuple[dict[tuple[str, str], str], list[
             bad.append(f"{wid}: rename は同一test fileの別nodeidでない:{old}→{new}")
         if re.sub(r"\d+", "#", old_test) != re.sub(r"\d+", "#", new_test):
             bad.append(f"{wid}: rename で数字以外が変化:{old}→{new}")
-        if new not in current.get(wid, set()):
-            bad.append(f"{wid}: rename先が現行Worksetにない:{new}")
+    mapping: dict[tuple[str, str], str] = {}
+    for key in direct:
+        wid, old = key
+        target = direct[key]
+        seen = {old}
+        while (wid, target) in direct:
+            if target in seen:
+                bad.append(f"{wid}: rename 連鎖が循環:{old}")
+                break
+            seen.add(target)
+            target = direct[(wid, target)]
+        mapping[key] = target
+        if target not in current.get(wid, set()):
+            bad.append(f"{wid}: rename先が現行Worksetにない:{target}")
         if any(old in nodeids for nodeids in current.values()):
             bad.append(f"{wid}: rename元が現行Worksetに残存:{old}")
     return mapping, bad

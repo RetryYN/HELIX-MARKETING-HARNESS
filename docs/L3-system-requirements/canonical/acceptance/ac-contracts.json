@@ -4149,8 +4149,8 @@
       "fixture": "seed: task(pending) 1 件、mock transport（approved・responder_ref='po'）、binding = (post:123, publish, 2026-08-01T10:00)。外部I/O test doubleはexecution_mode='actual'で呼び出す（mock/dry-run経路ではない）",
       "observation_point": "approvals SELECT（decision・binding・evidence_id）／応答前後の tasks.state／公開ゲートの通過可否",
       "expected_state": "approvals = approved・evidence 相互整合、task = 進行再開",
-      "expected_db_delta": "承認通知external_operations(effect='write', policy_category='approval_notification', rate_scope='claude_code_app') +1行と応答poll external_operations(effect='read', policy_category='external_read', rate_scope=NULL) +1行（双方confirmed）・対応operation_log各1行、approvals +1行、approval evidence +1行、state_transitions +2行",
-      "expected_evidence": "通知write・応答readの各operation_logは内部row IDとpolicy_category/rate_scope一致。通知preflightはbinding 3項目を要求するがApprovalPassを循環要求しない。approval evidenceはapprovals.evidence_id整合、readはcorrelation式・payload request_sequence一致。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
+      "expected_db_delta": "承認通知external_operations(effect='write', policy_category='approval_notification', rate_scope='discord') +1行・対応operation_log +1行、inbound interactionのexternal_operations/operation_log 0行、approvals +1行をpending条件CAS更新、approval evidence +1行、state_transitions +2行",
+      "expected_evidence": "actualでsentに到達したDiscord通知external_operations行だけがoperation_logを生成し、external_operation_row_id・effect='write'・policy_category='approval_notification'・rate_scope='discord'・correlation_key・request_hash・request_sequenceを同値束縛する。通知preflightはbinding 3項目を要求するがApprovalPassを循環要求しない。署名検証済みinteractionはprocess event、承認結果はapprovalsとapproval evidenceの相互整合として残り、inbound用operation_logは作らない。",
       "forbidden_side_effects": "応答受領前の公開実行・approvals 行の書換えによる decision 変更",
       "error_type": "なし",
       "target_update": "S0.2（CMP-11 承認通知）／WF-WP-2 手順 3",
@@ -4201,14 +4201,14 @@
       "id": "AC-46-2",
       "target": "FR-46",
       "polarity": "reject",
-      "given": "binding_at のみ異なる approved approval を持つ公開要求と、decision=rejected の応答を受けた別タスク",
-      "when": "binding 不一致のままの公開と、rejected 後のタスク進行を試みる",
-      "then": "公開は ApprovalBindingMismatch で拒否され（3 項目の 1 つでも不一致なら通らない）、rejected は non_retryable_failure として task が failed になり自動再試行されない",
-      "fixture": "seed: approvals(approved, binding_at='2026-08-01T10:00') に対し公開時点 '2026-08-01T11:00' を提示、別 task に mock transport が rejected 応答。外部I/O test doubleはexecution_mode='actual'で呼び出す（mock/dry-run経路ではない）",
+      "given": "署名不正・timestamp期限外・replay・application/guild/channel/user不一致・approval ID/binding不一致・期限切れのDiscord interaction群と、正当なdecision=rejected interactionを受ける別タスク",
+      "when": "各不正interactionと正当なrejected interactionを受領し、公開またはタスク進行を試みる",
+      "then": "不正interactionはdecision不変のまま拒否され、公開はApprovalBindingMismatch等で通らない。正当なrejectedだけがpending限定CASで1回確定し、taskはnon_retryable_failureでfailedとなり自動再試行されない",
+      "fixture": "seed: approvals(pending, binding_at='2026-08-01T10:00')、署名不正・期限外・replay・identity/binding不一致のraw interaction fixture群、別taskには正当な署名と許可identityを持つrejected interaction。inboundは外部I/O test doubleを呼ばない",
       "observation_point": "raiseされる例外型／process loggerの構造化拒否event／tasks.state・state_transitions",
       "expected_state": "公開 0 件、rejected 側 task = failed（retry_count 増加なし）",
-      "expected_db_delta": "rejected応答pollはexternal_operations(effect='read', policy_category='external_read', rate_scope=NULL) +1行confirmedと対応operation_log +1行、approvals 1行UPDATE（rejected）、state_transitions +1行（failed）。既存approvalのbinding不一致判定自体はprocess loggerへ1 eventで外部操作差分なし",
-      "expected_evidence": "rejected応答pollのoperation_log（内部row ID一致）＋binding不一致process event＋approvals rejected行。operation_logはexternal_operation_row_idで該当external_operations.idへexactly-oneに束縛し、provider external_operation_idは任意。各read要求はcorrelation_key='read:<task_id>:<request_hash>:<request_sequence>'を用い、反復poll/再取得ではrequest_sequenceを単調増加し、operation_log payloadのrequest_sequence一致をassertする。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
+      "expected_db_delta": "不正interactionはapprovals・external_operations・operation_log差分0。正当なrejectedはapprovalsをpending条件CASで1行UPDATEしstate_transitions +1、inbound external_operations/operation_logは0",
+      "expected_evidence": "署名・鮮度・replay・identity・approval ID・binding・expiryごとの拒否process eventとapprovals rejected行。inbound interactionのoperation_logは0",
       "forbidden_side_effects": "不一致のままの公開（外部書込み 0 回）・rejected タスクの自動リトライ・escalated への迂回",
       "error_type": "ApprovalBindingMismatch／NonRetryableFailure",
       "target_update": "S0.2（CMP-11 承認通知）",
@@ -4266,8 +4266,8 @@
       "fixture": "seed: config('approval_retry_limit', 2)、mock transport（常時 expired）、pending 行 1 件（UNIQUE binding）を残して再起動。外部I/O test doubleはexecution_mode='actual'で呼び出す（mock/dry-run経路ではない）",
       "observation_point": "approvals 行数と decision 履歴／tasks.state／state_transitions SELECT",
       "expected_state": "expired 側 task = escalated、pending 側 = waiting 継続（要求は 1 件のまま）",
-      "expected_db_delta": "各再要求cycleは通知external_operations(effect='write', policy_category='approval_notification', rate_scope='claude_code_app')とexpired応答poll external_operations(effect='read', policy_category='external_read', rate_scope=NULL)を各1行、対応operation_logを各1行。approvalsは再要求分のみ増加し上限到達でstate_transitions +1行、pending再開側は新規外部操作なし",
-      "expected_evidence": "再要求cycleの通知write・応答read各operation_log（内部row ID一致）＋approvals expired履歴＋escalate遷移行。operation_logはexternal_operation_row_idで該当external_operations.idへexactly-oneに束縛し、provider external_operation_idは任意。各read要求はcorrelation_key='read:<task_id>:<request_hash>:<request_sequence>'を用い、反復poll/再取得ではrequest_sequenceを単調増加し、operation_log payloadのrequest_sequence一致をassertする。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
+      "expected_db_delta": "各再要求cycleは新しいbinding_atのapprovals行と通知external_operations(effect='write', policy_category='approval_notification', rate_scope='discord')・対応operation_logを各1行追加し、inbound interactionの外部操作行は0。上限到達でstate_transitions +1行、pending再開側は新規外部操作なし",
+      "expected_evidence": "各再要求cycleでactualかつsentのDiscord通知external_operations行に、external_operation_row_id・effect='write'・policy_category='approval_notification'・rate_scope='discord'・correlation_key・request_hash・request_sequenceを同値束縛したoperation_log＋approvals expired履歴＋inbound process event＋escalate遷移行。inbound interaction用operation_logは0",
       "forbidden_side_effects": "上限超過後の再要求継続（無限待機）・同一 binding の重複 approvals 行・expired の failed 化（rejected と混同）",
       "error_type": "ApprovalRetryExhausted（escalate 事由として記録）",
       "target_update": "S0.2（CMP-11 承認通知）／expired 再要求経路",
@@ -4322,17 +4322,17 @@
       "id": "AC-46-4",
       "target": "FR-46",
       "polarity": "reject",
-      "given": "decision='approved' で記録済みの approvals 行と、その decision を 'rejected' へ書き換える UPDATE／行を消す DELETE",
-      "when": "approvals 行の UPDATE と DELETE をそれぞれ実行する",
-      "then": "保護トリガが RAISE(ABORT) で拒否し、approvals 行は decision・binding とも不変で残る（承認応答の書換え・削除は不可 — decision 変更は新規要求のみ）",
-      "fixture": "seed: approved の approvals 1 行（binding 3 項目つき）、UPDATE 文 = SET decision='rejected'、DELETE 文",
-      "observation_point": "raise される例外型／approvals SELECT（行数・decision の不変性）",
+      "given": "decision='approved'で確定済みのapprovals行と、同じinteractionの再送および別decisionの競合interaction",
+      "when": "approvals_storeの確定APIを再度呼び、さらに直接SQLでUPDATEとDELETEを実行する",
+      "then": "pending限定CASは更新0行となって現在のapprovedを返し、decision・bindingは不変である。approvals_storeは削除APIを公開せず、確定行への直接SQL UPDATE/DELETEはSQLITE_CONSTRAINTで拒否される",
+      "fixture": "seed: approvedのapprovals 1行（binding 3項目つき）、同一nonce再送とrejected競合interaction、直接SQL UPDATE文とDELETE文",
+      "observation_point": "raise される例外型（直接SQLはSQLITE_CONSTRAINT）／approvals SELECT（行数・decision の不変性）",
       "expected_state": "approvals 1 行のまま decision='approved' 不変",
       "expected_db_delta": "差分なし",
       "expected_evidence": "なし（DB 層拒否）",
-      "forbidden_side_effects": "approvals 行の decision 変更・行削除",
-      "error_type": "IntegrityError（append-only）",
-      "target_update": "S0.1（承認証跡）／append-only トリガ",
+      "forbidden_side_effects": "approvals 行の decision 変更・行削除（直接SQLを含む）",
+      "error_type": "AlreadyFinalized／ReplayRejected",
+      "target_update": "S0.1（承認証跡）／approvals_store pending限定CAS",
       "tc": [
         "TCC-46-4"
       ],
@@ -4349,8 +4349,9 @@
         ],
         "api_refs": []
       },
-      "verifies_clause_refs": [],
-      "clause_na_reason": "DB保護トリガの直接検証でありAPI契約節を観測しない"
+  "verifies_clause_refs": [
+    "API-DU18-02-POST-04"
+  ]
     },
     {
       "id": "AC-47-1",
@@ -5990,7 +5991,7 @@
       "then": "業務 23＋インフラ 2 の 25 テーブル・append-only トリガ・FK が生成され、verify() が pass を返し使用開始が許可される",
       "fixture": "seed: 空 DB（0 バイト新規ファイル）、migrations/ 配下の全 NNNN_*.sql",
       "observation_point": "sqlite_master SELECT（テーブル・トリガ数）／verify() 戻り値／PRAGMA foreign_key_check・integrity_check",
-      "expected_state": "25 テーブル＋保護トリガ 37 本（append-only・TLP 整合・brief 不変／状態遷移／valid_until）存在、verify() = pass",
+      "expected_state": "25 テーブル＋保護トリガ 39 本（append-only・TLP 整合・brief 不変／状態遷移／valid_until）存在、verify() = pass",
       "expected_db_delta": "全 25 テーブル CREATE、schema_version +N 行（migration ごと）",
       "expected_evidence": "schema_version 行（version・migration 名・checksum・適用者・時刻）",
       "forbidden_side_effects": "DDL 正本にないテーブル・トリガの生成、FK OFF での使用開始",
@@ -8274,9 +8275,9 @@
       "id": "AC-SR-15-3",
       "target": "SR-15",
       "polarity": "boundary-recovery",
-      "given": "S0 スキーマが適用済みの DB（25 テーブル・トリガ 37）",
+      "given": "S0 スキーマが適用済みの DB（25 テーブル・トリガ 39）",
       "when": "S1 相当のテーブル（意味モデル生成系）を追加する migration を適用する",
-      "then": "S0 の 25 テーブル・トリガ 37 が一切変更されずに新テーブルのみ増え、既存 STC が引き続き green である",
+      "then": "S0 の 25 テーブル・トリガ 39 が一切変更されずに新テーブルのみ増え、既存 STC が引き続き green である",
       "fixture": "seed: S0 DDL 適用済み DB＋S1 追加 migration",
       "observation_point": "テーブル・トリガ一覧の前後比較／既存テストの実行結果",
       "expected_state": "S0 部分は同一・追加分のみ増加",
@@ -9133,5 +9134,5 @@
   "supersedes": [
     "ARCHIVE-AC-LEGACY"
   ],
-  "approval_digest": "af80ad5f5927"
+  "approval_digest": "e2cfb402b79e"
 }

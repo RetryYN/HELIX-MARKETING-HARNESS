@@ -2781,7 +2781,7 @@
             },
             {
               "clause_id": "API-DU10-01-POST-02",
-              "text": "保護トリガ（config/evidence/state_transitions/strategic_briefs/tactical_learning_packets/playbooks 等の append-only／整合トリガ 37 本）の存在を確認してから返す",
+              "text": "保護トリガ（config/evidence/state_transitions/approvals/strategic_briefs/tactical_learning_packets/playbooks 等の append-only／整合トリガ 39 本）の存在を確認してから返す",
               "na_reason": "単体検証: 割当 UT が本節を直接検証する（全ACはDDLトリガ自体を観測し、connectの事前確認を観測しない）"
             }
           ],
@@ -2929,7 +2929,7 @@
             },
             {
               "clause_id": "API-DU11-01-POST-03",
-              "text": "0001 適用後は 25 テーブル（業務 23＋インフラ 2）＋保護トリガ 37 本が成立する"
+              "text": "0001 適用後は 25 テーブル（業務 23＋インフラ 2）＋保護トリガ 39 本が成立する"
             }
           ],
           "raises": [
@@ -2948,7 +2948,7 @@
           "pure": false,
           "ut": [
             {
-              "nodeid": "test_db_migrate.py::test_apply_all_empty_db_creates_25_tables_and_37_triggers",
+              "nodeid": "test_db_migrate.py::test_apply_all_empty_db_creates_25_tables_and_39_triggers",
               "clause_refs": [
                 "API-DU11-01-POST-03"
               ]
@@ -3023,7 +3023,7 @@
           "postcondition": [
             {
               "clause_id": "API-DU11-02-POST-01",
-              "text": "PRAGMA foreign_key_check／integrity_check 違反 0 件・25 テーブルと保護トリガ 37 本の存在・TLP 孤児検査（packet を持たない終端 lower run = 0 件）・相互整合検査（approvals.evidence_id ↔ approval 証跡、pair passed の review 証跡実在、measurements.evidence_id の kind=measurement）を全通過した場合のみ返る"
+              "text": "PRAGMA foreign_key_check／integrity_check 違反 0 件・25 テーブルと保護トリガ 39 本の存在・TLP 孤児検査（packet を持たない終端 lower run = 0 件）・相互整合検査（approvals.evidence_id ↔ approval 証跡、pair passed の review 証跡実在、measurements.evidence_id の kind=measurement）を全通過した場合のみ返る"
             },
             {
               "clause_id": "API-DU11-02-POST-02",
@@ -3144,7 +3144,7 @@
           "TCC-SR-11-6"
         ],
         "ut": [
-          "test_db_migrate.py::test_apply_all_empty_db_creates_25_tables_and_37_triggers",
+          "test_db_migrate.py::test_apply_all_empty_db_creates_25_tables_and_39_triggers",
           "test_db_migrate.py::test_apply_all_records_version_checksum_applied_at_by",
           "test_db_migrate.py::test_apply_all_skips_applied_versions_idempotent",
           "test_db_migrate.py::test_apply_all_duplicate_version_stops_fatal",
@@ -5104,11 +5104,11 @@
           "postcondition": [
             {
               "clause_id": "API-DU18-01-POST-01",
-              "text": "approvals 行を decision=pending・channel='claude_code_app' で INSERT（ストア副層 approvals_store 経由 — 生 SQL はここだけ）し approval_id を返す"
+              "text": "approvals 行を decision=pending・初期channel='discord' で INSERT（ストア副層 approvals_store 経由 — 生 SQL はここだけ）し approval_id を返す"
             },
         {
           "clause_id": "API-DU18-01-POST-02",
-          "text": "Claude Codeアプリへの実通知送出はexternal_operations(effect='write', policy_category='approval_notification', rate_scope='claude_code_app', service='claude_code_app', operation='approval_request')をprepared→sentまで記録し、結果確定時もsentのまま1:1のoperation_logをINSERTしてtriggerでconfirmed/rejected/unknownへfinal化する。binding 3項目は必須だが未成立ApprovalPassは要求しない。mock/dry-runは外部操作行・operation_logを作らずprocess loggerへ予定fingerprintだけを記録する"
+          "text": "初期Discord Appへの実通知送出はexternal_operations(effect='write', policy_category='approval_notification', rate_scope='discord', service='discord_app', operation='approval_request')をprepared→sentまで記録し、結果確定時もsentのまま1:1のoperation_logをINSERTしてtriggerでconfirmed/rejected/unknownへfinal化する。interactionは署名・許可user ID・期限をfail-close検証し、将来Web UI/PWAも同じ承認APIを使う。binding 3項目は必須だが未成立ApprovalPassは要求しない。mock/dry-runは外部操作行・operation_logを作らずprocess loggerへ予定fingerprintだけを記録する"
             },
             {
               "clause_id": "API-DU18-01-POST-03",
@@ -5149,28 +5149,28 @@
         },
         {
           "api_id": "API-DU18-02",
-          "signature": "def poll(conn: Connection, approval_id: int, transport: ApprovalTransport, clock: Clock) -> Decision",
+          "signature": "def receive_interaction(conn: Connection, raw_body: bytes, signature: str, timestamp: str, transport: ApprovalTransport, clock: Clock) -> Decision",
           "verification_level": "acceptance",
           "precondition": [
             {
               "clause_id": "API-DU18-02-PRE-01",
-              "text": "approvals 行が存在する（外部 IF 表 poll_decision の前提）",
-              "na_reason": "呼出側義務: 承認行の存在はpoll呼出前に確立される前提である"
+              "text": "raw body、Discord signature/timestamp、application/guild/channel/user allow-list、approval ID・binding・期限を検証できる",
+              "na_reason": "呼出側義務: HTTPS adapterがraw bodyと署名headerを改変せず渡す前提である"
             },
             {
               "clause_id": "API-DU18-02-PRE-02",
-              "text": "transport は差替可能 interface（本番: アプリ通知、テスト: mock fixture で approve/reject/timeout を再現）",
+              "text": "transport はDiscord interaction署名・identity・replay検証を行う差替可能interface（テストはmock fixture）",
               "na_reason": "配線時保証: transport差替はテスト配線の構造保証である"
             }
           ],
           "postcondition": [
         {
           "clause_id": "API-DU18-02-POST-01",
-          "text": "実transportからの応答取得はexternal_operations(effect='read', policy_category='external_read', rate_scope=NULL)と1:1のoperation_log（payload rate_scope:null必須）で記録する。各pollは同一(task_id, operation, request_hash)内でrequest_sequenceを単調増加しcorrelation_key='read:<task_id>:<request_hash>:<request_sequence>'とする。approved（binding 3項目完全一致）は取得行がoperation_log INSERT triggerでfinal化した後、`_record_decision`でapproval証跡INSERT（DU-09経由）とapprovals.evidence_id更新を単一transactionで行う"
+          "text": "Discord interactionのraw body署名・timestamp/replay・application/guild/channel/user allow-list・approval ID・binding・期限をfail-close検証する。inboundはexternal readではないためexternal_operations/operation_logを作らず、approvedは`UPDATE approvals ... WHERE decision='pending'`のCASとapproval証跡INSERT・evidence_id更新を単一transactionで行い、Discord interaction IDを証跡化する"
             },
         {
           "clause_id": "API-DU18-02-POST-02",
-          "text": "binding 1項目でも不一致の応答は無効（decisionはpendingのままwaiting継続）。不一致判定はprocess loggerの秘匿化済み構造化拒否eventへ記録し、内部判定用operation_logは生成しない。binding_atと実公開時点の乖離も不一致として扱う"
+          "text": "署名・identity・replay・期限・bindingのいずれかが不正な応答は無効（decisionはpendingのままwaiting継続）。拒否はprocess loggerへ記録し、external_operations/operation_logは生成しない。確定済み行への二重受信はCAS更新0行として拒否する"
             },
             {
               "clause_id": "API-DU18-02-POST-03",
@@ -5178,22 +5178,39 @@
             },
             {
               "clause_id": "API-DU18-02-POST-04",
-              "text": "decision の書換え・削除は行わない（approvals は証跡 — 変更は新規要求の別行）",
-              "na_reason": "単体検証: 割当 UT が本節を直接検証する（append-onlyはDBトリガ検証でAPI呼出を観測しない）"
+              "text": "decision='pending' を条件とするCASで pending から approved/rejected/expired へ1回だけ確定する。更新0行は現在値を再読して二重確定を拒否し、確定後の更新・削除APIは提供しない"
             }
           ],
           "raises": [],
           "pure": false,
           "ut": [
             {
-              "nodeid": "test_connectors_approval.py::test_poll_approved_records_evidence_atomically",
+              "nodeid": "test_connectors_approval.py::test_receive_interaction_approved_records_evidence_atomically",
               "clause_refs": [
                 "API-DU18-02-POST-01",
                 "API-DU18-02-POST-04"
               ]
             },
             {
-              "nodeid": "test_connectors_approval.py::test_binding_mismatch_response_invalid_keeps_waiting",
+              "nodeid": "test_connectors_approval.py::test_receive_interaction_replay_does_not_double_finalize",
+              "clause_refs": [
+                "API-DU18-02-POST-04"
+              ]
+            },
+            {
+              "nodeid": "test_connectors_approval.py::test_receive_interaction_competing_decisions_only_one_cas_succeeds",
+              "clause_refs": [
+                "API-DU18-02-POST-04"
+              ]
+            },
+            {
+              "nodeid": "test_connectors_approval.py::test_finalized_approval_rejects_direct_update_and_delete",
+              "clause_refs": [
+                "API-DU18-02-POST-04"
+              ]
+            },
+            {
+              "nodeid": "test_connectors_approval.py::test_invalid_interaction_keeps_waiting",
               "clause_refs": [
                 "API-DU18-02-POST-02"
               ]
@@ -5225,7 +5242,7 @@
           "postcondition": [
         {
           "clause_id": "API-DU18-03-POST-01",
-          "text": "同一binding 3項目の新規approvals行として再要求をINSERTし、実通知ごとにexternal_operations(effect='write', policy_category='approval_notification', rate_scope='claude_code_app')と1:1のoperation_logを記録して要求・再要求・応答の全履歴を残す"
+              "text": "同一subject/operationに新しいbinding_atを発行した新規approvals行として再要求をINSERTし、初期Discord実通知ごとにexternal_operations(effect='write', policy_category='approval_notification', rate_scope='discord')と1:1のoperation_logを記録して要求・再要求の全履歴を残す。同一binding_atの再送は既存行へ収束する"
             },
             {
               "clause_id": "API-DU18-03-POST-02",
@@ -5276,12 +5293,12 @@
     "evidence",
     "external_operations"
   ],
-  "transaction_boundary": "approvals INSERTは単一transaction。実通知writeと応答poll readは各external_operationsのprepared/sentを個別commitし、結果確定時もsentの間に対応operation_logをDU-09 transactionでINSERTしてtrigger final化する（transport I/Oは業務transaction外）。approved確定時はその後にapproval証跡INSERTとapprovals.evidence_id更新を単一transaction（`_record_decision`）。mock/dry-runは外部操作両テーブル差分0",
+  "transaction_boundary": "approvals INSERTは単一transaction。実Discord通知writeはexternal_operationsのprepared/sentを個別commitし、operation_logをDU-09 transactionでINSERTしてtrigger final化する（transport I/Oは業務transaction外）。inbound interactionは外部操作両テーブルへ書かず、pending限定CASとapproved時のapproval証跡INSERT・approvals.evidence_id更新を単一transactionで行う。mock/dry-runも外部操作両テーブル差分0",
       "purity": "binding 照合（3 項目完全一致）・decision→分類写像（承認設計 §3）は pure 関数。approvals/evidence 書込みと transport I/O が副作用端点",
-  "idempotency": "同一binding要求はUNIQUE(task_id,binding_subject,binding_operation,binding_at)で既存行に収束。通知writeはapproval_id・request generation由来のUNIQUE idempotency keyを使う。poll readは同一(task_id, operation, request_hash)内でpoll attemptごとにrequest_sequenceを1から単調増加し、correlation_key='read:<task_id>:<request_hash>:<request_sequence>'で各1 external_operations行へ区別し、各行にoperation_logは1件だけ。再実行はapprovals.decisionと外部操作statusから決定的に再開する",
+  "idempotency": "同一binding要求はUNIQUE(task_id,binding_subject,binding_operation,binding_at)で既存行に収束。通知writeはapproval_id・request generation由来のUNIQUE idempotency keyを使う。interaction再送は署名timestamp/nonceのreplay防止とdecision='pending'限定CASで二重確定を防ぎ、再実行はapprovals.decisionと通知外部操作statusから決定的に再開する",
   "retry_resume": "transport一時失敗は該当external_operations.statusから同keyで再開し、sentは照合不能ならunknownとして再送しない。再起動後はapprovals.decisionを正本にpending=待機継続、approved=evidence整合確認後に公開、rejected/expired=写像適用する。mock/dry-run結果を実通知成功と推測しない",
       "concurrency": "decision 更新は decision='pending' を条件に含む UPDATE（更新 0 行 = 既確定として現在値を再読 — 二重確定なし）。UNIQUE 制約が並行要求の最終防衛",
-      "logging_evidence": "approval証跡（approved・binding 3項目）をDU-09経由で記録する。operation_logは実通知write／実応答poll readのexternal_operations行とだけexternal_operation_row_idで1:1に束縛し、task/effect/policy_category/rate_scope/service/operation/correlation_key/request_hash/request_sequence/resultを同値にする。provider IDは任意。binding不一致・rejected/expired分類・上限拒否等の内部判断はprocess loggerへ記録しoperation_logを生成しない actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
+      "logging_evidence": "approval証跡（approved・binding 3項目）をDU-09経由で記録する。execution_mode='actual'でsentに到達したDiscord通知external_operations行だけがoperation_logを生成し、external_operation_row_id・effect='write'・policy_category='approval_notification'・rate_scope='discord'・correlation_key・request_hash・request_sequenceを同値束縛する。inbound interaction、署名/identity/binding不一致、replay、rejected/expired分類、上限拒否等はprocess loggerへ記録しoperation_logを生成しない。",
       "depends_on_apis": [
         "DU-09: record()",
         "DU-01: transition()",
@@ -5305,9 +5322,12 @@
         ],
         "ut": [
           "test_connectors_approval.py::test_request_inserts_pending_and_notifies_binding",
-          "test_connectors_approval.py::test_duplicate_request_unique_idempotent",
-          "test_connectors_approval.py::test_poll_approved_records_evidence_atomically",
-          "test_connectors_approval.py::test_binding_mismatch_response_invalid_keeps_waiting",
+        "test_connectors_approval.py::test_duplicate_request_unique_idempotent",
+        "test_connectors_approval.py::test_receive_interaction_approved_records_evidence_atomically",
+        "test_connectors_approval.py::test_receive_interaction_replay_does_not_double_finalize",
+        "test_connectors_approval.py::test_receive_interaction_competing_decisions_only_one_cas_succeeds",
+        "test_connectors_approval.py::test_finalized_approval_rejects_direct_update_and_delete",
+        "test_connectors_approval.py::test_invalid_interaction_keeps_waiting",
           "test_connectors_approval.py::test_rejected_classified_non_retryable_failure",
           "test_connectors_approval.py::test_rerequest_on_expired_new_row_series",
           "test_connectors_approval.py::test_rerequest_limit_reached_escalates"
@@ -5363,7 +5383,7 @@
         "api_refs": [
           "connect",
           "get",
-          "poll",
+          "receive_interaction",
           "record",
           "request",
           "rerequest_on_expired",
@@ -6568,5 +6588,5 @@
     "ARCHIVE-UT-LEGACY",
     "docs/L5-detailed-design/canonical/detailed-design_v0.1.md §3（API 正本宣言）"
   ],
-  "approval_digest": "0aa153729de3"
+  "approval_digest": "4c7c646c2ef9"
 }

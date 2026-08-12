@@ -24,7 +24,7 @@
     },
     {
       "target": "承認通知",
-      "user_provides": "Claude Code アプリで通知を受け取れる利用者",
+      "user_provides": "個人 Discord サーバー、Discord App、許可済み承認者 user ID（将来 Web UI / PWA 認証へ拡張可能）",
       "harness_assumes": "binding subject / operation / at を通知・照合し approvals/evidence に記録",
       "test_policy": "通知 transport は mock 可。approve/reject/timeout を fixture で検証"
     },

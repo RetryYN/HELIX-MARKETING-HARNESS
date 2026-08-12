@@ -92,7 +92,7 @@
           "required_evidence": [
             "approval"
           ],
-          "gate": "channel = Claude Code アプリ、decision = approved、binding 3 項目完全一致",
+          "gate": "channel = 許可済み ApprovalTransport（初期 Discord）、decision = approved、binding 3 項目完全一致",
           "on_failure": "rejected は non_retryable_failure で failed。expired は承認再要求で待機継続し config.approval_retry_limit 到達で escalated。pending は waiting"
         },
         {

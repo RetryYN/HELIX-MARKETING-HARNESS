@@ -682,7 +682,7 @@
         "承認 UI の実装詳細（承認コネクタの領分）"
       ],
       "constraints": [
-        "承認は Claude Code アプリ通知経由の束縛承認",
+        "承認は VPS 側承認 API を正本とする交換可能 transport（初期 Discord、将来 Web UI / PWA）経由の束縛承認",
         "承認証跡を evidence へ記録"
       ],
       "prohibitions": [
@@ -731,7 +731,7 @@
         "問診の UX 改善（S1+）"
       ],
       "constraints": [
-        "照会は Claude Code 対話経由のみ",
+        "照会は構造化回答 UI/API 経由とし、Claude Code は任意クライアントに限定",
         "回答は型検証を通過して初めて充填"
       ],
       "prohibitions": [
@@ -1510,7 +1510,7 @@
       "id": "BR-H2",
       "group": "H. 承認・自律",
       "title": "束縛承認とオートモード移行",
-      "purpose": "外部公開に経過措置としてスマホ（Claude Code アプリ通知）束縛承認を要し、安定稼働基準の証跡が揃い次第オートモードへ移行可能にする。",
+      "purpose": "外部公開に経過措置としてスマホ（初期 Discord、将来 Web UI / PWA）からの束縛承認を要し、安定稼働基準の証跡が揃い次第オートモードへ移行可能にする。",
       "actor": "PO（承認者・移行判断者）／承認コネクタ",
       "trigger": "外部公開操作時（経過措置中）・オートモード移行判定時",
       "problem": "初日から全自動は信頼できず、永久に手動承認では回転しない。信頼の段階的移譲に機械的基準がない。",
@@ -1960,5 +1960,5 @@
   "approved_at": "2026-08-01T00:00:00+09:00",
   "authority": "PO",
   "supersedes": [],
-  "approval_digest": "6bfd434b51fb"
+  "approval_digest": "67de1e48ae41"
 }

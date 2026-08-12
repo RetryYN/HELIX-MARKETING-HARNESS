@@ -22,10 +22,11 @@ slice: S0
 
 - **束縛承認**: 対象（binding_subject）・操作（binding_operation）・時点（binding_at）の 3 項目を明記した
   承認要求を人へ送り、応答が証跡化されるまで対象タスクを進めない方式（glossary 正本）。
-- approvals テーブルの列・CHECK・UNIQUE は s0-contract §2 の DDL が正準。channel は `claude_code_app` のみ
+- approvals テーブルの列・CHECK・UNIQUE は s0-contract §2 の DDL が正準。S0 の channel は `discord` のみ
   （DDL CHECK — 変更は要件改訂）。
-- decision の語彙は `pending → approved / rejected / expired`。**decision の書換え・削除は不可**
-  （approvals は証跡 — 変更は新規要求の別行で行う）。
+- decision の語彙は `pending → approved / rejected / expired`。確定は approvals_store が公開する
+  `WHERE decision='pending'` のCAS更新1回だけ許可する。更新0行なら現在値を再読して二重確定を拒否する。
+  approvals_store は確定後の更新・削除APIを持たず、再要求は新しい `binding_at` を持つ別行とする。
 - 承認が要求される箇所: WF-WP-2 ステップ 3（公開前の束縛承認 — s0-contract §4.2）と金銭操作型 task（§4）。
 
 ## 2. 承認フロー（CMP-11 の実装構造）
@@ -35,17 +36,15 @@ slice: S0
    その後に transport IF `request_approval(intent)` を呼ぶ。この IF は approvals を書かず、
    実通知の ConnectorIntent と request/result 材料だけを返す。実 transport 通知は
    `effect=write`・`policy_category=approval_notification`・canonical lowercase `rate_scope` とし、binding 3 項目と
-   exact `(approval_notification, claude_code_app, approval_request, target_endpoint)` policy を含む
+   exact `(approval_notification, discord_app, approval_request, target_endpoint)` policy を含む
    route・credential・endpoint・cap の preflight 合格後にだけ、CMP-02
    `ExternalOpRecorder` が external_operations lifecycle を所有する。
 2. pending の間、**親 loop_run を waiting** にし task は進行させない（tasks に waiting 状態はない — s0-contract §3.2。
    基本設計 CMP-11）。先行公開経路は存在しない。
-3. 実 provider への poll は `effect=read` の別 request とし、同一 poll の request hash と
-   `request_sequence=1,2,...` から
-   `read:<task_id>:<request_hash>:<request_sequence>` を生成して Recorder の同一 lifecycle を通す。
-  policy_category=external_read／rate_scope=NULL とし、intent／request payload／result／operation_log の
-  category／rate_scope／sequence を一致させ、応答受領で decision を更新し、
-   §3 の写像で状態遷移イベントを発火する。
+3. Discord interaction はVPSのHTTPS endpointでraw bodyと署名headerを受ける。connectorがtimestamp/replay、
+   application/guild/channel/user allow-list、approval ID、binding、期限を検証し、合格時だけpending行をCAS確定する。
+   inbound interactionは外部read要求ではないためexternal_operations/operation_logを作らず、検証結果とDiscord interaction IDを
+   approval evidence／process loggerへ残す。二重受信はCAS更新0行として拒否し、現在値を返す。
 4. transport は差替可能な interface（本番: アプリ通知、テスト: mock fixture で approve/reject/timeout を再現 —
    環境契約 = s0-contract §6）。mock／fixture／dry-run は外部 request ではないため
    external_operations／operation_log を 0 行とし、模擬結果は秘匿化済み process logger にだけ残す。
@@ -67,7 +66,7 @@ slice: S0
 | 承認なしの公開・金銭系書込み呼出し | ApprovalRequired | non_retryable_failure | 拒否（外部送信 0 回）→ failed |
 | credential 再投入・設計判断待ち | —（承認の外 — escalate ガード） | **escalate** | task = escalated（s0-contract §3.2 — 承認 rejected はここに含まれない） |
 
-- 再要求は同一 binding 3 項目の**新規 approvals 行**として発行し、系列（要求・再要求・応答の全履歴）を証跡に残す。
+- 再要求は同じ binding_subject／binding_operation と**新しい binding_at**の approvals 行として発行し、系列（要求・再要求・応答の全履歴）を証跡に残す。
   同一 (task_id, binding_subject, binding_operation, binding_at) の重複要求は UNIQUE 制約で既存行に照合する。
 - binding_at と実公開時点の乖離は不一致として拒否する（FR-46 boundary）。
 
@@ -89,7 +88,7 @@ slice: S0
 
 ## 5. オートモード移行基準（BR-H2）
 
-- **経過措置**: 外部公開は当面すべて束縛承認（Claude Code アプリ通知）を要する。
+- **経過措置**: 外部公開は当面すべて束縛承認（初期 Discord App、将来 Web UI / PWA）を要する。
 - **移行**: 安定稼働基準の証跡が揃った媒体は、束縛承認を省略して公開まで自走するオートモードへ移行できる。
   判定は `config.auto_mode_criteria`（充填経路 C）と実績証跡から**機械判定**し、人手の主観判定を挟まない（FR-46）。
 - 安定稼働証跡の基準要素（config で宣言 — 値のハードコード禁止）:

@@ -78,7 +78,7 @@ read-only の 4 検査。1 つでも不合格なら `FatalError`（SchemaVerific
 | # | 検査 | 不合格の意味 |
 |---|---|---|
 | 1 | `PRAGMA foreign_key_check`・`PRAGMA integrity_check` 違反 0 件 | 参照破損・ファイル破損 |
-| 2 | 25 テーブル（業務 23＋インフラ 2）＋保護トリガ 37 本の存在 | 不完全スキーマ・トリガ欠落 DB |
+| 2 | 25 テーブル（業務 23＋インフラ 2）＋保護トリガ 39 本の存在 | 不完全スキーマ・トリガ欠落 DB |
 | 3 | **TLP 孤児検査**: packet を持たない終端 lower run = 0 件 | kernel 契約すり抜け（検出時 escalate — [tlp.md](tlp.md) §6） |
 | 4 | 相互整合: approvals.evidence_id ↔ approval 証跡、pair passed の review 証跡実在、measurements.evidence_id の kind = measurement | 参照は繋がるが意味が壊れた行 |
 

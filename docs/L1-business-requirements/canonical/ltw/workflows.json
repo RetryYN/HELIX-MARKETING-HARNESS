@@ -303,7 +303,7 @@
     {
       "id": "WF-FILL-1",
       "purpose": "初回セットアップ（事業前提の充填）",
-      "steps": "スキーマ必須スロットの欠損検出（FR-31）→ 問診リスト生成 → **Claude Code 対話で人に照会** → 回答の型検証 → business_profiles / config 投入",
+      "steps": "スキーマ必須スロットの欠損検出（FR-31）→ 問診リスト生成 → **構造化回答 UI/API で人に照会** → 回答の型検証 → business_profiles / config 投入",
       "trace": {
         "upstream": [
           "WF-FILL-1",

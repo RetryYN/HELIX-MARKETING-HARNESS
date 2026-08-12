@@ -69,7 +69,7 @@ stateDiagram-v2
 - **policy category**: read は `external_read` だけ。write の `content_publish` は
   `service=wp` の Docker WP だけ、`review_sync` は `service=notion` かつ明示 config／
   binding 完全一致の ApprovalPass 必須、`approval_notification` は
-  `service=claude_code_app, operation=approval_request` かつ確定済み binding の承認通知、`approved_paid_operation` は
+  `service=discord_app, operation=approval_request` かつ確定済み binding の初期承認通知、`approved_paid_operation` は
   PO 承認済み有償 route に限る。別 category の service／operation／target_endpoint を使用しない。
 - content_publish の公開成功は、confirmed write の operation_log を先に確定した後、
   asset 登録を行い、必須の `external_operation_row_id` と `operation_log_evidence_id`
@@ -197,7 +197,7 @@ class RatePacer:
    external_operations／operation_log 0 行**。拒否理由は秘匿化済み process logger にだけ残す。
 2. category 別契約は次の通り: `content_publish` は Docker WP の publish／draft／media 操作だけ、
    `review_sync` は明示 config の Notion `sync_result` かつ完全一致 ApprovalPass がある場合だけ、
-   `approval_notification` は Claude Code アプリ `approval_request` かつ binding 3 項目確定済みの場合だけ、
+   `approval_notification` は許可済み ApprovalTransport（初期 Discord App）`approval_request` かつ binding 3 項目確定済みの場合だけ、
    `approved_paid_operation` は PO 承認と有償 route が完全に束縛済みの場合だけ。
    「Docker WP のみ」は `content_publish` のみに適用し、他 category を公開経路にしない。
 3. 同じ preflight で route 解決・credential endpoint 照合・CredentialLeak scan・PairPass・
@@ -222,7 +222,7 @@ class RatePacer:
   provider rejected／unknown を含む全 sent 行は row ID 束縛 operation_log がちょうど 1 行で、
   orphan・重複・field mismatch が 0 件であることを双方向に検査する。
 - policy category は external_read と 4 write category の正常 tuple に加え、category 欠落・未知、
-  config 欠落、wildcard、WP→Notion／Notion→Claude Code アプリ等の category 間 endpoint 入替え mutation を
+  config 欠落、wildcard、WP→Notion／Notion→Discord App 等の category 間 endpoint 入替え mutation を
   全て prepare 前に赤にする。policy_category／rate_scope を intent／request／result／external row／
   operation_log のいずれかで改変する mutant、read の rate_scope を非 NULL にする mutant も赤にする。
 - cap 境界は UTC 日付切替、rejected／unknown の消費、read 除外、2 worker の同時 1 枠取得 mutation
