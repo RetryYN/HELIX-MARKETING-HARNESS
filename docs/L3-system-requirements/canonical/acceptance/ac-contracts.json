@@ -4349,9 +4349,9 @@
         ],
         "api_refs": []
       },
-  "verifies_clause_refs": [
-    "API-DU18-02-POST-04"
-  ]
+      "verifies_clause_refs": [
+        "API-DU18-02-POST-04"
+      ]
     },
     {
       "id": "AC-47-1",
@@ -4406,7 +4406,12 @@
       "target": "FR-47",
       "polarity": "reject",
       "transition_refs": [
-        {"entity": "tasks", "from": "in_progress", "event": "escalate", "to": "escalated"}
+        {
+          "entity": "tasks",
+          "from": "in_progress",
+          "event": "escalate",
+          "to": "escalated"
+        }
       ],
       "given": "秘匿ストアに未投入のサービス（notion）への接続要求と、operation_log へ書き出される文字列に secret 値が混入したケース",
       "when": "notion 接続と、混入文字列のログ書出しを実行する",
@@ -4424,21 +4429,21 @@
       ],
       "semantic_refs": {
         "table_refs": [
-        "state_transitions",
-        "tasks"
+          "state_transitions",
+          "tasks"
         ],
         "column_refs": [
-        "state_transitions.guard_result",
-        "tasks.state"
+          "state_transitions.guard_result",
+          "tasks.state"
         ],
         "state_refs": [
-        "tasks.escalated",
-        "tasks.in_progress"
+          "tasks.escalated",
+          "tasks.in_progress"
         ],
-      "event_refs": [
-        "escalate"
-      ],
-      "evidence_kind_refs": [],
+        "event_refs": [
+          "escalate"
+        ],
+        "evidence_kind_refs": [],
         "error_type_refs": [
           "CredentialLeakDetected"
         ],
@@ -4454,8 +4459,18 @@
       "target": "FR-47",
       "polarity": "boundary-recovery",
       "transition_refs": [
-        {"entity": "tasks", "from": "in_progress", "event": "escalate", "to": "escalated"},
-        {"entity": "tasks", "from": "pending", "event": "claim", "to": "in_progress"}
+        {
+          "entity": "tasks",
+          "from": "in_progress",
+          "event": "escalate",
+          "to": "escalated"
+        },
+        {
+          "entity": "tasks",
+          "from": "pending",
+          "event": "claim",
+          "to": "in_progress"
+        }
       ],
       "given": "保管済みセッションが期限切れになった状態と、テスト credential を本番 endpoint に組み合わせた設定（環境契約 §6 違反）",
       "when": "期限切れセッションでの接続と不一致組合せでの接続を実行し、credential再投入後にreplacement taskを明示発行してclaimする",
@@ -4477,19 +4492,19 @@
           "tasks"
         ],
         "column_refs": [
-        "tasks.parent_task_id",
-        "tasks.state"
+          "tasks.parent_task_id",
+          "tasks.state"
         ],
         "state_refs": [
-        "tasks.escalated",
-        "tasks.in_progress",
-        "tasks.pending"
+          "tasks.escalated",
+          "tasks.in_progress",
+          "tasks.pending"
         ],
         "event_refs": [
-        "claim",
-        "escalate"
+          "claim",
+          "escalate"
         ],
-      "evidence_kind_refs": [],
+        "evidence_kind_refs": [],
         "error_type_refs": [
           "CredentialEndpointMismatch"
         ],
@@ -6343,8 +6358,8 @@
           "external_operations.rate_scope",
           "external_operations.request_hash",
           "external_operations.request_sequence",
-          "external_operations.status"
-          ,"spend_ledger.external_operation_row_id"
+          "external_operations.status",
+          "spend_ledger.external_operation_row_id"
         ],
         "state_refs": [],
         "event_refs": [],
@@ -6380,7 +6395,12 @@
           "external_operations",
           "spend_ledger"
         ],
-        "column_refs": ["external_operations.effect", "external_operations.execution_mode", "external_operations.status", "spend_ledger.external_operation_row_id"],
+        "column_refs": [
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.status",
+          "spend_ledger.external_operation_row_id"
+        ],
         "state_refs": [],
         "event_refs": [],
         "evidence_kind_refs": [],
@@ -6425,8 +6445,8 @@
           "external_operations.rate_scope",
           "external_operations.request_hash",
           "external_operations.request_sequence",
-          "external_operations.status"
-          ,"spend_ledger.external_operation_row_id"
+          "external_operations.status",
+          "spend_ledger.external_operation_row_id"
         ],
         "state_refs": [],
         "event_refs": [],
@@ -8814,10 +8834,26 @@
     {
       "id": "AC-901",
       "target": "NFR-1",
-      "verification_aspects": ["NFR-1:invalid-rejection", "NFR-1:disable-path-absence", "NFR-1:indeterminate-rejection", "NFR-1:evidence-channel", "NFR-1:fatal-escalation"],
+      "verification_aspects": [
+        "NFR-1:invalid-rejection",
+        "NFR-1:disable-path-absence",
+        "NFR-1:indeterminate-rejection",
+        "NFR-1:evidence-channel",
+        "NFR-1:fatal-escalation"
+      ],
       "transition_refs": [
-        {"entity": "tasks", "from": "in_progress", "event": "escalate", "to": "escalated"},
-        {"entity": "loop_runs", "from": "running", "event": "fatal_failure", "to": "escalated"}
+        {
+          "entity": "tasks",
+          "from": "in_progress",
+          "event": "escalate",
+          "to": "escalated"
+        },
+        {
+          "entity": "loop_runs",
+          "from": "running",
+          "event": "fatal_failure",
+          "to": "escalated"
+        }
       ],
       "polarity": "reject",
       "given": "invalid fixture、破損schema、未定義遷移、ゲート／遷移表破損を含む判定不能入力が各1件あり、破損時対象task=in_progress・親loop_run=runningである",
@@ -8831,15 +8867,48 @@
       "forbidden_side_effects": "判定不能入力の通過、ゲート無効化・bypass経路、業務状態更新、状態遷移拒否のoperation_log記録",
       "error_type": "TransitionRejected",
       "target_update": "cross（fail-close品質契約）",
-      "tc": ["TCC-NFR-01"],
-      "semantic_refs": {"table_refs": ["loop_runs", "state_transitions", "tasks"], "column_refs": ["loop_runs.state", "state_transitions.guard_result", "tasks.state"], "state_refs": ["loop_runs.escalated", "loop_runs.running", "tasks.escalated", "tasks.in_progress"], "event_refs": ["escalate", "fatal_failure"], "evidence_kind_refs": [], "error_type_refs": ["TransitionRejected"], "api_refs": []},
+      "tc": [
+        "TCC-NFR-01"
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "loop_runs",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "loop_runs.state",
+          "state_transitions.guard_result",
+          "tasks.state"
+        ],
+        "state_refs": [
+          "loop_runs.escalated",
+          "loop_runs.running",
+          "tasks.escalated",
+          "tasks.in_progress"
+        ],
+        "event_refs": [
+          "escalate",
+          "fatal_failure"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "TransitionRejected"
+        ],
+        "api_refs": []
+      },
       "verifies_clause_refs": [],
       "clause_na_reason": "個別API契約節ではなく全ゲートの判定不能時挙動を横断検証するNFR受入基準"
     },
     {
       "id": "AC-902",
       "target": "NFR-2",
-      "verification_aspects": ["NFR-2:deterministic-hash", "NFR-2:brief-digest", "NFR-2:nondeterministic-output-evidence", "NFR-2:clock-rng-injection"],
+      "verification_aspects": [
+        "NFR-2:deterministic-hash",
+        "NFR-2:brief-digest",
+        "NFR-2:nondeterministic-output-evidence",
+        "NFR-2:clock-rng-injection"
+      ],
       "polarity": "normal",
       "given": "同一の正準化済みbrief、固定Clock/Rng、同一制作・集計fixtureが2組ある",
       "when": "別プロセスを含む2回の実行でdigestと生成物hashを算出する",
@@ -8852,15 +8921,36 @@
       "forbidden_side_effects": "同一入力で異なる出力、未注入時刻・乱数、hash証跡欠落",
       "error_type": "なし",
       "target_update": "cross（決定性品質契約）",
-      "tc": ["TCC-NFR-02"],
-      "semantic_refs": {"table_refs": ["evidence", "strategic_briefs"], "column_refs": [], "state_refs": [], "event_refs": [], "evidence_kind_refs": ["file_hash", "commit_hash"], "error_type_refs": [], "api_refs": []},
+      "tc": [
+        "TCC-NFR-02"
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "strategic_briefs"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "file_hash",
+          "commit_hash"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      },
       "verifies_clause_refs": [],
       "clause_na_reason": "複数APIと成果物を横断する決定性NFRのため単一API契約節へ限定できない"
     },
     {
       "id": "AC-903",
       "target": "NFR-3",
-      "verification_aspects": ["NFR-3:all-kill-points", "NFR-3:no-resend", "NFR-3:evidence-before-transition", "NFR-3:unknown-escalation"],
+      "verification_aspects": [
+        "NFR-3:all-kill-points",
+        "NFR-3:no-resend",
+        "NFR-3:evidence-before-transition",
+        "NFR-3:unknown-escalation"
+      ],
       "polarity": "boundary-recovery",
       "given": "各非終端状態とDocker WPへの実書込み成功後sent記録直後のkill pointを持つfixtureがある",
       "when": "各kill pointで強制終了しSQLiteだけから再起動する",
@@ -8873,7 +8963,9 @@
       "forbidden_side_effects": "推測による完了、外部再送、プロセスメモリ依存の再開、証跡より先の業務状態遷移",
       "error_type": "なし",
       "target_update": "cross（再開性品質契約）",
-      "tc": ["TCC-NFR-03"],
+      "tc": [
+        "TCC-NFR-03"
+      ],
       "semantic_refs": {
         "table_refs": [
           "evidence",
@@ -8908,9 +9000,19 @@
     {
       "id": "AC-904",
       "target": "NFR-4",
-      "verification_aspects": ["NFR-4:secret-zero", "NFR-4:masking", "NFR-4:runtime-failure", "NFR-4:credential-rotation-escalation"],
+      "verification_aspects": [
+        "NFR-4:secret-zero",
+        "NFR-4:masking",
+        "NFR-4:runtime-failure",
+        "NFR-4:credential-rotation-escalation"
+      ],
       "transition_refs": [
-        {"entity": "tasks", "from": "in_progress", "event": "escalate", "to": "escalated"}
+        {
+          "entity": "tasks",
+          "from": "in_progress",
+          "event": "escalate",
+          "to": "escalated"
+        }
       ],
       "polarity": "reject",
       "given": "既知テストcredentialを暗号化ストアだけに投入しDocker WPへの実読取りを行う正常fixtureと、永続化直前にcredential混入を試みる違反fixtureがある",
@@ -8924,7 +9026,9 @@
       "forbidden_side_effects": "credentialのrepo・DB・ログ・evidence永続化",
       "error_type": "CredentialLeakDetected",
       "target_update": "cross（秘匿品質契約）",
-      "tc": ["TCC-NFR-04"],
+      "tc": [
+        "TCC-NFR-04"
+      ],
       "semantic_refs": {
         "table_refs": [
           "evidence",
@@ -8966,7 +9070,12 @@
     {
       "id": "AC-905",
       "target": "NFR-5",
-      "verification_aspects": ["NFR-5:transition-coverage", "NFR-5:gate-decision-coverage", "NFR-5:external-operation-coverage", "NFR-5:single-query-backlog"],
+      "verification_aspects": [
+        "NFR-5:transition-coverage",
+        "NFR-5:gate-decision-coverage",
+        "NFR-5:external-operation-coverage",
+        "NFR-5:single-query-backlog"
+      ],
       "polarity": "normal",
       "given": "loop_runs/tasksの全状態、許可/拒否遷移、effect='read'/'write'かつstatus=confirmed/rejected/unknown/sentのexternal_operations、正対応・orphan・重複・不一致operation_log、config.external_operation.sent_recovery_timeout_sec=300、注入UTC Clock固定値Tがある",
       "when": "NFR-5のUNION ALL滞留SQL、external_operations↔operation_log双方向anti-join/GROUP BY、SQL:`SELECT id FROM external_operations WHERE status='sent' AND sent_at < :recovery_cutoff_utc`を実行し、timeout config欠落/型不正/0以下も投入する",
@@ -8979,7 +9088,9 @@
       "forbidden_side_effects": "終端状態の滞留混入、複数query手作業結合、operation_logの内部row ID欠落、orphan、1:0/1:N/N:1、category/rate_scopeを含む対応属性不一致、timeout超過sent、wall clock直呼び、config欠落/不正時の既定値推測",
       "error_type": "なし",
       "target_update": "cross（可観測性品質契約）",
-      "tc": ["TCC-NFR-05"],
+      "tc": [
+        "TCC-NFR-05"
+      ],
       "semantic_refs": {
         "table_refs": [
           "config",
@@ -8996,10 +9107,10 @@
           "external_operations.correlation_key",
           "external_operations.effect",
           "external_operations.execution_mode",
-      "external_operations.operation",
-      "external_operations.policy_category",
-      "external_operations.rate_scope",
-      "external_operations.request_hash",
+          "external_operations.operation",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
           "external_operations.request_sequence",
           "external_operations.service",
           "external_operations.status",
@@ -9020,11 +9131,33 @@
     {
       "id": "AC-906",
       "target": "NFR-6",
-      "verification_aspects": ["NFR-6:projected-cap", "NFR-6:free-route-continuity", "NFR-6:ledger-completeness", "NFR-6:reversal-integrity", "NFR-6:append-only", "NFR-6:config-missing-failclose"],
+      "verification_aspects": [
+        "NFR-6:projected-cap",
+        "NFR-6:free-route-continuity",
+        "NFR-6:ledger-completeness",
+        "NFR-6:reversal-integrity",
+        "NFR-6:append-only",
+        "NFR-6:config-missing-failclose"
+      ],
       "transition_refs": [
-        {"entity": "tasks", "from": "pending", "event": "non_retryable_failure", "to": "failed"},
-        {"entity": "tasks", "from": "pending", "event": "escalate", "to": "escalated"},
-        {"entity": "tasks", "from": "pending", "event": "claim", "to": "in_progress"}
+        {
+          "entity": "tasks",
+          "from": "pending",
+          "event": "non_retryable_failure",
+          "to": "failed"
+        },
+        {
+          "entity": "tasks",
+          "from": "pending",
+          "event": "escalate",
+          "to": "escalated"
+        },
+        {
+          "entity": "tasks",
+          "from": "pending",
+          "event": "claim",
+          "to": "in_progress"
+        }
       ],
       "polarity": "boundary-recovery",
       "given": "charge−reversal純額と要求額の合計が月次上限の直前・一致・1円超過となる3組、config欠落、confirmed approved_paid_operation対応、正常/異額/二重/孤児reversal、UPDATE/DELETE fixtureがある",
@@ -9038,15 +9171,50 @@
       "forbidden_side_effects": "上限超過時の有償操作、config欠落時のfail-open、無償経路一律停止、charge欠落/二重、孤児/部分/二重reversal、FX/0円/manual charge、仕訳UPDATE/DELETE",
       "error_type": "なし",
       "target_update": "cross（支出上限品質契約）",
-      "tc": ["TCC-NFR-06"],
-      "semantic_refs": {"table_refs": ["config", "external_operations", "spend_ledger", "state_transitions", "tasks"], "column_refs": ["state_transitions.guard_result", "tasks.state"], "state_refs": ["tasks.escalated", "tasks.failed", "tasks.in_progress", "tasks.pending"], "event_refs": ["claim", "escalate", "non_retryable_failure"], "evidence_kind_refs": [], "error_type_refs": [], "api_refs": []},
+      "tc": [
+        "TCC-NFR-06"
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "external_operations",
+          "spend_ledger",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "state_transitions.guard_result",
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.escalated",
+          "tasks.failed",
+          "tasks.in_progress",
+          "tasks.pending"
+        ],
+        "event_refs": [
+          "claim",
+          "escalate",
+          "non_retryable_failure"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      },
       "verifies_clause_refs": [],
       "clause_na_reason": "支出台帳・config・task開始を横断するNFRで単一API契約節の検証ではない"
     },
     {
       "id": "AC-907",
       "target": "NFR-7",
-      "verification_aspects": ["NFR-7:interval-range", "NFR-7:uniformity", "NFR-7:daily-cap", "NFR-7:canonical-rate-scope", "NFR-7:seed-recording", "NFR-7:cap-wait-state"],
+      "verification_aspects": [
+        "NFR-7:interval-range",
+        "NFR-7:uniformity",
+        "NFR-7:daily-cap",
+        "NFR-7:canonical-rate-scope",
+        "NFR-7:seed-recording",
+        "NFR-7:cap-wait-state"
+      ],
       "polarity": "boundary-recovery",
       "given": "固定Rng seed 4種、整数秒操作間隔min/max、canonical rate_scope='wp'の日次cap=2についてstatusがconfirmed/rejected/unknownのsent write各fixture、effect='read'除外、rate_scope/cap欠落・大文字・alias/shared-service迂回fixture、cap-1から同時に到達するwrite予約2件がある",
       "when": "MT19937 randintで4 seed各10,000標本のχ²検定とseed再生を行い、UTC日次sent writeをrate_scope='wp'かつstatus不問で集計し、scope正準性・cap境界・欠落・single-writer下の2並行予約を実行する",
@@ -9059,15 +9227,47 @@
       "forbidden_side_effects": "範囲外・非一様分布・固定間隔・seed未記録、WP日次2件超過、service alias/case/shared serviceによるcap迂回、拒否後の外部呼出",
       "error_type": "なし",
       "target_update": "cross（レート節度品質契約）",
-      "tc": ["TCC-NFR-07"],
-      "semantic_refs": {"table_refs": ["config", "external_operations", "loop_runs", "tasks"], "column_refs": ["external_operations.effect", "external_operations.execution_mode", "external_operations.policy_category", "external_operations.rate_scope", "external_operations.sent_at", "external_operations.status", "loop_runs.state", "tasks.state"], "state_refs": ["loop_runs.waiting", "tasks.pending"], "event_refs": [], "evidence_kind_refs": [], "error_type_refs": [], "api_refs": []},
+      "tc": [
+        "TCC-NFR-07"
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "external_operations",
+          "loop_runs",
+          "tasks"
+        ],
+        "column_refs": [
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.sent_at",
+          "external_operations.status",
+          "loop_runs.state",
+          "tasks.state"
+        ],
+        "state_refs": [
+          "loop_runs.waiting",
+          "tasks.pending"
+        ],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      },
       "verifies_clause_refs": [],
       "clause_na_reason": "Clock/Rng・外部操作・日次集計を横断するNFRで単一API契約節の検証ではない"
     },
     {
       "id": "AC-908",
       "target": "NFR-8",
-      "verification_aspects": ["NFR-8:data-only-extension", "NFR-8:dry-run-e2e", "NFR-8:product-hash-zero-diff", "NFR-8:registry-row-only"],
+      "verification_aspects": [
+        "NFR-8:data-only-extension",
+        "NFR-8:dry-run-e2e",
+        "NFR-8:product-hash-zero-diff",
+        "NFR-8:registry-row-only"
+      ],
       "polarity": "normal",
       "given": "製品ファイル集合/SHA-256 mapを取得済みで、未知媒体のworkflow・playbook・接続レジストリ行だけを追加したfixtureがある",
       "when": "既存コードを変更せずdry-run E2Eを実行し、前後の製品ファイル集合とSHA-256 mapを比較する",
@@ -9080,15 +9280,34 @@
       "forbidden_side_effects": "媒体固有分岐のengine/gates/connectors追加、既存媒体の挙動変更",
       "error_type": "なし",
       "target_update": "cross（媒体追加保守性品質契約）",
-      "tc": ["TCC-NFR-08"],
-      "semantic_refs": {"table_refs": ["playbooks", "workflows"], "column_refs": [], "state_refs": [], "event_refs": [], "evidence_kind_refs": [], "error_type_refs": [], "api_refs": []},
+      "tc": [
+        "TCC-NFR-08"
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "playbooks",
+          "workflows"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      },
       "verifies_clause_refs": [],
       "clause_na_reason": "媒体追加時の差分種別を横断検証する保守性NFRで単一API契約節の検証ではない"
     },
     {
       "id": "AC-909",
       "target": "NFR-9",
-      "verification_aspects": ["NFR-9:pr-label", "NFR-9:opt-in", "NFR-9:unsubscribe", "NFR-9:supported-channel-only", "NFR-9:pii-purpose"],
+      "verification_aspects": [
+        "NFR-9:pr-label",
+        "NFR-9:opt-in",
+        "NFR-9:unsubscribe",
+        "NFR-9:supported-channel-only",
+        "NFR-9:pii-purpose"
+      ],
       "polarity": "reject",
       "given": "PR表記欠落affiliate成果物、opt-in欠落宛先、unsubscribe導線欠落message、収集目的に対応しないPII保持列の各fixtureがある",
       "when": "公開・配信前の法規ゲートとPII schema目的対応検査を各fixtureへ適用する",
@@ -9101,15 +9320,35 @@
       "forbidden_side_effects": "表記なし公開、同意なし配信、配信停止導線なし配信、目的外PII保持、外部呼出",
       "error_type": "なし",
       "target_update": "cross（法規遵守品質契約）",
-      "tc": ["TCC-NFR-09"],
-      "semantic_refs": {"table_refs": ["external_operations", "tasks"], "column_refs": [], "state_refs": [], "event_refs": [], "evidence_kind_refs": [], "error_type_refs": [], "api_refs": []},
+      "tc": [
+        "TCC-NFR-09"
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "external_operations",
+          "tasks"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      },
       "verifies_clause_refs": [],
       "clause_na_reason": "複数法規ゲートを横断するNFRで単一API契約節の検証ではない"
     },
     {
       "id": "AC-910",
       "target": "NFR-10",
-      "verification_aspects": ["NFR-10:daily-backup", "NFR-10:generations", "NFR-10:db-restore", "NFR-10:browser-session-copy", "NFR-10:wp-backup-check", "NFR-10:write-hold-on-failure"],
+      "verification_aspects": [
+        "NFR-10:daily-backup",
+        "NFR-10:generations",
+        "NFR-10:db-restore",
+        "NFR-10:browser-session-copy",
+        "NFR-10:wp-backup-check",
+        "NFR-10:write-hold-on-failure"
+      ],
       "polarity": "boundary-recovery",
       "given": "config.backup_generations=N（既定14）、直近N日の日次SQLite/file_hash証跡と破損除外後に正常N世代を確保できる履歴、最新破損・前世代正常、暗号化browser session、Docker WP backupのfixtureがある",
       "when": "日次/世代突合、DB前世代復元、browser session一時profile復元、Docker WP一時container復元を実行する",
@@ -9122,10 +9361,587 @@
       "forbidden_side_effects": "日次欠落、正常N世代未満、破損採用、DB/session/WP未検証での書込み再開、原本上書き",
       "error_type": "なし",
       "target_update": "cross（バックアップ復旧品質契約）",
-      "tc": ["TCC-NFR-10"],
-      "semantic_refs": {"table_refs": ["evidence", "external_operations"], "column_refs": [], "state_refs": [], "event_refs": [], "evidence_kind_refs": ["file_hash"], "error_type_refs": [], "api_refs": []},
+      "tc": [
+        "TCC-NFR-10"
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "external_operations"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "file_hash"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      },
       "verifies_clause_refs": [],
       "clause_na_reason": "バックアップ世代と復元DB全体を検証するNFRで単一API契約節の検証ではない"
+    },
+    {
+      "id": "AC-74-1",
+      "target": "FR-74",
+      "polarity": "normal",
+      "given": "profile A の active X account 2件と各 daily cap 未満",
+      "when": "account A1 を指定して write する",
+      "then": "A1 の account rate_scope にだけ記帳される",
+      "fixture": "profile A, media_accounts A1/A2 active, cap未満",
+      "observation_point": "external_operations.rate_scope",
+      "expected_state": "A1 write confirmed",
+      "expected_db_delta": "external_operations +1",
+      "expected_evidence": "A1 scope の operation_log。actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope・service・operation・correlation_key・request_hash・request_sequence・resultを同値にする",
+      "forbidden_side_effects": "A2 又は他profile scopeへの記帳",
+      "error_type": "なし",
+      "target_update": "S1 account ledger",
+      "tc": [
+        "TCC-74-1"
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "business_profiles",
+          "evidence",
+          "external_operations"
+        ],
+        "column_refs": [
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
+          "external_operations.status"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "S1 requirements contract"
+    },
+    {
+      "id": "AC-74-2",
+      "target": "FR-74",
+      "polarity": "reject",
+      "given": "profile A task と profile B の active account",
+      "when": "B account を指定して write する",
+      "then": "CrossProfileAccessDenied で外部 call 前に拒否される",
+      "fixture": "profile A/B と B account",
+      "observation_point": "例外と external_operations 件数",
+      "expected_state": "拒否状態",
+      "expected_db_delta": "差分なし",
+      "expected_evidence": "越境拒否記録",
+      "forbidden_side_effects": "B account write",
+      "error_type": "CrossProfileAccessDenied",
+      "target_update": "S1 account ledger",
+      "tc": [
+        "TCC-74-2"
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "business_profiles",
+          "evidence",
+          "external_operations"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "CrossProfileAccessDenied"
+        ],
+        "api_refs": []
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "S1 requirements contract"
+    },
+    {
+      "id": "AC-74-3",
+      "target": "FR-74",
+      "polarity": "boundary-recovery",
+      "given": "同一serviceの A1/A2 が各 daily cap 直下で app cap は残り2",
+      "when": "A1 と A2 を書込み、さらに1件要求する",
+      "then": "各 account cap 内の2件は通り合算 app cap 超過の次件は拒否される",
+      "fixture": "2 active accounts と app cap",
+      "observation_point": "scope別/合算件数",
+      "expected_state": "2 confirmed・1 reject",
+      "expected_db_delta": "external_operations +2",
+      "expected_evidence": "account/app quota 記録",
+      "forbidden_side_effects": "app cap 超過",
+      "error_type": "QuotaExceeded",
+      "target_update": "S1 account ledger",
+      "tc": [
+        "TCC-74-3"
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "external_operations"
+        ],
+        "column_refs": [
+          "external_operations.rate_scope"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "S1 requirements contract"
+    },
+    {
+      "id": "AC-75-1",
+      "target": "FR-75",
+      "polarity": "normal",
+      "given": "task profile と一致する active account",
+      "when": "投稿 preflight を実行する",
+      "then": "preflight pass 後に投稿する",
+      "fixture": "profile A active account A1",
+      "observation_point": "preflight と operation status",
+      "expected_state": "write confirmed",
+      "expected_db_delta": "external_operations +1",
+      "expected_evidence": "許可 operation_log。actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope・service・operation・correlation_key・request_hash・request_sequence・resultを同値にする",
+      "forbidden_side_effects": "台帳外送信",
+      "error_type": "なし",
+      "target_update": "S1 preflight",
+      "tc": [
+        "TCC-75-1"
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "external_operations"
+        ],
+        "column_refs": [
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
+          "external_operations.status"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "S1 requirements contract"
+    },
+    {
+      "id": "AC-75-2",
+      "target": "FR-75",
+      "polarity": "reject",
+      "given": "profile A task と profile B account",
+      "when": "投稿 preflight を実行する",
+      "then": "CrossProfileAccessDenied で拒否し外部 write 0件",
+      "fixture": "A task/B account",
+      "observation_point": "例外と外部呼出し",
+      "expected_state": "reject",
+      "expected_db_delta": "差分なし",
+      "expected_evidence": "拒否事由コード",
+      "forbidden_side_effects": "誤ブランド投稿",
+      "error_type": "CrossProfileAccessDenied",
+      "target_update": "S1 preflight",
+      "tc": [
+        "TCC-75-2"
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "external_operations"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "CrossProfileAccessDenied"
+        ],
+        "api_refs": []
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "S1 requirements contract"
+    },
+    {
+      "id": "AC-75-3",
+      "target": "FR-75",
+      "polarity": "boundary-recovery",
+      "given": "active account と paused への同一transaction遷移",
+      "when": "commit直後に投稿する",
+      "then": "paused account は拒否される",
+      "fixture": "A1 active→paused",
+      "observation_point": "commit後 preflight",
+      "expected_state": "reject",
+      "expected_db_delta": "差分なし",
+      "expected_evidence": "paused 拒否記録",
+      "forbidden_side_effects": "paused account write",
+      "error_type": "CrossProfileAccessDenied",
+      "target_update": "S1 preflight",
+      "tc": [
+        "TCC-75-3"
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "external_operations"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "CrossProfileAccessDenied"
+        ],
+        "api_refs": []
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "S1 requirements contract"
+    },
+    {
+      "id": "AC-76-1",
+      "target": "FR-76",
+      "polarity": "normal",
+      "given": "投稿成功と allow-list 済み Discord channel",
+      "when": "operational notification を送る",
+      "then": "通知と operation_log が1:1で記録される",
+      "fixture": "publish success event と allowed channel",
+      "observation_point": "external_operations/evidence",
+      "expected_state": "notification confirmed",
+      "expected_db_delta": "external_operations +1, evidence +1",
+      "expected_evidence": "operation_log。actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect='write'・policy_category・rate_scope・service・operation・correlation_key・request_hash・request_sequence・resultを同値にする",
+      "forbidden_side_effects": "承認通知との混在",
+      "error_type": "なし",
+      "target_update": "S1 notification",
+      "tc": [
+        "TCC-76-1"
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "external_operations"
+        ],
+        "column_refs": [
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
+          "external_operations.status"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "S1 requirements contract"
+    },
+    {
+      "id": "AC-76-2",
+      "target": "FR-76",
+      "polarity": "reject",
+      "given": "allow-list 外 channel",
+      "when": "通知送出を要求する",
+      "then": "外部 call 前に拒否される",
+      "fixture": "disallowed channel",
+      "observation_point": "operation count",
+      "expected_state": "reject",
+      "expected_db_delta": "差分なし",
+      "expected_evidence": "拒否ログ",
+      "forbidden_side_effects": "allow-list外送信",
+      "error_type": "AllowlistDenied",
+      "target_update": "S1 notification",
+      "tc": [
+        "TCC-76-2"
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "external_operations"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "S1 requirements contract"
+    },
+    {
+      "id": "AC-76-3",
+      "target": "FR-76",
+      "polarity": "boundary-recovery",
+      "given": "通知 transport が障害を返す投稿成功",
+      "when": "通知を送出して結果を観測する",
+      "then": "通知は失敗記録し元の業務状態遷移は継続する",
+      "fixture": "failing Discord transport",
+      "observation_point": "task state と通知記録",
+      "expected_state": "業務成功・通知失敗",
+      "expected_db_delta": "通知失敗証跡 +1",
+      "expected_evidence": "transport failure",
+      "forbidden_side_effects": "業務ロールバック",
+      "error_type": "なし",
+      "target_update": "S1 notification",
+      "tc": [
+        "TCC-76-3"
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "external_operations"
+        ],
+        "column_refs": [
+          "external_operations.status"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "S1 requirements contract"
+    },
+    {
+      "id": "AC-77-1",
+      "target": "FR-77",
+      "polarity": "normal",
+      "given": "profile A の evidence が kind/期間に複数存在し、A に束縛された認証済み principal がある",
+      "when": "read-only API で kind/期間 filter を検索する",
+      "then": "該当する A の原本だけを API 応答として閲覧できる",
+      "fixture": "A/B evidence と UTC period",
+      "observation_point": "検索結果一覧と profile scope",
+      "expected_state": "A該当行のみ",
+      "expected_db_delta": "差分なし",
+      "expected_evidence": "DB evidence ではない process logger の read audit 記録",
+      "forbidden_side_effects": "閲覧要求による業務データ書込み",
+      "error_type": "なし",
+      "target_update": "S1 evidence browser",
+      "tc": [
+        "TCC-77-1"
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "business_profiles",
+          "evidence"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "S1 requirements contract"
+    },
+    {
+      "id": "AC-77-2",
+      "target": "FR-77",
+      "polarity": "reject",
+      "given": "profile A に束縛された認証済み principal と profile B evidence",
+      "when": "read-only API で B evidence id を読む",
+      "then": "CrossProfileAccessDenied で拒否する",
+      "fixture": "A principal/B evidence",
+      "observation_point": "例外型と検索結果一覧",
+      "expected_state": "結果0件",
+      "expected_db_delta": "差分なし",
+      "expected_evidence": "DB evidence ではない process logger の越境読取拒否記録",
+      "forbidden_side_effects": "B原文露出",
+      "error_type": "CrossProfileAccessDenied",
+      "target_update": "S1 evidence browser",
+      "tc": [
+        "TCC-77-2"
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "evidence"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "CrossProfileAccessDenied"
+        ],
+        "api_refs": []
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "S1 requirements contract"
+    },
+    {
+      "id": "AC-77-3",
+      "target": "FR-77",
+      "polarity": "boundary-recovery",
+      "given": "credential を含む evidence payload",
+      "when": "read-only API が masking後の閲覧結果を返す",
+      "then": "masking_patterns 適用済みで原文 secret は露出しない",
+      "fixture": "secret fixture",
+      "observation_point": "response text",
+      "expected_state": "redacted",
+      "expected_db_delta": "差分なし",
+      "expected_evidence": "DB evidence ではない process logger の masking audit 記録",
+      "forbidden_side_effects": "secret原文",
+      "error_type": "なし",
+      "target_update": "S1 evidence browser",
+      "tc": [
+        "TCC-77-3"
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "evidence"
+        ],
+        "column_refs": [
+          "evidence.payload_json"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "S1 requirements contract"
+    },
+    {
+      "id": "AC-911-1",
+      "target": "NFR-11",
+      "verification_aspects": [
+        "NFR-11:monthly-cap"
+      ],
+      "polarity": "normal",
+      "given": "monthly cap 200 と月内199 write",
+      "when": "1 writeを要求する",
+      "then": "200件目のwriteは通る",
+      "fixture": "UTC月内199 operations",
+      "observation_point": "月内write集計count",
+      "expected_state": "confirmed",
+      "expected_db_delta": "external_operations +1",
+      "expected_evidence": "monthly count",
+      "forbidden_side_effects": "cap前拒否",
+      "error_type": "なし",
+      "target_update": "cross monthly quota",
+      "tc": [
+        "TCC-NFR-11-1"
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "external_operations"
+        ],
+        "column_refs": [
+          "external_operations.sent_at"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "NFR measurement"
+    },
+    {
+      "id": "AC-911-2",
+      "target": "NFR-11",
+      "verification_aspects": [
+        "NFR-11:monthly-cap",
+        "NFR-11:daily-coexistence"
+      ],
+      "polarity": "reject",
+      "given": "monthly cap到達又はdaily cap超過",
+      "when": "writeを要求する",
+      "then": "外部 call前に拒否する",
+      "fixture": "cap到達 scope",
+      "observation_point": "operation count",
+      "expected_state": "reject",
+      "expected_db_delta": "差分なし",
+      "expected_evidence": "quota reject",
+      "forbidden_side_effects": "cap超過write",
+      "error_type": "QuotaExceeded",
+      "target_update": "cross monthly quota",
+      "tc": [
+        "TCC-NFR-11-2"
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "external_operations"
+        ],
+        "column_refs": [
+          "external_operations.rate_scope"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "NFR measurement"
+    },
+    {
+      "id": "AC-911-3",
+      "target": "NFR-11",
+      "verification_aspects": [
+        "NFR-11:utc-month-boundary"
+      ],
+      "polarity": "boundary-recovery",
+      "given": "前月cap到達とUTC月初00:00直後",
+      "when": "writeを要求する",
+      "then": "新月quotaとして通る",
+      "fixture": "Clock=UTC月初",
+      "observation_point": "month query",
+      "expected_state": "confirmed",
+      "expected_db_delta": "external_operations +1",
+      "expected_evidence": "new month count",
+      "forbidden_side_effects": "前月count持越し",
+      "error_type": "なし",
+      "target_update": "cross monthly quota",
+      "tc": [
+        "TCC-NFR-11-3"
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "external_operations"
+        ],
+        "column_refs": [
+          "external_operations.sent_at"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      },
+      "verifies_clause_refs": [],
+      "clause_na_reason": "NFR measurement"
     }
   ],
   "status": "confirmed",
@@ -9134,5 +9950,5 @@
   "supersedes": [
     "ARCHIVE-AC-LEGACY"
   ],
-  "approval_digest": "e2cfb402b79e"
+  "approval_digest": "c112523bb121"
 }

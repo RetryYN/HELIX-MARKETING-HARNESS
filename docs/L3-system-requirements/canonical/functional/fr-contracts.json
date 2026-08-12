@@ -1620,8 +1620,8 @@
           "escalate",
           "non_retryable_failure"
         ],
-    "evidence_kind_refs": [
-      "approval"
+        "evidence_kind_refs": [
+          "approval"
         ],
         "error_type_refs": [
           "ApprovalRequired"
@@ -2009,17 +2009,17 @@
         "検索取得は読み取り専用で外部書込みを行わない"
       ],
       "state_transitions": [],
-  "normal_behavior": "fill=R スロットの充填要求 → Web 検索要求を external_operations(effect='read', correlation_key='read:<task_id>:<request_hash>:<request_sequence>') の prepared→sent→confirmed で記録し、external_operation_row_idと同じrequest_sequenceを持つ対応operation_logを派生 → 候補値を取得 → 各値に出典 URL・取得日時を紐付けて型検証 → 出典・鮮度検証を通過した値のみで draft を起草し、出典 URL 列と structure_checked 日付を含めて保存する。",
+      "normal_behavior": "fill=R スロットの充填要求 → Web 検索要求を external_operations(effect='read', correlation_key='read:<task_id>:<request_hash>:<request_sequence>') の prepared→sent→confirmed で記録し、external_operation_row_idと同じrequest_sequenceを持つ対応operation_logを派生 → 候補値を取得 → 各値に出典 URL・取得日時を紐付けて型検証 → 出典・鮮度検証を通過した値のみで draft を起草し、出典 URL 列と structure_checked 日付を含めて保存する。",
       "rejection_behavior": "出典 URL を欠く値の draft 書込みは UnsourcedValueRejected を raise し、その値を破棄して拒否理由を構造化ログに残す。鮮度上限（config.source_freshness_days）超過の出典は StaleSourceRejected で drop（G-SRC-FRESH）。出典検証不能（URL 解決失敗等）も拒否側へ倒す（fail-close）。",
       "boundary_behavior": "検索結果 0 件のスロットは draft に含めず未充足のまま残す（空 draft を正本化しない）。鮮度がちょうど上限日数の出典は有効（超過のみ拒否）。同一スロットへの複数出典は全出典を保持する。",
       "retry_resume_recovery": "起草途中のクラッシュは draft 未確定のため再実行で最初から起草し直す（検索は再取得 — 出典日時は新しくなる）。同一task・operation・request_hashの再取得はrequest_sequenceを単調増加させて別external_operations行にし、保存済みdraftは残して新draftとして区別する。",
       "human_judgement": "あり（draft の採否 — リサーチ値の正本昇格は人間承認を経る。起草自体は全自動）",
       "side_effects": [
         "draft の保存（出典 URL 列つき）",
-    "external_operations INSERT/UPDATE（Web 取得 1 要求 = effect='read' 1 行。同一request_hashの再取得はrequest_sequenceを増分）＋対応する operation_log INSERT（同じrequest_sequence必須）",
+        "external_operations INSERT/UPDATE（Web 取得 1 要求 = effect='read' 1 行。同一request_hashの再取得はrequest_sequenceを増分）＋対応する operation_log INSERT（同じrequest_sequence必須）",
         "構造化ログ（出典なし値・鮮度切れの拒否）"
       ],
-    "idempotency": "同一スロット・同一出典 URL・同一値の再起草は draft 内で重複せず 1 件に正規化される。検索の再実行自体は安全（読み取り専用）。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
+      "idempotency": "同一スロット・同一出典 URL・同一値の再起草は draft 内で重複せず 1 件に正規化される。検索の再実行自体は安全（読み取り専用）。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
       "evidence": [
         "draft の出典 URL 列",
         "structure_checked 日付",
@@ -2416,7 +2416,7 @@
       "output": [
         "操作結果（成功時: 取得値・スクショ参照 — 呼出元へ）",
         "playbooks.last_success_at 更新（成功時）",
-    "実外部操作: external_operations行（effect・policy_category・rate_scope必須、prepared→sent）＋sent行をfinal化する対応operation_log証跡",
+        "実外部操作: external_operations行（effect・policy_category・rate_scope必須、prepared→sent）＋sent行をfinal化する対応operation_log証跡",
         "拒否時: PlaybookMissing / RateLimitExceeded / ProhibitedMediaWrite / UrlDenied 例外"
       ],
       "precondition": [
@@ -2427,7 +2427,7 @@
       ],
       "postcondition": [
         "操作は playbooks の手順・セレクタどおりに実行され、成功時に last_success_at が更新されている",
-    "read/writeを問わず実外部操作はexternal_operations 1行（1操作=1行、effect/policy_category必須、writeのみcanonical rate_scope必須・readはNULL）をprepared→sentまで記録し、sent行への対応operation_log INSERTがtriggerでconfirmed/rejected/unknownへfinal化・evidence_id接続した後にだけ業務状態遷移している",
+        "read/writeを問わず実外部操作はexternal_operations 1行（1操作=1行、effect/policy_category必須、writeのみcanonical rate_scope必須・readはNULL）をprepared→sentまで記録し、sent行への対応operation_log INSERTがtriggerでconfirmed/rejected/unknownへfinal化・evidence_id接続した後にだけ業務状態遷移している",
         "書込み系の連続操作間隔は 1〜5 秒の一様乱数で、seed・生成値が構造化ログに記録されている（NFR-7）"
       ],
       "invariants": [
@@ -2438,21 +2438,21 @@
         "content_publishはDocker WPだけ、review_syncは承認済みNotionだけ、approval_notificationはbinding済みの許可ApprovalTransportだけ、approved_paid_operationはPO承認済み有償操作だけ。readはexternal_read。その他は常時拒否"
       ],
       "state_transitions": [
-    "テーブル列: external_operations.status: prepared→sent→confirmed/rejected/unknown（read/write の実外部操作ごと。external_operations.effect='read'/'write' — s0-contract §1）"
+        "テーブル列: external_operations.status: prepared→sent→confirmed/rejected/unknown（read/write の実外部操作ごと。external_operations.effect='read'/'write' — s0-contract §1）"
       ],
-  "normal_behavior": "操作要求を受けplaybooksから手順を解決し、Playwrightをconfig.browser.headedに従い起動。実外部操作ごとにeffectを固定し、readはpolicy_category='external_read'・rate_scope=NULL・correlation_key='read:<task_id>:<request_hash>:<request_sequence>'、writeは閉集合content_publish/review_sync/approval_notification/approved_paid_operationのpolicy_category・canonical lowercase rate_scope・correlation_key=idempotency_keyを設定する。writeは(policy_category, service, operation, target_endpoint, rate_scope)のcategory別policyと必要なpair/approval/bindingをpreflight検証した後だけexternal_operationsをpreparedでコミットする。書込みだけRngで待機後送信しsentをコミットし、結果確定後も行がsentの間にoperation_logをINSERTしてtriggerでfinal化・evidence_id接続する。final化後にだけ業務状態遷移する。",
+      "normal_behavior": "操作要求を受けplaybooksから手順を解決し、Playwrightをconfig.browser.headedに従い起動。実外部操作ごとにeffectを固定し、readはpolicy_category='external_read'・rate_scope=NULL・correlation_key='read:<task_id>:<request_hash>:<request_sequence>'、writeは閉集合content_publish/review_sync/approval_notification/approved_paid_operationのpolicy_category・canonical lowercase rate_scope・correlation_key=idempotency_keyを設定する。writeは(policy_category, service, operation, target_endpoint, rate_scope)のcategory別policyと必要なpair/approval/bindingをpreflight検証した後だけexternal_operationsをpreparedでコミットする。書込みだけRngで待機後送信しsentをコミットし、結果確定後も行がsentの間にoperation_logをINSERTしてtriggerでfinal化・evidence_id接続する。final化後にだけ業務状態遷移する。",
       "rejection_behavior": "playbooks行なし/status=broken、policy_category/rate_scope欠落・未知・非canonical、category偽装、categoryとservice/operation/endpoint/rate_scopeのpolicy不一致、必要pair/approval/binding欠落、日次上限超過、X又はnote等スコープ外媒体へのwrite、URL許可外はいずれもpreflightで拒否する。Notionをcontent_publishへ偽装、本番WP、unknown endpoint/serviceも同様。外部呼出・external_operations・operation_logは各0、process loggerへ事由コードだけを記録する（fail-close）。",
       "boundary_behavior": "間隔乱数は範囲端1秒・5秒を含む一様分布。日次cap件目は許可しcap+1件目を拒否する（config.rate.<rate_scope>.daily_write_cap必須、Docker WPはrate_scope='wp'、UTC日境界はClock注入）。セレクタ不一致はFR-43へ渡し、セッション失効は送信前検知する。",
       "retry_resume_recovery": "送信直後クラッシュはexternal_operations.statusで再開する。preparedは同一idempotency keyで再送可。sentのリモート照合自体を別external_operations(effect='read', policy_category='external_read', rate_scope=NULL)行＋operation_log（payloadにrate_scope:nullキー必須）として記録し、照合結果に基づく元writeのoperation_log INSERTでconfirmed又はunknownへfinal化する（再送しない — s0-contract §3.3）。乱数はログのseedから再現可能（NFR-2）。",
       "human_judgement": "なし（全自動。検知・警告兆候時の媒体停止判断は安全側自動調整＋escalated 経由で人間 — BR-F5）",
       "side_effects": [
-    "外部サイトへのブラウザ操作（read/writeともexternal_operations経由のみ）",
+        "外部サイトへのブラウザ操作（read/writeともexternal_operations経由のみ）",
         "external_operations INSERT/UPDATE",
         "operation_log INSERT（external_operations に対応する外部ブラウザ操作のみ）／秘匿化済み構造化拒否ログ（送信前拒否）",
         "playbooks.last_success_at / consecutive_failures UPDATE",
         "構造化ログ行（seed・生成間隔値）"
       ],
-    "idempotency": "実外部操作は1要求=1 external_operations行。書込み系は操作単位のidempotency key（external_operations.idempotency_key UNIQUE）で二重実行を検出し、sent照合により再送しない。読取り系は同一(task_id, operation, request_hash)内の各poll/再取得にrequest_sequenceを1から単調増加させ、correlation_key='read:<task_id>:<request_hash>:<request_sequence>'で一意化するため、同一内容の反復readも別要求として追跡できる。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
+      "idempotency": "実外部操作は1要求=1 external_operations行。書込み系は操作単位のidempotency key（external_operations.idempotency_key UNIQUE）で二重実行を検出し、sent照合により再送しない。読取り系は同一(task_id, operation, request_hash)内の各poll/再取得にrequest_sequenceを1から単調増加させ、correlation_key='read:<task_id>:<request_hash>:<request_sequence>'で一意化するため、同一内容の反復readも別要求として追跡できる。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
       "evidence": [
         "operation_log行（external_operation_row_id・effect・policy_category・rate_scope・service・operation・correlation_key・request_hash・request_sequence・resultが外部行と同値。provider external_operation_idは任意）",
         "screenshot evidence（操作確認）",
@@ -2516,11 +2516,11 @@
           "evidence.external_operation_row_id",
           "external_operations.correlation_key",
           "external_operations.effect",
-      "external_operations.execution_mode",
-      "external_operations.idempotency_key",
-      "external_operations.policy_category",
-      "external_operations.rate_scope",
-      "external_operations.request_hash",
+          "external_operations.execution_mode",
+          "external_operations.idempotency_key",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
           "external_operations.request_sequence",
           "external_operations.status",
           "playbooks.last_success_at",
@@ -2556,9 +2556,9 @@
       ],
       "precondition": [
         "対象 playbooks 行が存在し status が active または broken である",
-    "破損シグナルが失敗の具体（不一致セレクタ・失敗ステップ）を含む",
-    "再解析はログイン済みセッションで読取りのみ可能",
-    "自動repair task発行にはconfig.playbook_repair_limit=1が必須（欠落・1以外は発行前にfail-close）"
+        "破損シグナルが失敗の具体（不一致セレクタ・失敗ステップ）を含む",
+        "再解析はログイン済みセッションで読取りのみ可能",
+        "自動repair task発行にはconfig.playbook_repair_limit=1が必須（欠落・1以外は発行前にfail-close）"
       ],
       "postcondition": [
         "同一破損イベントの playbook_repair task は決定的 idempotency_key により 1 行だけで、retry_count=0 のまま config.playbook_repair_limit=1 を超えない",
@@ -2574,20 +2574,20 @@
         "テーブル列: playbooks.status: active→broken（破損検知）・broken→retired（修復成功時。新版 active 行を INSERT）",
         "tasks: repair task は pending→in_progress→verifying→done（成功）、失敗時は repair task と起点 task が in_progress→escalated（event=escalate — BR-H3）"
       ],
-  "normal_behavior": "FR-42の失敗通知を受け、playbooksのactive→broken条件付き更新に勝った実行だけが同じtransaction内でconfig.playbook_repair_limitを検証する。値が正確に1の場合だけ、(playbook_id, 起点task_id, failure_fingerprint)をinput_jsonへ束縛したtask_type=playbook_repair子taskを決定的idempotency_key・attempt=1・retry_count=0でINSERTする。子taskは外部DOM読取りをexternal_operations(effect='read', request_sequence=1, correlation_key='read:<task_id>:<request_hash>:1')→external_operation_row_id・request_sequence一致のoperation_logに証跡化して候補地図を生成し、別principalの検証合格時に旧broken版をretired、新version+1版をactiveでINSERTしてdoneへ進む。内部の検知・候補生成・検証結果はprocess loggerへ記録する。",
-  "rejection_behavior": "config.playbook_repair_limitが欠落又は1以外ならactive→brokenは保持するがrepair子taskを発行せず外部DOM readも行わず、起点taskだけをevent=escalateでescalatedへ遷移し新版をINSERTしない。値1で発行後の候補生成不能・検証不通過・対象要素不在は追加試行せず、旧版をbrokenのまま、新版0件としてrepair taskと起点taskをescalatedへ遷移しFR-46経路で通知する。ページ到達不能・認証失効も同様にfail-closeとする。",
+      "normal_behavior": "FR-42の失敗通知を受け、playbooksのactive→broken条件付き更新に勝った実行だけが同じtransaction内でconfig.playbook_repair_limitを検証する。値が正確に1の場合だけ、(playbook_id, 起点task_id, failure_fingerprint)をinput_jsonへ束縛したtask_type=playbook_repair子taskを決定的idempotency_key・attempt=1・retry_count=0でINSERTする。子taskは外部DOM読取りをexternal_operations(effect='read', request_sequence=1, correlation_key='read:<task_id>:<request_hash>:1')→external_operation_row_id・request_sequence一致のoperation_logに証跡化して候補地図を生成し、別principalの検証合格時に旧broken版をretired、新version+1版をactiveでINSERTしてdoneへ進む。内部の検知・候補生成・検証結果はprocess loggerへ記録する。",
+      "rejection_behavior": "config.playbook_repair_limitが欠落又は1以外ならactive→brokenは保持するがrepair子taskを発行せず外部DOM readも行わず、起点taskだけをevent=escalateでescalatedへ遷移し新版をINSERTしない。値1で発行後の候補生成不能・検証不通過・対象要素不在は追加試行せず、旧版をbrokenのまま、新版0件としてrepair taskと起点taskをescalatedへ遷移しFR-46経路で通知する。ページ到達不能・認証失効も同様にfail-closeとする。",
       "boundary_behavior": "同一現役版への並行破損通知は active→broken の条件付き更新に勝った 1 件だけが repair task を発行し、後続は同じ idempotency_key の非終端 task を参照して結果待ちする。status=retired は対象外で即 escalated。新版 active の再失敗は、別 playbook_id と別 failure_fingerprint に束縛された新しい破損イベントとしてのみ修復 task を 1 行発行できる。",
       "retry_resume_recovery": "再生成中クラッシュ後は同じ非終端 playbook_repair task と external_operations 状態を再読込み、既存 task を再開する。プロセス再起動を新たな試行と数えず、終端の done/escalated task は同一破損イベントで再発行しない。escalated 後は元 task を終端のまま保持し、人が明示発行した新 task による新版登録だけを許す。",
       "human_judgement": "再生成失敗時の対処（地図手動修正・媒体運用判断）は escalated 経由で人間（BR-H3）。それ以外は全自動",
       "side_effects": [
         "playbooks UPDATE（旧版の status・失敗数）＋成功時の新版 INSERT",
         "playbook_repair 子 task INSERT と状態遷移",
-    "external_operations(effect='read')／対応operation_log（外部DOM読取り1件だけ）",
+        "external_operations(effect='read')／対応operation_log（外部DOM読取り1件だけ）",
         "秘匿化済み構造化ログ（検知・試行・結果）",
         "tasks の escalated 遷移（失敗時）",
         "外部サイトへの読取りアクセス（書込みなし）"
       ],
-    "idempotency": "破損イベントの正本は決定的 idempotency_key を持つ playbook_repair task 1 行であり、UNIQUE(idempotency_key) と attempt=1・retry_count=0 で二重試行を拒否する。新版は UNIQUE(service, operation, route_type, version) と UNIQUE(supersedes_playbook_id) で二重発行を拒否する。operation_log は外部 DOM 読取りの証跡であって修復試行数の正本にはしない。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
+      "idempotency": "破損イベントの正本は決定的 idempotency_key を持つ playbook_repair task 1 行であり、UNIQUE(idempotency_key) と attempt=1・retry_count=0 で二重試行を拒否する。新版は UNIQUE(service, operation, route_type, version) と UNIQUE(supersedes_playbook_id) で二重発行を拒否する。operation_log は外部 DOM 読取りの証跡であって修復試行数の正本にはしない。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
       "evidence": [
         "秘匿化済み構造化ログ（破損検知: 不一致セレクタ・失敗ステップ）",
         "playbook_repair task 行（破損イベント・試行上限・結果の永続正本）",
@@ -2644,11 +2644,11 @@
           "external_operations.effect",
           "external_operations.execution_mode",
           "external_operations.policy_category",
-      "external_operations.rate_scope",
-      "external_operations.request_hash",
-      "external_operations.request_sequence",
-      "external_operations.status",
-      "playbooks.created_by_task_id",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
+          "external_operations.status",
+          "playbooks.created_by_task_id",
           "playbooks.status",
           "playbooks.supersedes_playbook_id",
           "playbooks.version",
@@ -2697,7 +2697,7 @@
         "policy_category='content_publish'かつ(service='wp', operation, target_endpoint)がDocker WP固定policyに一致する"
       ],
       "postcondition": [
-    "外部書込み1件につきexternal_operations(effect='write', policy_category='content_publish', rate_scope='wp') 1行がprepared→sentまで遷移し、sent行への対応operation_log INSERT triggerでfinal化している",
+        "外部書込み1件につきexternal_operations(effect='write', policy_category='content_publish', rate_scope='wp') 1行がprepared→sentまで遷移し、sent行への対応operation_log INSERT triggerでfinal化している",
         "公開成功時published_url evidenceがoperation_log_evidence_idで先行operation_logへ束縛され、payloadのexternal_operation_row_idが同じlocal WP write行、provider IDは任意で、assets参照（canonical_url・wp_post_id）が登録されている",
         "テーマ解析結果は playbooks（route_type=wp_cli）に構造化保存されている"
       ],
@@ -2724,7 +2724,7 @@
         "assets INSERT（canonical_url・wp_media_id）",
         "playbooks INSERT/UPDATE（テーマ解析）"
       ],
-    "idempotency": "操作単位の idempotency key（external_operations.idempotency_key UNIQUE）で二重実行を検出（BR-I7）。下書きと公開は別 key。sent 照合により再送は発生しない。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
+      "idempotency": "操作単位の idempotency key（external_operations.idempotency_key UNIQUE）で二重実行を検出（BR-I7）。下書きと公開は別 key。sent 照合により再送は発生しない。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
       "evidence": [
         "operation_log行（service=wp・external_operation_row_id・policy_category・rate_scope・correlation_key・request_hash・request_sequence。provider external_operation_idは任意）",
         "published_url evidence（url・wp_post_id・asset_id・operation_log_evidence_id必須、payload external_operation_row_id必須一致、provider_operation_id任意）",
@@ -2746,8 +2746,8 @@
       ],
       "config_values": [
         "config.rate.wp.burst_per_min（暫定既定 30 req/分）",
-        "config.rate.wp.publish_daily_cap（暫定既定 10 件/日）"
-        ,"config.external_write_policy.content_publish.allowed_services/endpoints（service=wp・Docker WP endpoint固定）"
+        "config.rate.wp.publish_daily_cap（暫定既定 10 件/日）",
+        "config.external_write_policy.content_publish.allowed_services/endpoints（service=wp・Docker WP endpoint固定）"
       ],
       "fixed_values": [
         "下書き作成と公開は別 idempotency key の別行（s0-contract §1）",
@@ -2855,7 +2855,7 @@
       "state_transitions": [
         "テーブル列: external_operations.status: prepared→sent→confirmed/rejected/unknown（書戻し操作ごと）"
       ],
-  "normal_behavior": "Notion計画ページreadはpolicy_category='external_read'・rate_scope=NULL、結果要約書戻しはexternal_operations(effect='write', policy_category='review_sync', rate_scope='notion', service='notion', operation='sync_result', target_endpoint=config登録値)とする。書戻しは明示policyとbinding済みapproved approvalをpreflight検証した後だけprepared化し、各実要求をoperation_log INSERT triggerでfinal化する。",
+      "normal_behavior": "Notion計画ページreadはpolicy_category='external_read'・rate_scope=NULL、結果要約書戻しはexternal_operations(effect='write', policy_category='review_sync', rate_scope='notion', service='notion', operation='sync_result', target_endpoint=config登録値)とする。書戻しは明示policyとbinding済みapproved approvalをpreflight検証した後だけprepared化し、各実要求をoperation_log INSERT triggerでfinal化する。",
       "rejection_behavior": "allow-list/config/approved approval/binding/credential/マスキングの欠落・不一致はpreflight拒否し外部呼出・external_operations・operation_log各0、process loggerへ事由コードを記録する。送信済み要求の応答不能・429だけはsent行とoperation_logをrejected/unknownへ確定し同期taskのみ失敗又は繰越す。",
       "boundary_behavior": "2,000 字境界はブロック分割で送信（1 ブロック超過を作らない）。ポーリング精度が分単位のため境界更新はカーソル余裕で重複取得し、取得側の冪等 upsert で吸収。空の計画ページは draft なしとして正常終了。",
       "retry_resume_recovery": "書戻し中クラッシュは external_operations の prepared/sent 照合で再開（sent 照合不能は unknown・再送なし）。読取りはカーソル位置から再実行安全。同期失敗は次回トリガで最初から再試行してよい（低頻度・冪等）。",
@@ -2883,8 +2883,8 @@
       ],
       "config_values": [
         "config.rate.notion.req_per_sec（暫定既定 3 req/秒）",
-        "config.sync.notion.cursor_margin_min（ポーリングカーソル余裕・分）"
-        ,"config.external_write_policy.review_sync.allowed_services/endpoints（Notion operation・endpointの必須許可行）"
+        "config.sync.notion.cursor_margin_min（ポーリングカーソル余裕・分）",
+        "config.external_write_policy.review_sync.allowed_services/endpoints（Notion operation・endpointの必須許可行）"
       ],
       "fixed_values": [
         "Notion 本文分割単位 2,000 字（BR-M-NOTION-1）",
@@ -3015,8 +3015,8 @@
       ],
       "config_values": [
         "config.approval_retry_limit（expired 再要求の上限）",
-        "config.auto_mode_criteria（オートモード移行基準 — C）"
-        ,"config.external_write_policy.approval_notification.allowed_services/endpoints（初期 Discord App operation・endpointの必須許可行）"
+        "config.auto_mode_criteria（オートモード移行基準 — C）",
+        "config.external_write_policy.approval_notification.allowed_services/endpoints（初期 Discord App operation・endpointの必須許可行）"
       ],
       "fixed_values": [
         "channel = discord（S0 DDL CHECK。web_uiは認証・CSRF・再認証・principal束縛のAC/TCを追加する将来要件まで不許可）",
@@ -3133,8 +3133,18 @@
         "tasks: pending→in_progress（credential再投入後に明示発行したreplacement task, event=claim）"
       ],
       "transition_refs": [
-        {"entity": "tasks", "from": "in_progress", "event": "escalate", "to": "escalated"},
-        {"entity": "tasks", "from": "pending", "event": "claim", "to": "in_progress"}
+        {
+          "entity": "tasks",
+          "from": "in_progress",
+          "event": "escalate",
+          "to": "escalated"
+        },
+        {
+          "entity": "tasks",
+          "from": "pending",
+          "event": "claim",
+          "to": "in_progress"
+        }
       ],
       "normal_behavior": "コネクタが接続時に service 名で秘匿値を要求すると、暗号化ストア（OS キーチェーン優先）から復号してメモリ上でのみ注入する。process log・外部操作証跡・その他 evidence への全書出しはマスキング層を通過し、既知 secret 値・credential パターンを伏字化してから永続化する。",
       "rejection_behavior": "秘匿値の取得不能（未投入・復号失敗・ストア不能）は SecretUnavailable を raise し外部操作を開始しない（fail-close）。credential再投入が必要な場合は当該tasks.in_progressをevent=escalateでescalatedへ遷移する。書出し内容に平文credentialを検知した場合は永続化前に拒否・マスクし、CredentialLeakDetectedを秘匿化済み構造化検知ログへ記録して、当該taskをevent=escalateでescalatedへ遷移しcredential失効・再発行を要求する。credentialとテスト/本番endpointの組合せ不一致も送信前に拒否する（環境契約 §6）。",
@@ -3267,7 +3277,7 @@
         "external_operations INSERT/UPDATE＋対応する operation_log INSERT（Docker WP のアップロード／補償削除だけ）",
         "秘匿化済み構造化拒否ログ（送信前拒否）"
       ],
-    "idempotency": "出力 hash と assets の UNIQUE 制約が冪等キー。同一入力の再実行は同一 hash に収束し、参照行・証跡は重複しない。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
+      "idempotency": "出力 hash と assets の UNIQUE 制約が冪等キー。同一入力の再実行は同一 hash に収束し、参照行・証跡は重複しない。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
       "evidence": [
         "evidence 行（kind=file_hash — file_path・file_hash・algorithm=SHA-256）",
         "operation_log 行（WPアップロード／補償削除のexternal_operation_row_id。provider external_operation_idは任意）"
@@ -3390,7 +3400,7 @@
         "同一トークン版＋同一ソース→同一出力（決定性 — NFR-2。トークン版 hash を証跡化して非決定要素を固定）"
       ],
       "state_transitions": [],
-  "normal_behavior": "DesignSync取得要求をexternal_operations(effect='read', correlation_key='read:<task_id>:<request_hash>:<request_sequence>')のprepared→sent→confirmedとexternal_operation_row_id・request_sequence一致の対応operation_logで証跡化 → 版数・hashを算出しキャッシュを更新 → レンダリング入力へトークンを注入（CSS変数・テーマ値展開）→ 適用トークンの版数・hashをレンダリング証跡payloadに記録する。",
+      "normal_behavior": "DesignSync取得要求をexternal_operations(effect='read', correlation_key='read:<task_id>:<request_hash>:<request_sequence>')のprepared→sent→confirmedとexternal_operation_row_id・request_sequence一致の対応operation_logで証跡化 → 版数・hashを算出しキャッシュを更新 → レンダリング入力へトークンを注入（CSS変数・テーマ値展開）→ 適用トークンの版数・hashをレンダリング証跡payloadに記録する。",
       "rejection_behavior": "DesignSync へ送信済みの取得要求が失敗した場合は external_operations を rejected 又は unknown に確定し、対応する operation_log を記録する。取得不能かつキャッシュも存在しない場合は DesignTokenUnavailable を raise しレンダリングを実行しない。キャッシュ破損（hash 不一致・JSON 不正）とキャッシュなしの最終拒否は内部判定のため operation_log を作らず、process logger の秘匿化済み構造化拒否 event に記録する。",
       "boundary_behavior": "正本取得不能でキャッシュありは直近同期済みキャッシュで継続し、キャッシュ利用（stale）フラグと版数を証跡に残す。トークン集合が空の応答は取得失敗と同等に扱う。",
       "retry_resume_recovery": "取得はタイムアウト後に規定回数まで再試行し、同一request_hashの各実試行はrequest_sequenceを1から単調増加して別external_operations行・別operation_logへ記録する。失敗はキャッシュ経路へフォールバックし、キャッシュ更新はアトミック（temp 書込み→rename）で中間状態を残さない。",
@@ -3400,7 +3410,7 @@
         "external_operations INSERT/UPDATE＋対応する operation_log INSERT（DesignSync 取得要求だけ）",
         "秘匿化済み構造化ログ（フォールバック・内部拒否）"
       ],
-    "idempotency": "同一トークン版での再適用は同一出力。取得は read-only で何度実行しても正本を変更しない。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
+      "idempotency": "同一トークン版での再適用は同一出力。取得は read-only で何度実行しても正本を変更しない。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
       "evidence": [
         "レンダリング証跡 payload 内のトークン版数・hash・stale フラグ",
         "operation_log（DesignSync取得のexternal_operation_row_id・correlation_key・request_hash・request_sequence。provider external_operation_idは任意）",
@@ -3508,7 +3518,7 @@
         "evidence INSERT",
         "external_operations INSERT/UPDATE＋対応する operation_log INSERT（Docker WP アップロードだけ）"
       ],
-    "idempotency": "同一入力・同一ツール版の再実行は同一 hash に収束し、assets/evidence の UNIQUE 制約で重複しない。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
+      "idempotency": "同一入力・同一ツール版の再実行は同一 hash に収束し、assets/evidence の UNIQUE 制約で重複しない。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
       "evidence": [
         "evidence 行（kind=file_hash — 出力 hash）",
         "実行記録 payload（入力参照・ツール版数・パラメータ）",
@@ -3944,7 +3954,7 @@
         "手動入力値を実測として投入する経路が存在しない"
       ],
       "state_transitions": [],
-  "normal_behavior": "取得要求（GA4/GSCは正規Data API、他はブラウザエクスポート）をexternal_operations(effect='read', correlation_key='read:<task_id>:<request_hash>:<request_sequence>')のprepared→sent→confirmedとexternal_operation_row_id・request_sequence一致の対応operation_logで証跡化 → 取得物のSHA-256算出とevidence（measurement: source・file_hash・period・row_count）INSERT → サービス別パーサで行解釈 → kpi_node解決 → measurementsへ一括INSERT（1取込=1 transaction）。ブラウザ経路では取得画面スクショもevidence化する。",
+      "normal_behavior": "取得要求（GA4/GSCは正規Data API、他はブラウザエクスポート）をexternal_operations(effect='read', correlation_key='read:<task_id>:<request_hash>:<request_sequence>')のprepared→sent→confirmedとexternal_operation_row_id・request_sequence一致の対応operation_logで証跡化 → 取得物のSHA-256算出とevidence（measurement: source・file_hash・period・row_count）INSERT → サービス別パーサで行解釈 → kpi_node解決 → measurementsへ一括INSERT（1取込=1 transaction）。ブラウザ経路では取得画面スクショもevidence化する。",
       "rejection_behavior": "パース失敗行はエラー隔離（隔離ファイル＋件数記録）し、正常行のみ投入する（部分投入許容）。全行失敗・ファイル破損・hash 算出不能は ImportSourceInvalid で全体拒否。未登録 kpi_node 宛の行・有料指標由来の行は投入せず隔離し秘匿化済み構造化拒否ログに記録（fail-close）。",
       "boundary_behavior": "空エクスポート（データ 0 行）は measurements 差分なしで正常終了し、取得証跡のみ残る。同一 (kpi_node_id, period, dimensions) の重複行は UNIQUE 制約で 2 行目以降を投入しない。期間逆転（period_end < period_start）行は隔離。",
       "retry_resume_recovery": "投入 transaction 失敗は全行 rollback（部分コミットなし）。同一task・operation・request_hashで外部取得を反復する場合はrequest_sequenceを単調増加して別要求として記録し、同一source hashのevidence UNIQUE(task_id, kind, value)とmeasurementsのUNIQUEで業務差分は冪等に収束する。API阻害時はブラウザエクスポートへ一時フォールバックし、同一evidence契約に収束させる。",
@@ -3956,7 +3966,7 @@
         "external_operations INSERT/UPDATE＋対応する operation_log INSERT（外部取得要求だけ）",
         "外部 read（GA4 Data API・ブラウザ）"
       ],
-    "idempotency": "source hash（evidence UNIQUE）と measurements の UNIQUE(kpi_node_id, period_start, period_end, dimensions_json) の二重冪等キー。同一エクスポートの再投入は差分ゼロ。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
+      "idempotency": "source hash（evidence UNIQUE）と measurements の UNIQUE(kpi_node_id, period_start, period_end, dimensions_json) の二重冪等キー。同一エクスポートの再投入は差分ゼロ。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
       "evidence": [
         "evidence 行（kind=measurement — source・file_hash・period・row_count）",
         "evidence 行（kind=file_hash／kind=screenshot — ブラウザ経路）",
@@ -4138,16 +4148,16 @@
       },
       "slice": "S1",
       "semantic_refs": {
-      "table_refs": [
-        "config",
-        "evidence",
-        "kpi_nodes",
-        "measurements",
-        "pair_kpi_measure",
-        "sprints",
-        "state_transitions"
-      ],
-      "column_refs": [],
+        "table_refs": [
+          "config",
+          "evidence",
+          "kpi_nodes",
+          "measurements",
+          "pair_kpi_measure",
+          "sprints",
+          "state_transitions"
+        ],
+        "column_refs": [],
         "state_refs": [],
         "event_refs": [],
         "evidence_kind_refs": [
@@ -4413,7 +4423,7 @@
       "side_effects": [
         "spend_ledger INSERT（charge又はreversal。UPDATE/DELETEなし）"
       ],
-    "idempotency": "chargeはspend_ledger.external_operation_row_id UNIQUE、reversalはreverses_spend_ledger_id UNIQUEを各冪等キーとする。同一actual writeの再記録と同一chargeの再取消しは各1行へ収束し、集計はpure（同一台帳→同一純額）。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
+      "idempotency": "chargeはspend_ledger.external_operation_row_id UNIQUE、reversalはreverses_spend_ledger_id UNIQUEを各冪等キーとする。同一actual writeの再記録と同一chargeの再取消しは各1行へ収束し、集計はpure（同一台帳→同一純額）。 actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope（writeはcanonical lowercase、readはSQL NULLかつpayload JSON null）・service・operation・correlation_key・request_hash・request_sequence・resultを同値にし、INSERT triggerでstatusをconfirmed/rejected/unknownへfinal化する。provider external_operation_idは任意。",
       "evidence": [
         "spend_ledger行そのもの（entry_type・chargeのexternal_operation_row_id又はreversalのreverses_spend_ledger_id・サービス・正額・用途・タスク/approval参照）",
         "operation_log証跡（同じexternal_operations.idへexternal_operation_row_idで束縛。provider external_operation_idは任意）"
@@ -4484,11 +4494,421 @@
         ],
         "api_refs": []
       }
+    },
+    {
+      "id": "FR-74",
+      "title": "ブランド×媒体×アカウント台帳",
+      "input": [
+        "business_profile_id・service・account_key・接続経路・credential_ref・status を持つ媒体アカウント登録要求",
+        "account を指定した外部書込み要求"
+      ],
+      "output": [
+        "profile/service/account_key に束縛された媒体アカウント台帳行",
+        "account 単位会計とサービス単位 app 上限判定",
+        "拒否時: CrossProfileAccessDenied"
+      ],
+      "precondition": [
+        "business_profile が存在する",
+        "credential_ref は <profile_key>/<service>/<account_key> 名前空間である"
+      ],
+      "postcondition": [
+        "同一 profile/service に複数 account を登録できる",
+        "active account の write は当該 account rate_scope にだけ記帳される"
+      ],
+    "invariants": [
+      "account は単一 business_profile にだけ帰属し他 profile から参照・書込みできない",
+      "canonical account rate_scope は <service>_<account_key> とする。account_key は小文字化し、ハイフンをアンダースコアへ置換した後に [a-z0-9_]{1,32} でなければ拒否し、正規化後に同一となる account_key は登録時に AccountKeyCollision で拒否する",
+      "config キーは config.rate.<service>_<account_key>.daily_write_cap とする。FR-42/NFR-7 に従い alias/case/別 scope への付替えで同一 account の write 又は cap を回避することを禁止し、canonical scope/config の欠落・不一致は write 前に fail-close で拒否する",
+      "同一 account の write を別 rate_scope へ逃がせず、app-level cap がある service は account 合算でも超過できない"
+    ],
+      "state_transitions": [
+        "参照: media_accounts.status draft→active→paused→retired（S1 migration で正準化）"
+      ],
+      "normal_behavior": "媒体アカウントを profile と service/account_key で登録し、active account の write を account scope と任意の service app scope の二層で事前判定して記帳する。",
+      "rejection_behavior": "他 profile の account、名前空間外 credential_ref、未知 account、cap 超過は外部 call 前に CrossProfileAccessDenied 又は quota 拒否として fail-close する。",
+      "boundary_behavior": "同一 service の2 account は個別 daily_write_cap 未満なら通し、app-level 上限が定義される媒体では合算超過を拒否する。",
+      "retry_resume_recovery": "account_id と request idempotency key を保持し、再試行は同じ account scope の1操作へ収束する。",
+      "human_judgement": "あり（account の追加・退役と app-level 上限値の充填を PO が確認）。",
+      "side_effects": [
+        "S1 media_accounts 台帳 INSERT/状態更新",
+        "external_operations の account scope 記録"
+      ],
+      "idempotency": "(business_profile_id, service, account_key) と write idempotency key で収束する。",
+      "evidence": [
+        "account 台帳行",
+        "account scope を含む operation_log。actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope・service・operation・correlation_key・request_hash・request_sequence・resultを同値にする"
+      ],
+      "tables": [
+        "r: business_profiles",
+        "r: config",
+        "r: external_operations",
+        "参照: media_accounts（S1 migration で追加）"
+      ],
+      "external_deps": [
+        "媒体 API/MCP/browser connector"
+      ],
+    "config_values": [
+      "config.rate.<service>_<account_key>.daily_write_cap",
+        "config.rate.<service>.app_daily_write_cap（定義時のみ）"
+      ],
+      "fixed_values": [
+        "接続経路 = api | mcp | browser",
+        "status = draft | active | paused | retired"
+      ],
+      "trace_up": [
+        "BR-I1",
+        "BR-D4",
+        "BR-F5",
+        "NFR-7"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-74-1",
+          "AC-74-2",
+          "AC-74-3"
+        ],
+        "fn": [],
+        "cmp": []
+      },
+      "slice": "S1",
+      "design_status": "requirements_defined",
+      "invariant_ac_map": [
+        [
+          "AC-74-2"
+        ],
+        [
+          "AC-74-3"
+        ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "business_profiles",
+          "config",
+          "evidence",
+          "external_operations"
+        ],
+        "column_refs": [
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
+          "external_operations.status"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "CrossProfileAccessDenied"
+        ],
+        "api_refs": []
+      }
+    },
+    {
+      "id": "FR-75",
+      "title": "誤ブランド投稿拒否ゲート",
+      "input": [
+        "business_profile を持つ投稿 task",
+        "送信先 account"
+      ],
+      "output": [
+        "台帳一致時の preflight pass",
+        "拒否時: CrossProfileAccessDenied と事由コード"
+      ],
+      "precondition": [
+        "FR-74 の account 台帳が存在する",
+        "外部 write は preflight を通過する"
+      ],
+      "postcondition": [
+        "active かつ profile 一致する account にだけ投稿する",
+        "拒否時の外部 write は0件"
+      ],
+      "invariants": [
+        "台帳外・paused・retired・profile 不一致 account への write は常に fail-close",
+        "active→paused 完了後の投稿は同一 transaction 境界から拒否される"
+      ],
+      "state_transitions": [
+        "参照: media_accounts.status active→paused（S1 migration で正準化）"
+      ],
+      "normal_behavior": "preflight が task の profile と送信先 account の台帳帰属・active status を照合してから投稿を許可する。",
+      "rejection_behavior": "不一致・未知・paused・retired は事由コードを記録し CrossProfileAccessDenied で外部 call 前に拒否する。",
+      "boundary_behavior": "active→paused transaction の commit 直後から新規投稿を拒否する。",
+      "retry_resume_recovery": "preflight 判定と account version を request に束縛し、再試行時も最新 status を再照合する。",
+      "human_judgement": "なし（台帳状態に基づく自動判定）。",
+      "side_effects": [
+        "preflight 判定ログ",
+        "許可時だけ external_operations write"
+      ],
+      "idempotency": "同一 request key の再試行は同じ preflight 結果と外部操作1件に収束する。",
+      "evidence": [
+        "許可・拒否事由を含む構造化 preflight 証跡"
+      ],
+      "tables": [
+        "r: business_profiles",
+        "r: external_operations",
+        "w: evidence",
+        "参照: media_accounts（S1 migration で追加）"
+      ],
+      "external_deps": [
+        "投稿先 connector（許可後のみ）"
+      ],
+      "config_values": [],
+      "fixed_values": [
+        "拒否は external call 前",
+        "account status は draft | active | paused | retired"
+      ],
+      "trace_up": [
+        "BR-I1",
+        "BR-H2",
+        "BR-F5",
+        "NFR-7"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-75-1",
+          "AC-75-2",
+          "AC-75-3"
+        ],
+        "fn": [],
+        "cmp": []
+      },
+      "slice": "S1",
+      "design_status": "requirements_defined",
+      "invariant_ac_map": [
+        [
+          "AC-75-2"
+        ],
+        [
+          "AC-75-3"
+        ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "business_profiles",
+          "evidence",
+          "external_operations"
+        ],
+        "column_refs": [
+          "external_operations.status"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "CrossProfileAccessDenied"
+        ],
+        "api_refs": []
+      }
+    },
+    {
+      "id": "FR-76",
+      "title": "汎用運用通知",
+      "input": [
+        "投稿成功・ゲート拒否・KPI 異常・quota 残量警告イベント",
+        "allow-list 済み通知チャネル"
+      ],
+      "output": [
+        "operational_notification の external_operations/operation_log",
+        "通知障害を業務遷移から分離した結果"
+      ],
+    "precondition": [
+      "S0 の DDL CHECK は operational_notification を拒否したまま維持し、S1 の expand migration（CHECK 拡張）適用後にのみ有効とする",
+      "通知 channel/service/operation/endpoint が allow-list にある",
+        "KPI 閾値は config 行で定義される"
+      ],
+      "postcondition": [
+        "送出した通知は operation_log と1:1",
+        "通知障害でも元の業務状態遷移は継続する"
+      ],
+      "invariants": [
+        "approval_notification と operational_notification は policy_category として混在しない",
+        "allow-list 外への通知 write は常に拒否し、通知失敗は業務操作をロールバックしない"
+      ],
+      "state_transitions": [],
+      "normal_behavior": "対象イベントを config 閾値で判定し、allow-list channel へ交換可能 transport（初期 Discord）で通知して外部操作証跡を残す。actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope・service・operation・correlation_key・request_hash・request_sequence・resultを同値にする。",
+      "rejection_behavior": "allow-list 外 endpoint は送信前に拒否し、credential や本文 secret を記録しない。",
+      "boundary_behavior": "transport 障害時は通知を失敗記録しても元の業務状態遷移を継続する。",
+      "retry_resume_recovery": "通知 request key で重複送出を防ぎ、障害通知は安全に再試行できる。",
+      "human_judgement": "あり（Discord channel 分離と allow-list の承認）。",
+      "side_effects": [
+        "external_operations write",
+        "operation_log evidence"
+      ],
+      "idempotency": "event_id と notification kind の組で1通知に収束する。",
+      "evidence": [
+        "通知 external_operations と operation_log"
+      ],
+      "tables": [
+        "r: config",
+        "w: external_operations",
+        "w: evidence"
+      ],
+      "external_deps": [
+        "ApprovalTransport 同型の Discord transport"
+      ],
+      "config_values": [
+        "config.notification.kpi_anomaly_threshold",
+        "config.notification.quota_warning_threshold"
+      ],
+      "fixed_values": [
+        "policy_category = operational_notification",
+        "event = publish_success | gate_rejected | kpi_anomaly | quota_warning"
+      ],
+      "trace_up": [
+        "BR-H2",
+        "BR-H3"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-76-1",
+          "AC-76-2",
+          "AC-76-3"
+        ],
+        "fn": [],
+        "cmp": []
+      },
+      "slice": "S1",
+      "design_status": "requirements_defined",
+      "invariant_ac_map": [
+        [
+          "AC-76-2"
+        ],
+        [
+          "AC-76-3"
+        ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "evidence",
+          "external_operations"
+        ],
+        "column_refs": [
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
+          "external_operations.status"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
+    },
+    {
+      "id": "FR-77",
+    "title": "evidence 閲覧（read-only API）",
+      "input": [
+      "認証済みで profile に束縛された principal、kind、期間の read-only API 検索要求"
+      ],
+      "output": [
+        "mask 済み evidence・approvals・external_operations の原本閲覧結果",
+        "拒否時: CrossProfileAccessDenied"
+      ],
+      "precondition": [
+      "認証済み principal が profile に束縛される",
+      "FR-47 masking_patterns が設定済み",
+      "本 FR のスコープは read-only API に限定し、Web UI は対象外とする。Web UI 解禁は FR-46 の認証・CSRF・再認証・principal 束縛 AC/TC を追加する別契約で行う"
+      ],
+      "postcondition": [
+        "自 profile の原本を kind/期間で絞り込める",
+        "secret は常に redact され原文を返さない"
+      ],
+      "invariants": [
+        "他 profile の evidence/approval/external operation は0件返却かつ拒否する",
+      "閲覧 API は read-only で masking 前の secret を露出せず、Web UI を提供しない"
+      ],
+      "state_transitions": [],
+    "normal_behavior": "認証済み principal の profile scope を API 境界で強制して kind/UTC期間 filter の原本を検索し、返却前に FR-47 masking_patterns を適用する。Web UI は本契約の対象外とする。",
+      "rejection_behavior": "scope 不一致又は未束縛 principal は CrossProfileAccessDenied で拒否し、更新操作は受け付けない。",
+      "boundary_behavior": "secret を含む payload は一致箇所を redact した値だけ返し、期間境界は UTC 半開区間で扱う。",
+      "retry_resume_recovery": "read-only 検索の再実行は同じ scope/filter に対し副作用なし。",
+      "human_judgement": "なし（閲覧権限と masking は機械強制）。",
+    "side_effects": [
+      "process logger への閲覧監査記録のみ（DB 書込みなし）"
+    ],
+      "idempotency": "read-only のため同一検索は副作用なし。",
+      "evidence": [
+      "process logger の閲覧監査記録（DB evidence ではない）",
+        "redact 済み結果"
+      ],
+      "tables": [
+        "r: approvals",
+        "r: evidence",
+        "r: external_operations",
+        "r: business_profiles"
+      ],
+      "external_deps": [],
+      "config_values": [
+        "config.secret.masking_patterns"
+      ],
+      "fixed_values": [
+        "閲覧対象 = evidence | approvals | external_operations",
+        "書込み操作 = 禁止"
+      ],
+      "trace_up": [
+        "BR-I1",
+        "BR-D4"
+      ],
+      "trace_down": {
+        "ac": [
+          "AC-77-1",
+          "AC-77-2",
+          "AC-77-3"
+        ],
+        "fn": [],
+        "cmp": []
+      },
+      "slice": "S1",
+      "design_status": "requirements_defined",
+      "invariant_ac_map": [
+        [
+          "AC-77-2"
+        ],
+        [
+          "AC-77-3"
+        ]
+      ],
+      "semantic_refs": {
+        "table_refs": [
+          "approvals",
+          "business_profiles",
+          "evidence",
+          "external_operations"
+        ],
+        "column_refs": [
+          "evidence.payload_json"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [
+          "CrossProfileAccessDenied"
+        ],
+        "api_refs": []
+      }
     }
   ],
   "status": "confirmed",
   "approved_at": "2026-08-01T00:00:00+09:00",
   "authority": "PO",
   "supersedes": [],
-  "approval_digest": "bbb591341b15"
+  "approval_digest": "3104bcf0ae6b"
 }

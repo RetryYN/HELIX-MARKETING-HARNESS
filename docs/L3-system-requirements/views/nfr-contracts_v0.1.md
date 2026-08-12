@@ -2,7 +2,7 @@
 
 # 非機能要件 計測契約（NFR contracts）v0.1
 
-> status: **confirmed**（2026-08-01 PO 承認 — receipt f69c6e989f78）。JSON 内容正本の生成ビュー（全層再降下 §3）
+> status: **confirmed**（2026-08-01 PO 承認 — receipt 05c848617dde）。JSON 内容正本の生成ビュー（全層再降下 §3）
 > 各 NFR に測定対象・測定方法・閾値・測定環境・違反時動作・証跡を必須化（G-NFR-MEASURABLE）。
 
 ## NFR-1 fail-close（判定不能は通さない）
@@ -114,3 +114,14 @@
 - **証跡**: evidence 行（kind = file_hash — バックアップ hash）／復元試験の pytest レポート／LP-OPS ヘルスチェック記録
 - **検証観点**: NFR-10:daily-backup NFR-10:generations NFR-10:db-restore NFR-10:browser-session-copy NFR-10:wp-backup-check NFR-10:write-hold-on-failure
 - **trace**: 上流 = requirements_v0.1 §3 RSK-06 ／ 下流 = AC-910 TCC-NFR-10
+
+## NFR-11 月次 quota 窓
+
+- **測定対象**: canonical <service>_<account_key> rate_scope ごとの UTC 月次 write 件数、月次 cap 到達後の拒否、UTC 月初での再開
+- **測定方法**: FR-74 の canonical <service>_<account_key> scope に対し config.rate.<service>_<account_key>.monthly_write_cap が定義される場合、UTC 月初以上・翌月初未満の write を集計し、日次 NFR-7 と併せて事前判定する。alias/case/別 scope は canonical scope として解決せず fail-close で拒否する。SQL:`SELECT count(*) FROM external_operations WHERE rate_scope=:rate_scope AND effect='write' AND sent_at >= :month_start_utc AND sent_at < :next_month_start_utc`。
+- **閾値**: monthly_write_cap 定義 scope の月内 write 件数は cap 以下100%、cap 到達後の write 0件、UTC 月初直後の新月カウントは0件から開始、日次・月次のいずれか超過を許可しない。
+- **測定環境**: CI pytest（注入 Clock、SQLite）
+- **違反時の動作**: 月次又は日次 cap 超過は外部 write 前に拒否し、task は pending/waiting と証跡化する。月次窓は UTC 半開区間であり、境界後は新しい月の quota で再評価する。
+- **証跡**: external_operations.sent_at/rate_scope／quota 拒否の構造化記録
+- **検証観点**: NFR-11:monthly-cap NFR-11:utc-month-boundary NFR-11:daily-coexistence
+- **trace**: 上流 = BR-F5 FR-74 NFR-7 ／ 下流 = AC-911-1 AC-911-2 AC-911-3 TCC-NFR-11-1 TCC-NFR-11-2 TCC-NFR-11-3

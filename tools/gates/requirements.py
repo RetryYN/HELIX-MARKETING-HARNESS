@@ -320,7 +320,7 @@ def _counts(ctx: Ctx) -> None:
     md_fr = md_count(req_md, r"\*\*(FR-\d+)\*\*")
     md_nfr = md_count(req_md, r"\*\*(NFR-\d+)")
     gate("G-CNT-FR", len(ctx.fr) == md_fr, f"FR JSON↔MD 件数一致 (MD={md_fr}/JSON={len(ctx.fr)})")
-    gate("G-CNT-NFR", len(ctx.nfr) == 10 == md_nfr, f"NFR=10 (MD={md_nfr}/JSON={len(ctx.nfr)})")
+    gate("G-CNT-NFR", len(ctx.nfr) == 11 == md_nfr, f"NFR=11 (MD={md_nfr}/JSON={len(ctx.nfr)})")
     md_fn = md_count(L3 / "canonical/functional/function-list_v0.1.md", r"\| (FN-\d{3}) \|")
     gate("G-CNT-FN", len(ctx.fn) == 61 == md_fn, f"FN=61 (MD={md_fn}/JSON={len(ctx.fn)})")
 
@@ -451,7 +451,7 @@ def _frsr_contracts(ctx: Ctx) -> None:
     nfr_verify_faults = detect_nfr_verification_faults(ctx.nfc, ctx.acc, ctx.tcc, ctx.ddl)
     gate("G-NFR-MEASURABLE",
          not n_errs and all(i in nfr_json_ids for i in nfr_ids) and not nfr_verify_faults,
-         "NFR 計測契約: schema 適合＋NFR10 完全被覆＋NFR→AC→TCC実在ID接続＋実行可能な測定方法 "
+         "NFR 計測契約: schema 適合＋NFR11 完全被覆＋NFR→AC→TCC実在ID接続＋実行可能な測定方法 "
          f"(err={n_errs[:3]}, 検証接続={nfr_verify_faults[:5]})")
 
     acc_schema = load(AC_SCHEMA)

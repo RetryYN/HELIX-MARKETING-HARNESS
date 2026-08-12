@@ -2490,7 +2490,12 @@
       ],
       "kind": "reject",
       "transition_refs": [
-        {"entity": "tasks", "from": "in_progress", "event": "escalate", "to": "escalated"}
+        {
+          "entity": "tasks",
+          "from": "in_progress",
+          "event": "escalate",
+          "to": "escalated"
+        }
       ],
       "verifies_state": "接続0件、ログには伏字（token=***）のみ、書出し元task=escalated",
       "verifies_db_delta": "外部操作開始前のためexternal_operations/operation_log差分なし。taskのevent=escalate・guard_result=passed 1行だけを記録",
@@ -2529,8 +2534,18 @@
       ],
       "kind": "boundary",
       "transition_refs": [
-        {"entity": "tasks", "from": "in_progress", "event": "escalate", "to": "escalated"},
-        {"entity": "tasks", "from": "pending", "event": "claim", "to": "in_progress"}
+        {
+          "entity": "tasks",
+          "from": "in_progress",
+          "event": "escalate",
+          "to": "escalated"
+        },
+        {
+          "entity": "tasks",
+          "from": "pending",
+          "event": "claim",
+          "to": "in_progress"
+        }
       ],
       "verifies_state": "再投入前=元task escalated・接続0、再投入後=元task終端のままreplacement task in_progressで接続成功",
       "verifies_db_delta": "送信前拒否のexternal_operations/operation_log差分なし、元task escalate +1、replacement task INSERT +1とclaim +1",
@@ -3498,8 +3513,8 @@
           "external_operations.rate_scope",
           "external_operations.request_hash",
           "external_operations.request_sequence",
-          "external_operations.status"
-          ,"spend_ledger.external_operation_row_id"
+          "external_operations.status",
+          "spend_ledger.external_operation_row_id"
         ],
         "state_refs": [],
         "event_refs": [],
@@ -3528,7 +3543,12 @@
           "external_operations",
           "spend_ledger"
         ],
-        "column_refs": ["external_operations.effect", "external_operations.execution_mode", "external_operations.status", "spend_ledger.external_operation_row_id"],
+        "column_refs": [
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.status",
+          "spend_ledger.external_operation_row_id"
+        ],
         "state_refs": [],
         "event_refs": [],
         "evidence_kind_refs": [],
@@ -3564,8 +3584,8 @@
           "external_operations.rate_scope",
           "external_operations.request_hash",
           "external_operations.request_sequence",
-          "external_operations.status"
-          ,"spend_ledger.external_operation_row_id"
+          "external_operations.status",
+          "spend_ledger.external_operation_row_id"
         ],
         "state_refs": [],
         "event_refs": [],
@@ -6603,7 +6623,9 @@
     },
     {
       "id": "TCC-17-1",
-      "ac": ["AC-17-1"],
+      "ac": [
+        "AC-17-1"
+      ],
       "kind": "normal",
       "verifies_state": "優先 item A=in_progress、B=pending、lane WIP=limit",
       "verifies_db_delta": "tasks A 1行 UPDATE、state_transitions +1行",
@@ -6613,9 +6635,18 @@
       "method": "pytest: ready item 2件＋既存 WIP を seed し、pull 後の選択順・claim・WIP・状態履歴を assert",
       "slice": "S1",
       "semantic_refs": {
-        "table_refs": ["config", "state_transitions", "tasks"],
-        "column_refs": ["tasks.state"],
-        "state_refs": ["tasks.in_progress", "tasks.pending"],
+        "table_refs": [
+          "config",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.in_progress",
+          "tasks.pending"
+        ],
         "event_refs": [],
         "evidence_kind_refs": [],
         "error_type_refs": [],
@@ -6624,7 +6655,9 @@
     },
     {
       "id": "TCC-17-2",
-      "ac": ["AC-17-2"],
+      "ac": [
+        "AC-17-2"
+      ],
       "kind": "reject",
       "verifies_state": "対象 item=pending、WIP と claim owner は不変",
       "verifies_db_delta": "業務状態差分なし、拒否遷移 +1行",
@@ -6634,18 +6667,30 @@
       "method": "pytest: WIP=limit fixture で pull と直接開始を実行し、GateRejected・DB 不変・拒否理由を assert",
       "slice": "S1",
       "semantic_refs": {
-        "table_refs": ["config", "state_transitions", "tasks"],
-        "column_refs": ["tasks.state"],
-        "state_refs": ["tasks.pending"],
+        "table_refs": [
+          "config",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.pending"
+        ],
         "event_refs": [],
         "evidence_kind_refs": [],
-        "error_type_refs": ["GateRejected"],
+        "error_type_refs": [
+          "GateRejected"
+        ],
         "api_refs": []
       }
     },
     {
       "id": "TCC-17-3",
-      "ac": ["AC-17-3"],
+      "ac": [
+        "AC-17-3"
+      ],
       "kind": "resume",
       "verifies_state": "block 中は blocked、再起動・unblock 後は同一 item が in_progress",
       "verifies_db_delta": "tasks 2 UPDATE、block/unblock 遷移 +2行",
@@ -6655,9 +6700,17 @@
       "method": "pytest: blocked policy 欠落と kill/restart fixture で WIP 再構成・状態継続・unblock を assert",
       "slice": "S1",
       "semantic_refs": {
-        "table_refs": ["config", "state_transitions", "tasks"],
-        "column_refs": ["tasks.state"],
-        "state_refs": ["tasks.in_progress"],
+        "table_refs": [
+          "config",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.in_progress"
+        ],
         "event_refs": [],
         "evidence_kind_refs": [],
         "error_type_refs": [],
@@ -6666,7 +6719,9 @@
     },
     {
       "id": "TCC-35-1",
-      "ac": ["AC-35-1"],
+      "ac": [
+        "AC-35-1"
+      ],
       "kind": "normal",
       "verifies_state": "同一 profile 配下に active domain 2件、root と manifest は相互非重複",
       "verifies_db_delta": "planned bounded_domains +2行、既存 profile/domain 不変",
@@ -6676,7 +6731,10 @@
       "method": "pytest tmp_path: opaque domain key 2件を登録し、tree・realpath・manifest hash・scope 分離を assert",
       "slice": "S1",
       "semantic_refs": {
-        "table_refs": ["business_profiles", "config"],
+        "table_refs": [
+          "business_profiles",
+          "config"
+        ],
         "column_refs": [],
         "state_refs": [],
         "event_refs": [],
@@ -6687,7 +6745,9 @@
     },
     {
       "id": "TCC-35-2",
-      "ac": ["AC-35-2"],
+      "ac": [
+        "AC-35-2"
+      ],
       "kind": "reject",
       "verifies_state": "全 domain root・registry・manifest が操作前と同一",
       "verifies_db_delta": "差分なし",
@@ -6697,18 +6757,25 @@
       "method": "pytest tmp_path: absolute/../NUL/symlink/cross-domain fixture を表駆動で解決し GateRejected と hash 不変を assert",
       "slice": "S1",
       "semantic_refs": {
-        "table_refs": ["business_profiles", "config"],
+        "table_refs": [
+          "business_profiles",
+          "config"
+        ],
         "column_refs": [],
         "state_refs": [],
         "event_refs": [],
         "evidence_kind_refs": [],
-        "error_type_refs": ["GateRejected"],
+        "error_type_refs": [
+          "GateRejected"
+        ],
         "api_refs": []
       }
     },
     {
       "id": "TCC-35-3",
-      "ac": ["AC-35-3"],
+      "ac": [
+        "AC-35-3"
+      ],
       "kind": "resume",
       "verifies_state": "recovery 後 active domain 1件、orphan staging 0、archived domain 不変",
       "verifies_db_delta": "planned bounded_domains +1行、archived domain 差分なし",
@@ -6718,18 +6785,25 @@
       "method": "pytest tmp_path: registry commit 前 kill 状態を seed し、同 hash 再開と archived read/write 境界を assert",
       "slice": "S1",
       "semantic_refs": {
-        "table_refs": ["business_profiles", "config"],
+        "table_refs": [
+          "business_profiles",
+          "config"
+        ],
         "column_refs": [],
         "state_refs": [],
         "event_refs": [],
         "evidence_kind_refs": [],
-        "error_type_refs": ["GateRejected"],
+        "error_type_refs": [
+          "GateRejected"
+        ],
         "api_refs": []
       }
     },
     {
       "id": "TCC-48-1",
-      "ac": ["AC-48-1"],
+      "ac": [
+        "AC-48-1"
+      ],
       "kind": "normal",
       "verifies_state": "strategy trace 完全な active binding 1件、対象 work item のみ pull eligible",
       "verifies_db_delta": "planned media_bindings +1行（planned→active）、外部操作差分なし",
@@ -6739,7 +6813,12 @@
       "method": "pytest: valid brief/revision・role・route・workflow・playbook を seed し binding trace と pull eligibility を assert",
       "slice": "S1",
       "semantic_refs": {
-        "table_refs": ["config", "playbooks", "strategic_briefs", "workflows"],
+        "table_refs": [
+          "config",
+          "playbooks",
+          "strategic_briefs",
+          "workflows"
+        ],
         "column_refs": [],
         "state_refs": [],
         "event_refs": [],
@@ -6750,7 +6829,9 @@
     },
     {
       "id": "TCC-48-2",
-      "ac": ["AC-48-2"],
+      "ac": [
+        "AC-48-2"
+      ],
       "kind": "reject",
       "verifies_state": "新規 active binding 0件、既存 task/brief/外部操作は不変",
       "verifies_db_delta": "業務状態差分なし、拒否ログのみ",
@@ -6760,18 +6841,27 @@
       "method": "pytest parameterize: trace欠落/期限切れ/越境/role外/route欠落で GateRejected と全正本不変を assert",
       "slice": "S1",
       "semantic_refs": {
-        "table_refs": ["config", "external_operations", "strategic_briefs", "tasks"],
+        "table_refs": [
+          "config",
+          "external_operations",
+          "strategic_briefs",
+          "tasks"
+        ],
         "column_refs": [],
         "state_refs": [],
         "event_refs": [],
         "evidence_kind_refs": [],
-        "error_type_refs": ["GateRejected"],
+        "error_type_refs": [
+          "GateRejected"
+        ],
         "api_refs": []
       }
     },
     {
       "id": "TCC-48-3",
-      "ac": ["AC-48-3"],
+      "ac": [
+        "AC-48-3"
+      ],
       "kind": "resume",
       "verifies_state": "V2 active、V1 retired、旧 task 終端、旧 binding trace 付き TLP 1件",
       "verifies_db_delta": "planned bindings 2 status 更新、task 終端、TLP +1行",
@@ -6781,7 +6871,11 @@
       "method": "pytest: V1/V2 差替え中 kill point を fault injection し、再開後の status・pull gate・TLP 一意性を assert",
       "slice": "S1",
       "semantic_refs": {
-        "table_refs": ["strategic_briefs", "tactical_learning_packets", "tasks"],
+        "table_refs": [
+          "strategic_briefs",
+          "tactical_learning_packets",
+          "tasks"
+        ],
         "column_refs": [],
         "state_refs": [],
         "event_refs": [],
@@ -6792,13 +6886,37 @@
     },
     {
       "id": "TCC-NFR-01",
-      "ac": ["AC-901"],
-      "verification_aspects": ["NFR-1:invalid-rejection", "NFR-1:disable-path-absence", "NFR-1:indeterminate-rejection", "NFR-1:evidence-channel", "NFR-1:fatal-escalation"],
-      "transition_refs": [
-        {"entity": "tasks", "from": "in_progress", "event": "escalate", "to": "escalated"},
-        {"entity": "loop_runs", "from": "running", "event": "fatal_failure", "to": "escalated"}
+      "ac": [
+        "AC-901"
       ],
-      "aspect_assertions": {"NFR-1:invalid-rejection": "invalid fixture全件が非0終了することをassert", "NFR-1:disable-path-absence": "src/config検索でdisable・bypass経路0件をassert", "NFR-1:indeterminate-rejection": "破損schemaと判定不能入力が全件拒否されることをassert", "NFR-1:evidence-channel": "経路別にDB差分なし又はstate_transitions拒否行をassert", "NFR-1:fatal-escalation": "gate破損時にtask escalateとloop fatal_failureのpassed遷移2行をassert"},
+      "verification_aspects": [
+        "NFR-1:invalid-rejection",
+        "NFR-1:disable-path-absence",
+        "NFR-1:indeterminate-rejection",
+        "NFR-1:evidence-channel",
+        "NFR-1:fatal-escalation"
+      ],
+      "transition_refs": [
+        {
+          "entity": "tasks",
+          "from": "in_progress",
+          "event": "escalate",
+          "to": "escalated"
+        },
+        {
+          "entity": "loop_runs",
+          "from": "running",
+          "event": "fatal_failure",
+          "to": "escalated"
+        }
+      ],
+      "aspect_assertions": {
+        "NFR-1:invalid-rejection": "invalid fixture全件が非0終了することをassert",
+        "NFR-1:disable-path-absence": "src/config検索でdisable・bypass経路0件をassert",
+        "NFR-1:indeterminate-rejection": "破損schemaと判定不能入力が全件拒否されることをassert",
+        "NFR-1:evidence-channel": "経路別にDB差分なし又はstate_transitions拒否行をassert",
+        "NFR-1:fatal-escalation": "gate破損時にtask escalateとloop fatal_failureのpassed遷移2行をassert"
+      },
       "kind": "reject",
       "verifies_state": "CI/schema拒否と未定義遷移は状態不変、ゲート破損はtask/親loop_run双方escalated",
       "verifies_db_delta": "CI/schema拒否は差分なし、未定義遷移rejected +1、ゲート破損はtask escalate＋loop fatal_failureのpassed +2、operation_log差分なし",
@@ -6807,13 +6925,51 @@
       "external_calls": "0 回",
       "method": "pytest: invalid fixture、破損schema、未定義遷移、disable/bypass語、task=in_progress/loop=runningのゲート破損を個別投入し、未定義遷移の状態不変＋rejected 1行、破損時task escalate/loop fatal_failure＋passed 2行をassert",
       "slice": "S0",
-      "semantic_refs": {"table_refs": ["loop_runs", "state_transitions", "tasks"], "column_refs": ["loop_runs.state", "state_transitions.guard_result", "tasks.state"], "state_refs": ["loop_runs.escalated", "loop_runs.running", "tasks.escalated", "tasks.in_progress"], "event_refs": ["escalate", "fatal_failure"], "evidence_kind_refs": [], "error_type_refs": ["TransitionRejected"], "api_refs": []}
+      "semantic_refs": {
+        "table_refs": [
+          "loop_runs",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "loop_runs.state",
+          "state_transitions.guard_result",
+          "tasks.state"
+        ],
+        "state_refs": [
+          "loop_runs.escalated",
+          "loop_runs.running",
+          "tasks.escalated",
+          "tasks.in_progress"
+        ],
+        "event_refs": [
+          "escalate",
+          "fatal_failure"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "TransitionRejected"
+        ],
+        "api_refs": []
+      }
     },
     {
       "id": "TCC-NFR-02",
-      "ac": ["AC-902"],
-      "verification_aspects": ["NFR-2:deterministic-hash", "NFR-2:brief-digest", "NFR-2:nondeterministic-output-evidence", "NFR-2:clock-rng-injection"],
-      "aspect_assertions": {"NFR-2:deterministic-hash": "同一入力2実行の成果物hash完全一致をassert", "NFR-2:brief-digest": "戦略brief digest束縛の一致をassert", "NFR-2:nondeterministic-output-evidence": "非決定出力に取得時刻とsource hashがあることをassert", "NFR-2:clock-rng-injection": "Clock/Rng注入値で再生列が一致することをassert"},
+      "ac": [
+        "AC-902"
+      ],
+      "verification_aspects": [
+        "NFR-2:deterministic-hash",
+        "NFR-2:brief-digest",
+        "NFR-2:nondeterministic-output-evidence",
+        "NFR-2:clock-rng-injection"
+      ],
+      "aspect_assertions": {
+        "NFR-2:deterministic-hash": "同一入力2実行の成果物hash完全一致をassert",
+        "NFR-2:brief-digest": "戦略brief digest束縛の一致をassert",
+        "NFR-2:nondeterministic-output-evidence": "非決定出力に取得時刻とsource hashがあることをassert",
+        "NFR-2:clock-rng-injection": "Clock/Rng注入値で再生列が一致することをassert"
+      },
       "kind": "normal",
       "verifies_state": "2回の出力digest/hash完全一致",
       "verifies_db_delta": "hash evidenceが実行単位で追記",
@@ -6822,13 +6978,39 @@
       "external_calls": "0 回",
       "method": "pytest: 固定Clock/Rngと同一fixtureを別プロセスで2回実行し全SHA-256とhash evidenceをassert",
       "slice": "S0",
-      "semantic_refs": {"table_refs": ["evidence", "strategic_briefs"], "column_refs": [], "state_refs": [], "event_refs": [], "evidence_kind_refs": ["file_hash", "commit_hash"], "error_type_refs": [], "api_refs": []}
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "strategic_briefs"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "file_hash",
+          "commit_hash"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "TCC-NFR-03",
-      "ac": ["AC-903"],
-      "verification_aspects": ["NFR-3:all-kill-points", "NFR-3:no-resend", "NFR-3:evidence-before-transition", "NFR-3:unknown-escalation"],
-      "aspect_assertions": {"NFR-3:all-kill-points": "prepared/sent/remote-success各kill pointを個別実行してassert", "NFR-3:no-resend": "再開後mock送信カウンタ増加0をassert", "NFR-3:evidence-before-transition": "operation証跡commit順序がtask遷移より前であることをassert", "NFR-3:unknown-escalation": "照合不能時unknownとtask escalatedをassert"},
+      "ac": [
+        "AC-903"
+      ],
+      "verification_aspects": [
+        "NFR-3:all-kill-points",
+        "NFR-3:no-resend",
+        "NFR-3:evidence-before-transition",
+        "NFR-3:unknown-escalation"
+      ],
+      "aspect_assertions": {
+        "NFR-3:all-kill-points": "prepared/sent/remote-success各kill pointを個別実行してassert",
+        "NFR-3:no-resend": "再開後mock送信カウンタ増加0をassert",
+        "NFR-3:evidence-before-transition": "operation証跡commit順序がtask遷移より前であることをassert",
+        "NFR-3:unknown-escalation": "照合不能時unknownとtask escalatedをassert"
+      },
       "kind": "kill",
       "verifies_state": "正準ResumeActionまたはunknownで停止し証跡先行順序を維持",
       "verifies_db_delta": "confirmed/unknownへ一意収束し重複行なし",
@@ -6868,12 +7050,29 @@
     },
     {
       "id": "TCC-NFR-04",
-      "ac": ["AC-904"],
-      "verification_aspects": ["NFR-4:secret-zero", "NFR-4:masking", "NFR-4:runtime-failure", "NFR-4:credential-rotation-escalation"],
-      "transition_refs": [
-        {"entity": "tasks", "from": "in_progress", "event": "escalate", "to": "escalated"}
+      "ac": [
+        "AC-904"
       ],
-      "aspect_assertions": {"NFR-4:secret-zero": "repo履歴・DB全列・全ログ・evidenceのknown secret 0 hitをassert", "NFR-4:masking": "検知ログが伏字のみで平文非包含をassert", "NFR-4:runtime-failure": "credential混入fixtureが永続化前拒否されtask escalatedをassert", "NFR-4:credential-rotation-escalation": "失効・再発行要求とescalate遷移1行をassert"},
+      "verification_aspects": [
+        "NFR-4:secret-zero",
+        "NFR-4:masking",
+        "NFR-4:runtime-failure",
+        "NFR-4:credential-rotation-escalation"
+      ],
+      "transition_refs": [
+        {
+          "entity": "tasks",
+          "from": "in_progress",
+          "event": "escalate",
+          "to": "escalated"
+        }
+      ],
+      "aspect_assertions": {
+        "NFR-4:secret-zero": "repo履歴・DB全列・全ログ・evidenceのknown secret 0 hitをassert",
+        "NFR-4:masking": "検知ログが伏字のみで平文非包含をassert",
+        "NFR-4:runtime-failure": "credential混入fixtureが永続化前拒否されtask escalatedをassert",
+        "NFR-4:credential-rotation-escalation": "失効・再発行要求とescalate遷移1行をassert"
+      },
       "kind": "reject",
       "verifies_state": "secret検出0件、違反task escalated、credential rotation escalation発行済み",
       "verifies_db_delta": "正常なDocker WP読取りはexternal_operations(effect='read', status='confirmed') +1行とexternal_operation_row_idで束縛したoperation_log +1行。違反taskはevent=escalate・guard_result=passed 1行だけで、違反external_operations/operation_log・平文差分なし",
@@ -6920,9 +7119,21 @@
     },
     {
       "id": "TCC-NFR-05",
-      "ac": ["AC-905"],
-      "verification_aspects": ["NFR-5:transition-coverage", "NFR-5:gate-decision-coverage", "NFR-5:external-operation-coverage", "NFR-5:single-query-backlog"],
-      "aspect_assertions": {"NFR-5:transition-coverage": "全許可・拒否遷移fixtureを発火しstate_transitions対応行をassert", "NFR-5:gate-decision-coverage": "pair_plan_qualityとpair_kpi_measureの成立・拒否fixtureを発火し判定行をassert", "NFR-5:external-operation-coverage": "terminal external_operations↔operation_logをexternal_operation_row_idで双方向exactly-one、task/effect/policy_category/rate_scope/service/operation/correlation/request hash/sequence/result一致、orphan双方0。required integer>0のtimeout config current=300と注入UTC ClockでSQL:`SELECT id FROM external_operations WHERE status='sent' AND sent_at < :recovery_cutoff_utc`を実行し、cutoff直前だけ検出・等値/直後非検出、config不正fail-closeをassert", "NFR-5:single-query-backlog": "UNION ALL 1 statementの結果集合が全非終端seedと一致をassert"},
+      "ac": [
+        "AC-905"
+      ],
+      "verification_aspects": [
+        "NFR-5:transition-coverage",
+        "NFR-5:gate-decision-coverage",
+        "NFR-5:external-operation-coverage",
+        "NFR-5:single-query-backlog"
+      ],
+      "aspect_assertions": {
+        "NFR-5:transition-coverage": "全許可・拒否遷移fixtureを発火しstate_transitions対応行をassert",
+        "NFR-5:gate-decision-coverage": "pair_plan_qualityとpair_kpi_measureの成立・拒否fixtureを発火し判定行をassert",
+        "NFR-5:external-operation-coverage": "terminal external_operations↔operation_logをexternal_operation_row_idで双方向exactly-one、task/effect/policy_category/rate_scope/service/operation/correlation/request hash/sequence/result一致、orphan双方0。required integer>0のtimeout config current=300と注入UTC ClockでSQL:`SELECT id FROM external_operations WHERE status='sent' AND sent_at < :recovery_cutoff_utc`を実行し、cutoff直前だけ検出・等値/直後非検出、config不正fail-closeをassert",
+        "NFR-5:single-query-backlog": "UNION ALL 1 statementの結果集合が全非終端seedと一致をassert"
+      },
       "kind": "normal",
       "verifies_state": "滞留SQLが非終端6状態だけを返す",
       "verifies_db_delta": "読取のみで差分なし",
@@ -6947,10 +7158,10 @@
           "external_operations.correlation_key",
           "external_operations.effect",
           "external_operations.execution_mode",
-      "external_operations.operation",
-      "external_operations.policy_category",
-      "external_operations.rate_scope",
-      "external_operations.request_hash",
+          "external_operations.operation",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
           "external_operations.request_sequence",
           "external_operations.service",
           "external_operations.status",
@@ -6968,14 +7179,45 @@
     },
     {
       "id": "TCC-NFR-06",
-      "ac": ["AC-906"],
-      "verification_aspects": ["NFR-6:projected-cap", "NFR-6:free-route-continuity", "NFR-6:ledger-completeness", "NFR-6:reversal-integrity", "NFR-6:append-only", "NFR-6:config-missing-failclose"],
-      "transition_refs": [
-        {"entity": "tasks", "from": "pending", "event": "non_retryable_failure", "to": "failed"},
-        {"entity": "tasks", "from": "pending", "event": "escalate", "to": "escalated"},
-        {"entity": "tasks", "from": "pending", "event": "claim", "to": "in_progress"}
+      "ac": [
+        "AC-906"
       ],
-      "aspect_assertions": {"NFR-6:projected-cap": "charge−reversal純額+要求額の直前・一致・1円超過境界をassert", "NFR-6:free-route-continuity": "有償拒否時も無償task開始可能をassert", "NFR-6:ledger-completeness": "confirmed approved_paid_operationとchargeの双方向一意対応をassert", "NFR-6:reversal-integrity": "reversalが元chargeと同額/同service/JPY・別approved correction task・1回限りをassert", "NFR-6:append-only": "全仕訳UPDATE/DELETE拒否をassert", "NFR-6:config-missing-failclose": "cap欠落時に有償外部呼出0とtask escalatedをassert"},
+      "verification_aspects": [
+        "NFR-6:projected-cap",
+        "NFR-6:free-route-continuity",
+        "NFR-6:ledger-completeness",
+        "NFR-6:reversal-integrity",
+        "NFR-6:append-only",
+        "NFR-6:config-missing-failclose"
+      ],
+      "transition_refs": [
+        {
+          "entity": "tasks",
+          "from": "pending",
+          "event": "non_retryable_failure",
+          "to": "failed"
+        },
+        {
+          "entity": "tasks",
+          "from": "pending",
+          "event": "escalate",
+          "to": "escalated"
+        },
+        {
+          "entity": "tasks",
+          "from": "pending",
+          "event": "claim",
+          "to": "in_progress"
+        }
+      ],
+      "aspect_assertions": {
+        "NFR-6:projected-cap": "charge−reversal純額+要求額の直前・一致・1円超過境界をassert",
+        "NFR-6:free-route-continuity": "有償拒否時も無償task開始可能をassert",
+        "NFR-6:ledger-completeness": "confirmed approved_paid_operationとchargeの双方向一意対応をassert",
+        "NFR-6:reversal-integrity": "reversalが元chargeと同額/同service/JPY・別approved correction task・1回限りをassert",
+        "NFR-6:append-only": "全仕訳UPDATE/DELETE拒否をassert",
+        "NFR-6:config-missing-failclose": "cap欠落時に有償外部呼出0とtask escalatedをassert"
+      },
       "kind": "boundary",
       "verifies_state": "超過時有償task=failed、config欠落時有償task=escalated、両ケースの無償task=in_progress、台帳漏れ0件",
       "verifies_db_delta": "超過は有償non_retryable_failure＋無償claim、欠落は有償escalate＋無償claimのpassed各2行。支出・外部操作差分なし",
@@ -6984,13 +7226,55 @@
       "external_calls": "0 回",
       "method": "pytest: chargeを正、reversalを負としてJPYをUTC半開月区間で集計しprojected境界/config欠落を実行。遷移とfree継続、approved_paid_operation↔charge双方向exactly-one、reversalの元charge/額/service/通貨/correction approval/一回性、UPDATE/DELETE拒否をassert",
       "slice": "S0",
-      "semantic_refs": {"table_refs": ["config", "external_operations", "spend_ledger", "state_transitions", "tasks"], "column_refs": ["state_transitions.guard_result", "tasks.state"], "state_refs": ["tasks.escalated", "tasks.failed", "tasks.in_progress", "tasks.pending"], "event_refs": ["claim", "escalate", "non_retryable_failure"], "evidence_kind_refs": [], "error_type_refs": [], "api_refs": []}
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "external_operations",
+          "spend_ledger",
+          "state_transitions",
+          "tasks"
+        ],
+        "column_refs": [
+          "state_transitions.guard_result",
+          "tasks.state"
+        ],
+        "state_refs": [
+          "tasks.escalated",
+          "tasks.failed",
+          "tasks.in_progress",
+          "tasks.pending"
+        ],
+        "event_refs": [
+          "claim",
+          "escalate",
+          "non_retryable_failure"
+        ],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "TCC-NFR-07",
-      "ac": ["AC-907"],
-      "verification_aspects": ["NFR-7:interval-range", "NFR-7:uniformity", "NFR-7:daily-cap", "NFR-7:canonical-rate-scope", "NFR-7:seed-recording", "NFR-7:cap-wait-state"],
-      "aspect_assertions": {"NFR-7:interval-range": "4 seed各10000標本が両端包含min/max内100%をassert", "NFR-7:uniformity": "MT19937 randint整数bucketで各seed χ² p値0.01以上をassert", "NFR-7:daily-cap": "rate_scope='wp'かつsent_at済みeffect='write'をstatus不問で算入しread除外、cap-1から2並行予約は片方だけsent・敗者0行をassert", "NFR-7:canonical-rate-scope": "scope/cap欠落・unknown・alias・case/shared-service迂回をpreflight拒否し外部両テーブル0、operation_log payload scope同値をassert", "NFR-7:seed-recording": "seed・algorithm ID記録と再生列完全一致をassert", "NFR-7:cap-wait-state": "cap到達・scope/cap不正・競合敗者のtask pending・親loop_run waiting・外部呼出0をassert"},
+      "ac": [
+        "AC-907"
+      ],
+      "verification_aspects": [
+        "NFR-7:interval-range",
+        "NFR-7:uniformity",
+        "NFR-7:daily-cap",
+        "NFR-7:canonical-rate-scope",
+        "NFR-7:seed-recording",
+        "NFR-7:cap-wait-state"
+      ],
+      "aspect_assertions": {
+        "NFR-7:interval-range": "4 seed各10000標本が両端包含min/max内100%をassert",
+        "NFR-7:uniformity": "MT19937 randint整数bucketで各seed χ² p値0.01以上をassert",
+        "NFR-7:daily-cap": "rate_scope='wp'かつsent_at済みeffect='write'をstatus不問で算入しread除外、cap-1から2並行予約は片方だけsent・敗者0行をassert",
+        "NFR-7:canonical-rate-scope": "scope/cap欠落・unknown・alias・case/shared-service迂回をpreflight拒否し外部両テーブル0、operation_log payload scope同値をassert",
+        "NFR-7:seed-recording": "seed・algorithm ID記録と再生列完全一致をassert",
+        "NFR-7:cap-wait-state": "cap到達・scope/cap不正・競合敗者のtask pending・親loop_run waiting・外部呼出0をassert"
+      },
       "kind": "boundary",
       "verifies_state": "10,000標本χ² p>=0.01、WP上限又はscope/cap不正時task pending・親loop_run waiting",
       "verifies_db_delta": "rate_scope='wp'のconfirmed/rejected/unknown sent writeは全件消費、read除外。cap-1並行2予約は勝者write/sent +1だけ、敗者・scope/cap不正は外部両テーブル0",
@@ -6999,13 +7283,57 @@
       "external_calls": "cap-1並行2予約の勝者write 1回だけ。cap到達・cap欠落・競合敗者は0回",
       "method": "pytest: MT19937 4 seed各10,000標本の範囲/χ²/分散/再現性をassert。config.rate.wp.daily_write_cap=2でrate_scope='wp'のsent writeをstatus不問で算入しread除外。scope NULL/'WP'/alias/shared-serviceとcap欠落をfail-close、operation_log scope同値をassert。cap-1から2 thread/barrier予約で片方sent/write 1回、敗者0行・pending/waitingをassertする",
       "slice": "S0",
-      "semantic_refs": {"table_refs": ["config", "evidence", "external_operations", "loop_runs", "tasks"], "column_refs": ["evidence.external_operation_row_id", "external_operations.correlation_key", "external_operations.effect", "external_operations.execution_mode", "external_operations.policy_category", "external_operations.rate_scope", "external_operations.request_hash", "external_operations.request_sequence", "external_operations.sent_at", "external_operations.status", "loop_runs.state", "tasks.state"], "state_refs": ["loop_runs.waiting", "tasks.pending"], "event_refs": [], "evidence_kind_refs": ["operation_log"], "error_type_refs": [], "api_refs": []}
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "evidence",
+          "external_operations",
+          "loop_runs",
+          "tasks"
+        ],
+        "column_refs": [
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
+          "external_operations.sent_at",
+          "external_operations.status",
+          "loop_runs.state",
+          "tasks.state"
+        ],
+        "state_refs": [
+          "loop_runs.waiting",
+          "tasks.pending"
+        ],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "TCC-NFR-08",
-      "ac": ["AC-908"],
-      "verification_aspects": ["NFR-8:data-only-extension", "NFR-8:dry-run-e2e", "NFR-8:product-hash-zero-diff", "NFR-8:registry-row-only"],
-      "aspect_assertions": {"NFR-8:data-only-extension": "未知媒体追加がworkflow/playbook/registryデータだけであることをassert", "NFR-8:dry-run-e2e": "未知媒体dry-run E2Eが状態機械からconnectorまで完了をassert", "NFR-8:product-hash-zero-diff": "前後の製品file集合とSHA256 map完全一致をassert", "NFR-8:registry-row-only": "接続レジストリ追加行以外の製品差分0をassert"},
+      "ac": [
+        "AC-908"
+      ],
+      "verification_aspects": [
+        "NFR-8:data-only-extension",
+        "NFR-8:dry-run-e2e",
+        "NFR-8:product-hash-zero-diff",
+        "NFR-8:registry-row-only"
+      ],
+      "aspect_assertions": {
+        "NFR-8:data-only-extension": "未知媒体追加がworkflow/playbook/registryデータだけであることをassert",
+        "NFR-8:dry-run-e2e": "未知媒体dry-run E2Eが状態機械からconnectorまで完了をassert",
+        "NFR-8:product-hash-zero-diff": "前後の製品file集合とSHA256 map完全一致をassert",
+        "NFR-8:registry-row-only": "接続レジストリ追加行以外の製品差分0をassert"
+      },
       "kind": "normal",
       "verifies_state": "test-media workflow完了",
       "verifies_db_delta": "workflow/playbook/registry追加行だけ",
@@ -7014,13 +7342,38 @@
       "external_calls": "dry-run mock 1 回",
       "method": "pytest: 製品file hash map固定後、データ行だけで未知媒体を登録しE2E greenと集合/hash完全一致をassert",
       "slice": "S0",
-      "semantic_refs": {"table_refs": ["playbooks", "workflows"], "column_refs": [], "state_refs": [], "event_refs": [], "evidence_kind_refs": [], "error_type_refs": [], "api_refs": []}
+      "semantic_refs": {
+        "table_refs": [
+          "playbooks",
+          "workflows"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "TCC-NFR-09",
-      "ac": ["AC-909"],
-      "verification_aspects": ["NFR-9:pr-label", "NFR-9:opt-in", "NFR-9:unsubscribe", "NFR-9:supported-channel-only", "NFR-9:pii-purpose"],
-      "aspect_assertions": {"NFR-9:pr-label": "PR表記欠落fixtureが公開前拒否・外部呼出0をassert", "NFR-9:opt-in": "opt-in欠落fixtureが配信前拒否・外部呼出0をassert", "NFR-9:unsubscribe": "停止導線欠落fixtureが配信前拒否をassert", "NFR-9:supported-channel-only": "許可外channel fixtureが配信前拒否をassert", "NFR-9:pii-purpose": "PII目的schema不一致の独立fixtureが保持前拒否・MR台帳差分なしをassert"},
+      "ac": [
+        "AC-909"
+      ],
+      "verification_aspects": [
+        "NFR-9:pr-label",
+        "NFR-9:opt-in",
+        "NFR-9:unsubscribe",
+        "NFR-9:supported-channel-only",
+        "NFR-9:pii-purpose"
+      ],
+      "aspect_assertions": {
+        "NFR-9:pr-label": "PR表記欠落fixtureが公開前拒否・外部呼出0をassert",
+        "NFR-9:opt-in": "opt-in欠落fixtureが配信前拒否・外部呼出0をassert",
+        "NFR-9:unsubscribe": "停止導線欠落fixtureが配信前拒否をassert",
+        "NFR-9:supported-channel-only": "許可外channel fixtureが配信前拒否をassert",
+        "NFR-9:pii-purpose": "PII目的schema不一致の独立fixtureが保持前拒否・MR台帳差分なしをassert"
+      },
       "kind": "reject",
       "verifies_state": "対象taskは公開・配信へ進まない",
       "verifies_db_delta": "外部操作差分なし、拒否証跡だけ追記",
@@ -7029,13 +7382,40 @@
       "external_calls": "0 回",
       "method": "pytest: PR表記欠落・opt-in欠落・unsubscribe欠落・許可外channel・PII目的schema不一致の5独立fixtureへ法規ゲートを適用し、各拒否・外部呼出0・MR台帳整合をassert",
       "slice": "S0",
-      "semantic_refs": {"table_refs": ["external_operations", "tasks"], "column_refs": [], "state_refs": [], "event_refs": [], "evidence_kind_refs": [], "error_type_refs": [], "api_refs": []}
+      "semantic_refs": {
+        "table_refs": [
+          "external_operations",
+          "tasks"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     },
     {
       "id": "TCC-NFR-10",
-      "ac": ["AC-910"],
-      "verification_aspects": ["NFR-10:daily-backup", "NFR-10:generations", "NFR-10:db-restore", "NFR-10:browser-session-copy", "NFR-10:wp-backup-check", "NFR-10:write-hold-on-failure"],
-      "aspect_assertions": {"NFR-10:daily-backup": "設定N日それぞれbackupとfile_hash evidenceの対応をassert", "NFR-10:generations": "破損除外後に正常N世代を遡及確保することをassert", "NFR-10:db-restore": "前世代DB restore後integrity/FK/行数/hash一致をassert", "NFR-10:browser-session-copy": "暗号化sessionを一時profileへ復元し復号・期限をassert", "NFR-10:wp-backup-check": "Docker WP一時container復元後install/health成功をassert", "NFR-10:write-hold-on-failure": "復元失敗時に新規外部書込みtask保留・escalateをassert"},
+      "ac": [
+        "AC-910"
+      ],
+      "verification_aspects": [
+        "NFR-10:daily-backup",
+        "NFR-10:generations",
+        "NFR-10:db-restore",
+        "NFR-10:browser-session-copy",
+        "NFR-10:wp-backup-check",
+        "NFR-10:write-hold-on-failure"
+      ],
+      "aspect_assertions": {
+        "NFR-10:daily-backup": "設定N日それぞれbackupとfile_hash evidenceの対応をassert",
+        "NFR-10:generations": "破損除外後に正常N世代を遡及確保することをassert",
+        "NFR-10:db-restore": "前世代DB restore後integrity/FK/行数/hash一致をassert",
+        "NFR-10:browser-session-copy": "暗号化sessionを一時profileへ復元し復号・期限をassert",
+        "NFR-10:wp-backup-check": "Docker WP一時container復元後install/health成功をassert",
+        "NFR-10:write-hold-on-failure": "復元失敗時に新規外部書込みtask保留・escalateをassert"
+      },
       "kind": "resume",
       "verifies_state": "直近N日欠落0・破損除外後の正常N世代以上・DB/session/Docker WP復元成功・失敗中書込み保留",
       "verifies_db_delta": "復元先だけ生成、原本・外部対象差分なし",
@@ -7044,7 +7424,486 @@
       "external_calls": "0 回",
       "method": "pytest: config.backup_generations=Nを読み直近N日突合と破損除外後の正常N世代をassertし、最新破損からDB前世代復元、session一時profile、Docker WP一時container復元と書込み保留をassert",
       "slice": "S0",
-      "semantic_refs": {"table_refs": ["evidence", "external_operations"], "column_refs": [], "state_refs": [], "event_refs": [], "evidence_kind_refs": ["file_hash"], "error_type_refs": [], "api_refs": []}
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "external_operations"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "file_hash"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
+    },
+    {
+      "id": "TCC-74-1",
+      "ac": [
+        "AC-74-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "A1 account write confirmed",
+      "verifies_db_delta": "external_operations +1",
+      "verifies_evidence": "A1 operation_log。actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope・service・operation・correlation_key・request_hash・request_sequence・resultを同値にする",
+      "verifies_forbidden": "他account scope",
+      "external_calls": "1 回",
+      "method": "pytest: active A1 を指定し account scope 記帳を assert",
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "business_profiles",
+          "evidence",
+          "external_operations"
+        ],
+        "column_refs": [
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
+          "external_operations.status"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
+    },
+    {
+      "id": "TCC-74-2",
+      "ac": [
+        "AC-74-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "越境拒否",
+      "verifies_db_delta": "差分なし",
+      "verifies_evidence": "拒否記録",
+      "verifies_forbidden": "B account write",
+      "external_calls": "0 回",
+      "method": "pytest: A taskからB account指定を拒否 assert",
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "external_operations"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "CrossProfileAccessDenied"
+        ],
+        "api_refs": []
+      }
+    },
+    {
+      "id": "TCC-74-3",
+      "ac": [
+        "AC-74-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "2 confirmed・app cap超過 reject",
+      "verifies_db_delta": "external_operations +2",
+      "verifies_evidence": "quota記録",
+      "verifies_forbidden": "合算cap超過",
+      "external_calls": "2 回",
+      "method": "pytest: A1/A2 を各 daily cap 直下、app cap 残り2として seed し、2件成功後の次件を合算 cap 超過で拒否することを assert",
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "external_operations"
+        ],
+        "column_refs": [
+          "external_operations.rate_scope"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
+    },
+    {
+      "id": "TCC-75-1",
+      "ac": [
+        "AC-75-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "一致active account投稿成功",
+      "verifies_db_delta": "external_operations +1",
+      "verifies_evidence": "許可operation_log。actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect='write'・policy_category・rate_scope・service・operation・correlation_key・request_hash・request_sequence・resultを同値にする",
+      "verifies_forbidden": "台帳外送信",
+      "external_calls": "1 回",
+      "method": "pytest: 一致active accountのpreflight passをassert",
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "external_operations"
+        ],
+        "column_refs": [
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
+          "external_operations.status"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
+    },
+    {
+      "id": "TCC-75-2",
+      "ac": [
+        "AC-75-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "profile不一致 reject",
+      "verifies_db_delta": "差分なし",
+      "verifies_evidence": "事由コード",
+      "verifies_forbidden": "誤ブランド投稿",
+      "external_calls": "0 回",
+      "method": "pytest: A task/B accountのpreflight拒否をassert",
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "external_operations"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "CrossProfileAccessDenied"
+        ],
+        "api_refs": []
+      }
+    },
+    {
+      "id": "TCC-75-3",
+      "ac": [
+        "AC-75-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "paused直後 reject",
+      "verifies_db_delta": "差分なし",
+      "verifies_evidence": "paused拒否",
+      "verifies_forbidden": "paused write",
+      "external_calls": "0 回",
+      "method": "pytest: active→paused commit後投稿を拒否 assert",
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "external_operations"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "CrossProfileAccessDenied"
+        ],
+        "api_refs": []
+      }
+    },
+    {
+      "id": "TCC-76-1",
+      "ac": [
+        "AC-76-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "通知confirmed",
+      "verifies_db_delta": "external_operations +1,evidence +1",
+      "verifies_evidence": "operation_log。actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect='write'・policy_category・rate_scope・service・operation・correlation_key・request_hash・request_sequence・resultを同値にする",
+      "verifies_forbidden": "承認通知混在",
+      "external_calls": "1 回",
+      "method": "pytest: allow-list channelへの通知と1:1 logをassert",
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "external_operations"
+        ],
+        "column_refs": [
+          "evidence.external_operation_row_id",
+          "external_operations.correlation_key",
+          "external_operations.effect",
+          "external_operations.execution_mode",
+          "external_operations.policy_category",
+          "external_operations.rate_scope",
+          "external_operations.request_hash",
+          "external_operations.request_sequence",
+          "external_operations.status"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
+    },
+    {
+      "id": "TCC-76-2",
+      "ac": [
+        "AC-76-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "allow-list外 reject",
+      "verifies_db_delta": "差分なし",
+      "verifies_evidence": "拒否ログ",
+      "verifies_forbidden": "外部送信",
+      "external_calls": "0 回",
+      "method": "pytest: disallowed channelを拒否 assert",
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "external_operations"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
+    },
+    {
+      "id": "TCC-76-3",
+      "ac": [
+        "AC-76-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "業務成功・通知失敗",
+      "verifies_db_delta": "失敗証跡 +1",
+      "verifies_evidence": "transport failure",
+      "verifies_forbidden": "業務rollback",
+      "external_calls": "1 回",
+      "method": "pytest: failing transportでも業務遷移継続をassert",
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "evidence",
+          "external_operations"
+        ],
+        "column_refs": [
+          "external_operations.status"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [
+          "operation_log"
+        ],
+        "error_type_refs": [],
+        "api_refs": []
+      }
+    },
+    {
+      "id": "TCC-77-1",
+      "ac": [
+        "AC-77-1"
+      ],
+      "kind": "normal",
+      "verifies_state": "A該当原本のみ",
+      "verifies_db_delta": "差分なし",
+      "verifies_evidence": "DB evidence ではない process logger の read audit 記録",
+      "verifies_forbidden": "閲覧要求による業務データ書込み",
+      "external_calls": "0 回",
+      "method": "pytest: A に束縛された認証済み principal の read-only API による kind/期間filterをassert",
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "business_profiles",
+          "evidence"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
+    },
+    {
+      "id": "TCC-77-2",
+      "ac": [
+        "AC-77-2"
+      ],
+      "kind": "reject",
+      "verifies_state": "B record非露出",
+      "verifies_db_delta": "差分なし",
+      "verifies_evidence": "DB evidence ではない process logger の越境読取拒否記録",
+      "verifies_forbidden": "profile B の証跡原文を返却すること",
+      "external_calls": "0 回",
+      "method": "pytest: A に束縛された認証済み principal による read-only API の B evidence readを拒否assert",
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "evidence"
+        ],
+        "column_refs": [],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [
+          "CrossProfileAccessDenied"
+        ],
+        "api_refs": []
+      }
+    },
+    {
+      "id": "TCC-77-3",
+      "ac": [
+        "AC-77-3"
+      ],
+      "kind": "boundary",
+      "verifies_state": "redacted response",
+      "verifies_db_delta": "差分なし",
+      "verifies_evidence": "DB evidence ではない process logger の masking audit 記録",
+      "verifies_forbidden": "secret原文",
+      "external_calls": "0 回",
+      "method": "pytest: read-only API の secret payload maskingをassert",
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "evidence"
+        ],
+        "column_refs": [
+          "evidence.payload_json"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
+    },
+    {
+      "id": "TCC-NFR-11-1",
+      "ac": [
+        "AC-911-1"
+      ],
+      "verification_aspects": [
+        "NFR-11:monthly-cap"
+      ],
+      "aspect_assertions": {
+        "NFR-11:monthly-cap": "月内199件から200件目が通ることを assert"
+      },
+      "kind": "normal",
+      "verifies_state": "200件目 confirmed",
+      "verifies_db_delta": "external_operations +1",
+      "verifies_evidence": "monthly count",
+      "verifies_forbidden": "cap前拒否",
+      "external_calls": "1 回",
+      "method": "pytest: injected Clockで月内199件をseedし200件目をassert",
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "external_operations"
+        ],
+        "column_refs": [
+          "external_operations.sent_at"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
+    },
+    {
+      "id": "TCC-NFR-11-2",
+      "ac": [
+        "AC-911-2"
+      ],
+      "verification_aspects": [
+        "NFR-11:monthly-cap",
+        "NFR-11:daily-coexistence"
+      ],
+      "aspect_assertions": {
+        "NFR-11:monthly-cap": "月次cap到達後のwrite 0件をassert",
+        "NFR-11:daily-coexistence": "日次cap超過も同じpreflightで拒否をassert"
+      },
+      "kind": "reject",
+      "verifies_state": "quota reject",
+      "verifies_db_delta": "差分なし",
+      "verifies_evidence": "quota reject",
+      "verifies_forbidden": "cap超過write",
+      "external_calls": "0 回",
+      "method": "pytest: monthly/daily各cap到達fixtureを拒否assert",
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "config",
+          "external_operations"
+        ],
+        "column_refs": [
+          "external_operations.rate_scope"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
+    },
+    {
+      "id": "TCC-NFR-11-3",
+      "ac": [
+        "AC-911-3"
+      ],
+      "verification_aspects": [
+        "NFR-11:utc-month-boundary"
+      ],
+      "aspect_assertions": {
+        "NFR-11:utc-month-boundary": "UTC月初直後の新月countからwrite可能をassert"
+      },
+      "kind": "boundary",
+      "verifies_state": "新月write confirmed",
+      "verifies_db_delta": "external_operations +1",
+      "verifies_evidence": "new month count",
+      "verifies_forbidden": "前月count持越し",
+      "external_calls": "1 回",
+      "method": "pytest: ClockをUTC月初へ進め再開をassert",
+      "slice": "S1",
+      "semantic_refs": {
+        "table_refs": [
+          "external_operations"
+        ],
+        "column_refs": [
+          "external_operations.sent_at"
+        ],
+        "state_refs": [],
+        "event_refs": [],
+        "evidence_kind_refs": [],
+        "error_type_refs": [],
+        "api_refs": []
+      }
     }
   ],
   "status": "confirmed",
@@ -7053,5 +7912,5 @@
   "supersedes": [
     "ARCHIVE-TC-LEGACY"
   ],
-  "approval_digest": "b1d92cfd984e"
+  "approval_digest": "f688c9d2612c"
 }

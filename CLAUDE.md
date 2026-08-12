@@ -74,7 +74,7 @@
   `resolution_update`（DU の fn_ids → updates.json から機械導出 — G-UNCOVERED-API-UPDATE）付きで登録する。
   更新ごとの設計クロージャー宣言は docs/L6-feature-design/S0/update-closure.json が正本で、
   実態との一致と現在地との一致を G-UPDATE-DESIGN-CLOSURE が検査する（slice と update を混同しない）。
-- 現行分母は **AC=237 ／ TCC=243 ／ API=59 ／ API_UT=218** のみ。旧体系の分母は baseline.json の
+- 現行分母は **AC=252 ／ TCC=258 ／ API=59 ／ API_UT=218** のみ。旧体系の分母は baseline.json の
   `historical_counts` にのみ保持し、現役導線では使わない。
 - 次 = **S0.1 実装**（DU-01〜12 の API を test-first。各 API の UT は du-contracts の `apis[].ut` が正本）。
   実装パッケージは **`src/helix/`**。着手は**自動検出**される（`src/helix/` への実装追加・

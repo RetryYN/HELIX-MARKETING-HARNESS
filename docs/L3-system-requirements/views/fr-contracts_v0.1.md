@@ -2,7 +2,7 @@
 
 # 機能要件 実行契約（FR contracts） v0.1
 
-> status: **confirmed**（2026-08-01 PO 承認 — receipt bbb591341b15）。JSON 内容正本の生成ビュー（全層再降下 §3）
+> status: **confirmed**（2026-08-01 PO 承認 — receipt 3104bcf0ae6b）。JSON 内容正本の生成ビュー（全層再降下 §3）
 > 各 FR に 18 観点の実行・検証・拒否・復旧契約を必須化（G-REQ-CONTRACT／G-INVARIANT-TRACE）。
 
 ## FR-11 ループ状態機械
@@ -823,3 +823,87 @@
 - **外部依存**: 有償 API サービス（Seedance 等 — 支出の発生源。台帳自体は外部呼出しなし）
 - **設定値**: config.spend_cap_monthly（C・暫定既定値 5,000 円/月 — 上限判定は NFR-6 側） ／ **固定値**: entry_type = charge | reversal（閉集合）／currency = JPYのみ（FX換算規則未定義のため他通貨fail-close）／amount_minor > 0（符号はentry_typeから導出）
 - **trace**: 上流 = BR-F1 REQ-027 NFR-6 ／ 下流 = AC-73-1 AC-73-2 AC-73-3 ／ スライス = S1
+
+## FR-74 ブランド×媒体×アカウント台帳
+
+- **入力**: business_profile_id・service・account_key・接続経路・credential_ref・status を持つ媒体アカウント登録要求／account を指定した外部書込み要求
+- **出力**: profile/service/account_key に束縛された媒体アカウント台帳行／account 単位会計とサービス単位 app 上限判定／拒否時: CrossProfileAccessDenied
+- **事前条件**: business_profile が存在する／credential_ref は <profile_key>/<service>/<account_key> 名前空間である
+- **事後条件**: 同一 profile/service に複数 account を登録できる／active account の write は当該 account rate_scope にだけ記帳される
+- **不変条件**: account は単一 business_profile にだけ帰属し他 profile から参照・書込みできない／canonical account rate_scope は <service>_<account_key> とする。account_key は小文字化し、ハイフンをアンダースコアへ置換した後に [a-z0-9_]{1,32} でなければ拒否し、正規化後に同一となる account_key は登録時に AccountKeyCollision で拒否する／config キーは config.rate.<service>_<account_key>.daily_write_cap とする。FR-42/NFR-7 に従い alias/case/別 scope への付替えで同一 account の write 又は cap を回避することを禁止し、canonical scope/config の欠落・不一致は write 前に fail-close で拒否する／同一 account の write を別 rate_scope へ逃がせず、app-level cap がある service は account 合算でも超過できない
+- **状態遷移**: 参照: media_accounts.status draft→active→paused→retired（S1 migration で正準化）
+- **正常動作**: 媒体アカウントを profile と service/account_key で登録し、active account の write を account scope と任意の service app scope の二層で事前判定して記帳する。
+- **拒否・異常動作**: 他 profile の account、名前空間外 credential_ref、未知 account、cap 超過は外部 call 前に CrossProfileAccessDenied 又は quota 拒否として fail-close する。
+- **境界動作**: 同一 service の2 account は個別 daily_write_cap 未満なら通し、app-level 上限が定義される媒体では合算超過を拒否する。
+- **再試行・再開・復旧**: account_id と request idempotency key を保持し、再試行は同じ account scope の1操作へ収束する。
+- **人間判断／escalation**: あり（account の追加・退役と app-level 上限値の充填を PO が確認）。
+- **副作用**: S1 media_accounts 台帳 INSERT/状態更新／external_operations の account scope 記録
+- **冪等性**: (business_profile_id, service, account_key) と write idempotency key で収束する。
+- **証跡**: account 台帳行／account scope を含む operation_log。actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope・service・operation・correlation_key・request_hash・request_sequence・resultを同値にする
+- **使用テーブル・正本**: r: business_profiles／r: config／r: external_operations／参照: media_accounts（S1 migration で追加）
+- **外部依存**: 媒体 API/MCP/browser connector
+- **設定値**: config.rate.<service>_<account_key>.daily_write_cap／config.rate.<service>.app_daily_write_cap（定義時のみ） ／ **固定値**: 接続経路 = api | mcp | browser／status = draft | active | paused | retired
+- **trace**: 上流 = BR-I1 BR-D4 BR-F5 NFR-7 ／ 下流 = AC-74-1 AC-74-2 AC-74-3 ／ スライス = S1
+
+## FR-75 誤ブランド投稿拒否ゲート
+
+- **入力**: business_profile を持つ投稿 task／送信先 account
+- **出力**: 台帳一致時の preflight pass／拒否時: CrossProfileAccessDenied と事由コード
+- **事前条件**: FR-74 の account 台帳が存在する／外部 write は preflight を通過する
+- **事後条件**: active かつ profile 一致する account にだけ投稿する／拒否時の外部 write は0件
+- **不変条件**: 台帳外・paused・retired・profile 不一致 account への write は常に fail-close／active→paused 完了後の投稿は同一 transaction 境界から拒否される
+- **状態遷移**: 参照: media_accounts.status active→paused（S1 migration で正準化）
+- **正常動作**: preflight が task の profile と送信先 account の台帳帰属・active status を照合してから投稿を許可する。
+- **拒否・異常動作**: 不一致・未知・paused・retired は事由コードを記録し CrossProfileAccessDenied で外部 call 前に拒否する。
+- **境界動作**: active→paused transaction の commit 直後から新規投稿を拒否する。
+- **再試行・再開・復旧**: preflight 判定と account version を request に束縛し、再試行時も最新 status を再照合する。
+- **人間判断／escalation**: なし（台帳状態に基づく自動判定）。
+- **副作用**: preflight 判定ログ／許可時だけ external_operations write
+- **冪等性**: 同一 request key の再試行は同じ preflight 結果と外部操作1件に収束する。
+- **証跡**: 許可・拒否事由を含む構造化 preflight 証跡
+- **使用テーブル・正本**: r: business_profiles／r: external_operations／w: evidence／参照: media_accounts（S1 migration で追加）
+- **外部依存**: 投稿先 connector（許可後のみ）
+- **設定値**: なし ／ **固定値**: 拒否は external call 前／account status は draft | active | paused | retired
+- **trace**: 上流 = BR-I1 BR-H2 BR-F5 NFR-7 ／ 下流 = AC-75-1 AC-75-2 AC-75-3 ／ スライス = S1
+
+## FR-76 汎用運用通知
+
+- **入力**: 投稿成功・ゲート拒否・KPI 異常・quota 残量警告イベント／allow-list 済み通知チャネル
+- **出力**: operational_notification の external_operations/operation_log／通知障害を業務遷移から分離した結果
+- **事前条件**: S0 の DDL CHECK は operational_notification を拒否したまま維持し、S1 の expand migration（CHECK 拡張）適用後にのみ有効とする／通知 channel/service/operation/endpoint が allow-list にある／KPI 閾値は config 行で定義される
+- **事後条件**: 送出した通知は operation_log と1:1／通知障害でも元の業務状態遷移は継続する
+- **不変条件**: approval_notification と operational_notification は policy_category として混在しない／allow-list 外への通知 write は常に拒否し、通知失敗は業務操作をロールバックしない
+- **状態遷移**: なし
+- **正常動作**: 対象イベントを config 閾値で判定し、allow-list channel へ交換可能 transport（初期 Discord）で通知して外部操作証跡を残す。actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope・service・operation・correlation_key・request_hash・request_sequence・resultを同値にする。
+- **拒否・異常動作**: allow-list 外 endpoint は送信前に拒否し、credential や本文 secret を記録しない。
+- **境界動作**: transport 障害時は通知を失敗記録しても元の業務状態遷移を継続する。
+- **再試行・再開・復旧**: 通知 request key で重複送出を防ぎ、障害通知は安全に再試行できる。
+- **人間判断／escalation**: あり（Discord channel 分離と allow-list の承認）。
+- **副作用**: external_operations write／operation_log evidence
+- **冪等性**: event_id と notification kind の組で1通知に収束する。
+- **証跡**: 通知 external_operations と operation_log
+- **使用テーブル・正本**: r: config／w: external_operations／w: evidence
+- **外部依存**: ApprovalTransport 同型の Discord transport
+- **設定値**: config.notification.kpi_anomaly_threshold／config.notification.quota_warning_threshold ／ **固定値**: policy_category = operational_notification／event = publish_success | gate_rejected | kpi_anomaly | quota_warning
+- **trace**: 上流 = BR-H2 BR-H3 ／ 下流 = AC-76-1 AC-76-2 AC-76-3 ／ スライス = S1
+
+## FR-77 evidence 閲覧（read-only API）
+
+- **入力**: 認証済みで profile に束縛された principal、kind、期間の read-only API 検索要求
+- **出力**: mask 済み evidence・approvals・external_operations の原本閲覧結果／拒否時: CrossProfileAccessDenied
+- **事前条件**: 認証済み principal が profile に束縛される／FR-47 masking_patterns が設定済み／本 FR のスコープは read-only API に限定し、Web UI は対象外とする。Web UI 解禁は FR-46 の認証・CSRF・再認証・principal 束縛 AC/TC を追加する別契約で行う
+- **事後条件**: 自 profile の原本を kind/期間で絞り込める／secret は常に redact され原文を返さない
+- **不変条件**: 他 profile の evidence/approval/external operation は0件返却かつ拒否する／閲覧 API は read-only で masking 前の secret を露出せず、Web UI を提供しない
+- **状態遷移**: なし
+- **正常動作**: 認証済み principal の profile scope を API 境界で強制して kind/UTC期間 filter の原本を検索し、返却前に FR-47 masking_patterns を適用する。Web UI は本契約の対象外とする。
+- **拒否・異常動作**: scope 不一致又は未束縛 principal は CrossProfileAccessDenied で拒否し、更新操作は受け付けない。
+- **境界動作**: secret を含む payload は一致箇所を redact した値だけ返し、期間境界は UTC 半開区間で扱う。
+- **再試行・再開・復旧**: read-only 検索の再実行は同じ scope/filter に対し副作用なし。
+- **人間判断／escalation**: なし（閲覧権限と masking は機械強制）。
+- **副作用**: process logger への閲覧監査記録のみ（DB 書込みなし）
+- **冪等性**: read-only のため同一検索は副作用なし。
+- **証跡**: process logger の閲覧監査記録（DB evidence ではない）／redact 済み結果
+- **使用テーブル・正本**: r: approvals／r: evidence／r: external_operations／r: business_profiles
+- **外部依存**: なし
+- **設定値**: config.secret.masking_patterns ／ **固定値**: 閲覧対象 = evidence | approvals | external_operations／書込み操作 = 禁止
+- **trace**: 上流 = BR-I1 BR-D4 ／ 下流 = AC-77-1 AC-77-2 AC-77-3 ／ スライス = S1

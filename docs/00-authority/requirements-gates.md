@@ -71,7 +71,7 @@ slice: cross
 | G-POC-EXIT | PoC が出口 2 軸 schema に適合、confirmed には promotion_strategy 必須 | PoC の独り歩き |
 | G-REQ-CONTRACT | BR 構造化契約が schema 適合で現役 BR 全件・12 要求群を被覆し、REQ 参照が実在し、生成ビューが同期 | 1 行要求の温存・手編集ビューの乖離 |
 | G-FRSR-CONTRACT | 現役 FR／SR 全件に 18 観点の実行契約が schema 適合で存在し、tables／state_transitions が DDL・遷移正本と一致 | 責務 1 行要件の温存・正本との乖離 |
-| G-NFR-MEASURABLE | 全 NFR10 に計測契約と `verification_aspects` を要求し、NFR→AC→TCC の実在ID接続に加えて意味単位集合の完全一致を強制する。`SQL:`タグ付き契約SQLはnamed bindを与え、空SQLiteへ正準DDLを適用した上でprepareして表・列・構文・placeholderを検査する | 測定方法のない閾値・IDだけ接続した意味上の片肺・実在しない表/列や擬似placeholderを含む検証手順 |
+| G-NFR-MEASURABLE | 全 NFR11 に計測契約と `verification_aspects` を要求し、NFR→AC→TCC の実在ID接続に加えて意味単位集合の完全一致を強制する。`SQL:`タグ付き契約SQLはnamed bindを与え、空SQLiteへ正準DDLを適用した上でprepareして表・列・構文・placeholderを検査する | 測定方法のない閾値・IDだけ接続した意味上の片肺・実在しない表/列や擬似placeholderを含む検証手順 |
 | G-AC-COVERAGE | AC 検証契約が schema 適合・ID 一意・target 実在で、S0 の全 FR/SR に AC ≥1 | AC なし実装対象 |
 | G-AC-POLARITY | S0 の各 FR/SR が正常／拒否／境界復旧の 3 極性を AC か理由付き N/A で被覆 | 正常系だけの受入 |
 | G-HUMAN-JUDGE | 全 FR/SR 契約に人間判断点の明示 | 人間判断点の暗黙化 |

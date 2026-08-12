@@ -131,6 +131,10 @@ src/helix/（Python — 実装正本パッケージ）
   measurements, learnings, playbooks, assets, approvals, config, spend_ledger
 - **FR-72** マイグレーション: スキーマ版数を持ち、前方参照のみで昇格（HELIX 同様、壊す変更をしない）
 - **FR-73** 例外支出台帳: `spend_ledger`（サービス・金額・用途・タスク参照）。Seedance 等の例外利用を全件記録
+- **FR-74** ブランド×媒体×アカウント台帳: profile ごとの複数媒体 account を第一級化し、account 単位会計と任意の service 合算上限を適用
+- **FR-75** 誤ブランド投稿拒否ゲート: 送信先 account と business_profile の台帳一致・active 状態を preflight で fail-close 検証
+- **FR-76** 汎用運用通知: 投稿成功・拒否・KPI 異常・quota 警告を allow-list 済み transport へ通知し、障害は業務遷移から分離
+- **FR-77** evidence 閲覧: profile scope を強制し、mask 済み evidence・approvals・external_operations を read-only で閲覧
 
 ## 3. 非機能要求（NFR）
 
@@ -153,6 +157,7 @@ src/helix/（Python — 実装正本パッケージ）
   収集目的の範囲内でのみ保持・利用する。機械ゲート化できない配信形態は採用しない（fail-close）
 - **NFR-10 バックアップ・復旧**: SQLite は日次バックアップ＋世代保持（C・暫定 14 世代）。
   ブラウザセッション・WP はそれぞれ暗号化ストアの複製・WP 側バックアップで復旧可能とする（RSK-06）
+- **NFR-11 月次 quota 窓**: `config.rate.<scope>.monthly_write_cap` を任意定義し、日次上限と併せ UTC 月初の半開区間で fail-close 判定する
 
 > 注: 「暫定既定値」は S0 実装で使う安全側の初期値であり、確定値は初回セットアップ時に H/R/C で充填する
 > （br-backbone「未起票」の数値目標後送りは、この暫定値の存在によりテスト可能性を確保した上で維持）。

@@ -2,7 +2,7 @@
 
 # テストケース 検証契約カタログ（TC contracts）v0.1
 
-> status: **confirmed**（2026-08-01 PO 承認 — receipt b1d92cfd984e）。JSON 内容正本の生成ビュー（全層再降下 §5）
+> status: **confirmed**（2026-08-01 PO 承認 — receipt f688c9d2612c）。JSON 内容正本の生成ビュー（全層再降下 §5）
 > 全 AC 検証契約と双方向接続（G-TRACE-BIDIR）。状態・DB 差分・証跡・禁止副作用・外部呼出回数を検証。
 > 旧体系のテストケースは historical 記録のみ（現行分母は本カタログ）。
 
@@ -251,6 +251,21 @@
 | TCC-NFR-08 | normal | AC-908 | NFR-8:data-only-extension NFR-8:dry-run-e2e NFR-8:product-hash-zero-diff NFR-8:registry-row-only | test-media workflow完了 | workflow/playbook/registry追加行だけ | dry-run結果と前後の製品ファイル集合/SHA-256 map一致 | 媒体固有製品分岐・既存媒体挙動変更 | dry-run mock 1 回 | S0 |
 | TCC-NFR-09 | reject | AC-909 | NFR-9:pr-label NFR-9:opt-in NFR-9:unsubscribe NFR-9:supported-channel-only NFR-9:pii-purpose | 対象taskは公開・配信へ進まない | 外部操作差分なし、拒否証跡だけ追記 | PR表記・opt-in・unsubscribe・PII目的不一致の構造化拒否ログとschema検査 | 表記なし公開・同意なし配信・停止導線なし配信・目的外PII保持 | 0 回 | S0 |
 | TCC-NFR-10 | resume | AC-910 | NFR-10:daily-backup NFR-10:generations NFR-10:db-restore NFR-10:browser-session-copy NFR-10:wp-backup-check NFR-10:write-hold-on-failure | 直近N日欠落0・破損除外後の正常N世代以上・DB/session/Docker WP復元成功・失敗中書込み保留 | 復元先だけ生成、原本・外部対象差分なし | 直近N日分file_hash・破損除外後の正常N世代一覧・DB/session/WP復元試験結果 | 日次欠落・正常N世代未満・破損採用・DB/session/WP未検証で再開・原本上書き | 0 回 | S0 |
+| TCC-74-1 | normal | AC-74-1 | — | A1 account write confirmed | external_operations +1 | A1 operation_log。actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope・service・operation・correlation_key・request_hash・request_sequence・resultを同値にする | 他account scope | 1 回 | S1 |
+| TCC-74-2 | reject | AC-74-2 | — | 越境拒否 | 差分なし | 拒否記録 | B account write | 0 回 | S1 |
+| TCC-74-3 | boundary | AC-74-3 | — | 2 confirmed・app cap超過 reject | external_operations +2 | quota記録 | 合算cap超過 | 2 回 | S1 |
+| TCC-75-1 | normal | AC-75-1 | — | 一致active account投稿成功 | external_operations +1 | 許可operation_log。actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect='write'・policy_category・rate_scope・service・operation・correlation_key・request_hash・request_sequence・resultを同値にする | 台帳外送信 | 1 回 | S1 |
+| TCC-75-2 | reject | AC-75-2 | — | profile不一致 reject | 差分なし | 事由コード | 誤ブランド投稿 | 0 回 | S1 |
+| TCC-75-3 | boundary | AC-75-3 | — | paused直後 reject | 差分なし | paused拒否 | paused write | 0 回 | S1 |
+| TCC-76-1 | normal | AC-76-1 | — | 通知confirmed | external_operations +1,evidence +1 | operation_log。actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect='write'・policy_category・rate_scope・service・operation・correlation_key・request_hash・request_sequence・resultを同値にする | 承認通知混在 | 1 回 | S1 |
+| TCC-76-2 | reject | AC-76-2 | — | allow-list外 reject | 差分なし | 拒否ログ | 外部送信 | 0 回 | S1 |
+| TCC-76-3 | boundary | AC-76-3 | — | 業務成功・通知失敗 | 失敗証跡 +1 | transport failure | 業務rollback | 1 回 | S1 |
+| TCC-77-1 | normal | AC-77-1 | — | A該当原本のみ | 差分なし | DB evidence ではない process logger の read audit 記録 | 閲覧要求による業務データ書込み | 0 回 | S1 |
+| TCC-77-2 | reject | AC-77-2 | — | B record非露出 | 差分なし | DB evidence ではない process logger の越境読取拒否記録 | profile B の証跡原文を返却すること | 0 回 | S1 |
+| TCC-77-3 | boundary | AC-77-3 | — | redacted response | 差分なし | DB evidence ではない process logger の masking audit 記録 | secret原文 | 0 回 | S1 |
+| TCC-NFR-11-1 | normal | AC-911-1 | NFR-11:monthly-cap | 200件目 confirmed | external_operations +1 | monthly count | cap前拒否 | 1 回 | S1 |
+| TCC-NFR-11-2 | reject | AC-911-2 | NFR-11:monthly-cap NFR-11:daily-coexistence | quota reject | 差分なし | quota reject | cap超過write | 0 回 | S1 |
+| TCC-NFR-11-3 | boundary | AC-911-3 | NFR-11:utc-month-boundary | 新月write confirmed | external_operations +1 | new month count | 前月count持越し | 1 回 | S1 |
 
 ## NFR 観点別 assert
 
@@ -264,5 +279,8 @@
 - **TCC-NFR-08**: `NFR-8:data-only-extension` → 未知媒体追加がworkflow/playbook/registryデータだけであることをassert ／ `NFR-8:dry-run-e2e` → 未知媒体dry-run E2Eが状態機械からconnectorまで完了をassert ／ `NFR-8:product-hash-zero-diff` → 前後の製品file集合とSHA256 map完全一致をassert ／ `NFR-8:registry-row-only` → 接続レジストリ追加行以外の製品差分0をassert
 - **TCC-NFR-09**: `NFR-9:pr-label` → PR表記欠落fixtureが公開前拒否・外部呼出0をassert ／ `NFR-9:opt-in` → opt-in欠落fixtureが配信前拒否・外部呼出0をassert ／ `NFR-9:unsubscribe` → 停止導線欠落fixtureが配信前拒否をassert ／ `NFR-9:supported-channel-only` → 許可外channel fixtureが配信前拒否をassert ／ `NFR-9:pii-purpose` → PII目的schema不一致の独立fixtureが保持前拒否・MR台帳差分なしをassert
 - **TCC-NFR-10**: `NFR-10:daily-backup` → 設定N日それぞれbackupとfile_hash evidenceの対応をassert ／ `NFR-10:generations` → 破損除外後に正常N世代を遡及確保することをassert ／ `NFR-10:db-restore` → 前世代DB restore後integrity/FK/行数/hash一致をassert ／ `NFR-10:browser-session-copy` → 暗号化sessionを一時profileへ復元し復号・期限をassert ／ `NFR-10:wp-backup-check` → Docker WP一時container復元後install/health成功をassert ／ `NFR-10:write-hold-on-failure` → 復元失敗時に新規外部書込みtask保留・escalateをassert
+- **TCC-NFR-11-1**: `NFR-11:monthly-cap` → 月内199件から200件目が通ることを assert
+- **TCC-NFR-11-2**: `NFR-11:monthly-cap` → 月次cap到達後のwrite 0件をassert ／ `NFR-11:daily-coexistence` → 日次cap超過も同じpreflightで拒否をassert
+- **TCC-NFR-11-3**: `NFR-11:utc-month-boundary` → UTC月初直後の新月countからwrite可能をassert
 
 検証手段（method）の全文は JSON 正本を参照。

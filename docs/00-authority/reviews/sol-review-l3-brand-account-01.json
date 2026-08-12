@@ -1,0 +1,93 @@
+{
+ "review_id": "REV-SOL-L3-BRAND-ACCOUNT-01",
+ "reviewer_principal": "codex-sol (gpt-5.6-sol / openai-codex-cli)",
+ "author_principal": "codex-terra (gpt-5.6-terra) + claude-code (claude-fable-5)",
+ "author_execution_id": "1262cc92-fcdf-4bf0-b490-3f6810c348d9",
+ "reviewer_execution_id": "019ff742-f901-7580-816e-453533d7afa3",
+ "review_run_id": "REV-SOL-L3-BRAND-ACCOUNT-01-R3",
+ "reviewer_provider": "openai-codex-cli",
+ "review_log_path": "docs/00-authority/reviews/logs/REV-SOL-L3-BRAND-ACCOUNT-01.jsonl",
+ "review_log_digest": "30faed6c6c95d0b2",
+ "separation_status": "self_attested",
+ "model": "gpt-5.6-sol",
+ "target_commit": "31e41dd359f762cd97ae707e8e724e567522b3a4",
+ "target_tree": "43b33af02550a3d6e5e3d5f2cc2fd788b7e4cc24",
+ "scope": "L3 正本起票（PO 承認 2026-08-13: ブランド/アカウント統合 + UI セット出荷）の独立レビュー。FR-74 brand×media×account 台帳（canonical account rate_scope <service>_<account_key> 正規化含む）／FR-75 誤ブランド投稿拒否ゲート／FR-76 汎用運用通知（S1 expand migration 前提）／FR-77 evidence 閲覧 read-only API／NFR-11 月次 quota 窓、AC 15 件（受入 3 件則: 正常/異常/境界）・対応 TC、分母 FR=43/NFR=11/AC=252/TCC=258 への更新、G-CNT-NFR ゲート更新、approvals/manifest/baseline 同期。起票元 ops/drafts/l3-brand-account-ui-requirements-draft.md との意味一致・既存契約との無矛盾・ラチェット非違反を検査",
+ "supersedes_review": [
+  "REV-CLAUDE-REQUIREMENTS-SEMANTICS-01",
+  "REV-CLAUDE-REQUIREMENTS-SEMANTICS-02",
+  "REV-CLAUDE-REQUIREMENTS-SEMANTICS-04",
+  "REV-CLAUDE-REQUIREMENTS-SEMANTICS-03",
+  "REV-CLAUDE-REQUIREMENTS-SEMANTICS-05",
+  "REV-SOL-APPROVAL-TRANSPORT-01",
+  "REV-KIMI-KANBAN-01",
+  "REV-SOL-ADR-REGISTRATION-01",
+  "REV-SOL-APPROVAL-TRANSPORT-02"
+ ],
+ "resolution_commits": [
+  "31e41dd359f7"
+ ],
+ "verdict": "Go",
+ "completed_at": "2026-08-13",
+ "rounds": 3,
+ "findings": [
+  {
+   "severity": "major",
+   "status": "resolved",
+   "summary": "R1-01 AC-74-3/TCC-74-3 の境界が算術矛盾（app cap 残り1から 2 件成功は不可能）",
+   "resolution": "初期状態を残り 2 へ修正（A1/A2 成功 → 次を拒否）し AC/TC を整合"
+  },
+  {
+   "severity": "major",
+   "status": "resolved",
+   "summary": "R1-02 FR-77 が Web UI 解禁条件（FR-46 の認証・CSRF・再認証・principal 束縛 AC/TC）を満たさない",
+   "resolution": "スコープを認証済み principal の read-only API に限定し、Web UI は別契約まで対象外と明記"
+  },
+  {
+   "severity": "major",
+   "status": "resolved",
+   "summary": "R1-03 account rate_scope の canonical key 構成・正規化・文字制約が未定義のまま confirmed 化",
+   "resolution": "canonical <service>_<account_key>（account_key は [a-z0-9_]{1,32} へ正規化・衝突は AccountKeyCollision 拒否）と config.rate.<service>_<account_key>.daily_write_cap を契約に明文化し、alias/case/別 scope 逃がし禁止 invariant を追加"
+  },
+  {
+   "severity": "minor",
+   "status": "resolved",
+   "summary": "R1-04 FR-77 の read-only と監査書込み期待の自己矛盾",
+   "resolution": "閲覧監査を process logger 記録（DB 書込みなし）へ統一し expected_db_delta と整合"
+  },
+  {
+   "severity": "minor",
+   "status": "resolved",
+   "summary": "R1-05 FR-76 の operational_notification が現行 S0 DDL CHECK で拒否される前提の未記載",
+   "resolution": "S0 は拒否維持・S1 expand migration 適用後にのみ有効を precondition 化"
+  },
+  {
+   "severity": "major",
+   "status": "resolved",
+   "summary": "R2-01 FR-77 の masking config key が FR-47 の正準 config.secret.masking_patterns と不一致",
+   "resolution": "config.secret.masking_patterns へ統一し生成ビュー・approvals digest・manifest・baseline を同期（R3 で Go・残指摘なし）"
+  }
+ ],
+ "reviewed_artifact_digests": {
+  "AGENTS.md": "3d691ddf909da70a",
+  "CLAUDE.md": "8c3d2aa0535a4365",
+  "README.md": "bccc8d8b31500b58",
+  "docs/00-authority/approvals/approvals.md": "953aefb493e9b97f",
+  "docs/L3-system-requirements/canonical/functional/fr-contracts.json": "b9ab66f66e7a6ba5",
+  "docs/L3-system-requirements/canonical/nonfunctional/nfr-contracts.json": "c1d50ccd535916ed",
+  "docs/L3-system-requirements/canonical/acceptance/ac-contracts.json": "22d53c218850b199",
+  "docs/L3-system-requirements/verification/tc-contracts.json": "ec99a5aa8a2aaf59",
+  "docs/00-authority/reviews/logs/REV-SOL-L3-BRAND-ACCOUNT-01.jsonl": "30faed6c6c95d0b2",
+  "docs/00-authority/artifact-manifest.json": "a0639b2ce1479f6e",
+  "docs/00-authority/baselines/baseline.json": "e45655505a59d250",
+  "docs/00-authority/requirements-gates.md": "9965759d56aa8fe9",
+  "docs/L3-system-requirements/canonical/functional/requirements.json": "21ab7469f87c52aa",
+  "docs/L3-system-requirements/views/ac-catalog_v0.1.md": "83be6cc07c8fe933",
+  "docs/L3-system-requirements/views/fr-contracts_v0.1.md": "c8ba368bca282daa",
+  "docs/L3-system-requirements/views/nfr-contracts_v0.1.md": "342c3ecf68c6e460",
+  "docs/L3-system-requirements/views/tc-catalog_v0.1.md": "aa746e62f0f9b4e9",
+  "tests/gates/test_requirements.py": "feb04b42f01829ff",
+  "tools/gates/requirements.py": "91e52996b92ff7a6",
+  "docs/L3-system-requirements/canonical/functional/requirements_v0.1.md": "63b6aa3b7ae92b5d"
+ }
+}

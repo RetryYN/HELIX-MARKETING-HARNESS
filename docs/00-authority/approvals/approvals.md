@@ -597,3 +597,46 @@
 | 2026-08-12 | implementation-units.json | v0.1 | confirmed | PO | 69b0d2c9ebcb | Sol R2: AC-46-4/TCC-46-4 と DU-18 UT の契約節接続を同期 |
 | 2026-08-12 | ac-catalog | v0.1 | confirmed | PO | 42146f101edf | Sol R2: AC-46-4 契約節接続を反映した生成ビュー |
 | 2026-08-12 | du-contracts | v0.1 | confirmed | PO | 2da034fb7f39 | Sol R2: DU-18 CAS UT 接続を反映した生成ビュー |
+
+## ブランド/アカウント統合起票（2026-08-13）
+
+| Date | Artifact | Version | Status | Authority | Digest | Note |
+|---|---|---|---|---|---|---|
+| 2026-08-13 | fr-contracts.json | v0.1 | confirmed | PO | 8f3140702d8b | PO 指示 2026-08-13: ブランド/アカウント統合 OK |
+| 2026-08-13 | nfr-contracts.json | v0.1 | confirmed | PO | 9bde22cd8f48 | PO 指示 2026-08-13: ブランド/アカウント統合 OK |
+| 2026-08-13 | ac-contracts.json | v0.1 | confirmed | PO | 6cd58a6ba94d | PO 指示 2026-08-13: ブランド/アカウント統合 OK |
+| 2026-08-13 | tc-contracts.json | v0.1 | confirmed | PO | 50a015dc182d | PO 指示 2026-08-13: ブランド/アカウント統合 OK |
+| 2026-08-13 | requirements | v0.1 | confirmed | PO | 63b6aa3b7ae9 | PO 指示 2026-08-13: ブランド/アカウント統合 OK |
+| 2026-08-13 | fr-contracts | v0.1 | confirmed | PO | b528dff1dd5a | PO 指示 2026-08-13: ブランド/アカウント統合 OK |
+| 2026-08-13 | nfr-contracts | v0.1 | confirmed | PO | 2416aa8b2548 | PO 指示 2026-08-13: ブランド/アカウント統合 OK |
+| 2026-08-13 | ac-catalog | v0.1 | confirmed | PO | e6a11e9f67f0 | PO 指示 2026-08-13: ブランド/アカウント統合 OK |
+| 2026-08-13 | tc-catalog | v0.1 | confirmed | PO | 7235b3cab5fc | PO 指示 2026-08-13: ブランド/アカウント統合 OK |
+| 2026-08-13 | fr-contracts.json | v0.1 | confirmed | PO | b7c3772e68ee | PO 指示 2026-08-13: ブランド/アカウント統合 OK |
+| 2026-08-13 | ac-contracts.json | v0.1 | confirmed | PO | 5bf3afee2299 | PO 指示 2026-08-13: ブランド/アカウント統合 OK |
+| 2026-08-13 | fr-contracts | v0.1 | confirmed | PO | 3b76013281ea | PO 指示 2026-08-13: ブランド/アカウント統合 OK |
+| 2026-08-13 | nfr-contracts | v0.1 | confirmed | PO | 805913baf2ee | PO 指示 2026-08-13: ブランド/アカウント統合 OK |
+| 2026-08-13 | ac-catalog | v0.1 | confirmed | PO | 24499d956755 | PO 指示 2026-08-13: ブランド/アカウント統合 OK |
+| 2026-08-13 | tc-catalog | v0.1 | confirmed | PO | f1fe8e3e3a5e | PO 指示 2026-08-13: ブランド/アカウント統合 OK |
+| 2026-08-13 | fr-contracts.json | v0.1 | confirmed | PO | 0a7e4ae34c3c | PO 指示 2026-08-13: ブランド/アカウント統合 OK |
+| 2026-08-13 | ac-contracts.json | v0.1 | confirmed | PO | 6fa8853a14b1 | PO 指示 2026-08-13: ブランド/アカウント統合 OK |
+| 2026-08-13 | tc-contracts.json | v0.1 | confirmed | PO | b4ad38e81a87 | PO 指示 2026-08-13: ブランド/アカウント統合 OK |
+| 2026-08-13 | fr-contracts | v0.1 | confirmed | PO | 42d218c9bff7 | PO 指示 2026-08-13: ブランド/アカウント統合 OK |
+| 2026-08-13 | nfr-contracts | v0.1 | confirmed | PO | 805913baf2ee | PO 指示 2026-08-13: ブランド/アカウント統合 OK |
+| 2026-08-13 | ac-catalog | v0.1 | confirmed | PO | 3a43e387b9a3 | PO 指示 2026-08-13: ブランド/アカウント統合 OK |
+| 2026-08-13 | tc-catalog | v0.1 | confirmed | PO | ffc2d70c153a | PO 指示 2026-08-13: ブランド/アカウント統合 OK |
+| 2026-08-13 | fr-contracts | v0.1 | confirmed | PO | 337f4bbe3eda | PO 指示 2026-08-13: ブランド/アカウント統合 OK |
+| 2026-08-13 | ac-catalog | v0.1 | confirmed | PO | df9c789a9300 | PO 指示 2026-08-13: ブランド/アカウント統合 OK |
+| 2026-08-13 | tc-catalog | v0.1 | confirmed | PO | 7631690d369b | PO 指示 2026-08-13: ブランド/アカウント統合 OK |
+
+## ブランド/アカウント統合起票・独立レビュー是正（2026-08-13）
+
+| Date | Artifact | Version | Status | Authority | Digest | Note |
+|---|---|---|---|---|---|---|
+| 2026-08-13 | fr-contracts.json | v0.1 | confirmed | PO | 3104bcf0ae6b | 独立レビュー是正: canonical account rate_scope・Web UI 対象外・process logger 閲覧監査 |
+| 2026-08-13 | nfr-contracts.json | v0.1 | confirmed | PO | 05c848617dde | 独立レビュー是正: canonical account scope の月次 quota 検証 |
+| 2026-08-13 | ac-contracts.json | v0.1 | confirmed | PO | c112523bb121 | 独立レビュー是正: app cap 残り2・read-only API 監査 |
+| 2026-08-13 | tc-contracts.json | v0.1 | confirmed | PO | f688c9d2612c | 独立レビュー是正: app cap 境界・read-only API 監査 |
+| 2026-08-13 | fr-contracts | v0.1 | confirmed | PO | c8ba368bca28 | 独立レビュー是正を反映した生成ビュー |
+| 2026-08-13 | nfr-contracts | v0.1 | confirmed | PO | 342c3ecf68c6 | 独立レビュー是正を反映した生成ビュー |
+| 2026-08-13 | ac-catalog | v0.1 | confirmed | PO | 83be6cc07c8f | 独立レビュー是正を反映した生成ビュー |
+| 2026-08-13 | tc-catalog | v0.1 | confirmed | PO | aa746e62f0f9 | 独立レビュー是正を反映した生成ビュー |

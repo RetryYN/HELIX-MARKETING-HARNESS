@@ -752,6 +752,21 @@
         "upstream": [],
         "downstream": []
       }
+    },
+    {
+      "id": "FR-74", "kind": "FR", "title": "ブランド×媒体×アカウント台帳", "text": "媒体アカウントを profile/service/account_key に束縛して第一級化し、account 単位会計と service 合算上限を適用する。", "area": "", "slice": "S1", "trace": {"upstream": ["BR-I1", "BR-D4", "BR-F5"], "downstream": []}
+    },
+    {
+      "id": "FR-75", "kind": "FR", "title": "誤ブランド投稿拒否ゲート", "text": "送信先 account と business_profile の台帳一致・active 状態を外部 write preflight で fail-close 検証する。", "area": "", "slice": "S1", "trace": {"upstream": ["BR-I1", "BR-H2", "BR-F5"], "downstream": []}
+    },
+    {
+      "id": "FR-76", "kind": "FR", "title": "汎用運用通知", "text": "投稿成功・ゲート拒否・KPI異常・quota警告を allow-list 済み transport へ通知し、障害を業務遷移から分離する。", "area": "", "slice": "S1", "trace": {"upstream": ["BR-H2", "BR-H3"], "downstream": []}
+    },
+    {
+      "id": "FR-77", "kind": "FR", "title": "evidence 閲覧", "text": "profile scope を強制して mask 済み evidence・approvals・external_operations を read-only で閲覧する。", "area": "", "slice": "S1", "trace": {"upstream": ["BR-I1", "BR-D4"], "downstream": []}
+    },
+    {
+      "id": "NFR-11", "kind": "NFR", "title": "月次 quota 窓", "text": "任意の monthly_write_cap を UTC 月初半開区間で日次上限と併せて fail-close 判定する。", "trace": {"upstream": ["BR-F5"], "downstream": []}
     }
   ]
 }

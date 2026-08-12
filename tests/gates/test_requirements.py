@@ -157,7 +157,7 @@ def test_mutation_malformed_table_notation_is_detected() -> None:
 
 def test_current_denominators_match_declared_scope() -> None:
     assert requirements.current_denominators(CTX) == {
-        "AC_CONTRACT": 237, "TCC": 243, "API": 59, "API_UT": 218}
+        "AC_CONTRACT": 252, "TCC": 258, "API": 59, "API_UT": 218}
 
 
 def test_nfr_verification_chain_is_concrete_and_complete() -> None:

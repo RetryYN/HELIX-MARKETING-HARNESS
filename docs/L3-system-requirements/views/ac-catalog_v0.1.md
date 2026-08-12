@@ -2,7 +2,7 @@
 
 # 受入条件 検証契約カタログ（AC contracts）v0.1
 
-> status: **confirmed**（2026-08-01 PO 承認 — receipt e2cfb402b79e）。JSON 内容正本の生成ビュー（全層再降下 §4）
+> status: **confirmed**（2026-08-01 PO 承認 — receipt c112523bb121）。JSON 内容正本の生成ビュー（全層再降下 §4）
 > 各 AC に GWT＋fixture・観測点・期待状態・DB 差分・証跡・禁止副作用・エラー型・対象更新を必須化
 > （G-AC-COVERAGE／G-AC-POLARITY）。旧体系の受入条件は historical 記録のみ（現行分母は本カタログ）。
 
@@ -2278,3 +2278,151 @@
 - **禁止副作用**: 日次欠落、正常N世代未満、破損採用、DB/session/WP未検証での書込み再開、原本上書き ／ **エラー型**: なし
 - **NFR 検証観点**: NFR-10:daily-backup NFR-10:generations NFR-10:db-restore NFR-10:browser-session-copy NFR-10:wp-backup-check NFR-10:write-hold-on-failure
 - **対象更新**: cross（バックアップ復旧品質契約） ／ **TC**: TCC-NFR-10
+
+## FR-74
+
+### AC-74-1（正常）
+
+- **Given**: profile A の active X account 2件と各 daily cap 未満 ／ **When**: account A1 を指定して write する ／ **Then**: A1 の account rate_scope にだけ記帳される
+- **fixture**: profile A, media_accounts A1/A2 active, cap未満
+- **観測点**: external_operations.rate_scope ／ **期待状態**: A1 write confirmed
+- **期待 DB 差分**: external_operations +1 ／ **期待証跡**: A1 scope の operation_log。actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope・service・operation・correlation_key・request_hash・request_sequence・resultを同値にする
+- **禁止副作用**: A2 又は他profile scopeへの記帳 ／ **エラー型**: なし
+- **対象更新**: S1 account ledger ／ **TC**: TCC-74-1
+
+### AC-74-2（拒否）
+
+- **Given**: profile A task と profile B の active account ／ **When**: B account を指定して write する ／ **Then**: CrossProfileAccessDenied で外部 call 前に拒否される
+- **fixture**: profile A/B と B account
+- **観測点**: 例外と external_operations 件数 ／ **期待状態**: 拒否状態
+- **期待 DB 差分**: 差分なし ／ **期待証跡**: 越境拒否記録
+- **禁止副作用**: B account write ／ **エラー型**: CrossProfileAccessDenied
+- **対象更新**: S1 account ledger ／ **TC**: TCC-74-2
+
+### AC-74-3（境界・復旧）
+
+- **Given**: 同一serviceの A1/A2 が各 daily cap 直下で app cap は残り2 ／ **When**: A1 と A2 を書込み、さらに1件要求する ／ **Then**: 各 account cap 内の2件は通り合算 app cap 超過の次件は拒否される
+- **fixture**: 2 active accounts と app cap
+- **観測点**: scope別/合算件数 ／ **期待状態**: 2 confirmed・1 reject
+- **期待 DB 差分**: external_operations +2 ／ **期待証跡**: account/app quota 記録
+- **禁止副作用**: app cap 超過 ／ **エラー型**: QuotaExceeded
+- **対象更新**: S1 account ledger ／ **TC**: TCC-74-3
+
+## FR-75
+
+### AC-75-1（正常）
+
+- **Given**: task profile と一致する active account ／ **When**: 投稿 preflight を実行する ／ **Then**: preflight pass 後に投稿する
+- **fixture**: profile A active account A1
+- **観測点**: preflight と operation status ／ **期待状態**: write confirmed
+- **期待 DB 差分**: external_operations +1 ／ **期待証跡**: 許可 operation_log。actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect・policy_category・rate_scope・service・operation・correlation_key・request_hash・request_sequence・resultを同値にする
+- **禁止副作用**: 台帳外送信 ／ **エラー型**: なし
+- **対象更新**: S1 preflight ／ **TC**: TCC-75-1
+
+### AC-75-2（拒否）
+
+- **Given**: profile A task と profile B account ／ **When**: 投稿 preflight を実行する ／ **Then**: CrossProfileAccessDenied で拒否し外部 write 0件
+- **fixture**: A task/B account
+- **観測点**: 例外と外部呼出し ／ **期待状態**: reject
+- **期待 DB 差分**: 差分なし ／ **期待証跡**: 拒否事由コード
+- **禁止副作用**: 誤ブランド投稿 ／ **エラー型**: CrossProfileAccessDenied
+- **対象更新**: S1 preflight ／ **TC**: TCC-75-2
+
+### AC-75-3（境界・復旧）
+
+- **Given**: active account と paused への同一transaction遷移 ／ **When**: commit直後に投稿する ／ **Then**: paused account は拒否される
+- **fixture**: A1 active→paused
+- **観測点**: commit後 preflight ／ **期待状態**: reject
+- **期待 DB 差分**: 差分なし ／ **期待証跡**: paused 拒否記録
+- **禁止副作用**: paused account write ／ **エラー型**: CrossProfileAccessDenied
+- **対象更新**: S1 preflight ／ **TC**: TCC-75-3
+
+## FR-76
+
+### AC-76-1（正常）
+
+- **Given**: 投稿成功と allow-list 済み Discord channel ／ **When**: operational notification を送る ／ **Then**: 通知と operation_log が1:1で記録される
+- **fixture**: publish success event と allowed channel
+- **観測点**: external_operations/evidence ／ **期待状態**: notification confirmed
+- **期待 DB 差分**: external_operations +1, evidence +1 ／ **期待証跡**: operation_log。actual実外部I/Oの各operation_logはevidence.external_operation_row_idでsentに到達したexternal_operationsのlocal rowへexactly-oneに束縛し、execution_mode='actual'・effect='write'・policy_category・rate_scope・service・operation・correlation_key・request_hash・request_sequence・resultを同値にする
+- **禁止副作用**: 承認通知との混在 ／ **エラー型**: なし
+- **対象更新**: S1 notification ／ **TC**: TCC-76-1
+
+### AC-76-2（拒否）
+
+- **Given**: allow-list 外 channel ／ **When**: 通知送出を要求する ／ **Then**: 外部 call 前に拒否される
+- **fixture**: disallowed channel
+- **観測点**: operation count ／ **期待状態**: reject
+- **期待 DB 差分**: 差分なし ／ **期待証跡**: 拒否ログ
+- **禁止副作用**: allow-list外送信 ／ **エラー型**: AllowlistDenied
+- **対象更新**: S1 notification ／ **TC**: TCC-76-2
+
+### AC-76-3（境界・復旧）
+
+- **Given**: 通知 transport が障害を返す投稿成功 ／ **When**: 通知を送出して結果を観測する ／ **Then**: 通知は失敗記録し元の業務状態遷移は継続する
+- **fixture**: failing Discord transport
+- **観測点**: task state と通知記録 ／ **期待状態**: 業務成功・通知失敗
+- **期待 DB 差分**: 通知失敗証跡 +1 ／ **期待証跡**: transport failure
+- **禁止副作用**: 業務ロールバック ／ **エラー型**: なし
+- **対象更新**: S1 notification ／ **TC**: TCC-76-3
+
+## FR-77
+
+### AC-77-1（正常）
+
+- **Given**: profile A の evidence が kind/期間に複数存在し、A に束縛された認証済み principal がある ／ **When**: read-only API で kind/期間 filter を検索する ／ **Then**: 該当する A の原本だけを API 応答として閲覧できる
+- **fixture**: A/B evidence と UTC period
+- **観測点**: 検索結果一覧と profile scope ／ **期待状態**: A該当行のみ
+- **期待 DB 差分**: 差分なし ／ **期待証跡**: DB evidence ではない process logger の read audit 記録
+- **禁止副作用**: 閲覧要求による業務データ書込み ／ **エラー型**: なし
+- **対象更新**: S1 evidence browser ／ **TC**: TCC-77-1
+
+### AC-77-2（拒否）
+
+- **Given**: profile A に束縛された認証済み principal と profile B evidence ／ **When**: read-only API で B evidence id を読む ／ **Then**: CrossProfileAccessDenied で拒否する
+- **fixture**: A principal/B evidence
+- **観測点**: 例外型と検索結果一覧 ／ **期待状態**: 結果0件
+- **期待 DB 差分**: 差分なし ／ **期待証跡**: DB evidence ではない process logger の越境読取拒否記録
+- **禁止副作用**: B原文露出 ／ **エラー型**: CrossProfileAccessDenied
+- **対象更新**: S1 evidence browser ／ **TC**: TCC-77-2
+
+### AC-77-3（境界・復旧）
+
+- **Given**: credential を含む evidence payload ／ **When**: read-only API が masking後の閲覧結果を返す ／ **Then**: masking_patterns 適用済みで原文 secret は露出しない
+- **fixture**: secret fixture
+- **観測点**: response text ／ **期待状態**: redacted
+- **期待 DB 差分**: 差分なし ／ **期待証跡**: DB evidence ではない process logger の masking audit 記録
+- **禁止副作用**: secret原文 ／ **エラー型**: なし
+- **対象更新**: S1 evidence browser ／ **TC**: TCC-77-3
+
+## NFR-11
+
+### AC-911-1（正常）
+
+- **Given**: monthly cap 200 と月内199 write ／ **When**: 1 writeを要求する ／ **Then**: 200件目のwriteは通る
+- **fixture**: UTC月内199 operations
+- **観測点**: 月内write集計count ／ **期待状態**: confirmed
+- **期待 DB 差分**: external_operations +1 ／ **期待証跡**: monthly count
+- **禁止副作用**: cap前拒否 ／ **エラー型**: なし
+- **NFR 検証観点**: NFR-11:monthly-cap
+- **対象更新**: cross monthly quota ／ **TC**: TCC-NFR-11-1
+
+### AC-911-2（拒否）
+
+- **Given**: monthly cap到達又はdaily cap超過 ／ **When**: writeを要求する ／ **Then**: 外部 call前に拒否する
+- **fixture**: cap到達 scope
+- **観測点**: operation count ／ **期待状態**: reject
+- **期待 DB 差分**: 差分なし ／ **期待証跡**: quota reject
+- **禁止副作用**: cap超過write ／ **エラー型**: QuotaExceeded
+- **NFR 検証観点**: NFR-11:monthly-cap NFR-11:daily-coexistence
+- **対象更新**: cross monthly quota ／ **TC**: TCC-NFR-11-2
+
+### AC-911-3（境界・復旧）
+
+- **Given**: 前月cap到達とUTC月初00:00直後 ／ **When**: writeを要求する ／ **Then**: 新月quotaとして通る
+- **fixture**: Clock=UTC月初
+- **観測点**: month query ／ **期待状態**: confirmed
+- **期待 DB 差分**: external_operations +1 ／ **期待証跡**: new month count
+- **禁止副作用**: 前月count持越し ／ **エラー型**: なし
+- **NFR 検証観点**: NFR-11:utc-month-boundary
+- **対象更新**: cross monthly quota ／ **TC**: TCC-NFR-11-3

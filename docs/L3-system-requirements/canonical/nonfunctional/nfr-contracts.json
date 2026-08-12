@@ -333,11 +333,25 @@
         "error_type_refs": [],
         "api_refs": []
       }
+    },
+    {
+      "id": "NFR-11",
+      "title": "月次 quota 窓",
+      "verification_aspects": ["NFR-11:monthly-cap", "NFR-11:utc-month-boundary", "NFR-11:daily-coexistence"],
+      "measurement_target": "canonical <service>_<account_key> rate_scope ごとの UTC 月次 write 件数、月次 cap 到達後の拒否、UTC 月初での再開",
+      "measurement_method": "FR-74 の canonical <service>_<account_key> scope に対し config.rate.<service>_<account_key>.monthly_write_cap が定義される場合、UTC 月初以上・翌月初未満の write を集計し、日次 NFR-7 と併せて事前判定する。alias/case/別 scope は canonical scope として解決せず fail-close で拒否する。SQL:`SELECT count(*) FROM external_operations WHERE rate_scope=:rate_scope AND effect='write' AND sent_at >= :month_start_utc AND sent_at < :next_month_start_utc`。",
+      "threshold": "monthly_write_cap 定義 scope の月内 write 件数は cap 以下100%、cap 到達後の write 0件、UTC 月初直後の新月カウントは0件から開始、日次・月次のいずれか超過を許可しない。",
+      "measurement_env": "CI pytest（注入 Clock、SQLite）",
+      "violation_behavior": "月次又は日次 cap 超過は外部 write 前に拒否し、task は pending/waiting と証跡化する。月次窓は UTC 半開区間であり、境界後は新しい月の quota で再評価する。",
+      "evidence": ["external_operations.sent_at/rate_scope", "quota 拒否の構造化記録"],
+      "trace_up": ["BR-F5", "FR-74", "NFR-7"],
+      "trace_down": {"ac": ["AC-911-1", "AC-911-2", "AC-911-3"], "tc": ["TCC-NFR-11-1", "TCC-NFR-11-2", "TCC-NFR-11-3"]},
+      "semantic_refs": {"table_refs": ["config", "external_operations"], "column_refs": ["external_operations.effect", "external_operations.rate_scope", "external_operations.sent_at"], "state_refs": [], "event_refs": [], "evidence_kind_refs": [], "error_type_refs": [], "api_refs": []}
     }
   ],
   "status": "confirmed",
   "approved_at": "2026-08-01T00:00:00+09:00",
   "authority": "PO",
   "supersedes": [],
-  "approval_digest": "f69c6e989f78"
+  "approval_digest": "05c848617dde"
 }
