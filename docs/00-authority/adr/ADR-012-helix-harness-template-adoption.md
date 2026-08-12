@@ -36,6 +36,12 @@ Python ゲートが二重化されるため、方法論と開発環境だけを�
    既存スライス・PoC・承認・test-first の規律を継続する。
 5. **外部参照の固定**: テンプレートの適応判断は source_commit に固定した read-only 監査で更新する。最新版を取り込む
    際は source_commit と対応表を更新し、旧テンプレート側へ書き込まない。
+6. **最新版確認の運用**: upstream `main` は read-only で最新 SHA と source_commit からの意味差分を確認する。採用範囲に
+   意味差分がなければ source_commit の固定点は維持し、適応監査へ checked SHA・差分・non-applicable の理由を記録する。
+   意味差分があり採用する場合だけ、PO 判断後に source_commit、対応表、監査、gate、レビューを同一変更で更新する。
+7. **discovery 証跡**: 導入以後の候補・質問・試作・観測・仕様化・承認は append-only ledger で監査する。既存の
+   契約 JSON 正本や製品 runtime を直接更新せず、導入前履歴を推測 backfill しない。契約変更は proposal と decision、
+   又は `deferred:` 理由付き withdrawal を通じて既存承認工程へ還流する。
 
 ## 対応する成果物
 
@@ -43,6 +49,7 @@ Python ゲートが二重化されるため、方法論と開発環境だけを�
 - 対応表 schema: `docs/00-authority/template/helix-harness-alignment.schema.json`
 - 適応監査: `docs/00-authority/audits/helix-harness-template-alignment-2026-08-13.md`
 - 要件定義手順: `docs/00-authority/development/requirement-definition-workflow_v0.1.md`
+- discovery ledger/schema: `docs/00-authority/development/requirement-discovery-events.json`／`requirement-discovery-event.schema.json`
 - L2 5 点セット: `docs/L2-prototypes/screens/`
 - 開発環境契約: `docs/00-authority/development/development-environment_v0.1.md`
 

@@ -107,7 +107,7 @@ TESTS_UNIT = ROOT / "tests/unit"
 SKIP_BUDGET = ROOT / "tests/skip-budget.json"
 COVERAGE_FLOOR = ROOT / "tests/coverage-floor.json"
 GATE_PKG = ROOT / "tools/gates"
-GATE_MODULES = ["authority", "requirements", "traceability", "architecture", "detailed_design",
+GATE_MODULES = ["authority", "requirements", "requirement_discovery", "traceability", "architecture", "detailed_design",
                 "test_pairing", "test_reality", "worksets", "semantic_refs", "review_binding",
                 "template_alignment", "baseline",
                 "run_all"]

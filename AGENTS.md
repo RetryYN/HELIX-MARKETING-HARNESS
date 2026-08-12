@@ -28,5 +28,7 @@ Codex エージェント向け。作業規律の正本は CLAUDE.md（同内容�
   MD は `scripts/render_views.py` の生成ビューで手編集禁止。
 - ゲート実装は `tools/gates/` の工程別モジュール。`scripts/validate_requirements.py` は互換ラッパーで、
   ゲート本体を書き足さない。
+- discovery ledger は `docs/00-authority/development/requirement-discovery-events.json` の前向き append-only 監査証跡であり、
+  既存契約 JSON の代替・過去履歴の推測 backfill・契約/runtime への直接 mutation をしない。
 - 現行分母は AC=252 ／ TCC=258 ／ API=59 ／ API_UT=218 のみ。旧体系の分母は
   baseline.json の `historical_counts` にのみ保持する。

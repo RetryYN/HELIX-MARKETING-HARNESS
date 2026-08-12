@@ -1,0 +1,32 @@
+{
+  "schema_version": "helix-requirement-discovery-events.v1",
+  "authority": "canonical",
+  "lifecycle_status": "adapted",
+  "coverage_start_commit": "de6ded19872264e8cc2e0fb5572c0e6130e387f5",
+  "historical_policy": "preexisting-not-backfilled",
+  "events": [
+    {
+      "event_id": "RDE-000001",
+      "sequence": 1,
+      "subject_id": "DISCOVERY-LEDGER",
+      "event_type": "specification_proposed",
+      "occurred_at": "2026-08-13T05:00:00Z",
+      "recorded_at": "2026-08-13T05:00:00Z",
+      "actor_principal": "codex-luna",
+      "references": [
+        {
+          "kind": "artifact",
+          "id": "AUTH-ADR-ADR-012-HELIX-HARNESS-TEMPLATE-ADOPTION"
+        }
+      ],
+      "payload": {
+        "proposal_summary": "既存契約を変更せず、導入後の要件発見を前向きに記録する監査台帳を提案する。",
+        "target_artifact_ids": [
+          "AUTH-DEVELOPMENT-REQUIREMENT-DISCOVERY-EVENT-SCHEMA",
+          "AUTH-DEVELOPMENT-REQUIREMENT-DISCOVERY-EVENTS"
+        ],
+        "canonical_contract_mutation": false
+      }
+    }
+  ]
+}

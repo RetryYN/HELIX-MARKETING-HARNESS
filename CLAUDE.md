@@ -91,6 +91,8 @@ Codex／CI／人間作業者も本規約を共通入力として適用する。
   `docs/00-authority/adr/ADR-012-helix-harness-template-adoption.md`、開発環境契約は
   `docs/00-authority/development/development-environment_v0.1.md`。外部テンプレートは固定 commit の read-only 参照とし、
   `requirements-ir/` や Bun／Node runtime を本リポジトリへ二重導入しない。
+- discovery の前段監査証跡は `docs/00-authority/development/requirement-discovery-events.json`（schema は同ディレクトリ）で
+  append-only に保持する。既存 BR/REQ/FR/NFR/AC/TC 契約の代替ではなく、導入前の履歴は backfill せず、契約・runtime を直接 mutation しない。
 
 ## 編集の鉄則（CI が fail-close で強制）
 

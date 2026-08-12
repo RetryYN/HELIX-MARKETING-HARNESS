@@ -33,13 +33,28 @@ operation・migration・rollback の観点を質問し、未回答は未決事�
 - 不確実な媒体・外部接続は、提案中の ADR-011（実装前 PoC）の採否を PO が判断した後、その採択内容に従って
   採用／不採用／条件付き保留と evidence を記録する。ADR-011 が draft の間は、本手順だけで PoC を義務化しない。
 
-## 3. 人間の判断境界
+## 3. 前向き discovery ledger
+
+`requirement-discovery-events.json` は `coverage_start_commit` 以後の候補・質問・試作・観測・仕様化・承認を
+append-only で記録する前段監査証跡である。既存 BR／REQ／FR／NFR／AC／TC 契約 JSON の履歴を推測して backfill せず、
+これらの契約正本や製品 runtime を直接更新しない。status は `adapted` とし、空の台帳を adopted と称しない。
+
+- 親コミットの events は完全 prefix として保持し、参照は過去 event、source ID、manifest artifact ID に限る。
+- `approval_decided` は proposal author と approver を分離し、confirmed artifact の digest と approval receipt を束縛する。
+- 契約正本を変更するときは対象 artifact の `specification_proposed` と `approval_decided`、又は
+  `reason: deferred: ...` を持つ `withdrawn` を残す。
+- credential、secret、PII、raw 外部本文は payload に置かず、参照 ID と要約だけを記録する。
+
+`tools/gates/requirement_discovery.py` が schema、prefix、coverage、参照、lifecycle、承認分離、secret、
+正本への自動 mutation を fail-close で検査する。台帳は承認済み工程を通じてのみ既存正本へ還流する。
+
+## 4. 人間の判断境界
 
 AI は候補、質問、要約、反証、画面案、契約案を作成できる。PO は価値、範囲、リスク、採否、confirmed 化を判断する。
 L2 の画面案は URL から承認を確定させず、write 操作は承認 API または既存の config INSERT の契約に限定する。
 外部サービスの credential、実運用データ、秘密を候補や evidence に直接貼り付けない。
 
-## 4. ローカル実行
+## 5. ローカル実行
 
 ```bash
 make setup

@@ -34,7 +34,7 @@ slice: cross
 | `make build` | hatchling で source distribution と wheel を生成 | `dist/`（gitignore） |
 | `make gates` | `tools/gates/run_all.py` を実行 | なし |
 | `make test` | pytest → `collect_test_outcome.py` → 全ゲートを同一 uv 環境で実行 | レポートはローカル一時 |
-| `make requirements` | 要件定義ワークフローとテンプレート対応を表示・検査 | なし |
+| `make requirements` | 要件定義ワークフロー、テンプレート対応、prospective discovery ledger を表示・検査 | なし |
 | `make check` | lint → typecheck → imports → docs-check → build → test（pytest → outcome → gates）の順に実行 | `dist/` とローカルレポート |
 
 `uv` が無い環境では `make setup` は fail-close で停止し、`uv` の導入を促す。システム Python やグローバル
@@ -47,9 +47,12 @@ slice: cross
 3. 各 FR／NFR は AC と TC へ双方向に接続し、拒否・境界・復旧を含む。
 4. L2 の画面は 5 点セットで入口・状態・失敗・戻る操作・アクセシビリティを記録する。
 5. PO の承認前は `draft` のままとし、confirmed 化には manifest、承認 digest、baseline、レビューを同一変更で更新する。
+6. discovery ledger は `coverage_start_commit` 以後だけを append-only に記録する監査証跡であり、既存契約 JSON の
+   代替や製品 runtime への自動 mutation ではない。契約変更は proposal と decision、または `deferred:` 理由付き withdrawal を要する。
 
 ## 参照
 
 - [HELIX-HARNESS 適応 ADR](adr/ADR-012-helix-harness-template-adoption.md)
 - [テンプレート対応表](template/helix-harness-alignment.json)
 - [要件定義ワークフロー](requirement-definition-workflow_v0.1.md)
+- [discovery event ledger](requirement-discovery-events.json) と [strict schema](requirement-discovery-event.schema.json)

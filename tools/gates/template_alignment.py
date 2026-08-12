@@ -33,6 +33,12 @@ REQUIRED_CURRENT_PATHS = {
     "uv.lock",
     "tools/gates/run_all.py",
 }
+REQUIRED_DISCOVERY_PATHS = {
+    "docs/00-authority/development/requirement-discovery-events.json",
+    "docs/00-authority/development/requirement-discovery-event.schema.json",
+    "tools/gates/requirement_discovery.py",
+    "tests/gates/test_requirement_discovery.py",
+}
 TEMPLATE_SOURCE_COMMIT = "57853db413e282b050ac5f37bab7809321c67842"
 
 
@@ -88,6 +94,12 @@ def detect_alignment_faults(data: Any, root: Path = ROOT) -> list[str]:
     if l2 is None or not REQUIRED_L2_PATHS <= set(l2["current_paths"]):
         faults.append("L2 5 点セットの current_paths が不完全")
 
+    discovery = next((m for m in mappings if m["id"] == "discovery-lifecycle"), None)
+    if discovery is None or discovery.get("status") != "adapted":
+        faults.append("discovery-lifecycle は adapted でなければならない")
+    elif not REQUIRED_DISCOVERY_PATHS <= set(discovery["current_paths"]):
+        faults.append("discovery lifecycle の ledger/schema/gate/test current_paths が不完全")
+
     required_checks = set(data["required_checks"])
     for check in (
         "python3 tools/gates/run_all.py",
@@ -113,6 +125,6 @@ def run(ctx: Ctx) -> None:
     gate(
         "G-TEMPLATE-ALIGNMENT",
         not faults,
-        "HELIX-HARNESS 固定コミットの read-only 対応表、Python-native 開発環境、L2 5 点セットが整合 "
+        "HELIX-HARNESS 固定コミットの read-only 対応表、Python-native 開発環境、L2 と discovery ledger が整合 "
         f"(違反={faults[:4]})",
     )

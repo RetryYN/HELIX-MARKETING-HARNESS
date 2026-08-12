@@ -25,6 +25,7 @@ from tools.gates import (  # noqa: E402
     authority,
     baseline,
     detailed_design,
+    requirement_discovery,
     requirements,
     review_binding,
     semantic_refs,
@@ -49,6 +50,7 @@ from tools.gates.common import (  # noqa: E402
 MODULES = [
     authority,
     requirements,
+    requirement_discovery,
     architecture,
     detailed_design,
     traceability,

@@ -104,6 +104,7 @@ def build() -> int:
 def requirements() -> int:
     if str(ROOT) not in sys.path:
         sys.path.insert(0, str(ROOT))
+    from tools.gates.requirement_discovery import detect_discovery_faults, load_discovery_ledger
     from tools.gates.template_alignment import detect_alignment_faults
 
     data = json.loads(ALIGNMENT.read_text(encoding="utf-8"))
@@ -114,6 +115,16 @@ def requirements() -> int:
     faults = detect_alignment_faults(data)
     if faults:
         print(f"NG: template alignment ({faults[:4]})", file=sys.stderr)
+        return 1
+    ledger = load_discovery_ledger()
+    print(
+        "discovery: "
+        f"{ledger['lifecycle_status']}; events: {len(ledger['events'])}; "
+        f"coverage: {ledger['coverage_start_commit'][:12]}"
+    )
+    discovery_faults = detect_discovery_faults(ledger)
+    if discovery_faults:
+        print(f"NG: requirement discovery ({discovery_faults[:4]})", file=sys.stderr)
         return 1
     return 0
 
@@ -129,6 +140,8 @@ def doctor() -> int:
         "docs/00-authority/artifact-manifest.json",
         "docs/00-authority/baselines/baseline.json",
         "docs/00-authority/template/helix-harness-alignment.json",
+        "docs/00-authority/development/requirement-discovery-events.json",
+        "docs/00-authority/development/requirement-discovery-event.schema.json",
     ]
     missing = [path for path in required if not (ROOT / path).exists()]
     if missing:

@@ -54,6 +54,7 @@ ARTIFACT_GLOBS = [
     "Makefile",
     ".python-version",
     "docs/00-authority/template/*.json",
+    "docs/00-authority/development/*.json",
     ".github/workflows/*.yml",
     # secret scanner の allowlist は**セキュリティ制御の設定**であり、改変検出の対象にする
     # （範囲を緩めても baseline drift が赤化しない状態を作らない — 独立レビュー R11-01）

@@ -96,6 +96,8 @@ python3 tools/gates/run_all.py
 [適応監査](docs/00-authority/audits/helix-harness-template-alignment-2026-08-13.md) で read-only 参照する。
 テンプレートの方法論（要件発見、stable ID、L2 画面 5 点セット）は採用するが、現行の契約 JSON 9 本、
 artifact-manifest、Python ゲートを並列正本にはしない。判断記録は [ADR-012](docs/00-authority/adr/ADR-012-helix-harness-template-adoption.md) を参照。
+導入以後の発見過程は [append-only ledger](docs/00-authority/development/requirement-discovery-events.json) に記録するが、
+既存契約や製品 runtime を直接更新せず、導入前の履歴は backfill しない。
 
 VPS とローカルの要件定義環境は同じ入口で整える。
 

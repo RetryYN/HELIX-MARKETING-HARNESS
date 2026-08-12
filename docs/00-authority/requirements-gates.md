@@ -26,6 +26,7 @@ slice: cross
 | `test_reality.py` | pytest 実行結果（outcome）の取り込み・動的 skip の検出・間接束縛の着手検出・対象 UT の nodeid 単位突合 |
 | `worksets.py` | S0.1 依存 Workset（実装レーン）の分割・依存導出・スコープ一致・Workset 単位の着手強制とラチェット |
 | `semantic_refs.py` | 構造化参照（table/column/state/event/kind/error/api）の実在検査、状態遷移4タプルの正準照合とFR/SR/NFR→AC→TCC被覆 |
+| `requirement_discovery.py` | coverage 開始点以後の要件発見 event の schema、append-only prefix、契約変更 coverage、lifecycle、承認、secret／mutation 境界 |
 | `review_binding.py` | レビュー成果物の対象コミット・digest・後続レビュー束縛 |
 | `template_alignment.py` | HELIX-HARNESS 固定コミットの read-only 対応表、Python-native 開発環境、L2 5 点セットの整合 |
 | `baseline.py` | デグレ検出（ラチェット）・件数表記の同期・ゲート配線と分割規律 |
@@ -207,11 +208,26 @@ slice: cross
 | G-REVIEW-BINDING | レビュー成果物が schema 適合し、(a) target_commit が実在 (b) `target_tree` が**必須**で `git rev-parse <target_commit>^{tree}` と厳密一致（キー欠落で検査ごとスキップさせない）（`git log --all` の到達可能性走査は使わない — ref 到達性・clone 深度に依存しないため。dangling tree と別コミットのツリーへの掏替えを同時に落とす） (c) 記録 digest が target_commit／target_tree の内容と一致 (d) Go 判定の現内容が未改変、または `supersedes_review` で引き継ぐ後続 Go レビューが存在。レビュー成果物が未コミットの間だけ (b) を猶予し、猶予はゲート出力へ「CIで未検証」と明示する。旧パスは manifest の previous_paths で解決する | コミットメッセージだけの Go 記録・レビュー後のすり替え・clone 先で解決できないツリーへの束縛 |
 | G-REVIEW-SEPARATION | レビュー成果物の主体分離を**証跡の出所ごと**に宣言させる（`separation_status` は`unverified`／`self_attested`／`ci_attested` の 3 値）。`self_attested` は `author_principal`≠`reviewer_principal`・`author_execution_id`≠`reviewer_execution_id`・`review_log_digest` が **git 追跡下**の実在ログ（`review_log_path`）のsha256[:16] と一致・そのログの `session_meta` レコードが `reviewer_execution_id` を、`turn_context` レコードが `model` を型付きで申告している（本文の部分文字列一致は根拠にしない）、をすべて満たすときに名乗れる。ただしそのログは**レビュー実行者自身が生成したローカル成果物**であり第三者署名ではないため、`self_attested` と `unverified` は「第三者検証」を主張できない。`ci_attested` は、CI が生成してリポジトリへ commit した attestation `docs/00-authority/reviews/attestations/<review_id>.json`（git 追跡下）が実在し、`ci_log_digest` がその sha256 と一致し、attestation の repository／run_id／head_sha／target_tree／workflow／artifact_name／artifact_digest がレビュー宣言（`ci_run_url`・`target_commit`・`target_tree`・`ci_workflow`・`ci_artifact_name`）および **実行ログの実体**と一致する場合に限る（run ID と URL の形だけでは成立しない）。さらに第三者性はローカル生成のファイル一式では作れないため、署名検証鍵 `docs/00-authority/reviews/attestations/trusted-keys.json` が配備されるまで `ci_attested` は**成立しない**（self_attested が上限 — fail-close）。証跡を取得できないレビューは `unverified` とし、分離を主張する欄を空にする（PO 判断へ送る） | 自己レビューを独立レビューと僭称する／ローカル生成ログを第三者検証と称する |
 
+## requirement_discovery — 前向き要件発見証跡
+
+> 正本は `docs/00-authority/development/requirement-discovery-events.json`（schema =
+> `requirement-discovery-event.schema.json`）。これは `coverage_start_commit` 以後だけを記録する
+> append-only の監査証跡であり、既存 BR／REQ／FR／NFR／AC／TC 契約 JSON や製品 runtime の代替ではない。
+
+| ゲート | 検証内容 | 違反の意味 |
+|---|---|---|
+| G-DISCOVERY-SCHEMA | root／event／reference の strict schema、stable ID、連番、UTC 時刻、event type、型別 payload、coverage 開始点以後の時刻を検査する。台帳 status は `adapted`、既存履歴は `preexisting-not-backfilled` とする | 既存履歴の捏造・曖昧な event・空 ledger の adopted 僭称 |
+| G-DISCOVERY-PREFIX | 親コミット（又は最後に追跡された版）の events が現行 events の完全 prefix であることを要求する | event の改変・削除・並替え |
+| G-DISCOVERY-COVERAGE | `coverage_start_commit` から作業ツリーまでの BR／REQ／FR／NFR／AC／TC 契約変更を検出し、対象 artifact の specification proposal と decision、又は `deferred:` 理由付き withdrawal を要求する | 証跡なしの契約変更・保留理由のない撤回 |
+| G-DISCOVERY-REFERENCE / G-DISCOVERY-LIFECYCLE | source／artifact は実在し、event 参照は先行 event に限る。subject は candidate から進み、質問・承認の順序と terminal event 後の追加を検査する | 孤児／未来参照・順序を飛ばした要件化 |
+| G-DISCOVERY-APPROVAL | approval decision の proposal author と approver を分離し、proposal、confirmed artifact、manifest digest、approval receipt を束縛する | 自己承認・digest／receipt のすり替え |
+| G-DISCOVERY-SAFETY / G-DISCOVERY-NO-CANONICAL-MUTATION | credential／secret／PII／raw 外部本文を拒否し、ledger から契約正本または製品 runtime を自動書込みする経路を拒否する | 秘密漏えい・監査台帳による正本の迂回更新 |
+
 ## template_alignment — HELIX-HARNESS 適応
 
 | ゲート | 検証内容 | 違反の意味 |
 |---|---|---|
-| G-TEMPLATE-ALIGNMENT | `docs/00-authority/template/helix-harness-alignment.json` が schema に適合し、RetryYN/HELIX-HARNESS の固定 40 桁 commit・read-only 方針・Python-native／Bun 非依存・要件定義範囲を宣言する。対応 mapping の必須 ID、現行パスの実在、L2 screen-list／screen-flow／ui-element／wireframe／screen-detail の 5 点セット、`make doctor`／`make test`／全ゲートの導線を fail-close で検査する | テンプレート参照先のすり替え、二重正本、未登録の開発環境・L2 設計、Bun／Node ランタイムの誤導入 |
+| G-TEMPLATE-ALIGNMENT | `docs/00-authority/template/helix-harness-alignment.json` が schema に適合し、RetryYN/HELIX-HARNESS の固定 40 桁 commit・read-only 方針・Python-native／Bun 非依存・要件定義範囲を宣言する。対応 mapping の必須 ID、現行パスの実在、L2 5 点セット、adapted discovery lifecycle の ledger/schema/gate/test、`make doctor`／`make test`／全ゲートの導線を fail-close で検査する | テンプレート参照先のすり替え、二重正本、未登録の開発環境・L2 設計、Bun／Node ランタイムの誤導入 |
 
 ## baseline — デグレ検出と配線
 

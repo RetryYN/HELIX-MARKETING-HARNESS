@@ -34,9 +34,9 @@
     {
       "id": "discovery-lifecycle",
       "template_paths": ["config/requirement-discovery-event-schema.json", "docs/design/harness/"],
-      "current_paths": ["docs/00-authority/development/requirement-definition-workflow_v0.1.md", "docs/00-authority/audits/"],
-      "status": "deferred",
-      "rationale": "候補・質問・試作・観測・仕様化・検証・承認の順序を文書化した。append-only discovery event ledger は別導入まで保留する。"
+      "current_paths": ["docs/00-authority/development/requirement-definition-workflow_v0.1.md", "docs/00-authority/development/requirement-discovery-events.json", "docs/00-authority/development/requirement-discovery-event.schema.json", "tools/gates/requirement_discovery.py", "tests/gates/test_requirement_discovery.py", "docs/00-authority/audits/"],
+      "status": "adapted",
+      "rationale": "前段の監査証跡として append-only discovery ledger を適応する。既存の契約 JSON 正本または製品 runtime を直接更新せず、還流は既存の承認済み工程で行う。"
     },
     {
       "id": "l2-screen-template",
