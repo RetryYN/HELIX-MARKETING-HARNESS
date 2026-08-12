@@ -1,0 +1,32 @@
+{
+ "review_id": "REV-SOL-APPROVAL-TRANSPORT-02",
+ "reviewer_principal": "codex-sol (gpt-5.6-sol / openai-codex-cli)",
+ "author_principal": "claude-code (claude-fable-5)",
+ "author_execution_id": "1262cc92-fcdf-4bf0-b490-3f6810c348d9",
+ "reviewer_execution_id": "019ff65c-1dd4-78f1-881d-d5c6e0f1881c",
+ "review_run_id": "REV-SOL-APPROVAL-TRANSPORT-02-R1",
+ "reviewer_provider": "openai-codex-cli",
+ "review_log_path": "docs/00-authority/reviews/logs/REV-SOL-APPROVAL-TRANSPORT-02.jsonl",
+ "review_log_digest": "2c31d98b71b0ff1f",
+ "separation_status": "self_attested",
+ "model": "gpt-5.6-sol",
+ "target_commit": "4668baf76fee0603277c5c58526a25d4940ab87c",
+ "target_tree": "538adcd6d29338bf96c70096e6a3e51676d9a87b",
+ "scope": "REV-SOL-APPROVAL-TRANSPORT-01（コミット 4668baf）の追補: 分母宣言の同期（tests/gates/test_requirements.py の API_UT 期待値 215→218 — 追加 UT による増加のみ・ラチェット適合）と、-01 レビュー成果物の実コミットへの再束縛の妥当性検証",
+ "supersedes_review": ["REV-SOL-APPROVAL-TRANSPORT-01"],
+ "resolution_commits": ["538adcd6d293"],
+ "verdict": "Go",
+ "completed_at": "2026-08-12",
+ "rounds": 1,
+ "findings": [
+  {"severity": "major", "status": "resolved", "summary": "02-01 コミット 4668baf 後の全 pytest で分母宣言テストが FAIL（宣言 API_UT=215 / 実 218）", "resolution": "test_requirements.py の期待値を 218 へ同期（baseline.json は既に 218。増加方向のみで縮小なし）"},
+  {"severity": "minor", "status": "accepted-as-is", "summary": "02-02 reports/ が .gitignore 対象でレビュアーの読み取りから外れ、実行証跡はレビュー枠外", "resolution": "push 後の CI（python-ci.yml の第三者実行 + G-UT-RUNTIME-OUTCOME の HEAD 束縛検査）で担保"}
+ ],
+ "reviewed_artifact_digests": {
+  "AGENTS.md": "8b0db0d7e580e7d3",
+  "CLAUDE.md": "b2cb2372178e5ea7",
+  "docs/00-authority/reviews/logs/REV-SOL-APPROVAL-TRANSPORT-02.jsonl": "2c31d98b71b0ff1f",
+  "docs/00-authority/reviews/sol-review-approval-transport-01.json": "664a0430b74043dd",
+  "tests/gates/test_requirements.py": "56e2ba78bf7fd250"
+ }
+}

@@ -10,14 +10,14 @@
  "review_log_digest": "1fb78fd0fa59de6d",
  "separation_status": "self_attested",
  "model": "gpt-5.6-sol",
- "target_commit": "d5241db3e99335c7ece369627d225646355ea167",
- "target_tree": "7d1d6ce8f98ffaa6dfea70763258c8157d2559ea",
+ "target_commit": "4668baf76fee0603277c5c58526a25d4940ab87c",
+ "target_tree": "7a6f29892dc16ffc1155ef8fe5acd95eaf8c915d",
  "scope": "承認 transport 抽象化（ADR-010 新設 confirmed・ADR-007 有人車線改訂・charter v0.4／BR／LTW／FR／AC／TC／DDL／CMP／DU／L6 の契約同期・Claude Code の製品実行時依存除外・Discord 初期アダプター化）の独立レビュー。R1: DDL 一方向確定未強制 blocker。R2: AC-46-4 UT 接続不正 major。R3: 実 fixture 化条件。R4: 全条件充足で Go",
  "supersedes_review": [
   "REV-SOL-ADR-REGISTRATION-01"
  ],
  "resolution_commits": [
-  "7d1d6ce8f98f"
+  "4668baf76fee"
  ],
  "verdict": "Go",
  "completed_at": "2026-08-12",
