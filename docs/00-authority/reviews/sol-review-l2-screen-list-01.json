@@ -10,8 +10,8 @@
  "review_log_digest": "99d2732fd697f8f5",
  "separation_status": "self_attested",
  "model": "gpt-5.6-sol",
- "target_commit": "97f2b2d556aab37ee5d88c69e465206d99d4eacc",
- "target_tree": "95f22994a19109ef9c8b5d79115874ec1f12579a",
+ "target_commit": "2ffe289931a3eb45447e20e452974fe141b88e60",
+ "target_tree": "a35bd85081dcdaeddfffe2ec8dadfd0b0a395725",
  "scope": "L2 画面一覧 ui-screen-list_v0.1.md（運用 UI 12 画面・Bounded Context 採番・ブランド第一軸・HELIX-HARNESS L2-screen 方法論の 1 点目）の新規 draft 起票と manifest 登録（L2-UI-SCREEN-LIST）・baseline 同期の独立レビュー。ADR-010／FR-46 Web UI 不許可条件との無矛盾・SSoT 参照規律・manifest 整合・draft 維持を検査",
  "supersedes_review": [
   "REV-SOL-L3-BRAND-ACCOUNT-01",
@@ -19,7 +19,7 @@
   "REV-CLAUDE-REQUIREMENTS-SEMANTICS-01"
  ],
  "resolution_commits": [
-  "97f2b2d556aa"
+  "2ffe289931a3"
  ],
  "verdict": "Go",
  "completed_at": "2026-08-13",
