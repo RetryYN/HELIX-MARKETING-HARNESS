@@ -10,14 +10,14 @@
  "review_log_digest": "02bdf18c82fdbe02",
  "separation_status": "self_attested",
  "model": "gpt-5.6-sol",
- "target_commit": "5846ba66dac5c43187739e43d1fc7f9d4eda48c7",
- "target_tree": "38f2856a2263217fd905cd492fbcb3dfb46e68e6",
+ "target_commit": "53b3773bd1c0064305eb0ed4c6ead4c18bb90469",
+ "target_tree": "efe861e21e43a1be613268b25b4953ea532f765e",
  "scope": "ADR-007（VPS 無人車線）・ADR-008（媒体縦切り）・ADR-009（製品命名・出荷境界）の 3 本を artifact-manifest.json へ draft 登録し baseline を同期する変更の独立レビュー。manifest 登録整合・frontmatter 一致・draft 維持（PO 未承認）・ラチェット非違反・既存正本との矛盾を検査",
  "supersedes_review": [
   "REV-CLAUDE-REQUIREMENTS-SEMANTICS-05"
  ],
  "resolution_commits": [
-  "38f2856a2263"
+  "53b3773bd1c0"
  ],
  "verdict": "Go",
  "completed_at": "2026-08-12",
