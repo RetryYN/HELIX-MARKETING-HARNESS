@@ -1,0 +1,122 @@
+{
+  "review_id": "REV-SOL-REQUIREMENT-DISCOVERY-01",
+  "reviewer_principal": "codex-sol (gpt-5.6-sol / openai-codex-cli)",
+  "author_principal": "codex-luna (gpt-5.6-luna / openai-codex-cli)",
+  "author_execution_id": "019ff776-08f0-7c23-af95-d9d6d6393abe",
+  "reviewer_execution_id": "adaace0d-f5be-4f45-b701-c8c87a8ce1b0",
+  "review_run_id": "REV-SOL-REQUIREMENT-DISCOVERY-01-R3",
+  "reviewer_provider": "openai-codex-cli",
+  "review_log_path": "docs/00-authority/reviews/logs/REV-SOL-REQUIREMENT-DISCOVERY-01.jsonl",
+  "review_log_digest": "bd22f0bf2c0c06f2",
+  "separation_status": "self_attested",
+  "model": "gpt-5.6-sol",
+  "target_commit": "4eaba5f6c1a390badc42e731135ddb61719b920c",
+  "target_tree": "a67fb8e14cd6ecd952044335a5253f6025c9ceec",
+  "scope": "HELIX-HARNESS 固定コミットの read-only 対応表、Python-native 開発環境、L2 UI 5点セット＋business-flow、ADR／manifest／baseline、Luna/max既定・Sol/low高リスク分岐・Terra/medium fallback・Claude Code非必須の runtime-neutral routing、契約JSON／s0-contract 整合、前向き append-only 要件発見台帳とその schema／coverage／approval／safety／canonical mutation gates を対象とする最終設計レビュー",
+  "supersedes_review": [
+    "REV-CLAUDE-REQUIREMENTS-SEMANTICS-01",
+    "REV-CLAUDE-REQUIREMENTS-SEMANTICS-02",
+    "REV-CLAUDE-REQUIREMENTS-SEMANTICS-03",
+    "REV-CLAUDE-REQUIREMENTS-SEMANTICS-04",
+    "REV-CLAUDE-REQUIREMENTS-SEMANTICS-05",
+    "REV-KIMI-KANBAN-01",
+    "REV-KIMI-LOGIC-TREE-01",
+    "REV-KIMI-WORKSPACE-02",
+    "REV-SOL-ADR-REGISTRATION-01",
+    "REV-SOL-APPROVAL-TRANSPORT-01",
+    "REV-SOL-APPROVAL-TRANSPORT-02",
+    "REV-SOL-HELIX-HARNESS-ADOPTION-01",
+    "REV-SOL-L2-SCREEN-LIST-01",
+    "REV-SOL-L3-BRAND-ACCOUNT-01",
+    "REV-SOL-REQUIREMENTS-SEMANTICS-01",
+    "REV-S0-STRUCT-03",
+    "REV-S0-STRUCT-04",
+    "REV-S0-STRUCT-05",
+    "REV-S0-STRUCT-06",
+    "REV-S0-STRUCT-07",
+    "REV-S0-STRUCT-08",
+    "REV-S0-STRUCT-09",
+    "REV-S0-STRUCT-10",
+    "REV-S0-STRUCT-11",
+    "REV-S0-STRUCT-12",
+    "REV-S0-STRUCT-13",
+    "REV-S0-STRUCT-14",
+    "REV-S0-STRUCT-01"
+  ],
+  "resolution_commits": [
+    "0a6e2497c2fa946caa54728e7563a59e8bf8a7fd",
+    "36cd4e7d57059cee3f2a19fae06ab5a5ae6ace14",
+    "724e6c5cabcd60723ab0f49b7dd77bbb8d063932",
+    "4eaba5f6c1a390badc42e731135ddb61719b920c"
+  ],
+  "verdict": "Go",
+  "completed_at": "2026-08-13",
+  "rounds": 3,
+  "findings": [
+    {
+      "severity": "blocker",
+      "status": "resolved",
+      "summary": "R1-B01 malformed nested payload が TypeError で gate を停止し fail-close しなかった",
+      "resolution": "型付き payload schema と防御的型検査・例外捕捉を追加し、malformed payload の negative test を fault 化した"
+    },
+    {
+      "severity": "blocker",
+      "status": "resolved",
+      "summary": "R1-B02 approval actor／approver 非束縛と rejected decision による契約変更 settle を許していた",
+      "resolution": "event actor と approver の一致、proposal author との分離、accepted のみの coverage 成立を強制した"
+    },
+    {
+      "severity": "blocker",
+      "status": "resolved",
+      "summary": "R1-B03 過去 accepted を現行 digest へ比較し正当な後続版を阻害していた",
+      "resolution": "accepted 時点の artifact commit／manifest／receipt snapshot に履歴を束縛し、最新 accepted だけを現行照合するようにした"
+    },
+    {
+      "severity": "blocker",
+      "status": "resolved",
+      "summary": "R1-B04/R2-B02 canonical mutation 検査を import alias・Path literal・BinOp・module alias で迂回できた",
+      "resolution": "AST の式と alias を静的追跡し、from alias、Path literal、ROOT BinOp、module alias の指定 negative 経路を拒否した"
+    },
+    {
+      "severity": "blocker",
+      "status": "resolved",
+      "summary": "R1-B05/R2-B03 representative secret／PII と references 内 token を検出できなかった",
+      "resolution": "token／email／phone／address と references の値を再帰 scan し、指定 negative をすべて拒否した"
+    },
+    {
+      "severity": "major",
+      "status": "resolved",
+      "summary": "R1-M01 上流 strategy SR contracts が discovery coverage 対象外だった",
+      "resolution": "SR_CONTRACTS を coverage 対象と requirements-gates 台帳へ追加した"
+    },
+    {
+      "severity": "blocker",
+      "status": "resolved",
+      "summary": "R2-B01 coverage_start_commit 等の ledger root metadata を変更して過去 coverage を空にできた",
+      "resolution": "schema_version／authority／lifecycle_status／historical_policy／coverage_start_commit の5 root項目を初回導入後 immutable とし、親比較で付替えを拒否した"
+    }
+  ],
+  "reviewed_artifact_digests": {
+    "AGENTS.md": "5f1dfb6a77c5fde2",
+    "CLAUDE.md": "e5c9359449399fca",
+    "README.md": "5e2b609560284b5a",
+    "docs/00-authority/adr/ADR-012-helix-harness-template-adoption.md": "4b1dde9730eb72c9",
+    "docs/00-authority/artifact-manifest.json": "80f1177f45bc2d0e",
+    "docs/00-authority/audits/helix-harness-template-alignment-2026-08-13.md": "dc29c9ed61bc27a6",
+    "docs/00-authority/baselines/baseline.json": "eef20e86680c2286",
+    "docs/00-authority/development/development-environment_v0.1.md": "507d953c92435be3",
+    "docs/00-authority/development/requirement-definition-workflow_v0.1.md": "cc3ff1b5faa53bda",
+    "docs/00-authority/development/requirement-discovery-event.schema.json": "a046835db9e8f99b",
+    "docs/00-authority/development/requirement-discovery-events.json": "48fcc1bf04d5ac06",
+    "docs/00-authority/requirements-gates.md": "5d7fab38801d5c72",
+    "docs/00-authority/template/helix-harness-alignment.json": "a86ba52d57c3e56a",
+    "scripts/dev.py": "f8130f0293b0e5e5",
+    "tests/gates/test_requirement_discovery.py": "105e9b9dd8d94652",
+    "tests/gates/test_run_all.py": "43c0dc31830a8c1d",
+    "tools/gates/baseline.py": "2b6ffd42f5d76cc4",
+    "tools/gates/common.py": "4720451573a588cd",
+    "tools/gates/requirement_discovery.py": "4aebeb734e016609",
+    "tools/gates/run_all.py": "90801c593e5eca26",
+    "tools/gates/template_alignment.py": "8b7e10f4802238d3"
+  }
+}
