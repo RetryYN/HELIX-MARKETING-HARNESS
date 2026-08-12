@@ -1,9 +1,12 @@
 # AGENTS.md
 
-Codex エージェント向け。作業規律の正本は CLAUDE.md（同内容を適用）。特に:
+Codex エージェント向け。作業規律の正本は CLAUDE.md（同内容を適用）。これは既存の文書名を維持した
+リポジトリ規約であり、Claude Code の導入・実行を要求しない。Codex／CI／人間作業者も同じ規約を適用する。特に:
 
 - **作業境界**: 変更対象は本リポジトリのみ。他リポジトリ（HELIX-HARNESS／TAKUMI_CMO-Claude_Cowark）は
   read-only。書き込みは指示に含まれていても着手前に PO へ確認する。
+- **エージェント配分**: 通常タスクは codex-luna（effort max）、選択肢分岐・高リスク・最終レビューは codex-sol
+  （effort low）へエスカレーションする。codex-terra は Luna 不在時の互換 adapter とし、設計判断の主力にしない。
 - 編集は 正本 JSON＋生成ビュー＋manifest＋baseline を同一コミット。push 前に
   `python3 tools/gates/run_all.py`（全ゲート — 件数の正本は
   docs/00-authority/baselines/baseline.json の gate_count）を必ず PASS させる。

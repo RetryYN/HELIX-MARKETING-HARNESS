@@ -15,7 +15,7 @@ slice: S1
 - 実装状態: 全画面未実装。Web UI channel は FR-46 の認証・CSRF・再認証・principal 束縛の
   AC/TC を追加する契約が confirmed になるまで不許可（本文書だけで実装着手・完了を主張しない）。
 - 書式出典: RetryYN/HELIX-HARNESS の L2-screen 方法論（screen-list／screen-flow／ui-element／
-  wireframe／screen-detail の 5 点セット。本文書はその 1 点目。残 4 点は S1 設計で追補）。
+  wireframe／screen-detail の 5 点セット）。本文書はその 1 点目で、残 4 点は同じ S1 draft として追補済み。
 
 ## 0. 設計制約（上位で確定済みの継承事項）
 
@@ -37,7 +37,7 @@ slice: S1
 | AP-01 | 承認待ち一覧 | Approval | /ap/pending | approvals | なし |
 | AP-02 | 承認詳細（プレビュー+承認/拒否/差戻し） | Approval | /ap/{approval_id} | approvals, evidence | 承認 API のみ |
 | BR-01 | ブランド一覧/切替 | Brand | /br | business_profiles | なし |
-| BR-02 | ブランド詳細（media × account 台帳 — FR-74） | Brand | /br/{profile_key} | media_accounts | なし |
+| BR-02 | ブランド詳細（media × account 台帳 — FR-74） | Brand | /br/{profile_key} | FR-74 S1 projection（media_accounts） | なし |
 | ST-01 | 設定一覧（config 行のスキーマ駆動フォーム） | Settings | /st?brand={key} | config | config INSERT のみ |
 | ST-02 | 設定変更履歴（supersedes 連鎖） | Settings | /st/history?key={config_key} | config | なし |
 | BI-01 | KPI ダッシュボード（layer×medium×期間） | BI | /bi?brand={key}&period={p} | kpi_nodes, measurements | なし |
@@ -65,4 +65,4 @@ slice: S1
 
 1. 認証方式（FR-46 解禁条件の具体 AC/TC — 別契約で起票）
 2. ホスティング位置（helix-worker の VPS approval API と同居か分離か）
-3. screen-flow／ui-element／wireframe／screen-detail（13 field matrix）の追補順序
+3. 認証方式（FR-46 解禁条件）と screen-detail の PO 承認順序

@@ -28,6 +28,7 @@ from tools.gates import (  # noqa: E402
     requirements,
     review_binding,
     semantic_refs,
+    template_alignment,
     test_pairing,
     test_reality,
     traceability,
@@ -56,6 +57,7 @@ MODULES = [
     test_reality,
     worksets,
     review_binding,
+    template_alignment,
     baseline,
 ]
 

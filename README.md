@@ -18,7 +18,7 @@
 - 今回追加した Kanban／bounded domain／media binding は L3 要求定義まで完了、S1 設計は未着手
 - ロジックツリー／統合因果分析（SR-17〜19）は L3 要求定義まで完了、実装は S2 スライス・未着手
 - S0.1 実装未着手
-- HELIX-HARNESS 取込は未実施・PO 判断待ち
+- HELIX-HARNESS の設計テンプレートを read-only 参照し、Python-native 開発環境と L2 5 点セットを導入中
 
 判定の正本は [レビュー成果物](docs/00-authority/reviews/)（対象コミットと成果物 digest に束縛され、
 G-REVIEW-BINDING が検証する）。散文で判定を宣言しない。
@@ -34,7 +34,7 @@ S0.1 の進行方法（本リポジトリ内か他経路か）は PO が決定�
 | [00-authority](docs/00-authority/) | 権威層 | artifact manifest・[承認ログ](docs/00-authority/approvals/approvals.md)・[baseline](docs/00-authority/baselines/baseline.json)・[レビュー](docs/00-authority/reviews/)・[監査](docs/00-authority/audits/)・[ゲート台帳](docs/00-authority/requirements-gates.md)・[ADR](docs/00-authority/adr/)・[リスク登録簿](docs/00-authority/risk-register_v0.1.md) |
 | [L0-charter](docs/L0-charter/) | 北極星 | [charter v0.4](docs/L0-charter/canonical/marketing-harness-charter_v0.4.md) |
 | [L1-business-requirements](docs/L1-business-requirements/) | 業務要求 | [BR 背骨 41](docs/L1-business-requirements/canonical/br-backbone_v0.1.md)・[媒体別業務要求 70](docs/L1-business-requirements/canonical/br-media_v0.1.md)・[要求一覧 55](docs/L1-business-requirements/canonical/requirement-list_v0.1.md)・[ループ/タスク/WF](docs/L1-business-requirements/canonical/loop-task-workflow_v0.1.md)・[用語集](docs/L1-business-requirements/canonical/glossary_v0.1.md)・[BR 契約ビュー](docs/L1-business-requirements/views/br-contracts_v0.1.md) |
-| [L2-prototypes](docs/L2-prototypes/) | プロトタイプ | 未着手（workflows／screens／operating-scenarios の枠のみ） |
+| [L2-prototypes](docs/L2-prototypes/) | プロトタイプ | S1 screens の 5 点セットを draft 化（screen-list／flow／element／wireframe／detail）。認証・write 契約は未実装 |
 | [L3-system-requirements](docs/L3-system-requirements/) | システム要件 | [要件定義 FR43/NFR11](docs/L3-system-requirements/canonical/functional/requirements_v0.1.md)・[機能一覧 61](docs/L3-system-requirements/canonical/functional/function-list_v0.1.md)・[媒体別詳細要件](docs/L3-system-requirements/canonical/functional/media-requirements_v0.1.md)・[S0 契約](docs/L3-system-requirements/canonical/s0-contract_v0.1.md)・[上流戦略ループ要件](docs/L3-system-requirements/canonical/strategy/strategy-loop-requirements_v0.1.md)・[戦略学習契約](docs/L3-system-requirements/canonical/strategy/strategy-learning-contract_v0.1.md)・[検証設計](docs/L3-system-requirements/verification/verification-design_v0.1.md)・[AC カタログ](docs/L3-system-requirements/views/ac-catalog_v0.1.md)・[TC カタログ](docs/L3-system-requirements/views/tc-catalog_v0.1.md) |
 | [L4-basic-design](docs/L4-basic-design/) | 基本設計 | [基本設計](docs/L4-basic-design/canonical/basic-design_v0.1.md)・[戦略ループ設計](docs/L4-basic-design/canonical/components/strategy-loop-design_v0.1.md)・独立設計書（[外部 IF](docs/L4-basic-design/canonical/external-if/external-if-design_v0.1.md)／[DB](docs/L4-basic-design/canonical/data/db-design_v0.1.md)／[状態機械](docs/L4-basic-design/canonical/state-machine/state-machine-design_v0.1.md)／[承認](docs/L4-basic-design/canonical/approval/approval-design_v0.1.md)／[ブランド隔離](docs/L4-basic-design/canonical/brand-isolation/brand-isolation-design_v0.1.md)）・[技術選定](docs/L4-basic-design/canonical/tech-stack_v0.1.md)・[総合テスト設計](docs/L4-basic-design/integration-tests/integration-test-design_v0.1.md)・[CMP 契約ビュー](docs/L4-basic-design/views/cmp-contracts_v0.1.md) |
 | [L5-detailed-design](docs/L5-detailed-design/) | 詳細設計 | [詳細設計](docs/L5-detailed-design/canonical/detailed-design_v0.1.md)・[エラー分類](docs/L5-detailed-design/canonical/errors/error-taxonomy_v0.1.md)・[migration 規則](docs/L5-detailed-design/canonical/migrations/migration-rules.json)・[単体テスト設計](docs/L5-detailed-design/unit-tests/unit-test-design_v0.1.md)・[DU 契約ビュー](docs/L5-detailed-design/views/du-contracts_v0.1.md) |
@@ -90,11 +90,38 @@ CI（Docs CI / Python CI）で push・PR ごとに fail-close 実行する。
 python3 tools/gates/run_all.py
 ```
 
+## HELIX-HARNESS 適応と開発環境
+
+設計テンプレートは [固定コミットの対応表](docs/00-authority/template/helix-harness-alignment.json) と
+[適応監査](docs/00-authority/audits/helix-harness-template-alignment-2026-08-13.md) で read-only 参照する。
+テンプレートの方法論（要件発見、stable ID、L2 画面 5 点セット）は採用するが、現行の契約 JSON 9 本、
+artifact-manifest、Python ゲートを並列正本にはしない。判断記録は [ADR-012](docs/00-authority/adr/ADR-012-helix-harness-template-adoption.md) を参照。
+
+VPS とローカルの要件定義環境は同じ入口で整える。
+
+```bash
+make setup       # uv.lock から開発依存を同期
+make doctor      # Python／正本パス／生成ビュー／全ゲートを検査
+make requirements
+make docs-check
+make lint
+make typecheck
+make imports
+make build
+make gates
+make test        # pytest → outcome 正規化 → 全ゲート
+make check       # lint/typecheck/imports/docs/build/test の一括検査
+```
+
+環境の境界と要件定義の完了条件は [開発環境契約](docs/00-authority/development/development-environment_v0.1.md) と
+[要件定義ワークフロー](docs/00-authority/development/requirement-definition-workflow_v0.1.md) に固定する。
+
 ## 実装エージェント
 
-Codex CLI を実装エージェントとして登録済み（`.claude/agents/`）: **codex-sol**（最高性能・effort low —
-設計判断・レビュー）／ **codex-terra**（中位・medium — 実装主力）／ **codex-luna**（軽量・high —
-定型・変換）／ **codex-imagen**（image_gen — 静的画像生成、BR-M-GENAI-4）。性能順は Sol＞Terra＞Luna。
+Codex CLI の振り分けは `.claude/agents/` に互換入口として残す。**codex-luna**（通常タスクの既定・effort max —
+定型実装、変換、lint、テスト）を主力にし、**codex-sol**（effort low — 選択肢分岐、高リスク、最終レビュー）へ
+必要な場合だけエスカレーションする。**codex-terra**（medium）は Luna が利用できない場合の互換 adapter とし、
+設計判断の正本にはしない。画像は **codex-imagen**（image_gen）へ分離する。
 
 ## 次の一手
 

@@ -109,7 +109,7 @@ COVERAGE_FLOOR = ROOT / "tests/coverage-floor.json"
 GATE_PKG = ROOT / "tools/gates"
 GATE_MODULES = ["authority", "requirements", "traceability", "architecture", "detailed_design",
                 "test_pairing", "test_reality", "worksets", "semantic_refs", "review_binding",
-                "baseline",
+                "template_alignment", "baseline",
                 "run_all"]
 
 # 旧体系（archive — 実装入力にしない）

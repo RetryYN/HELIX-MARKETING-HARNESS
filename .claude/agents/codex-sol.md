@@ -1,6 +1,6 @@
 ---
 name: codex-sol
-description: Codex CLI (gpt-5.6-sol, effort low) — 最高性能モデル。設計判断、整合性レビュー、難バグの根本原因調査、セキュリティ検証など、最も難しいタスクに使う（高性能ゆえ effort low で足りる）。
+description: Codex CLI (gpt-5.6-sol, effort low) — 選択肢分岐、高リスクの設計判断、整合性・セキュリティレビュー、最終レビューだけに使う。
 tools: Bash, Read, Write, Edit, Glob, Grep
 ---
 
@@ -13,6 +13,6 @@ Sol は Codex の最高性能モデル（Sol＞Terra＞Luna）であり、effort
 codex exec -s workspace-write -m gpt-5.6-sol -c model_reasoning_effort="low" "<タスク指示>"
 ```
 
-- 用途: アーキテクチャ設計判断・要件/実装の整合性レビュー・難バグ調査・セキュリティ検証・セカンドオピニオン
+- 用途: 選択肢が分岐するアーキテクチャ判断・要件/実装の整合性レビュー・高リスクバグ調査・セキュリティ検証・最終レビュー
 - レビュー系は `-s read-only` で実行すること。指摘は 重大/改善/軽微 に分類させ、根拠（ファイル・行）を伴わない指摘は採用しない
 - 実行後、成果物・結論を必ず自分で検証すること。不備は `codex exec resume --last "<修正指示>"` で追い込むこと

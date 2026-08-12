@@ -27,6 +27,7 @@ slice: cross
 | `worksets.py` | S0.1 依存 Workset（実装レーン）の分割・依存導出・スコープ一致・Workset 単位の着手強制とラチェット |
 | `semantic_refs.py` | 構造化参照（table/column/state/event/kind/error/api）の実在検査、状態遷移4タプルの正準照合とFR/SR/NFR→AC→TCC被覆 |
 | `review_binding.py` | レビュー成果物の対象コミット・digest・後続レビュー束縛 |
+| `template_alignment.py` | HELIX-HARNESS 固定コミットの read-only 対応表、Python-native 開発環境、L2 5 点セットの整合 |
 | `baseline.py` | デグレ検出（ラチェット）・件数表記の同期・ゲート配線と分割規律 |
 | `run_all.py` | 実行順序・終了コード・`--update-baseline` |
 
@@ -205,6 +206,12 @@ slice: cross
 |---|---|---|
 | G-REVIEW-BINDING | レビュー成果物が schema 適合し、(a) target_commit が実在 (b) `target_tree` が**必須**で `git rev-parse <target_commit>^{tree}` と厳密一致（キー欠落で検査ごとスキップさせない）（`git log --all` の到達可能性走査は使わない — ref 到達性・clone 深度に依存しないため。dangling tree と別コミットのツリーへの掏替えを同時に落とす） (c) 記録 digest が target_commit／target_tree の内容と一致 (d) Go 判定の現内容が未改変、または `supersedes_review` で引き継ぐ後続 Go レビューが存在。レビュー成果物が未コミットの間だけ (b) を猶予し、猶予はゲート出力へ「CIで未検証」と明示する。旧パスは manifest の previous_paths で解決する | コミットメッセージだけの Go 記録・レビュー後のすり替え・clone 先で解決できないツリーへの束縛 |
 | G-REVIEW-SEPARATION | レビュー成果物の主体分離を**証跡の出所ごと**に宣言させる（`separation_status` は`unverified`／`self_attested`／`ci_attested` の 3 値）。`self_attested` は `author_principal`≠`reviewer_principal`・`author_execution_id`≠`reviewer_execution_id`・`review_log_digest` が **git 追跡下**の実在ログ（`review_log_path`）のsha256[:16] と一致・そのログの `session_meta` レコードが `reviewer_execution_id` を、`turn_context` レコードが `model` を型付きで申告している（本文の部分文字列一致は根拠にしない）、をすべて満たすときに名乗れる。ただしそのログは**レビュー実行者自身が生成したローカル成果物**であり第三者署名ではないため、`self_attested` と `unverified` は「第三者検証」を主張できない。`ci_attested` は、CI が生成してリポジトリへ commit した attestation `docs/00-authority/reviews/attestations/<review_id>.json`（git 追跡下）が実在し、`ci_log_digest` がその sha256 と一致し、attestation の repository／run_id／head_sha／target_tree／workflow／artifact_name／artifact_digest がレビュー宣言（`ci_run_url`・`target_commit`・`target_tree`・`ci_workflow`・`ci_artifact_name`）および **実行ログの実体**と一致する場合に限る（run ID と URL の形だけでは成立しない）。さらに第三者性はローカル生成のファイル一式では作れないため、署名検証鍵 `docs/00-authority/reviews/attestations/trusted-keys.json` が配備されるまで `ci_attested` は**成立しない**（self_attested が上限 — fail-close）。証跡を取得できないレビューは `unverified` とし、分離を主張する欄を空にする（PO 判断へ送る） | 自己レビューを独立レビューと僭称する／ローカル生成ログを第三者検証と称する |
+
+## template_alignment — HELIX-HARNESS 適応
+
+| ゲート | 検証内容 | 違反の意味 |
+|---|---|---|
+| G-TEMPLATE-ALIGNMENT | `docs/00-authority/template/helix-harness-alignment.json` が schema に適合し、RetryYN/HELIX-HARNESS の固定 40 桁 commit・read-only 方針・Python-native／Bun 非依存・要件定義範囲を宣言する。対応 mapping の必須 ID、現行パスの実在、L2 screen-list／screen-flow／ui-element／wireframe／screen-detail の 5 点セット、`make doctor`／`make test`／全ゲートの導線を fail-close で検査する | テンプレート参照先のすり替え、二重正本、未登録の開発環境・L2 設計、Bun／Node ランタイムの誤導入 |
 
 ## baseline — デグレ検出と配線
 

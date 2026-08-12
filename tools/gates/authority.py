@@ -44,7 +44,7 @@ CURRENT_STATE_LINES = [
     "今回追加した Kanban／bounded domain／media binding は L3 要求定義まで完了、S1 設計は未着手",
     "ロジックツリー／統合因果分析（SR-17〜19）は L3 要求定義まで完了、実装は S2 スライス・未着手",
     "S0.1 実装未着手",
-    "HELIX-HARNESS 取込は未実施・PO 判断待ち",
+    "HELIX-HARNESS の設計テンプレートを read-only 参照し、Python-native 開発環境と L2 5 点セットを導入中",
 ]
 FORBIDDEN_STATE_PHRASES = [
     "HELIX 経路で進める",

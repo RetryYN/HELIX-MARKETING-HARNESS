@@ -1,6 +1,8 @@
 # CLAUDE.md — エージェント作業規律
 
-人間向けの概要・文書一覧は README.md。本ファイルはエージェントの作業ルールの正本。
+人間向けの概要・文書一覧は README.md。本ファイルはエージェントの作業ルールの正本である。
+ファイル名は既存運用との互換性のため維持しており、Claude Code の導入・実行を前提にしない。
+Codex／CI／人間作業者も本規約を共通入力として適用する。
 
 ## 作業境界（最優先）
 
@@ -49,7 +51,7 @@
   - 今回追加した Kanban／bounded domain／media binding は L3 要求定義まで完了、S1 設計は未着手
   - ロジックツリー／統合因果分析（SR-17〜19）は L3 要求定義まで完了、実装は S2 スライス・未着手
   - S0.1 実装未着手
-  - HELIX-HARNESS 取込は未実施・PO 判断待ち
+  - HELIX-HARNESS の設計テンプレートを read-only 参照し、Python-native 開発環境と L2 5 点セットを導入中
 - 実装・検証の入力は **契約正本 9 本**（JSON）のみ:
   BR = docs/L1-business-requirements/canonical/br/br-contracts.json ／
   FR = docs/L3-system-requirements/canonical/functional/fr-contracts.json ／
@@ -85,6 +87,11 @@
   S0.1 の完了条件 = 割当 UT の red→green ＋ **STC-I-01〜06**（AC-SR-01〜06）green ＋ skip 上限の引き下げ。
   進行方法は PO が決定するまで開始しない。
 
+- HELIX-HARNESS 適応の正本は `docs/00-authority/template/helix-harness-alignment.json`、判断記録は
+  `docs/00-authority/adr/ADR-012-helix-harness-template-adoption.md`、開発環境契約は
+  `docs/00-authority/development/development-environment_v0.1.md`。外部テンプレートは固定 commit の read-only 参照とし、
+  `requirements-ir/` や Bun／Node runtime を本リポジトリへ二重導入しない。
+
 ## 編集の鉄則（CI が fail-close で強制）
 
 1. 要件・設計の編集は **正本 JSON＋生成ビュー＋manifest＋baseline を同一コミット**で:
@@ -98,10 +105,16 @@
    docs/00-authority/baselines/baseline.json の gate_count。散文に件数をハードコードしない）と
    markdownlint・pytest を通す。
 
+6. 要件定義〜L3 と L2 画面設計の開発入口は `make setup`／`make doctor`／`make requirements`／
+   `make docs-check`／`make lint`／`make typecheck`／`make imports`／`make build`／`make gates`／`make test`／`make check`。
+   Python 3.14 と `uv.lock` を固定点にし、credential を repository・DB・ログへ書かない。`make test` は
+   pytest → test outcome 正規化 → 全ゲートの順に、同期済み uv 環境で実行する。
+
 ## Codex 実装エージェント（.claude/agents/）
 
-性能順 Sol＞Terra＞Luna。割当: codex-sol=設計判断・レビュー（low）／codex-terra=実装主力（medium）／
-codex-luna=定型・変換（high）／codex-imagen=画像生成。
+通常タスクは **codex-luna（effort max）** を既定にする。選択肢の分岐、高リスク変更、セキュリティ・正本境界、
+最終レビューだけ **codex-sol（effort low）** へエスカレーションする。codex-terra（medium）は Luna が利用できない
+場合の互換 adapter に限定し、設計判断の主力にしない。画像は codex-imagen へ分離する。
 
 ```bash
 codex exec -s workspace-write -m gpt-5.6-<sol|terra|luna> -c model_reasoning_effort="<low|medium|high>" "<task>" </dev/null

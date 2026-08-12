@@ -88,13 +88,13 @@ def _ut_rename_map(data: dict | None) -> tuple[dict[tuple[str, str], str], list[
             bad.append(f"ut_nodeid_renames[{index}] がobjectでない")
             continue
         wid, old, new = (str(row.get(k) or "") for k in ("workset_id", "from", "to"))
-        key, target = (wid, old), (wid, new)
-        if key in direct:
+        source_key, destination_key = (wid, old), (wid, new)
+        if source_key in direct:
             bad.append(f"{wid}: rename from 重複:{old}")
-        if target in targets:
+        if destination_key in targets:
             bad.append(f"{wid}: rename to 重複:{new}")
-        direct[key] = new
-        targets.add(target)
+        direct[source_key] = new
+        targets.add(destination_key)
         old_file, _, old_test = old.partition("::")
         new_file, _, new_test = new.partition("::")
         if old == new or old_file != new_file:
@@ -102,9 +102,9 @@ def _ut_rename_map(data: dict | None) -> tuple[dict[tuple[str, str], str], list[
         if re.sub(r"\d+", "#", old_test) != re.sub(r"\d+", "#", new_test):
             bad.append(f"{wid}: rename で数字以外が変化:{old}→{new}")
     mapping: dict[tuple[str, str], str] = {}
-    for key in direct:
-        wid, old = key
-        target = direct[key]
+    for source_key, renamed_to in direct.items():
+        wid, old = source_key
+        target = renamed_to
         seen = {old}
         while (wid, target) in direct:
             if target in seen:
@@ -112,7 +112,7 @@ def _ut_rename_map(data: dict | None) -> tuple[dict[tuple[str, str], str], list[
                 break
             seen.add(target)
             target = direct[(wid, target)]
-        mapping[key] = target
+        mapping[source_key] = target
         if target not in current.get(wid, set()):
             bad.append(f"{wid}: rename先が現行Worksetにない:{target}")
         if any(old in nodeids for nodeids in current.values()):
