@@ -70,6 +70,16 @@ def test_mutation_existing_event_edit_delete_or_reorder_is_rejected() -> None:
     assert discovery.prefix_faults(previous, two)
 
 
+def test_mutation_ledger_root_is_immutable_after_first_parent() -> None:
+    previous = ledger()
+    moved = copy.deepcopy(previous)
+    moved["coverage_start_commit"] = "0" * 40
+    assert any("ledger root の変更" in fault for fault in discovery.prefix_faults(previous, moved))
+    changed = copy.deepcopy(previous)
+    changed["historical_policy"] = "backfilled"
+    assert any("ledger root の変更" in fault for fault in discovery.prefix_faults(previous, changed))
+
+
 def test_mutation_future_reference_is_rejected() -> None:
     data = ledger()
     data["events"][0]["references"] = [{"kind": "event", "id": "RDE-000001"}]
@@ -260,8 +270,24 @@ def test_mutation_imported_ledger_or_contract_alias_write_is_rejected(tmp_path) 
         "LEDGER.write_text('bad')\nFR_CONTRACTS.write_text('bad')\n", encoding="utf-8"
     )
     faults = discovery.safety_faults(ledger(), tmp_path)
-    assert any("LEDGER" in fault for fault in faults)
-    assert any("FR_CONTRACTS" in fault for fault in faults)
+    assert len([fault for fault in faults if "canonical path alias" in fault]) == 2
+
+
+def test_mutation_path_literal_binop_and_module_alias_writes_are_rejected(tmp_path) -> None:
+    source = tmp_path / "tools" / "writer.py"
+    source.parent.mkdir()
+    source.write_text(
+        "from pathlib import Path\n"
+        "from tools.gates.common import ROOT\n"
+        "import tools.gates.common as c\n"
+        "Path('docs/L3-system-requirements/canonical/functional/fr-contracts.json').write_text('bad')\n"
+        "p = ROOT / 'docs/L3-system-requirements/canonical/functional/fr-contracts.json'\n"
+        "p.write_text('bad')\n"
+        "c.FR_CONTRACTS.write_text('bad')\n",
+        encoding="utf-8",
+    )
+    faults = discovery.safety_faults(ledger(), tmp_path)
+    assert len([fault for fault in faults if "canonical path alias" in fault]) == 3
 
 
 def test_mutation_pii_and_token_values_are_rejected() -> None:
@@ -269,6 +295,12 @@ def test_mutation_pii_and_token_values_are_rejected() -> None:
         data = ledger()
         data["events"][0]["payload"]["proposal_summary"] = value
         assert any("secret/PII value" in fault for fault in discovery.safety_faults(data))
+
+
+def test_mutation_reference_value_secret_is_rejected() -> None:
+    data = ledger()
+    data["events"][0]["references"] = [{"kind": "source", "id": "ghp_abcdefghijklmnopqrstuvwxyz012345"}]
+    assert any("secret/PII value" in fault for fault in discovery.safety_faults(data))
 
 
 def test_mutation_contract_change_requires_proposal_and_decision(monkeypatch) -> None:

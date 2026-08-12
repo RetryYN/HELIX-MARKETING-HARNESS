@@ -217,11 +217,11 @@ slice: cross
 | ゲート | 検証内容 | 違反の意味 |
 |---|---|---|
 | G-DISCOVERY-SCHEMA | root／event／reference の strict schema、stable ID、連番、UTC 時刻、event type、型別 payload、coverage 開始点以後の時刻を検査する。台帳 status は `adapted`、既存履歴は `preexisting-not-backfilled` とする | 既存履歴の捏造・曖昧な event・空 ledger の adopted 僭称 |
-| G-DISCOVERY-PREFIX | 親コミット（又は最後に追跡された版）の events が現行 events の完全 prefix であることを要求する | event の改変・削除・並替え |
+| G-DISCOVERY-PREFIX | 初回導入後は親コミット（又は最後に追跡された版）の events が現行 events の完全 prefix であり、root の schema version／authority／lifecycle status／historical policy／coverage start commit が不変であることを要求する | event の改変・削除・並替え・coverage 開始点の前方付替え |
 | G-DISCOVERY-COVERAGE | `coverage_start_commit` から作業ツリーまでの BR／REQ／FR／SR／NFR／AC／TC 契約変更を検出し、対象 artifact の specification proposal と **accepted** decision、又は `deferred:` 理由付き withdrawal を要求する。rejected は成立扱いにしない | 証跡なしの契約変更・保留理由のない撤回・却下を承認として扱う誤り |
 | G-DISCOVERY-REFERENCE / G-DISCOVERY-LIFECYCLE | source／artifact は実在し、event 参照は先行 event に限る。subject は candidate から進み、質問・承認の順序と terminal event 後の追加を検査する | 孤児／未来参照・順序を飛ばした要件化 |
 | G-DISCOVERY-APPROVAL | approval decision の event actor／proposal author／approver を分離する。accepted は当時の artifact commit・manifest・receipt snapshot を束縛し、artifact ごとの最新 accepted だけを現行 digest と照合する | 自己承認・履歴を現行 digest で誤判定・digest／receipt のすり替え |
-| G-DISCOVERY-SAFETY / G-DISCOVERY-NO-CANONICAL-MUTATION | credential／secret／PII／raw 外部本文（代表 token／email／電話／住所表記を含む）を拒否し、AST で ledger／契約 path alias からの自動書込みを拒否する。動的 import／eval／反射は静的完全検出の保証外であり、実行権限を与えない | 秘密漏えい・監査台帳による正本の迂回更新 |
+| G-DISCOVERY-SAFETY / G-DISCOVERY-NO-CANONICAL-MUTATION | credential／secret／PII／raw 外部本文（reference 値、代表 token／email／電話／住所表記を含む）を拒否し、AST で ledger／契約 path alias、`Path("…")`、`ROOT / "…"`、module alias からの自動書込みを拒否する。動的 import／eval／反射は静的完全検出の保証外であり、実行権限を与えない | 秘密漏えい・監査台帳による正本の迂回更新 |
 
 ## template_alignment — HELIX-HARNESS 適応
 

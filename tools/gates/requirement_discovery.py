@@ -87,6 +87,13 @@ SENSITIVE_PATH_FRAGMENTS = {
     "ac-contracts.json",
     "tc-contracts.json",
 }
+IMMUTABLE_ROOT_FIELDS = {
+    "schema_version",
+    "authority",
+    "lifecycle_status",
+    "historical_policy",
+    "coverage_start_commit",
+}
 
 
 def load_discovery_ledger(path: Path = LEDGER) -> dict[str, Any]:
@@ -211,9 +218,15 @@ def schema_and_event_faults(data: dict[str, Any]) -> list[str]:
 
 
 def prefix_faults(previous: dict[str, Any] | None, current: dict[str, Any]) -> list[str]:
-    """親コミット台帳を完全 prefix として保持しているかを純粋関数で検査する。"""
+    """親コミットの immutable root と event 完全 prefix を保持しているか検査する。"""
     if previous is None:
         return []
+    root_drift = [
+        field for field in sorted(IMMUTABLE_ROOT_FIELDS)
+        if previous.get(field) != current.get(field)
+    ]
+    if root_drift:
+        return [f"親コミット ledger root の変更を拒否: {root_drift}"]
     old_events = previous.get("events")
     new_events = current.get("events")
     if not isinstance(old_events, list) or not isinstance(new_events, list):
@@ -490,6 +503,27 @@ def _target_name(node: ast.expr) -> str | None:
     return node.id if isinstance(node, ast.Name) else None
 
 
+def _constant_contains_sensitive_path(node: ast.AST) -> bool:
+    return isinstance(node, ast.Constant) and isinstance(node.value, str) and any(
+        fragment in node.value for fragment in SENSITIVE_PATH_FRAGMENTS
+    )
+
+
+def _is_sensitive_path_expr(node: ast.AST, names: set[str], module_aliases: set[str]) -> bool:
+    """静的に認識できる canonical path／alias 式かを返す。"""
+    if isinstance(node, ast.Name):
+        return node.id in names
+    if _constant_contains_sensitive_path(node):
+        return True
+    if isinstance(node, ast.Attribute):
+        return isinstance(node.value, ast.Name) and node.value.id in module_aliases and node.attr in names
+    if isinstance(node, ast.BinOp):
+        return _is_sensitive_path_expr(node.left, names, module_aliases) or _is_sensitive_path_expr(node.right, names, module_aliases)
+    if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == "Path":
+        return any(_is_sensitive_path_expr(arg, names, module_aliases) for arg in node.args)
+    return False
+
+
 def _mutation_faults(path: Path, root: Path, sensitive_names: set[str]) -> list[str]:
     """AST で正本 path alias と書込み API の接続を検出する。
 
@@ -502,7 +536,12 @@ def _mutation_faults(path: Path, root: Path, sensitive_names: set[str]) -> list[
         return [f"{path.relative_to(root)}: AST を読めないため canonical mutation を fail-close"]
     faults: list[str] = []
     names = set(sensitive_names)
+    module_aliases: set[str] = set()
     for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                if alias.name in {"tools.gates.requirement_discovery", "tools.gates.common"}:
+                    module_aliases.add(alias.asname or alias.name.rsplit(".", 1)[-1])
         if isinstance(node, ast.ImportFrom) and node.module in {"tools.gates.requirement_discovery", "tools.gates.common"}:
             for alias in node.names:
                 if alias.name in sensitive_names:
@@ -510,28 +549,23 @@ def _mutation_faults(path: Path, root: Path, sensitive_names: set[str]) -> list[
         if isinstance(node, (ast.Assign, ast.AnnAssign)):
             value = node.value
             target_nodes = node.targets if isinstance(node, ast.Assign) else [node.target]
-            is_sensitive = (
-                isinstance(value, ast.Name) and value.id in names
-            ) or (
-                isinstance(value, ast.Constant) and isinstance(value.value, str)
-                and any(fragment in value.value for fragment in SENSITIVE_PATH_FRAGMENTS)
-            )
+            is_sensitive = value is not None and _is_sensitive_path_expr(value, names, module_aliases)
             if is_sensitive:
                 names.update(name for target in target_nodes if (name := _target_name(target)) is not None)
     for node in ast.walk(tree):
         if not isinstance(node, ast.Call):
             continue
         func = node.func
-        if isinstance(func, ast.Attribute) and func.attr in WRITE_METHODS and isinstance(func.value, ast.Name) and func.value.id in names:
-            faults.append(f"{path.relative_to(root)}: canonical path alias {func.value.id} の {func.attr} を拒否")
+        if isinstance(func, ast.Attribute) and func.attr in WRITE_METHODS and _is_sensitive_path_expr(func.value, names, module_aliases):
+            faults.append(f"{path.relative_to(root)}: canonical path alias の {func.attr} を拒否")
         if isinstance(func, ast.Attribute) and isinstance(func.value, ast.Name) and func.value.id == "json" and func.attr in {"dump", "dumps"}:
-            if any(isinstance(arg, ast.Name) and arg.id in names for arg in node.args[1:]):
+            if any(_is_sensitive_path_expr(arg, names, module_aliases) for arg in node.args[1:]):
                 faults.append(f"{path.relative_to(root)}: json.{func.attr} に canonical path alias を渡している")
         if isinstance(func, ast.Name) and func.id == "open" and node.args:
             target = node.args[0]
             mode = node.args[1] if len(node.args) > 1 else None
             writing = isinstance(mode, ast.Constant) and isinstance(mode.value, str) and any(flag in mode.value for flag in "wax+")
-            if writing and isinstance(target, ast.Name) and target.id in names:
+            if writing and _is_sensitive_path_expr(target, names, module_aliases):
                 faults.append(f"{path.relative_to(root)}: open write に canonical path alias を渡している")
     return faults
 
@@ -545,14 +579,13 @@ def safety_faults(data: dict[str, Any], root: Path = ROOT) -> list[str]:
                 # Event envelope identifiers/timestamps are machine metadata, not user-supplied
                 # evidence. Scanning their numeric sequence (e.g. RDE-000001) as a phone number
                 # would make the real ledger fail closed for the wrong reason.
-                if key in {
+                if key not in {
                     "event_id", "sequence", "subject_id", "event_type", "occurred_at", "recorded_at",
-                    "actor_principal", "references", "kind", "id", "artifact_digest",
-                }:
-                    continue
-                if SECRET_KEY.search(key):
+                    "actor_principal", "artifact_digest",
+                } and SECRET_KEY.search(key):
                     faults.append(f"{path}.{key}: secret/PII/raw external field を拒否")
-                visit(item, f"{path}.{key}")
+                if key not in {"event_id", "sequence", "subject_id", "event_type", "occurred_at", "recorded_at", "actor_principal", "artifact_digest"}:
+                    visit(item, f"{path}.{key}")
         elif isinstance(value, list):
             for index, item in enumerate(value):
                 visit(item, f"{path}[{index}]")

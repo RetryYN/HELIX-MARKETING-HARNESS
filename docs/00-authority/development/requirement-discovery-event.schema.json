@@ -12,11 +12,11 @@
     "events"
   ],
   "properties": {
-    "schema_version": {"type": "string", "const": "helix-requirement-discovery-events.v1"},
-    "authority": {"type": "string", "const": "canonical"},
-    "lifecycle_status": {"type": "string", "enum": ["adapted"]},
-    "coverage_start_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
-    "historical_policy": {"type": "string", "const": "preexisting-not-backfilled"},
+    "schema_version": {"type": "string", "const": "helix-requirement-discovery-events.v1", "description": "導入後は親 ledger と同値固定"},
+    "authority": {"type": "string", "const": "canonical", "description": "導入後は親 ledger と同値固定"},
+    "lifecycle_status": {"type": "string", "enum": ["adapted"], "description": "導入後は親 ledger と同値固定"},
+    "coverage_start_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$", "description": "導入後は親 ledger と同値固定。前方付替え禁止"},
+    "historical_policy": {"type": "string", "const": "preexisting-not-backfilled", "description": "導入後は親 ledger と同値固定"},
     "events": {
       "type": "array",
       "items": {
