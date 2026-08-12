@@ -10,14 +10,14 @@
  "review_log_digest": "3365614341bc76eb",
  "separation_status": "self_attested",
  "model": "gpt-5.6-sol",
- "target_commit": "784bc7e37d3a53a9c7f6281440f5019e24b96e50",
- "target_tree": "a3ea18205acd173cd52f94a6ba495f7595a39b9d",
+ "target_commit": "7d82159dfb58b99c6b219a439fb2def51a12abbf",
+ "target_tree": "b49ced1c34008763c6ea3620cc731fe6d14de24f",
  "scope": "ADR-008 v0.2 改訂（媒体順序を文化圏駆動へ更新: テキスト→画像→動画の帯構成、21 チャネル完全対応表、スライス正準語彙 S0-kernel/V1/V2/V3/S-integrate/cross-cutting、TikTok の uncommitted 将来候補化、拡張点による媒体固有差の閉じ込め）の独立レビュー。br-media 正本 21 チャネルとの整合・決定/未決の無矛盾・リポ外文書の非規範化を検査",
  "supersedes_review": [
   "REV-SOL-ADR-REGISTRATION-01"
  ],
  "resolution_commits": [
-  "784bc7e37d3a"
+  "7d82159dfb58"
  ],
  "verdict": "Go",
  "completed_at": "2026-08-13",
