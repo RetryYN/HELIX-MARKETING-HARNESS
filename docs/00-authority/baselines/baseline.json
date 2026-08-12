@@ -111,6 +111,7 @@
     "REV-SOL-ADR-REGISTRATION-01",
     "REV-SOL-APPROVAL-TRANSPORT-01",
     "REV-SOL-APPROVAL-TRANSPORT-02",
+    "REV-SOL-L3-BRAND-ACCOUNT-01",
     "REV-SOL-REQUIREMENTS-SEMANTICS-01"
   ],
   "separation_statuses": {
@@ -126,6 +127,7 @@
     "REV-SOL-ADR-REGISTRATION-01": "self_attested",
     "REV-SOL-APPROVAL-TRANSPORT-01": "self_attested",
     "REV-SOL-APPROVAL-TRANSPORT-02": "self_attested",
+    "REV-SOL-L3-BRAND-ACCOUNT-01": "self_attested",
     "REV-SOL-REQUIREMENTS-SEMANTICS-01": "self_attested",
     "REV-S0-DESIGN-02": "unverified",
     "REV-S0-DESIGN-01": "unverified",
@@ -241,7 +243,7 @@
     ".gitleaks.toml": "bd5ef0ff23d45638fd05c87c6c8c856962111fc337468e2b3de119490e84aacb",
     "AGENTS.md": "3d691ddf909da70a91a14c3e6cdb218beb8799216487e19a77ab5aa2404e7f77",
     "CLAUDE.md": "8c3d2aa0535a4365394f67db3eb344a18deb11ec37310da0510990b831404fd6",
-    "docs/00-authority/artifact-manifest.json": "a0639b2ce1479f6e53b1c21a42a99fe185b01c6206950ae6c9b1de0ec84e5c0c",
+    "docs/00-authority/artifact-manifest.json": "0044411b7f5844a8e7cdc15b607ab1da45549336a48f130f1a4329a2116ebf44",
     "docs/00-authority/artifact-manifest.schema.json": "6829678e7ba29f2b68bebe11f15b22c4bf2b0bde5cca679b94244ac4220b6559",
     "docs/00-authority/audits/cross-repository-write-incident-2026-08-01.md": "161f44e6daf848dbcf3032f6fef175286c6996918f07ab8b0a7bc8df2fc601c4",
     "docs/00-authority/audits/granularity-gap-audit-v0.1.md": "9fd648fd36a5f8f93a22fe5fc234924ee6742bffc1bf1161cfd2ecb9543e905c",
