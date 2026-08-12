@@ -640,3 +640,4 @@
 | 2026-08-13 | nfr-contracts | v0.1 | confirmed | PO | 342c3ecf68c6 | 独立レビュー是正を反映した生成ビュー |
 | 2026-08-13 | ac-catalog | v0.1 | confirmed | PO | 83be6cc07c8f | 独立レビュー是正を反映した生成ビュー |
 | 2026-08-13 | tc-catalog | v0.1 | confirmed | PO | aa746e62f0f9 | 独立レビュー是正を反映した生成ビュー |
+| 2026-08-13 | basic-design | v0.1 | confirmed | PO | 404da9bc5a85 | PO 指示: エージェント配分を Luna 既定／Sol エスカレーション／Terra 互換 adapter とし、検証を runtime-neutral 化 |

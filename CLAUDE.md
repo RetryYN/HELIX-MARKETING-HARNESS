@@ -117,9 +117,10 @@ Codex／CI／人間作業者も本規約を共通入力として適用する。
 場合の互換 adapter に限定し、設計判断の主力にしない。画像は codex-imagen へ分離する。
 
 ```bash
-codex exec -s workspace-write -m gpt-5.6-<sol|terra|luna> -c model_reasoning_effort="<low|medium|high>" "<task>" </dev/null
+codex exec -s workspace-write -m gpt-5.6-<sol|terra|luna> -c model_reasoning_effort="<low|medium|max>" "<task>" </dev/null
 ```
 
+- effort の割当は Sol=`low`／Terra=`medium`／Luna=`max`。`.claude/agents/` は互換入口であり、Claude Code の導入・実行を前提にしない。
 - バックグラウンド実行時は **必ず `</dev/null`**（stdin 待ちハング防止）。継続は `codex exec resume --last`。
 - レビューは Sol に依頼し、明示的な「Go」を得てから完遂とする。判定はレビュー成果物 JSON が正本。
 

@@ -211,9 +211,12 @@ S0 の 25 機能（FN）を 13 コンポーネントに割り当てる。**割�
 
 | 工程 | 担当 | 検証 |
 |---|---|---|
-| S0.1〜S0.3 実装主力 | codex-terra（medium） | Claude（本セッション）＋ codex-sol レビュー |
-| 定型変換（DDL→migration、TC→pytest 雛形） | codex-luna（high） | Claude |
-| 設計判断・差分レビュー | codex-sol（low） | PO 承認 |
+| 通常タスク（S0.1〜S0.3 実装、定型変換、lint 修正を含む） | codex-luna（effort max）を既定 | runtime-neutral な `make check`／CI と、必要時の成果物レビュー |
+| 選択肢分岐・高リスク変更・最終レビュー | codex-sol（effort low）へエスカレーション | runtime-neutral な gate・レビュー成果物・PO 判断 |
+| Luna が利用できない通常タスク | codex-terra（effort medium）を互換 adapter として使用 | 上記と同じ runtime-neutral な検証 |
+
+`.claude/agents/` は既存運用との互換入口であり、Claude Code の導入・実行を必須にしない。エージェントを
+使わない人間・CI・他の対応ランタイムも、同じ成果物・ゲート・レビュー境界で検証する。
 
 完了の定義は各更新とも「④の該当 ITC ＋ ③の該当 TC が pytest で green ＋ 要件整合ゲート全数 PASS
 （件数の正本は baseline.json の gate_count）」。
