@@ -52,7 +52,7 @@ slice: cross
 
 ## 参照
 
-- [HELIX-HARNESS 適応 ADR](adr/ADR-012-helix-harness-template-adoption.md)
-- [テンプレート対応表](template/helix-harness-alignment.json)
+- [HELIX-HARNESS 適応 ADR](../adr/ADR-012-helix-harness-template-adoption.md)
+- [テンプレート対応表](../template/helix-harness-alignment.json)
 - [要件定義ワークフロー](requirement-definition-workflow_v0.1.md)
 - [discovery event ledger](requirement-discovery-events.json) と [strict schema](requirement-discovery-event.schema.json)
