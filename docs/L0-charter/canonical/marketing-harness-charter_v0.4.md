@@ -6,6 +6,12 @@ slice: cross
 
 # HELIX-MARKETING-HARNESS — L0 企画書（Charter）v0.4
 
+> [!WARNING]
+> **2026-08-01旧baselineの承認履歴。新要求baselineへの適用は再検証中であり、設計・実装入力ではない。**
+> 特にWSL/browser自動化、Discord初期承認、PWA/Web Push、Claude Design/Codexの必須依存、
+> 媒体writeの範囲は現行候補と衝突する。PO receipt付きfrozen refinementからFull Vを
+> 再降下するまで、本文の`confirmed`を現baselineの採用・実装許可と解釈しない。
+
 - status: **confirmed**（承認 2026-08-01）
 - 改訂: v0.4 (2026-08-01) — **上流戦略インフィニティループの再強化**（PO 指示）。上流ループの成果物を
   意味モデル（market_observation〜strategy_revision の 12 モデル）へ固定し、KPI ツリーを「観測背骨」、
@@ -398,9 +404,9 @@ HELIX-MARKETING-HARNESS/
 - domain 間の共有は明示された export/import 契約だけで行い、相対 path や共通 directory による暗黙共有を禁止する。
 - `strategy/` は上流戦略の投影、`backlog/` と `work/` は下流 Kanban の作業面、`evidence/` は検証証跡、
   `exports/` は境界外へ渡す不変成果物とし、互いの責務を混在させない。
-- ID・状態・版・拒否条件の L3 正本は
-  [FR-17／FR-35／FR-48 契約](../../L3-system-requirements/canonical/functional/fr-contracts.json) と
-  [要件一覧](../../L3-system-requirements/canonical/functional/requirements_v0.1.md) とする。
+- 旧baselineにおける ID・状態・版・拒否条件の L3 契約は
+  [FR-17／FR-35／FR-48 契約](../../L3-system-requirements/canonical/functional/fr-contracts.json) に記録されている。
+  新baselineでは同契約も`revalidation_required`であり、POが凍結した新要求から再降下するまで規範入力にしない。
 
 ### 保留（検討済み・現段階で不採用）
 

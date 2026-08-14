@@ -19,12 +19,20 @@ L1 = ROOT / "docs" / "L1-business-requirements"
 L3 = ROOT / "docs" / "L3-system-requirements"
 L4 = ROOT / "docs" / "L4-basic-design"
 L5 = ROOT / "docs" / "L5-detailed-design"
+AUTHORITY = ROOT / "docs" / "00-authority"
 
 GENERATED_HEADER = (
     "<!-- GENERATED FILE — 編集禁止。正本は {src}。再生成 = python3 scripts/render_views.py -->\n\n"
 )
 
 STATUS_LABEL = {"confirmed": "confirmed", "draft": "draft（再降下中）", "superseded": "superseded"}
+REVALIDATION_BANNER = (
+    "> [!WARNING]\n"
+    "> **旧baselineの生成view。現行要求の正本・設計・実装入力ではない。**  "
+    "`requirements_baseline_status=revising` / `implementation_authorized=false`。\n"
+    "> 下記status/receiptは旧baselineの成熟度と承認履歴だけを示す。PO receipt付きfrozen refinementから"
+    "Full Vを再降下しauthority cutoverするまで、本viewの内容をcurrentへ読み替えない。\n\n"
+)
 
 
 def _markdown_autolink_urls(value: str) -> str:
@@ -52,7 +60,7 @@ def status_line(data: dict, note: str) -> str:
     who = data.get("authority", "")
     receipt = data.get("approval_digest", "")
     tail = f"（{when} {who} 承認 — receipt {receipt}）" if receipt else ""
-    return f"> status: **{st}**{tail}。{note}\n"
+    return REVALIDATION_BANNER + f"> status: **{st}**{tail}。{note}\n"
 
 
 def render_br_contracts() -> tuple[Path, str]:
@@ -100,6 +108,308 @@ def render_br_contracts() -> tuple[Path, str]:
                 out.append(f"- **担当する独立要求群**: {'、'.join(it['mandated_groups'])}\n")
             out.append(f"- **充填経路**: {it['fill']}\n\n")
     return L1 / "views" / "br-contracts_v0.1.md", "".join(out)
+
+
+def render_requirement_candidates() -> tuple[Path, str]:
+    """未承認 refinement を、人間が意味単位で確認するための候補 view にする。"""
+    src_rel = "docs/00-authority/development/requirement-refinements.json"
+    data = json.loads((ROOT / src_rel).read_text())
+    records = sorted(data["records"], key=lambda item: item["refinement_id"])
+    scope_assignments = data["scope_assignments"]
+    approved = sum(item["approval"] is not None for item in records)
+    out = [GENERATED_HEADER.format(src=src_rel)]
+    out.append("# 要求候補レビュー（refinement candidates）\n\n")
+    out.append(
+        "> [!CAUTION]\n"
+        "> **提案専用の生成view。現行要求の正本・PO承認・設計・実装入力ではない。**  "
+        "`requirements_baseline_status=revising` / `implementation_authorized=false`。\n"
+        "> 各候補は個別のPO receiptで承認・freezeされ、Full Vを再降下してauthority cutoverするまでcurrentにならない。"
+        "本view全体を一括承認として扱わない。\n\n"
+    )
+    out.append(
+        f"> 集計: 候補 **{len(records)}** 件 ／ approval receiptあり **{approved}** 件 ／ "
+        f"未承認 **{len(records) - approved}** 件。\n\n"
+    )
+    out.append("## PO確認順（decision packets）\n\n")
+    out.append("> packetは確認順をまとめるだけで、packet単位の一括承認は禁止。各subject revisionへ個別receiptを束縛する。\n\n")
+    for packet in sorted(data["decision_packets"], key=lambda item: item["decision_order"]):
+        out.append(
+            f"{packet['decision_order']}. **{packet['packet_id']}** — {packet['decision_question']}  "
+            f"対象: {', '.join(packet['subject_ids'])}\n"
+        )
+    out.append("\n")
+    out.append("## 回答済み事項（要求へ再降下前）\n\n")
+    out.append(
+        "> 会話から取得したPO判断の構造化snapshot。まだ個別refinement revision・approval receipt・freezeへ"
+        "再降下していないため、設計・実装入力ではない。\n\n"
+    )
+    for decision in data["captured_po_decisions"]:
+        out.append(
+            f"- **{decision['decision_id']}** (`{decision['status']}`): {decision['statement']}  "
+            f"既存subject={', '.join(decision['affected_subject_ids'])} ／ "
+            f"新規要求subject={', '.join(decision['required_new_subject_ids'])} ／ "
+            f"未解決={'／'.join(decision['unresolved']) if decision['unresolved'] else 'なし'}\n"
+        )
+    out.append("\n")
+    out.append("## PRC意味所有者\n\n")
+    out.append(
+        "> baseline候補の各PRCを、意味を閉じるrefinement subjectへ束縛する。"
+        "PRC本文だけを単独で承認・設計入力化しない。\n\n"
+    )
+    for prc_id, owners in sorted(data["candidate_requirement_bindings"].items()):
+        out.append(f"- **{prc_id}**: {', '.join(owners)}\n")
+    out.append("\n")
+    out.append("## 旧L0 clause disposition候補\n\n")
+    out.append(
+        "> charter v0.4の旧承認履歴は変更せず、事業価値と旧実現手段を分離して新PRCへ移す候補。"
+        "全行`candidate_unratified`であり、PO receiptまでは現行L0又は設計入力にならない。\n\n"
+    )
+    out.append("| clause | 旧意味 | 処置 | 維持する価値 | replacement PRC | 再開条件 |\n")
+    out.append("|---|---|---|---|---|---|\n")
+    for row in data["legacy_l0_clause_dispositions"]:
+        out.append(
+            f"| `{row['clause_id']}`<br>{row['source_ref']} | {row['meaning']} | "
+            f"`{row['disposition']}` | {row['retained_value']} | "
+            f"{', '.join(row['replacement_prc_ids'])} | "
+            f"{'／'.join(row['resume_conditions']) if row['resume_conditions'] else '—'} |\n"
+        )
+    out.append("\n")
+    out.append("## 旧critical responsibility disposition候補\n\n")
+    out.append(
+        "> 旧BR／FRの通知・承認・自動運用・UI責務をそのまま再利用せず、現要求のmeaning ownerへ分割する候補。"
+        "旧契約のconfirmed履歴は変更せず、全行を未承認・未設計として扱う。\n\n"
+    )
+    out.append("| legacy ID | 旧意味 | 処置 | 維持する責務 | 置換責務 | meaning owner | 継承禁止 |\n")
+    out.append("|---|---|---|---|---|---|---|\n")
+    for row in data["legacy_critical_responsibility_dispositions"]:
+        out.append(
+            f"| `{row['legacy_id']}`<br>{row['source_ref']} | {row['legacy_meaning']} | "
+            f"`{row['disposition']}` | {row['retained_responsibility']} | "
+            f"{'／'.join(row['replacement_responsibilities'])} | "
+            f"{', '.join(row['owner_subject_ids'])} | "
+            f"{'／'.join(row['prohibited_inheritance'])} |\n"
+        )
+    out.append("\n")
+    descent = data["semantic_descent_policy"]
+    out.append("## 意味降下policy候補\n\n")
+    out.append(
+        "> BRからTCまで意味fieldを散文から推測せず、直接宣言又はsource revision/digest付き継承で閉じる。"
+        "FN→CMP→DUは要求freezeまでblockedであり、この表は設計成果物ではない。\n\n"
+    )
+    out.append("| 意味軸 | mode | 規則 |\n")
+    out.append("|---|---|---|\n")
+    for dimension, rule in descent["dimensions"].items():
+        out.append(f"| `{dimension}` | `{rule['mode']}` | {rule['rule']} |\n")
+    out.append("\n| edge | source → target | admission | 規則 |\n")
+    out.append("|---|---|---|---|\n")
+    for edge in descent["edge_contracts"]:
+        out.append(
+            f"| `{edge['edge_id']}` | {', '.join(edge['source_kinds'])} → {edge['target_kind']} | "
+            f"`{edge['admission']}` | {edge['rule']} |\n"
+        )
+    out.append("\n")
+    out.append("## 旧NFR disposition候補\n\n")
+    out.append(
+        "> 旧測定文やAC/TCの存在だけでは現baselineの品質要求にならない。"
+        "業務根拠、actor、scope、置換意味及び再開条件をNFRごとに記録する。\n\n"
+    )
+    out.append("| NFR | 処置 | stable root | 業務価値 | 置換後の意味 | 未決／再開条件 | owner |\n")
+    out.append("|---|---|---|---|---|---|---|\n")
+    for row in data["legacy_nfr_dispositions"]:
+        roots = ", ".join(row["stable_br_refs"] + row["stable_req_refs"]) or "未確定"
+        unresolved = "／".join(row["missing_decisions"])
+        if row["resume_conditions"]:
+            unresolved += "<br>再開: " + "／".join(row["resume_conditions"])
+        out.append(
+            f"| `{row['nfr_id']}` | `{row['disposition']}` | {roots} | {row['business_value']} | "
+            f"{row['replacement_meaning']} | {unresolved} | {', '.join(row['owner_subject_ids'])} |\n"
+        )
+    out.append("\n")
+    out.append("## 旧orphan FR/SR disposition候補\n\n")
+    out.append(
+        "> stable REQ root又はFN/CMP/AC降下を欠く旧FR/SRを、意味の近い責務単位で分類する。"
+        "stable IDは全件exact coverageし、group化を理由に個別IDを黙示採用しない。\n\n"
+    )
+    out.append("| group | IDs | 処置 | 旧問題 | 置換後の意味 | root／降下 | 再開条件 |\n")
+    out.append("|---|---|---|---|---|---|---|\n")
+    for group in data["legacy_orphan_requirement_groups"]:
+        out.append(
+            f"| `{group['group_id']}` | {', '.join(group['stable_ids'])} | `{group['disposition']}` | "
+            f"{group['legacy_problem']} | {group['replacement_meaning']} | "
+            f"{group['stable_root_action']}<br>{group['descent_action']} | "
+            f"{'／'.join(group['resume_conditions']) if group['resume_conditions'] else '—'} |\n"
+        )
+    out.append("\n")
+    out.append("## 旧REQ 55件 disposition候補\n\n")
+    out.append(
+        "> confirmed Markdownとdraft JSONのどちらも現要求正本として採用せず、stable IDごとの処置を明示する。"
+        "groupはレビュー単位であり、item dispositionとdeferred再開条件はID単位で保持する。\n\n"
+    )
+    out.append("| group | ID別処置 | 旧問題 | 置換policy | root action | deferred再開条件 |\n")
+    out.append("|---|---|---|---|---|---|\n")
+    for group in data["legacy_req_disposition_groups"]:
+        dispositions = ", ".join(
+            f"{stable_id}={disposition}" for stable_id, disposition in group["item_dispositions"].items()
+        )
+        resumes = "<br>".join(
+            f"{stable_id}: {'／'.join(conditions)}"
+            for stable_id, conditions in group["deferred_resume_by_id"].items()
+        ) or "—"
+        out.append(
+            f"| `{group['group_id']}` | {dispositions} | {group['legacy_problem']} | "
+            f"{group['replacement_policy']} | {group['stable_root_action']} | {resumes} |\n"
+        )
+    out.append("\n")
+    out.append("## 旧BR 41件 disposition候補\n\n")
+    out.append("| group | ID別処置 | 保持する価値 | 置換policy | owner |\n")
+    out.append("|---|---|---|---|---|\n")
+    for group in data["legacy_br_disposition_groups"]:
+        dispositions = ", ".join(f"{key}={value}" for key, value in group["item_dispositions"].items())
+        out.append(
+            f"| `{group['group_id']}` | {dispositions} | {group['retained_value']} | "
+            f"{group['replacement_policy']} | {', '.join(group['owner_subject_ids'])} |\n"
+        )
+    out.append("\n## 旧媒体BR 70件 disposition候補\n\n")
+    out.append(
+        "> 媒体名又は旧BRの存在は実行許可ではない。全媒体は個別capabilityのPO receiptとAC/TCまで未承認・未設計である。\n\n"
+    )
+    out.append("| media | IDs | 処置 | 現候補での役割 | route policy | 再開条件 |\n")
+    out.append("|---|---|---|---|---|---|\n")
+    for row in data["legacy_media_br_dispositions"]:
+        out.append(
+            f"| `{row['media_id']}` | {', '.join(row['stable_ids'])} | `{row['disposition']}` | "
+            f"{row['current_role']} | {row['route_policy']} | {'／'.join(row['resume_conditions'])} |\n"
+        )
+    out.append("\n")
+    out.append("## 旧FR 43件 disposition候補\n\n")
+    out.append("> 旧FRのconfirmedは旧baselineの履歴であり、下表は現要求への未承認・未設計の移送候補である。\n\n")
+    out.append("| group | ID別処置 | 置換policy | owner | deferred再開条件 |\n")
+    out.append("|---|---|---|---|---|\n")
+    for group in data["legacy_fr_disposition_groups"]:
+        dispositions = ", ".join(f"{key}={value}" for key, value in group["item_dispositions"].items())
+        resumes = "<br>".join(
+            f"{stable_id}: {'／'.join(conditions)}"
+            for stable_id, conditions in group["deferred_resume_by_id"].items()
+        ) or "—"
+        out.append(
+            f"| `{group['group_id']}` | {dispositions} | {group['replacement_policy']} | "
+            f"{', '.join(group['owner_subject_ids'])} | {resumes} |\n"
+        )
+    out.append("\n")
+    out.append("## 旧FN／AC／TC派生契約の扱い\n\n")
+    out.append("| kind | count | ID digest | 処置 | 再利用条件 | 禁止claim |\n")
+    out.append("|---|---:|---|---|---|---|\n")
+    for row in data["legacy_derived_contract_policy"]:
+        out.append(
+            f"| `{row['kind']}` | {row['stable_id_count']} | `{row['stable_id_digest']}` | "
+            f"`{row['disposition']}` | {'／'.join(row['reuse_requirements'])} | "
+            f"{'／'.join(row['prohibited_claims'])} |\n"
+        )
+    out.append("\n")
+    revision = data["authority_revision_candidate"]
+    out.append("## 要求authority revision選択（PO未決）\n\n")
+    out.append(f"- 問い: {revision['question']}\n")
+    out.append(f"- 推奨: `{revision['recommended_strategy']}`\n")
+    out.append(f"- 選択肢: {', '.join(revision['alternatives'])}\n")
+    out.append(f"- 推奨規則: {'／'.join(revision['recommended_rules'])}\n")
+    out.append(f"- 旧consumer処置: {'／'.join(revision['legacy_consumer_action'])}\n")
+    out.append("- PO decision: **未回答**。要求正本cutover及び設計開始はしない。\n\n")
+    out.append("## 目的別完了証拠\n\n")
+    out.append("| ID | 要求 | 状態 | evidence | 残条件 |\n")
+    out.append("|---|---|---|---|---|\n")
+    for row in data["objective_completion_audit"]:
+        out.append(
+            f"| `{row['objective_id']}` | {row['requirement']} | `{row['status']}` | "
+            f"{'／'.join(row['evidence'])} | {row['remaining_condition'] or '—'} |\n"
+        )
+    out.append("\n")
+    response_contract = data["decision_response_contract"]
+    out.append("## PO回答契約\n\n")
+    out.append(
+        f"- **回答値**: `{'` / `'.join(response_contract['allowed_responses'])}`\n"
+        f"- **未回答の安全側既定**: `{response_contract['unanswered_default']}`\n"
+        f"- **必須束縛**: `{'` / `'.join(response_contract['required_bindings'])}`\n"
+        f"- **回答の効力**: {response_contract['approval_effect']}\n"
+        f"- **revisionの効力**: {response_contract['revision_effect']}\n\n"
+    )
+    question_boundary = data["question_boundary"]
+    out.append(
+        f"- **POが決めるもの**: {'／'.join(question_boundary['po_decides'])}\n"
+        f"- **L2以降で決めるもの**: {'／'.join(question_boundary['design_later'])}\n"
+        f"- **要求／設計境界**: {question_boundary['rule']}\n\n"
+    )
+    out.append("- **回答classごとの必須項目**:\n")
+    for class_id, required_fields in data["decision_class_contracts"].items():
+        out.append(f"  - `{class_id}`: `{'` / `'.join(required_fields)}`\n")
+    out.append("\n")
+    for item in records:
+        dims = item["semantic_dimensions"]
+        approval = item["approval"]
+        approval_label = (
+            f"{approval['authority']} / {approval['approver_principal']} / "
+            f"revision {approval['approved_revision']} / {approval['decision_receipt_digest']}"
+            if approval else "未承認（approval receiptなし）"
+        )
+        out.append(f"## {item['refinement_id']} — {item['subject_id']}\n\n")
+        out.append(
+            f"- **状態**: `{item['lifecycle_status']}` ／ revision {item['revision']} ／ "
+            f"**承認**: {approval_label}\n"
+        )
+        out.append(
+            f"- **scope候補**: `{scope_assignments[item['subject_id']]}` "
+            "（PO receiptとFull V再降下までは実装不可）\n"
+        )
+        out.append(f"- **source events**: {' '.join(item['source_event_ids'])}\n")
+        out.append(f"- **主体**: {'／'.join(dims['actors'])}\n")
+        out.append(f"- **受益者**: {'／'.join(dims['beneficiaries'])}\n")
+        out.append(f"- **価値**: {dims['value']}\n")
+        out.append(f"- **task**: {'／'.join(dims['tasks'])}\n")
+        out.append(f"- **workflow**: {' → '.join(dims['workflow'])}\n")
+        out.append(f"- **対象範囲**: {'／'.join(dims['scope_in'])}\n")
+        out.append(f"- **対象外**: {'／'.join(dims['scope_out'])}\n")
+        out.append(f"- **禁止事項**: {'／'.join(dims['prohibitions'])}\n")
+        out.append(f"- **人間判断**: {'／'.join(dims['human_judgement'])}\n")
+        out.append(f"- **副作用**: {'／'.join(dims['side_effects'])}\n")
+        out.append(f"- **証跡**: {'／'.join(dims['evidence'])}\n")
+        out.append(f"- **phase**: `{dims['phase']}`\n")
+        admission = item.get("delivery_admission")
+        if admission:
+            predecessors = admission["predecessor_subject_ids"]
+            out.append(
+                f"- **delivery admission**: standard=`{admission['standard_model']}` ／ "
+                f"program-stage={admission['program_stage']} ／ sequence={admission['sequence']} ／ "
+                f"increment={'／'.join(admission['increment_routes'])} ／ "
+                f"Discovery=`{admission['discovery_condition']}` ／ "
+                f"predecessor={'／'.join(predecessors) if predecessors else 'なし'} ／ "
+                f"completion=`{admission['completion_boundary']}`\n"
+            )
+        media_admission = item.get("legacy_media_admission")
+        if media_admission:
+            out.append(
+                f"- **legacy media admission**: {len(media_admission['covered_legacy_mr_ids'])} MR ／ "
+                f"default=`{media_admission['default_status']}` ／ "
+                f"unresolved={'／'.join(media_admission['unresolved_fields'])} ／ "
+                f"reason={media_admission['reason']}\n"
+            )
+        out.append("- **受入候補**:\n")
+        for case in item["acceptance_cases"]:
+            out.append(
+                f"  - `{case['polarity']}` {case['acceptance_id']}: {case['statement']} "
+                f"（{case['system_test_id']}）\n"
+            )
+        pending = item["pending_resolution"]
+        if pending:
+            out.append("- **PO個別質問**:\n")
+            for question_index, question in enumerate(pending, start=1):
+                question_id = f"RDQ-{item['refinement_id'][4:]}-{question_index:02d}"
+                out.append(
+                    f"  - `{question_id}` (`{data['question_classifications'][question_id]}`): {question} "
+                    f"（未回答=`{response_contract['unanswered_default']}`。回答はsubject revisionとsemantic digestへ束縛）\n"
+                )
+        else:
+            out.append("- **PO個別質問**: なし（ただしsubject approval receiptとfreezeは別）\n")
+        out.append(f"- **semantic digest**: `{item['semantic_digest']}`\n\n")
+    return AUTHORITY / "views" / "requirement-candidates_v0.1.md", "".join(out)
 
 
 def _contract_md(it: dict) -> str:
@@ -280,6 +590,7 @@ def render_du_contracts() -> tuple[Path, str]:
 
 
 RENDERERS = [
+    render_requirement_candidates,
     render_br_contracts,
     render_tc_catalog,
     render_cmp_contracts,

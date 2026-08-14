@@ -6,6 +6,14 @@ slice: cross
 
 # 要求一覧（REQ）v0.1
 
+> [!WARNING]
+> **旧baselineの承認履歴view。現行要求の正本・設計・実装入力ではない。**
+> 下記`confirmed`は2026-07-31時点の成熟度とreceiptだけを表す。現在は
+> `requirements_baseline_status=revising` / `implementation_authorized=false`である。本表と
+> `canonical/req/req.json`には同一REQ IDの本文・出典・trace差分があるため、どちらも
+> 新baselineの単独正本として使わない。POが選択したfrozen refinementから再生成するまで
+> 要求の追加・削除・意味補完を本表へ直接行わない。
+
 > status: **confirmed**（2026-07-31 PO 承認 — 要件定義完遂指示。AI 起草）
 > BR（業務要求・カテゴリ別）を**フラットな通番の要求一覧**として展開したもの。
 > トレース方針: REQ は BR/NFR の優先度ビューであり、下流接続は「対応 FR/NFR」列で行う

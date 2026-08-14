@@ -504,7 +504,15 @@ def detect_update_closure_faults(ctx: Ctx, closure_path: Path = UPDATE_CLOSURE) 
     computed, uncovered, bad = compute_update_closure(ctx)
     if not closure_path.exists():
         return bad + [f"{closure_path.name} が無い（更新単位の完了宣言が機械可読でない）"]
-    items = load(closure_path).get("items", [])
+    closure = load(closure_path)
+    items = closure.get("items", [])
+    revising = closure.get("requirements_baseline_status") == "revising"
+    implementation_authorized = closure.get("implementation_authorized")
+    if revising:
+        if implementation_authorized is not False:
+            bad.append("requirements_baseline_status=revising では implementation_authorized=false が必要")
+        if not str(closure.get("revision_reason") or "").strip():
+            bad.append("requirements_baseline_status=revising では revision_reason が必要")
     declared = {i.get("update"): i for i in items}
     if set(declared) != set(computed):
         bad.append(f"{closure_path.name} の更新集合 {sorted(declared)} が"
@@ -513,21 +521,25 @@ def detect_update_closure_faults(ctx: Ctx, closure_path: Path = UPDATE_CLOSURE) 
     for up in sorted(set(declared) & set(computed)):
         it = declared[up]
         got = it.get("design_closure")
-        if got not in ("closed", "open"):
-            bad.append(f"{up}: design_closure が closed／open 以外（{got}）")
+        allowed = ("revalidation_required",) if revising else ("closed", "open")
+        if got not in allowed:
+            bad.append(f"{up}: design_closure={got} が要求基準状態と不一致")
             continue
-        if got != computed[up]:
+        if revising and computed[up] != "closed":
+            bad.append(f"{up}: 再検証待ちの旧設計の構造実態が {computed[up]}"
+                       f"（未被覆 API={uncovered[up]}）")
+        if not revising and got != computed[up]:
             bad.append(f"{up}: design_closure={got} が実態 {computed[up]} と不一致"
                        f"（未被覆 API={uncovered[up]}）")
         claim = it.get("current_state_claim") or ""
         if len(claim) < 8:
             bad.append(f"{up}: current_state_claim が無い（現在地と宣言が接続していない）")
             continue
-        if (CLOSED_PHRASE in claim) != (computed[up] == "closed"):
+        if CLOSED_PHRASE in claim:
             bad.append(f"{up}: current_state_claim『{claim}』が実態 {computed[up]} と矛盾する"
-                       f"（closed のときだけ『{CLOSED_PHRASE}』を名乗れる）")
-        if f"未被覆 API {uncovered[up]}" not in claim:
-            bad.append(f"{up}: current_state_claim が実数『未被覆 API {uncovered[up]}』を含まない")
+                       f"（要求改訂中は『{CLOSED_PHRASE}』を名乗れない）")
+        if f"未被覆 API {uncovered[up]}" not in claim and f"旧基準の未被覆 API {uncovered[up]}" not in claim:
+            bad.append(f"{up}: current_state_claim が旧基準の実数『未被覆 API {uncovered[up]}』を含まない")
         for name, txt in texts.items():
             if txt.count(claim) != 1:
                 bad.append(f"{name}: 現在地に『{claim}』が {txt.count(claim)} 回")
@@ -540,6 +552,18 @@ def detect_s0_design_completion_faults(ctx: Ctx) -> list[str]:
     更新ごとの closure ゲートは、open を正直に宣言すれば PASS する状態整合検査である。
     それを S0 全体の完遂と取り違えないよう、導出状態がすべて closed であることを別に要求する。
     """
+    closure = load(UPDATE_CLOSURE)
+    if closure.get("requirements_baseline_status") == "revising":
+        computed, uncovered, bad = compute_update_closure(ctx)
+        if closure.get("implementation_authorized") is not False:
+            bad.append("要求改訂中に実装を許可できない")
+        if any(item.get("design_closure") != "revalidation_required" for item in closure.get("items", [])):
+            bad.append("要求改訂中は全更新の旧設計を revalidation_required にする")
+        for update, state in sorted(computed.items()):
+            if state != "closed":
+                bad.append(f"{update}: 再検証待ちの旧設計自体も {state}"
+                           f"（未被覆 API={uncovered.get(update, 0)}）")
+        return bad
     computed, uncovered, bad = compute_update_closure(ctx)
     for update, state in sorted(computed.items()):
         if state != "closed":

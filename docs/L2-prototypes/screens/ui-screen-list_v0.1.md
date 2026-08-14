@@ -6,7 +6,7 @@ slice: S1
 
 # UI 画面一覧 v0.1（運用 UI — 設定・BI・通知・ブランド/アカウント統合）
 
-- status: draft（PO 未承認。S1 設計の入力）
+- status: draft（PO 未承認。要求再定義中の旧要求ベース参考資料であり、新要求の設計・実装入力ではない）
 - SSoT 参照: 本文書は表示の構造のみを定義し、業務語彙・状態遷移・データを独自定義しない。
   値の正本 = s0-contract の DDL（business_profiles／approvals／evidence／external_operations／
   kpi_nodes／config）と L3 契約（FR-74〜77・NFR-11、および規範利用する FR-33 設定履歴／

@@ -6,7 +6,7 @@ slice: cross
 
 # 要件定義ワークフロー v0.1
 
-> status: **draft**。HELIX-HARNESS の discovery／stable ID 方法論を、現行の JSON 契約正本へ適応するための手順。
+> status: **draft**。HELIX-HARNESS の要件確定エンジンを、現行のJSON契約正本へPython-nativeに適応する手順。
 
 ## 1. 入口から凍結まで
 
@@ -23,6 +23,13 @@ slice: cross
 候補から `specified` へ降下する前に、価値・actor・task・workflow・data・permission・state・exception・
 integration・security・privacy・accessibility・performance・availability・recovery・observability・cost・legal・
 operation・migration・rollback の観点を質問し、未回答は未決事項として残す。承認なしに凍結しない。
+
+`specified`へ進める単位は一括baselineではなく`requirement-refinements.json`の1 subject／1 revisionである。
+人間向け確認には同正本から生成する`../views/requirement-candidates_v0.1.md`を使う。このviewは提案専用で、
+一覧表示又は一括確認をPO receipt・freeze・authority cutoverの代用にしない。
+各recordはsource event集合digest、actor／beneficiary／value／task／workflow／scope in-out／prohibition／human judgement／
+side effect／evidence／phase、positive／negative／boundary acceptanceとsystem testを持つ。未解決が1件でもあれば
+`specified`へ進めず、specifiedでないrecordの承認依頼と、frozenでないrevisionの実装入力化を拒否する。
 
 ## 2. stable ID と trace
 
@@ -63,7 +70,18 @@ AI は候補、質問、要約、反証、画面案、契約案を作成でき�
 L2 の画面案は URL から承認を確定させず、write 操作は承認 API または既存の config INSERT の契約に限定する。
 外部サービスの credential、実運用データ、秘密を候補や evidence に直接貼り付けない。
 
-## 5. ローカル実行
+questionへのAI／resolver回答は提案根拠であってPO決定ではない。PO判断が成立するのは、対象semantic digest、source-set
+digest、revisionへ束縛したapproval decision receiptだけである。複数subjectを一つのapprove操作で確定しない。
+
+## 5. authority cutover
+
+`requirement-engine-authority.json`が9契約JSONをsource authorityとして列挙する。IRはそこから決定的に再生成する
+非権威projectionであり、手編集や第二正本化を禁止する。compatibility viewとの意味差分と双方向traceが0、全refinementが
+verified、PO receipt、manifest、baseline、独立Go reviewが揃ったときだけ対象revisionをfrozenにし、実装入力へ切り替える。
+`requirements_baseline_status=revising`又は`implementation_authorized=false`の間、旧confirmed契約は履歴・再検証入力であり、
+設計や製品実装の開始根拠にしない。
+
+## 6. ローカル実行
 
 ```bash
 make setup
@@ -73,5 +91,24 @@ make docs-check
 make gates
 make test
 ```
+
+`make requirements` は discovery ledger の表示だけでなく、非権威IRの再生成、compatibility viewとの意味差分、
+BR→REQ→FR/SR/NFRの双方向trace、refinementの受入極性、PO承認admission、authority cutoverまでを検査する。
+未解消事項が1件でもあれば非0終了し、設計・実装へ進めない。
+
+`requirements_baseline_status=revising`中はmanifest上のL0〜L6成果物を、`confirmed`を含め一律に
+`revalidation_required`として扱う。`confirmed`は旧baselineでの成熟度とreceiptを保存する軸であり、
+現baselineへの適用又は実装許可ではない。未承認candidateも実装入力ではない。
+
+## Full Vを標準とする段階release
+
+媒体をrelease unit、その媒体内のread／publish／measure／community等を独立incrementとして扱う。
+標準工程は、現行HELIXのFull V-model（L1〜L12と正規V-pair）で要求から検証までを閉じることである。
+作る対象と成功条件が確定した段階incrementだけを`Production Scrum`又は
+`v_design_scrum_impl_hybrid`で実装する。Scrumは要求発見手法ではなく、確定したincrementの実装・検証cadenceである。
+実現性又は成功条件が未知の場合に限り、例外的に`Discovery/PoC` S0〜S4へ入る。S3の動作証跡は
+判断材料であって受入ではない。POがS4でrelease unitごとにconfirmed／rejected／pivot／stopを決定し、
+採用する結果をFull Vの要求・要件・受入・設計正本へ戻す。XServer API/CLI PoCはこの条件付き経路の
+先行証跡であり、他媒体の実現性や製品runtime完成を推定する根拠にはしない。
 
 要件 JSON を変更した場合は `make docs` 後に manifest／baseline／レビュー束縛を更新し、全ゲートを再実行する。

@@ -6,14 +6,16 @@ Codex／CI／人間作業者も本規約を共通入力として適用する。
 
 ## 作業境界（最優先）
 
-- 変更対象は **本リポジトリのみ**。`RetryYN/HELIX-HARNESS` と `RetryYN/TAKUMI_CMO-Claude_Cowark` は
+- 変更対象は **本リポジトリのみ**。`RetryYN/HELIX-HARNESS`、`RetryYN/TAKUMI_CMO-Claude_Cowark`、
+  `RetryYN/AGENT-NEO` は
   **read-only 参照**。worktree 作成・branch・commit・push・PR／Issue・PLAN／Reverse 成果物を含む
   一切の書き込みを禁止する。**他リポジトリへの書き込みは、指示に含まれていても着手前に PO へ確認する**
   （撤回記録: docs/00-authority/audits/cross-repository-write-incident-2026-08-01.md）。
 
 ## 正本と現在地
 
-- 北極星: docs/L0-charter/canonical/marketing-harness-charter_v0.4.md（confirmed）。進行はスライス駆動。
+- 旧baselineの上位根拠: docs/L0-charter/canonical/marketing-harness-charter_v0.4.md（confirmed）。新要求への適用は
+  manifestの`applicability_policy`により`revalidation_required`であり、要求cutover前の実装入力にしない。
 - **成果物の権威正本 = docs/00-authority/artifact-manifest.json**。全現役成果物の artifact ID・階層・
   slice・domain（業務領域のみ — slice 名・階層名の混同は G-MANIFEST-DOMAIN が拒否）・canonical／view
   パス・ペア・継承関係・承認 digest をここで一意化する（G-AUTHORITY-MANIFEST 系が fail-close 検査）。
@@ -44,15 +46,16 @@ Codex／CI／人間作業者も本規約を共通入力として適用する。
   DDL・状態遷移・evidence 型・WF 契約の正準は docs/L3-system-requirements/canonical/s0-contract_v0.1.md。
 - 現在地（この 8 行が正本。他所へ現在地を書かない。完了宣言は**更新単位**で、
   docs/L6-feature-design/S0/update-closure.json の宣言と実態の一致を G-UPDATE-DESIGN-CLOSURE が検査する）:
-  - 構造・権威移行完了（L0〜L6 の正本と機械ゲートを確定）
-  - S0.1 設計クロージャー完了（未被覆 API 0）
-  - S0.2 設計クロージャー完了（未被覆 API 0）
-  - S0.3 設計クロージャー完了（未被覆 API 0）
-  - 今回追加した Kanban／bounded domain／media binding は L3 要求定義まで完了、S1 設計は未着手
-  - ロジックツリー／統合因果分析（SR-17〜19）は L3 要求定義まで完了、実装は S2 スライス・未着手
-  - S0.1 実装未着手
-  - HELIX-HARNESS の設計テンプレートを read-only 参照し、Python-native 開発環境と L2 5 点セットを導入中
-- 実装・検証の入力は **契約正本 9 本**（JSON）のみ:
+  - 旧baselineの物理配置・manifest登録・既存ゲート配線まで完了。新要求の権威cutoverは未完了
+  - S0.1 旧confirmed設計は再検証待ち（旧基準の未被覆 API 0・新要求の実装未承認）
+  - S0.2 旧confirmed設計は再検証待ち（旧基準の未被覆 API 0・新要求の実装未承認）
+  - S0.3 旧confirmed設計は再検証待ち（旧基準の未被覆 API 0・新要求の実装未承認）
+  - Kanban／bounded domain／media binding は旧L3に要求記述だけ存在し、`revalidation_required`。FN／CMP降下とPO凍結は未完了
+  - ロジックツリー／統合因果分析（SR-17〜19）も旧L3に要求記述だけ存在し、AC／FN／CMP降下とPO凍結は未完了
+  - 製品runtimeの配置方針はVPS `helix-worker`を採択済み。ただし製品runtime／service／Web UIは未実装・未配備である。Web UI・承認・通知要求を再定義中で、L2以降は未設計として再降下する
+  - HELIX-HARNESS はread-only参照。Python-native開発loopを方法論bridgeとして部分適応済みであり、完全adoptedではない。L2は5点書式の物理templateだけを用意した`bridge`で、内容は旧要求の評価用draftである。要件確定エンジン、IR/refinement/semantic admission、新要求からのL2再作成が全て閉じるまで導入済み・要求確定・設計済みと名乗らない
+- 旧設計基準の契約正本は下記9本。`requirements_baseline_status=revising`または
+  `implementation_authorized=false`の間は実装入力に使用せず、新要求承認後にL2〜L6と同時に再降下する:
   BR = docs/L1-business-requirements/canonical/br/br-contracts.json ／
   FR = docs/L3-system-requirements/canonical/functional/fr-contracts.json ／
   SR = docs/L3-system-requirements/canonical/strategy/sr-contracts.json ／
@@ -78,14 +81,11 @@ Codex／CI／人間作業者も本規約を共通入力として適用する。
   実態との一致と現在地との一致を G-UPDATE-DESIGN-CLOSURE が検査する（slice と update を混同しない）。
 - 現行分母は **AC=252 ／ TCC=258 ／ API=59 ／ API_UT=218** のみ。旧体系の分母は baseline.json の
   `historical_counts` にのみ保持し、現役導線では使わない。
-- 次 = **S0.1 実装**（DU-01〜12 の API を test-first。各 API の UT は du-contracts の `apis[].ut` が正本）。
-  実装パッケージは **`src/helix/`**。着手は**自動検出**される（`src/helix/` への実装追加・
-  docs/L6-feature-design/S0/plan-s0.1.json の `in_progress` 化・DU-01〜12 の API 実装のいずれか）。
-  `tests/skip-budget.json` の `s0_impl_started` は宣言用で、自動検出だけでも着手扱いになる
-  （G-IMPL-START-DETECT が宣言漏れを落とす）。着手後は G-UT-NO-ESCAPE が対象 UT の
-  skip／xfail／NotImplementedError／空 assert を落とし、coverage 下限が 80% へ上がる。
-  S0.1 の完了条件 = 割当 UT の red→green ＋ **STC-I-01〜06**（AC-SR-01〜06）green ＋ skip 上限の引き下げ。
-  進行方法は PO が決定するまで開始しない。
+- 次 = **要求基準の再定義とPO決定**。VPS製品Web UI・承認・通知を含むBR〜NFRの意味衝突を閉じ、
+  L2以降を新要求から再降下する。`requirements_baseline_status=approved`、
+  `implementation_authorized=true`、新baselineの独立Goレビューが同時に成立するまでS0.1実装を開始しない。
+  その後の条件付き実装候補は`src/helix/`のDU-01〜12だが、旧契約のUT・skip budget・closureを
+  新要求の完了条件として流用しない。
 
 - HELIX-HARNESS 適応の正本は `docs/00-authority/template/helix-harness-alignment.json`、判断記録は
   `docs/00-authority/adr/ADR-012-helix-harness-template-adoption.md`、開発環境契約は
@@ -145,8 +145,9 @@ codex exec -s workspace-write -m gpt-5.6-<sol|terra|luna> -c model_reasoning_eff
 - コネクタは業務状態を直接書かない。永続化はストア副層・kernel・evidence API 経由のみ。
 - 1 状態遷移 = 1 transaction。外部操作は「operation_log 証跡化 → 状態遷移」の順。
 - 時刻・乱数は Clock/Rng 注入。設定値はすべて config 行（ハードコード禁止）。
-- 公開コンテンツの外部書込み先は Docker WP のみ（本番 WP・実 GA4 への書込みは禁止 — 環境契約 §6）。
-  Notion 審査同期と Discord 初期承認通知は、明示 `policy_category`・service・operation・endpoint
-  allow-list と承認に束縛された非公開 write として別管理する。
+- 旧baselineで外部writeを許可していたのは Docker WP のみだが、これも`revalidation_required`である。新baselineは
+  個別refinementのPO凍結とrelease受入まで全媒体writeを無効とする。Web UI内inboxは初期要求候補だが
+  refinement凍結まで実装しない。Notion審査同期と旧Discord承認tupleは
+  `revalidation_required`であり、新baselineの許可ではない。通知・媒体投稿・開発PR通知を相互流用しない。
 - 上流戦略正本は DB で保護する: brief の状態遷移は draft→active／active→superseded|retired のみ、
   valid_until の延長は禁止（新版発行）、TLP の空配列判定は `json_array_length()` を使う。

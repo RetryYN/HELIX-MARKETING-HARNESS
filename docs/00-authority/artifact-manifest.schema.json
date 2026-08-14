@@ -10,6 +10,7 @@
     "authority",
     "updated",
     "note",
+    "applicability_policy",
     "items"
   ],
   "properties": {
@@ -35,6 +36,20 @@
       "type": "string",
       "minLength": 10
     },
+    "applicability_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requirements_baseline_status", "current_layers", "revalidation_required_layers", "implementation_input", "exception_artifact_ids", "layer_policy_is_default", "per_artifact_applicability_required"],
+      "properties": {
+        "requirements_baseline_status": {"const": "revising"},
+        "current_layers": {"const": ["00-authority"]},
+        "revalidation_required_layers": {"const": ["L0", "L1", "L2", "L3", "L4", "L5", "L6"]},
+        "implementation_input": {"const": false},
+        "exception_artifact_ids": {"const": []},
+        "layer_policy_is_default": {"const": true},
+        "per_artifact_applicability_required": {"const": true}
+      }
+    },
     "items": {
       "type": "array",
       "minItems": 1,
@@ -50,6 +65,8 @@
           "authority_format",
           "authority_status",
           "lifecycle_status",
+          "applicability_status",
+          "implementation_input",
           "canonical_path",
           "view_path",
           "view_generation",
@@ -143,6 +160,15 @@
               "completed"
             ],
             "description": "内容成熟度。confirmed は approval_digest 必須（G-STATUS-CONSISTENCY）。"
+          },
+          "applicability_status": {
+            "type": "string",
+            "enum": ["current", "proposal_only", "revalidation_required", "blocked"],
+            "description": "現行baselineへの適用可否。authority_status/lifecycle_statusとは独立し、旧confirmed成果物の現行入力化を防ぐ。"
+          },
+          "implementation_input": {
+            "type": "boolean",
+            "description": "当該成果物を製品設計・実装入力として使用できる場合だけtrue。requirements revising中は全件false。"
           },
           "canonical_path": {
             "type": "string",

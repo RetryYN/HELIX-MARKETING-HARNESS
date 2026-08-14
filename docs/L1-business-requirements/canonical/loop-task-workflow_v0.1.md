@@ -6,6 +6,9 @@ slice: cross
 
 # ループ・タスク・ワークフロー要件定義 v0.1
 
+> [!WARNING]
+> **旧baselineの承認履歴。現行要求の正本・設計・実装入力ではない。** `applicability_status=revalidation_required` / `implementation_input=false`。
+
 > status: **confirmed**（2026-07-31 PO 承認 — 要件定義完遂指示。AI 起草）
 > pair: [verification-design_v0.1.md §2〜§4](../../L3-system-requirements/verification/verification-design_v0.1.md)（検証設計③ — HELIX 式 ①↔③ 文書ペア）
 > 位置づけ: **業務全体**（計画立案・充填/設定・制作・審査・公開・応答・計測・基盤運用）を実行モデルの

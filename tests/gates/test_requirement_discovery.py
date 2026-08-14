@@ -44,15 +44,88 @@ def test_mutation_sequence_change_is_rejected() -> None:
 
 def test_mutation_malformed_payload_is_a_fault_not_a_type_error() -> None:
     data = ledger()
-    data["events"][0].update({
-        "event_type": "candidate_recorded",
-        "payload": {
-            "title": "candidate", "problem_statement": "problem", "value_hypothesis": "value",
-            "unresolved_questions": 1,
-        },
-    })
-    assert any("unresolved_questions は string 配列" in fault for fault in discovery.schema_and_event_faults(data))
+    data["events"][0].update(
+        {
+            "event_type": "candidate_recorded",
+            "payload": {
+                "title": "candidate",
+                "problem_statement": "problem",
+                "value_hypothesis": "value",
+                "unresolved_questions": 1,
+                "semantic_dimensions": ledger()["events"][1]["payload"]["semantic_dimensions"],
+            },
+        }
+    )
+    assert any(
+        "unresolved_questions は string 配列" in fault for fault in discovery.schema_and_event_faults(data)
+    )
     assert discovery.detect_discovery_faults(data)
+
+
+def test_mutation_candidate_semantic_dimensions_are_required_and_question_bound() -> None:
+    data = ledger()
+    candidate = next(e for e in data["events"] if e["event_type"] == "candidate_recorded")
+    del candidate["payload"]["semantic_dimensions"]
+    assert any("payload フィールド" in fault for fault in discovery.schema_and_event_faults(data))
+
+    data = ledger()
+    candidate = next(e for e in data["events"] if e["event_type"] == "candidate_recorded")
+    candidate["payload"]["semantic_dimensions"]["unknown_dimensions"][0]["question"] = "別の問い"
+    assert any(
+        "unresolved_questions と一致しない" in fault for fault in discovery.schema_and_event_faults(data)
+    )
+
+
+def test_mutation_unresolved_semantic_dimension_blocks_specification() -> None:
+    data = ledger()
+    candidate = next(e for e in data["events"] if e["event_type"] == "candidate_recorded")
+    subject = candidate["subject_id"]
+    data["events"] = [candidate]
+    candidate["sequence"] = 1
+    data["events"].append(
+        {
+            "event_id": "RDE-999999",
+            "sequence": 2,
+            "subject_id": subject,
+            "event_type": "specification_proposed",
+            "occurred_at": "2026-08-14T00:00:00Z",
+            "recorded_at": "2026-08-14T00:00:00Z",
+            "actor_principal": "codex-luna",
+            "references": [],
+            "payload": {
+                "proposal_summary": "未決のまま仕様化",
+                "target_artifact_ids": [],
+                "source_event_ids": [candidate["event_id"]],
+                "rationale": "negative fixture",
+            },
+        }
+    )
+    assert any(
+        "未解決 semantic dimension" in fault
+        for fault in discovery.reference_and_lifecycle_faults(data, Ctx())
+    )
+
+
+def test_mutation_every_unknown_dimension_requires_question_event() -> None:
+    data = ledger()
+    candidate = next(e for e in data["events"] if e["event_type"] == "candidate_recorded")
+    subject = candidate["subject_id"]
+    question = candidate["payload"]["unresolved_questions"][0]
+    data["events"] = [
+        event
+        for event in data["events"]
+        if not (
+            event["subject_id"] == subject
+            and event["event_type"] == "question_raised"
+            and event["payload"]["question"] == question
+        )
+    ]
+    for sequence, event in enumerate(data["events"], 1):
+        event["sequence"] = sequence
+    assert any(
+        "unknown dimension の question_raised がない" in fault
+        for fault in discovery.reference_and_lifecycle_faults(data, Ctx())
+    )
 
 
 def test_mutation_existing_event_edit_delete_or_reorder_is_rejected() -> None:
@@ -190,37 +263,65 @@ def test_mutation_self_approval_is_rejected() -> None:
 
 def test_mutation_approval_digest_mismatch_is_rejected() -> None:
     data = ledger()
-    data["events"].append(approval_event(approver="po-reviewer", digest="000000000000"))
+    data["events"].append(approval_event(approver="po", digest="000000000000"))
     assert any("approval_digest と不一致" in fault for fault in discovery.approval_faults(data, Ctx()))
 
 
 def test_mutation_approval_actor_must_match_approver() -> None:
     data = ledger()
-    event = approval_event(approver="po-reviewer", digest="000000000000")
+    event = approval_event(approver="po", digest="000000000000")
     event["actor_principal"] = "another-reviewer"
     data["events"].append(event)
-    assert any("actor_principal と approver_principal" in fault for fault in discovery.approval_faults(data, Ctx()))
+    assert any(
+        "actor_principal と approver_principal" in fault for fault in discovery.approval_faults(data, Ctx())
+    )
+
+
+def test_mutation_non_po_approval_is_rejected() -> None:
+    data = ledger()
+    data["events"].append(approval_event(approver="codex-terra", digest="000000000000"))
+    assert any("信頼済みPO authority" in fault for fault in discovery.approval_faults(data, Ctx()))
 
 
 def test_mutation_rejected_decision_does_not_settle_contract_coverage(monkeypatch) -> None:
     data = ledger()
     context = Ctx()
-    artifact = next(item["artifact_id"] for item in context.manifest_items
-                    if item["canonical_path"].endswith("functional/fr-contracts.json"))
+    artifact = next(
+        item["artifact_id"]
+        for item in context.manifest_items
+        if item["canonical_path"].endswith("functional/fr-contracts.json")
+    )
     data["events"][0]["payload"]["target_artifact_ids"] = [artifact]
-    data["events"].append({
-        "event_id": "RDE-000002", "sequence": 2, "subject_id": "DISCOVERY-LEDGER",
-        "event_type": "approval_decided", "occurred_at": "2026-08-13T05:01:00Z",
-        "recorded_at": "2026-08-13T05:01:00Z", "actor_principal": "po-reviewer", "references": [],
-        "payload": {
-            "proposal_event_id": "RDE-000001", "proposal_author_principal": "codex-luna",
-            "approver_principal": "po-reviewer", "decision": "rejected", "artifact_id": artifact,
-            "artifact_digest": "000000000000", "artifact_snapshot": None,
-        },
-    })
-    monkeypatch.setattr(discovery, "changed_contract_paths", lambda _start: {"docs/L3-system-requirements/canonical/functional/fr-contracts.json"})
-    assert any("approval_decided 又は withdrawn" in fault
-               for fault in discovery.contract_coverage_faults(data, context))
+    data["events"].append(
+        {
+            "event_id": "RDE-000002",
+            "sequence": 2,
+            "subject_id": "DISCOVERY-LEDGER",
+            "event_type": "approval_decided",
+            "occurred_at": "2026-08-13T05:01:00Z",
+            "recorded_at": "2026-08-13T05:01:00Z",
+            "actor_principal": "po",
+            "references": [],
+            "payload": {
+                "proposal_event_id": "RDE-000001",
+                "proposal_author_principal": "codex-luna",
+                "approver_principal": "po",
+                "decision": "rejected",
+                "artifact_id": artifact,
+                "artifact_digest": "000000000000",
+                "artifact_snapshot": None,
+            },
+        }
+    )
+    monkeypatch.setattr(
+        discovery,
+        "changed_contract_paths",
+        lambda _start: {"docs/L3-system-requirements/canonical/functional/fr-contracts.json"},
+    )
+    assert any(
+        "approval_decided 又は withdrawn" in fault
+        for fault in discovery.contract_coverage_faults(data, context)
+    )
 
 
 def test_historical_accepted_snapshot_does_not_require_current_digest(monkeypatch) -> None:
@@ -229,17 +330,59 @@ def test_historical_accepted_snapshot_does_not_require_current_digest(monkeypatc
     artifact = next(item for item in context.manifest_items if item["artifact_id"] == "L4-BASIC-DESIGN")
     digest = artifact["approval_digest"]
     data["events"][0]["payload"]["target_artifact_ids"] = ["L4-BASIC-DESIGN"]
-    data["events"].extend([
-        {"event_id": "RDE-000002", "sequence": 2, "subject_id": "DISCOVERY-LEDGER", "event_type": "approval_requested",
-         "occurred_at": "2026-08-13T05:01:00Z", "recorded_at": "2026-08-13T05:01:00Z", "actor_principal": "codex-luna", "references": [],
-         "payload": {"proposal_event_id": "RDE-000001", "requested_by": "codex-luna"}},
-        {"event_id": "RDE-000003", "sequence": 3, "subject_id": "DISCOVERY-LEDGER", "event_type": "approval_decided",
-         "occurred_at": "2026-08-13T05:02:00Z", "recorded_at": "2026-08-13T05:02:00Z", "actor_principal": "po-old", "references": [],
-         "payload": {"proposal_event_id": "RDE-000001", "proposal_author_principal": "codex-luna", "approver_principal": "po-old", "decision": "accepted", "artifact_id": "L4-BASIC-DESIGN", "artifact_digest": "000000000000", "artifact_snapshot": {}}},
-        {"event_id": "RDE-000004", "sequence": 4, "subject_id": "DISCOVERY-LEDGER", "event_type": "approval_decided",
-         "occurred_at": "2026-08-13T05:03:00Z", "recorded_at": "2026-08-13T05:03:00Z", "actor_principal": "po-new", "references": [],
-         "payload": {"proposal_event_id": "RDE-000001", "proposal_author_principal": "codex-luna", "approver_principal": "po-new", "decision": "accepted", "artifact_id": "L4-BASIC-DESIGN", "artifact_digest": digest, "artifact_snapshot": {}}},
-    ])
+    data["events"].extend(
+        [
+            {
+                "event_id": "RDE-000002",
+                "sequence": 2,
+                "subject_id": "DISCOVERY-LEDGER",
+                "event_type": "approval_requested",
+                "occurred_at": "2026-08-13T05:01:00Z",
+                "recorded_at": "2026-08-13T05:01:00Z",
+                "actor_principal": "codex-luna",
+                "references": [],
+                "payload": {"proposal_event_id": "RDE-000001", "requested_by": "codex-luna"},
+            },
+            {
+                "event_id": "RDE-000003",
+                "sequence": 3,
+                "subject_id": "DISCOVERY-LEDGER",
+                "event_type": "approval_decided",
+                "occurred_at": "2026-08-13T05:02:00Z",
+                "recorded_at": "2026-08-13T05:02:00Z",
+                "actor_principal": "po",
+                "references": [],
+                "payload": {
+                    "proposal_event_id": "RDE-000001",
+                    "proposal_author_principal": "codex-luna",
+                    "approver_principal": "po",
+                    "decision": "accepted",
+                    "artifact_id": "L4-BASIC-DESIGN",
+                    "artifact_digest": "000000000000",
+                    "artifact_snapshot": {},
+                },
+            },
+            {
+                "event_id": "RDE-000004",
+                "sequence": 4,
+                "subject_id": "DISCOVERY-LEDGER",
+                "event_type": "approval_decided",
+                "occurred_at": "2026-08-13T05:03:00Z",
+                "recorded_at": "2026-08-13T05:03:00Z",
+                "actor_principal": "po",
+                "references": [],
+                "payload": {
+                    "proposal_event_id": "RDE-000001",
+                    "proposal_author_principal": "codex-luna",
+                    "approver_principal": "po",
+                    "decision": "accepted",
+                    "artifact_id": "L4-BASIC-DESIGN",
+                    "artifact_digest": digest,
+                    "artifact_snapshot": {},
+                },
+            },
+        ]
+    )
     monkeypatch.setattr(discovery, "_snapshot_faults", lambda _payload, _event_id: [])
     faults = discovery.approval_faults(data, context)
     assert not any("RDE-000003: latest accepted" in fault for fault in faults)
@@ -267,7 +410,8 @@ def test_mutation_imported_ledger_or_contract_alias_write_is_rejected(tmp_path) 
     source.write_text(
         "from tools.gates.requirement_discovery import LEDGER\n"
         "from tools.gates.common import FR_CONTRACTS\n"
-        "LEDGER.write_text('bad')\nFR_CONTRACTS.write_text('bad')\n", encoding="utf-8"
+        "LEDGER.write_text('bad')\nFR_CONTRACTS.write_text('bad')\n",
+        encoding="utf-8",
     )
     faults = discovery.safety_faults(ledger(), tmp_path)
     assert len([fault for fault in faults if "canonical path alias" in fault]) == 2
@@ -291,7 +435,12 @@ def test_mutation_path_literal_binop_and_module_alias_writes_are_rejected(tmp_pa
 
 
 def test_mutation_pii_and_token_values_are_rejected() -> None:
-    for value in ("alice@example.test", "090-1234-5678", "東京都千代田区1丁目1番地", "ghp_abcdefghijklmnopqrstuvwxyz012345"):
+    for value in (
+        "alice@example.test",
+        "090-1234-5678",
+        "東京都千代田区1丁目1番地",
+        "ghp_abcdefghijklmnopqrstuvwxyz012345",
+    ):
         data = ledger()
         data["events"][0]["payload"]["proposal_summary"] = value
         assert any("secret/PII value" in fault for fault in discovery.safety_faults(data))
@@ -315,7 +464,41 @@ def test_mutation_contract_change_requires_proposal_and_decision(monkeypatch) ->
 
 def test_mutation_sr_contract_change_requires_discovery_coverage(monkeypatch) -> None:
     data = ledger()
-    monkeypatch.setattr(discovery, "changed_contract_paths", lambda _start: {"docs/L3-system-requirements/canonical/strategy/sr-contracts.json"})
+    monkeypatch.setattr(
+        discovery,
+        "changed_contract_paths",
+        lambda _start: {"docs/L3-system-requirements/canonical/strategy/sr-contracts.json"},
+    )
+    assert any("specification_proposed" in fault for fault in discovery.contract_coverage_faults(data, Ctx()))
+
+
+def test_discovery_coverage_includes_all_requirement_and_implementation_inputs() -> None:
+    expected = {
+        discovery.BR_CONTRACTS,
+        discovery.REQ_LEDGER,
+        discovery.REQUIREMENTS_LEDGER,
+        discovery.FN_LEDGER,
+        discovery.FR_CONTRACTS,
+        discovery.SR_CONTRACTS,
+        discovery.NFR_CONTRACTS,
+        discovery.AC_CONTRACTS,
+        discovery.TC_CONTRACTS,
+        discovery.CMP_CONTRACTS,
+        discovery.DU_CONTRACTS,
+        discovery.IMPL_UNITS_CONTRACTS,
+        *(path for path in discovery.BR_MEDIA_DIR.glob("*.json") if path.name != "index.json"),
+        *(path for path in discovery.MR_DIR.glob("*.json") if path.name != "index.json"),
+    }
+    assert set(discovery.DISCOVERY_COVERAGE_PATHS) == expected
+
+
+def test_mutation_l6_implementation_input_change_requires_discovery_coverage(monkeypatch) -> None:
+    data = ledger()
+    monkeypatch.setattr(
+        discovery,
+        "changed_contract_paths",
+        lambda _start: {"docs/L6-feature-design/S0/implementation-units.json"},
+    )
     assert any("specification_proposed" in fault for fault in discovery.contract_coverage_faults(data, Ctx()))
 
 

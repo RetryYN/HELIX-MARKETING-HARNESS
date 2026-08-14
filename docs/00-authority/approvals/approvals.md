@@ -112,13 +112,17 @@
 
 ## 全層再降下（粒度是正）の完遂承認
 
+> 以下は2026-08-01当時の旧要求baselineに対する履歴receiptである。2026-08-14以後の要求再定義には適用せず、
+> `requirement-engine-authority.json`が`revising`／`implementation_authorized=false`の間、実装再開許可として使えない。
+
 | 日付 | 対象 | 版 | 判定 | 承認者 | digest | 備考 |
 |---|---|---|---|---|---|---|
 | 2026-08-01 | 全層再降下・粒度是正 | — | completed | PO | — | 要求定義〜単体テスト設計を HELIX-HARNESS 基準へ再降下。Sol ブラインドレビュー（第 7 次）で明示的 Go。S0.1 実装の再開を許可 |
 
 ## 契約 JSON 正本の confirmed 承認（2026-08-01 クロージャー §2）
 
-> 実装・検証の唯一の入力。digest は JSON 内容（approval_digest 列を除く正準化 JSON）の sha256[:12]。
+> 旧要求baselineに対する当時の実装・検証入力。現行要求では全件`revalidation_required`。digest は JSON 内容
+> （approval_digest 列を除く正準化 JSON）の sha256[:12]。
 
 | 日付 | 対象 | 版 | 判定 | 承認者 | digest | 件数 |
 |---|---|---|---|---|---|---|
@@ -147,6 +151,8 @@
 | 2026-08-01 | nfr-contracts | v0.1 | confirmed | PO | f77f7f3fd715 | 生成ビュー（src/helix 統一の反映） |
 
 ## S0 設計クロージャーのレビュー・完遂承認（2026-08-01）
+
+> このクロージャーは旧要求baselineの履歴であり、現行requirements authority cutoverを成立させない。
 
 | 日付 | 対象 | 版 | 判定 | 承認者 | digest | 備考 |
 |---|---|---|---|---|---|---|
@@ -641,3 +647,16 @@
 | 2026-08-13 | ac-catalog | v0.1 | confirmed | PO | 83be6cc07c8f | 独立レビュー是正を反映した生成ビュー |
 | 2026-08-13 | tc-catalog | v0.1 | confirmed | PO | aa746e62f0f9 | 独立レビュー是正を反映した生成ビュー |
 | 2026-08-13 | basic-design | v0.1 | confirmed | PO | 404da9bc5a85 | PO 指示: エージェント配分を Luna 既定／Sol エスカレーション／Terra 互換 adapter とし、検証を runtime-neutral 化 |
+
+## VPS製品runtime採用（2026-08-14）
+
+| Date | Artifact | Version | Status | Authority | Digest | Note |
+|---|---|---|---|---|---|---|
+| 2026-08-14 | ADR-007-unattended-execution-vps | - | confirmed | PO | 87911bad95d0 | helix-worker稼働実態とXServer API/CLI PoC証跡を確認し、WSL cronからVPS製品runtimeへの移行を採用 |
+| 2026-08-14 | ADR-010-approval-transport-and-ui-evolution | - | confirmed | PO | 3f59f4c74e50 | ADR-013に合わせWeb UI＋UI内inboxを初期主入口、Discordを任意補助へ改訂 |
+| 2026-08-14 | ADR-013-vps-product-ui-primary-human-interface | - | confirmed | PO | 49255bd71a54 | helix-worker上の製品Web UIとUI内inboxを初期主入口として採用。設計詳細は要求確定後へ留保 |
+| 2026-08-14 | ADR-007-unattended-execution-vps | - | confirmed | PO | 14c3827d2390 | ADR-013採用を反映し、有人入口をWeb UI＋inboxへ同期 |
+| 2026-08-14 | ADR-010-approval-transport-and-ui-evolution | - | confirmed | PO | 6c11407fabb0 | Discordを初期必須adapterから外し、未採用の任意deep-link補助へ限定 |
+| 2026-08-14 | ADR-013-vps-product-ui-primary-human-interface | - | confirmed | PO | ac1b2dbd859e | 初期通知をUI内inboxのみとし、Web Push／Discord補助をdeferredへ固定 |
+| 2026-08-14 | ADR-013-vps-product-ui-primary-human-interface | - | confirmed | PO | 0f523543dcec | accepted決定範囲と未設計の実現方式を分離し、VPS採用済みの時系列へ同期 |
+| 2026-08-14 | ADR-010-approval-transport-and-ui-evolution | - | confirmed | PO | 5c77508847fe | Discordの旧interaction決定経路を除去し、Web UI decision＋任意deep-link通知へ一意化 |

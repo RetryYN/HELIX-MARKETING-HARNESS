@@ -36,6 +36,8 @@ slice: cross
 
 | ゲート | 検証内容 | 違反の意味 |
 |---|---|---|
+| G-REQ-AUTHORITY | 既存9正本、IRの非二重正本、refinement単位承認、manifestのL0〜L6一括`revalidation_required`、revising中の実装禁止、frozen revision限定cutoverを検査する | charterを含む旧confirmed成果物の誤実装、生成IRの正本化、一括承認、未凍結要求の実装入力化 |
+| G-REQ-COMPATIBILITY-AUTHORITY | 古い`functional/requirements.json`をread-only revalidation viewに固定し、契約正本又は実装入力として扱わせない | 同一FR IDを別slice・trace・責務で二重正本化 |
 | G-AUTHORITY-MANIFEST | artifact-manifest.json が schema 適合（必須 18 項目・追加禁止）で 1 件以上を登録 | 権威正本の不在・野良フィールド |
 | G-MANIFEST-UNIQUE | artifact ID が一意で、同一 canonical_path を複数 artifact が主張しない | 正本の多重主張（どれが正か決まらない） |
 | G-MANIFEST-PATHS | canonical_path／view_path／previous_paths が実在**かつ git 管理下**で、view は `views/` 配下、旧パスは残存しない | 幽霊参照・移行漏れ・生成物の混在 |
@@ -49,7 +51,7 @@ slice: cross
 | G-LAYER-PLACEMENT | docs 直下は 00-authority／L0〜L6／archive のみ（旧階層・野良ファイルの残存なし） | 工程階層の崩壊 |
 | G-VIEWS-GENERATED | `views/` は生成 MD のみ（GENERATED 宣言必須）、生成物が views 外に出ない | 手編集ビュー・正本と生成物の混在 |
 | G-CANONICAL-FORMAT | authority_format が canonical の形式と一致し、canonical Markdown は人間承認正本型（charter／policy／adr／audit-record／design-doc／requirement-doc／test-design）に限られ、生成 MD の canonical 混入・canonical と view の二枚看板・未登録の生成 MD・GENERATED 宣言のない登録済み view がない | JSON 正本を持つ成果物の MD 正本化（どちらが正本か決まらない） |
-| G-STATUS-CONSISTENCY | authority_status（現役位置）と lifecycle_status（内容成熟度）が分離され、confirmed のみ approval_digest を持ち、markdown 正本の frontmatter・本文 status 行が manifest と一致（生成ビューは frontmatter を持たない） | draft 文書の confirmed 相当扱い・status の意味衝突 |
+| G-STATUS-CONSISTENCY | authority_status（現役位置）、lifecycle_status（内容成熟度）、applicability_status（現要求への適用可否）、implementation_inputを分離する。revising中のL0〜L6はrevalidation_required又はproposal_only、全artifactのimplementation_input=falseを強制し、confirmed のみ approval_digest を持ち、markdown正本のfrontmatter・本文status行がmanifestと一致する | 旧confirmed又は未承認candidateを現要求・設計・実装入力として誤用、draft文書のconfirmed相当扱い、statusの意味衝突 |
 | G-SLICE-PLACEMENT | L6 機能設計の物理ディレクトリ・manifest.slice・frontmatter.slice・traces 先 FR／SR のスライスが一致し、本文の要求参照が実在し、後続スライスへの言及が forward_refs に過不足なく宣言され（コードフェンス内は走査対象外）、S0 の DU が後続スライスの機能設計を入力にせず、機能設計 frontmatter の `dus` が du-contracts の feature_design と**双方向**一致し、S0 の DU については当該文書の本文が その DU か AC を実際に扱う（S1 以降の DU は⑤改訂で採番し直す段階のため内容突合の対象外） | 本文と配置のスライス不一致・S0 への S1 実装の混入 |
 | G-CANONICAL-UNIQUE | 現役階層に内容が同一のファイルが 2 箇所以上存在しない | 同一正本の二重配置 |
 | G-ARCHIVE-ISOLATION | 現役導線（README/CLAUDE/AGENTS/CI/スクリプト/現役 MD リンク/現役 JSON 値）が archive・superseded を入力として参照しない | 旧体系の復活・二重正本 |
@@ -130,8 +132,8 @@ slice: cross
 | G-DU-DATA | 全 DU の DB read/write が DDL の実在テーブルのみ | 存在しないテーブルへの設計参照 |
 | G-L6-IMPLEMENTATION-TRACE | S0 L6 機能設計の責務（第 9 正本 `docs/L6-feature-design/S0/implementation-units.json`）が専用 schema（追加プロパティ禁止）に適合し、`api_ref`（API 安定 ID **1 件**・配列禁止）と `clause_refs`（当該 API の契約節 ID）で**構造接続**している。`ac_refs` の AC が `verifies_clause_refs` で、`ut_refs` の UT が`apis[].ut[].clause_refs` で、**同じ契約節**を参照していることを双方向に要求し、文書の trace 先や DU が同じだけではPASS にしない。API 名・テスト名・日本語語彙の部分一致は接続の根拠にしない（語彙一致検査は廃止）。同一 API の契約節を複数責務が重複主張することを禁止し、S0 文書が担う DU は全 API・全（契約節を検証する）AC が責務へ接続していることを要求する。さらに**全 API 契約節**が AC 被覆か理由付き `na_reason` のいずれかを持ち、AC 側も契約節を検証しない場合は`clause_na_reason` を要求する（被覆と理由は排他）。「準用」等の借用表現による trace 代替は L6 全体で拒否する。さらに `na_reason` は閉じた分類語彙（`呼出側義務:`／`配線時保証:`／`他 API で検証:`／`受入基準未設定:`）で始まることを要求し、AC が 1 節も検証していない API は `docs/L6-feature-design/S0/uncovered-apis.json` へ**明示登録**され（登録集合と実態が厳密一致）、解消時も `resolved_items` の append-only 履歴から導出した API 集合について、exactly-one AC の `api_observation_assertions`（API固有fixture／action／observation／assert）を要求する。action は当該公開API名を含み、節IDだけの追記・別API assertionのコピー・解消履歴の件数不一致を拒否する。その件数・AC 被覆節数・実装単位数は baseline のラチェットで保護する。さらに各 API は `verification_level`（acceptance／unit／integration）を持ち、内部（unit・integration）は `internal_reason` と閉じた `internal_reason_code`（startup-wiring／read-only-accessor／internal-delegation）が必須で、**postcondition・raises の全契約節がUT の `clause_refs` へ直接接続**していなければならない。acceptance から内部分類への格下げは baseline のラチェットが拒否する。`na_reason` の閉じた語彙は `呼出側義務:`／`配線時保証:`／`他 API で検証:`／`単体検証:`／`受入基準未設定:` で、`単体検証:` は当該節が UT の `clause_refs` に実在する場合だけ名乗れ、UT が検証している節に `受入基準未設定:` を書けない。api_id・clause_id の一意性も検査する | 責務が API 契約節まで降りていない／節IDだけで意味被覆を名乗る／API固有観測が反証不能／契約節が誰にも検証されないまま残る |
 | G-UNCOVERED-API-UPDATE | 未被覆 API 台帳 `docs/L6-feature-design/S0/uncovered-apis.json` の解消先が`resolution_update`（updates.json の更新語彙）で宣言され、DU 台帳の `fn_ids` → `updates.json` から**機械導出**した更新と一致する。slice（S0／S1／later ＝ いつ作るか）を解消先に書くこと、および `resolution_slice` の残存を拒否する。FN が複数更新に跨る／どの更新にも属さない DU も更新境界の不定として落とす | slice と update の混同で「どの更新で閉じるか」が決まらないまま設計クロージャーを名乗る |
-| G-UPDATE-DESIGN-CLOSURE | 更新（updates.json の S0.1／S0.2／S0.3）ごとの設計クロージャー宣言`docs/L6-feature-design/S0/update-closure.json` が**実態から導出した状態**と一致する。closed の条件は「当該更新の未被覆 API = 0」「全 API 契約節が AC／ITC／UT か正当な internal 分類を持ち `受入基準未設定:` が残っていない」「AC を持つ API に実装単位が実在する」。さらに `current_state_claim` が README.md とCLAUDE.md の現在地に 1 回ずつ現れ、closed のときだけ『設計クロージャー完了』を名乗れ、未被覆 API の実数まで一致することを要求する | 更新境界を跨いだ完了僭称（S0.1 の穴を残したまま「S0 設計クロージャー完了」と宣言する） |
-| G-S0-DESIGN-COMPLETE | S0.1／S0.2／S0.3 の導出状態がすべて closed であることを要求する。open を正直に宣言して状態整合ゲートを通しても、未被覆 API または `受入基準未設定:` の契約節が残る限り全体完遂を認めない | planned／open を許容する通常ゲートの PASS を、S0 全体の設計完遂と誤認する |
+| G-UPDATE-DESIGN-CLOSURE | 更新（updates.json の S0.1／S0.2／S0.3）ごとの設計状態`docs/L6-feature-design/S0/update-closure.json` を検査する。通常基準のclosedは未被覆API=0・全契約節被覆・実装単位実在を要求する。要求基準が`revising`の間は、旧confirmed設計の構造実態自体がclosedであることを保持しつつ、宣言は全更新`revalidation_required`、`implementation_authorized=false`、理由付きでなければならない。どちらのモードも`current_state_claim`とREADME/CLAUDEを1回ずつ一致させる | 旧構造被覆のPASSを新要求への設計完了・実装許可と誤認する |
+| G-S0-DESIGN-COMPLETE | 通常基準ではS0.1／S0.2／S0.3の導出状態がすべてclosedであることを要求する。`requirements_baseline_status=revising`では設計完遂を意味せず、旧設計が`revalidation_required`、実装未許可、かつ旧構造被覆に新たな穴がないことだけをfail-close確認する | 改訂中モードのPASSを設計完遂や実装可能と誤認する |
 | G-API-UT | **API 単位**で UT ≥1・api.ut ⊆ trace.ut・宙吊り UT ゼロ・参照テスト関数が実在・スタブは設計リンク（DU＋API 名）を宣言 | UT なき API・匿名スタブ |
 | G-NO-HOLLOW-DESIGN | 全契約正本にプレースホルダ（TBD/TODO/仮置き等）が存在しない | 空洞設計の温存 |
 
@@ -218,16 +220,70 @@ slice: cross
 |---|---|---|
 | G-DISCOVERY-SCHEMA | root／event／reference の strict schema、stable ID、連番、UTC 時刻、event type、型別 payload、coverage 開始点以後の時刻を検査する。台帳 status は `adapted`、既存履歴は `preexisting-not-backfilled` とする | 既存履歴の捏造・曖昧な event・空 ledger の adopted 僭称 |
 | G-DISCOVERY-PREFIX | 初回導入後は親コミット（又は最後に追跡された版）の events が現行 events の完全 prefix であり、root の schema version／authority／lifecycle status／historical policy／coverage start commit が不変であることを要求する | event の改変・削除・並替え・coverage 開始点の前方付替え |
-| G-DISCOVERY-COVERAGE | `coverage_start_commit` から作業ツリーまでの BR／REQ／FR／SR／NFR／AC／TC 契約変更を検出し、対象 artifact の specification proposal と **accepted** decision、又は `deferred:` 理由付き withdrawal を要求する。rejected は成立扱いにしない | 証跡なしの契約変更・保留理由のない撤回・却下を承認として扱う誤り |
-| G-DISCOVERY-REFERENCE / G-DISCOVERY-LIFECYCLE | source／artifact は実在し、event 参照は先行 event に限る。subject は candidate から進み、質問・承認の順序と terminal event 後の追加を検査する | 孤児／未来参照・順序を飛ばした要件化 |
+| G-DISCOVERY-COVERAGE | `coverage_start_commit` から作業ツリーまでのBR／媒体BR／REQ／requirements compatibility view／FR／SR／NFR／媒体MR／FN／AC／TC／CMP／DU／L6 implementation-unit変更を検出し、対象artifactのspecification proposalと **accepted** decision、又は`deferred:`理由付きwithdrawalを要求する。rejectedは成立扱いにしない | 証跡なしの要求・設計入力変更、媒体/FNだけの無監査変更、保留理由のない撤回、却下を承認として扱う誤り |
+| G-DISCOVERY-REFERENCE / G-DISCOVERY-LIFECYCLE | source／artifact は実在し、event 参照は先行 event に限る。subject は candidate から進み、質問・承認の順序と terminal event 後の追加を検査する。candidate は業務actor／受益者／workflow／scope in-out／制約・禁止／human judgement／外部副作用／完了証跡／target phaseを持ち、unknown dimension に対応する問いは question event と回答を経るまで specification proposal を拒否する | 孤児／未来参照・順序を飛ばした要件化・意味観点の未解決を設計で補完 |
 | G-DISCOVERY-APPROVAL | approval decision の event actor／proposal author／approver を分離する。accepted は当時の artifact commit・manifest・receipt snapshot を束縛し、artifact ごとの最新 accepted だけを現行 digest と照合する | 自己承認・履歴を現行 digest で誤判定・digest／receipt のすり替え |
 | G-DISCOVERY-SAFETY / G-DISCOVERY-NO-CANONICAL-MUTATION | credential／secret／PII／raw 外部本文（reference 値、代表 token／email／電話／住所表記を含む）を拒否し、AST で ledger／契約 path alias、`Path("…")`、`ROOT / "…"`、module alias からの自動書込みを拒否する。動的 import／eval／反射は静的完全検出の保証外であり、実行権限を与えない | 秘密漏えい・監査台帳による正本の迂回更新 |
+
+## requirement_engine — HELIX 要件確定admission
+
+> 既存9契約JSONをsource authorityとして扱い、IRは決定的に再生成できる非権威projectionとする。
+> ID・件数の一致だけでは意味整合とみなさない。意味閉包が赤の間は要求を設計・実装入力へ切り替えない。
+
+| ゲート | 検証内容 | 違反の意味 |
+|---|---|---|
+| G-REQ-IR-PROJECTION | 9契約JSON＋refinement registryをstable ID keyedに正規化し、`requirements`／`system_contracts`／`acceptance_cases`／`system_tests`／`refinement_contracts`の5 shard、各count/digest、root digestを決定的に生成する。projectionは手編集可能な第二正本ではない | IR未生成・区画欠落・入力順依存・二重正本化 |
+| G-REQ-SEMANTIC-DRIFT | compatibility requirements viewと契約正本の同一IDについてsliceとupstream/downstream traceを比較し、L1 REQ MarkdownとREQ JSON ledgerの本文・出典・下流・充填・優先度も比較する | 同じIDを保ったまま別の責務・導入時期・追跡先を提示する意味ドリフト |
+| G-REQ-TRACE-BIDIR | BR.trace_downとFR/SR.trace_upを双方向に照合し、孤児と片方向参照を拒否する | 上位価値・actor・scopeに戻れない要求、又は下流で実現されないBR |
+| G-REQ-TRACE-LAYERS | BR→REQとREQ→FR/SR/NFRの各隣接辺を双方向照合し、NFRを含む孤児・片方向参照を拒否する | 中間REQだけに存在する責務、BR/REQへ戻れない品質要求、根拠のない下流契約 |
+| G-REQ-TRACE-IMPLEMENTATION | DUのtrace.ac／trace.tcが現行AC／TCC契約IDへ解決し、旧`TC-*`別名を含まないことを検査する | 存在しない旧試験IDへの設計・実装trace、TCC正本との二重語彙 |
+| G-REQ-TRACE-FUNCTION-LEDGER | REQ compatibility ledgerのFN参照とFN ledgerのREQ upstreamを双方向照合する | REQからだけ見える機能、要求根拠へ戻れない媒体機能 |
+| G-REQ-PHASE-ALIGNMENT | FR→FNとFR→AC target_updateの導入phaseを厳密照合し、`S1+`／`S3+`を実装phaseとして拒否する | 同じ責務の実装順逆転、包含phaseによる未確定範囲の実装混入 |
+| G-REQ-SEMANTIC-DIMENSIONS | BR／媒体BR／REQ／FR／SR／NFR／媒体MR／FN／AC／TCごとにactor、beneficiary、value、workflow、scope、禁止、人間判断、副作用、証跡、phaseの該当軸を検査する | ID・件数・文章参照だけで意味閉包を主張すること、媒体・機能台帳の意味欠落、上位判断を下流処理が暗黙代替すること |
+| G-REQ-OBSOLETE-RUNTIME-ROUTES | ADR-007／013でVPS runtime、製品Web UI＋UI内inboxへ置換した後も、旧入力にWSL cron、Discord固定approval DDL、`discord_app/approval_request`初期tupleが残る状態を拒否する | 新要求と旧confirmed設計を同時に実装入力へ使い、Discordを必須承認入口として復活させること |
+| G-REQ-WP-RESPONSIBILITY-BOUNDARY | MR-WPのcontent operation（記事・固定ページ・media・公開）と通常保守（core／theme／plugin／WP-CLI）、security保守を別actions、connection、policy、actor、release、AC／TCへ分離する | `content_publish`承認でplugin/theme変更を実行すること、保守rollbackと公開rollbackの混同 |
+| G-REQ-NOTIFICATION-PURPOSE-BOUNDARY | 投稿可否承認、UI内operational notification、媒体community投稿、開発PR通知を別stable ID／policy／principal／transport／evidenceへ分離し、FR-16／43から承認用FR-46への接続とFR-76のApprovalTransport再利用を拒否する | 異常通知を承認要求として扱うこと、運用通知や媒体投稿からapprove/rejectを成立させること |
+| G-REQ-MEDIA-ROUTE-SEMANTICS | 媒体BRの公式API優先、consumer Web UI禁止、browser write禁止、on-holdをMRのconnection／actions／execution mode／statusへ照合する | LINE API方針の逆転、生成AI規約違反fallback、X browser write、保留Play公開routeの実装混入 |
+| G-REQ-CONNECTOR-PRIORITY-SEMANTICS | BR／FR／ADR-006／L4 CMP-07／L5 DU-13の経路優先順を照合し、公式無料APIをbrowserより前に置く単一語彙へ再降下するまで拒否する | 同じserviceでMCP→browser→paidとMCP→API→browser→paidの異なるRouteを返すこと |
+| G-REQ-L2-REVALIDATION-SEMANTICS | 旧L2 prototypeのgeneric Discord deep-link、未定義return、未知FR trace、未契約subscription write、cross-profile BIを検出し、新要求からの再作成まで拒否する | draft画面を要求根拠にして承認状態・通知用途・profile認可を設計で捏造すること |
+| G-REQ-VPS-CREDENTIAL-BOUNDARY | ADR-007のVPS `0600`環境fileと、S0／external-ifの暗号化store・runtime注入契約を照合し、単一のat-rest／in-memory／scope／rotation／recovery要求へ凍結するまで拒否する | file modeだけを暗号化とみなすこと、env／service unit／journal／argvへのsecret漏えい、test/prod credential混用 |
+| G-REQ-MEDIA-ADMISSION | 全MRに`enabled`／`attended-only`／`read-only`／`deferred`、execution mode、principal、effect、policy category、下流AC／TC又はdeferred再開契約を要求する | proseのconnection/actionsだけで外部writeを有効化すること、全MR downstream空のまま媒体稼働を宣言すること |
+| G-REQ-LEGACY-MEDIA-INVENTORY | 旧MR全件を新baselineでは安全側`deferred`として棚卸しし、業務価値、execution mode、principal、effect、policy、credential、quota、evidence、AC／TCを閉じた個別capabilityだけ再開可能にする | 旧connection／actions／safety本文から新baselineの実行許可又は経路を推測すること、一部MRの棚卸し漏れ |
+| G-REQ-TRACE-SEMANTIC-RESPONSIBILITY | BR／REQが要求する状態、関係、禁止、証跡を下位FRのbehavior／postcondition／ACへ照合する。ID実在・双方向edgeだけでは成立扱いにしない | BR-A3のbrand/action plan traceをFR-71の汎用DDL生成で代替する等、意味の異なる契約へのfalse trace |
+| G-REQ-DESCENT-ADMISSION | `design_status=requirements_defined` のFR／SRはFN・CMP・ACへ降下済み、又は`admission_status=deferred`と型付き再開条件を持つことを要求する | ACだけ存在してFN／CMPがない要求、戦略testだけ存在してACがない要求をimplementation-readyと扱うこと |
+| G-REQ-VPS-UI-DESCENT | VPS UI主入口が要求する状態・証跡・KPI閲覧と、旧FR-77のread-only API限定／Web UI禁止を照合する | UIを初期主入口と宣言しながら閲覧契約がWeb UIを禁止したまま、画面だけを設計すること |
+| G-REQ-HUMAN-JUDGEMENT-DESCENT | 上位BRのPO判断をFR／SRの責務、ACの反証条件、approval／decision evidenceまで追跡する | KPI tree初期承認、媒体追加、Design System改訂、オートモード移行、企画確定を自動処理又は別agent審査で代替すること |
+| G-REQ-NFR-AUTHORITY | 全NFRをstable REQ／BRへ逆traceし、根拠未確定なら`deferred`理由・再開条件を要求する | requirements文書節、risk、MR、別NFRだけを根拠に法規・backup／recovery・quotaをconfirmedと扱うこと |
+| G-REQ-STRATEGY-TEST-AUTHORITY | confirmed ACが参照する`STC-*`の台帳をPO content receipt付きconfirmed正本へ束縛し、未確定ならAC／SR側をdeferredにする | confirmed ACの反証oracleをactive／draft test ledgerへ依存させ、TCCと二重の試験正本にすること |
+| G-REQ-PROVIDER-DEPENDENCY | provider-neutral要求と、旧L0／BR／L4のClaude Design必須、個人Codex CLI/home証跡、consumer Web UI fallbackを照合する | 開発client非必須と製品provider必須を混同し、VPS runtimeが個人home又は規約違反Web UIに依存すること |
+| G-REQ-LEGACY-CONSUMER-ISOLATION | historical/revalidation扱いの旧REQ／requirements viewを、L0、S0契約、基本設計、検証設計、trace台帳の規範入力から隔離する | warningだけを根拠に同一ID・別slice・別traceの旧一覧を現行要求として下流設計へ再利用すること |
+| G-REQ-DESIGN-NOT-STARTED | 要求baselineがrevisingの間、L2〜L6を`revalidation_required`かつ`implementation_input=false`に固定し、L2をdraftに保つ | 旧画面・API・DDL・状態・AC/TC・実装単位を新VPS UI要求の設計済み成果物として扱うこと |
+| G-REQ-SCOPE-ASSIGNMENT | 旧要求864 IDを`legacy_revalidation_only`に固定し、新refinement全subjectをrequirements governance／initial／follow-on／deferred候補へ一意に割り当てる。VPS UI、初回activation、content gate、risk、research loopはinitial候補、Playwright routeとDiscord communityはfollow-on候補、旧Discord通知候補はdeferredへ固定する | 旧Discord・旧phase等を含むIDの初期scopeへの直接昇格、VPS UI/inbox/security/growth候補の欠落、生成AI/旧媒体の黙示有効化、Discord communityと通知の再混同 |
+| G-REQ-DECISION-PACKETS | PO確認用packetが全refinement subjectを順序付きでexactly once被覆し、packet内でもsubject別receiptを要求する。会話からcaptureしたPO判断の`required_new_subject_ids`は実在refinementへmaterializeし、Playwright、Discord community、初回承認後自動運用、content gate、risk、research/funnel/KPIの回答意味が対応semantic dimensionsに存在しなければならない | 重要判断の欠落、回答を監査メモ又は空IDだけへ残すこと、回答と逆のrefinement、重複判断、packet一括approveによる個別semantic digest・source-set digest束縛の省略 |
+| G-REQ-CANDIDATE-BINDINGS | baseline候補の全PRC見出しを実在refinement meaning ownerへ束縛し、全subjectが少なくとも一つのPRC責務を持つことを検査する。初期通知はVPS UI inbox、Discordはcommunity専用、VPS UI判断は毎回の投稿承認でなく初回activation／例外判断であることも固定する | 手書きPRCの孤立、未知subject参照、候補本文とtyped refinementの二重意味化、旧Discord通知又は個別投稿承認の再混入 |
+| G-REQ-L0-CLAUSE-DISPOSITION | 旧charter v0.4の目的・loop・媒体・human/AI・provider・browser・runtime・Discord・auto-mode等をclause単位で`retain`／`replace`／`defer`へ分類し、replacement PRC、deferred再開条件、未承認・未設計境界を検査する | 旧L0の手段を事業価値と混同した現役復帰、Discord初期承認・consumer Web UI・Claude Design・旧auto-modeの暗黙継承、PWA/Playの無承認再開 |
+| G-REQ-CRITICAL-RESPONSIBILITY-DISPOSITION | 旧BR-H2/H3及びFR-16/43/46/75/76/77の通知・承認・自動運用・profile binding・閲覧責務を、VPS UI内inbox、初回activation、content gate、repair/safety evidence、Web UI read modelへ明示分割する。旧Discord approval/operational notification、毎回投稿承認、機械criteriaだけのactivation、API-only UI禁止を継承禁止として検査する | 旧confirmed BR/FRを新要求へ直接戻し、Discord通知、ApprovalTransport再利用、個別投稿承認又はFR-77のWeb UI禁止を復活させること |
+| G-REQ-SEMANTIC-DESCENT-POLICY | BR／媒体BR→REQ／MR→FR／SR／NFR→FN／AC→TCの各edgeで12意味軸の直接宣言又はsource revision・semantic digest・scope transform付き継承を要求する。actor、task、workflow、scope、人間判断、副作用、証跡、phaseは対象層で直接宣言し、上位禁止は弱めず継承する。FN→CMP→DUは要求freezeまでblockedとする | ID traceや散文から主体・scope・判断・副作用・phaseを推測すること、target IDをscopeへ読み替えること、要求未確定のまま設計者が欠落を補完してL2以降へ進むこと |
+| G-REQ-LEGACY-NFR-DISPOSITION | 旧NFR-1〜11を業務価値、actor、scope、stable BR/REQ root、置換意味、未決事項及びmeaning ownerへ束縛し、`redescent`／`replace`／`defer`へ分類する。支出NFR-6、業務root未確定の法規NFR-9、VPSデータ分類未確定のbackup NFR-10、stable REQ不在の月次quota NFR-11は再開条件付きdeferredとし、NFR-7の全経路1〜5秒一様乱数をAPI/MCP quotaとPlaywright節度へ分離する | 旧測定式、SQLite、Discord、MR、risk ID、別NFR又は既存AC/TCだけを根拠に品質要求を現役化すること、有料経路や未分類quotaを初期実装へ混入すること |
+| G-REQ-ORPHAN-REQUIREMENT-DISPOSITION | stable REQ root又はFN/CMP/AC降下を欠く旧FR 11件とSR 19件をstable ID exact coverageで責務groupへ収載し、`redescent`／`replace`／`defer`、root action、descent action、meaning owner、再開条件及び未承認・未設計境界を検査する。旧Discord/API-only UI、旧S0、S3+包括phase、有料支出、高度分析の暗黙採用を拒否する | ACだけあるFRをrequirements-defined又はimplementation-readyと扱うこと、charter/BR直結のSRをstable REQなしで採用すること、logic tree等をdraft testだけで先行設計すること |
+| G-REQ-LEGACY-REQ-DISPOSITION | 旧REQ 55件をstable ID exact coverageし、confirmed Markdownとdraft JSONのどちらも現要求正本として採用せず、ID別`redescent`／`replace`／`defer`、meaning owner及びdeferred再開条件を検査する。SQLite、HTML/xlsx、MCP→browser→paid、WP固定、Claude Design、Discord承認/通知、旧auto-mode、全媒体browser乱数、媒体一括稼働を現要求へ置換又は延期する | 同一REQ IDの旧MD/JSON差分を自動unionすること、古い実現手段を業務要求として再利用すること、deferred対象を再開条件なしで初期scopeへ戻すこと |
+| G-REQ-LEGACY-BR-DISPOSITION | 旧BR 41件をstable ID exact coverageし、保持する事業価値と置換する実現手段を分離する。browser/SQLite/HTML/xlsx、MCP→browser→paid、WP一律収束、Claude Design、二接点限定、Discord個別投稿承認、旧auto-mode及び旧通知をVPS/UI/API-first/provider-neutral/phase別判断へ置換する | 旧BRが上位だからという理由で古いruntime、provider、承認又は通知方式まで現要求へ無条件継承すること |
+| G-REQ-LEGACY-MEDIA-BR-DISPOSITION | 旧媒体BR 70件を媒体別にexact coverageし、`replace`又は`defer`、現候補でのfunnel役割、route policy、meaning owner、再開条件、未承認・未設計境界を要求する。Discord community、affiliate offer authority、LINE API-first、measurement read、WP責務分離、X browser境界、Stripe顧客金銭operation等を明示する | 媒体名又は旧BRの存在を実行許可とみなすこと、製品通知とcommunityを混用すること、consumer Web UIやbrowser writeを暗黙に有効化すること、全媒体を一括releaseすること |
+| G-REQ-LEGACY-FR-DISPOSITION | 旧FR 43件をstable IDでexact coverageし、`redescent`／`replace`／`defer`、meaning owner、延期理由と再開条件、未承認・未設計境界を要求する。旧SQLite、Discord通知・個別承認、provider固定、API-only UI、媒体一律route、phase混在を現要求へ直接継承しない | 旧confirmed FRを現在の実装入力とみなし、VPS製品状態、UI内inbox、初回activation、API/MCP優先＋Playwright確認、provider-neutral及びprofile/account権限を設計者が推測で補うこと |
+| G-REQ-LEGACY-DERIVED-CONTRACTS | 旧FN 61件、AC 252件、TC 258件のstable ID集合をcount＋digestでexact固定し、親要求のPO凍結・再降下・意味軸再生成まで`legacy_revalidation_only`かつ未設計として扱う | 旧FNを機能設計、新要求と異なる旧AC/TCを受入証拠とみなすこと、旧Discord・phase・provider・fixtureから新runtimeを逆算すること |
+| G-REQ-AUTHORITY-REVISION-CANDIDATE | 新revisionの単一JSON正本＋生成Markdown＋旧IDへのsupersedes mappingを推奨案として保持し、PO未回答の間は旧ID書換え、authority cutover及び設計開始を拒否する。旧requirements consumerをinventory化し、選択後に一括置換又はhistorical隔離する | 推奨案をPO決定とみなすこと、旧MD/JSONを自動unionすること、旧Discord・API-only UI・WSL・provider・phaseを新revisionへ暗黙移植すること |
+| G-REQ-OBJECTIVE-COMPLETION-AUDIT | 意味全件棚卸し、旧参照隔離、VPS UI/inbox要求、設計未着手、新要求正本freezeを目的別に`proven`／`incomplete`／`blocked_by_po`へ分類し、証拠と残条件を要求する | 構造的棚卸し完了を新要求freeze又は設計完了と読み替えること、UI候補を実装済みとみなすこと、PO未承認を完了扱いすること |
+| G-REQ-REFINEMENT | subject/revision、source event集合digest、12意味軸、positive/negative/boundary acceptanceとsystem test、pending解消、semantic digest、approved/frozen時のPO receipt束縛を検査する | 要約だけの仕様化、根拠差替え、反例・境界なしの承認、未解決事項を残した凍結 |
+| G-REQ-REFINEMENT-COVERAGE | discoveryへ記録した全要求候補が、同じsubject IDの個別refinementを持つことを検査する | 質問又は候補を記録しただけで仕様化対象から欠落させること |
+| G-REQ-OPEN-REFINEMENTS | 全refinementでpending_resolution=0、PO receipt、lifecycle=frozenの同時成立を要求する | draft候補、未回答質問、AI回答、部分承認を要求完了とみなすこと |
+| G-REQ-APPROVAL-ADMISSION | activeなapproval requestがある場合、semantic driftと双方向trace違反が0でなければ承認工程を拒否する | 未精査要求の一括承認・構造だけを根拠にしたauthority cutover |
+| G-REQ-AUTHORITY-CUTOVER | baseline=approved、semantic closure=0、refinement検証=0、全recordがPO receipt付きfrozen、未決approval request=0の同時成立時だけimplementation_authorized=trueを許す | 旧confirmed契約・未凍結要求・部分承認を製品実装入力へ戻す誤り |
 
 ## template_alignment — HELIX-HARNESS 適応
 
 | ゲート | 検証内容 | 違反の意味 |
 |---|---|---|
-| G-TEMPLATE-ALIGNMENT | `docs/00-authority/template/helix-harness-alignment.json` が schema に適合し、RetryYN/HELIX-HARNESS の固定 40 桁 commit・read-only 方針・Python-native／Bun 非依存・要件定義範囲を宣言する。対応 mapping の必須 ID、現行パスの実在、L2 5 点セット、adapted discovery lifecycle の ledger/schema/gate/test、`make doctor`／`make test`／全ゲートの導線を fail-close で検査する | テンプレート参照先のすり替え、二重正本、未登録の開発環境・L2 設計、Bun／Node ランタイムの誤導入 |
+| G-TEMPLATE-ALIGNMENT | `docs/00-authority/template/helix-harness-alignment.json` が schema に適合し、RetryYN/HELIX-HARNESS の固定採用 commit と latest checked commit を分離して read-only 方針・差分処置・Python-native／Bun 非依存・要件定義範囲を宣言する。対応 mapping、現行パス、L2 5 点セット、adapted discovery lifecycle、Python 3.14 pin、uv frozen sync、CI concurrency／timeout／checkout credential 非保持、`make doctor`／`make test`／全ゲートの導線を fail-close で検査する | テンプレート参照先や最新版確認点のすり替え、二重正本、toolchain drift、無制限・credential 残留 CI、未登録の開発環境・L2 設計、Bun／Node ランタイムの誤導入 |
 
 ## baseline — デグレ検出と配線
 

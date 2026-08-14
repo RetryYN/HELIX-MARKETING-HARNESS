@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://marketing-harness.local/schemas/requirement-ir.v1.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "authority", "source_authority", "partition", "shards", "records", "revalidation_inventory", "root_digest"],
+  "properties": {
+    "schema_version": {"const": "marketing-harness-requirement-ir.v1"},
+    "authority": {"const": "generated_non_authoritative_projection"},
+    "source_authority": {"const": "mixed_revalidation_sources"},
+    "partition": {"const": "stable_id_keyed_shards"},
+    "shards": {"type": "array", "minItems": 5, "maxItems": 5, "items": {"type": "object", "additionalProperties": false, "required": ["kind", "count", "digest"], "properties": {"kind": {"enum": ["requirements", "system_contracts", "acceptance_cases", "system_tests", "refinement_contracts"]}, "count": {"type": "integer", "minimum": 1}, "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}}}},
+    "records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["stable_id", "kind", "partition", "source_authority", "applicability", "semantic_digest", "semantic"],
+        "properties": {
+          "stable_id": {"type": "string", "minLength": 1},
+          "kind": {"enum": ["BR", "BRM", "REQ", "FR", "SR", "NFR", "MR", "FN", "AC", "TC", "CMP", "DU", "IU", "RRF"]},
+          "partition": {"enum": ["requirements", "system_contracts", "acceptance_cases", "system_tests", "refinement_contracts"]},
+          "source_authority": {"enum": ["canonical_contract_json", "read_only_req_revalidation_ledger", "read_only_legacy_requirement_ledger", "canonical_refinement_registry"]},
+          "applicability": {"enum": ["revalidation_required", "proposal_only"]},
+          "semantic_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+          "semantic": {"type": "object"}
+        }
+      }
+    },
+    "revalidation_inventory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "decision_policy", "counts", "items", "digest"],
+      "properties": {
+        "status": {"const": "unresolved_not_implementation_input"},
+        "decision_policy": {"const": "po_receipt_per_refinement_no_bulk_inference"},
+        "counts": {
+          "type": "object", "additionalProperties": false,
+          "required": ["BR", "BRM", "REQ", "FR", "SR", "NFR", "MR", "FN", "AC", "TC", "total"],
+          "properties": {
+            "BR": {"const": 41}, "BRM": {"const": 70}, "REQ": {"const": 55},
+            "FR": {"const": 43}, "SR": {"const": 19}, "NFR": {"const": 11},
+            "MR": {"const": 54}, "FN": {"const": 61}, "AC": {"const": 252},
+            "TC": {"const": 258}, "total": {"const": 864}
+          }
+        },
+        "items": {
+          "type": "array", "minItems": 864, "maxItems": 864,
+          "items": {
+            "type": "object", "additionalProperties": false,
+            "required": ["stable_id", "kind", "legacy_slice", "scope_assignment", "applicability", "issue_codes", "required_semantic_dimensions", "decision_subject_ids", "allowed_dispositions", "treatment", "decision_status"],
+            "properties": {
+              "stable_id": {"type": "string", "minLength": 2},
+              "kind": {"enum": ["BR", "BRM", "REQ", "FR", "SR", "NFR", "MR", "FN", "AC", "TC"]},
+              "legacy_slice": {"type": ["string", "null"]},
+              "scope_assignment": {"const": "legacy_revalidation_only"},
+              "applicability": {"const": "revalidation_required"},
+              "issue_codes": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["legacy_revalidation_required", "semantic_dimensions_missing", "stable_req_root_missing", "trace_inconsistent", "phase_inconsistent", "implementation_descent_missing", "human_judgement_descent_missing", "known_runtime_or_policy_conflict"]}},
+              "required_semantic_dimensions": {"type": "array", "minItems": 12, "maxItems": 12, "uniqueItems": true, "items": {"enum": ["actors", "beneficiaries", "value", "tasks", "workflow", "scope_in", "scope_out", "prohibitions", "human_judgement", "side_effects", "evidence", "phase"]}},
+              "decision_subject_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+              "allowed_dispositions": {"type": "array", "minItems": 3, "maxItems": 3, "uniqueItems": true, "items": {"enum": ["redescent", "deferred", "superseded"]}},
+              "treatment": {"enum": ["redescent_required", "po_decision_then_redescent_or_deferred"]},
+              "decision_status": {"const": "unresolved"}
+            }
+          }
+        },
+        "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+      }
+    },
+    "root_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+  }
+}

@@ -107,7 +107,7 @@ TESTS_UNIT = ROOT / "tests/unit"
 SKIP_BUDGET = ROOT / "tests/skip-budget.json"
 COVERAGE_FLOOR = ROOT / "tests/coverage-floor.json"
 GATE_PKG = ROOT / "tools/gates"
-GATE_MODULES = ["authority", "requirements", "requirement_discovery", "traceability", "architecture", "detailed_design",
+GATE_MODULES = ["authority", "requirements", "requirement_discovery", "requirement_engine", "traceability", "architecture", "detailed_design",
                 "test_pairing", "test_reality", "worksets", "semantic_refs", "review_binding",
                 "template_alignment", "baseline",
                 "run_all"]
@@ -408,15 +408,12 @@ class Ctx:
 
     @cached_property
     def requirements(self) -> list[dict]:
+        """旧 requirements compatibility view（意味差分監査専用）。
+
+        現行 FR/NFR の分母・検証入力には frc/nfc を使う。kind 別 convenience
+        property を置くと通常ゲートが旧意味を再利用できるため、意図的に提供しない。
+        """
         return load(REQUIREMENTS_LEDGER)["items"]
-
-    @cached_property
-    def fr(self) -> list[dict]:
-        return [i for i in self.requirements if i["kind"] == "FR"]
-
-    @cached_property
-    def nfr(self) -> list[dict]:
-        return [i for i in self.requirements if i["kind"] == "NFR"]
 
     @cached_property
     def fn(self) -> list[dict]:

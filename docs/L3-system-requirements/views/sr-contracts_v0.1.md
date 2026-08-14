@@ -2,6 +2,10 @@
 
 # 戦略要件 実行契約（SR contracts） v0.1
 
+> [!WARNING]
+> **旧baselineの生成view。現行要求の正本・設計・実装入力ではない。**  `requirements_baseline_status=revising` / `implementation_authorized=false`。
+> 下記status/receiptは旧baselineの成熟度と承認履歴だけを示す。PO receipt付きfrozen refinementからFull Vを再降下しauthority cutoverするまで、本viewの内容をcurrentへ読み替えない。
+
 > status: **confirmed**（2026-08-05 PO 承認 — receipt 977ec7ae5c0c）。JSON 内容正本の生成ビュー（全層再降下 §3）
 > 各 SR に 18 観点の実行契約を必須化。brief／TLP／revision の正準は strategy-learning-contract。
 

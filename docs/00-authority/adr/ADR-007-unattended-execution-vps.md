@@ -1,14 +1,14 @@
 ---
 artifact_id: AUTH-ADR-ADR-007-UNATTENDED-EXECUTION-VPS
-lifecycle_status: draft
+lifecycle_status: confirmed
 slice: cross
 ---
 
 # ADR-007: 無人自走レーンの実行基盤を cron（WSL）から VPS（helix-worker, systemd）へ移す
 
-- status: proposed
+- status: accepted
 - date: 2026-08-12
-- decision_authority: PO（未承認 — 本 ADR は提案ドラフト）
+- decision_authority: PO（2026-08-14、本VPS稼働実態とXServer API PoC証跡を確認して採用）
 - 関連: tech-stack §1（スケジューラ）/ §2（ブラウザ自動化）、NFR-2（決定性）、NFR-3（再開性）、charter の無人自走方針、RSK 系（運用停止リスク）
 
 ## 背景
@@ -25,14 +25,14 @@ tech-stack v0.1 はスケジューラを「cron（WSL）+ ハーネス内 heartb
    Ubuntu 26.04 LTS）が整備され、前提条件が変わった。Playwright + Chromium + xvfb +
    日本語フォント導入・動作確認済み。追加費用ゼロ（契約済み資源の転用）
 
-## 決定（提案）
+## 決定
 
 実行環境を有人/無人の二車線に分離する:
 
 | 車線 | 実行基盤 | 対象 |
 |---|---|---|
 | 無人車線 | **VPS helix-worker（systemd service / timer）** | スケジュール発火・キュー駆動ワーカー・Playwright 無人突破・証跡蓄積・KPI 収集 |
-| 有人車線 | **スマホ／標準ブラウザ＋ローカル開発環境** | Discord初期承認・将来Web UI/PWA・OAuth初回ログイン取得・Notion計画同期・Docker WP検証・開発 |
+| 有人車線 | **スマホ／標準ブラウザ＋ローカル開発環境** | Web UI＋UI内inbox、OAuth初回ログイン取得、Notion計画同期、Docker WP検証、開発 |
 
 - tech-stack §1 の「cron（WSL）」を「systemd timer（helix-worker）」に改訂する。
   ハーネス内 heartbeat 判断は変更なし（OS は発火のみ、回転判断はエンジン、の原則は維持）
@@ -44,7 +44,7 @@ tech-stack v0.1 はスケジューラを「cron（WSL）+ ハーネス内 heartb
 
 1. **セッション搬入**: OAuth / ログインセッションはローカルの有人操作で取得し、
    ブラウザプロファイルとして VPS のブランド別プロファイル（brand-isolation 設計に従う）へ搬入する
-2. **承認**: 承認待ちタスクは VPS 側キューで停止し、交換可能な承認入口（初期Discord、将来Web UI/PWA）から
+2. **承認**: 承認待ちタスクは VPS 側キューで停止し、交換可能な承認入口（初期Web UI＋inbox、外部通知は任意adapter）から
    VPS側承認APIへ結果を書き込むことで再開する（承認状態の正本は VPS 側 DB）
 3. **デプロイ**: 正本は GitHub。VPS は pull + 全ゲート PASS を確認してからワーカーを再起動する
    （fail-close: ゲート不合格の版は稼働しない）
@@ -65,10 +65,10 @@ tech-stack v0.1 はスケジューラを「cron（WSL）+ ハーネス内 heartb
 - 秘密情報の置き場所規律（credential を repo・DB・ログに書かない）は VPS 側にも同一適用。
   接続資格情報は VPS 上の環境ファイル（600 権限）で管理し、GitHub を経由しない
 - ローカル cron 前提で書かれた運用手順があれば systemd unit 前提に読み替える
-- 本 ADR が承認されるまで、実装・運用は現行正本（cron（WSL））に従う
+- WSL cronは旧環境として終了し、製品runtimeと製品フロントの配備先はVPS `helix-worker`を基準とする
 
-## 未決事項（PO 判断）
+## 未決事項（後続要求・設計）
 
-1. 承認通知の到達手段は ADR-010 で解決済み（初期 Discord、将来 Web UI / PWA）
+1. 人間向け主入口はADR-013の製品Web UI方針で再定義する。通知adapterの初期集合は要求で確定する
 2. 証跡バックアップ先: GitHub 証跡リポジトリ / オブジェクトストレージ / ローカル同期のいずれか
 3. Docker WP 検証環境を VPS 側にも複製するか（本番反映パイプラインの配置）

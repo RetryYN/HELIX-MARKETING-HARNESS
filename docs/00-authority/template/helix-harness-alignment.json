@@ -5,6 +5,9 @@
     "repository": "RetryYN/HELIX-HARNESS",
     "url": "https://github.com/RetryYN/HELIX-HARNESS/",
     "commit": "57853db413e282b050ac5f37bab7809321c67842",
+    "latest_checked_commit": "b19647a742a7511603940772b1afcf265abf6e3f",
+    "latest_checked_at": "2026-08-14",
+    "delta_disposition": "partially-adapted",
     "read_only": true
   },
   "adoption": {
@@ -19,17 +22,24 @@
   "mappings": [
     {
       "id": "v-model",
-      "template_paths": ["README.md", "docs/design/harness/"],
+      "template_paths": [
+        "docs/governance/helix-harness-requirements_v1.3.md",
+        "docs/design/helix/L3-requirements/l12-scrum-rebaseline-requirements.md",
+        "docs/process/modes/scrum.md",
+        "config/drive-route-catalog.json",
+        "docs/design/helix/L3-requirements/scrum-reverse-verification-engine.md",
+        "docs/design/helix/L3-requirements/scrum-reverse-entity-model.md"
+      ],
       "current_paths": ["README.md", "CLAUDE.md", "docs/00-authority/requirements-gates.md"],
-      "status": "adapted",
-      "rationale": "L0-L14 の考え方を現行 L0-L6 と機械ゲートの工程語彙へ写像する。"
+      "status": "bridge",
+      "rationale": "旧L0-L6文書ペアは再検証資料として残るが、現行HELIXのFull V-model（L1-L12 exactly once、6 V-pair）、Production Scrum、V設計＋Scrum実装Hybrid、Discovery別軸、Scrum Reverse SR0-SR4を新要求正本へ未移植である。L1-L3要求freezeとroute合意、対応V-pair、右腕evidenceを閉じるまでadaptedとしない。"
     },
     {
       "id": "requirement-ir",
-      "template_paths": ["requirements-ir/manifest.json", "requirements-ir/*.json", "config/requirement-ir-schema.json"],
-      "current_paths": ["docs/L1-business-requirements/canonical/br/br-contracts.json", "docs/L3-system-requirements/canonical/functional/fr-contracts.json", "docs/L3-system-requirements/canonical/acceptance/ac-contracts.json", "docs/L3-system-requirements/verification/tc-contracts.json", "docs/L6-feature-design/S0/implementation-units.json"],
+      "template_paths": ["requirements-ir/manifest.json", "requirements-ir/*.json", "config/requirement-ir-schema.json", "config/requirement-ir-authority.json", "src/requirements/requirement-refinement-authority.ts", "src/requirements/requirement-ir-authority-cutover.ts"],
+      "current_paths": ["docs/L1-business-requirements/canonical/br/br-contracts.json", "docs/L3-system-requirements/canonical/functional/fr-contracts.json", "docs/L3-system-requirements/canonical/acceptance/ac-contracts.json", "docs/L3-system-requirements/verification/tc-contracts.json", "docs/L6-feature-design/S0/implementation-units.json", "docs/00-authority/adr/ADR-012-helix-harness-template-adoption.md", "docs/00-authority/development/requirement-engine-authority.json", "docs/00-authority/development/requirement-ir.schema.json", "docs/00-authority/development/requirement-refinement.schema.json", "docs/00-authority/development/requirement-refinements.json", "tools/gates/requirement_engine.py", "tests/gates/test_requirement_engine.py"],
       "status": "bridge",
-      "rationale": "stable ID と要求連鎖だけを採用し、現行の契約 JSON 9 本を唯一の実装入力として二重正本を作らない。"
+      "rationale": "現時点はstable IDと構造連鎖だけの不完全なbridge。既存契約JSON 9本をsource authorityとして維持しつつ、正規化IR、refinement、semantic digest/drift、approval admission、authority cutover、生成viewをPython-nativeに移植するまでadaptedとしない。"
     },
     {
       "id": "discovery-lifecycle",
@@ -42,15 +52,64 @@
       "id": "l2-screen-template",
       "template_paths": ["docs/design/harness/L2-screen/screen-list.md", "docs/design/harness/L2-screen/screen-flow.md", "docs/design/harness/L2-screen/ui-element.md", "docs/design/harness/L2-screen/wireframe.md", "docs/design/harness/L2-screen/screen-detail.md"],
       "current_paths": ["docs/L2-prototypes/README.md", "docs/L2-prototypes/screens/ui-screen-list_v0.1.md", "docs/L2-prototypes/screens/screen-flow_v0.1.md", "docs/L2-prototypes/screens/ui-element_v0.1.md", "docs/L2-prototypes/screens/wireframe_v0.1.md", "docs/L2-prototypes/screens/screen-detail_v0.1.md", "docs/L2-prototypes/workflows/business-flow_v0.1.md"],
-      "status": "adopted",
-      "rationale": "5 点セットを S1 draft として揃え、画面入口・状態・失敗・write 境界・アクセシビリティを追跡可能にする。"
+      "status": "bridge",
+      "rationale": "5点書式は揃えたが内容は旧要求の評価用draftであり、新要求の製品設計ではない。要求承認後の再作成までbridgeとする。"
     },
     {
       "id": "developer-loop",
       "template_paths": ["package.json", "scripts/", ".github/"],
-      "current_paths": ["Makefile", "scripts/dev.py", "scripts/collect_test_outcome.py", "pyproject.toml", "uv.lock", "tools/gates/run_all.py"],
+      "current_paths": [".python-version", "Makefile", "scripts/dev.py", "scripts/collect_test_outcome.py", "pyproject.toml", "uv.lock", "tools/gates/run_all.py", ".github/workflows/docs-ci.yml", ".github/workflows/python-ci.yml"],
       "status": "adapted",
-      "rationale": "setup／doctor／docs／gates／test を uv、生成ビュー、既存全ゲート、pytest の Python 導線で提供する。"
+      "rationale": "setup／doctor／docs／gates／test を uv、生成ビュー、既存全ゲート、pytest の Python 導線で提供し、Python pin と frozen install を CI まで一致させる。"
+    },
+    {
+      "id": "ci-hygiene",
+      "template_paths": [".github/workflows/harness-check.yml", "src/lint/toolchain-pin.ts"],
+      "current_paths": [".python-version", "pyproject.toml", "uv.lock", ".github/workflows/docs-ci.yml", ".github/workflows/python-ci.yml", "tools/gates/template_alignment.py", "tests/gates/test_template_alignment.py"],
+      "status": "adapted",
+      "rationale": "Python 3.14 pin、uv frozen sync、重複実行キャンセル、job timeout、checkout credential 非保持を Python-native CI 契約として検査する。"
+    },
+    {
+      "id": "nfr-quality-registry",
+      "template_paths": ["config/nfr-registry.json", "src/requirements/nfr-registry.ts"],
+      "current_paths": ["docs/L3-system-requirements/canonical/nonfunctional/nfr-contracts.json", "docs/L3-system-requirements/canonical/nonfunctional/nfr-contract.schema.json", "tools/gates/requirements.py"],
+      "status": "bridge",
+      "rationale": "別 registry は作らず、現行 NFR 契約の stable ID、検証方法、閾値、AC／TC trace を唯一の正本として維持する。"
+    },
+    {
+      "id": "schema-ddl-authority",
+      "template_paths": ["src/state-db/schema-authority.ts", "docs/design/helix/L5-detail/state-db-schema-ddl-authority.md"],
+      "current_paths": ["docs/L3-system-requirements/canonical/s0-contract_v0.1.md", "docs/L3-system-requirements/canonical/schemas/s0/ddl.sql", "docs/L6-feature-design/S0/migration.md", "tools/gates/architecture.py", "tests/unit/test_db_migrate.py"],
+      "status": "bridge",
+      "rationale": "DDL 正本、migration checksum、空 DB 再現、等価性、前方互換の設計とgateへ写像済み。製品migration runtimeはS0.1未実装であり、実装済みとは扱わない。"
+    },
+    {
+      "id": "atomic-change-scope",
+      "template_paths": [".github/PULL_REQUEST_TEMPLATE.md", "src/guard/branch-kind.ts", "src/guard/github-atomic-development-contract.ts"],
+      "current_paths": ["docs/L6-feature-design/S0/plan-s0.1.json", "docs/L6-feature-design/S0/s0.1-worksets.json", "tools/gates/worksets.py", "tools/gates/test_pairing.py", "tests/gates/test_test_pairing.py"],
+      "status": "adapted",
+      "rationale": "branch名を正本にせず、S0.1 plan／Workset／API／UT／module の導出一致で変更scopeと着手境界を機械的に制約する。"
+    },
+    {
+      "id": "developer-cross-review",
+      "template_paths": ["docs/design/harness/L6-function-design/cross-review-enforcement.md", "src/runtime/github-cross-review-admission.ts", "src/runtime/worker-independent-review.ts"],
+      "current_paths": ["docs/00-authority/reviews/review.schema.json", "docs/00-authority/reviews/", "tools/gates/review_binding.py", "AGENTS.md", "CLAUDE.md"],
+      "status": "bridge",
+      "rationale": "別principal／execution、target commit／tree、artifact digest、後続review束縛は現行review成果物へ写像済み。GitHub PR対応依頼は未実装で、製品Discord承認とは接続しない。"
+    },
+    {
+      "id": "developer-pr-notification",
+      "template_paths": ["src/runtime/github-cross-review-admission.ts", "src/audit/pr-review-route.ts"],
+      "current_paths": ["docs/00-authority/adr/ADR-012-helix-harness-template-adoption.md", "docs/00-authority/development/development-environment_v0.1.md", "docs/00-authority/audits/helix-harness-template-alignment-2026-08-13.md"],
+      "status": "deferred",
+      "rationale": "GitHub current HEAD／check／findingに束縛する開発専用通知の境界だけを文書化。アダプターは未実装で、既存CIを通知実装とは数えない。Discord、ApprovalTransport、approvals、公開許可へ流用しない。"
+    },
+    {
+      "id": "developer-harness-memory",
+      "template_paths": ["docs/design/harness/L6-function-design/harness-memory-structure.md", "docs/design/harness/L6-function-design/harness-memory-compaction.md", "src/memory/", "src/runtime/continuation.ts"],
+      "current_paths": ["docs/00-authority/adr/ADR-012-helix-harness-template-adoption.md", "docs/00-authority/development/development-environment_v0.1.md", "docs/00-authority/audits/helix-harness-template-alignment-2026-08-13.md"],
+      "status": "deferred",
+      "rationale": "開発継続状態として移植可能だが未実装。製品DB・要求正本・discovery ledger・approval evidenceと分離し、schema／stale判定／秘密検査／gateを追加後に適応する。"
     },
     {
       "id": "hooks-and-authority",
@@ -70,6 +129,11 @@
       "id": "bun-node-runtime",
       "status": "not-applicable",
       "reason": "Python 単一パッケージ規律と既存ゲートを優先し、Bun／Node を active dependency にしない。"
+    },
+    {
+      "id": "node-provider-runtime",
+      "status": "not-applicable",
+      "reason": "Node provider spawn buffer と Bun／Node 実装は Python-native 制約により移植しない。cross-review、PR対応依頼、harness memoryの意味契約は開発環境の別mappingで評価する。"
     }
   ],
   "required_checks": [

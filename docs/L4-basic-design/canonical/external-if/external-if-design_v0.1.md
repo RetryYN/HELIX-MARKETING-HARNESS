@@ -6,6 +6,9 @@ slice: S0
 
 # 外部 IF 詳細設計 v0.1（②増補 — コネクタ境界契約）
 
+> [!WARNING]
+> **旧baselineのL4設計。現要求に対するL4は未設計であり、本書は実装入力ではない。** `applicability_status=revalidation_required` / `implementation_input=false`。
+
 > status: **confirmed**（2026-08-01 全層再降下 §6 — AI 起草）
 > pair: [integration-test-design_v0.1.md](../../integration-tests/integration-test-design_v0.1.md)（②↔④ 文書ペアの増補側 — 結合観測点は④に従属）
 > 上位文書: [basic-design_v0.1.md](../basic-design_v0.1.md)（CMP-07〜11・横断設計 §4）／

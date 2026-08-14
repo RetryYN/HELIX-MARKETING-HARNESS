@@ -1,0 +1,113 @@
+{
+  "schema_version": "marketing-harness-requirement-authority.v1",
+  "authority": "canonical",
+  "requirements_baseline_status": "revising",
+  "implementation_authorized": false,
+  "helix_engine_adoption": {
+    "status": "bridge",
+    "source_model": "current_full_v_l1_l12",
+    "v_pairs": ["L1-L12", "L2-L11", "L3-L10", "L4-L9", "L5-L8", "L6-L7"],
+    "delivery_routes": ["production_scrum", "v_design_scrum_impl_hybrid", "discovery"],
+    "scrum_reverse_stages": ["SR0", "SR1", "SR2", "SR3", "SR4"],
+    "required_ir_partitions": [
+      "requirements",
+      "system_contracts",
+      "acceptance_cases",
+      "system_tests",
+      "refinement_contracts"
+    ],
+    "missing_before_adapted": [
+      "full_v_pair_authority",
+      "five_partition_ir_cutover",
+      "route_admission",
+      "scrum_reverse_closure"
+    ]
+  },
+  "artifact_applicability_policy": {
+    "manifest_layers": ["L0", "L1", "L2", "L3", "L4", "L5", "L6"],
+    "when_requirements_baseline_revising": "revalidation_required",
+    "implementation_input": false,
+    "confirmed_meaning": "historical_maturity_and_receipt_only",
+    "candidate_meaning": "proposal_only_not_implementation_input",
+    "exception_artifact_ids": []
+  },
+  "trusted_decision_authorities": {
+    "PO": ["po"]
+  },
+  "canonical_sources": [
+    "docs/L1-business-requirements/canonical/br/br-contracts.json",
+    "docs/L3-system-requirements/canonical/functional/fr-contracts.json",
+    "docs/L3-system-requirements/canonical/strategy/sr-contracts.json",
+    "docs/L3-system-requirements/canonical/nonfunctional/nfr-contracts.json",
+    "docs/L3-system-requirements/canonical/acceptance/ac-contracts.json",
+    "docs/L3-system-requirements/verification/tc-contracts.json",
+    "docs/L4-basic-design/canonical/components/cmp-contracts.json",
+    "docs/L5-detailed-design/canonical/apis/du-contracts.json",
+    "docs/L6-feature-design/S0/implementation-units.json"
+  ],
+  "source_applicability": {
+    "docs/L1-business-requirements/canonical/br/br-contracts.json": "revalidation_required",
+    "docs/L3-system-requirements/canonical/functional/fr-contracts.json": "revalidation_required",
+    "docs/L3-system-requirements/canonical/strategy/sr-contracts.json": "revalidation_required",
+    "docs/L3-system-requirements/canonical/nonfunctional/nfr-contracts.json": "revalidation_required",
+    "docs/L3-system-requirements/canonical/acceptance/ac-contracts.json": "revalidation_required",
+    "docs/L3-system-requirements/verification/tc-contracts.json": "revalidation_required",
+    "docs/L4-basic-design/canonical/components/cmp-contracts.json": "revalidation_required",
+    "docs/L5-detailed-design/canonical/apis/du-contracts.json": "revalidation_required",
+    "docs/L6-feature-design/S0/implementation-units.json": "revalidation_required"
+  },
+  "unresolved_semantic_gate_disposition": {
+    "waiver_forbidden": true,
+    "gates": {
+      "G-REQ-SEMANTIC-DRIFT": "po_decision_then_redescent",
+      "G-REQ-TRACE-BIDIR": "redescent_or_deferred",
+      "G-REQ-TRACE-LAYERS": "redescent_or_deferred",
+      "G-REQ-TRACE-IMPLEMENTATION": "redescent_or_deferred",
+      "G-REQ-TRACE-FUNCTION-LEDGER": "redescent_or_deferred",
+      "G-REQ-PHASE-ALIGNMENT": "redescent_or_deferred",
+      "G-REQ-SEMANTIC-DIMENSIONS": "redescent_or_deferred",
+      "G-REQ-OBSOLETE-RUNTIME-ROUTES": "historical_isolation_then_redescent",
+      "G-REQ-WP-RESPONSIBILITY-BOUNDARY": "redescent_or_deferred",
+      "G-REQ-NOTIFICATION-PURPOSE-BOUNDARY": "redescent_or_deferred",
+      "G-REQ-MEDIA-ROUTE-SEMANTICS": "media_deferred_until_frozen",
+      "G-REQ-CONNECTOR-PRIORITY-SEMANTICS": "po_decision_then_redescent",
+      "G-REQ-L2-REVALIDATION-SEMANTICS": "historical_isolation_then_redescent",
+      "G-REQ-VPS-CREDENTIAL-BOUNDARY": "security_po_decision_then_redescent",
+      "G-REQ-MEDIA-ADMISSION": "media_deferred_until_frozen",
+      "G-REQ-TRACE-SEMANTIC-RESPONSIBILITY": "redescent_or_deferred",
+      "G-REQ-DESCENT-ADMISSION": "redescent_or_deferred",
+      "G-REQ-VPS-UI-DESCENT": "historical_isolation_then_redescent",
+      "G-REQ-HUMAN-JUDGEMENT-DESCENT": "po_decision_then_redescent",
+      "G-REQ-NFR-AUTHORITY": "redescent_or_deferred",
+      "G-REQ-STRATEGY-TEST-AUTHORITY": "redescent_or_deferred",
+      "G-REQ-PROVIDER-DEPENDENCY": "po_decision_then_redescent",
+      "G-REQ-OPEN-REFINEMENTS": "po_decision_required"
+    }
+  },
+  "compatibility_inputs": {
+    "docs/L1-business-requirements/canonical/req/req.json": "read_only_revalidation_ledger",
+    "docs/L1-business-requirements/canonical/requirement-list_v0.1.md": "historical_confirmed_view_not_current_authority",
+    "docs/L3-system-requirements/canonical/functional/requirements.json": "read_only_revalidation_view",
+    "docs/L3-system-requirements/canonical/functional/requirements_v0.1.md": "historical_confirmed_view_not_current_authority"
+  },
+  "projection": {
+    "schema": "docs/00-authority/development/requirement-ir.schema.json",
+    "authority": "generated_non_authoritative_projection",
+    "write_policy": "regenerate_only",
+    "dual_authority": "forbidden"
+  },
+  "refinement": {
+    "schema": "docs/00-authority/development/requirement-refinement.schema.json",
+    "registry": "docs/00-authority/development/requirement-refinements.json",
+    "approval_unit": "one_refinement_revision",
+    "bulk_approval": "forbidden"
+  },
+  "consumer_policy": {
+    "semantic_read": "canonical_contract_json_plus_non_authoritative_req_trace_ledger",
+    "compatibility_views": "read_only_drift_checked",
+    "generated_projection": "read_only_rebuildable",
+    "implementation_input": "frozen_revision_only",
+    "authority_cutover": "po_receipt_and_all_gates_and_independent_go_review",
+    "revising_behavior": "all_existing_confirmed_contracts_are_legacy_revalidation_inputs_not_new_implementation_authority"
+  }
+}

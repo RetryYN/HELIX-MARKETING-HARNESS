@@ -6,8 +6,8 @@ slice: cross
 
 # ADR-012: HELIX-HARNESS 設計テンプレートの適応
 
-> status: **draft**。設計テンプレートの適応方針を記録する。テンプレートのランタイムを本リポジトリへ
-> 移植する決定ではない。
+> status: **draft**。設計テンプレートと、要件定義から確定までの要求エンジンを適応する方針を記録する。
+> 製品ランタイムを移植する決定ではない。
 
 - date: 2026-08-13
 - decision_authority: PO 指示に基づく適応案（内容は draft。confirmed 化には承認 receipt が必要）
@@ -20,16 +20,17 @@ slice: cross
 本リポジトリは L0〜L6 の要件・契約・ゲートを Python-native に積み上げている。一方、HELIX-HARNESS は
 L0〜L14 の V-model、要件発見イベント、stable ID による要件連鎖、L2 の 5 文書 screen 方法論、開発者向け
 doctor／build／test の導線を設計テンプレートとして提供する。両者を無条件に統合すると、現在の JSON 正本と
-Python ゲートが二重化されるため、方法論と開発環境だけを互換層として取り込む。
+Python ゲートが二重化されないよう、既存正本を維持したまま要求エンジンの意味契約を Python-native に移植する。
 
 ## 決定
 
-1. **適応するもの**: V-model の工程語彙、要件発見→候補→試作→受入→凍結のライフサイクル、stable ID／
-   要件→契約→AC→TC の連鎖、L2 screen-list／screen-flow／ui-element／wireframe／screen-detail の 5 点セット、
-   doctor／docs／gates／test の開発コマンド。
+1. **適応するもの**: V-model の工程語彙、要件発見→候補→質問→試作→仕様化→個別承認→凍結のライフサイクル、
+   stable ID、requirement IR、refinement contract、semantic digest／drift、authority cutover、要件→契約→AC→TC の
+   意味連鎖、生成ビュー、L2 5 点セット、doctor／docs／gates／test の開発コマンド。要件定義から確定までの
+   判定順序と fail-close 条件は省略しない。
 2. **正本を変えないもの**: 実装入力は既存の契約 JSON 9 本、DDL・状態遷移・evidence 型は s0-contract、成果物の
-   権威は artifact-manifest、検証入口は `tools/gates/run_all.py` とする。HELIX-HARNESS の `requirements-ir/` を
-   並列正本として導入しない。
+   権威は artifact-manifest、検証入口は `tools/gates/run_all.py` とする。既存9正本を source adapter として読み、
+   HELIX-HARNESS と同等の正規化 IR を決定的に生成・検証する。IRを手編集可能な並列正本にはしない。
 3. **ランタイム境界**: 本リポジトリの実装言語は Python、パッケージは `src/helix/`。テンプレートの Bun／Node
    ランタイム、`.helix` 実行系、外部サービス接続を本リポジトリの実装入力にしない。
 4. **導入範囲**: 要件定義〜L3 の要求確定と L2 プロトタイプ設計までを直ちに利用可能にする。L4 以降と製品実装は
@@ -42,6 +43,25 @@ Python ゲートが二重化されるため、方法論と開発環境だけを�
 7. **discovery 証跡**: 導入以後の候補・質問・試作・観測・仕様化・承認は append-only ledger で監査する。既存の
    契約 JSON 正本や製品 runtime を直接更新せず、導入前履歴を推測 backfill しない。契約変更は proposal と decision、
    又は `deferred:` 理由付き withdrawal を通じて既存承認工程へ還流する。
+8. **開発環境の適応境界**: 上流の toolchain pin と CI hygiene は Python 3.14、`uv sync --frozen`、重複実行の
+   cancel、job timeout、checkout credential 非保持へ写像し、対応表ゲートで検査する。Node provider 実装は移植しない。
+   一方、独立 cross-review、PR 対応依頼、継続状態／memory journal は製品機能ではなく開発環境の候補として分離し、
+   Python-native な契約・保存形式・gate が揃うまでは `deferred` とする。
+9. **通知の非混同**: `approval_notification`／`discord_app`／`approval_request`は旧baselineの
+   Discord投稿可否承認tupleであり、現在は`revalidation_required`である。ADR-013の現行候補はVPS Web UIを
+   判断入口、UI内inboxを初期通知経路とし、Discordを未採用の将来deep-link補助に限定する。旧tupleを
+   現在の製品承認へ再導入せず、開発上の PR 対応依頼にも流用しない。
+   PR 通知を導入する場合は GitHub の PR／check／review 状態だけを対象とする別の開発アダプターとし、製品の
+   `ApprovalTransport`、`approvals`、公開許可、運用通知へ接続しない。
+10. **memory の非混同**: harness memory はセッションをまたぐ開発継続・判断根拠・次アクションの記録候補であり、
+    製品の SQLite 業務状態、discovery ledger、要求契約 JSON、承認 evidence の代替にしない。credential、PII、
+    外部本文、未承認の要求変更を保存せず、commit／tree／artifact digest へ束縛する。
+11. **承認admission**: 未回答質問、未解決semantic dimension、authority不明、意味traceの片方向欠落、同一IDの意味差分、
+    acceptance／system test未束縛、根拠digest不一致、旧正本のapplicability未確定のいずれかがあれば
+    `approval_requested` と authority cutover を拒否する。一括承認へ丸めず、独立したrefinement単位で閉じる。
+12. **移植完了条件**: schema、authority policy、決定的IR生成、refinement検証、semantic drift検出、生成ビュー、
+    gate wiring、negative mutation test、manifest、baseline、独立reviewがすべて揃うまで `requirement-ir` を
+    `adapted` と表示せず、既存要求群を新しい実装入力として承認しない。
 
 ## 対応する成果物
 
@@ -59,3 +79,8 @@ Python ゲートが二重化されるため、方法論と開発環境だけを�
 - Bun／Node を追加しないため、テンプレートの UI ランタイムをそのまま実行することはできない。UI は L2 設計を先行し、
   認証・CSRF・再認証・principal 束縛の契約が confirmed になるまで実装を開始しない。
 - テンプレートの将来更新を追随するか、別の source_commit に固定するかは、各更新時の監査で PO が判断する。
+- cross-review／PR 対応依頼と harness memory は移植可能だが、現時点では要件と境界を記録した段階で未実装である。
+  Discord を開発通知へ転用せず、GitHub 開発アダプターと repository-local memory の schema／保持期間／秘密検査／
+  stale 判定／mutation test を別変更で確定してから有効化する。
+- 2026-08-14 に作成した8件の一括 `approval_requested` は、要求エンジン未移植の状態でadmissionを通過させたため、
+  append-only台帳上でwithdrawした。意味精査後に再開する場合も新revisionのrefinementとして扱う。

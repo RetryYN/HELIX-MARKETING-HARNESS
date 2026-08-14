@@ -248,7 +248,7 @@ def current_counts(ctx: Ctx) -> dict[str, int]:
     mr = sum(len(load(p)["items"]) for p in sorted((L3 / "canonical/functional/mr").glob("*.json"))
              if p.stem != "index")
     counts = {
-        "BR": len(ctx.br), "REQ": len(ctx.req), "FR": len(ctx.fr), "NFR": len(ctx.nfr),
+        "BR": len(ctx.br), "REQ": len(ctx.req), "FR": len(ctx.frc), "NFR": len(ctx.nfc),
         "FN": len(ctx.fn), "BRM": bm, "MR": mr,
         "WF": len(load(L1 / "canonical/ltw/workflows.json")["items"]),
         "CMP": len(ctx.comps), "SCM": len(ctx.scm), "ITC": len(ctx.itcs), "DU": len(ctx.dus),

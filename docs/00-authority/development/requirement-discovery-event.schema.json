@@ -61,6 +61,40 @@
               "problem_statement": {"type": "string", "minLength": 1},
               "value_hypothesis": {"type": "string", "minLength": 1},
               "unresolved_questions": {"type": "array", "items": {"type": "string"}},
+              "semantic_dimensions": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "business_actors", "beneficiaries", "workflow", "scope_in", "scope_out",
+                  "constraints", "prohibitions", "human_judgement", "external_side_effects",
+                  "completion_evidence", "target_phase", "unknown_dimensions"
+                ],
+                "properties": {
+                  "business_actors": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+                  "beneficiaries": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+                  "workflow": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+                  "scope_in": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+                  "scope_out": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+                  "constraints": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+                  "prohibitions": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+                  "human_judgement": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+                  "external_side_effects": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+                  "completion_evidence": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+                  "target_phase": {"type": "string", "enum": ["requirements", "prototype", "design", "implementation", "unknown"]},
+                  "unknown_dimensions": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": ["dimension", "question"],
+                      "properties": {
+                        "dimension": {"type": "string", "minLength": 1},
+                        "question": {"type": "string", "minLength": 1}
+                      }
+                    }
+                  }
+                }
+              },
               "question": {"type": "string", "minLength": 1},
               "dimension": {"type": "string", "minLength": 1},
               "question_event_id": {"type": "string", "minLength": 3},
@@ -72,6 +106,7 @@
               "proposal_summary": {"type": "string", "minLength": 1},
               "target_artifact_ids": {"type": "array", "items": {"type": "string"}},
               "canonical_contract_mutation": {"type": "boolean"},
+              "proposal_event_id": {"type": "string", "pattern": "^RDE-[0-9]{6,}$"},
               "requested_by": {"type": "string", "minLength": 1},
               "proposal_author_principal": {"type": "string", "minLength": 1},
               "approver_principal": {"type": "string", "minLength": 1},

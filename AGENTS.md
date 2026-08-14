@@ -1,9 +1,10 @@
 # AGENTS.md
 
-Codex エージェント向け。作業規律の正本は CLAUDE.md（同内容を適用）。これは既存の文書名を維持した
-リポジトリ規約であり、Claude Code の導入・実行を要求しない。Codex／CI／人間作業者も同じ規約を適用する。特に:
+Codex エージェント向けの要約入口。**詳細な作業規律の唯一の正本は CLAUDE.mdであり、本ファイルと同文ではない。**
+本ファイルに記載がない規律もCLAUDE.mdを適用し、両者が衝突する場合はCLAUDE.mdを優先する。これは既存の文書名を
+維持したリポジトリ規約であり、Claude Code の導入・実行を要求しない。Codex／CI／人間作業者も同じ規約を適用する。特に:
 
-- **作業境界**: 変更対象は本リポジトリのみ。他リポジトリ（HELIX-HARNESS／TAKUMI_CMO-Claude_Cowark）は
+- **作業境界**: 変更対象は本リポジトリのみ。他リポジトリ（HELIX-HARNESS／TAKUMI_CMO-Claude_Cowark／AGENT-NEO）は
   read-only。書き込みは指示に含まれていても着手前に PO へ確認する。
 - **エージェント配分**: 通常タスクは codex-luna（effort max）、選択肢分岐・高リスク・最終レビューは codex-sol
   （effort low）へエスカレーションする。codex-terra は Luna 不在時の互換 adapter とし、設計判断の主力にしない。
@@ -16,16 +17,20 @@ Codex エージェント向け。作業規律の正本は CLAUDE.md（同内容�
 - 上流戦略層の正本は docs/L3-system-requirements/canonical/strategy/ の要件・契約 ＋
   docs/L3-system-requirements/canonical/schemas/strategy/（12 schema）。下流処理から上流戦略正本を
   直接更新するコードを書かない（還流は TLP のみ）。
-- 公開コンテンツの外部書込み先は Docker WP のみ。Notion 審査同期と Discord 初期承認通知は
-  明示された `policy_category`・service・operation・endpoint allow-list と承認を通った場合に限る。
-  credential を repo・DB・ログに書かない。
+- 旧baselineで外部writeを許可していたのはDocker WPのみだが、これも`revalidation_required`である。新baselineは
+  個別refinementのPO凍結とrelease受入まで全媒体writeを無効とする。Notion審査同期と旧Discord承認tupleも
+  新baselineの許可ではない。製品の初期承認・通知入口はVPS上のWeb UI＋UI内inbox候補、
+  Discordは未採用の任意deep-link補助候補であり、refinement凍結まで実装しない。credentialをrepo・DB・ログに書かない。
 
 ## 実装正本
 
 - Python パッケージは **`src/helix/`** に統一（二重パッケージなし）。
-- 実装・検証の入力は契約 JSON 正本 9 本（BR/FR/SR/NFR/AC/TC/CMP/DU contracts ＋
-  L6 責務／API／契約節／AC／TC／UT = `docs/L6-feature-design/S0/implementation-units.json`）。
-  MD は `scripts/render_views.py` の生成ビューで手編集禁止。
+- 契約 JSON 正本は9本（BR/FR/SR/NFR/AC/TC/CMP/DU contracts＋L6 implementation-units）。ただし
+  `requirement-engine-authority.json` が `requirements_baseline_status=revising`又は
+  `implementation_authorized=false`の間は旧基準の再検証入力であり、製品実装入力にしない。意味ゲート0件、
+  refinement個別承認、frozen cutover、独立Go後にだけ実装入力へ切り替える。MD生成ビューは手編集禁止。
+  この間はmanifest上のL0〜L6成果物も、`confirmed`を含め一律に再検証資料とする。`confirmed`は
+  旧baselineでの成熟度・承認履歴だけを表し、現baselineへの適用又は実装許可を表さない。
 - ゲート実装は `tools/gates/` の工程別モジュール。`scripts/validate_requirements.py` は互換ラッパーで、
   ゲート本体を書き足さない。
 - discovery ledger は `docs/00-authority/development/requirement-discovery-events.json` の前向き append-only 監査証跡であり、

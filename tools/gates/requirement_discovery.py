@@ -1,6 +1,6 @@
 """前向きの要件発見台帳を検査する fail-close ゲート。
 
-この台帳は既存 BR/REQ/FR/NFR/AC/TC 契約の代替ではない。coverage_start_commit
+この台帳は既存9正本（BR/FR/SR/NFR/AC/TC/CMP/DU＋L6実装単位）とREQ compatibility viewの代替ではない。coverage_start_commit
 以降の発見過程だけを append-only に記録し、正本や製品 runtime への自動反映を禁止する。
 """
 
@@ -17,9 +17,16 @@ from typing import Any
 from tools.gates.common import (
     AC_CONTRACTS,
     BR_CONTRACTS,
+    BR_MEDIA_DIR,
+    CMP_CONTRACTS,
+    DU_CONTRACTS,
+    FN_LEDGER,
     FR_CONTRACTS,
+    IMPL_UNITS_CONTRACTS,
+    MR_DIR,
     NFR_CONTRACTS,
     REQ_LEDGER,
+    REQUIREMENTS_LEDGER,
     ROOT,
     SR_CONTRACTS,
     TC_CONTRACTS,
@@ -46,7 +53,13 @@ EVENT_TYPES = {
     "withdrawn",
 }
 PAYLOAD_FIELDS: dict[str, set[str]] = {
-    "candidate_recorded": {"title", "problem_statement", "value_hypothesis", "unresolved_questions"},
+    "candidate_recorded": {
+        "title",
+        "problem_statement",
+        "value_hypothesis",
+        "unresolved_questions",
+        "semantic_dimensions",
+    },
     "question_raised": {"question", "dimension"},
     "question_answered": {"question_event_id", "answer"},
     "prototype_recorded": {"prototype_ref", "flows"},
@@ -81,6 +94,8 @@ SENSITIVE_PATH_FRAGMENTS = {
     "requirement-discovery-events.json",
     "br-contracts.json",
     "req.json",
+    "requirements.json",
+    "fn.json",
     "fr-contracts.json",
     "sr-contracts.json",
     "nfr-contracts.json",
@@ -94,6 +109,7 @@ IMMUTABLE_ROOT_FIELDS = {
     "historical_policy",
     "coverage_start_commit",
 }
+TRUSTED_PO_PRINCIPALS = {"po"}
 
 
 def load_discovery_ledger(path: Path = LEDGER) -> dict[str, Any]:
@@ -148,6 +164,57 @@ def _payload_faults(event: dict[str, Any]) -> list[str]:
         questions = payload["unresolved_questions"]
         if not isinstance(questions, list) or not all(isinstance(x, str) for x in questions):
             faults.append(f"{event_id}: payload.unresolved_questions は string 配列が必要")
+        dimensions = payload.get("semantic_dimensions")
+        expected_dimensions = {
+            "business_actors",
+            "beneficiaries",
+            "workflow",
+            "scope_in",
+            "scope_out",
+            "constraints",
+            "prohibitions",
+            "human_judgement",
+            "external_side_effects",
+            "completion_evidence",
+            "target_phase",
+            "unknown_dimensions",
+        }
+        if not isinstance(dimensions, dict) or set(dimensions) != expected_dimensions:
+            faults.append(f"{event_id}: semantic_dimensions の必須観点が不一致")
+        else:
+            for key in expected_dimensions - {"target_phase", "unknown_dimensions"}:
+                value = dimensions.get(key)
+                if (
+                    not isinstance(value, list)
+                    or not value
+                    or not all(isinstance(item, str) and item.strip() for item in value)
+                ):
+                    faults.append(f"{event_id}: semantic_dimensions.{key} は空でない string 配列が必要")
+            if dimensions.get("target_phase") not in {
+                "requirements",
+                "prototype",
+                "design",
+                "implementation",
+                "unknown",
+            }:
+                faults.append(f"{event_id}: semantic_dimensions.target_phase が許可語彙外")
+            unknowns = dimensions.get("unknown_dimensions")
+            if not isinstance(unknowns, list) or not all(
+                isinstance(item, dict)
+                and set(item) == {"dimension", "question"}
+                and isinstance(item["dimension"], str)
+                and item["dimension"].strip()
+                and isinstance(item["question"], str)
+                and item["question"].strip()
+                for item in unknowns
+            ):
+                faults.append(f"{event_id}: semantic_dimensions.unknown_dimensions が不正")
+            elif isinstance(questions, list) and sorted(item["question"] for item in unknowns) != sorted(
+                questions
+            ):
+                faults.append(
+                    f"{event_id}: unknown_dimensions の question が unresolved_questions と一致しない"
+                )
     if event_type == "prototype_recorded" and (
         not isinstance(payload["flows"], list) or not all(isinstance(x, str) for x in payload["flows"])
     ):
@@ -222,8 +289,7 @@ def prefix_faults(previous: dict[str, Any] | None, current: dict[str, Any]) -> l
     if previous is None:
         return []
     root_drift = [
-        field for field in sorted(IMMUTABLE_ROOT_FIELDS)
-        if previous.get(field) != current.get(field)
+        field for field in sorted(IMMUTABLE_ROOT_FIELDS) if previous.get(field) != current.get(field)
     ]
     if root_drift:
         return [f"親コミット ledger root の変更を拒否: {root_drift}"]
@@ -357,6 +423,33 @@ def reference_and_lifecycle_faults(data: dict[str, Any], ctx: Ctx) -> list[str]:
                 faults.append("DISCOVERY-LEDGER は specification_proposed から開始する")
         elif types[0] != "candidate_recorded":
             faults.append(f"{subject}: candidate_recorded より前の lifecycle event を拒否")
+        if subject != "DISCOVERY-LEDGER" and history:
+            candidate_payload = history[0][1].get("payload", {})
+            dimensions = (
+                candidate_payload.get("semantic_dimensions", {})
+                if isinstance(candidate_payload, dict)
+                else {}
+            )
+            unknowns = (
+                dimensions.get("unknown_dimensions", [])
+                if isinstance(dimensions, dict)
+                else []
+            )
+            raised_questions = {
+                event.get("payload", {}).get("question")
+                for _, event in history
+                if event.get("event_type") == "question_raised"
+                and isinstance(event.get("payload"), dict)
+            }
+            missing_questions = [
+                item.get("question")
+                for item in unknowns
+                if isinstance(item, dict) and item.get("question") not in raised_questions
+            ]
+            if missing_questions:
+                faults.append(
+                    f"{subject}: unknown dimension の question_raised がない {missing_questions}"
+                )
         terminal = next(
             (i for i, kind in enumerate(types) if kind in {"approval_decided", "withdrawn"}), None
         )
@@ -366,10 +459,65 @@ def reference_and_lifecycle_faults(data: dict[str, Any], ctx: Ctx) -> list[str]:
         # `candidate, question_answered, question_raised` のような順序逆転を許すと、
         # event 参照を省略した変更が lifecycle gate を迂回できる。
         prior: set[str] = set()
-        for _, event in history:
+        answered_questions: set[str] = set()
+        for position, event in history:
             kind = event.get("event_type")
+            raw_lifecycle_payload = event.get("payload")
+            lifecycle_payload: dict[str, Any] = (
+                raw_lifecycle_payload if isinstance(raw_lifecycle_payload, dict) else {}
+            )
             if kind == "question_answered" and "question_raised" not in prior:
                 faults.append(f"{subject}: question_answered に先行 question_raised がない")
+            if kind == "question_answered" and isinstance(
+                lifecycle_payload.get("question_event_id"), str
+            ):
+                answered_questions.add(lifecycle_payload["question_event_id"])
+            if kind == "specification_proposed" and subject != "DISCOVERY-LEDGER":
+                candidate = next(
+                    (item for _, item in history if item.get("event_type") == "candidate_recorded"),
+                    None,
+                )
+                candidate_payload = (
+                    candidate.get("payload", {}) if isinstance(candidate, dict) else {}
+                )
+                dimensions = (
+                    candidate_payload.get("semantic_dimensions", {})
+                    if isinstance(candidate_payload, dict)
+                    else {}
+                )
+                unknowns = (
+                    dimensions.get("unknown_dimensions", [])
+                    if isinstance(dimensions, dict)
+                    else []
+                )
+                raised_by_question = {
+                    prior_event.get("payload", {}).get("question"): prior_event.get("event_id")
+                    for prior_position, prior_event in history
+                    if prior_position < position
+                    and prior_event.get("event_type") == "question_raised"
+                    and isinstance(prior_event.get("payload"), dict)
+                    and isinstance(prior_event.get("payload", {}).get("question"), str)
+                }
+                unresolved_dimensions = [
+                    item.get("dimension")
+                    for item in unknowns
+                    if isinstance(item, dict)
+                    and raised_by_question.get(item.get("question")) not in answered_questions
+                ]
+                if unresolved_dimensions:
+                    faults.append(
+                        f"{subject}: 未解決 semantic dimension を残して仕様化 "
+                        f"{unresolved_dimensions}"
+                    )
+                unanswered = [
+                    prior_event.get("event_id")
+                    for prior_position, prior_event in history
+                    if prior_position < position
+                    and prior_event.get("event_type") == "question_raised"
+                    and prior_event.get("event_id") not in answered_questions
+                ]
+                if unanswered:
+                    faults.append(f"{subject}: 未回答questionを残して仕様化 {unanswered}")
             if kind == "approval_requested" and "specification_proposed" not in prior:
                 faults.append(f"{subject}: approval_requested に先行 specification_proposed がない")
             if kind == "approval_decided" and "approval_requested" not in prior:
@@ -414,11 +562,22 @@ def _snapshot_faults(payload: dict[str, Any], event_id: Any) -> list[str]:
     snapshot = payload.get("artifact_snapshot")
     if not isinstance(snapshot, dict):
         return [f"{event_id}: accepted approval に artifact_snapshot がない"]
-    expected = {"artifact_commit", "canonical_path", "artifact_digest", "manifest_approval_digest", "receipt_digest"}
-    if set(snapshot) != expected or not all(isinstance(snapshot[key], str) and snapshot[key] for key in expected):
+    expected = {
+        "artifact_commit",
+        "canonical_path",
+        "artifact_digest",
+        "manifest_approval_digest",
+        "receipt_digest",
+    }
+    if set(snapshot) != expected or not all(
+        isinstance(snapshot[key], str) and snapshot[key] for key in expected
+    ):
         return [f"{event_id}: artifact_snapshot の型又は厳格フィールドが不正"]
     commit = snapshot["artifact_commit"]
-    if not re.fullmatch(r"[0-9a-f]{40}", commit) or git("rev-parse", "--verify", f"{commit}^{{commit}}").returncode:
+    if (
+        not re.fullmatch(r"[0-9a-f]{40}", commit)
+        or git("rev-parse", "--verify", f"{commit}^{{commit}}").returncode
+    ):
         return [f"{event_id}: artifact_snapshot.artifact_commit が実在 commit でない"]
     faults: list[str] = []
     if snapshot["canonical_path"].startswith("/") or ".." in Path(snapshot["canonical_path"]).parts:
@@ -430,8 +589,10 @@ def _snapshot_faults(payload: dict[str, Any], event_id: Any) -> list[str]:
         return [f"{event_id}: artifact_snapshot の manifest/artifact/receipt が commit に存在しない"]
     try:
         manifest = json.loads(manifest_text)
-        item = next(item for item in manifest["items"] if item.get("artifact_id") == payload.get("artifact_id"))
-    except (KeyError, StopIteration, ValueError, TypeError):
+        item = next(
+            item for item in manifest["items"] if item.get("artifact_id") == payload.get("artifact_id")
+        )
+    except KeyError, StopIteration, ValueError, TypeError:
         return [f"{event_id}: artifact_snapshot の artifact_id が当時 manifest にない"]
     if item.get("canonical_path") != snapshot["canonical_path"]:
         faults.append(f"{event_id}: artifact_snapshot canonical_path が当時 manifest と不一致")
@@ -440,7 +601,9 @@ def _snapshot_faults(payload: dict[str, Any], event_id: Any) -> list[str]:
         faults.append(f"{event_id}: artifact_snapshot artifact digest と不一致")
     if item.get("approval_digest") != snapshot["manifest_approval_digest"]:
         faults.append(f"{event_id}: artifact_snapshot manifest approval digest と不一致")
-    if snapshot["receipt_digest"] != snapshot["manifest_approval_digest"] or not _receipt_has_digest(receipts, snapshot["receipt_digest"]):
+    if snapshot["receipt_digest"] != snapshot["manifest_approval_digest"] or not _receipt_has_digest(
+        receipts, snapshot["receipt_digest"]
+    ):
         faults.append(f"{event_id}: artifact_snapshot approval receipt と不一致")
     return faults
 
@@ -456,7 +619,11 @@ def approval_faults(data: dict[str, Any], ctx: Ctx) -> list[str]:
     for position, event in enumerate(events):
         if isinstance(event, dict) and event.get("event_type") == "approval_decided":
             payload = event.get("payload")
-            if isinstance(payload, dict) and payload.get("decision") == "accepted" and isinstance(payload.get("artifact_id"), str):
+            if (
+                isinstance(payload, dict)
+                and payload.get("decision") == "accepted"
+                and isinstance(payload.get("artifact_id"), str)
+            ):
                 accepted_by_artifact[payload["artifact_id"]] = (position, event)
     for position, event in enumerate(events):
         if not isinstance(event, dict) or event.get("event_type") != "approval_decided":
@@ -481,6 +648,8 @@ def approval_faults(data: dict[str, Any], ctx: Ctx) -> list[str]:
             faults.append(f"{event_id}: proposal author による self approval を拒否")
         if event.get("actor_principal") != payload.get("approver_principal"):
             faults.append(f"{event_id}: event actor_principal と approver_principal が一致しない")
+        if payload.get("approver_principal") not in TRUSTED_PO_PRINCIPALS:
+            faults.append(f"{event_id}: approver_principal が信頼済みPO authorityでない")
         if payload.get("decision") == "accepted":
             faults.extend(_snapshot_faults(payload, event_id))
         artifact_id = payload.get("artifact_id")
@@ -488,7 +657,9 @@ def approval_faults(data: dict[str, Any], ctx: Ctx) -> list[str]:
         latest = accepted_by_artifact.get(artifact_id) if isinstance(artifact_id, str) else None
         if payload.get("decision") == "accepted" and latest is not None and latest[0] == position:
             if artifact is None or artifact.get("lifecycle_status") != "confirmed":
-                faults.append(f"{event_id}: latest accepted approval には confirmed canonical artifact が必要")
+                faults.append(
+                    f"{event_id}: latest accepted approval には confirmed canonical artifact が必要"
+                )
                 continue
             if artifact.get("approval_digest") != payload.get("artifact_digest"):
                 faults.append(f"{event_id}: latest accepted manifest approval_digest と不一致")
@@ -504,8 +675,10 @@ def _target_name(node: ast.expr) -> str | None:
 
 
 def _constant_contains_sensitive_path(node: ast.AST) -> bool:
-    return isinstance(node, ast.Constant) and isinstance(node.value, str) and any(
-        fragment in node.value for fragment in SENSITIVE_PATH_FRAGMENTS
+    return (
+        isinstance(node, ast.Constant)
+        and isinstance(node.value, str)
+        and any(fragment in node.value for fragment in SENSITIVE_PATH_FRAGMENTS)
     )
 
 
@@ -518,7 +691,9 @@ def _is_sensitive_path_expr(node: ast.AST, names: set[str], module_aliases: set[
     if isinstance(node, ast.Attribute):
         return isinstance(node.value, ast.Name) and node.value.id in module_aliases and node.attr in names
     if isinstance(node, ast.BinOp):
-        return _is_sensitive_path_expr(node.left, names, module_aliases) or _is_sensitive_path_expr(node.right, names, module_aliases)
+        return _is_sensitive_path_expr(node.left, names, module_aliases) or _is_sensitive_path_expr(
+            node.right, names, module_aliases
+        )
     if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == "Path":
         return any(_is_sensitive_path_expr(arg, names, module_aliases) for arg in node.args)
     return False
@@ -542,7 +717,10 @@ def _mutation_faults(path: Path, root: Path, sensitive_names: set[str]) -> list[
             for alias in node.names:
                 if alias.name in {"tools.gates.requirement_discovery", "tools.gates.common"}:
                     module_aliases.add(alias.asname or alias.name.rsplit(".", 1)[-1])
-        if isinstance(node, ast.ImportFrom) and node.module in {"tools.gates.requirement_discovery", "tools.gates.common"}:
+        if isinstance(node, ast.ImportFrom) and node.module in {
+            "tools.gates.requirement_discovery",
+            "tools.gates.common",
+        }:
             for alias in node.names:
                 if alias.name in sensitive_names:
                     names.add(alias.asname or alias.name)
@@ -556,15 +734,30 @@ def _mutation_faults(path: Path, root: Path, sensitive_names: set[str]) -> list[
         if not isinstance(node, ast.Call):
             continue
         func = node.func
-        if isinstance(func, ast.Attribute) and func.attr in WRITE_METHODS and _is_sensitive_path_expr(func.value, names, module_aliases):
+        if (
+            isinstance(func, ast.Attribute)
+            and func.attr in WRITE_METHODS
+            and _is_sensitive_path_expr(func.value, names, module_aliases)
+        ):
             faults.append(f"{path.relative_to(root)}: canonical path alias の {func.attr} を拒否")
-        if isinstance(func, ast.Attribute) and isinstance(func.value, ast.Name) and func.value.id == "json" and func.attr in {"dump", "dumps"}:
+        if (
+            isinstance(func, ast.Attribute)
+            and isinstance(func.value, ast.Name)
+            and func.value.id == "json"
+            and func.attr in {"dump", "dumps"}
+        ):
             if any(_is_sensitive_path_expr(arg, names, module_aliases) for arg in node.args[1:]):
-                faults.append(f"{path.relative_to(root)}: json.{func.attr} に canonical path alias を渡している")
+                faults.append(
+                    f"{path.relative_to(root)}: json.{func.attr} に canonical path alias を渡している"
+                )
         if isinstance(func, ast.Name) and func.id == "open" and node.args:
             target = node.args[0]
             mode = node.args[1] if len(node.args) > 1 else None
-            writing = isinstance(mode, ast.Constant) and isinstance(mode.value, str) and any(flag in mode.value for flag in "wax+")
+            writing = (
+                isinstance(mode, ast.Constant)
+                and isinstance(mode.value, str)
+                and any(flag in mode.value for flag in "wax+")
+            )
             if writing and _is_sensitive_path_expr(target, names, module_aliases):
                 faults.append(f"{path.relative_to(root)}: open write に canonical path alias を渡している")
     return faults
@@ -580,11 +773,26 @@ def safety_faults(data: dict[str, Any], root: Path = ROOT) -> list[str]:
                 # evidence. Scanning their numeric sequence (e.g. RDE-000001) as a phone number
                 # would make the real ledger fail closed for the wrong reason.
                 if key not in {
-                    "event_id", "sequence", "subject_id", "event_type", "occurred_at", "recorded_at",
-                    "actor_principal", "artifact_digest",
+                    "event_id",
+                    "sequence",
+                    "subject_id",
+                    "event_type",
+                    "occurred_at",
+                    "recorded_at",
+                    "actor_principal",
+                    "artifact_digest",
                 } and SECRET_KEY.search(key):
                     faults.append(f"{path}.{key}: secret/PII/raw external field を拒否")
-                if key not in {"event_id", "sequence", "subject_id", "event_type", "occurred_at", "recorded_at", "actor_principal", "artifact_digest"}:
+                if key not in {
+                    "event_id",
+                    "sequence",
+                    "subject_id",
+                    "event_type",
+                    "occurred_at",
+                    "recorded_at",
+                    "actor_principal",
+                    "artifact_digest",
+                }:
                     visit(item, f"{path}.{key}")
         elif isinstance(value, list):
             for index, item in enumerate(value):
@@ -593,7 +801,19 @@ def safety_faults(data: dict[str, Any], root: Path = ROOT) -> list[str]:
             faults.append(f"{path}: secret/PII value を拒否")
 
     visit(data.get("events", []), "events")
-    sensitive_names = {"LEDGER", "BR_CONTRACTS", "REQ_LEDGER", "FR_CONTRACTS", "SR_CONTRACTS", "NFR_CONTRACTS", "AC_CONTRACTS", "TC_CONTRACTS"}
+    sensitive_names = {
+        "LEDGER",
+        "BR_CONTRACTS",
+        "REQ_LEDGER",
+        "FR_CONTRACTS",
+        "SR_CONTRACTS",
+        "NFR_CONTRACTS",
+        "AC_CONTRACTS",
+        "TC_CONTRACTS",
+        "CMP_CONTRACTS",
+        "DU_CONTRACTS",
+        "IMPL_UNITS_CONTRACTS",
+    }
     for folder in (root / "src", root / "scripts", root / "tools"):
         if folder.exists():
             for path in folder.rglob("*.py"):
@@ -618,7 +838,22 @@ def coverage_faults(data: dict[str, Any]) -> list[str]:
     return faults
 
 
-DISCOVERY_COVERAGE_PATHS = (BR_CONTRACTS, REQ_LEDGER, FR_CONTRACTS, SR_CONTRACTS, NFR_CONTRACTS, AC_CONTRACTS, TC_CONTRACTS)
+DISCOVERY_COVERAGE_PATHS = (
+    BR_CONTRACTS,
+    REQ_LEDGER,
+    REQUIREMENTS_LEDGER,
+    FN_LEDGER,
+    FR_CONTRACTS,
+    SR_CONTRACTS,
+    NFR_CONTRACTS,
+    AC_CONTRACTS,
+    TC_CONTRACTS,
+    CMP_CONTRACTS,
+    DU_CONTRACTS,
+    IMPL_UNITS_CONTRACTS,
+    *(path for path in sorted(BR_MEDIA_DIR.glob("*.json")) if path.name != "index.json"),
+    *(path for path in sorted(MR_DIR.glob("*.json")) if path.name != "index.json"),
+)
 
 
 def changed_contract_paths(coverage_start: str) -> set[str]:

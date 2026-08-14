@@ -6,6 +6,12 @@ slice: S0
 
 # 承認設計 v0.1（②増補 — 束縛承認・オートモード）
 
+> [!WARNING]
+> **旧Discord初期経路と旧auto-mode判定の設計履歴。現要求の承認設計ではない。**
+> 現行候補はVPS Web UIで対象・revision・影響を再表示した明示判断を主入口とし、
+> UI内inboxと意思決定を分離する。機械的なauto適格性判定はPOの最終移行承認を
+> 代替しない。これらの要求が凍結しL4へ再降下するまで本書を実装入力にしない。
+
 > status: **confirmed**（2026-08-01 全層再降下 §6 — AI 起草）
 > pair: [integration-test-design_v0.1.md](../../integration-tests/integration-test-design_v0.1.md)（②↔④ 文書ペアの増補側 — 承認系 ITC の設計根拠）
 > 上位文書: [basic-design_v0.1.md](../basic-design_v0.1.md)（CMP-11 承認通知）／

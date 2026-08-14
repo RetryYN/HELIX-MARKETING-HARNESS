@@ -425,10 +425,14 @@ def test_update_closure_declaration_matches_reality() -> None:
     assert bad == []
     assert computed["S0.1"] == "closed" and uncovered["S0.1"] == 0
     assert computed["S0.2"] == "closed" and computed["S0.3"] == "closed"
+    closure = json.loads(detailed_design.UPDATE_CLOSURE.read_text(encoding="utf-8"))
+    assert closure["requirements_baseline_status"] == "revising"
+    assert closure["implementation_authorized"] is False
+    assert {item["design_closure"] for item in closure["items"]} == {"revalidation_required"}
 
 
-def test_all_closed_updates_satisfy_s0_design_completion() -> None:
-    """全更新が導出上closedのときだけS0全体完遂が成立する。"""
+def test_revising_requirements_invalidate_old_design_and_block_implementation() -> None:
+    """要求改訂中は旧設計を再検証待ちにし、新要求の実装を許可しない。"""
     assert detailed_design.detect_s0_design_completion_faults(CTX) == []
 
 
@@ -444,7 +448,7 @@ def test_mutation_unresolved_gap_reopens_the_update(monkeypatch, tmp_path) -> No
     computed, _, _ = detailed_design.compute_update_closure(ctx)
     assert computed["S0.1"] == "open"
     faults = detailed_design.detect_update_closure_faults(ctx)
-    assert any("S0.1" in f and "実態" in f for f in faults), faults
+    assert any("S0.1" in f and "構造実態" in f for f in faults), faults
     completion_faults = detailed_design.detect_s0_design_completion_faults(ctx)
     assert any("S0.1" in f for f in completion_faults), completion_faults
 
@@ -459,7 +463,7 @@ def test_mutation_closed_claim_without_closure_is_detected(tmp_path) -> None:
     p = tmp_path / "update-closure.json"
     p.write_text(json.dumps(src, ensure_ascii=False), encoding="utf-8")
     faults = detailed_design.detect_update_closure_faults(CTX, p)
-    assert any("S0.2" in f and "未被覆 API 0" in f for f in faults), faults
+    assert any("S0.2" in f and "要求基準状態" in f for f in faults), faults
 
 
 def test_mutation_claim_absent_from_current_state_is_detected(tmp_path) -> None:

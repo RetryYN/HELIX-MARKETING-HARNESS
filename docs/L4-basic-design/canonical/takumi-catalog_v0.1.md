@@ -46,7 +46,7 @@ slice: S0
 | 上位ループ駆動 | strategy, research, brand, customer, voc | loops/upper/ の駆動定義へ再編 |
 | 下位ループ駆動 | campaign, content, ownedmedia, website, sns（+媒体別 sns-x/instagram/line/note/threads/tiktok/youtube）, email, engagement, retention, pr, publish | loops/lower/ へ。媒体別はブラウザ攻略地図と対で再設計 |
 | 計測・還流 | analytics, dashboard, report, reporting, verify | harness/ の計測ゲート・還流処理へ吸収（手順書からコードへ） |
-| ハーネス機能へ吸収 | setup, config, status, task, add-work, memory, feedback, customize, skillify | 状態機械・SQLite・Claude Code 標準機能で代替。手順書としては廃止 |
+| ハーネス機能へ吸収 | setup, config, status, task, add-work, memory, feedback, customize, skillify | 製品の業務状態は状態機械・SQLiteで代替し、特定agent runtimeへ依存させない。ここでいうTAKUMIの`memory`手順と、開発セッション継続用のHELIX harness memory候補は別概念。前者は手順書として廃止し、後者はADR-012の開発環境境界でdeferredとする |
 | 特殊 | crisis（炎上対応）, demo | crisis は独立ワークフローとして継承。demo は廃止 |
 
 ## 3. agents（10本）→ 再設計方針

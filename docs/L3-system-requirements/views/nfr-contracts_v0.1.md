@@ -2,6 +2,10 @@
 
 # 非機能要件 計測契約（NFR contracts）v0.1
 
+> [!WARNING]
+> **旧baselineの生成view。現行要求の正本・設計・実装入力ではない。**  `requirements_baseline_status=revising` / `implementation_authorized=false`。
+> 下記status/receiptは旧baselineの成熟度と承認履歴だけを示す。PO receipt付きfrozen refinementからFull Vを再降下しauthority cutoverするまで、本viewの内容をcurrentへ読み替えない。
+
 > status: **confirmed**（2026-08-01 PO 承認 — receipt 05c848617dde）。JSON 内容正本の生成ビュー（全層再降下 §3）
 > 各 NFR に測定対象・測定方法・閾値・測定環境・違反時動作・証跡を必須化（G-NFR-MEASURABLE）。
 

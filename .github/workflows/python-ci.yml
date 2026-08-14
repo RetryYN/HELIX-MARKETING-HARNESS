@@ -8,14 +8,20 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   python:
     name: lint / type / imports / pytest
     runs-on: ubuntu-latest
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # skip/coverage ラチェットの比較元（親コミットの baseline・coverage-floor）に必要
+          persist-credentials: false
       - uses: astral-sh/setup-uv@v5
         with:
           python-version: "3.14"
@@ -57,16 +63,22 @@ jobs:
   shellcheck:
     name: shellcheck (hooks)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: shellcheck
         run: shellcheck scripts/hooks/*.sh
 
   actionlint:
     name: actionlint (workflows)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: actionlint
         run: |
           bash <(curl -sSL https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
@@ -75,10 +87,12 @@ jobs:
   secret-scan:
     name: secret scan (gitleaks)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          persist-credentials: false
       - uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -2,6 +2,10 @@
 
 # 業務要求 構造化契約（BR contracts）v0.1
 
+> [!WARNING]
+> **旧baselineの生成view。現行要求の正本・設計・実装入力ではない。**  `requirements_baseline_status=revising` / `implementation_authorized=false`。
+> 下記status/receiptは旧baselineの成熟度と承認履歴だけを示す。PO receipt付きfrozen refinementからFull Vを再降下しauthority cutoverするまで、本viewの内容をcurrentへ読み替えない。
+
 > status: **confirmed**（2026-08-01 PO 承認 — receipt 67de1e48ae41）。JSON 内容正本の生成ビュー（全層再降下 §2）
 > 位置づけ: [br-backbone_v0.1.md](../canonical/br-backbone_v0.1.md) の全 BR を 12 観点の構造化契約へ展開した正本ビュー。
 > 1 行要求文の禁止（G-REQ-CONTRACT が schema 適合・全 BR 被覆・12 要求群被覆・本ビュー同期を fail-close 検査）。

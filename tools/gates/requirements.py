@@ -316,11 +316,12 @@ def _counts(ctx: Ctx) -> None:
     md_req = md_count(L1 / "canonical/requirement-list_v0.1.md", r"(REQ-\d{3})")
     gate("G-CNT-BR", len(ctx.br) == md_br, f"BR JSON↔MD 件数一致 (JSON={len(ctx.br)}, MD={md_br})")
     gate("G-CNT-REQ", len(ctx.req) == md_req, f"REQ JSON↔MD 件数一致 (JSON={len(ctx.req)}, MD={md_req})")
-    req_md = L3 / "canonical/functional/requirements_v0.1.md"
-    md_fr = md_count(req_md, r"\*\*(FR-\d+)\*\*")
-    md_nfr = md_count(req_md, r"\*\*(NFR-\d+)")
-    gate("G-CNT-FR", len(ctx.fr) == md_fr, f"FR JSON↔MD 件数一致 (MD={md_fr}/JSON={len(ctx.fr)})")
-    gate("G-CNT-NFR", len(ctx.nfr) == 11 == md_nfr, f"NFR=11 (MD={md_nfr}/JSON={len(ctx.nfr)})")
+    # requirements.json / requirements_v0.1.md は旧 baseline の互換・再検証 view。
+    # 現行分母として読むと、同一 ID の slice/trace が異なる旧意味を混入する。
+    # その差分は G-REQ-SEMANTIC-DRIFT だけが監視し、通常の件数は
+    # confirmed 契約 JSON のみを正本とする。
+    gate("G-CNT-FR", len(ctx.frc) == 43, f"FR contract JSON=43 (JSON={len(ctx.frc)})")
+    gate("G-CNT-NFR", len(ctx.nfc) == 11, f"NFR contract JSON=11 (JSON={len(ctx.nfc)})")
     md_fn = md_count(L3 / "canonical/functional/function-list_v0.1.md", r"\| (FN-\d{3}) \|")
     gate("G-CNT-FN", len(ctx.fn) == 61 == md_fn, f"FN=61 (MD={md_fn}/JSON={len(ctx.fn)})")
 
@@ -361,17 +362,23 @@ def _counts(ctx: Ctx) -> None:
 
 
 def _uniqueness(ctx: Ctx) -> None:
-    for name, items in [("BR", ctx.br), ("REQ", ctx.req), ("FR", ctx.requirements),
-                        ("FN", ctx.fn)]:
+    # requirements.json は旧compatibility viewであり、現行分母／実体の根拠にしない。
+    for name, items in [("BR", ctx.brc), ("REQ", ctx.req),
+                        ("FR", [*ctx.frc, *ctx.src, *ctx.nfc]), ("FN", ctx.fn)]:
         ids = [i["id"] for i in items]
         gate(f"G-UNIQ-{name}", len(ids) == len(set(ids)), f"{name} ID 重複ゼロ")
 
 
 def _substance(ctx: Ctx) -> None:
     hollow = []
-    for _, items in [("BR", ctx.br), ("REQ", ctx.req), ("FR/NFR", ctx.requirements), ("FN", ctx.fn)]:
+    for _, items in [("BR", ctx.brc), ("REQ", ctx.req),
+                     ("FR/SR/NFR", [*ctx.frc, *ctx.src, *ctx.nfc]), ("FN", ctx.fn)]:
         for i in items:
-            body = " ".join(filter(None, [i.get("title"), i.get("summary"), i.get("text")]))
+            body = " ".join(filter(None, [
+                i.get("title"), i.get("summary"), i.get("text"),
+                i.get("purpose"), i.get("problem"), i.get("value"),
+                str(i.get("normal_behavior", "")), str(i.get("measurement_target", "")),
+            ]))
             if len(body.strip()) < 8:
                 hollow.append(i["id"])
     for p in sorted(BR_MEDIA_DIR.glob("*.json")) + sorted(MR_DIR.glob("*.json")):
@@ -434,24 +441,23 @@ def _frsr_contracts(ctx: Ctx) -> None:
     c_errs: list[str] = []
     for it in ctx.allc:
         c_errs += [f"{it.get('id', '?')}: {e}" for e in schema_check(frc_schema, it)]
-    fr_ids = {i["id"] for i in ctx.fr}
-    sr_ids = {i["id"] for i in ctx.sr}
-    cov_ok = {i["id"] for i in ctx.frc} == fr_ids and {i["id"] for i in ctx.src} == sr_ids
+    fr_ids = {i["id"] for i in ctx.frc}
+    sr_ids = {i["id"] for i in ctx.src}
+    cov_ok = len(fr_ids) == len(ctx.frc) and len(sr_ids) == len(ctx.src)
     tbl_faults = detect_contract_table_faults(ctx.allc, ctx.ddl_tables, ctx.trn_states)
     gate("G-FRSR-CONTRACT", not c_errs and cov_ok and not tbl_faults,
-         f"FR/SR 実行契約: schema 適合＋現役 FR/SR 完全被覆＋DDL/遷移正本と突合 "
+         f"FR/SR 契約正本: schema 適合＋ID一意＋DDL/遷移正本と突合（旧requirements viewを分母にしない） "
          f"(err={c_errs[:3]}, cov={cov_ok}, 突合={sorted(set(tbl_faults))[:5]})")
 
     n_errs: list[str] = []
     nfc_schema = load(NFR_SCHEMA)
     for it in ctx.nfc:
         n_errs += [f"{it.get('id', '?')}: {e}" for e in schema_check(nfc_schema, it)]
-    nfr_ids = {i["id"] for i in ctx.nfr}
-    nfr_json_ids = {i["id"].replace("NFR-0", "NFR-") for i in ctx.nfc} | {i["id"] for i in ctx.nfc}
+    nfr_ids = {i["id"] for i in ctx.nfc}
     nfr_verify_faults = detect_nfr_verification_faults(ctx.nfc, ctx.acc, ctx.tcc, ctx.ddl)
     gate("G-NFR-MEASURABLE",
-         not n_errs and all(i in nfr_json_ids for i in nfr_ids) and not nfr_verify_faults,
-         "NFR 計測契約: schema 適合＋NFR11 完全被覆＋NFR→AC→TCC実在ID接続＋実行可能な測定方法 "
+         not n_errs and len(nfr_ids) == len(ctx.nfc) and not nfr_verify_faults,
+         "NFR 契約正本: schema 適合＋ID一意＋NFR→AC→TCC実在ID接続＋実行可能な測定方法（旧requirements viewを分母にしない） "
          f"(err={n_errs[:3]}, 検証接続={nfr_verify_faults[:5]})")
 
     acc_schema = load(AC_SCHEMA)

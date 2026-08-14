@@ -9,6 +9,9 @@ dus: [DU-18]
 
 # 機能設計: 承認（approvals 行・遷移ガード接続・束縛承認の実装）
 
+> [!WARNING]
+> **旧baselineのL6設計。現要求のVPS Web UI＋UI内inbox承認経路は未設計であり、本書は実装入力ではない。** `applicability_status=revalidation_required` / `implementation_input=false`。
+
 > status: **confirmed**（2026-08-01 全層再降下 §7 — AI 起草）
 > 上位設計: [approval-design_v0.1.md](../../L4-basic-design/canonical/approval/approval-design_v0.1.md)（承認設計正本 — decision→分類写像・オートモード基準は同書 §3/§5。本書は再掲しない）
 > 正準参照: 要求 = BR-C4/H1/H2（[br-contracts.json](../../L1-business-requirements/canonical/br/br-contracts.json)）・FR-26/46。

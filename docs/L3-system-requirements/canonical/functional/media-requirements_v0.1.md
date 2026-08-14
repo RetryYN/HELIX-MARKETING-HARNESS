@@ -6,6 +6,9 @@ slice: cross
 
 # 媒体・手法別 詳細要件 v0.1
 
+> [!WARNING]
+> **旧baselineの媒体要件。現行要求の正本・設計・実装入力ではない。** `applicability_status=revalidation_required` / `implementation_input=false`。
+
 > status: **confirmed**（2026-07-31 PO 承認 — 要件定義完遂指示。AI 起草）
 > pair: [verification-design_v0.1.md §2・§3・§6](../../verification/verification-design_v0.1.md)（検証設計③ — HELIX 式 ①↔③ 文書ペア）
 > 上位: [br-media_v0.1.md](../../../L1-business-requirements/canonical/br-media_v0.1.md)（媒体別業務要求 BR-M・調査値付き）／

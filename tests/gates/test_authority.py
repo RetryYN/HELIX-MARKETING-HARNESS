@@ -14,6 +14,21 @@ def test_manifest_is_clean_on_real_tree() -> None:
     items = _items()
     assert authority.detect_manifest_duplicates(items) == []
     assert authority.detect_manifest_path_faults(items) == []
+
+
+def test_manifest_has_per_artifact_applicability_fail_closed() -> None:
+    items = _items()
+    assert all(item["implementation_input"] is False for item in items)
+    assert all(
+        item["applicability_status"] in {"revalidation_required", "proposal_only"}
+        for item in items if item["layer"] in {"L0", "L1", "L2", "L3", "L4", "L5", "L6"}
+    )
+    victim = next(item for item in items if item["layer"] == "L3")
+    victim["applicability_status"] = "current"
+    victim["implementation_input"] = True
+    faults = authority.detect_status_faults(items)
+    assert any("applicability=current" in fault for fault in faults)
+    assert any("implementation_input=true" in fault for fault in faults)
     assert authority.detect_manifest_pair_faults(items) == []
     assert authority.detect_unregistered(items) == []
 

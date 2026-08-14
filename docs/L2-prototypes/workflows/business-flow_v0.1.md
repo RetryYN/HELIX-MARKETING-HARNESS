@@ -7,6 +7,7 @@ slice: S1
 # L2 業務 flow v0.1
 
 > status: **draft**。screen-flow の遷移を actor lane と判断点へ展開する。製品 runtime の実装や外部 write の許可を意味しない。
+> 要求再定義中の旧要求ベース参考資料であり、新要求の設計・実装入力ではない。
 
 ## Actor lane
 

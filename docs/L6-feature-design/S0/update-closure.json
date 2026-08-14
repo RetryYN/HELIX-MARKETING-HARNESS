@@ -1,23 +1,26 @@
 {
   "version": "0.1",
-  "note": "S0 内の更新（updates.json の S0.1／S0.2／S0.3）ごとの設計クロージャー宣言。design_closure は宣言であり、G-UPDATE-DESIGN-CLOSURE が実態（当該更新の未被覆 API = 0／全 API 契約節が AC・UT・ITC または正当な internal 分類を持つ／実装単位が構造参照で成立）から導出した状態と一致しなければならない。current_state_claim は README.md と CLAUDE.md の現在地行に 1 回ずつ現れる正本文で、closed のときだけ『設計クロージャー完了』を名乗れる。S0 全体の完了は 3 更新すべてが closed になったときに限る。",
+  "note": "S0 内の更新ごとの設計状態。旧要求に対するconfirmed設計と構造的被覆は履歴として維持するが、上位要求の改訂中は revalidation_required とし、新要求の実装入力への使用を許可しない。current_state_claim は README.md と CLAUDE.md の現在地行に 1 回ずつ現れる。",
+  "requirements_baseline_status": "revising",
+  "implementation_authorized": false,
+  "revision_reason": "VPS常駐化後の製品Web UI・通知・承認要求を上位から再定義中。ADR-013とdiscovery ledgerの未決定が閉じるまで旧設計は実装入力にしない。",
   "items": [
     {
       "update": "S0.1",
-      "design_closure": "closed",
-      "current_state_claim": "S0.1 設計クロージャー完了（未被覆 API 0）",
+      "design_closure": "revalidation_required",
+      "current_state_claim": "S0.1 旧confirmed設計は再検証待ち（旧基準の未被覆 API 0・新要求の実装未承認）",
       "note": "DU-01〜12。7 本の未被覆 API を acceptance（run_microloop／resume／load — AC・TCC・実装単位を新設）と internal（register_guard／get_tactical_learning_packet／for_task／exists — UT が契約節を直接検証）へ確定し、受入基準未設定の契約節を残していない"
     },
     {
       "update": "S0.2",
-      "design_closure": "closed",
-      "current_state_claim": "S0.2 設計クロージャー完了（未被覆 API 0）",
+      "design_closure": "revalidation_required",
+      "current_state_claim": "S0.2 旧confirmed設計は再検証待ち（旧基準の未被覆 API 0・新要求の実装未承認）",
       "note": "DU-13〜20。全APIの受入またはinternal分類、全契約節の検証束縛、全実装責務を接続済み。DU-19/20は更新軸S0.2を維持しつつslice軸S1のcampaign.mdへ実装単位を構造接続した"
     },
     {
       "update": "S0.3",
-      "design_closure": "closed",
-      "current_state_claim": "S0.3 設計クロージャー完了（未被覆 API 0）",
+      "design_closure": "revalidation_required",
+      "current_state_claim": "S0.3 旧confirmed設計は再検証待ち（旧基準の未被覆 API 0・新要求の実装未承認）",
       "note": "DU-21〜23。treeをプロファイル限定の読取専用APIとしてUTへ確定し、取得エラー正規化・credential fail-close・非PV/有料列除外を個別UTへ束縛。未被覆API・受入基準未設定とも0"
     }
   ]

@@ -9,12 +9,19 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   markdownlint:
     name: Markdown lint
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Run markdownlint
         uses: DavidAnson/markdownlint-cli2-action@v20
         with:
@@ -29,10 +36,12 @@ jobs:
   requirements-gates:
     name: Requirements integrity gates
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # 親コミットの baseline（skip/coverage ラチェット）とレビュー成果物の target_commit 解決に必要
+          persist-credentials: false
       - uses: astral-sh/setup-uv@v5
         with:
           python-version: "3.14"
@@ -48,8 +57,11 @@ jobs:
   link-check:
     name: Internal link check
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Run lychee (offline — internal links only)
         uses: lycheeverse/lychee-action@v2
         with:

@@ -37,14 +37,14 @@ from tools.gates.common import (
 
 # 現在地の正本文（README.md / CLAUDE.md はこの行以外の現在地表明を持たない — PO 指示 §3）
 CURRENT_STATE_LINES = [
-    "構造・権威移行完了（L0〜L6 の正本と機械ゲートを確定）",
-    "S0.1 設計クロージャー完了（未被覆 API 0）",
-    "S0.2 設計クロージャー完了（未被覆 API 0）",
-    "S0.3 設計クロージャー完了（未被覆 API 0）",
-    "今回追加した Kanban／bounded domain／media binding は L3 要求定義まで完了、S1 設計は未着手",
-    "ロジックツリー／統合因果分析（SR-17〜19）は L3 要求定義まで完了、実装は S2 スライス・未着手",
-    "S0.1 実装未着手",
-    "HELIX-HARNESS の設計テンプレートを read-only 参照し、Python-native 開発環境と L2 5 点セットを導入中",
+    "旧baselineの物理配置・manifest登録・既存ゲート配線まで完了。新要求の権威cutoverは未完了",
+    "S0.1 旧confirmed設計は再検証待ち（旧基準の未被覆 API 0・新要求の実装未承認）",
+    "S0.2 旧confirmed設計は再検証待ち（旧基準の未被覆 API 0・新要求の実装未承認）",
+    "S0.3 旧confirmed設計は再検証待ち（旧基準の未被覆 API 0・新要求の実装未承認）",
+    "Kanban／bounded domain／media binding は旧L3に要求記述だけ存在し、`revalidation_required`。FN／CMP降下とPO凍結は未完了",
+    "ロジックツリー／統合因果分析（SR-17〜19）も旧L3に要求記述だけ存在し、AC／FN／CMP降下とPO凍結は未完了",
+    "製品runtimeの配置方針はVPS `helix-worker`を採択済み。ただし製品runtime／service／Web UIは未実装・未配備である。Web UI・承認・通知要求を再定義中で、L2以降は未設計として再降下する",
+    "HELIX-HARNESS はread-only参照。Python-native開発loopを方法論bridgeとして部分適応済みであり、完全adoptedではない。L2は5点書式の物理templateだけを用意した`bridge`で、内容は旧要求の評価用draftである。要件確定エンジン、IR/refinement/semantic admission、新要求からのL2再作成が全て閉じるまで導入済み・要求確定・設計済みと名乗らない",
 ]
 FORBIDDEN_STATE_PHRASES = [
     "HELIX 経路で進める",
@@ -314,6 +314,16 @@ def detect_status_faults(items: list[dict], root: Path = ROOT) -> list[str]:
     for it in items:
         aid, cp = it["artifact_id"], it["canonical_path"]
         auth, life = it.get("authority_status"), it.get("lifecycle_status")
+        applicability = it.get("applicability_status")
+        implementation_input = it.get("implementation_input")
+        layer = it.get("layer")
+        if layer in {"L0", "L1", "L2", "L3", "L4", "L5", "L6"}:
+            if applicability not in {"revalidation_required", "proposal_only"}:
+                bad.append(f"{aid}:requirements revising中の{layer}成果物がapplicability={applicability}")
+            if implementation_input is not False:
+                bad.append(f"{aid}:requirements revising中の{layer}成果物がimplementation_input=true")
+        elif implementation_input is not False:
+            bad.append(f"{aid}:requirements revising中にimplementation_input=true")
         if (life == "confirmed") != (it.get("approval_digest") is not None):
             bad.append(f"{aid}:lifecycle_status={life} と approval_digest={it['approval_digest']} が不整合"
                        "（confirmed のみ承認 digest を持つ）")
@@ -708,7 +718,8 @@ def _manifest(ctx: Ctx) -> None:
 
     st2_bad = detect_status_faults(items)
     gate("G-STATUS-CONSISTENCY", not st2_bad,
-         "authority_status（現役位置）と lifecycle_status（内容成熟度）が分離され、"
+         "authority_status（現役位置）・lifecycle_status（内容成熟度）・applicability_status・"
+         "implementation_inputが分離され、"
          f"markdown 正本の frontmatter・本文 status 行と manifest が一致 (違反={st2_bad[:4]})")
 
 

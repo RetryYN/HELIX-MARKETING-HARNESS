@@ -10,11 +10,14 @@
     "source": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["repository", "url", "commit", "read_only"],
+      "required": ["repository", "url", "commit", "latest_checked_commit", "latest_checked_at", "delta_disposition", "read_only"],
       "properties": {
         "repository": {"type": "string", "enum": ["RetryYN/HELIX-HARNESS"]},
         "url": {"type": "string", "minLength": 20},
         "commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "latest_checked_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "latest_checked_at": {"type": "string", "format": "date"},
+        "delta_disposition": {"type": "string", "enum": ["non-applicable", "partially-adapted", "adopted"]},
         "read_only": {"type": "boolean", "enum": [true]}
       }
     },

@@ -46,7 +46,7 @@ def check_python() -> None:
 def setup() -> int:
     check_python()
     uv = require_uv()
-    return command([uv, "sync", "--group", "dev"])
+    return command([uv, "sync", "--frozen", "--group", "dev"])
 
 
 def uv_python(*args: str) -> int:
@@ -104,7 +104,9 @@ def build() -> int:
 def requirements() -> int:
     if str(ROOT) not in sys.path:
         sys.path.insert(0, str(ROOT))
+    from tools.gates.common import CTX
     from tools.gates.requirement_discovery import detect_discovery_faults, load_discovery_ledger
+    from tools.gates.requirement_engine import engine_report
     from tools.gates.template_alignment import detect_alignment_faults
 
     data = json.loads(ALIGNMENT.read_text(encoding="utf-8"))
@@ -126,6 +128,26 @@ def requirements() -> int:
     if discovery_faults:
         print(f"NG: requirement discovery ({discovery_faults[:4]})", file=sys.stderr)
         return 1
+    state, engine_faults = engine_report(CTX)
+    policy = state["policy"]
+    projection = state["projection"]
+    refinements = state["refinements"].get("records", [])
+    print(
+        "requirement-engine: "
+        f"baseline={policy.get('requirements_baseline_status')}; "
+        f"implementation_authorized={policy.get('implementation_authorized')}; "
+        f"IR={len(projection.get('records', []))}; refinements={len(refinements)}"
+    )
+    failed = {name: faults for name, faults in engine_faults.items() if faults}
+    for name, faults in failed.items():
+        print(f"NG: {name} ({len(faults)}件; {faults[:3]})", file=sys.stderr)
+    if failed:
+        print(
+            "要件は未確定です。未解消の意味差分をrefinementで閉じ、PO承認後にのみ実装入力へ切り替えてください。",
+            file=sys.stderr,
+        )
+        return 1
+    print("requirement-engine: PASS (PO承認済みfrozen要求だけが実装入力です)")
     return 0
 
 

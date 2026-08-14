@@ -4,25 +4,30 @@
 
 - **正本**: このリポジトリ（RetryYN/HELIX-MARKETING-HARNESS）
 - **機能ソース**: [TAKUMI_CMO-Claude_Cowark](https://github.com/RetryYN/TAKUMI_CMO-Claude_Cowark)（read-only 参照）
-- **北極星**: [charter v0.4](docs/L0-charter/canonical/marketing-harness-charter_v0.4.md)（status=confirmed）
+- **旧baselineの上位根拠**: [charter v0.4](docs/L0-charter/canonical/marketing-harness-charter_v0.4.md)（status=confirmed／新要求への適用は`revalidation_required`）
 - **成果物の権威正本**: [artifact-manifest.json](docs/00-authority/artifact-manifest.json)
   — 全現役成果物の artifact ID・階層・slice・正本形式（`authority_format`）・現役位置（`authority_status`）・
   内容成熟度（`lifecycle_status`）・canonical／view パス・ペア・承認 digest を一意に登録する
 
 ## 現在地
 
-- 構造・権威移行完了（L0〜L6 の正本と機械ゲートを確定）
-- S0.1 設計クロージャー完了（未被覆 API 0）
-- S0.2 設計クロージャー完了（未被覆 API 0）
-- S0.3 設計クロージャー完了（未被覆 API 0）
-- 今回追加した Kanban／bounded domain／media binding は L3 要求定義まで完了、S1 設計は未着手
-- ロジックツリー／統合因果分析（SR-17〜19）は L3 要求定義まで完了、実装は S2 スライス・未着手
-- S0.1 実装未着手
-- HELIX-HARNESS の設計テンプレートを read-only 参照し、Python-native 開発環境と L2 5 点セットを導入中
+- 旧baselineの物理配置・manifest登録・既存ゲート配線まで完了。新要求の権威cutoverは未完了
+- S0.1 旧confirmed設計は再検証待ち（旧基準の未被覆 API 0・新要求の実装未承認）
+- S0.2 旧confirmed設計は再検証待ち（旧基準の未被覆 API 0・新要求の実装未承認）
+- S0.3 旧confirmed設計は再検証待ち（旧基準の未被覆 API 0・新要求の実装未承認）
+- Kanban／bounded domain／media binding は旧L3に要求記述だけ存在し、`revalidation_required`。FN／CMP降下とPO凍結は未完了
+- ロジックツリー／統合因果分析（SR-17〜19）も旧L3に要求記述だけ存在し、AC／FN／CMP降下とPO凍結は未完了
+- 製品runtimeの配置方針はVPS `helix-worker`を採択済み。ただし製品runtime／service／Web UIは未実装・未配備である。Web UI・承認・通知要求を再定義中で、L2以降は未設計として再降下する
+- HELIX-HARNESS はread-only参照。Python-native開発loopを方法論bridgeとして部分適応済みであり、完全adoptedではない。L2は5点書式の物理templateだけを用意した`bridge`で、内容は旧要求の評価用draftである。要件確定エンジン、IR/refinement/semantic admission、新要求からのL2再作成が全て閉じるまで導入済み・要求確定・設計済みと名乗らない
+- 未承認の要求候補は [要求候補レビュー](docs/00-authority/views/requirement-candidates_v0.1.md) で意味軸・三極性AC・未解決事項を確認する。これはrefinement正本からの生成viewであり、PO承認・設計・実装入力ではない
 
 判定の正本は [レビュー成果物](docs/00-authority/reviews/)（対象コミットと成果物 digest に束縛され、
 G-REVIEW-BINDING が検証する）。散文で判定を宣言しない。
 S0.1 の進行方法（本リポジトリ内か他経路か）は PO が決定する。
+
+要求再定義の入力は[意味再監査](docs/00-authority/audits/requirements-semantic-reaudit-2026-08-14.md)と
+[製品要求ベースライン候補](docs/L1-business-requirements/canonical/product-requirement-baseline-candidate_v0.1.md)。
+いずれもdraftであり、未決のPO判断を設計で補完しない。
 
 ## 文書構造（L 工程）
 
@@ -32,17 +37,19 @@ S0.1 の進行方法（本リポジトリ内か他経路か）は PO が決定�
 | 階層 | 内容 | 主な成果物 |
 |---|---|---|
 | [00-authority](docs/00-authority/) | 権威層 | artifact manifest・[承認ログ](docs/00-authority/approvals/approvals.md)・[baseline](docs/00-authority/baselines/baseline.json)・[レビュー](docs/00-authority/reviews/)・[監査](docs/00-authority/audits/)・[ゲート台帳](docs/00-authority/requirements-gates.md)・[ADR](docs/00-authority/adr/)・[リスク登録簿](docs/00-authority/risk-register_v0.1.md) |
-| [L0-charter](docs/L0-charter/) | 北極星 | [charter v0.4](docs/L0-charter/canonical/marketing-harness-charter_v0.4.md) |
+| [L0-charter](docs/L0-charter/) | 旧baselineの上位根拠・再検証対象 | [charter v0.4](docs/L0-charter/canonical/marketing-harness-charter_v0.4.md) |
 | [L1-business-requirements](docs/L1-business-requirements/) | 業務要求 | [BR 背骨 41](docs/L1-business-requirements/canonical/br-backbone_v0.1.md)・[媒体別業務要求 70](docs/L1-business-requirements/canonical/br-media_v0.1.md)・[要求一覧 55](docs/L1-business-requirements/canonical/requirement-list_v0.1.md)・[ループ/タスク/WF](docs/L1-business-requirements/canonical/loop-task-workflow_v0.1.md)・[用語集](docs/L1-business-requirements/canonical/glossary_v0.1.md)・[BR 契約ビュー](docs/L1-business-requirements/views/br-contracts_v0.1.md) |
-| [L2-prototypes](docs/L2-prototypes/) | プロトタイプ | S1 screens の 5 点セットを draft 化（screen-list／flow／element／wireframe／detail）。認証・write 契約は未実装 |
-| [L3-system-requirements](docs/L3-system-requirements/) | システム要件 | [要件定義 FR43/NFR11](docs/L3-system-requirements/canonical/functional/requirements_v0.1.md)・[機能一覧 61](docs/L3-system-requirements/canonical/functional/function-list_v0.1.md)・[媒体別詳細要件](docs/L3-system-requirements/canonical/functional/media-requirements_v0.1.md)・[S0 契約](docs/L3-system-requirements/canonical/s0-contract_v0.1.md)・[上流戦略ループ要件](docs/L3-system-requirements/canonical/strategy/strategy-loop-requirements_v0.1.md)・[戦略学習契約](docs/L3-system-requirements/canonical/strategy/strategy-learning-contract_v0.1.md)・[検証設計](docs/L3-system-requirements/verification/verification-design_v0.1.md)・[AC カタログ](docs/L3-system-requirements/views/ac-catalog_v0.1.md)・[TC カタログ](docs/L3-system-requirements/views/tc-catalog_v0.1.md) |
-| [L4-basic-design](docs/L4-basic-design/) | 基本設計 | [基本設計](docs/L4-basic-design/canonical/basic-design_v0.1.md)・[戦略ループ設計](docs/L4-basic-design/canonical/components/strategy-loop-design_v0.1.md)・独立設計書（[外部 IF](docs/L4-basic-design/canonical/external-if/external-if-design_v0.1.md)／[DB](docs/L4-basic-design/canonical/data/db-design_v0.1.md)／[状態機械](docs/L4-basic-design/canonical/state-machine/state-machine-design_v0.1.md)／[承認](docs/L4-basic-design/canonical/approval/approval-design_v0.1.md)／[ブランド隔離](docs/L4-basic-design/canonical/brand-isolation/brand-isolation-design_v0.1.md)）・[技術選定](docs/L4-basic-design/canonical/tech-stack_v0.1.md)・[総合テスト設計](docs/L4-basic-design/integration-tests/integration-test-design_v0.1.md)・[CMP 契約ビュー](docs/L4-basic-design/views/cmp-contracts_v0.1.md) |
-| [L5-detailed-design](docs/L5-detailed-design/) | 詳細設計 | [詳細設計](docs/L5-detailed-design/canonical/detailed-design_v0.1.md)・[エラー分類](docs/L5-detailed-design/canonical/errors/error-taxonomy_v0.1.md)・[migration 規則](docs/L5-detailed-design/canonical/migrations/migration-rules.json)・[単体テスト設計](docs/L5-detailed-design/unit-tests/unit-test-design_v0.1.md)・[DU 契約ビュー](docs/L5-detailed-design/views/du-contracts_v0.1.md) |
-| [L6-feature-design](docs/L6-feature-design/) | 機能別設計 | [S0 の 11 本](docs/L6-feature-design/S0/)（brief・TLP・証跡・migration・状態機械・ペア判定・設定管理・ブランド隔離基盤・KPI handoff・外部操作・承認 — すべて confirmed）＋[実装単位 49 件](docs/L6-feature-design/S0/implementation-units.json)＋[未被覆 API 台帳](docs/L6-feature-design/S0/uncovered-apis.json)＋[更新別クロージャー](docs/L6-feature-design/S0/update-closure.json)＋[S0.1 計画](docs/L6-feature-design/S0/plan-s0.1.json)、[S1 の 3 本](docs/L6-feature-design/S1/)（ブランド隔離完成・キャンペーン・戦略改訂 — planned）。later は空 |
+| [L2-prototypes](docs/L2-prototypes/) | プロトタイプ | HELIX式5点セットの書式評価用draft。旧要求に基づくため実装入力ではなく、新要求確定後に再作成する |
+| [L3-system-requirements](docs/L3-system-requirements/) | 旧システム要件・再検証資料 | [旧要件定義 FR43/NFR11](docs/L3-system-requirements/canonical/functional/requirements_v0.1.md)・[旧機能一覧 61](docs/L3-system-requirements/canonical/functional/function-list_v0.1.md)・[媒体別詳細要件](docs/L3-system-requirements/canonical/functional/media-requirements_v0.1.md)・[S0 契約](docs/L3-system-requirements/canonical/s0-contract_v0.1.md)・[上流戦略ループ要件](docs/L3-system-requirements/canonical/strategy/strategy-loop-requirements_v0.1.md)・[戦略学習契約](docs/L3-system-requirements/canonical/strategy/strategy-learning-contract_v0.1.md)・[検証設計](docs/L3-system-requirements/verification/verification-design_v0.1.md)・[AC カタログ](docs/L3-system-requirements/views/ac-catalog_v0.1.md)・[TC カタログ](docs/L3-system-requirements/views/tc-catalog_v0.1.md)。すべて新要求への適用は`revalidation_required` |
+| [L4-basic-design](docs/L4-basic-design/) | 旧基本設計・再設計対象 | [基本設計](docs/L4-basic-design/canonical/basic-design_v0.1.md)・[戦略ループ設計](docs/L4-basic-design/canonical/components/strategy-loop-design_v0.1.md)・独立設計書（[外部 IF](docs/L4-basic-design/canonical/external-if/external-if-design_v0.1.md)／[DB](docs/L4-basic-design/canonical/data/db-design_v0.1.md)／[状態機械](docs/L4-basic-design/canonical/state-machine/state-machine-design_v0.1.md)／[承認](docs/L4-basic-design/canonical/approval/approval-design_v0.1.md)／[ブランド隔離](docs/L4-basic-design/canonical/brand-isolation/brand-isolation-design_v0.1.md)）・[技術選定](docs/L4-basic-design/canonical/tech-stack_v0.1.md)・[総合テスト設計](docs/L4-basic-design/integration-tests/integration-test-design_v0.1.md)・[CMP 契約ビュー](docs/L4-basic-design/views/cmp-contracts_v0.1.md)。新要求確定前の設計入力ではない |
+| [L5-detailed-design](docs/L5-detailed-design/) | 旧詳細設計・再設計対象 | [詳細設計](docs/L5-detailed-design/canonical/detailed-design_v0.1.md)・[エラー分類](docs/L5-detailed-design/canonical/errors/error-taxonomy_v0.1.md)・[migration 規則](docs/L5-detailed-design/canonical/migrations/migration-rules.json)・[単体テスト設計](docs/L5-detailed-design/unit-tests/unit-test-design_v0.1.md)・[DU 契約ビュー](docs/L5-detailed-design/views/du-contracts_v0.1.md)。新要求確定前の設計入力ではない |
+| [L6-feature-design](docs/L6-feature-design/) | 機能別設計 | [S0 の 11 本](docs/L6-feature-design/S0/)（旧要求基準のconfirmed履歴であり、新要求への再検証待ち）＋[実装単位 56 件](docs/L6-feature-design/S0/implementation-units.json)＋[未被覆 API 台帳](docs/L6-feature-design/S0/uncovered-apis.json)＋[更新別クロージャー](docs/L6-feature-design/S0/update-closure.json)＋[S0.1 計画](docs/L6-feature-design/S0/plan-s0.1.json)、[S1 の 3 本](docs/L6-feature-design/S1/)（planned）。later は空 |
 
-## 実装入力（契約正本 9 本）
+## 旧設計基準の契約正本 9 本（要求改訂中は実装入力に使用不可）
 
-実装・検証の入力は **JSON 契約正本**だけを用いる（MD は生成ビュー、または人が読む正本文書）。
+下記9本は旧要求基準に対するconfirmed証跡として保持する。現在は`requirements_baseline_status=revising`かつ
+`implementation_authorized=false`のため、新要求の実装入力にしない。要求承認後に全9本とL2〜L6を
+再降下し、新baselineのレビューと実装許可が揃ってからのみ使用する。
 
 | 種別 | 正本 |
 |---|---|
@@ -64,7 +71,7 @@ S0.1 の進行方法（本リポジトリ内か他経路か）は PO が決定�
 接続し、`ac_refs` の AC と `ut_refs` の UT が**同じ契約節**を参照していることを
 G-L6-IMPLEMENTATION-TRACE が検査する（API 名・テスト名・語彙の部分一致は接続の根拠にしない）。
 API の安定 ID は `API-DU01-01`、契約節は `API-DU01-01-POST-01` の形式で du-contracts.json が持つ。
-API は `verification_level` で **acceptance 54 本／内部（unit）4 本**に分かれ、内部 API は
+API は `verification_level` で **acceptance 55 本／内部（unit）4 本**に分かれ、内部 API は
 `internal_reason` を持ち UT が契約節を直接検証する。接続の実数は 責務 48 ／ 契約節 356（AC 被覆 133・
 単体検証 69・呼出側義務 101・配線時保証 14・他 API で検証 1・**受入基準未設定 38**）／
 UT→契約節 308 件。受入基準未設定は N/A ではなく**未解決 gap**であり、AC が 1 節も検証していない
@@ -99,6 +106,11 @@ artifact-manifest、Python ゲートを並列正本にはしない。判断記�
 導入以後の発見過程は [append-only ledger](docs/00-authority/development/requirement-discovery-events.json) に記録するが、
 既存契約や製品 runtime を直接更新せず、導入前の履歴は backfill しない。
 
+HELIX-HARNESS の cross-review／PR対応依頼／harness memory は開発環境の別機構として扱う。現行レビュー成果物は
+cross-reviewの基礎を提供するが、GitHub PR通知とrepository-local memoryは未実装である。旧ADR-010のDiscord
+束縛承認経路は`revalidation_required`で、新要求候補の初期経路ではない。初期要求候補はVPS Web UI＋UI内inboxで、
+Discordは未採用の将来deep-link補助候補、媒体community投稿と開発PR通知はそれぞれ別用途である。
+
 VPS とローカルの要件定義環境は同じ入口で整える。
 
 ```bash
@@ -115,6 +127,10 @@ make test        # pytest → outcome 正規化 → 全ゲート
 make check       # lint/typecheck/imports/docs/build/test の一括検査
 ```
 
+`make requirements` は単なる一覧表示ではない。HELIX由来の要件確定エンジンをPython-nativeで実行し、意味差分、
+双方向trace、未完のrefinement又は不正な承認入口があれば非0で終了する。現行は要求基準を再定義中なので、赤は
+実装開始を止める意図した状態であり、未解消事項を一括承認して緑へ変えてはならない。
+
 環境の境界と要件定義の完了条件は [開発環境契約](docs/00-authority/development/development-environment_v0.1.md) と
 [要件定義ワークフロー](docs/00-authority/development/requirement-definition-workflow_v0.1.md) に固定する。
 
@@ -127,7 +143,6 @@ Codex CLI の振り分けは `.claude/agents/` に互換入口として残す。
 
 ## 次の一手
 
-**S0.1 実装**（DB・状態機械・ゲート・証跡 — s0-contract §7 の更新分割、CMP-01〜06＝DU-01〜12 が対象）。
-着手は自動検出される（`src/helix/` への実装追加・S0.1 PLAN の `in_progress` 化・DU-01〜12 の API 実装の
-いずれか）。着手後は対象 UT の skip／xfail／NotImplementedError／空 assert が CI で落ち、
-coverage 下限が 80% へ引き上がる。
+**要求基準の再定義とPO決定**。VPS製品Web UI・承認・通知を含むBR〜NFRの意味衝突を閉じ、
+L2以降を新要求から再降下する。`requirements_baseline_status=approved`、
+`implementation_authorized=true`、新baselineの独立Goレビューが揃うまでS0.1実装は開始しない。

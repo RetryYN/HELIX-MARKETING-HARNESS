@@ -7,6 +7,8 @@ slice: S1
 # L2 プロトタイプ設計
 
 > status: **draft**。HELIX-HARNESS の L2 方法論を、screen／workflow／operating-scenario の責務へ整理する。
+> 現在は要求基準を再定義中であり、配下の内容は旧要求で書式を評価した参考資料である。
+> 新要求の製品設計・実装入力には使わず、要求承認後に内容を再作成する。
 
 ## フォルダ責務
 
