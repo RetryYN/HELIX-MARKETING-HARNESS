@@ -1128,6 +1128,11 @@ def test_design_not_started_rejects_current_claude_design_constraint_entrypoint(
         ),
         encoding="utf-8",
     )
+    (tmp_path / "README.md").write_text(
+        "旧baseline業務要求・新要求候補（manifest applicabilityに従う。実装入力ではない）\n"
+        "旧機能別設計・再設計対象（全件`revalidation_required`／`implementation_input=false`）\n",
+        encoding="utf-8",
+    )
     monkeypatch.setattr(requirement_engine, "REPO_ROOT", tmp_path)
     ctx = Ctx()
     ctx.__dict__["manifest_items"] = []
@@ -1181,6 +1186,22 @@ def test_design_not_started_rejects_current_claude_design_constraint_entrypoint(
     )
     faults = requirement_engine.design_not_started_faults(ctx)
     assert any("AGENTSの設計入口に旧方式の現在形命令が残る" in fault for fault in faults)
+    (tmp_path / "README.md").write_text(
+        "旧baseline業務要求・新要求候補（manifest applicabilityに従う。実装入力ではない）\n"
+        "旧機能別設計・再設計対象（全件`revalidation_required`／`implementation_input=false`）\n"
+        "| [L1-business-requirements](docs/L1-business-requirements/) | 業務要求 |\n",
+        encoding="utf-8",
+    )
+    faults = requirement_engine.design_not_started_faults(ctx)
+    assert any("READMEのL1/L6入口に旧current表示が残る" in fault for fault in faults)
+    (tmp_path / "README.md").write_text(
+        "旧baseline業務要求・新要求候補（manifest applicabilityに従う。実装入力ではない）\n"
+        "旧機能別設計・再設計対象（全件`revalidation_required`／`implementation_input=false`）\n"
+        "| [L6-feature-design](docs/L6-feature-design/) | 機能別設計 |\n",
+        encoding="utf-8",
+    )
+    faults = requirement_engine.design_not_started_faults(ctx)
+    assert any("READMEのL1/L6入口に旧current表示が残る" in fault for fault in faults)
 
 
 def test_design_not_started_current_entrances_are_closed() -> None:

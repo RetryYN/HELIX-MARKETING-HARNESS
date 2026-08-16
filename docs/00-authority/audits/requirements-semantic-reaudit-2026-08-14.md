@@ -880,6 +880,11 @@ Fable lowが現HEADの入口を意味走査し、旧L3〜L6の文書ペア、戦
 targeted testは2件PASS、全pytestは812 passed／220 skippedである。VPS Web UI＋UI inbox、Discord製品通知拒否／community分離、
 全write=false、L2〜L6 `revalidation_required` は不変であり、PO承認・設計・独立Go・GitHub同期を生成していない。
 
+READMEの文書構造表にも同じ意味境界を適用した。L1は「旧baseline業務要求・新要求候補（manifest applicabilityに従う。実装入力ではない）」、
+L6は「旧機能別設計・再設計対象（全件revalidation_required／implementation_input=false）」と明記し、HELIX適応節の旧9契約も
+`revalidation_required`／`implementation_input=false`へ限定した。`G-REQ-DESIGN-NOT-STARTED` はL1/L6の旧rowと「現行の契約 JSON 9 本」の
+再混入を拒否し、required境界を残したL1/L6共存mutationを実行する。
+
 ## 要求完了の必要条件
 
 1. F-01〜F-64を個別に解消又は要求候補へ束縛し、未解決findingにはquestion/answerとPO選択が

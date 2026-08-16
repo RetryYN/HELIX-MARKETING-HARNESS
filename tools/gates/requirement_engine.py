@@ -10628,6 +10628,23 @@ def design_not_started_faults(ctx: Ctx) -> list[str]:
     missing = sorted(marker for marker in required_markers if marker not in candidate)
     if missing:
         faults.append(f"要求候補に設計未着手境界がない={missing}")
+    readme_path = REPO_ROOT / "README.md"
+    readme_text = readme_path.read_text(encoding="utf-8") if readme_path.is_file() else ""
+    required_readme_markers = {
+        "旧baseline業務要求・新要求候補（manifest applicabilityに従う。実装入力ではない）",
+        "旧機能別設計・再設計対象（全件`revalidation_required`／`implementation_input=false`）",
+    }
+    missing_readme = sorted(marker for marker in required_readme_markers if marker not in readme_text)
+    if missing_readme:
+        faults.append(f"READMEのL1/L6入口が旧baseline・設計未着手境界を保持しない={missing_readme}")
+    prohibited_readme_markers = {
+        "| [L1-business-requirements](docs/L1-business-requirements/) | 業務要求 |",
+        "| [L6-feature-design](docs/L6-feature-design/) | 機能別設計 |",
+        "現行の契約 JSON 9 本",
+    }
+    present_readme = sorted(marker for marker in prohibited_readme_markers if marker in readme_text)
+    if present_readme:
+        faults.append(f"READMEのL1/L6入口に旧current表示が残る={present_readme}")
     claude_path = REPO_ROOT / "CLAUDE.md"
     claude_text = claude_path.read_text(encoding="utf-8") if claude_path.is_file() else ""
     required_claude_markers = {
