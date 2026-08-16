@@ -126,18 +126,16 @@ codex exec -s workspace-write -m gpt-5.6-<sol|terra|luna> -c model_reasoning_eff
 - バックグラウンド実行時は **必ず `</dev/null`**（stdin 待ちハング防止）。継続は `codex exec resume --last`。
 - レビューは Sol に依頼し、明示的な「Go」を得てから完遂とする。判定はレビュー成果物 JSON が正本。
 
-## 実装フェーズのペア規律（TDD × DDD）
+## 旧baselineの実装フェーズ規律（再検証資料・現行実装入力ではない）
 
-第 3 層は文書ペア（⑤↔⑥）＋コードペア（モジュール↔pytest）の二重: du-contracts の `apis[].ut` が
-テストファイル対応（tests/unit/test_<module>.py）の正本。
+旧baselineでは、文書とコードのペア、S0の受入テスト、DDDの層分離及びテストゲートを実装フェーズの規律として
+採用していた。これらは旧DU／CMP／S0の再検証資料であり、現行要求の実装単位・テスト対応・層構造を拘束しない。
+新要求のfreeze後に、必要な実装単位・AC/TC/UT対応・CI gateを新しい正本から再降下する。
 
-1. **test-first 必須**: 実装単位ごとに、割当テスト（TC＋UT）を pytest 化して赤を確認してから
-   実装する（red→green→refactor）。テストのない実装コミットは差戻し。
-2. 各 S0 更新の完了条件 = 該当 TC 全 green ＋ ④の該当 ITC green ＋ 前更新の回帰 green。
-3. **DDD 規律**: ドメイン語彙は glossary が正本（ユビキタス言語）。kernel/gates/evidence の層分離、
-   検証済み値オブジェクト（PairPass 等）でゲート通過を型強制、永続化はストア層のみ。
-4. 実装開始時に pytest ジョブと「CMP↔テストファイル対応」のペアゲートを CI に追加する
-   （テストのない CMP を fail-close で検出）。
+- 旧baselineでは、実装単位に割当テストを先に作り、red→green→refactorで進める運用だった。
+- 旧baselineでは、S0更新の完了を旧TC・旧ITC・旧回帰テストのgreenで判定していた。
+- 旧baselineでは、glossary、kernel、gates、evidence及びstoreの層分離と、PairPass等の値オブジェクトを採用していた。
+- 旧baselineでは、実装開始時にpytestとCMP↔テストファイル対応のCI gateを追加していた。
 
 ## 旧baselineの設計制約（再検証資料・現行実装入力ではない）
 

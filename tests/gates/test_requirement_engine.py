@@ -1100,12 +1100,26 @@ def test_design_not_started_rejects_current_claude_design_constraint_entrypoint(
         ),
         encoding="utf-8",
     )
-    (tmp_path / "CLAUDE.md").write_text("## 実装時の設計制約\n- 旧方式を現在の実装命令として扱う\n", encoding="utf-8")
+    required_claude = "\n".join(
+        (
+            "## 旧baselineの設計制約（再検証資料・現行実装入力ではない）",
+            "以下は旧baselineの基本設計に存在した制約を、再検証資料として記録する。現行要求・設計・実装を拘束しない。",
+            "新要求のPO凍結・設計再降下後に、必要な制約だけを別途選択し、正本・manifest・baseline・独立レビューへ束縛する。",
+            "上流戦略正本の保護方式は現行設計では未選択であり、DB/API/DDL方式をここから継承しない。",
+        )
+    )
+    (tmp_path / "CLAUDE.md").write_text(required_claude, encoding="utf-8")
     monkeypatch.setattr(requirement_engine, "REPO_ROOT", tmp_path)
     ctx = Ctx()
     ctx.__dict__["manifest_items"] = []
     faults = requirement_engine.design_not_started_faults(ctx)
-    assert any("CLAUDEの設計入口が旧baseline再検証・現行未拘束境界を保持しない" in fault for fault in faults)
+    assert faults == []
+    (tmp_path / "CLAUDE.md").write_text(
+        required_claude + "\n## 実装時の設計制約（基本設計 §1・§4 の要点)\n",
+        encoding="utf-8",
+    )
+    faults = requirement_engine.design_not_started_faults(ctx)
+    assert any("CLAUDEの設計入口に旧方式の現在形命令が残る" in fault for fault in faults)
 
 
 def test_all_legacy_requirement_ids_have_typed_redescent_decision_routes() -> None:

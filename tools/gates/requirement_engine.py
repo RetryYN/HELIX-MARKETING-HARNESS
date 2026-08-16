@@ -10639,6 +10639,18 @@ def design_not_started_faults(ctx: Ctx) -> list[str]:
     missing_claude = sorted(marker for marker in required_claude_markers if marker not in claude_text)
     if missing_claude:
         faults.append(f"CLAUDEの設計入口が旧baseline再検証・現行未拘束境界を保持しない={missing_claude}")
+    prohibited_claude_markers = {
+        "## 実装時の設計制約（基本設計 §1・§4 の要点)",
+        "第 3 層は文書ペア（⑤↔⑥）＋コードペア（モジュール↔pytest）の二重:",
+        "du-contracts の `apis[].ut` が\nテストファイル対応",
+        "各 S0 更新の完了条件 =",
+        "**DDD 規律**: ドメイン語彙は glossary が正本",
+        "実装開始時に pytest ジョブと「CMP↔テストファイル対応」のペアゲートを CI に追加する",
+        "上流戦略正本は DB で保護する:",
+    }
+    present_prohibited = sorted(marker for marker in prohibited_claude_markers if marker in claude_text)
+    if present_prohibited:
+        faults.append(f"CLAUDEの設計入口に旧方式の現在形命令が残る={present_prohibited}")
     return faults
 
 
