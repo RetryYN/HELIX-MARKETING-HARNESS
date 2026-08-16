@@ -885,6 +885,17 @@ L6は「旧機能別設計・再設計対象（全件revalidation_required／imp
 `revalidation_required`／`implementation_input=false`へ限定した。`G-REQ-DESIGN-NOT-STARTED` はL1/L6の旧rowと「現行の契約 JSON 9 本」の
 再混入を拒否し、required境界を残したL1/L6共存mutationを実行する。
 
+### F-71 開発環境入口のL2設計許可を評価用draftへ限定（PO不要修正）
+
+再走査で `docs/00-authority/development/development-environment_v0.1.md` の「L2プロトタイプ設計を行う」「対象はL2画面設計」および
+「L2画面を要件定義の完了条件とする」という現在形が、README／CLAUDEの「L2は旧要求の評価用draftであり、新要求からの設計は未着手」
+という境界を入口から弱めていることを確認した。また旧DDL・状態遷移・evidence schemaを無限定に正本と呼ぶ行も、旧方式を再導入し得た。
+
+本書を、旧要求に基づくL2 5点書式の評価用draftだけを対象とし、新要求からのL2画面設計は要求freeze後に再降下するまで開始しない内容へ修正した。
+旧契約JSON／DDL／状態遷移／evidence schemaは再検証資料・現行入力外と明記し、freeze前の完了条件から製品L2設計を除外した。
+`G-REQ-DESIGN-NOT-STARTED` に本書の安全markerと旧現在形句の禁止markerを追加し、安全文を残したまま旧句を追記するmutationを追加した。
+対象テストとproduction `design_not_started_faults(Ctx())` はPASSであり、要求候補、VPS UI＋UI inbox、Discord用途分離、実装/write=false境界、PO承認は変更していない。
+
 ## 要求完了の必要条件
 
 1. F-01〜F-64を個別に解消又は要求候補へ束縛し、未解決findingにはquestion/answerとPO選択が

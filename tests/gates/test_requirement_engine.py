@@ -1133,6 +1133,19 @@ def test_design_not_started_rejects_current_claude_design_constraint_entrypoint(
         "旧機能別設計・再設計対象（全件`revalidation_required`／`implementation_input=false`）\n",
         encoding="utf-8",
     )
+    environment = tmp_path / "docs/00-authority/development/development-environment_v0.1.md"
+    environment.parent.mkdir(parents=True, exist_ok=True)
+    environment.write_text(
+        "\n".join(
+            (
+                "旧要求に基づく L2 5点書式の評価用draft",
+                "新要求からのL2画面設計は要求freeze後に再降下するまで開始しない。",
+                "再検証対象の契約 JSON／DDL／状態遷移／evidence schema は旧baselineの構造資料であり、現行の要求・設計・実装入力ではない。",
+                "要求freeze前の完了条件に製品L2画面設計を含めない。",
+            )
+        ),
+        encoding="utf-8",
+    )
     monkeypatch.setattr(requirement_engine, "REPO_ROOT", tmp_path)
     ctx = Ctx()
     ctx.__dict__["manifest_items"] = []
@@ -1206,6 +1219,50 @@ def test_design_not_started_rejects_current_claude_design_constraint_entrypoint(
 
 def test_design_not_started_current_entrances_are_closed() -> None:
     assert requirement_engine.design_not_started_faults(Ctx()) == []
+
+
+def test_design_not_started_rejects_current_l2_environment_scope(tmp_path, monkeypatch) -> None:
+    original_root = requirement_engine.REPO_ROOT
+    root = tmp_path / "repo"
+    source_files = (
+        "README.md",
+        "CLAUDE.md",
+        "AGENTS.md",
+        "docs/L1-business-requirements/canonical/product-requirement-baseline-candidate_v0.1.md",
+        "docs/00-authority/development/development-environment_v0.1.md",
+    )
+    for relative in source_files:
+        source = original_root / relative
+        target = root / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+    monkeypatch.setattr(requirement_engine, "REPO_ROOT", root)
+    ctx = Ctx()
+    ctx.__dict__["manifest_items"] = []
+    environment = root / "docs/00-authority/development/development-environment_v0.1.md"
+    safe_text = environment.read_text(encoding="utf-8")
+    assert requirement_engine.design_not_started_faults(ctx) == []
+
+    environment.write_text(
+        safe_text.replace("新要求からのL2画面設計は要求freeze後に再降下するまで開始しない。", ""),
+        encoding="utf-8",
+    )
+    faults = requirement_engine.design_not_started_faults(ctx)
+    assert any("開発環境入口にL2評価用draft" in fault for fault in faults)
+
+    environment.write_text(
+        safe_text + "\n要件定義〜L3 要求確定と L2 プロトタイプ設計を行うための環境\n",
+        encoding="utf-8",
+    )
+    faults = requirement_engine.design_not_started_faults(ctx)
+    assert any("開発環境入口にL2設計又は旧方式" in fault for fault in faults)
+
+    environment.write_text(
+        safe_text + "\n4. L2 の画面は 5 点セットで入口・状態・失敗・戻る操作・アクセシビリティを記録する。\n",
+        encoding="utf-8",
+    )
+    faults = requirement_engine.design_not_started_faults(ctx)
+    assert any("開発環境入口にL2設計又は旧方式" in fault for fault in faults)
 
 
 def test_all_legacy_requirement_ids_have_typed_redescent_decision_routes() -> None:

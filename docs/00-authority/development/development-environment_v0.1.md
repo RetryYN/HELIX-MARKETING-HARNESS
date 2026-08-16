@@ -6,17 +6,20 @@ slice: cross
 
 # 開発環境契約 v0.1
 
-> status: **draft**。要件定義〜L3 要求確定と L2 プロトタイプ設計を行うための環境を定義する。
+> status: **draft**。要件定義〜L3 要求候補と、旧要求に基づく L2 5点書式の評価用draftを行うための環境を定義する。
+> 新要求からのL2画面設計は要求freeze後に再降下するまで開始しない。
 
 ## 目的と境界
 
 この環境は、HELIX-HARNESS の開発ループ（doctor／docs／gates／test）を、本リポジトリの Python-native な
-正本・ゲート体系へ適応したものである。対象は要件定義、契約 JSON の更新、生成ビュー、L2 画面設計、検証であり、
-製品ランタイムの実装や外部媒体への書き込みを開始するものではない。
+正本・ゲート体系へ適応したものである。対象は要求候補の定義、再検証資料の整合検査、生成ビュー、旧要求に基づく
+L2 画面5点書式の評価用draft、検証であり、新要求からのL2画面設計、製品ランタイムの実装や外部媒体への書き込みを
+開始するものではない。
 
 - Python 3.14、`uv.lock` を依存解決の固定点とし、setup／CI は `uv sync --frozen` で lock 外の解決を拒否する
 - パッケージは `src/helix/` の一層だけを使用する
-- 正本は契約 JSON／DDL／状態遷移／evidence schema と artifact-manifest。MD は生成ビューまたは人間承認の正本文書
+- 再検証対象の契約 JSON／DDL／状態遷移／evidence schema は旧baselineの構造資料であり、現行の要求・設計・実装入力ではない。
+  現段階の権威境界は artifact-manifest と refinement／要求候補で管理し、方式はPO freeze後に新正本から再選択する。MD は生成ビューまたは人間承認の正本文書
 - credential は repository、DB、ログ、成果物に保存しない。本書の開発コマンドは外部媒体、製品runtime、
   Discord、GitHubへwriteしない。既存allow-listは旧baselineの再検証資料であり、開発コマンドのwrite許可ではない
 - VPS（現在の `helix-worker`）とローカルは同じコマンド列を実行し、VPS 固有の秘密や経路を文書に書かない
@@ -77,7 +80,7 @@ ruff、mypy の Python 3.14 pin とこれらの CI 境界は `G-TEMPLATE-ALIGNME
 1. 要件候補に stable ID、actor／task／workflow、価値、制約、未決事項がある。
 2. 候補はプロトタイプまたは反証可能な観測を経て、BR／REQ／FR／NFR の正本へ降下する。
 3. 各 FR／NFR は AC と TC へ双方向に接続し、拒否・境界・復旧を含む。
-4. L2 の画面は 5 点セットで入口・状態・失敗・戻る操作・アクセシビリティを記録する。
+4. 要求freeze前の完了条件に製品L2画面設計を含めない。freeze後に新要求から降下する場合だけ、L2の画面を5点セットで入口・状態・失敗・戻る操作・アクセシビリティへ記録する。
 5. PO の承認前は `draft` のままとし、confirmed 化には manifest、承認 digest、baseline、レビューを同一変更で更新する。
 6. discovery ledger は `coverage_start_commit` 以後だけを append-only に記録する監査証跡であり、既存契約 JSON の
    代替や製品 runtime への自動 mutation ではない。契約変更は proposal と decision、または `deferred:` 理由付き withdrawal を要する。

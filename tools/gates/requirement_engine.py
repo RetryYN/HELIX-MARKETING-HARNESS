@@ -10645,6 +10645,26 @@ def design_not_started_faults(ctx: Ctx) -> list[str]:
     present_readme = sorted(marker for marker in prohibited_readme_markers if marker in readme_text)
     if present_readme:
         faults.append(f"READMEのL1/L6入口に旧current表示が残る={present_readme}")
+    environment_path = REPO_ROOT / "docs/00-authority/development/development-environment_v0.1.md"
+    environment_text = environment_path.read_text(encoding="utf-8") if environment_path.is_file() else ""
+    required_environment_markers = {
+        "旧要求に基づく L2 5点書式の評価用draft",
+        "新要求からのL2画面設計は要求freeze後に再降下するまで開始しない。",
+        "再検証対象の契約 JSON／DDL／状態遷移／evidence schema は旧baselineの構造資料であり、現行の要求・設計・実装入力ではない。",
+        "要求freeze前の完了条件に製品L2画面設計を含めない。",
+    }
+    missing_environment = sorted(marker for marker in required_environment_markers if marker not in environment_text)
+    if missing_environment:
+        faults.append(f"開発環境入口にL2評価用draft・旧方式非継承境界がない={missing_environment}")
+    prohibited_environment_markers = {
+        "要件定義〜L3 要求確定と L2 プロトタイプ設計を行うための環境",
+        "対象は要件定義、契約 JSON の更新、生成ビュー、L2 画面設計、検証",
+        "正本は契約 JSON／DDL／状態遷移／evidence schema と artifact-manifest。",
+        "4. L2 の画面は 5 点セットで入口・状態・失敗・戻る操作・アクセシビリティを記録する。",
+    }
+    present_environment = sorted(marker for marker in prohibited_environment_markers if marker in environment_text)
+    if present_environment:
+        faults.append(f"開発環境入口にL2設計又は旧方式の現在形命令が残る={present_environment}")
     claude_path = REPO_ROOT / "CLAUDE.md"
     claude_text = claude_path.read_text(encoding="utf-8") if claude_path.is_file() else ""
     required_claude_markers = {
