@@ -767,7 +767,7 @@ ADR-013は既存PO承認digestを保持したまま、frontmatterを含む全文
 対象PO承認行、現内容digest、`semantic_unchanged=true`及び`grants_new_approval=false`は引き続き必須であり、通常の未承認
 confirmed変更を許可する経路ではない。これによりG-BASE-ARTはPASSしたが、8件の要求批准No-Goと独立review bindingは残る。
 
-### F-65 現HEADでの継続監査（要求意味の状態を更新、批准は生成しない）
+### F-65 checkpoint b786b43の継続監査（要求意味の状態を更新、批准は生成しない）
 
 継続監査時点の固定点は `b786b43d03decb05877bd9c2f905f91966d7ad94`、root tree は
 `702e88092ad25df7e88a6d101188742123824ce6` である。作業木はcleanで、現役recordは specified 21件、draft 14件、
