@@ -72,19 +72,12 @@ def test_mutation_chain_does_not_traverse_through_no_go() -> None:
 
 def test_review_artifacts_are_bound() -> None:
     faults = review_binding.detect_review_faults(CTX)
-    policy = json.loads(
-        (ROOT / "docs/00-authority/development/requirement-engine-authority.json").read_text(
-            encoding="utf-8"
-        )
-    )
-    if policy["requirements_baseline_status"] == "revising" and not policy["implementation_authorized"]:
-        # The old Claude artifacts are intentionally not promoted to a current
-        # review while the requirements candidate is still unratified.  The
-        # production gate must remain red; this test only verifies that the
-        # expected fail-close evidence is present in the candidate stage.
-        assert faults
-    else:
-        assert faults == []
+    # Requirements ratification and review binding are separate authorities.
+    # A formally captured checkpoint review may therefore be Go while the
+    # requirements baseline remains revising; the PO/freeze gates remain the
+    # production No-Go conditions.  Do not encode the old assumption that a
+    # revising baseline must make every review artifact invalid.
+    assert faults == []
 
 
 def test_commit_tree_returns_root_tree_of_commit() -> None:
