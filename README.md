@@ -109,7 +109,7 @@ artifact-manifest、Python ゲートを並列正本にはしない。判断記�
 HELIX-HARNESS の cross-review／PR対応依頼／harness memory は開発環境の別機構として扱う。現行レビュー成果物は
 cross-reviewの基礎を提供するが、GitHub PR通知とrepository-local memoryは未実装である。旧ADR-010のDiscord
 束縛承認経路は`revalidation_required`で、新要求候補の初期経路ではない。初期要求候補はVPS Web UI＋UI内inboxで、
-Discordは未採用の将来deep-link補助候補、媒体community投稿と開発PR通知はそれぞれ別用途である。
+Discordは製品通知・承認・deep-link補助・開発PR通知の経路として採用せず、community marketing投稿だけを別用途の候補として扱う。
 
 VPS とローカルの要件定義環境は同じ入口で整える。
 
