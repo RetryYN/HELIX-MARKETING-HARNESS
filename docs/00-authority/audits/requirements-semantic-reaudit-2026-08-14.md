@@ -819,6 +819,25 @@ remote fetch後も同名remote branchは未作成であり、ローカルcheckpo
 したがって現判定はNo-Goのままである。構造gateと旧fault隔離gateがPASSしていても、上記6未承認inventory、strategy test、
 active refinement及びauthority evidenceが残る限り、要求確定、L2設計済み又は製品実装可能とは宣言しない。
 
+### F-66 現HEAD def17d9のFable low CLI再監査（read-only、批准は生成しない）
+
+現HEAD `def17d96e03d44f1402d2a75dc7da3b999ed030d` とroot tree
+`b574363efef20e692e4efd887033372b0c9e19d4`をClaude Fable low CLIが直接検査した。レビュー範囲は、現役要求の旧方式
+positive継承、VPS Web UI＋UI内inbox通知境界、要求先行・設計未着手境界、実ゲート／pytest、及びGitHub push可否である。
+範囲判定はGoだが、これはread-only意味監査の判定であり、PO承認、CI attestation、第三者検証又は全体cutoverのGoではない。
+
+- active recordはspecified 21件・draft 14件・superseded 3件の計38件で、現役35件は全て `phase=requirements`、
+  approvalは未成立である。WSL、cron、SQLite/home UI、Notion decision sync、ApprovalTransport、Discord製品通知・承認、
+  Docker WP成功、固定provider、旧S0/L2設計の出現は、prohibited・scope-out・deferred・historical・再mappingの文脈に限定され、
+  現行positive authorityではない。
+- VPS Web UI＋UI内inboxを製品通知・人間入口候補とし、Discordはcommunity marketingだけに分離するpolicy群の整合を確認した。
+  現段階は `candidate_unratified`、`design_not_started=true`、実行／write権限なしであり、要求候補を実装許可へ読み替えていない。
+- `run_all.py` は231 PASS／9 FAIL、pytestは810 passed／220 skippedである。9 FAILはstrategy test authority、6 legacy
+  meaning inventory、active refinementのfreeze／PO receipt、及びレビュー束縛で、FableはPO不要のコード欠陥を確認しなかった。
+- `origin/main`より12 commit先行するlocal branchにremote branch／PRはなく、全gate PASS前のpushを要求するCLAUDE規約によりGitHub同期は保留が正しい。
+
+F-66はF-65と同じく要求意味の監査証跡であり、lifecycleをfrozenへ変更せず、approval／baseline／実装admissionを生成しない。
+
 ## 要求完了の必要条件
 
 1. F-01〜F-64を個別に解消又は要求候補へ束縛し、未解決findingにはquestion/answerとPO選択が
