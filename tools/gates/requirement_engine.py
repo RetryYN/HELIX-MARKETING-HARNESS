@@ -9079,16 +9079,37 @@ def objective_completion_audit_faults(ctx: Ctx, refinements: dict[str, Any]) -> 
     }
     readiness = {
         "OBJ-01": not (
-            legacy_media_trace_faults()
+            # OBJ-01 is only proven after every inventory named by the
+            # objective has passed its own disposition/authority check.  The
+            # high-level trace gates below are not a substitute for these
+            # per-inventory checks: otherwise a future malformed inventory
+            # could be followed by digest updates and still allow the
+            # objective row to claim ``proven``.
+            l0_clause_disposition_faults(refinements)
+            + critical_responsibility_disposition_faults(refinements)
+            + legacy_br_disposition_faults(ctx, refinements)
+            + legacy_media_trace_faults()
             + legacy_media_br_disposition_faults(refinements)
             + legacy_requirement_meaning_inventory_faults(ctx, refinements)
             + req_authority_normalization_policy_faults(ctx, refinements)
             + legacy_strategy_quality_meaning_inventory_faults(ctx, refinements)
+            + legacy_nfr_disposition_faults(ctx, refinements)
             + nfr_business_authority_policy_faults(ctx, refinements)
             + legacy_mr_meaning_inventory_faults(refinements)
             + legacy_fn_meaning_inventory_faults(ctx, refinements)
             + legacy_ac_meaning_inventory_faults(ctx, refinements)
             + legacy_tc_meaning_inventory_faults(ctx, refinements)
+            + legacy_req_disposition_faults(ctx, refinements)
+            + orphan_requirement_group_faults(ctx, refinements)
+            + legacy_fr_disposition_faults(ctx, refinements)
+            + legacy_derived_contract_faults(ctx, refinements)
+            + legacy_test_authority_disposition_faults(ctx, refinements)
+            + legacy_phase_fault_disposition_faults(ctx, refinements)
+            + fr_slice_authority_alignment_policy_faults(ctx, refinements)
+            + legacy_trace_fault_policy_faults(ctx, refinements)
+            + legacy_media_trace_fault_policy_faults(refinements)
+            + legacy_media_inventory_faults(refinements)
+            + test_id_authority_alignment_policy_faults(ctx, refinements)
             + bidirectional_trace_faults(ctx)
             + layered_trace_faults(ctx)
             + trace_semantic_responsibility_faults(ctx)

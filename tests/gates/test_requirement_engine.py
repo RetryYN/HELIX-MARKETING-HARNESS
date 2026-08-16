@@ -5822,6 +5822,61 @@ def test_objective_completion_audit_does_not_overclaim_requirements_freeze() -> 
     )
 
 
+def test_objective_completion_audit_covers_every_legacy_inventory(monkeypatch) -> None:
+    """OBJ-01 must not become proven when an omitted inventory is faulty."""
+    refinements = json.loads(requirement_engine.REFINEMENTS.read_text(encoding="utf-8"))
+    objective = next(
+        row for row in refinements["objective_completion_audit"] if row["objective_id"] == "OBJ-01"
+    )
+    objective["status"] = "proven"
+    objective["remaining_condition"] = None
+
+    # Isolate the mutation to the inventory under test.  Every other OBJ-01
+    # dependency is healthy so a missing call cannot be masked by the current
+    # intentionally incomplete repository state.
+    no_fault = {
+        "l0_clause_disposition_faults",
+        "critical_responsibility_disposition_faults",
+        "legacy_br_disposition_faults",
+        "legacy_media_trace_faults",
+        "legacy_media_br_disposition_faults",
+        "legacy_requirement_meaning_inventory_faults",
+        "req_authority_normalization_policy_faults",
+        "legacy_strategy_quality_meaning_inventory_faults",
+        "legacy_nfr_disposition_faults",
+        "nfr_business_authority_policy_faults",
+        "legacy_mr_meaning_inventory_faults",
+        "legacy_fn_meaning_inventory_faults",
+        "legacy_ac_meaning_inventory_faults",
+        "legacy_tc_meaning_inventory_faults",
+        "legacy_req_disposition_faults",
+        "orphan_requirement_group_faults",
+        "legacy_fr_disposition_faults",
+        "legacy_derived_contract_faults",
+        "legacy_test_authority_disposition_faults",
+        "legacy_phase_fault_disposition_faults",
+        "fr_slice_authority_alignment_policy_faults",
+        "legacy_trace_fault_policy_faults",
+        "legacy_media_trace_fault_policy_faults",
+        "test_id_authority_alignment_policy_faults",
+        "bidirectional_trace_faults",
+        "layered_trace_faults",
+        "trace_semantic_responsibility_faults",
+        "phase_alignment_faults",
+        "semantic_dimension_faults",
+    }
+    for name in no_fault:
+        monkeypatch.setattr(requirement_engine, name, lambda *args, **kwargs: [])
+    monkeypatch.setattr(
+        requirement_engine,
+        "legacy_media_inventory_faults",
+        lambda *args, **kwargs: ["legacy media inventory mutation"],
+    )
+
+    faults = requirement_engine.objective_completion_audit_faults(Ctx(), refinements)
+    assert any("OBJ-01" in fault for fault in faults)
+
+
 def test_vps_ui_objective_requires_quality_and_product_state_freeze(monkeypatch) -> None:
     refinements = json.loads(requirement_engine.REFINEMENTS.read_text(encoding="utf-8"))
     required = {
