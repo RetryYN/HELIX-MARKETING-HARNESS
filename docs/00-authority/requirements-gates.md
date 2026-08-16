@@ -84,7 +84,7 @@ slice: cross
 | G-TC-REJECT | fail-close 拒否系 TC が 7 件以上 | 拒否経路の検証欠落 |
 | G-TC-SLICE | 全 TC が既知スライス語彙（S0/S1/S2/S3+）に属し、S0 の TC が実在して AC を参照 | スライス外の宙吊り TC |
 | G-WF-CONTRACT | WF 実行契約の対象が WF 台帳に実在し、全件に step 定義がある | 実行契約なき WF・幽霊 WF |
-| G-ENV-CONTRACT | 環境契約が Docker WP を唯一の実書込み先とし、本番 WP・GA4 の書込み禁止を宣言 | 本番への誤書込み経路 |
+| G-ENV-CONTRACT | 旧S0環境fixtureを`revalidation_required`かつ`implementation_input=false`へ隔離し、Docker WP／旧Discord承認通知tupleを現行のwrite・通知authorityとして扱わない。将来のapproved cutoverは新しい環境・profile・account・operation・effect admissionが明示されるまでfail-closeする | 旧Docker WPや旧Discord通知を現行VPSのwrite・通知経路へ昇格すること |
 | G-STRAT-BRIEF | brief 契約が完全で DDL が下位 run に brief id/digest 保持を強制、開始ガードが有効 brief を要求 | brief なしの下流開始 |
 | G-STRAT-TRACE | run→brief→choice→VH→SEG→evidence の trace 必須＋trace 欠落 fixture 拒否＋変異 schema の検出自己検査 | 宙に浮いた戦術 |
 | G-SEGMENT-CONTEXT | 状況ベースセグメント（時間・空間・制約・進行状態・代替行動）必須、人口統計のみ fixture を拒否 | ペルソナ型セグメントの正本化 |

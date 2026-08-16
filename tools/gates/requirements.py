@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import datetime
+import json
 import re
 import sqlite3
 import subprocess
@@ -12,6 +13,8 @@ from pathlib import Path
 
 from tools.gates.common import (
     AC_SCHEMA,
+    AUTHORITY,
+    MANIFEST,
     BR_MEDIA_DIR,
     BR_SCHEMA,
     ENVIRONMENT,
@@ -70,6 +73,15 @@ STRAT_GATES = ["G-STRAT-BRIEF", "G-STRAT-TRACE", "G-SEGMENT-CONTEXT", "G-OBS-INT
                "G-LEARNING-TRACE", "G-NO-DIRECT-STRATEGY-MUTATION", "G-REVISION-EVIDENCE",
                "G-STRATEGY-VERSION", "G-MEDIA-ROLE", "G-CONTENT-VALUE-DEFINITION"]
 
+AUTHORITY_POLICY = AUTHORITY / "development/requirement-engine-authority.json"
+EXPECTED_ENVIRONMENT_TARGETS = {
+    "ローカル WP",
+    "本番 WP",
+    "GA4",
+    "承認通知",
+    "credential 全般",
+}
+
 
 # ---------------------------------------------------------------- 検出関数
 def detect_polarity_gaps(contracts: list[dict], acs: list[dict]) -> list[str]:
@@ -119,6 +131,71 @@ def detect_invariant_gaps(contracts: list[dict], acs: list[dict]) -> list[str]:
             else:
                 used_neg |= neg
     return bad
+
+
+def environment_contract_faults() -> list[str]:
+    """旧S0環境fixtureを現行の外部write authorityへ昇格させない。
+
+    ``environment.json`` は旧baselineのテストfixture（Docker WPを実書込み先と
+    する時代の構造資料）であり、VPS製品の現行write・通知・承認経路ではない。
+    revising中はfixtureの構造だけを再検証する。approved cutover後に同じfixtureを
+    成功条件として使うことは、新しい環境/admission authorityが明示されるまで
+    fail-closeする。
+    """
+    faults: list[str] = []
+    try:
+        env = load(ENVIRONMENT)["items"]
+    except (OSError, KeyError, TypeError, json.JSONDecodeError):
+        return ["旧S0環境fixtureを読み込めない"]
+    if not isinstance(env, list):
+        return ["旧S0環境fixtureのitemsが配列でない"]
+
+    targets = {e.get("target") for e in env if isinstance(e, dict)}
+    if targets != EXPECTED_ENVIRONMENT_TARGETS:
+        faults.append(
+            "旧S0環境fixtureのtarget集合が正本と不一致"
+            f" (actual={sorted(targets)}, expected={sorted(EXPECTED_ENVIRONMENT_TARGETS)})"
+        )
+    prod_rules = [
+        e for e in env
+        if isinstance(e, dict) and e.get("target") in ("本番 WP", "GA4")
+    ]
+    if "ローカル WP" not in targets:
+        faults.append("旧S0環境fixtureのDocker WP構造が欠落")
+    for entry in prod_rules:
+        policy = str(entry.get("test_policy", ""))
+        if "書込み" not in policy and "書込" not in policy:
+            faults.append(f"旧S0環境fixture {entry.get('target')}:書込み禁止の宣言なし")
+
+    try:
+        authority = load(AUTHORITY_POLICY)
+    except (OSError, json.JSONDecodeError):
+        return [*faults, "現行要求authorityを読み込めない"]
+    if (
+        authority.get("requirements_baseline_status") != "revising"
+        or type(authority.get("implementation_authorized")) is not bool
+        or authority.get("implementation_authorized") is not False
+    ):
+        faults.append(
+            "旧S0環境fixtureを現行write/通知authorityへ使えるstageではない（新環境admissionが未定義）"
+        )
+
+    try:
+        manifest = load(MANIFEST)
+        item = next(
+            row for row in manifest.get("items", [])
+            if isinstance(row, dict) and row.get("artifact_id") == "L3-S0-ENVIRONMENT"
+        )
+    except (OSError, json.JSONDecodeError, AttributeError, StopIteration):
+        item = None
+    if not isinstance(item, dict):
+        faults.append("旧S0環境fixtureのmanifest登録がない")
+    else:
+        if item.get("applicability_status") != "revalidation_required":
+            faults.append("旧S0環境fixtureがrevalidation_requiredへ隔離されていない")
+        if item.get("implementation_input") is not False:
+            faults.append("旧S0環境fixtureがimplementation inputへ流入している")
+    return faults
 
 
 def detect_contract_table_faults(contracts: list[dict], tables: set[str],
@@ -511,17 +588,14 @@ def _frsr_contracts(ctx: Ctx) -> None:
          f"WF 実行契約の対象が WF 台帳に実在し全件に step 定義がある "
          f"(不明WF={unknown_wf[:5]}, step欠={nostep[:3]})")
 
-    env = load(ENVIRONMENT)["items"]
-    targets = {e["target"] for e in env}
-    prod_rules = [e for e in env if e["target"] in ("本番 WP", "GA4")]
-    env_bad = []
-    if "ローカル WP" not in targets:
-        env_bad.append("Docker WP（唯一の実書込み先）の宣言なし")
-    for e in prod_rules:
-        if "書込み" not in e["test_policy"] and "書込" not in e["test_policy"]:
-            env_bad.append(f"{e['target']}:書込み禁止の宣言なし")
-    gate("G-ENV-CONTRACT", not env_bad,
-         f"環境契約が Docker WP を唯一の実書込み先とし本番 WP・GA4 の書込み禁止を宣言 (違反={env_bad})")
+    env_faults = environment_contract_faults()
+    gate(
+        "G-ENV-CONTRACT",
+        not env_faults,
+        "旧S0環境fixtureをrevalidation_required・implementation_input=falseへ隔離し、"
+        "Docker WP/Discord旧tupleを現行write・通知authorityとして扱わない"
+        f" (違反={env_faults})",
+    )
 
 
 # ---------------------------------------------------------------- 上流戦略ループ

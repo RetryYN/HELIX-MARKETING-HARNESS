@@ -160,6 +160,47 @@ def test_current_denominators_match_declared_scope() -> None:
         "AC_CONTRACT": 252, "TCC": 258, "API": 59, "API_UT": 218}
 
 
+def test_environment_contract_is_revalidation_only() -> None:
+    assert requirements.environment_contract_faults() == []
+
+
+def test_environment_contract_rejects_local_wp_only_fixture(tmp_path, monkeypatch) -> None:
+    source = json.loads(requirements.ENVIRONMENT.read_text(encoding="utf-8"))
+    source["items"] = [row for row in source["items"] if row.get("target") == "ローカル WP"]
+    path = tmp_path / "environment.json"
+    path.write_text(json.dumps(source, ensure_ascii=False), encoding="utf-8")
+    monkeypatch.setattr(requirements, "ENVIRONMENT", path)
+
+    faults = requirements.environment_contract_faults()
+    assert any("target集合" in fault for fault in faults)
+
+
+def test_environment_contract_rejects_old_fixture_as_approved_authority(tmp_path, monkeypatch) -> None:
+    authority = json.loads(requirements.AUTHORITY_POLICY.read_text(encoding="utf-8"))
+    authority["requirements_baseline_status"] = "approved"
+    authority["implementation_authorized"] = True
+    path = tmp_path / "requirement-engine-authority.json"
+    path.write_text(json.dumps(authority, ensure_ascii=False), encoding="utf-8")
+    monkeypatch.setattr(requirements, "AUTHORITY_POLICY", path)
+
+    faults = requirements.environment_contract_faults()
+    assert any("新環境admission" in fault for fault in faults)
+
+
+def test_environment_contract_rejects_fixture_as_current_manifest_input(tmp_path, monkeypatch) -> None:
+    manifest = json.loads(requirements.MANIFEST.read_text(encoding="utf-8"))
+    item = next(row for row in manifest["items"] if row.get("artifact_id") == "L3-S0-ENVIRONMENT")
+    item["applicability_status"] = "active"
+    item["implementation_input"] = True
+    path = tmp_path / "artifact-manifest.json"
+    path.write_text(json.dumps(manifest, ensure_ascii=False), encoding="utf-8")
+    monkeypatch.setattr(requirements, "MANIFEST", path)
+
+    faults = requirements.environment_contract_faults()
+    assert any("revalidation_required" in fault for fault in faults)
+    assert any("implementation input" in fault for fault in faults)
+
+
 def test_nfr_verification_chain_is_concrete_and_complete() -> None:
     assert requirements.detect_nfr_verification_faults(CTX.nfc, CTX.acc, CTX.tcc, CTX.ddl) == []
 
