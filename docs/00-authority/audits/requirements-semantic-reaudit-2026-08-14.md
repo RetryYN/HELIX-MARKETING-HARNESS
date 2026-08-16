@@ -853,6 +853,21 @@ PASS、対象mutationもPASSであり、VPS UI/inbox候補と全write=false境�
 この修正は要求のPO選択、lifecycle、承認receipt、設計成果物を生成しない。旧L2〜L6本文を機械的に書き換えるとconfirmed
 blob／approvalを捏造するため、manifestの再検証境界と入口の明示で止める。
 
+### F-68 CLAUDE入口の旧実装規律再混入を閉じる（Fable low再監査）
+
+Fable lowが `0686ff0` を再監査し、前項の修正後に残っていた「実装フェーズのペア規律」も旧DU／CMP／S0の
+実装命令として読めることを指摘した。これを「旧baselineの実装フェーズ規律（再検証資料・現行実装入力ではない）」へ
+降格し、旧テスト対応、S0完了、DDD層、PairPass、CMP gateを歴史記述に限定した。
+
+併せて `design_not_started_faults` に、旧実装節見出し、旧DU test正本、旧S0完了条件、DDD層固定、CMP gate、DB保護の
+現在形命令を禁止markerとして追加した。required境界文を残したまま旧命令を末尾へ再追加するmutationも追加し、
+`G-REQ-DESIGN-NOT-STARTED` が再混入を拒否することを確認した。
+
+現HEADの再監査は、active requirements 35件のphase=requirements、VPS UI＋UI inbox、Discord通知拒否／community分離、
+L2〜L6 `revalidation_required`／implementation=falseを維持し、PO不要の残件なしと判定した。`run_all.py` は231 PASS／9 FAIL、
+pytestは811 passed／220 skipped。残9はPO receipt/freeze、strategy test authority、6 meaning inventory、及びレビュー束縛であり、
+承認又はGitHub同期をコードで代替していない。
+
 ## 要求完了の必要条件
 
 1. F-01〜F-64を個別に解消又は要求候補へ束縛し、未解決findingにはquestion/answerとPO選択が
