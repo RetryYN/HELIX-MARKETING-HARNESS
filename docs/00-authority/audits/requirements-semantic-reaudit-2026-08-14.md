@@ -838,6 +838,21 @@ positive継承、VPS Web UI＋UI内inbox通知境界、要求先行・設計未�
 
 F-66はF-65と同じく要求意味の監査証跡であり、lifecycleをfrozenへ変更せず、approval／baseline／実装admissionを生成しない。
 
+### F-67 CLAUDE設計入口の旧方式命令を再検証資料へ降格（PO不要修正）
+
+Fable low CLIがcheckpoint `341a022`を再監査した際、`CLAUDE.md`の「実装時の設計制約」が、旧L4/L5の
+fail-close層、store/kernel/evidence API、transaction、Clock/Rng、DB保護方式を現在の実装命令として読める
+ことを検出した。これはmanifestのL2〜L6 `revalidation_required`／`implementation_input=false`と、要求freeze前は
+設計を開始しないという上位方針の入口での矛盾だった。
+
+`CLAUDE.md`の節を「旧baselineの設計制約（再検証資料・現行実装入力ではない）」へ変更し、旧方式を歴史記述へ限定した。
+さらに `G-REQ-DESIGN-NOT-STARTED` の実装へ、CLAUDE入口の4つの境界文言（旧baseline、現行未拘束、freeze後の別選択、
+DB/API/DDL方式未選択）を追加し、旧見出し・旧方式命令へ戻すmutation testを追加した。`G-REQ-DESIGN-NOT-STARTED`は
+PASS、対象mutationもPASSであり、VPS UI/inbox候補と全write=false境界は変更していない。
+
+この修正は要求のPO選択、lifecycle、承認receipt、設計成果物を生成しない。旧L2〜L6本文を機械的に書き換えるとconfirmed
+blob／approvalを捏造するため、manifestの再検証境界と入口の明示で止める。
+
 ## 要求完了の必要条件
 
 1. F-01〜F-64を個別に解消又は要求候補へ束縛し、未解決findingにはquestion/answerとPO選択が
