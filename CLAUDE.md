@@ -110,9 +110,9 @@ Codex／CI／人間作業者も本規約を共通入力として適用する。
    docs/00-authority/baselines/baseline.json の gate_count。散文に件数をハードコードしない）と
    markdownlint・pytest を通す。
 
-6. 要件定義〜L3 と L2 画面設計の開発入口は `make setup`／`make doctor`／`make requirements`／
+6. 要件候補〜L3再検証と旧L2 5点書式の評価用draftの開発入口は `make setup`／`make doctor`／`make requirements`／
    `make docs-check`／`make lint`／`make typecheck`／`make imports`／`make build`／`make gates`／`make test`／`make check`。
-   Python 3.14 と `uv.lock` を固定点にし、credential を repository・DB・ログへ書かない。`make test` は
+   新要求からのL2画面設計はrequirements freeze後の再降下・別admissionまで開始しない。Python 3.14 と `uv.lock` を固定点にし、credential を repository・DB・ログへ書かない。`make test` は
    pytest → test outcome 正規化 → 全ゲートの順に、同期済み uv 環境で実行する。
 
 ## Codex 実装エージェント（.claude/agents/）

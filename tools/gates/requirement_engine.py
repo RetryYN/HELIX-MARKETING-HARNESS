@@ -10665,9 +10665,36 @@ def design_not_started_faults(ctx: Ctx) -> list[str]:
     present_environment = sorted(marker for marker in prohibited_environment_markers if marker in environment_text)
     if present_environment:
         faults.append(f"開発環境入口にL2設計又は旧方式の現在形命令が残る={present_environment}")
+    workflow_path = REPO_ROOT / "docs/00-authority/development/requirement-definition-workflow_v0.1.md"
+    workflow_text = workflow_path.read_text(encoding="utf-8") if workflow_path.is_file() else ""
+    required_workflow_markers = {
+        "旧BR／REQ／FR／NFR／AC／TC契約、s0-contract、9契約JSONは再検証sourceであり、現行の要求・設計・実装正本ではない。",
+        "旧L2 5点書式の評価用draft／PoC evidence",
+        "新要求からのL2画面設計・旧方式の採用は、PO freeze、L2〜L6再設計、別admissionの後に新正本から再選択する。",
+        "新要求からの画面ID・状態・UI設計はPO freeze後に再降下し、現段階の評価用draftから継承しない。",
+        "旧承認 API／既存 config INSERT は再検証対象であり、新要求のwrite方式として継承しない。",
+    }
+    missing_workflow = sorted(marker for marker in required_workflow_markers if marker not in workflow_text)
+    if missing_workflow:
+        faults.append(f"要件定義ワークフロー入口にL2評価用draft・旧方式非継承境界がない={missing_workflow}")
+    prohibited_workflow_markers = {
+        "現行のJSON契約正本へPython-nativeに適応する手順",
+        "| intake | initiative、actor、背景、対象 domain | 対象と非対象が明示される | BR 背骨／br-media |",
+        "| prototype | normal／cancel／failure／timeout の流れと画面・媒体境界 | 実物または観測で不確実性を減らす | L2 5 点セット／PoC evidence |",
+        "| specified | BR→REQ→FR/NFR、状態、データ、権限、例外 | 受入可能な粒度で記述される | 9 契約 JSON／s0-contract |",
+        "| verified | AC と TC を双方向接続 | normal／reject／boundary-recovery が実行可能 | AC／TC contracts |",
+        "L2 の画面 ID は `L2-UI-*` artifact と画面 ID（AP-01 等）を分ける。画面は業務状態を独自定義せず、s0-contract と",
+        "L2 の画面案は URL から承認を確定させず、write 操作は承認 API または既存の config INSERT の契約に限定する。",
+        "`requirement-engine-authority.json`が9契約JSONをsource authorityとして列挙する。",
+    }
+    present_workflow = sorted(marker for marker in prohibited_workflow_markers if marker in workflow_text)
+    if present_workflow:
+        faults.append(f"要件定義ワークフロー入口にL2設計又は旧方式の現在形命令が残る={present_workflow}")
     claude_path = REPO_ROOT / "CLAUDE.md"
     claude_text = claude_path.read_text(encoding="utf-8") if claude_path.is_file() else ""
     required_claude_markers = {
+        "要件候補〜L3再検証と旧L2 5点書式の評価用draftの開発入口",
+        "新要求からのL2画面設計はrequirements freeze後の再降下・別admissionまで開始しない。",
         "旧baseline L6のslice 4点一致（G-SLICE-PLACEMENT）は構造再検証専用の資料であり、現行のslice・",
         "新要求のslice・forward_refs・実装降下先はPO freeze後に新正本から再選択する。",
         "既存`src/helix/`のDU-01〜12は旧baselineの再検証対象であり、freeze・L2〜L6再設計・admission後に",
@@ -10686,6 +10713,7 @@ def design_not_started_faults(ctx: Ctx) -> list[str]:
     if missing_claude:
         faults.append(f"CLAUDEの設計入口が旧baseline再検証・現行未拘束境界を保持しない={missing_claude}")
     prohibited_claude_markers = {
+        "要件定義〜L3 と L2 画面設計の開発入口は",
         "**L6 のスライスは 4 点一致**",
         "強制実装は S1 側の文書が正本",
         "その後の条件付き実装候補は`src/helix/`のDU-01〜12",

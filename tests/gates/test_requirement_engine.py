@@ -1115,6 +1115,8 @@ def test_design_not_started_rejects_current_claude_design_constraint_entrypoint(
             "以下は旧baselineの基本設計に存在した制約を、再検証資料として記録する。現行要求・設計・実装を拘束しない。",
             "新要求のPO凍結・設計再降下後に、必要な制約だけを別途選択し、正本・manifest・baseline・独立レビューへ束縛する。",
             "上流戦略正本の保護方式は現行設計では未選択であり、DB/API/DDL方式をここから継承しない。",
+            "要件候補〜L3再検証と旧L2 5点書式の評価用draftの開発入口",
+            "新要求からのL2画面設計はrequirements freeze後の再降下・別admissionまで開始しない。",
         )
     )
     (tmp_path / "CLAUDE.md").write_text(required_claude, encoding="utf-8")
@@ -1131,6 +1133,20 @@ def test_design_not_started_rejects_current_claude_design_constraint_entrypoint(
     (tmp_path / "README.md").write_text(
         "旧baseline業務要求・新要求候補（manifest applicabilityに従う。実装入力ではない）\n"
         "旧機能別設計・再設計対象（全件`revalidation_required`／`implementation_input=false`）\n",
+        encoding="utf-8",
+    )
+    workflow = tmp_path / "docs/00-authority/development/requirement-definition-workflow_v0.1.md"
+    workflow.parent.mkdir(parents=True, exist_ok=True)
+    workflow.write_text(
+        "\n".join(
+            (
+                "旧BR／REQ／FR／NFR／AC／TC契約、s0-contract、9契約JSONは再検証sourceであり、現行の要求・設計・実装正本ではない。",
+                "旧L2 5点書式の評価用draft／PoC evidence",
+                "新要求からのL2画面設計・旧方式の採用は、PO freeze、L2〜L6再設計、別admissionの後に新正本から再選択する。",
+                "新要求からの画面ID・状態・UI設計はPO freeze後に再降下し、現段階の評価用draftから継承しない。",
+                "旧承認 API／既存 config INSERT は再検証対象であり、新要求のwrite方式として継承しない。",
+            )
+        ),
         encoding="utf-8",
     )
     environment = tmp_path / "docs/00-authority/development/development-environment_v0.1.md"
@@ -1151,6 +1167,17 @@ def test_design_not_started_rejects_current_claude_design_constraint_entrypoint(
     ctx.__dict__["manifest_items"] = []
     faults = requirement_engine.design_not_started_faults(ctx)
     assert faults == []
+    workflow_safe = workflow.read_text(encoding="utf-8")
+    workflow.write_text(workflow_safe + "\n現行のJSON契約正本へPython-nativeに適応する手順\n", encoding="utf-8")
+    faults = requirement_engine.design_not_started_faults(ctx)
+    assert any("要件定義ワークフロー入口にL2設計又は旧方式の現在形命令" in fault for fault in faults)
+    workflow.write_text(workflow_safe, encoding="utf-8")
+    (tmp_path / "CLAUDE.md").write_text(
+        required_claude + "\n要件定義〜L3 と L2 画面設計の開発入口は\n",
+        encoding="utf-8",
+    )
+    faults = requirement_engine.design_not_started_faults(ctx)
+    assert any("CLAUDEの設計入口に旧方式の現在形命令" in fault for fault in faults)
     (tmp_path / "CLAUDE.md").write_text(
         required_claude + "\n## 実装時の設計制約（基本設計 §1・§4 の要点)\n",
         encoding="utf-8",
@@ -1230,6 +1257,7 @@ def test_design_not_started_rejects_current_l2_environment_scope(tmp_path, monke
         "AGENTS.md",
         "docs/L1-business-requirements/canonical/product-requirement-baseline-candidate_v0.1.md",
         "docs/00-authority/development/development-environment_v0.1.md",
+        "docs/00-authority/development/requirement-definition-workflow_v0.1.md",
     )
     for relative in source_files:
         source = original_root / relative

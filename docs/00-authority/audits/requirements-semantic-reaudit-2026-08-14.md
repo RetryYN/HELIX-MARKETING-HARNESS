@@ -912,3 +912,16 @@ L6は「旧機能別設計・再設計対象（全件revalidation_required／imp
 UI framework、認証、配備、API、画面、通知実装は未決定である。Discord community利用、Playwright、初回承認後の
 自動運用、content gate及びresearch-led growthの方向は回答capture済みだが、個別refinementのPO承認、frozen cutover、
 媒体operation別境界及びL2以降の設計は未完了である。
+
+### F-72 要件定義ワークフロー入口の旧L2／旧契約方式を再検証sourceへ限定（PO不要修正）
+
+Fable lowの隣接入口走査で、`requirement-definition-workflow_v0.1.md` が旧BR／REQ／L2／9契約／s0の構造を現行workflowの
+正本として読める記述を残し、L2画面案のwriteを旧承認API／config INSERTへ限定していたことを確認した。これは開発環境契約および
+CLAUDE／READMEの「要求先行・新L2未着手」と意味が衝突するため、同workflowをrefinement／要求候補と旧L2 5点書式の評価用draftへ
+限定し、旧契約・DDL・状態・evidenceは再検証source、新L2の画面ID・方式・writeはPO freeze・L2〜L6再設計・別admission後に
+新正本から選択する境界へ修正した。CLAUDEの開発入口も旧L2評価用draftとfreeze後再降下へ揃えた。
+
+`G-REQ-DESIGN-NOT-STARTED` はworkflow／CLAUDEの安全markerをrequiredとし、旧current-authority句をprohibitedとして検査する。
+安全markerを保持したまま旧workflow句又は旧CLAUDE入口を追記するmutation、およびproduction `design_not_started_faults(Ctx()) == []`
+を確認した。要求候補、VPS Web UI＋UI inbox、Discord製品通知拒否／community分離、全write=false、PO承認・独立Go・L2以降の
+設計未着手境界は変更していない。
