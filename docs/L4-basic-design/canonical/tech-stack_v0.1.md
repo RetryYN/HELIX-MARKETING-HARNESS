@@ -6,12 +6,6 @@ slice: S0
 
 # 技術・ツール選定書 v0.1
 
-> [!WARNING]
-> **旧baselineの設計履歴。現在の技術選定・実装入力ではない。**
-> WSL cron、消費者Web UI自動化、Discord初期承認、Claude Design/Codex必須経路は
-> VPS製品runtime、UI内inbox、provider-neutral/API-first候補との意味一致が未証明である。
-> 要求凍結後にL4を新規降下するまで、本書を再利用しない。
-
 > status: **confirmed**（2026-07-31 PO 承認 — 要件定義完遂指示。AI 起草）
 > charter §10 で確定した選定の集約正本＋実装レベルの具体化。選定理由と代替案・再検討条件を明記。
 

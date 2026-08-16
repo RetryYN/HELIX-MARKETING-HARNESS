@@ -67,12 +67,31 @@ MODULES = [
 
 
 def _receipt_index() -> dict[tuple, set]:
+    """Return approval and separately verified content-binding receipts.
+
+    A content-binding migration is not a new PO approval.  It is accepted
+    here only after the authority gate has verified the immutable prior PO
+    receipt, source commit/blob, and the current content digest.  Keeping the
+    migration in this index lets ``--update-baseline`` use the same
+    non-approving integrity path as G-MANIFEST-STATUS/G-CONFIRM-DIGEST without
+    weakening the approval requirement for ordinary confirmed documents.
+    """
     idx: dict[tuple, set] = {}
     for row in APPROVALS.read_text(encoding="utf-8").splitlines():
         cells = [c.strip() for c in row.split("|")]
         if len(cells) >= 8 and re.match(r"\d{4}-\d{2}-\d{2}", cells[1]):
             if cells[4] == "confirmed" and re.fullmatch(r"[0-9a-f]{12}", cells[6]):
                 idx.setdefault((cells[2], cells[3]), set()).add(cells[6])
+    if not authority.content_binding_migration_faults(CTX):
+        migrations = authority._content_binding_migrations(CTX)
+        for artifact_id, receipt in migrations.items():
+            expected = authority.CONTENT_BINDING_MIGRATION_ALLOWLIST.get(artifact_id)
+            if expected is None:
+                continue
+            idx.setdefault(
+                (expected["approval_target"], expected["approval_version"]),
+                set(),
+            ).add(receipt["content_binding_digest"])
     return idx
 
 

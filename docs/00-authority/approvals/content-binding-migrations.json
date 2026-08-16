@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "algorithm": "sha256_full_markdown_including_frontmatter_v1",
+  "receipts": [
+    {
+      "artifact_id": "AUTH-ADR-ADR-013-VPS-PRODUCT-UI-PRIMARY-HUMAN-INTERFACE",
+      "canonical_path": "docs/00-authority/adr/ADR-013-vps-product-ui-primary-human-interface.md",
+      "prior_po_approval_digest": "0f523543dcec",
+      "content_binding_digest": "e36352ef7e92",
+      "source_commit": "7488e8516a17f2c7e20f731de66e7345578ef9fc",
+      "migration_actor": "tool:authority-content-binding-migration",
+      "migration_reason": "既存PO承認と全文content bindingを分離し、frontmatterを含む現行digest計算法へ機械補正する",
+      "semantic_unchanged": true,
+      "grants_new_approval": false
+    }
+  ]
+}

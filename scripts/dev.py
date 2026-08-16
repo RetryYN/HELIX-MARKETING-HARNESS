@@ -106,7 +106,7 @@ def requirements() -> int:
         sys.path.insert(0, str(ROOT))
     from tools.gates.common import CTX
     from tools.gates.requirement_discovery import detect_discovery_faults, load_discovery_ledger
-    from tools.gates.requirement_engine import engine_report
+    from tools.gates.requirement_engine import actionable_engine_faults, engine_report
     from tools.gates.template_alignment import detect_alignment_faults
 
     data = json.loads(ALIGNMENT.read_text(encoding="utf-8"))
@@ -138,7 +138,12 @@ def requirements() -> int:
         f"implementation_authorized={policy.get('implementation_authorized')}; "
         f"IR={len(projection.get('records', []))}; refinements={len(refinements)}"
     )
-    failed = {name: faults for name, faults in engine_faults.items() if faults}
+    failed = actionable_engine_faults(state, engine_faults)
+    quarantined_count = sum(
+        bool(values) and name not in failed for name, values in engine_faults.items()
+    )
+    if quarantined_count:
+        print(f"legacy quarantine: {quarantined_count} fault groups (stage audit PASS)")
     for name, faults in failed.items():
         print(f"NG: {name} ({len(faults)}件; {faults[:3]})", file=sys.stderr)
     if failed:
@@ -172,8 +177,9 @@ def doctor() -> int:
     print(f"python: {sys.version.split()[0]}")
     print(f"uv: {shutil.which('uv')}")
     print("repository: HELIX-MARKETING-HARNESS")
-    if requirements():
-        return 1
+    # requirements() is a diagnostic summary.  The authoritative exit decision
+    # belongs to run_all; do not stop before it can classify every gate.
+    requirements()
     docs(check=True)
     return gates()
 

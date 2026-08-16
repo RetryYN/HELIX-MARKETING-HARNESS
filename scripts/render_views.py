@@ -26,15 +26,6 @@ GENERATED_HEADER = (
 )
 
 STATUS_LABEL = {"confirmed": "confirmed", "draft": "draft（再降下中）", "superseded": "superseded"}
-REVALIDATION_BANNER = (
-    "> [!WARNING]\n"
-    "> **旧baselineの生成view。現行要求の正本・設計・実装入力ではない。**  "
-    "`requirements_baseline_status=revising` / `implementation_authorized=false`。\n"
-    "> 下記status/receiptは旧baselineの成熟度と承認履歴だけを示す。PO receipt付きfrozen refinementから"
-    "Full Vを再降下しauthority cutoverするまで、本viewの内容をcurrentへ読み替えない。\n\n"
-)
-
-
 def _markdown_autolink_urls(value: str) -> str:
     """正本の bare URL を変更せず、生成 Markdown でだけ autolink 化する。"""
     trailing = ".,;:!?)]}）］】」』"
@@ -60,7 +51,7 @@ def status_line(data: dict, note: str) -> str:
     who = data.get("authority", "")
     receipt = data.get("approval_digest", "")
     tail = f"（{when} {who} 承認 — receipt {receipt}）" if receipt else ""
-    return REVALIDATION_BANNER + f"> status: **{st}**{tail}。{note}\n"
+    return f"> status: **{st}**{tail}。{note}\n"
 
 
 def render_br_contracts() -> tuple[Path, str]:

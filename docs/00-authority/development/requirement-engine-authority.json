@@ -3,6 +3,14 @@
   "authority": "canonical",
   "requirements_baseline_status": "revising",
   "implementation_authorized": false,
+  "implementation_admission": {
+    "status": "not_started",
+    "authority": null,
+    "po_receipt": null,
+    "requirements_authority_artifact_ids": [],
+    "design_artifact_ids": [],
+    "independent_go_review": null
+  },
   "helix_engine_adoption": {
     "status": "bridge",
     "source_model": "current_full_v_l1_l12",

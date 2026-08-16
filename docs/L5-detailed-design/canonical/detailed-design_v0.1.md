@@ -6,9 +6,6 @@ slice: S0
 
 # 詳細設計書 v0.1（⑤）
 
-> [!WARNING]
-> **旧baselineのL5設計。現要求に対するL5は未設計であり、本書は実装入力ではない。** `applicability_status=revalidation_required` / `implementation_input=false`。
-
 > status: **confirmed**（2026-07-31 PO 承認 — 詳細設計完遂指示。AI 起草）
 > pair: [unit-test-design_v0.1.md](../unit-tests/unit-test-design_v0.1.md)（単体テスト設計⑥ — HELIX 式 ⑤↔⑥ 文書ペア）
 > 上位文書: [basic-design_v0.1.md](../../L4-basic-design/canonical/basic-design_v0.1.md)（②。CMP 13・依存規則・横断設計はここが正準）／

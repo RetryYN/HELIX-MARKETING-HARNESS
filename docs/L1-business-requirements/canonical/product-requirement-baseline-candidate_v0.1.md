@@ -32,6 +32,7 @@ slice: cross
 ### PRC-01 人間向け主入口
 
 製品は、認証されたフロントを状態確認、承認待ち、失敗確認、KPI、運用通知の主入口として提供する。
+structured feedbackの入力と適用scope指定、blocked成果物と検査・分類証跡の診断閲覧、activation取消もこの主入口で扱う。
 特定のチャットサービス、Claude Code、Codex CLIを必須runtime依存にしない。
 
 ### PRC-02 状態の正本
@@ -118,7 +119,8 @@ external side effect、完了証跡、phaseを持ち、AC／TCまで双方向に
 
 安全停止、承認待ち、実行失敗をVPS UI内inboxへ記録するcapabilityは初期範囲に含める。安全停止の成立と
 通知配送を別責務へ分け、通知失敗でも停止状態をrollbackしない。初期adapterはUI内inboxだけとし、
-Discord運用通知・Web Pushはdeferredとする。Discord community投稿は通知capabilityへ含めず、PRC-31の独立媒体として
+Web Pushはdeferredとする。Discordは通知adapterとして採用せず、deferred又は再開条件を持たない。Discord community投稿は
+通知capabilityへ含めず、PRC-31の独立媒体として
 媒体release admissionで扱う。初期source event閉集合は`approval_waiting`、
 `safety_stopped`、`execution_failed`とし、purposeは`action_required`又は`operational_alert`に分ける。
 community media postとdeveloper PR noticeはこのinbox要求へ含めない。inbox itemは少なくとも通知ID、purpose、
@@ -128,17 +130,36 @@ source event identity、対象profile／resource／revision、発生時刻、sev
 通知記録は`recorded`又は`failed`の結果証跡を持ち、retryを尽くした場合は`retry_exhausted`を記録する。
 `retry_exhausted`は通知記録の終端であり、source業務状態の解除、再開又は成功を意味しない。利用者別の
 `seen`／`acknowledged`と、source業務状態に追随する
-`resolved`／`expired`を別軸で扱う。これらの通知状態をapprove／reject、停止後再開又は業務完了へ読み替えない。
+`resolved`／`expired`を別軸で扱う。`resolved`／`expired`はsource lifecycle、対象revision失効又はscope取消の正本eventだけから導出し、
+未確認、時間経過、stale表示又はinbox記録失敗だけで`action_required`を失効させない。これらの通知状態をapprove／reject、停止後再開又は業務完了へ読み替えない。
+inbox記録はprofile／purpose／risk class別の外部registrationへ束縛した有界retryとし、上限到達後はsource状態を維持して
+`retry_exhausted`／`failed`証跡を残し、外部通知へfallbackしない。active sourceのitemは時間だけでarchive／purgeせず、
+terminal後にだけretention、data classification及びlegal holdの有効revisionへ従う。policy不明時は不可逆削除をせず、
+accessを制限して停止する。reminder／escalationは既定無効とし、明示登録時も同一itemの表示だけを変更してdecision、expiry、
+停止解除、権限拡張又は別transportを導出しない。
+inboxのlist／read／seen／acknowledgeは、principalが許可されたbusiness profile、resource及びoperation scopeへ
+個別に束縛する。別profileのitem、secret、credential、個人情報又は不要なraw error payloadを表示せず、対応判断に
+必要な最小情報と参照IDだけを提示する。認証済みであることだけを全inbox閲覧権限の代替にしない。
 通知記録の失敗又はretryは先に成立した安全停止・実行失敗・承認待ちをrollbackしない。具体的なretry回数、
-backoff、retention、resolved後の保持、未確認itemのexpiry時間はPOの品質要求として未決のまま残し、実装者が
-数値を補完しない。FR-43等の後続sourceは、そのsource要求のphaseとriskを個別に凍結してから閉集合へ追加する。
+backoff、retention、resolved後の保持及び未確認itemのexpiry時間はPOの品質要求として未決のまま残し、実装者が
+数値又は自動expiry可否を補完しない。FR-43又はPRC-33のquality gate blocked等の後続sourceは、そのsource要求のphase、
+risk及び通知要否を個別に凍結してから閉集合へ追加する。
 
 ### PRC-16 フロントのセキュリティ要求
 
-外部到達可能な製品フロントはTLSと認証を必須とし、初期principalは明示登録されたPO／運用者に閉じる。
-sessionは失効・固定化防止・secure cookie境界を持ち、状態変更はCSRF防御と直前の認可再検証を必須とする。
-投稿、課金、危険設定、auto-mode、停止後再開は再認証可能な高リスク操作として扱う。具体protocol、
-identity provider、cookie属性値、timeout値、reverse proxy製品は設計で決める。
+外部到達可能な製品フロントは通信の機密性・完全性と認証を必須とし、初期principalは明示登録されたPO／運用者に閉じる。
+sessionは期限・失効・固定化及び盗用を防ぐ境界を持ち、状態変更はcross-site requestを含む不正要求の拒否と
+直前の認可再検証を必須とする。attended-only operationの個別実行承認、課金、危険設定、auto-mode、停止後再開は
+再認証可能な高リスク操作として扱う。具体protocol、identity provider、token保持方式、cookie属性値、timeout値、
+reverse proxy製品は設計で決める。
+
+VPSで使用するcredentialは暗号化してat-rest保護し、`0600`平文envを代替とみなさない。secret値をrepo、製品DB、log、
+journal、service unit、argv、dump又はevidenceへ記録せず、契約と証跡はcredential参照IDだけを保持する。credential利用は
+profile、媒体account及びoperationへ束縛し、必要な処理期間を超えて利用可能にしない。具体的な注入・保持方式は
+設計へ留保する。test／productionのstore、principal及びscope tagを
+分離する。credentialを製品状態backupへ含めず、喪失時は媒体側で再発行して再登録する。旧平文envに置かれたcredentialは
+漏洩可能性ありとして単純移送せずrotateする。再起動後の無人unlockを許可するかが決まるまでは自動復旧を不成立として扱う。
+具体secret backend、unlock方式及び注入mechanismは、この不変条件を満たす設計で選ぶ。
 
 ### PRC-17 責務とphase
 
@@ -188,7 +209,7 @@ BR→REQ→FR/SR/NFR→AC→TCのtraceは要約ではなく、責務・phase・�
 
 ### PRC-24 deferred capability
 
-初期baseline外の媒体write、Discord通知adapter、Web Push、横断BI、S2戦略分析、将来生成adapterは、理由、business
+初期baseline外の媒体write、Web Push、横断BI、S2戦略分析、将来生成adapterは、理由、business
 value、依存、risk、再開条件、必要な要求／AC／TCを持つdeferred itemとする。下流traceが空のまま
 confirmed／enabled／implementation-readyを名乗らない。
 
@@ -272,7 +293,10 @@ backup／recovery、account quotaのように業務根拠又は閾値が未確�
 媒体operationは公式API又は公式MCPを第一経路とする。公式経路で必要な能力を満たせない場合に限り、
 Playwrightをfallbackとして使用できる。また、公式経路で実行した結果を人間向け画面で確認するread経路にも
 Playwrightを使用できる。許可は媒体全体ではなくaccount／operation単位とし、principal、read／write effect、
-credential scope、利用規約、rate／quota、証跡、停止条件を持つ。経路又は権限が未知のoperationは実行しない。
+credential scope、利用規約、rate／quota、証跡、停止条件を持つ。credentialは可能な限りoperationに必要な最小権限とする。
+媒体側credentialがより広い場合も製品側のoperation allow-list、実行前plan検査及び実行後receipt照合で権限を狭める。
+browser readも登録済みaccount／operation／resource scopeに限定する。これらの強制を保証できないwriteは自動実行せず
+`attended-only`又は`deferred`とする。経路又は権限が未知のoperationは実行しない。
 
 ### PRC-31 Discord community marketing
 
@@ -283,10 +307,16 @@ Discord通知tupleをcommunity投稿許可へ流用しない。
 
 ### PRC-32 初回承認後の自動運用
 
-初期稼働時はVPS Web UI内inboxで対象scopeを表示し、ユーザーの明示承認後に自動運用を開始できる。毎回の公開承認は
-要求しない。activationはprofile、媒体account、operation、rule revision、risk class及び有効状態へ束縛し、scope外、
+初期稼働時、activation要求はUI内inboxへ`approval_waiting`として記録する。承認操作自体はinbox itemでは成立させず、
+認証済みUIで対象scopeとrevisionを再表示し、直前認可を再検証したうえでユーザーが明示決定する。承認後は毎回の公開承認を
+要求しない。scope未指定のactivation要求は既定補完せず拒否する。activationはprofile、媒体account、operation、
+activation policy revision、risk class体系及び必須risk gate集合へ束縛し、scope外、
 失効、停止、重大な基準変更又は権限喪失時は自動運用を止める。個別成果物は人間承認の代わりにPRC-33〜35の
-機械gateを通過しなければならず、activationを品質合格と読み替えない。
+機械gateを通過しなければならず、activationを品質合格と読み替えない。campaign、funnel role、content purpose及び
+risk classの適合はactivationとは独立して毎成果物でfail-close判定する。feedbackの適用scopeをprofile又は媒体へ広げても、
+外部writeのactivation scopeは自動拡張しない。`attended-only` operationはactivation scope内でも個別実行承認を要し、
+自動運用のwrite許可へ昇格しない。必須risk gate集合、risk境界又はactivation policyの変更は停止条件として機械判定し、
+媒体account別又は個別feedbackの下位rule更新は停止条件にせず自動再検査だけをtriggerする。
 
 ### PRC-33 content quality gateとfeedback learning
 
@@ -294,7 +324,11 @@ Discord通知tupleをcommunity投稿許可へ流用しない。
 不合格成果物は人間へ渡さず、自動再生成又は修正、再検査へ戻す。合格した成果物だけを次工程へ進める。ユーザーの
 指摘は構造化ruleとして外部化し、identity、revision、scope、effective period、fixture、検査結果及びrollbackを持つ。
 scope指定がないfeedbackは指摘対象の媒体accountだけへ適用し、暗黙に他account、全profile又は全媒体へ拡張しない。
-rule有効化時は未公開・処理待ち・承認待ち成果物を自動再検査する。
+rule有効化時は未公開・処理待ち・承認待ち成果物を自動再検査する。gate結果は少なくともverdict、reason code、適用rule
+revision及び対象artifact／claimを機械可読に束縛する。再生成の回数、時間及び費用上限はversion付き外部設定とし、未知又は
+上限到達時は未合格成果物を正式な人間確認又は次工程へ送らず`blocked`で停止し、VPS UI内inboxへ一件のdurable eventを記録する。停止成果物と検査証跡は必要時の診断閲覧
+だけを許可し、公開承認の代替にしない。通常の不合格retryでは通知せず、inbox記録失敗でも`blocked`状態をrollbackしない。retry系列中は適用rule revisionを凍結し、rule更新は
+新しいgate実行から適用する。
 
 品質gateは単なる禁止語一致ではなく、対象audienceへの有用性、独自の情報・research・分析、主張と出典の対応、出典鮮度、
 経験又は専門性の根拠、誇張しない見出し、読み手が目的を達成できる十分性を検査対象に含める。検索又は生成AI検索での露出は
@@ -311,6 +345,9 @@ content及びclaimを扱う領域のrisk classを判定する。人の健康、�
 専門性、誇大表現、断定、免責及び安全gateを適用する。ユーザーの好みはブランドへ固定せず、案件、成果物又はclaimごとに
 case-by-caseで指定できるが、risk classが要求する法令・安全上の最低基準を弱めたり迂回したりできない。AIはrisk境界内で
 ruleを更新できるが、分類根拠、変更差分、scope、fixture及び検査結果を証跡化する。不確実なrisk分類は低riskへ推測しない。
+各artifact／claimはrisk class、分類確信度又は不確実性、分類根拠及び適用gate-set revisionを持つ。欠落又は不確実な場合は
+全影響軸のYMYL相当を含む最高厳格度として扱い、再調査又は分類解決後の再検査まで正式な人間確認、次工程又は公開へ進めない。
+停止成果物と分類証跡の診断閲覧は許可する。確信度閾値は固定値を要件へ埋め込まず、version付きruleとして外部化する。
 
 ### PRC-35 research-led growth loop
 
@@ -337,7 +374,7 @@ funnel、ruleへ還流する。
 |---|---|---|
 | PD-01 | 製品runtimeをVPSへ正式移行するか | **既存決定: ADR-007のPO receiptでVPS `helix-worker`を基準化。新baselineへの適用範囲は再検証中** |
 | PD-02 | Web Pushを初期追加adapterに含めるか | **UI内inboxはADR-013で初期必須。安全側既定として外部Web Pushだけを無効化し、品質閾値とadapter採否はrefinement未凍結** |
-| PD-03 | Discord deep-link補助を初期範囲に残すか | **安全側既定: 無効。将来adapter候補としてdeferred** |
+| PD-03 | Discordを製品通知又はdeep-link補助に使用するか | **決定済み: 不採用。DiscordはPRC-31のcommunity marketing媒体だけに使用し、通知routeは再開条件を持たない** |
 | PD-04 | 初期版でwriteを許可する媒体はどれか | **安全側既定: 新baselineでは全媒体write無効。Docker WPもPoC証跡からrelease受入へ別途昇格** |
 | PD-05 | 初回activation後に毎回承認なしで自動運用するか | **回答capture済み: scope付き初回承認後は自動運用。未ratify中の安全側既定は外部write無効** |
 | PD-06 | profile横断BIを初期範囲に含めるか | **安全側既定: 無効。単一profile候補もrefinement未凍結** |

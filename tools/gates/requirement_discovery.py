@@ -50,6 +50,9 @@ EVENT_TYPES = {
     "specification_proposed",
     "approval_requested",
     "approval_decided",
+    "policy_ratification_decided",
+    "authority_classification_decided",
+    "authority_cutover_decided",
     "withdrawn",
 }
 PAYLOAD_FIELDS: dict[str, set[str]] = {
@@ -74,6 +77,35 @@ PAYLOAD_FIELDS: dict[str, set[str]] = {
         "artifact_id",
         "artifact_digest",
         "artifact_snapshot",
+    },
+    "policy_ratification_decided": {
+        "approver_principal",
+        "decision",
+        "approved_policy_id",
+        "approved_revision",
+        "approved_policy_semantic_digest",
+        "production_write_authorized",
+    },
+    "authority_classification_decided": {
+        "approver_principal",
+        "decision",
+        "approved_policy_id",
+        "approved_revision",
+        "approved_policy_semantic_digest",
+        "approved_rows_digest",
+        "approved_candidate_content_digest",
+        "production_write_authorized",
+    },
+    "authority_cutover_decided": {
+        "approver_principal",
+        "decision",
+        "approved_policy_id",
+        "approved_revision",
+        "approved_policy_semantic_digest",
+        "approved_rows_digest",
+        "approved_candidate_content_digest",
+        "approved_parent_receipts_digest",
+        "production_write_authorized",
     },
     "withdrawn": {"reason", "withdrawn_event_id"},
 }
@@ -160,6 +192,20 @@ def _payload_faults(event: dict[str, Any]) -> list[str]:
     for key in strings.get(event_type, ()):
         if not isinstance(payload.get(key), str) or not payload[key].strip():
             faults.append(f"{event_id}: payload.{key} は空でない string が必要")
+    if event_type in {"policy_ratification_decided", "authority_classification_decided", "authority_cutover_decided"}:
+        if event.get("actor_principal") != payload.get("approver_principal"):
+            faults.append(f"{event_id}: policy ratification actorとapproverが一致しない")
+        if payload.get("approver_principal") not in TRUSTED_PO_PRINCIPALS:
+            faults.append(f"{event_id}: policy ratification approverが信頼済みPOでない")
+        if payload.get("decision") not in {"accepted", "rejected"}:
+            faults.append(f"{event_id}: policy ratification decisionが不正")
+        if not isinstance(payload.get("approved_revision"), int) or payload["approved_revision"] < 1:
+            faults.append(f"{event_id}: policy ratification revisionが不正")
+        for key in PAYLOAD_FIELDS[event_type] - {"approver_principal", "decision", "approved_revision", "production_write_authorized"}:
+            if not isinstance(payload.get(key), str) or not payload[key].strip():
+                faults.append(f"{event_id}: policy ratification {key}が空")
+        if not isinstance(payload.get("production_write_authorized"), bool):
+            faults.append(f"{event_id}: policy ratification write authorityがbooleanでない")
     if event_type == "candidate_recorded":
         questions = payload["unresolved_questions"]
         if not isinstance(questions, list) or not all(isinstance(x, str) for x in questions):
@@ -451,7 +497,7 @@ def reference_and_lifecycle_faults(data: dict[str, Any], ctx: Ctx) -> list[str]:
                     f"{subject}: unknown dimension の question_raised がない {missing_questions}"
                 )
         terminal = next(
-            (i for i, kind in enumerate(types) if kind in {"approval_decided", "withdrawn"}), None
+            (i for i, kind in enumerate(types) if kind in {"approval_decided", "policy_ratification_decided", "authority_classification_decided", "authority_cutover_decided", "withdrawn"}), None
         )
         if terminal is not None and terminal != len(types) - 1:
             faults.append(f"{subject}: approval_decided/withdrawn 後の event を拒否")

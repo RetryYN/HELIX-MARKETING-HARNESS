@@ -6,11 +6,8 @@ slice: cross
 
 # 検証設計書 v0.1
 
-> [!WARNING]
-> **旧baselineの検証設計。現行要求の設計・実装入力ではない。** `applicability_status=revalidation_required` / `implementation_input=false`。
-
 > status: **confirmed**（2026-07-31 PO 承認 — 要件定義完遂指示。AI 起草）
-> 旧baseline対象契約: [fr-contracts.json](../canonical/functional/fr-contracts.json)／[nfr-contracts.json](../canonical/nonfunctional/nfr-contracts.json)／[ac-contracts.json](../canonical/acceptance/ac-contracts.json)／[s0-contract_v0.1.md](../canonical/s0-contract_v0.1.md)／[br-media_v0.1.md](../../L1-business-requirements/canonical/br-media_v0.1.md)／[loop-task-workflow_v0.1.md](../../L1-business-requirements/canonical/loop-task-workflow_v0.1.md)／[media-requirements_v0.1.md](../canonical/functional/media-requirements_v0.1.md)
+> 対象設計: [requirements_v0.1.md](../canonical/functional/requirements_v0.1.md)／[s0-contract_v0.1.md](../canonical/s0-contract_v0.1.md)／[br-media_v0.1.md](../../L1-business-requirements/canonical/br-media_v0.1.md)／[loop-task-workflow_v0.1.md](../../L1-business-requirements/canonical/loop-task-workflow_v0.1.md)／[media-requirements_v0.1.md](../canonical/functional/media-requirements_v0.1.md)
 > 機械可読正本: TC = [tc-contracts.json](tc-contracts.json)、AC = [ac-contracts.json](../canonical/acceptance/ac-contracts.json)。
 > **検証契約正本（2026-08-01 全層再降下 §4-§5）**: AC 検証契約 =
 > [json/ac/ac-contracts.json](../canonical/acceptance/ac-contracts.json)（ビュー [ac-catalog_v0.1.md](../views/ac-catalog_v0.1.md)）、
@@ -28,7 +25,7 @@ slice: cross
 
 | 設計文書 | 検証対となる本書の節 | 逆方向の確認対象 |
 |---|---|---|
-| [FR契約](../canonical/functional/fr-contracts.json)／[NFR契約](../canonical/nonfunctional/nfr-contracts.json)／[AC契約](../canonical/acceptance/ac-contracts.json) | 旧baseline JSON契約（再検証対象） | FR/NFR、S0受入条件。新要求の検証入力には流用しない |
+| [requirements_v0.1.md](../canonical/functional/requirements_v0.1.md) | §2〜§6 | FR/NFR、S0 受入条件、AC-11〜AC-72 |
 | [s0-contract_v0.1.md](../canonical/s0-contract_v0.1.md) | §2〜§5 | DDL、証跡型、遷移、再開、環境、移行、更新分割 |
 | [br-media_v0.1.md](../../L1-business-requirements/canonical/br-media_v0.1.md) | §2、§3、§6 | WP/GA4 を含む媒体公開・計測の S0 境界。S1+ は N/A |
 | [loop-task-workflow_v0.1.md](../../L1-business-requirements/canonical/loop-task-workflow_v0.1.md) | §2〜§4 | LP/T/WF、T-PUB、WF-WP-1/2、WF-MEAS-1、再開規則 |

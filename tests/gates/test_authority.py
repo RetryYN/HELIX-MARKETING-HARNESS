@@ -82,10 +82,29 @@ def test_frozen_reference_mutation_is_detected() -> None:
 
 
 def test_artifact_content_digest_matches_manifest() -> None:
+    migrations = authority._content_binding_migrations(CTX)
     for it in CTX.manifest_items:
         if it["lifecycle_status"] != "confirmed":
             continue
-        assert it["approval_digest"] == authority.artifact_content_digest(ROOT / it["canonical_path"])
+        actual = authority.artifact_content_digest(ROOT / it["canonical_path"])
+        assert it["approval_digest"] == actual or migrations[it["artifact_id"]]["content_binding_digest"] == actual
+
+
+def test_content_binding_migration_is_non_approving_and_content_exact() -> None:
+    assert authority.content_binding_migration_faults(CTX) == []
+
+
+@pytest.mark.parametrize("field,value", [
+    ("grants_new_approval", True),
+    ("semantic_unchanged", False),
+    ("content_binding_digest", "0" * 12),
+    ("prior_po_approval_digest", "1" * 12),
+    ("source_commit", "2" * 40),
+])
+def test_content_binding_migration_mutations_fail_closed(field: str, value: object) -> None:
+    data = authority.load(authority.CONTENT_BINDING_MIGRATIONS)
+    data["receipts"][0][field] = value
+    assert authority.content_binding_migration_faults(CTX, data)
 
 
 def test_manifest_file_is_registered_authority() -> None:

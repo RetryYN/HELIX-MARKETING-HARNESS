@@ -6,15 +6,9 @@ slice: S0
 
 # S0 実行契約 v0.1
 
-> [!WARNING]
-> **旧baselineのS0契約。現行要求の設計・実装入力ではない。**
-> `requirements_baseline_status=revising` / `implementation_authorized=false`。
-> Discord初期承認、DDL、状態遷移、外部write tupleを含む本書は承認履歴として保持し、
-> PO receipt付きfrozen refinementからFull Vを再降下してauthority cutoverするまでcurrentへ読み替えない。
-
 > status: **confirmed**（2026-07-31 PO 承認 — 要件定義完遂指示。AI 起草）
 > pair: [verification-design_v0.1.md §2〜§5](../verification/verification-design_v0.1.md)（検証設計③ — HELIX 式 ①↔③ 文書ペア）
-> 旧baseline上位契約: [fr-contracts.json](functional/fr-contracts.json)／[nfr-contracts.json](nonfunctional/nfr-contracts.json)／[ac-contracts.json](acceptance/ac-contracts.json)（いずれも`revalidation_required`）／[loop-task-workflow_v0.1.md](../../L1-business-requirements/canonical/loop-task-workflow_v0.1.md)（LP/T/WF）／[br-backbone_v0.1.md](../../L1-business-requirements/canonical/br-backbone_v0.1.md)（BR 背骨）
+> 上位文書: [requirements_v0.1.md](functional/requirements_v0.1.md)（FR/NFR/AC/S0）／[loop-task-workflow_v0.1.md](../../L1-business-requirements/canonical/loop-task-workflow_v0.1.md)（LP/T/WF）／[br-backbone_v0.1.md](../../L1-business-requirements/canonical/br-backbone_v0.1.md)（BR 背骨）
 > 位置づけ: S0 の実装者・テスト・運用者が共通に従う、SQLite 正準スキーマ、状態機械、WF 実行、移行および環境の契約。
 > **DDL・evidence 型契約・状態遷移表は本書が正準**（上位文書は要約参照）。それ以外の要求内容で
 > 上位文書と矛盾した場合は上位文書を優先し、本書を改訂する。

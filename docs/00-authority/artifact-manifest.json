@@ -4170,7 +4170,7 @@
    "review_digest": null
   },
   {
-   "artifact_id": "AUDIT-STRUCTURAL-TRACE-2026-08-02",
+  "artifact_id": "AUDIT-STRUCTURAL-TRACE-2026-08-02",
    "layer": "00-authority",
    "slice": "S0",
    "domain": "audits",
@@ -4363,7 +4363,7 @@
    "review_digest": null
   },
   {
-   "artifact_id": "AUTH-ADR-ADR-013-VPS-PRODUCT-UI-PRIMARY-HUMAN-INTERFACE",
+  "artifact_id": "AUTH-ADR-ADR-013-VPS-PRODUCT-UI-PRIMARY-HUMAN-INTERFACE",
    "layer": "00-authority",
    "slice": "cross",
    "domain": "adr",

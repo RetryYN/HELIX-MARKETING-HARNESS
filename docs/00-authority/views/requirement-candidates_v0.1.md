@@ -6,17 +6,17 @@
 > **提案専用の生成view。現行要求の正本・PO承認・設計・実装入力ではない。**  `requirements_baseline_status=revising` / `implementation_authorized=false`。
 > 各候補は個別のPO receiptで承認・freezeされ、Full Vを再降下してauthority cutoverするまでcurrentにならない。本view全体を一括承認として扱わない。
 
-> 集計: 候補 **36** 件 ／ approval receiptあり **0** 件 ／ 未承認 **36** 件。
+> 集計: 候補 **38** 件 ／ approval receiptあり **0** 件 ／ 未承認 **38** 件。
 
 ## PO確認順（decision packets）
 
 > packetは確認順をまとめるだけで、packet単位の一括承認は禁止。各subject revisionへ個別receiptを束縛する。
 
-1. **RDP-REQUIREMENTS-AUTHORITY** — 新baselineの意味正本、意味軸継承、phase、NFR根拠、試験IDをどのrevisionへ凍結するか  対象: L0-NORTH-STAR-AUTHORITY-NORMALIZATION, REQ-AUTHORITY-NORMALIZATION, REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE, CONTRACT-SEMANTIC-DESCENT-V2, FR-SLICE-AUTHORITY-ALIGNMENT, NFR-BUSINESS-AUTHORITY, TEST-ID-AUTHORITY-ALIGNMENT, RATE-QUOTA-COST-AUTHORITY
-2. **RDP-INITIAL-VPS-HUMAN-INTERFACE** — VPS Web UI＋UI inboxを初期主入口にし、安全停止、credential、品質、人間判断をどの要求境界で凍結するか  対象: VPS-UI-PRIMARY-HUMAN-INTERFACE, PRODUCT-STATE-AUTHORITY, BUSINESS-PROFILE-AUTHORIZATION, VPS-UI-AUTHENTICATION-SESSION, VPS-UI-INBOX-LIFECYCLE, FR-16-NOTIFICATION-BOUNDARY, VPS-UI-QUALITY-ATTRIBUTES, VPS-CREDENTIAL-SECURITY-BOUNDARY, AUTOMATED-PUBLISHING-ADMISSION, CONTENT-QUALITY-GATE-LEARNING, CONTENT-RISK-CLASSIFICATION, RESEARCH-LED-CONTENT-GROWTH
+1. **RDP-REQUIREMENTS-AUTHORITY** — 新baselineの意味正本、意味軸継承、phase、NFR根拠、試験IDをどのrevisionへ凍結するか  対象: L0-NORTH-STAR-AUTHORITY-NORMALIZATION, REQ-AUTHORITY-NORMALIZATION, CONTRACT-SEMANTIC-DESCENT-V2, FR-SLICE-AUTHORITY-ALIGNMENT, NFR-BUSINESS-AUTHORITY, TEST-ID-AUTHORITY-ALIGNMENT, RATE-QUOTA-COST-AUTHORITY, REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2
+2. **RDP-INITIAL-VPS-HUMAN-INTERFACE** — VPS Web UI＋UI inboxを初期主入口にし、安全停止、credential、品質、人間判断をどの要求境界で凍結するか  対象: VPS-UI-PRIMARY-HUMAN-INTERFACE, PRODUCT-STATE-AUTHORITY, BUSINESS-PROFILE-AUTHORIZATION, VPS-UI-AUTHENTICATION-SESSION, VPS-UI-INBOX-LIFECYCLE, FR-16-NOTIFICATION-BOUNDARY, DISCORD-NOTIFICATION-REJECTION-BOUNDARY, VPS-UI-QUALITY-ATTRIBUTES, VPS-CREDENTIAL-SECURITY-BOUNDARY, AUTOMATED-PUBLISHING-ADMISSION, CONTENT-QUALITY-GATE-LEARNING, CONTENT-RISK-CLASSIFICATION, RESEARCH-LED-CONTENT-GROWTH
 3. **RDP-WORDPRESS-PROGRAM-STAGE-1** — WordPress content operation、platform maintenance、security maintenanceをどの独立release境界と順序で凍結するか  対象: WORDPRESS-MAINTENANCE-BOUNDARIES, WORDPRESS-CONTENT-OPERATIONS-RELEASE, WORDPRESS-PLATFORM-MAINTENANCE-RELEASE, WORDPRESS-SECURITY-MAINTENANCE-RELEASE
 4. **RDP-FOLLOW-ON-FULL-V** — 後続媒体、戦略、AGENT NEOのFull V releaseをどの順で再開するか  対象: OFFICIAL-API-ROUTE-AUTHORITY, EXTERNAL-BROWSER-AUTOMATION-ROUTE, DISCORD-COMMUNITY-MARKETING-ROUTE, MEDIA-POC-SCRUM-RELEASE, STRATEGY-REQUIREMENT-ADMISSION, AGENT-NEO-HELIX-REDEFINITION, AGENT-NEO-SITE-BUILD-RELEASE, AGENT-NEO-PRODUCT-EVOLUTION-RELEASE
-5. **RDP-DEFERRED-EXTERNAL-CAPABILITIES** — 初期scope外のDiscord、生成AI、旧媒体capabilityをdeferredのまま維持するか個別に再開するか  対象: AUTO-MODE-DECISION-AUTHORITY, DISCORD-MULTI-PURPOSE-BOUNDARIES, GENAI-EXECUTION-ROUTE, LEGACY-MEDIA-ADMISSION-INVENTORY
+5. **RDP-DEFERRED-EXTERNAL-CAPABILITIES** — 初期scope外の生成AIと旧媒体capabilityをdeferredのまま維持するか個別に再開するか  対象: GENAI-EXECUTION-ROUTE, LEGACY-MEDIA-ADMISSION-INVENTORY
 
 ## 回答済み事項（要求へ再降下前）
 
@@ -29,6 +29,8 @@
 - **POD-20260815-005** (`captured_unratified`): ユーザーフィードバックへ即座に対応し、構造化規則として保存する。適用範囲を明示指定でき、指定がない場合は指摘対象の媒体accountを既定scopeとする  既存subject=VPS-UI-INBOX-LIFECYCLE, PRODUCT-STATE-AUTHORITY, BUSINESS-PROFILE-AUTHORIZATION ／ 新規要求subject=CONTENT-QUALITY-GATE-LEARNING ／ 未解決=全体共通化の権限、規則競合、rollback、誤検知時の解除
 - **POD-20260815-006** (`captured_unratified`): content check規則は運用変更を前提とし、製品コードへ埋め込まず外部化された構造化データとしてversion管理する。成果物及びclaimが扱う領域のrisk分類を上位rule setとし、YMYL等の高risk領域はより厳格な根拠・表現・更新性・安全検査を要求する。ユーザーの好みはブランドへ固定せず、案件・成果物・claimごとにcase-by-caseで指定できる。AIはrisk境界内で媒体account別及び個別scopeの下位規則を更新できる。新revisionの有効化時は対象scopeの未公開成果物を自動再検査する。公開済み成果物は媒体operationがupdate-in-placeを明示対応する場合だけ自動監査・修正・更新し、非対応時は通知を含め何もしない  既存subject=PRODUCT-STATE-AUTHORITY, BUSINESS-PROFILE-AUTHORIZATION, AUTO-MODE-DECISION-AUTHORITY ／ 新規要求subject=CONTENT-RISK-CLASSIFICATION, CONTENT-QUALITY-GATE-LEARNING ／ 未解決=risk classの分類軸と段階、YMYL境界、個別の好みが未指定の場合の継承元、AI分類の不確実時挙動、変更前検証、effective timing、競合優先順、rollback条件
 - **POD-20260815-007** (`captured_unratified`): content運用は制作前のresearchを必須前提とし、市場需要、検索意図、競合、trend、媒体上の反応及び過去実績から成長仮説を作る。媒体の役割は対象商品又はofferのmarketing funnel上で担う段階と次段階への送客責務によって決まり、成長の第一基準は全媒体共通の売上ではなく、そのfunnel上の役割達成度とする。商品又はofferへの操作可能性は扱う対象ごとに異なり、アフィリエイト商材の選定又は差替え、自己商品の改善提案、変更不能な第三者商材等を同一権限として扱わない。成果物はその仮説、媒体役割、適用risk基準及びcase-by-caseのユーザー嗜好を満たすよう生成し、公開後のKPI結果を次のresearch、企画、funnel及び媒体間導線、rule及び仮説へ還流して継続的に伸ばす。有料集客はfunnel上必要になり得る将来scopeとして保持するが、初期及び中期releaseから除外し超後期までdeferredとする  既存subject=STRATEGY-REQUIREMENT-ADMISSION, PRODUCT-STATE-AUTHORITY ／ 新規要求subject=RESEARCH-LED-CONTENT-GROWTH, CONTENT-RISK-CLASSIFICATION, CONTENT-QUALITY-GATE-LEARNING ／ 未解決=商品又はoffer種別ごとの具体operationとauthorityは対象登録時に解決する／役割別KPIと閾値、複数役割が競合する場合の優先順位、段階間及び媒体間寄与の評価窓、research freshness、仮説の評価期間、探索と既知勝ち筋の配分、KPI悪化時の停止条件、有料集客の再開条件は超後期releaseまでdeferred
+- **POD-20260815-008** (`captured_unratified`): 現行VPS運用は再起動でエージェント実行系も停止するため、credentialだけを無人unlockして処理継続する前提を置かない。再起動後は外部操作停止を維持し、人間が実行系を再初期化するときにcredential unlock又はruntime注入も再認可する。常駐serviceと自動再起動を将来採用する場合は別要求として判断する  既存subject=VPS-CREDENTIAL-SECURITY-BOUNDARY ／ 新規要求subject=VPS-CREDENTIAL-SECURITY-BOUNDARY ／ 未解決=secret backend、unlock protocol及びruntime injection mechanismはL2以降／将来の常駐service lifecycleは採用時の別要求
+- **POD-20260815-009** (`captured_unratified`): retry budgetを使い切っても合格しない成果物はblockedで停止し、VPS UI内inboxへ通知する。通常の不合格retryは通知せず自動修正又は再生成し、通知記録失敗でもblocked状態をrollbackしない。update-in-place非対応の既公開成果物は通知を含め何もしない  既存subject=CONTENT-QUALITY-GATE-LEARNING, VPS-UI-INBOX-LIFECYCLE ／ 新規要求subject=CONTENT-QUALITY-GATE-LEARNING, VPS-UI-INBOX-LIFECYCLE ／ 未解決=retry budget値及びinbox retry/retention値は外部設定又は別quality targetとして扱う
 
 ## PRC意味所有者
 
@@ -38,7 +40,7 @@
 - **PRC-02**: PRODUCT-STATE-AUTHORITY
 - **PRC-03**: VPS-UI-PRIMARY-HUMAN-INTERFACE, VPS-UI-INBOX-LIFECYCLE
 - **PRC-04**: VPS-UI-INBOX-LIFECYCLE
-- **PRC-05**: DISCORD-COMMUNITY-MARKETING-ROUTE
+- **PRC-05**: DISCORD-COMMUNITY-MARKETING-ROUTE, DISCORD-NOTIFICATION-REJECTION-BOUNDARY
 - **PRC-06**: AUTOMATED-PUBLISHING-ADMISSION, CONTRACT-SEMANTIC-DESCENT-V2
 - **PRC-07**: LEGACY-MEDIA-ADMISSION-INVENTORY, WORDPRESS-MAINTENANCE-BOUNDARIES
 - **PRC-08**: OFFICIAL-API-ROUTE-AUTHORITY
@@ -52,12 +54,12 @@
 - **PRC-16**: VPS-UI-AUTHENTICATION-SESSION, VPS-CREDENTIAL-SECURITY-BOUNDARY
 - **PRC-17**: FR-SLICE-AUTHORITY-ALIGNMENT
 - **PRC-18**: OFFICIAL-API-ROUTE-AUTHORITY, GENAI-EXECUTION-ROUTE
-- **PRC-19**: REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE
+- **PRC-19**: REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2
 - **PRC-20**: RATE-QUOTA-COST-AUTHORITY
 - **PRC-21**: LEGACY-MEDIA-ADMISSION-INVENTORY
 - **PRC-22**: CONTRACT-SEMANTIC-DESCENT-V2, AUTOMATED-PUBLISHING-ADMISSION
 - **PRC-23**: L0-NORTH-STAR-AUTHORITY-NORMALIZATION, REQ-AUTHORITY-NORMALIZATION, CONTRACT-SEMANTIC-DESCENT-V2
-- **PRC-24**: AUTO-MODE-DECISION-AUTHORITY, DISCORD-MULTI-PURPOSE-BOUNDARIES, GENAI-EXECUTION-ROUTE, LEGACY-MEDIA-ADMISSION-INVENTORY, STRATEGY-REQUIREMENT-ADMISSION
+- **PRC-24**: GENAI-EXECUTION-ROUTE, LEGACY-MEDIA-ADMISSION-INVENTORY, STRATEGY-REQUIREMENT-ADMISSION
 - **PRC-25**: MEDIA-POC-SCRUM-RELEASE, WORDPRESS-CONTENT-OPERATIONS-RELEASE, WORDPRESS-PLATFORM-MAINTENANCE-RELEASE, WORDPRESS-SECURITY-MAINTENANCE-RELEASE
 - **PRC-26**: AGENT-NEO-HELIX-REDEFINITION, AGENT-NEO-SITE-BUILD-RELEASE, AGENT-NEO-PRODUCT-EVOLUTION-RELEASE
 - **PRC-27**: WORDPRESS-MAINTENANCE-BOUNDARIES, WORDPRESS-CONTENT-OPERATIONS-RELEASE, WORDPRESS-PLATFORM-MAINTENANCE-RELEASE, WORDPRESS-SECURITY-MAINTENANCE-RELEASE
@@ -149,7 +151,7 @@
 | `NFR-2` | `redescent` | BR-B3, REQ-041 | 同じ承認済み入力と規則revisionから再現可能な判断・証跡を得る | 決定的にすべきkernel判断と非決定なresearch/生成結果を分離し、後者はsource、時点、provider、input/output digestへ固定する | 決定性を要求するoperation一覧／許容する非決定入力／再実行比較窓 | NFR-BUSINESS-AUTHORITY, CONTENT-QUALITY-GATE-LEARNING, RESEARCH-LED-CONTENT-GROWTH |
 | `NFR-3` | `redescent` | BR-A1, BR-I7, REQ-042, REQ-052 | 停止や再起動があっても業務状態と外部作用を失わず二重実行を避ける | SQLiteという旧手段ではなくVPS製品状態正本からの再開性を要求し、外部作用ごとに証跡先行、照合、未知時停止及び再開principalを持つ | 状態種別／RPO/RTO／operation別idempotency／未知結果の解消authority | NFR-BUSINESS-AUTHORITY, PRODUCT-STATE-AUTHORITY, AUTOMATED-PUBLISHING-ADMISSION |
 | `NFR-4` | `redescent` | BR-F4, REQ-031 | 媒体及び外部serviceの資格情報漏洩と越境利用を防ぐ | 平文env fileを許可せず、暗号化store又は有人一時注入、最小scope、runtime限定復号、非記録、rotation、失効及び監査を要求する | credential class／保管principal／rotation周期／break-glass／復旧方法 | NFR-BUSINESS-AUTHORITY, VPS-CREDENTIAL-SECURITY-BOUNDARY, BUSINESS-PROFILE-AUTHORIZATION |
-| `NFR-5` | `redescent` | BR-H3, REQ-043 | ユーザーがVPS UIから現在状態、停止理由、影響scope及び必要な対応を把握できる | 一つのSQLという旧実装条件ではなく、権威状態から一貫したread modelを提供し、VPS UI内inboxと証跡へ目的・scope・correlationを保って表示する | freshness／保持期間／欠測表示／集約scope／可用性閾値 | NFR-BUSINESS-AUTHORITY, VPS-UI-PRIMARY-HUMAN-INTERFACE, VPS-UI-INBOX-LIFECYCLE, PRODUCT-STATE-AUTHORITY |
+| `NFR-5` | `redescent` | BR-H3, REQ-043 | ユーザーがVPS UIから現在状態、停止理由、影響scope及び必要な対応を把握できる | 一つのSQLという旧実装条件ではなく、権威状態から一貫したread modelを提供し、VPS UI内inboxと証跡へ目的・scope・correlationを保って表示する | freshness／保持期間／欠測表示／集約scope／可用性閾値 | NFR-BUSINESS-AUTHORITY, VPS-UI-PRIMARY-HUMAN-INTERFACE, VPS-UI-INBOX-LIFECYCLE, VPS-UI-QUALITY-ATTRIBUTES, PRODUCT-STATE-AUTHORITY |
 | `NFR-6` | `defer` | BR-F1, REQ-027 | 有料経路の支出をユーザーの許可予算内へ限定する | 有料集客を含む金銭operationは超後期capabilityとし、顧客入金と事業支出を別台帳・別policy・別approvalへ分離する | 対象operation／通貨／月次/案件別cap／返金／税／予算超過時挙動<br>再開: 超後期releaseのbusiness valueが承認される／金銭operation種別とledgerが分離される／予算principal、cap、credential、AC/TC及び停止条件が凍結される | NFR-BUSINESS-AUTHORITY, RATE-QUOTA-COST-AUTHORITY |
 | `NFR-7` | `replace` | BR-F5, REQ-044 | 外部serviceの利用規約、rate limit及びaccount健全性を守り、過剰操作を防ぐ | 旧1〜5秒一様乱数を全経路へ強制せず、公式API/MCPのprovider quotaとPlaywrightの媒体別操作節度を別ruleとして外部化する | service/account/operation別rate／provider retry-after／browser pace／停止/再開条件 | NFR-BUSINESS-AUTHORITY, RATE-QUOTA-COST-AUTHORITY, EXTERNAL-BROWSER-AUTOMATION-ROUTE, OFFICIAL-API-ROUTE-AUTHORITY |
 | `NFR-8` | `redescent` | BR-F3, REQ-030 | 媒体追加をkernel分岐の増殖ではなく検証可能なcapability登録として安全に行う | 単なるデータ行追加ではなく、必要な意味fieldと検証を閉じたcapability追加だけを外殻変更なしで受入れる | capability schema／connector plugin境界／互換性／rollback／release acceptance | NFR-BUSINESS-AUTHORITY, LEGACY-MEDIA-ADMISSION-INVENTORY, CONTRACT-SEMANTIC-DESCENT-V2 |
@@ -181,32 +183,27 @@
 
 | group | ID別処置 | 旧問題 | 置換policy | root action | deferred再開条件 |
 |---|---|---|---|---|---|
-| `REQG-LOOPS-STATE` | REQ-001=redescent, REQ-002=redescent, REQ-003=redescent, REQ-004=replace, REQ-005=redescent, REQ-006=replace, REQ-007=redescent | 上位/下位loop、計画、状態、taskを一群に置き、REQ-004をDDL責務へ誤接続しREQ-006はSQLiteを業務要求として固定する | 戦略loop、実行loop、検証loop、brand/action plan、cycle、製品状態、task assignmentを別責務にし、REQ-004は計画内容とPO判断へ、REQ-006はVPS製品状態正本へ置換する | BR-A1〜A4のactor/value/HJを各新REQへ直接降下し、旧MD/JSONのtrace差を採用しない | — |
-| `REQG-PAIR-EVIDENCE` | REQ-008=redescent, REQ-009=redescent, REQ-010=redescent, REQ-011=redescent | 企画/品質、計画/計測、証跡収束、作成/検証分離の価値はあるが旧MD/JSONで下流traceが異なる | 成立pair、完了evidence及び独立検証をactor、scope、反例、phase付きで再定義し、ID対応ではなく意味digestで降下する | BR-B1〜B4から新REQを再生成し、旧related差分をPO選択なしにmergeしない | — |
-| `REQG-ETHICS-MONEY` | REQ-012=replace, REQ-013=redescent, REQ-014=redescent, REQ-015=replace | ゼロ広告費、PR表示、禁止訴求及び金銭承認を一律ruleにし、対象risk、商品/offer、金銭operation種別及び超後期有料集客を分けない | 有料集客は超後期disabled、PR/広告表示と誇張表現はrisk/offer/媒体別content gateへ、顧客入金・事業支出・返金等は別policy/ledger/approvalへ分ける | BR-C1〜C4を現商品/offer capability、risk class及び金銭operation authorityから新REQへ再構成する | — |
-| `REQG-DISCOVERY-PROFILE` | REQ-016=redescent, REQ-017=redescent, REQ-018=redescent, REQ-019=redescent | 不足slot、research draft、config変更及び複数profileを持つが、現在のresearch/funnel、case-by-case rule、profile authority及び変更receiptへ未接続 | 未知情報を質問へ回す境界、source付きresearch、外部化rule revision及びstable profile authorizationへ意味再降下する | BR-D1〜D4からactor、scope、user judgement、rule/profile lifecycleを新REQへ直接宣言する | — |
-| `REQG-MEASUREMENT-REPORTING` | REQ-020=redescent, REQ-021=defer, REQ-022=replace, REQ-023=redescent, REQ-024=replace, REQ-025=defer | KPI tree、MMM、browser export→SQLite、hash/screenshot、HTML dashboard、xlsxという分析価値と取得/保存/表示手段を混在する | funnel role KPIとsource evidenceを中心にし、取得はAPI/MCP優先＋必要時Playwright、表示はVPS Web UI、保存方式は設計へ留保する。MMMとxlsxは価値・利用者が確定するまでdeferredにする | BR-E1〜E3をresearch/funnel/KPI/UI価値へ再接続し、SQLite/HTML/xlsxをstable requirementにしない | REQ-021: 媒体横断因果評価のbusiness valueとdata qualityが承認される／基本funnel KPI loopと高度分析境界が成立する<br>REQ-025: xlsxを必要とする利用者と業務workflowが承認される／VPS UI又はAPIでは満たせないexport要件とdata scopeが凍結される |
-| `REQG-CONNECTOR-CREDENTIAL` | REQ-026=replace, REQ-027=defer, REQ-028=replace, REQ-029=replace, REQ-030=redescent, REQ-031=replace | MCP→browser→paid順、browser攻略地図、自己修復、行追加、平文なしを旧runtime前提で固定し、公式API優先、Playwright、capability admission、暗号化credentialを反映しない | 公式API/MCPを優先しPlaywrightをfallback/確認へ限定する。操作知識はversion付き外部rule/evidence、repairは安全停止、媒体追加はtyped capability、credentialは暗号化store又は有人一時注入とする | BR-F1〜F4からoperation別business value、principal、effect、policy、credential、quota、failure/recoveryを新REQへ再構成する | REQ-027: 超後期の有料capabilityが承認される／金銭operation、ledger、予算、credential、AC/TCが凍結される |
-| `REQG-CONTENT-WORDPRESS` | REQ-032=redescent, REQ-033=replace, REQ-034=defer, REQ-035=replace, REQ-036=replace | source hash、WP収束、rich-media repurpose、Claude Design token、子theme/pluginを一群にし、content authority、provider-neutral及びWP保守分離を欠く | source/evidence traceは維持するが、content正本をWPへ一律固定せず媒体operationごとに定義する。rich mediaはdeferred、design tokenはprovider-neutral、WP content/platform/securityを別releaseにする | BR-G1〜G4を成果物価値、媒体operation、provider capability及び保守authorityごとの新REQへ分割する | REQ-034: 対象rich-media種別とfunnel価値が承認される／provider/license/品質/配布operation/AC/TCが凍結される |
-| `REQG-HUMAN-NOTIFICATION` | REQ-037=replace, REQ-038=replace, REQ-039=replace | 企画確定後human-out-of-loop、Discord個別投稿承認、旧auto-mode及び異常通知を固定し、phase別人間判断、初回activation、content gate、VPS inboxを反映しない | 通常/初期setup/例外/governance/external-writeを分け、VPS UIで初回scope activation後は合格済み通常投稿を毎回承認なしで自動化する。異常は安全停止＋VPS UI内inboxへ記録する | BR-H1〜H3を人間判断phase、activation scope、停止/re-activation及びoperational eventの新REQへ分割する | — |
-| `REQG-CROSSCUT-QUALITY-MEDIA` | REQ-040=redescent, REQ-041=redescent, REQ-042=replace, REQ-043=replace, REQ-044=replace, REQ-045=defer | NFR自身をsourceにする循環、SQLite復旧、SQL一発可観測性、全媒体browser乱数、sourceなし媒体一括稼働を含む | 品質要求をstable BR rootへ戻し、再開はVPS製品状態、可観測性はVPS UI read model、rateはAPI/MCP quotaとPlaywright節度へ分離する。媒体は個別capability admissionまでdeferredにする | NFR dispositionのbusiness value/actor/scopeから新BR/REQを作り、NFRや旧節を自己根拠にしない | REQ-045: 媒体/operationごとのbusiness valueとcapability statusが承認される／principal/effect/policy/credential/quota/evidence/AC/TCが凍結される |
-| `REQG-PROFILE-STRATEGY` | REQ-046=redescent, REQ-047=redescent, REQ-048=redescent, REQ-049=redescent, REQ-050=redescent, REQ-051=redescent, REQ-052=redescent | profile隔離、brief/TLP/revision/campaign/content宣言、横断evidenceは価値を持つが、旧MD/JSON trace差と人間判断receipt欠落がある | profile authorizationとresearch/funnel strategy loopへ接続し、企画・revision・有効化の人間判断、evidence、phaseを直接型付けする | BR-I1〜I7から新REQを再生成し、旧related差分を自動unionせずmeaning ownerとPO receiptで選ぶ | — |
-| `REQG-WORK-MODEL` | REQ-053=redescent, REQ-054=redescent, REQ-055=redescent | 旧MD/JSONで本文とfill表現が異なり、Kanban、domain隔離、media binding/TLPの新FRはFN/CMP未降下 | pull/WIP/blocked、safe workspace、profile/domain/media binding lifecycleを意味軸付き新REQへ再構成し、Scrum cadenceやTLP還流の境界を明示する | BR-J1〜J3からactor/value/scope/HJ/evidenceを直接降下し、JSONを唯一正本としてviewを生成する | — |
+| `REQG-001-010` | REQ-001=redescent, REQ-002=redescent, REQ-003=redescent, REQ-004=replace, REQ-005=redescent, REQ-006=replace, REQ-007=redescent, REQ-008=redescent, REQ-009=redescent, REQ-010=redescent | 旧confirmed MDとdraft JSONの同一ID意味差及び旧runtime・provider・phaseを現要求へ自動継承できない | REQ-001: 上位ループ（戦略）をブランド成長サイクルで回せること; なし（全自動 — 異常時は BR-H3 の escalation 境界へ委譲） / REQ-002: 下位ループ（実行）を媒体単位のサイクルで回せること; なし（サイクル長の初期値設定はヒアリング/リサーチ充填） / REQ-003: 検証マイクロループをタスク内で回し PASS でのみ完了できること / REQ-004: 一年地平のブランド計画を許可principalが確定し、版付き行動計画が根拠と成果へ追跡できる; ブランド計画（1年地平）を保持し行動計画が trace できること / REQ-005: 媒体ごとにサイクル長を独立設定でき同期を強制しないこと; なし（サイクル長の初期値設定はヒアリング/リサーチ充填） / REQ-006: VPS製品runtimeの進行状態を永続化し、再起動後も一意の現在地から再開できる。保存方式は設計で決める; ループ状態が SQLite 上の状態遷移のみで表現されること; なし（全自動 — 異常時は BR-H3 の escalation 境界へ委譲） / REQ-007: タスクがワークフローとエージェントを割り当てられて実行されること / REQ-008: 企画↔品質ペア成立まで公開できないこと; なし（経過措置期間の束縛承認は BR-H2 が担う） / REQ-009: 計画↔計測ペア成立までレビュー・還流が発生しないこと; なし（全自動） / REQ-010: 完了判定は対象版に必要な証跡集合が欠落なく収束した場合だけ成立する; 完了判定が証跡の DB 収束を要件とすること; なし（全自動） / REQ-006: VPS製品状態正本 | 各IDのsource rootとmeaning ownerを新単一JSON正本へ再降下し旧MD/JSONをroot代替にしない | — |
+| `REQG-011-020` | REQ-011=redescent, REQ-012=replace, REQ-013=redescent, REQ-014=redescent, REQ-015=replace, REQ-016=redescent, REQ-017=redescent, REQ-018=redescent, REQ-019=redescent, REQ-020=redescent | 旧confirmed MDとdraft JSONの同一ID意味差及び旧runtime・provider・phaseを現要求へ自動継承できない | REQ-011: 成果物のauthor principalとverifier principalを分離する; 作成者と検証者が別エージェントであること; なし（全自動） / REQ-012: 有料集客は超後期releaseまで無効とし、採用時も許可された金銭operation・予算・媒体scope以外をfail-closeする; ゼロ広告費ゲートが有料指標・広告経路を機械遮断すること; なし（例外なし — PO でも解除不可の機械的制約） / REQ-013: 広告・提携・affiliate関係を必要な媒体・offer・法域scopeで明瞭に表示し、欠落時は公開しない / REQ-014: 恐怖訴求・偽希少性・誤認表現をrisk class別に拒否し、YMYL等の高risk領域では基準を厳格化する / REQ-015: 金銭operationは対象・金額・通貨・受取人又は支払先・期限を束縛した人間承認を必要とする; 金銭operationごとの束縛承認を要求する; 金銭操作が常時人間の束縛承認を要すること; 金銭額又は対象を束縛しない承認を採用しない / REQ-016: ヒアリングエンジンが不足スロットを検出し問診・充填できること / REQ-017: リサーチエンジンが外部照合で KPI 初期形・運用詳細を起草できること / REQ-018: 運用ruleを外部化・version化し、安全側既定と変更証跡を保持する / REQ-019: ハーネスが事業非依存で複数プロファイルを共存できること / REQ-020: 媒体のfunnel上の役割と期待する認識変化を、観測可能なKPIへ接続する; KPI ツリーが露出/マイクロCV/転換/関係/収益の固定階層を持つこと | 各IDのsource rootとmeaning ownerを新単一JSON正本へ再降下し旧MD/JSONをroot代替にしない | — |
+| `REQG-021-030` | REQ-021=defer, REQ-022=replace, REQ-023=redescent, REQ-024=replace, REQ-025=defer, REQ-026=replace, REQ-027=defer, REQ-028=replace, REQ-029=replace, REQ-030=redescent | 旧confirmed MDとdraft JSONの同一ID意味差及び旧runtime・provider・phaseを現要求へ自動継承できない | REQ-021: 媒体横断集計（オーガニック版 MMM）が可能なスキーマであること / REQ-022: 計測は公式API、公式MCPを優先し、必要時だけPlaywrightによる読取又は確認を行いsource evidenceを残す; 計測をブラウザエクスポート→パース→SQLite で取り込めること; なし（取得失敗の escalation は BR-H3 経由） / REQ-023: 計測値ごとに取得元・対象・時点・期間・完全性を検証できるsource evidenceを残す; hash又はスクリーンショットだけを取得証跡の必須形式に固定しない; なし（取得失敗の escalation は BR-H3 経由）; なし（全自動） / REQ-024: 許可された利用者がVPS Web UIでKPI・状態・停止理由・証跡を確認できるread modelを持つ; ダッシュボードを SQLite から HTML 自動生成できること; なし（閲覧のみ） / REQ-025: xlsx エクスポートを提供すること; なし（閲覧のみ） / REQ-026: 接続経路は利用可能な公式API、公式MCPを優先し、Playwrightは必要なfallback又は確認経路としてpolicy内で使う; 接続経路が MCP→ブラウザ→有償API の優先順で選定されること / REQ-027: 有償 API 例外の支出が台帳化され上限で停止すること / REQ-028: Playwright経路の操作知識を版付き・検証可能な形で保持し、変更検知時に旧知識を黙って使わない; ブラウザ自動化が攻略地図を蓄積・参照すること / REQ-029: Playwright経路の操作知識の陳腐化・破損を検知し、再調査結果を検証してから新版へ切り替える; 攻略地図の破損を検知し自己修復を試みること / REQ-030: 媒体又はoperation capabilityをkernelの責務分岐増殖なしに追加・停止・廃止できる; workflow追加だけで媒体追加を完了扱いしない / REQ-022: API/MCP優先 / REQ-026: 公式API/MCP / REQ-027: 超後期 | 各IDのsource rootとmeaning ownerを新単一JSON正本へ再降下し旧MD/JSONをroot代替にしない | REQ-021: 媒体横断因果評価のbusiness valueとdata qualityが承認される／基本funnel KPI loopと高度分析境界が成立する<br>REQ-025: xlsxを必要とする利用者と業務workflowが承認される／VPS UI又はAPIでは満たせないexport要件とdata scopeが凍結される<br>REQ-027: 超後期の有料capabilityが承認される／金銭operation、ledger、予算、credential、AC/TCが凍結される |
+| `REQG-031-040` | REQ-031=replace, REQ-032=redescent, REQ-033=replace, REQ-034=defer, REQ-035=replace, REQ-036=replace, REQ-037=replace, REQ-038=replace, REQ-039=replace, REQ-040=redescent | 旧confirmed MDとdraft JSONの同一ID意味差及び旧runtime・provider・phaseを現要求へ自動継承できない | REQ-031: credential及びsecretをrepo・DB・logへ平文保存せず、用途・principal・環境ごとに分離する。現行runtime再起動後は外部操作停止を維持し、実行系再初期化時に人間がunlockを再認可する。credential単独auto-unlockは禁止し、将来の常駐serviceは別要求とする; 認証情報がリポジトリ・DB・ログに平文で存在しないこと / REQ-032: 制作物のsource、派生関係、検証対象版及び合格版をcontent digestで一意に追跡できる; gitだけを全制作物sourceの必須正本に固定しない; なし（審査は BR-B1/B4 経路） / REQ-033: content正本は媒体とcapabilityごとに明示し、WordPressへ一律収束させない; コンテンツ実体が WP に収束し SQLite は参照のみとすること; なし（全自動） / REQ-034: 採用済み成果物形式間の派生元・権利・変換・配布先を追跡できる; なし（全自動） / REQ-035: design tokenの意味schemaと適用証跡をprovider-neutralに保ち、単一Design providerを製品必須にしない; デザイントークンが全制作物に適用されること / REQ-036: WordPressのcontent operation、platform maintenance、security maintenanceを別authority・release単位へ分離する; WP 開発が既存テーマ解析＋子テーマ/プラグインで行われること / REQ-037: 初回のscope activation後、通常運用は品質gate合格を条件に自動化し、setup・例外・governance・外部write判断は別境界にする; 企画確定以降がヒューマンアウトオブループであること / REQ-038: profile・媒体・account・operationを束縛した初回activationを利用者が承認し、そのscope内では毎回承認なしで自動運用できる; 公開が束縛承認を経て、基準充足後オートモードへ移行できること / REQ-039: 異常・停止・対応要否をVPS UI内inboxのdurable eventとして通知し、Discordその他媒体経路を製品通知に使わない; 異常（ゲート赤・予算超過・地図破損）が検知・通知されること / REQ-040: すべてのゲートが判定不能時に通さない側へ倒れること / REQ-031: 暗号化store / REQ-033: content正本をWPへ一律固定せず / REQ-036: WP content/platform/security / REQ-037: 通常/初期setup/例外/governance/external-write / REQ-038: 初回scope activation | 各IDのsource rootとmeaning ownerを新単一JSON正本へ再降下し旧MD/JSONをroot代替にしない | REQ-034: 対象rich-media種別とfunnel価値が承認される／provider/license/品質/配布operation/AC/TCが凍結される |
+| `REQG-041-050` | REQ-041=redescent, REQ-042=replace, REQ-043=replace, REQ-044=replace, REQ-045=defer, REQ-046=redescent, REQ-047=redescent, REQ-048=redescent, REQ-049=redescent, REQ-050=redescent | 旧confirmed MDとdraft JSONの同一ID意味差及び旧runtime・provider・phaseを現要求へ自動継承できない | REQ-041: 制作・集計が同一入力→同一出力の決定性を持つこと / REQ-042: 永続化した製品状態・証跡・冪等性契約から安全に再開できる。SQLiteを要求として固定しない; プロセス強制終了後も SQLite 状態から再開できること; なし（全自動） / REQ-043: 許可された利用者がVPS UI read modelで滞留・停止理由・対応要否を把握できる; 滞留状況が 1 クエリで把握できる可観測性を持つこと / REQ-044: route・媒体・accountごとの公式quota及びpolicyを守り、不明時は停止する。Playwrightは人間相当乱数を全媒体共通要件にしない; 全媒体でブラウザ操作が人間相当のランダム化レート節度を守ること / REQ-045: 媒体の役割とoperationごとにactor・effect・policy・credential・quota・evidence・受入条件が閉じたcapabilityだけを稼働する / REQ-046: ブランド・事業間でデータ・資産・認証・学習が相互隔離され越境できないこと / REQ-047: 下流が有効 brief なしに開始できず、上流正本を直接更新できないこと / REQ-048: 戦略更新が根拠・反証つき revision と append-only 版管理でのみ行われること / REQ-049: 全終端下流 run が learning/failure packet をちょうど 1 件還流すること; 観測時点より前のfailureへ因果説明を遡及付与しない; 証跡のない因果関係を確定事実として扱わない; なし（全自動生成 — 内容の評価は上流工程） / REQ-050: 複数媒体の役割分担キャンペーンを計画・評価単位として扱えること / REQ-042: VPS製品状態 / REQ-044: API/MCP quota / REQ-044: Playwright節度 / REQ-045: 個別capability admission | 各IDのsource rootとmeaning ownerを新単一JSON正本へ再降下し旧MD/JSONをroot代替にしない | REQ-045: 媒体/operationごとのbusiness valueとcapability statusが承認される／principal/effect/policy/credential/quota/evidence/AC/TCが凍結される |
+| `REQG-051-055` | REQ-051=redescent, REQ-052=redescent, REQ-053=redescent, REQ-054=redescent, REQ-055=redescent | 旧confirmed MDとdraft JSONの同一ID意味差及び旧runtime・provider・phaseを現要求へ自動継承できない | REQ-051: 主要コンテンツ企画は問題・対象者・期待する認識変化・比較軸・提供価値・戦略根拠を明示してから確定する; 固定5 fieldの存在だけで企画品質を合格扱いしない / REQ-052: 全工程が証跡・再開・冪等性の横断契約を満たすこと; 証跡・再開条件・冪等性を一組の復旧要件として保持する; ログ存在だけを復旧成立の証拠にしない; なし（全自動） / REQ-053: 下流戦術 OS が pull・WIP 制限・blocked 管理・flow 指標を持つ Kanban として連続運転し、Scrum は補充・レビュー・振り返りの cadence に限定されること / REQ-054: business_profile 配下の複数 bounded domain が registry と安全な workspace 契約で隔離され、domain root 外への path escape と暗黙共有が拒否されること / REQ-055: 上流戦略 OS の版付き判断により domain ごとの実媒体 binding を追加・一時停止・廃止・差替えでき、下流結果が TLP として上流へ還流すること | 各IDのsource rootとmeaning ownerを新単一JSON正本へ再降下し旧MD/JSONをroot代替にしない | — |
 
 ## 旧BR 41件 disposition候補
 
 | group | ID別処置 | 保持する価値 | 置換policy | owner |
 |---|---|---|---|---|
-| `BRG-A` | BR-A1=redescent, BR-A2=redescent, BR-A3=redescent, BR-A4=redescent | 戦略・実行・検証loop、媒体別cadence、brand/action plan trace及びtask verificationを保持する | 旧三重loopと状態手段を価値から分離し、research/funnel/KPI loop、VPS製品状態、計画PO判断及びescalationを意味軸付き新BRへ再構成する | L0-NORTH-STAR-AUTHORITY-NORMALIZATION, RESEARCH-LED-CONTENT-GROWTH, PRODUCT-STATE-AUTHORITY, CONTRACT-SEMANTIC-DESCENT-V2 |
-| `BRG-B` | BR-B1=redescent, BR-B2=redescent, BR-B3=redescent, BR-B4=redescent | 企画/品質、計画/計測、証跡収束及び作成/検証分離による品質保証を保持する | content gate、research evidence、funnel KPI及び独立verificationへ再接続し、毎回投稿承認やagent名の違いだけを品質証明にしない | CONTENT-QUALITY-GATE-LEARNING, RESEARCH-LED-CONTENT-GROWTH, CONTRACT-SEMANTIC-DESCENT-V2 |
-| `BRG-C` | BR-C1=replace, BR-C2=redescent, BR-C3=redescent, BR-C4=replace | 不当な広告・表示・訴求及び無許可金銭operationから利用者と事業を守る | 有料集客は超後期deferred、表示/表現はrisk・offer・媒体別gate、金銭は顧客入金/事業支出/返金等の別policy・ledger・approvalへ置換する | CONTENT-RISK-CLASSIFICATION, CONTENT-QUALITY-GATE-LEARNING, RATE-QUOTA-COST-AUTHORITY, NFR-BUSINESS-AUTHORITY |
-| `BRG-D` | BR-D1=redescent, BR-D2=redescent, BR-D3=redescent, BR-D4=redescent | 未知情報を人へ確認し、source付きresearch、変更可能rule及び複数事業profileを安全に管理する | case-by-case user preference、外部化rule revision、research/funnel及びstable profile authorizationへ意味再降下する | REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE, RESEARCH-LED-CONTENT-GROWTH, CONTENT-QUALITY-GATE-LEARNING, BUSINESS-PROFILE-AUTHORIZATION |
-| `BRG-E` | BR-E1=redescent, BR-E2=replace, BR-E3=replace | funnel上の媒体役割をKPIで観測しsource evidenceと共に人へ提示する | browser export/SQLite/HTML/xlsxを固定せず、API/MCP優先＋必要時Playwright取得、権威read model、VPS Web UI及び役割別KPIへ置換する | RESEARCH-LED-CONTENT-GROWTH, OFFICIAL-API-ROUTE-AUTHORITY, EXTERNAL-BROWSER-AUTOMATION-ROUTE, VPS-UI-PRIMARY-HUMAN-INTERFACE |
-| `BRG-F` | BR-F1=replace, BR-F2=replace, BR-F3=redescent, BR-F4=replace, BR-F5=replace | 外部接続を安全に選び、媒体追加、credential及びaccount健全性を管理する | 公式API/MCP優先＋Playwright fallback、version付き操作knowledge、typed media capability、暗号化credential、route別quota/pace及び停止後明示再開へ置換する | OFFICIAL-API-ROUTE-AUTHORITY, EXTERNAL-BROWSER-AUTOMATION-ROUTE, LEGACY-MEDIA-ADMISSION-INVENTORY, VPS-CREDENTIAL-SECURITY-BOUNDARY, RATE-QUOTA-COST-AUTHORITY |
-| `BRG-G` | BR-G1=redescent, BR-G2=replace, BR-G3=replace, BR-G4=replace | 成果物の版・source・design consistency及びWordPress資産運用を追跡可能にする | WP一律収束を媒体operation別content authorityへ、Claude Design必須をprovider-neutral token capabilityへ、WP開発をcontent/platform/securityの別releaseへ置換する | CONTENT-QUALITY-GATE-LEARNING, GENAI-EXECUTION-ROUTE, WORDPRESS-CONTENT-OPERATIONS-RELEASE, WORDPRESS-PLATFORM-MAINTENANCE-RELEASE, WORDPRESS-SECURITY-MAINTENANCE-RELEASE |
-| `BRG-H` | BR-H1=replace, BR-H2=replace, BR-H3=replace | 通常運用を自動化しつつ必要な人間判断、安全停止及び対応情報を失わない | 二接点限定をphase別判断へ、Discord個別投稿承認/auto-modeをVPS UI初回activation＋gate合格後自動運用へ、異常通知を安全停止＋UI内inboxへ置換する | VPS-UI-PRIMARY-HUMAN-INTERFACE, VPS-UI-INBOX-LIFECYCLE, AUTOMATED-PUBLISHING-ADMISSION, CONTENT-QUALITY-GATE-LEARNING, FR-16-NOTIFICATION-BOUNDARY |
-| `BRG-I` | BR-I1=redescent, BR-I2=redescent, BR-I3=redescent, BR-I4=redescent, BR-I5=redescent, BR-I6=redescent, BR-I7=redescent | profile隔離、戦略/戦術分離、仮説改訂、学習還流、複数媒体campaign、価値定義及び再開/idempotencyを保持する | research/funnel/media role、明示的な企画/改訂判断receipt、VPS製品状態及びprofile authorizationへ意味再接続する | BUSINESS-PROFILE-AUTHORIZATION, STRATEGY-REQUIREMENT-ADMISSION, RESEARCH-LED-CONTENT-GROWTH, PRODUCT-STATE-AUTHORITY, CONTRACT-SEMANTIC-DESCENT-V2 |
-| `BRG-J` | BR-J1=redescent, BR-J2=redescent, BR-J3=redescent | pull/WIP/blocked運用、domain隔離及び戦略判断に基づくmedia binding lifecycleを保持する | actor/scope/HJ/evidence/phase付き新REQへ再降下し、媒体bindingは個別capability admissionとTLP還流へ接続する | CONTRACT-SEMANTIC-DESCENT-V2, BUSINESS-PROFILE-AUTHORIZATION, LEGACY-MEDIA-ADMISSION-INVENTORY, STRATEGY-REQUIREMENT-ADMISSION |
+| `BRG-A` | BR-A1=redescent, BR-A2=redescent, BR-A3=redescent, BR-A4=redescent | BR-A1: 戦略・媒体実行・task検証を接続した継続運用loopを成立させる / BR-A2: 媒体特性に応じて独立した運用cadenceを設定する / BR-A3: 事業計画を行動計画の上位根拠として保持しtraceする / BR-A4: taskを明示workflowへ割り当て検証合格時だけ完了させる | BR-A1: 旧三重loop構造と旧状態実装を継承しない / BR-A2: 固定cycle長と旧媒体一覧を継承しない / BR-A3: 一年という固定期間を無条件に継承しない / BR-A4: 旧agent割当方式と旧task状態実装を継承しない | L0-NORTH-STAR-AUTHORITY-NORMALIZATION, RESEARCH-LED-CONTENT-GROWTH, PRODUCT-STATE-AUTHORITY, CONTRACT-SEMANTIC-DESCENT-V2 |
+| `BRG-B` | BR-B1=redescent, BR-B2=redescent, BR-B3=redescent, BR-B4=redescent | BR-B1: 企画意図と品質検査結果が対応した成果物だけを公開候補にする / BR-B2: KPI目標と計測結果を対応させreviewと学習へ利用する / BR-B3: 完了判断を検証可能な成果・計測・検査証跡へ束縛する / BR-B4: 成果物の作成責務と検証責務を独立させる | BR-B1: SQLite保存と毎回投稿承認を成立条件として継承しない / BR-B2: 旧sprint review構造を唯一の評価方式として継承しない / BR-B3: DB収束、スクリーンショット又は特定hash種別だけを完了条件に固定しない / BR-B4: 特定agent名又はagent数だけを独立性の証明にしない | CONTENT-QUALITY-GATE-LEARNING, RESEARCH-LED-CONTENT-GROWTH, CONTRACT-SEMANTIC-DESCENT-V2 |
+| `BRG-C` | BR-C1=replace, BR-C2=redescent, BR-C3=redescent, BR-C4=replace | BR-C1: 有料集客と有料指標の採否を事業価値・risk・予算から独立判断する / BR-C2: 広告・提携関係を閲覧者へ明瞭に表示する / BR-C3: 誤認・不当な心理誘導を避けた表現を提供する / BR-C4: 金銭operationごとに許可principalの人間判断を要求する | BR-C1: 広告費ゼロを永久不変の機械定数として継承しない; 超後期承認前に有料集客を有効化しない / BR-C2: 単一の固定表示templateを全媒体へ無条件適用しない / BR-C3: 旧固定語彙だけで全riskを判定済みとみなさない / BR-C4: 包括承認又は別operationの承認を流用しない; 旧auto-mode又は旧ApprovalTransportを金銭承認へ継承しない | CONTENT-RISK-CLASSIFICATION, CONTENT-QUALITY-GATE-LEARNING, RATE-QUOTA-COST-AUTHORITY, NFR-BUSINESS-AUTHORITY, CONTRACT-SEMANTIC-DESCENT-V2 |
+| `BRG-D` | BR-D1=redescent, BR-D2=redescent, BR-D3=redescent, BR-D4=redescent | BR-D1: 不足する事業前提と受入情報を検出し構造化質問で補完する / BR-D2: 外部source付きresearchからKPI・媒体運用候補を起草する / BR-D3: 運用ruleを外部化・version化し変更履歴を追跡する / BR-D4: 複数の事業profileを同じ製品能力で個別管理する | BR-D1: 旧固定schemaのslotだけを質問範囲にしない / BR-D2: 旧KPI tree又は業種標準値を現状確認なしに継承しない / BR-D3: SQLite保存、旧固定数値及び旧auto移行基準を継承しない / BR-D4: 型の再充填だけで新事業を自動承認しない | REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE, RESEARCH-LED-CONTENT-GROWTH, CONTENT-QUALITY-GATE-LEARNING, BUSINESS-PROFILE-AUTHORIZATION |
+| `BRG-E` | BR-E1=redescent, BR-E2=replace, BR-E3=replace | BR-E1: funnel上の役割に沿ったKPIを媒体成果へ接続する / BR-E2: 媒体成果を検証可能なsourceから取得し時系列学習へ利用する / BR-E3: 状態・証跡・KPIを人が理解し判断できる形で提示する | BR-E1: 固定五階層及びオーガニック版MMMを初期必須要件として継承しない / BR-E2: browser export、SQLite、スクリーンショット又は列挙providerを一般経路として継承しない / BR-E3: HTML dashboard、xlsx及びSQLiteを必須表示方式として継承しない / BR-E3: VPS Web UI | RESEARCH-LED-CONTENT-GROWTH, OFFICIAL-API-ROUTE-AUTHORITY, EXTERNAL-BROWSER-AUTOMATION-ROUTE, VPS-UI-PRIMARY-HUMAN-INTERFACE |
+| `BRG-F` | BR-F1=replace, BR-F2=replace, BR-F3=redescent, BR-F4=replace, BR-F5=replace | BR-F1: 外部接続経路を能力・規約・費用・riskに基づいて選択する / BR-F2: 外部operationの実行知識をversion化し破損を検知・修復可能にする / BR-F3: 媒体・能力をkernel責務分岐の増殖なしに追加可能にする / BR-F4: credentialを安全に登録・利用・更新・失効できるようにする / BR-F5: 外部operationを媒体健全性と利用制限を守る速度で実行する | BR-F1: MCP→browser→有償APIという旧固定順を継承しない / BR-F2: browser攻略地図と単一回数の自己修復を全connectorへ継承しない / BR-F3: workflow追加だけで媒体追加完了とみなさない / BR-F4: 旧session保存、application password及び特定key分離方式を継承しない / BR-F5: 全媒体への人間相当ランダム間隔、固定rate及び自動調整を一律継承しない / BR-F1: 公式API/MCP / BR-F1: Playwright / BR-F4: 暗号化credential | OFFICIAL-API-ROUTE-AUTHORITY, EXTERNAL-BROWSER-AUTOMATION-ROUTE, LEGACY-MEDIA-ADMISSION-INVENTORY, VPS-CREDENTIAL-SECURITY-BOUNDARY, RATE-QUOTA-COST-AUTHORITY |
+| `BRG-G` | BR-G1=redescent, BR-G2=replace, BR-G3=replace, BR-G4=replace | BR-G1: 成果物sourceと検査合格版を追跡可能にする / BR-G2: content資産のstable identityと派生関係を追跡する / BR-G3: version化されたdesign tokenで成果物の視覚的一貫性を管理する / BR-G4: owned platformの変更を解析・検証・rollback可能に行う | BR-G1: コード×browser renderingとgit commit hashだけを全成果物の方式に固定しない / BR-G2: 全content実体のWordPress収束、SQLite参照及び固定派生一覧を継承しない / BR-G3: Claude Design又は単一providerをtoken正本として必須化しない / BR-G4: 既存theme解析、子theme、plugin及びbrowser攻略地図を固定方式として継承しない / BR-G2: WP一律収束 / BR-G3: provider-neutral / BR-G4: content/platform/security | CONTENT-QUALITY-GATE-LEARNING, GENAI-EXECUTION-ROUTE, WORDPRESS-CONTENT-OPERATIONS-RELEASE, WORDPRESS-PLATFORM-MAINTENANCE-RELEASE, WORDPRESS-SECURITY-MAINTENANCE-RELEASE |
+| `BRG-H` | BR-H1=replace, BR-H2=replace, BR-H3=replace | BR-H1: 通常運用を自動化し人間判断が必要な局面だけを明示する / BR-H2: 外部writeのactivation scopeを人間判断へ束縛し合格済み通常operationを自動化する / BR-H3: 異常を検知して影響scopeを安全停止し必要な対応情報を提示する | BR-H1: 企画確定後human-out-of-loopと旧束縛承認だけの境界を継承しない / BR-H2: Discord承認、個別投稿の毎回承認及び旧auto-mode移行を継承しない / BR-H3: Discord通知、ApprovalTransport再利用及び通知到達による状態確定を継承しない / BR-H1: phase別判断 / BR-H2: VPS UI初回activation / BR-H2: 自動運用 / BR-H3: UI内inbox | VPS-UI-PRIMARY-HUMAN-INTERFACE, VPS-UI-INBOX-LIFECYCLE, AUTOMATED-PUBLISHING-ADMISSION, CONTENT-QUALITY-GATE-LEARNING, FR-16-NOTIFICATION-BOUNDARY |
+| `BRG-I` | BR-I1=redescent, BR-I2=redescent, BR-I3=redescent, BR-I4=redescent, BR-I5=redescent, BR-I6=redescent, BR-I7=redescent | BR-I1: 複数profileのdata・資産・credential・学習を相互隔離する / BR-I2: 上流戦略学習と下流実行学習を分離し明示契約で接続する / BR-I3: 戦略仮説を根拠・反証・信頼度・対象版付きで改訂する / BR-I4: 全終端実行から適合する学習又は失敗packetを還流する; 観測前failureについて未観測の因果解釈を生成しない / BR-I5: 複数媒体の役割を共通の認識変化目標へ接続して企画・評価する / BR-I6: 主要content企画へ問題・認識変化・比較軸・価値・戦略仮説を明示する / BR-I7: 証跡を保持する; 安全な再開条件を定義する; 再実行を冪等にする | BR-I1: 旧brand名又はworkspace配置を認可境界として継承しない / BR-I2: 旧S1+ phase及び旧brief/TLP schemaを無条件継承しない / BR-I3: 旧strategy_revision schemaと旧judge工程をそのまま継承しない / BR-I4: 後知恵で原因又は効果を捏造しない; 旧packet table及び固定件数制約だけを意味保証にしない / BR-I5: 固定媒体組合せ又は旧campaign schemaを継承しない / BR-I6: 旧五宣言のfield名だけで企画品質を証明済みとみなさない / BR-I7: 三要件の一部だけで復旧可能とみなさない; SQLite状態だけを唯一の再開根拠として継承しない | BUSINESS-PROFILE-AUTHORIZATION, STRATEGY-REQUIREMENT-ADMISSION, RESEARCH-LED-CONTENT-GROWTH, PRODUCT-STATE-AUTHORITY, CONTRACT-SEMANTIC-DESCENT-V2 |
+| `BRG-J` | BR-J1=redescent, BR-J2=redescent, BR-J3=redescent | BR-J1: pull・WIP制限・blocked管理・flow指標で滞留と過負荷を制御する / BR-J2: profile配下のdomainごとに正本・work・evidenceを隔離する / BR-J3: version付き戦略判断を媒体・経路・workflow bindingへ変換し追加・停止・廃止・差替えできるようにする | BR-J1: 旧Kanban state、固定WIP値及びScrum cadenceを無条件継承しない / BR-J2: filesystem path又はworkspace構成だけをdomain認可として継承しない / BR-J3: workflow row追加だけで媒体bindingを有効化しない; 旧media binding schemaを現authorityとして継承しない | CONTRACT-SEMANTIC-DESCENT-V2, BUSINESS-PROFILE-AUTHORIZATION, LEGACY-MEDIA-ADMISSION-INVENTORY, STRATEGY-REQUIREMENT-ADMISSION |
 
 ## 旧媒体BR 70件 disposition候補
 
@@ -271,7 +268,7 @@
 
 | ID | 要求 | 状態 | evidence | 残条件 |
 |---|---|---|---|---|
-| `OBJ-01` | 旧L0/BR/媒体BR/REQ/FR/SR/NFR/MR/FN/AC/TCを意味レベルで全件棚卸しする | `proven` | legacy_l0_clause_dispositions／legacy_br_disposition_groups／legacy_media_br_dispositions／legacy_req_disposition_groups／legacy_fr_disposition_groups／legacy_orphan_requirement_groups／legacy_nfr_dispositions／legacy_media_inventory／legacy_derived_contract_policy／各exact coverage/digest gate PASS | — |
+| `OBJ-01` | 旧L0/BR/媒体BR/REQ/FR/SR/NFR/MR/FN/AC/TCを意味レベルで全件棚卸しする | `incomplete` | legacy_l0_clause_dispositions／legacy_br_disposition_groups／legacy_requirement_meaning_inventory／legacy_strategy_quality_meaning_inventory／legacy_mr_meaning_inventory／legacy_fn_meaning_inventory／legacy_ac_meaning_inventory／legacy_tc_meaning_inventory／legacy_media_br_source_digests／legacy_media_br_item_digests／legacy_media_br_item_dispositions／legacy_media_br_meaning_migrations／legacy_media_br_dispositions／legacy_media_trace_fault_policy／legacy_media_trace_fault_dispositions／legacy_req_disposition_groups／legacy_fr_disposition_groups／legacy_orphan_requirement_groups／legacy_nfr_dispositions／legacy_media_inventory／legacy_derived_contract_policy／legacy_phase_fault_dispositions／legacy_phase_fault_classifications／legacy_trace_fault_policy／legacy_trace_fault_dispositions／legacy_test_id_dispositions／provider_neutral_execution_policy／provider_policy_bindings／G-REQ-LEGACY-MEDIA-TRACE FAIL | 旧BR/REQ/FR 139 ID、SR/NFR 30 ID、MR 54 ID、FN 61 ID、AC 252 IDはsource/parent meaning snapshot、value/safety/HJ/obsolete mechanism候補、高risk境界を全件記録済み。TC 258 IDは旧test oracle全field、親AC semantic digest、critical controls、旧phase/alias処遇を全件記録し、親再降下までは全件deferとしている。いずれもPO未承認であるため、候補の独立監査とPO分類receiptを得たうえで、旧compatibility viewとのsemantic drift、BR↔FR/SR双方向trace、BR→REQ→FR/SR/NFR階層trace、REQ→FN、semantic responsibility及び全層semantic dimensionsを解消し、媒体孤立nodeと48片方向edgeを新capability traceへ再降下し、phase faultのedge別処遇をPO決定して全refinementをfreezeする |
 | `OBJ-02` | 旧requirements viewを現要求・設計の規範参照から隔離する | `proven` | G-REQ-COMPATIBILITY-AUTHORITY PASS／G-REQ-LEGACY-CONSUMER-ISOLATION PASS／旧FN/AC/TC legacy_revalidation_only | — |
 | `OBJ-03` | VPS Web UIとUI内inboxを製品状態・運用通知・人間判断の初期主入口候補にする | `incomplete` | ADR-013／PRC-01/03/04/11/15／VPS-UI-PRIMARY-HUMAN-INTERFACE／VPS-UI-INBOX-LIFECYCLE／旧FR-16/43/46/76/77 disposition | 関連refinementを1件ずつPO決定し新BR/REQ/FR/NFRへ再降下する |
 | `OBJ-04` | 要求・要件を先行しL2以降の設計は未着手として扱う | `proven` | implementation_authorized=false／L2-L6 revalidation_required/implementation_input=false／G-REQ-DESIGN-NOT-STARTED PASS／旧FN/AC/TC design_not_started=true | — |
@@ -320,8 +317,7 @@
   - `boundary` RAC-AGENT-NEO-B: サイト構築能力とtheme/plugin改善能力を別releaseにし、互換性又はrollback未検証のupdateはenabledにしない （RST-AGENT-NEO-B）
 - **PO個別質問**:
   - `RDQ-AGENT-NEO-HELIX-REDEFINITION-01` (`release_scope`): 旧package／license／Automation SEO／CRM／SNS／外部API／AI機能の採用・deferred・廃止を個別に決める （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
-  - `RDQ-AGENT-NEO-HELIX-REDEFINITION-02` (`authority_choice`): MARKETING HARNESSとAGENT NEOのrepo/authority/API/evidence境界を閉じる （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
-- **semantic digest**: `sha256:31df6dabc8432ee171318062d8ab366e75fa596ec9b4801c0cc36d9c03b0b0ef`
+- **semantic digest**: `sha256:a98d63668a6bbf93c4918ea12a062780d803e7b6633f0e808c5e65427024bf27`
 
 ## RRF-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE — AGENT-NEO-PRODUCT-EVOLUTION-RELEASE
 
@@ -346,8 +342,8 @@
   - `negative` RAC-AGENT-NEO-EVOLUTION-N: site-build承認、単一site成功又は旧releaseを製品変更の互換性証明として拒否する （RST-AGENT-NEO-EVOLUTION-N）
   - `boundary` RAC-AGENT-NEO-EVOLUTION-B: 一部componentだけ成立する場合は変更unitを分割し未検証componentをdeferredにする （RST-AGENT-NEO-EVOLUTION-B）
 - **PO個別質問**:
-  - `RDQ-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE-01` (`release_scope`): 対象component、互換性policy、versioning、migration、rollback、回帰範囲、repo write権限をPO判断で閉じる （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
-- **semantic digest**: `sha256:821262ece1bf0a5a9c116222672e25552cab9eeae038350aa226cf984ea21d0a`
+  - `RDQ-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE-01` (`release_scope`): 対象component、互換性policy、rollback outcome、回帰受入範囲及びrepo write authorityをPO判断で閉じる （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
+- **semantic digest**: `sha256:9d01b9da1cb025a10c43e6be4fc791ede640b687bc48bfa7271adc27aca632ba`
 
 ## RRF-AGENT-NEO-SITE-BUILD-RELEASE — AGENT-NEO-SITE-BUILD-RELEASE
 
@@ -372,13 +368,13 @@
   - `negative` RAC-AGENT-NEO-SITE-N: 旧G4、WP操作成功、別site成功又はtheme変更をsite-build受入へ流用することを拒否する （RST-AGENT-NEO-SITE-N）
   - `boundary` RAC-AGENT-NEO-SITE-B: 成立capabilityだけをreleaseし未閉capabilityはdeferredにする （RST-AGENT-NEO-SITE-B）
 - **PO個別質問**:
-  - `RDQ-AGENT-NEO-SITE-BUILD-RELEASE-01` (`release_scope`): site-build capability閉集合、対象site/profile、受入順、migration/rollback境界をPO判断で閉じる （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
-- **semantic digest**: `sha256:6dd0e5f127c02913784bfb1847bf46e8ca0d62169881fb4c7e9cbca0b14a6b07`
+  - `RDQ-AGENT-NEO-SITE-BUILD-RELEASE-01` (`release_scope`): site-build capability閉集合、受入順、migration admission及びrollback outcomeをPO判断で閉じる （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
+- **semantic digest**: `sha256:9878b98db88c79f197240edfdca11c35e40dd265f4d8837b289ee5dac0099618`
 
 ## RRF-AUTO-MODE-DECISION-AUTHORITY — AUTO-MODE-DECISION-AUTHORITY
 
-- **状態**: `draft` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
-- **scope候補**: `deferred_candidate` （PO receiptとFull V再降下までは実装不可）
+- **状態**: `superseded` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
+- **scope候補**: `historical_superseded` （PO receiptとFull V再降下までは実装不可）
 - **source events**: RDE-000003 RDE-000017 RDE-000018 RDE-000033 RDE-000034
 - **主体**: PO／自動判定器／媒体運用者／製品runtime
 - **受益者**: 未承認公開を防ぎつつauto-mode移行を監督するPO
@@ -396,9 +392,8 @@
   - `positive` RAC-AUTO-MODE-P: 適格性証跡とscope/期限へ束縛したPO enable receiptが両方有効な対象だけ個別承認を省略する （RST-AUTO-MODE-P）
   - `negative` RAC-AUTO-MODE-N: 機械適格判定だけ、PO receipt欠落、scope不一致、期限切れ、基準失効、金銭操作では常時承認を要求する （RST-AUTO-MODE-N）
   - `boundary` RAC-AUTO-MODE-B: 一媒体又は一operationだけのenableを他へ伝播せず、失効検知後の次操作から常時承認へ戻す （RST-AUTO-MODE-B）
-- **PO個別質問**:
-  - `RDQ-AUTO-MODE-DECISION-AUTHORITY-01` (`safety_policy`): resolver回答をPOが再確認し、有効化・継続・解除principal、scope、期限、再承認、基準失効時の復帰条件を閉じる （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
-- **semantic digest**: `sha256:ba7eee51dc0305ecfa9a84cdb30970cbad985ebbc38556f479e09c17ddef39dd`
+- **PO個別質問**: なし（ただしsubject approval receiptとfreezeは別）
+- **semantic digest**: `sha256:32c3282dc43db8348b9114f9dc31ca8c3d1784b06a520362a2b71b8a420f9167`
 
 ## RRF-AUTOMATED-PUBLISHING-ADMISSION — AUTOMATED-PUBLISHING-ADMISSION
 
@@ -408,70 +403,69 @@
 - **主体**: ユーザー／製品runtime
 - **受益者**: 毎回承認せず自動運用を監督するユーザー
 - **価値**: VPS UIで初回scopeを承認した後も成果物gateを維持して自動運用する
-- **task**: activation scopeを確認し承認する／各成果物のquality/risk admissionを検査する／取消・権限喪失・重大rule変更又は停止条件成立時にwriteを停止する／停止後にscopeを再表示してre-activationする
-- **workflow**: VPS inbox→scope確認→初回承認→自動運用→成果物gate→停止条件成立→明示re-activation待ち
-- **対象範囲**: profile/media/account/operation単位activation／scope未指定時の対象媒体account既定／自動公開admission／取消・停止・re-activation
-- **対象外**: 全媒体一括activation／毎回の公開承認／quality gate省略／固定期限の全対象一律強制
-- **禁止事項**: machine eligibilityだけのactivation／scope外write／不合格成果物公開／停止後に毎回承認modeへ暗黙復帰してwriteを続けること
-- **人間判断**: 初回activation、scope拡張、重大rule変更、取消、停止後re-activationはユーザー
-- **副作用**: activation scope内の自動媒体write／停止条件成立時の外部write停止
-- **証跡**: activation receipt／scope/revision binding／gate pass receipt／revocation/stop/re-activation negative test
+- **task**: activation要求をinboxへ記録する／認証済みUIでscope/revisionを再表示し直前認可後に承認する／各成果物のcampaign/funnel role/content purpose/risk/quality admissionを独立検査する／attended-only operationを自動writeから分離する／取消・権限喪失・必須risk gate集合/risk境界/activation policy変更時にwriteを停止する／停止後にscopeを再表示してre-activationする
+- **workflow**: activation要求→inboxへapproval_waiting記録→認証済みUIでscope/revision再表示→直前認可→明示承認→自動運用又はattended-only→成果物別purpose/risk/quality gate→停止条件成立→明示re-activation待ち
+- **対象範囲**: profile/media/account/operation単位activation／campaign/funnel role/content purpose/risk binding／attended-only operation／自動公開admission／取消・停止・re-activation
+- **対象外**: 全媒体一括activation／scope未指定activationの既定補完／毎回の公開承認／quality gate省略／feedback scopeによるwrite activation拡張／固定期限の全対象一律強制
+- **禁止事項**: inbox item操作だけでactivationを成立させること／scope未指定のactivation／machine eligibilityだけのactivation／attended-only operationの自動write昇格／scope外write／activation passによる成果物gate省略／不合格成果物公開／媒体account別/個別feedback rule更新だけでactivationを停止すること／停止後に毎回承認modeへ暗黙復帰してwriteを続けること
+- **人間判断**: 初回activation、scope拡張、attended-only個別実行、必須risk gate集合/risk境界/activation policy変更後の再開、取消、停止後re-activationはユーザー
+- **副作用**: activation scope内かつ成果物gate合格時の自動媒体write／停止条件成立時の外部write停止
+- **証跡**: inbox approval_waiting receipt／activation decision receipt／scope/revision/fresh authorization binding／campaign/funnel role/content purpose/risk binding／execution mode／gate pass receipt／revocation/stop/re-activation negative test
 - **phase**: `requirements`
 - **受入候補**:
-  - `positive` RAC-AUTO-PUBLISH-P: 初回承認scope内でgate合格成果物だけを毎回承認なしで実行する （RST-AUTO-PUBLISH-P）
-  - `negative` RAC-AUTO-PUBLISH-N: 未承認、scope外、取消、権限喪失、重大rule変更、停止条件成立又はgate不合格の外部writeを拒否する （RST-AUTO-PUBLISH-N）
-  - `boundary` RAC-AUTO-PUBLISH-B: 停止後は毎回承認modeへ戻さず対象scopeの明示re-activationまでwriteを停止する （RST-AUTO-PUBLISH-B）
+  - `positive` RAC-AUTO-PUBLISH-P: approval_waitingをinboxへ記録し、認証済みUIでscope/revision再表示と直前認可後に承認されたscope内でgate合格成果物だけを毎回承認なしで実行する （RST-AUTO-PUBLISH-P）
+  - `negative` RAC-AUTO-PUBLISH-N: inbox操作だけの承認、scope未指定、未承認、scope外、取消、権限喪失、必須risk gate/risk境界/activation policy変更、停止条件成立又はgate不合格の外部writeを拒否する （RST-AUTO-PUBLISH-N）
+  - `boundary` RAC-AUTO-PUBLISH-B: 媒体account別又は個別feedbackの下位rule更新は再検査だけ行い、停止後は毎回承認modeへ戻さず対象scopeの明示re-activationまでwriteを停止する （RST-AUTO-PUBLISH-B）
 - **PO個別質問**: なし（ただしsubject approval receiptとfreezeは別）
-- **semantic digest**: `sha256:301b801a5a2ba20d718ac93ccdc67eb9b169df53a05cb7d148ac8f6a033e6981`
+- **semantic digest**: `sha256:4e3df9a130b8c7b919b6eb5dafe68112d84bfc3210cc1538c991c1db24c74313`
 
 ## RRF-BUSINESS-PROFILE-AUTHORIZATION — BUSINESS-PROFILE-AUTHORIZATION
 
-- **状態**: `draft` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
+- **状態**: `specified` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
 - **scope候補**: `initial_candidate` （PO receiptとFull V再降下までは実装不可）
-- **source events**: RDE-000130 RDE-000131
+- **source events**: RDE-000130 RDE-000131 RDE-000174
 - **主体**: PO／profile所有者／許可運用者
 - **受益者**: 隔離された複数事業の所有者
 - **価値**: stable profile IDでprincipal/resource/actionを隔離し越境を防ぐ
-- **task**: profile membership/roleを確認しresource/actionを認可する
-- **workflow**: profile選択→membership/role→resource/action認可→操作→profile束縛receipt
-- **対象範囲**: profile lifecycle／membership/role／resource/action／横断集約／移管/削除
+- **task**: grant ID/revision/digestとprincipal/profile/resource/operation/effect/expiryを検証して認可又は拒否する／cross-profile、高作用effect及びmulti-principal移行を明示再認可する
+- **workflow**: authentication/session→explicit grant lookup→revision/expiry/scope/effect検証→operation又はdeny→profile-bound authorization receipt
+- **対象範囲**: profile lifecycle／membership/role／resource/action／横断集約／移管/削除／explicit grant revision/digest/expiry／effect classes list/read/seen/ack/state_write/external_write/money/delete/transfer／deny state invariance
 - **対象外**: 表示brand名を認可IDとすること／具体RBAC製品
-- **禁止事項**: 暗黙共有／権限合算／cross-profile write／credential/data/evidence越境
+- **禁止事項**: 暗黙共有／権限合算／cross-profile write／credential/data/evidence越境／authentication又はsession成立をauthorizationとみなす／membership又はrole名だけからpermissionを推論する／readからwrite、cross-profile aggregate又は別effectを推論する／delete/transferで暗黙cascade又は旧grant再利用を行う／将来multi-principal化で既存session/grantを自動継承する
 - **人間判断**: membership、role、横断集約、移管、削除は許可principal
 - **副作用**: 現段階は要求候補のみ
-- **証跡**: authorization matrix／profile-bound receipt／cross-profile negative case／PO receipt
+- **証跡**: authorization matrix／profile-bound receipt／cross-profile negative case／PO receipt／grant ID/revision/semantic digest/expiry receipt／cross-profile and effect escalation negative tests／denial state/revision invariance／transfer/delete separate transition evidence
 - **phase**: `requirements`
 - **受入候補**:
-  - `positive` RAC-PROFILE-AUTH-P: stable profile IDとprincipal/resource/actionへ束縛した操作だけを許可する （RST-PROFILE-AUTH-P）
-  - `negative` RAC-PROFILE-AUTH-N: 表示名一致、暗黙共有、権限合算、越境writeを拒否する （RST-PROFILE-AUTH-N）
-  - `boundary` RAC-PROFILE-AUTH-B: 横断集約は各profileのread権限を満たしwriteへ昇格しない （RST-PROFILE-AUTH-B）
-- **PO個別質問**:
-  - `RDQ-BUSINESS-PROFILE-AUTHORIZATION-01` (`safety_policy`): profile lifecycle、membership/role、resource/action認可、横断集約、削除/移管、越境監査をPO判断で閉じる （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
-- **semantic digest**: `sha256:05788e01eefe7d8a8eb91fc94e4d783f71fba6feb2f7067cd08908f42b0cf885`
+  - `positive` RAC-PROFILE-AUTH-P: 有効なgrant ID、principal、profile、resource、operation、effect、grant revision、grant semantic digest及びexpiryへexact束縛したoperationだけを許可する （RST-PROFILE-AUTH-P）
+  - `negative` RAC-PROFILE-AUTH-N: missing/unknown/stale/expired/scope mismatch、暗黙effect escalation、membership/role推論及びcross-profile without explicit grantを拒否する （RST-PROFILE-AUTH-N）
+  - `boundary` RAC-PROFILE-AUTH-B: owner移管、delete/transfer、grant revision競合又はmulti-principal移行では旧session/grantを継承せず、製品state/revisionを維持して再認可までfail-closeする （RST-PROFILE-AUTH-B）
+- **PO個別質問**: なし（ただしsubject approval receiptとfreezeは別）
+- **semantic digest**: `sha256:ad26d3f40b9250e77f8e8be1aa3e387f294d170b05d3eef01b91e819c061b87a`
 
 ## RRF-CONTENT-QUALITY-GATE-LEARNING — CONTENT-QUALITY-GATE-LEARNING
 
 - **状態**: `specified` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
 - **scope候補**: `initial_candidate` （PO receiptとFull V再降下までは実装不可）
-- **source events**: RDE-000139 RDE-000145 RDE-000151
+- **source events**: RDE-000139 RDE-000145 RDE-000151 RDE-000163 RDE-000164
 - **主体**: ユーザー／content生成agent／quality gate
 - **受益者**: 確認負荷を減らすユーザーと品質を受けるaudience
 - **価値**: 不合格成果物を人間へ流さずfeedbackを再利用可能なruleへ変えて、人に有用で独自性と根拠のある品質を継続改善する
-- **task**: 成果物を検査する／不合格を有界回数で自動修正又は再生成する／解消不能時は公開せず停止する／feedbackをscope付きruleへ変換する／対象成果物を再検査する／独自価値とclaim-source対応を検査する
-- **workflow**: 生成→gate→不合格時修正/再生成→再検査→合格時のみ次工程→feedback rule化→対象再検査
-- **対象範囲**: 禁止語／表現／形式/型／根拠／対象audienceへの有用性／独自research/分析/経験／claim-source対応と鮮度／誇張しない見出し／structured feedback／rule revision／未公開成果物再検査
-- **対象外**: 製品codeへのrule hard-code／非対応媒体の公開済み成果物変更
-- **禁止事項**: 不合格成果物の人間review投入又は公開／無限再生成／scope未指定feedbackの全体適用／順位操作目的の大量生成／query variationごとの低価値量産／付加価値のないsource要約
-- **人間判断**: feedback内容と明示scopeはユーザー。risk必須ruleを最優先し、媒体account rule、個別feedbackの順で合成する。risk境界内の通常rule更新はAI
-- **副作用**: 対応媒体のgate合格済み公開成果物へのupdate-in-place
-- **証跡**: rule revision／fixture／gate result／regeneration history／retry exhaustion/stop receipt／claim-source map／originality/value assessment／scope-bound update receipt／source:<https://developers.google.com/search/docs/fundamentals/creating-helpful-content／source:https://developers.google.com/search/docs/fundamentals/ai-optimization-guide>
+- **task**: 成果物を検査する／機械可読なverdictとreason codeを記録する／retry系列中のrule revisionを凍結する／外部設定された回数・時間・費用上限内で不合格を自動修正又は再生成する／解消不能時は正式な人間確認又は次工程へ送らずblockedで停止する／feedbackをscope付きruleへ変換する／明示scopeがないfeedbackはsource feedbackのmedia_account_idを既定scopeとして導出する／対象成果物を再検査する／独自価値とclaim-source対応を検査する／retry budgetを使い切ってblockedになった場合だけVPS UI内inboxへ通知eventを記録する
+- **workflow**: 生成→gate→不合格時同一rule revisionで修正/再生成→再検査→合格時のみ次工程／上限到達時blocked＋UI inbox通知→feedback rule化→明示scope又はsource feedbackのmedia_account_idへ束縛→新gate実行→対象再検査
+- **対象範囲**: 禁止語／表現／形式/型／根拠／対象audienceへの有用性／独自research/分析/経験／claim-source対応と鮮度／誇張しない見出し／structured feedback／source feedbackから導出したmedia account scope／rule revision／version付きretry budget／停止成果物と証跡の診断閲覧／未公開成果物再検査／retry exhaustion時のVPS UI内inbox通知
+- **対象外**: 製品codeへのrule hard-code／非対応媒体の公開済み成果物変更／通常の不合格retryごとの通知
+- **禁止事項**: 不合格成果物の人間reviewへの正式投入、次工程投入又は公開／retry中のrule自己緩和／無限再生成／retry budget未知時の実行継続／scope未指定feedbackの全体適用／feedback scopeによるwrite activation拡張／順位操作目的の大量生成／query variationごとの低価値量産／付加価値のないsource要約／retry exhaustion前の人間通知／inbox記録失敗によるblocked状態のrollback
+- **人間判断**: feedback内容と明示scopeはユーザー。明示scopeがない場合はsource feedbackに束縛されたmedia_account_idだけを機械的に既定scopeとする。risk必須ruleを最優先し、媒体account rule、個別feedbackの順で合成する。risk境界内の通常rule更新はAI。ただしretry中の成果物には新ruleを遡及しない
+- **副作用**: 対応媒体のgate合格済み公開成果物へのupdate-in-place／retry exhaustion時のVPS UI内inbox event記録
+- **証跡**: artifact/claim-bound verdict／reason code／applied rule revision／rule revision／fixture／gate result／regeneration history／retry count/time/cost budget／retry exhaustion/stop receipt／source feedback IDとderived media_account_id scope evidence／claim-source map／originality/value assessment／scope-bound update receipt／source:<https://developers.google.com/search/docs/fundamentals/creating-helpful-content／source:https://developers.google.com/search/docs/fundamentals/ai-optimization-guide／blocked> source stateと通知IDのbinding／retry exhaustion inbox recorded/failed receipt
 - **phase**: `requirements`
 - **受入候補**:
-  - `positive` RAC-CONTENT-GATE-P: 独自価値、claim-source対応及び対象audienceへの有用性を含むgateで不合格を人間確認前に再生成し、合格成果物だけを次工程へ進める （RST-CONTENT-GATE-P）
-  - `negative` RAC-CONTENT-GATE-N: 不合格公開、scope外rule適用、順位操作目的の低価値量産及び非対応媒体の公開済み変更を拒否する （RST-CONTENT-GATE-N）
-  - `boundary` RAC-CONTENT-GATE-B: update-in-place能力不明又は非対応なら公開済み成果物へ通知を含め何もしない （RST-CONTENT-GATE-B）
+  - `positive` RAC-CONTENT-GATE-P: 独自価値、claim-source対応及び対象audienceへの有用性を含むgateがartifact/claim、verdict、reason code、rule revisionを記録する。明示scopeがないfeedbackはsource feedbackのmedia_account_idだけへ束縛し、不合格を同一rule revisionで人間確認前に再生成して合格成果物だけを次工程へ進める。retry budgetを使い切っても不合格ならblocked状態とVPS UI内inbox通知を同じsource artifactへ束縛する （RST-CONTENT-GATE-P）
+  - `negative` RAC-CONTENT-GATE-N: 不合格の正式review、次工程又は公開、retry中のrule自己緩和、scope外rule適用、retry budget未知時の継続、順位操作目的の低価値量産及び非対応媒体の公開済み変更を拒否する。通常retryごとの通知及び通知失敗によるblocked解除も拒否する （RST-CONTENT-GATE-N）
+  - `boundary` RAC-CONTENT-GATE-B: 明示scopeがないfeedbackはsource feedbackのmedia_account_idだけをderived scopeとし、同一媒体の別account、全profile又は全媒体へ拡張しない。retry budget上限到達時は未合格成果物をblockedで停止し、VPS UI内inboxへ一件のdurable eventを記録して診断閲覧を許可する。通知記録失敗でもblockedを維持する。update-in-place能力不明又は非対応なら公開済み成果物へ通知を含め何もしない （RST-CONTENT-GATE-B）
 - **PO個別質問**: なし（ただしsubject approval receiptとfreezeは別）
-- **semantic digest**: `sha256:dd4a62c3fca042428bd43ac22f65cda29a1b0f7a8a8c5f6bd2bd202590a2a7ec`
+- **semantic digest**: `sha256:1c6e925b3a6b05f5ce4671469b53b18a6598191d550560da79df5502fbdf3721`
 
 ## RRF-CONTENT-RISK-CLASSIFICATION — CONTENT-RISK-CLASSIFICATION
 
@@ -481,46 +475,45 @@
 - **主体**: ユーザー／risk classification agent／quality gate
 - **受益者**: 安全で信頼できる情報を受けるaudienceとユーザー
 - **価値**: case-by-caseの好みを反映しつつ、人の健康、金融上の安定、安全又は社会の福祉に影響するYMYL相当contentを厳格に扱う
-- **task**: content/claimをrisk分類する／健康・金融安定・安全・社会的福祉への影響を評価する／必須gateを選ぶ／個別の好みruleを合成する／分類と検査根拠を保存する
-- **workflow**: content/claim抽出→影響軸別risk分類→必須gate→好みrule合成→検査→evidence
-- **対象範囲**: content/claim risk／健康／金融上の安定／安全／社会の福祉/well-being／YMYL／根拠/鮮度/経験/専門性/表現/safety gate／case-by-case preference
-- **対象外**: ブランド一律risk固定／好みによる最低基準緩和
-- **禁止事項**: feedback又は成長KPIによる必須risk gate迂回／不確実時に低riskへ推測しない
+- **task**: content/claimをrisk分類する／risk class、確信度又は不確実性、根拠及びgate-set revisionを束縛する／健康・金融安定・安全・社会的福祉への影響を評価する／必須gateを選ぶ／個別の好みruleを合成する／分類と検査根拠を保存する
+- **workflow**: content/claim抽出→影響軸別risk分類→分類完全性確認→必須gate→好みrule合成→検査→evidence
+- **対象範囲**: content/claim risk／risk confidence/uncertainty／健康／金融上の安定／安全／社会の福祉/well-being／YMYL／根拠/鮮度/経験/専門性/表現/safety gate／case-by-case preference／停止成果物と分類証跡の診断閲覧／version付きconfidence rule
+- **対象外**: ブランド一律risk固定／好みによる最低基準緩和／要件へ埋め込む固定confidence閾値
+- **禁止事項**: feedback又は成長KPIによる必須risk gate迂回／risk class又は分類根拠欠落時の正式review、次工程又は公開／不確実時に低riskへ推測しない
 - **人間判断**: ユーザーは案件、成果物又はclaimごとの好みを指定できる
 - **副作用**: 適用gate集合とcontent可否の変更
-- **証跡**: classification rationale／impact-axis assessment／rule composition／risk gate result／uncertainty negative test／source:<https://developers.google.com/search/docs/fundamentals/creating-helpful-content>
+- **証跡**: risk class/confidence binding／classification rationale／impact-axis assessment／gate-set revision／rule composition／risk gate result／uncertainty negative test／source:<https://developers.google.com/search/docs/fundamentals/creating-helpful-content>
 - **phase**: `requirements`
 - **受入候補**:
-  - `positive` RAC-CONTENT-RISK-P: claim riskに応じた必須gateと個別好みを合成して検査する （RST-CONTENT-RISK-P）
-  - `negative` RAC-CONTENT-RISK-N: 好み、feedback又はKPIでYMYL等の必須gateを弱めることを拒否する （RST-CONTENT-RISK-N）
-  - `boundary` RAC-CONTENT-RISK-B: risk分類が不確実なら低riskへ推測せず安全側の再調査又は停止にする （RST-CONTENT-RISK-B）
+  - `positive` RAC-CONTENT-RISK-P: claimへrisk class、確信度又は不確実性、根拠及びgate-set revisionを束縛し、必須gateと個別好みを合成して検査する （RST-CONTENT-RISK-P）
+  - `negative` RAC-CONTENT-RISK-N: 好み、feedback又はKPIでYMYL等の必須gateを弱めること及びrisk情報欠落の成果物を正式review、次工程又は公開へ進めることを拒否する （RST-CONTENT-RISK-N）
+  - `boundary` RAC-CONTENT-RISK-B: risk分類が欠落又は不確実なら全影響軸のYMYL相当を含む最高厳格度で扱い、診断閲覧だけ許可して再調査又は分類解決後の再検査まで停止する （RST-CONTENT-RISK-B）
 - **PO個別質問**: なし（ただしsubject approval receiptとfreezeは別）
-- **semantic digest**: `sha256:9eb249e88e6fa2e2cd469a0ace6b26608fb4596b1c35843c5b7ad6fede6bd65e`
+- **semantic digest**: `sha256:4ba4a208fcc0dcdcd551be40c81eadc31b75f311fa8274f8d8dfe66b20b88c49`
 
 ## RRF-CONTRACT-SEMANTIC-DESCENT-V2 — CONTRACT-SEMANTIC-DESCENT-V2
 
-- **状態**: `draft` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
+- **状態**: `specified` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
 - **scope候補**: `requirements_governance` （PO receiptとFull V再降下までは実装不可）
-- **source events**: RDE-000103 RDE-000104
+- **source events**: RDE-000103 RDE-000104 RDE-000170
 - **主体**: PO／要求分析者／AC/TC作成者
 - **受益者**: 責務と権限を推測せず実装・検証する担当者
 - **価値**: 要求からAC/TCまで意味軸・scope・PO判断receiptを型付きで閉じる
-- **task**: 直接必須fieldを決める／継承可能/禁止fieldを決める／14 HJ経路をreceiptへ降下する／mutationで欠落を拒否する
+- **task**: 直接必須fieldを決める／継承可能/禁止fieldを決める／14 HJ経路をreceiptへ降下する／mutationで欠落を拒否する／下位契約の直接必須軸と選択句digest継承を分離する／multi-parentの選択句exact unionと競合処遇を検証する／安全/HJ/prohibitionの非弱化と旧方式非継承を検証する
 - **workflow**: BR意味→REQ正規化→FR/SR/NFR/MR/FN降下→AC/TC反証→PO receipt検査
-- **対象範囲**: actor／beneficiary／value／workflow／scope／prohibition／human judgement／side effect／evidence／phase／decision receipt
+- **対象範囲**: actor／beneficiary／value／workflow／scope／prohibition／human judgement／side effect／evidence／phase／decision receipt／stable child/parent clause ID／parent semantic digest／explicit delta／conflict disposition／direct/inherited/replaced/deferred partition
 - **対象外**: target IDをbusiness scopeとみなすこと／agent審査をPO判断とみなすこと
-- **禁止事項**: 欠落fieldを実装者が推測しない／機械判定でPO decisionを代替しない
+- **禁止事項**: 欠落fieldを実装者が推測しない／機械判定でPO decisionを代替しない／multi-parentを暗黙unionする／safety/prohibition/human judgementを子で削除又は弱化する／provider/runtime/route/storage/fixture/mock/固定閾値/旧phase/旧通知承認transportをpositive継承する／高作用契約のactor/scope/HJ/effect/evidence/phaseをfully inherited又は空にする
 - **人間判断**: 意味fieldの継承可否と各PO判断点はPOが凍結
 - **副作用**: 現段階は要求契約の候補化のみ
-- **証跡**: schema／継承mapping／14 HJ経路のreceipt AC/TC／negative mutation／PO receipt
+- **証跡**: schema／継承mapping／14 HJ経路のreceipt AC/TC／negative mutation／PO receipt／ID×clause disposition exact partition／parent clause/semantic digestとdelta／conflict/cycle/stale digest mutation／高作用direct dimension negative test
 - **phase**: `requirements`
 - **受入候補**:
-  - `positive` RAC-SEMANTIC-DESCENT-P: 全要求層が直接field又は明示継承を持ちPO判断がreceiptまで追跡できる （RST-SEMANTIC-DESCENT-P）
-  - `negative` RAC-SEMANTIC-DESCENT-N: 意味欠落、target-as-scope、agent-as-POを拒否する （RST-SEMANTIC-DESCENT-N）
-  - `boundary` RAC-SEMANTIC-DESCENT-B: 一部継承可能でもscope/HJ/side-effect/phaseの暗黙継承を許さない （RST-SEMANTIC-DESCENT-B）
-- **PO個別質問**:
-  - `RDQ-CONTRACT-SEMANTIC-DESCENT-V2-01` (`requirements_policy`): 直接必須fieldと継承可能/禁止fieldをPO判断で閉じる （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
-- **semantic digest**: `sha256:148b0213b223e62c82cafb565ae86c8cc1c452a282a3bd6d1f3c7a5f65ed8680`
+  - `positive` RAC-SEMANTIC-DESCENT-P: 直接必須軸と選択親句digest、delta、owner、evidenceが閉じ、安全/HJ/prohibitionを弱化しない下位契約だけを次工程へ進める （RST-SEMANTIC-DESCENT-P）
+  - `negative` RAC-SEMANTIC-DESCENT-N: stale digest、暗黙union、安全弱化、旧方式再混入、高作用の継承のみ又はcycleを拒否する （RST-SEMANTIC-DESCENT-N）
+  - `boundary` RAC-SEMANTIC-DESCENT-B: 親意味が未classified、cutover blocked又は競合未処置なら子をdeferredとしclassifiedへ昇格しない （RST-SEMANTIC-DESCENT-B）
+- **PO個別質問**: なし（ただしsubject approval receiptとfreezeは別）
+- **semantic digest**: `sha256:b1fe074d7bbcc73d48f1d2f7e0683e4ee5b3a19a8e67ea6fbf62f864cffdd2e3`
 
 ## RRF-DISCORD-COMMUNITY-MARKETING-ROUTE — DISCORD-COMMUNITY-MARKETING-ROUTE
 
@@ -548,28 +541,51 @@
 
 ## RRF-DISCORD-MULTI-PURPOSE-BOUNDARIES — DISCORD-MULTI-PURPOSE-BOUNDARIES
 
-- **状態**: `draft` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
-- **scope候補**: `deferred_candidate` （PO receiptとFull V再降下までは実装不可）
-- **source events**: RDE-000005 RDE-000022 RDE-000023 RDE-000041 RDE-000042
-- **主体**: PO／将来のDiscord通知adapter／将来のDiscord媒体Bot
+- **状態**: `superseded` ／ revision 2 ／ **承認**: 未承認（approval receiptなし）
+- **scope候補**: `historical_superseded` （PO receiptとFull V再降下までは実装不可）
+- **source events**: RDE-000005 RDE-000022 RDE-000023 RDE-000041 RDE-000042 RDE-000052 RDE-000060 RDE-000068
+- **主体**: PO／製品通知runtime／Discord community運用者
 - **受益者**: 用途混同を避けるPOとコミュニティ
-- **価値**: 承認・運用通知・媒体投稿・PR通知の誤送信と誤決定を防ぐ
-- **task**: 用途別policyとprincipalを登録する／別channel/accountへ用途別送信する
-- **workflow**: 将来要求承認→用途別allow-list→送信→用途別receipt
-- **対象範囲**: 将来Discord deep-link通知／将来Discord媒体投稿の分離境界
-- **対象外**: 初期baseline／Discord interactionによる承認／self-bot／開発PR通知の製品接続
-- **禁止事項**: 用途間でservice/operation/account/channel/evidenceを共有しない／個人user accountを無人操作しない
-- **人間判断**: 将来adapterと媒体capabilityの採用は別々にPO判断
-- **副作用**: 現時点なし。将来のDiscord送信はdeferred
-- **証跡**: deferred理由／再開条件／用途別negative route test
-- **phase**: `deferred`
+- **価値**: 旧Discord複数用途候補を現要求へ継承せず、通知不採用とcommunity媒体を別の現行subjectへ移す
+- **task**: 旧候補の再開導線を閉じる／通知拒否とcommunity媒体を別subjectへ引き渡す
+- **workflow**: 旧候補識別→通知route拒否→DISCORD-NOTIFICATION-REJECTION-BOUNDARYへ移管→community要件はDISCORD-COMMUNITY-MARKETING-ROUTEへ移管
+- **対象範囲**: 旧Discord承認通知候補／旧Discord運用通知候補／旧Discord deep-link候補／旧Discord媒体候補
+- **対象外**: 現行通知要求の所有／現行community媒体要求の所有／設計又は実装
+- **禁止事項**: 旧候補からDiscord通知adapterを再開しない／旧候補をcommunity媒体の実行許可にしない／個人user accountを無人操作しない
+- **人間判断**: PO回答RDE-000158により通知routeは不採用。community媒体は別subjectで判断する
+- **副作用**: なし。旧候補はsupersededであり外部送信を許可しない
+- **証跡**: supersession evidence／通知route拒否negative test／community subject分離test
+- **phase**: `requirements_history`
 - **受入候補**:
-  - `positive` RAC-DISCORD-BOUNDARY-P: 将来採用時に用途別tuple・principal・channel・receiptだけを許可する （RST-DISCORD-BOUNDARY-P）
-  - `negative` RAC-DISCORD-BOUNDARY-N: 承認channel・媒体channel・PR通知channelの共有とself-botを拒否する （RST-DISCORD-BOUNDARY-N）
-  - `boundary` RAC-DISCORD-BOUNDARY-B: 未採用・未知tuple・allow-list外・用途不一致は送信せずdeferredを維持する （RST-DISCORD-BOUNDARY-B）
-- **PO個別質問**:
-  - `RDQ-DISCORD-MULTI-PURPOSE-BOUNDARIES-01` (`deferred_resume`): 初期baseline外のため採用時期・business value・account/channel tupleは未決 （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
-- **semantic digest**: `sha256:d965a769ec3df01c423adc54ec410586a2069e5b2a03aedb496b31cf905f1840`
+  - `positive` RAC-DISCORD-BOUNDARY-P: 旧候補を現行入力から除外し、通知拒否とcommunity媒体を別subjectへ一意に引き渡す （RST-DISCORD-BOUNDARY-P）
+  - `negative` RAC-DISCORD-BOUNDARY-N: 旧候補による通知route再開、community実行許可、credential共有及びself-botを拒否する （RST-DISCORD-BOUNDARY-N）
+  - `boundary` RAC-DISCORD-BOUNDARY-B: 旧候補を参照した全外部送信を拒否し、再開条件を生成しない （RST-DISCORD-BOUNDARY-B）
+- **PO個別質問**: なし（ただしsubject approval receiptとfreezeは別）
+- **semantic digest**: `sha256:73e6cea0dff4bfd4f20372fa10ca44db500318eaa7a6dae4e69e7419763affd7`
+
+## RRF-DISCORD-NOTIFICATION-REJECTION-BOUNDARY — DISCORD-NOTIFICATION-REJECTION-BOUNDARY
+
+- **状態**: `specified` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
+- **scope候補**: `initial_candidate` （PO receiptとFull V再降下までは実装不可）
+- **source events**: RDE-000156 RDE-000157 RDE-000158
+- **主体**: PO／製品通知runtime／Discord community運用者
+- **受益者**: 通知誤送信と誤決定を避けるユーザーとcommunity
+- **価値**: Discord community marketingと製品通知・開発PR通知を恒久分離する
+- **task**: 通知purposeを判定する／Discord通知routeを不採用として拒否する／community capabilityとのcross-purpose利用を拒否する
+- **workflow**: 通知要求→purpose判定→Discord route拒否→VPS UI inboxに限定
+- **対象範囲**: 承認通知／運用通知／deep-link補助／開発PR通知との分離
+- **対象外**: Discord community marketing operation
+- **禁止事項**: Discord通知adapterの再開／通知routeのdeferred化／community credential/account/channel/evidenceの通知流用
+- **人間判断**: Discord通知不採用はPO決定。community方針は別media capabilityで判断する
+- **副作用**: Discord通知送信なし
+- **証跡**: notification route rejection receipt／community/notification cross-purpose negative test／PO回答source
+- **phase**: `requirements`
+- **受入候補**:
+  - `positive` RAC-DISCORD-NOTIFICATION-REJECT-P: 製品通知をVPS UI inboxに限定しDiscordへ送信しない （RST-DISCORD-NOTIFICATION-REJECT-P）
+  - `negative` RAC-DISCORD-NOTIFICATION-REJECT-N: 承認通知、運用通知、deep-link補助又は開発PR通知のDiscord routeとcommunity credential共有を拒否する （RST-DISCORD-NOTIFICATION-REJECT-N）
+  - `boundary` RAC-DISCORD-NOTIFICATION-REJECT-B: 未知purpose又はDiscord通知routeが指定された場合は送信せず、再開条件を生成しない （RST-DISCORD-NOTIFICATION-REJECT-B）
+- **PO個別質問**: なし（ただしsubject approval receiptとfreezeは別）
+- **semantic digest**: `sha256:9eaf6bb8e88b9ef540c8e0d26ba71ecff670cb0e38f05ce74397722b0ec7d88b`
 
 ## RRF-EXTERNAL-BROWSER-AUTOMATION-ROUTE — EXTERNAL-BROWSER-AUTOMATION-ROUTE
 
@@ -579,21 +595,21 @@
 - **主体**: 媒体account所有者／connector管理者／製品runtime
 - **受益者**: 許可経路で媒体を運用するユーザー
 - **価値**: 公式経路を優先しつつ必要なPlaywright automationとbrowser確認をoperation単位で安全に使う
-- **task**: 公式API/MCP能力を判定する／許可時だけPlaywright fallback又は確認を行う
-- **workflow**: operation要求→API/MCP確認→route許可判定→実行→browser確認→receipt
-- **対象範囲**: 公式API／公式MCP／Playwright fallback／browser結果確認
+- **task**: 公式API/MCP能力を判定する／credential能力と製品側operation強制を判定する／許可時だけPlaywright fallback又は確認を行う
+- **workflow**: operation要求→API/MCP確認→credential/operation allow-list確認→実行前plan検査→route許可判定→実行→receipt照合→browser確認
+- **対象範囲**: 公式API／公式MCP／Playwright fallback／登録済みaccount/operation/resourceのbrowser結果確認／operation allow-list
 - **対象外**: 他browser engine／経路不明operation
-- **禁止事項**: 媒体全体へのbrowser write一括許可／利用規約又はcredential境界の推測
+- **禁止事項**: 媒体全体へのbrowser write一括許可／allow-list外browser read／利用規約又はcredential境界の推測／製品側でoperation境界を強制できない無人browser write
 - **人間判断**: write routeの採用と残余riskは対象登録時の許可主体
 - **副作用**: 許可された媒体read又はwrite
-- **証跡**: route decision／principal/effect binding／execution/confirmation receipt／negative route test
+- **証跡**: route decision／principal/effect binding／credential capability／execution plan／operation enforcement receipt／execution/confirmation receipt／negative route test
 - **phase**: `requirements`
 - **受入候補**:
-  - `positive` RAC-BROWSER-ROUTE-P: 公式API/MCPを優先し許可operationだけPlaywright fallback又は確認を実行する （RST-BROWSER-ROUTE-P）
-  - `negative` RAC-BROWSER-ROUTE-N: route、principal、effect又は規約境界が未確定のbrowser writeを拒否する （RST-BROWSER-ROUTE-N）
-  - `boundary` RAC-BROWSER-ROUTE-B: 公式routeの能力不足時もfallback未許可なら実行せずdeferredを維持する （RST-BROWSER-ROUTE-B）
+  - `positive` RAC-BROWSER-ROUTE-P: 公式API/MCPを優先し、最小credential又はallow-list、実行前plan、実行後receiptで強制された許可operationだけPlaywright fallback又は確認を実行する （RST-BROWSER-ROUTE-P）
+  - `negative` RAC-BROWSER-ROUTE-N: route、principal、effect、credential能力、read resource scope、operation強制又は規約境界が未確定のbrowser操作を拒否する （RST-BROWSER-ROUTE-N）
+  - `boundary` RAC-BROWSER-ROUTE-B: 媒体credentialが広く製品側でもoperation境界を強制できないwriteは自動実行せずattended-only又はdeferredを維持する （RST-BROWSER-ROUTE-B）
 - **PO個別質問**: なし（ただしsubject approval receiptとfreezeは別）
-- **semantic digest**: `sha256:ff2a436b7c1d9c68a76a21184a0edf19021cde12208b3c98d1ced474c97868a5`
+- **semantic digest**: `sha256:656e7c8cab8e861e8c0cc39f2633f2f59605471734441a9fb7f41a127d6fc5d8`
 
 ## RRF-FR-16-NOTIFICATION-BOUNDARY — FR-16-NOTIFICATION-BOUNDARY
 
@@ -611,13 +627,13 @@
 - **人間判断**: 停止後の再開又は中止はPO
 - **副作用**: 製品状態の停止／UI内通知行の追加
 - **証跡**: 停止遷移／inbox記録attempt/recorded/failed/retry/retry_exhausted receipt
-- **phase**: `S0`
+- **phase**: `requirements`
 - **受入候補**:
   - `positive` RAC-FR-16-NOTIFICATION-P: 異常時に停止を先に永続化しUI内inbox記録attemptと記録結果を別証跡化する （RST-FR-16-NOTIFICATION-P）
   - `negative` RAC-FR-16-NOTIFICATION-N: inbox書込み失敗でも停止状態をrollbackせずfailed receiptを残す （RST-FR-16-NOTIFICATION-N）
   - `boundary` RAC-FR-16-NOTIFICATION-B: 重複event・retry上限・再開判断待ちで二重通知や自動再開を起こさない （RST-FR-16-NOTIFICATION-B）
 - **PO個別質問**: なし（ただしsubject approval receiptとfreezeは別）
-- **semantic digest**: `sha256:6fa17dcd5642c0490e57a47ad1268d0bdfc2913ec0720cfe9542e75f64204c3a`
+- **semantic digest**: `sha256:fa328819de985985217c8b7268ee67b0fb1c725e7437b19c3dde8dc6498e0b2d`
 
 ## RRF-FR-SLICE-AUTHORITY-ALIGNMENT — FR-SLICE-AUTHORITY-ALIGNMENT
 
@@ -641,12 +657,12 @@
   - `negative` RAC-SLICE-N: 未回答・未許可・意味trace欠落又は証跡不足をfail-closeで拒否する （RST-SLICE-N）
   - `boundary` RAC-SLICE-B: 一部だけ成立する場合は責務を分割又はdeferred/pivotし全体成立に読み替えない （RST-SLICE-B）
 - **PO個別質問**:
-  - `RDQ-FR-SLICE-AUTHORITY-ALIGNMENT-01` (`authority_choice`): 現行32 fault（17 FR）のFR↔FN/AC phase差分を責務分割表へ落とし、旧IDのsupersession規則をPO確認する （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
-- **semantic digest**: `sha256:e4aa50d8443c6e460e4eb338bea2b419ed3ac00614188bce871177e94f6e162b`
+  - `RDQ-FR-SLICE-AUTHORITY-ALIGNMENT-01` (`authority_choice`): 現行phase faultのFR↔FN/AC/TCC edge別処遇と旧IDのsupersession規則をPO確認する （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
+- **semantic digest**: `sha256:f6b8ee938abf2391b9de7ce1729bfa7ecf1b832a7249ae334f169cb40082e4e2`
 
 ## RRF-GENAI-EXECUTION-ROUTE — GENAI-EXECUTION-ROUTE
 
-- **状態**: `draft` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
+- **状態**: `specified` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
 - **scope候補**: `deferred_candidate` （PO receiptとFull V再降下までは実装不可）
 - **source events**: RDE-000006 RDE-000024 RDE-000025 RDE-000043 RDE-000044
 - **主体**: 製品runtime／PO／attended運用者
@@ -654,7 +670,7 @@
 - **価値**: provider-neutralな許可経路で生成し、禁止されたconsumer Web UI自動化を排除する
 - **task**: provider capabilityを登録する／許可API adapterで生成する／不能時に停止又はattended manualへ渡す
 - **workflow**: capability/規約/quota確認→API実行→証跡→不能時fail-close/attended handoff
-- **対象範囲**: provider-neutral API adapter／任意CLI adapter／attended manual fallback
+- **対象範囲**: provider-neutral API adapter／個別登録済みCLI adapter／attended manual fallback
 - **対象外**: Codex/Claudeの必須runtime依存／consumer Web UI無人操作
 - **禁止事項**: 非許可Web UI自動化へfallbackしない／credential/quotaを迂回しない
 - **人間判断**: adapter採用とattended生成物の採否はPO/運用者
@@ -665,9 +681,8 @@
   - `positive` RAC-GENAI-P: 意味軸・根拠・許可境界を満たす対象だけを次工程へ進める （RST-GENAI-P）
   - `negative` RAC-GENAI-N: 未回答・未許可・意味trace欠落又は証跡不足をfail-closeで拒否する （RST-GENAI-N）
   - `boundary` RAC-GENAI-B: 一部だけ成立する場合は責務を分割又はdeferred/pivotし全体成立に読み替えない （RST-GENAI-B）
-- **PO個別質問**:
-  - `RDQ-GENAI-EXECUTION-ROUTE-01` (`deferred_resume`): resolver回答をPOが再確認し、初期provider/capabilityとcost上限を媒体PoCで決める （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
-- **semantic digest**: `sha256:9787cd7d0013c25bd58822f097ac75c243984c2f612e45f4ccd609e5d29d53d4`
+- **PO個別質問**: なし（ただしsubject approval receiptとfreezeは別）
+- **semantic digest**: `sha256:37d8371bbc7053ae3168627da6c58b39cc44c9816d5bf5904fdd6bfef8e5d755`
 
 ## RRF-L0-NORTH-STAR-AUTHORITY-NORMALIZATION — L0-NORTH-STAR-AUTHORITY-NORMALIZATION
 
@@ -696,7 +711,7 @@
 
 ## RRF-LEGACY-MEDIA-ADMISSION-INVENTORY — LEGACY-MEDIA-ADMISSION-INVENTORY
 
-- **状態**: `draft` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
+- **状態**: `specified` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
 - **scope候補**: `deferred_candidate` （PO receiptとFull V再降下までは実装不可）
 - **source events**: RDE-000125 RDE-000126
 - **主体**: PO／媒体運用者／connector管理者
@@ -716,9 +731,8 @@
   - `positive` RAC-LEGACY-MEDIA-P: 全旧MRをdeferredとして収載し意味とAC/TCを凍結したoperationだけ再開する （RST-LEGACY-MEDIA-P）
   - `negative` RAC-LEGACY-MEDIA-N: 棚卸し漏れ、旧本文からのenabled推測又は意味field未閉包の再開を拒否する （RST-LEGACY-MEDIA-N）
   - `boundary` RAC-LEGACY-MEDIA-B: 一部operationだけ成立する場合はそのoperationだけ再開し媒体全体をenabledにしない （RST-LEGACY-MEDIA-B）
-- **PO個別質問**:
-  - `RDQ-LEGACY-MEDIA-ADMISSION-INVENTORY-01` (`release_scope`): 各媒体operationのstatus、公式route、principal、effect、policy、credential、quota、evidence、AC/TCをPO判断で閉じる （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
-- **semantic digest**: `sha256:bfdc75e655885849c275411a34b6eee6c1dc81c0abc14926b1496ec465816a58`
+- **PO個別質問**: なし（ただしsubject approval receiptとfreezeは別）
+- **semantic digest**: `sha256:6f8d4c56fa4d22900b6ba39d6c7392e766f8adc3ea0eb62a3f910638d888cd0e`
 
 ## RRF-MEDIA-POC-SCRUM-RELEASE — MEDIA-POC-SCRUM-RELEASE
 
@@ -743,37 +757,37 @@
   - `negative` RAC-MEDIA-POC-SCRUM-N: Full V closure不足、必要と判定したDiscovery未実施、証跡不足、PO未決、又は別媒体から推測したcapabilityを本番enabledとして拒否する （RST-MEDIA-POC-SCRUM-N）
   - `boundary` RAC-MEDIA-POC-SCRUM-B: 一部capabilityだけが成立する場合はrelease unitを分割又はpivotし、媒体全体を一括acceptedにしない （RST-MEDIA-POC-SCRUM-B）
 - **PO個別質問**:
-  - `RDQ-MEDIA-POC-SCRUM-RELEASE-01` (`safety_policy`): Discoveryを使用する場合の検証環境と本番account/domain/data/credential/write昇格境界を閉じる （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
-- **semantic digest**: `sha256:fb3b0cad4ecc4a915e10753a4d2305008083cfd10671671b8333f5655eac3dc2`
+  - `RDQ-MEDIA-POC-SCRUM-RELEASE-01` (`safety_policy`): PoC evidenceから本番write capabilityへ昇格するbusiness value、許容risk、release admission及びrollback outcomeをPO判断で閉じる （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
+- **semantic digest**: `sha256:4cb3997604201fdd2f1cd7dd2f8eb48f1faa9c7d407f3112ca10ae0821540c6f`
 
 ## RRF-NFR-BUSINESS-AUTHORITY — NFR-BUSINESS-AUTHORITY
 
 - **状態**: `draft` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
 - **scope候補**: `requirements_governance` （PO receiptとFull V再降下までは実装不可）
-- **source events**: RDE-000105 RDE-000106
+- **source events**: RDE-000105 RDE-000106 RDE-000183
 - **主体**: PO／品質責任者／運用者
 - **受益者**: 法規・可用性・安全性を満たす利用者と運用者
 - **価値**: NFRをstable business rootと測定・failure/recoveryへ接続する
-- **task**: NFRごとのBR/REQ rootを決める／測定/閾値/phaseを決める／failure/recoveryをAC/TC化する／初期対象外をdeferred化する
+- **task**: 既存NFR11意味inventoryを親digestとして再利用しstable root・actor/principal scope・applicability scope・phaseだけを分類する／NFRごとのretain/replace/defer/obsolete、owner及びresume conditionをPO分類する／measurement authorityと環境別measurement registrationを分離する／failure/recoveryを新AC/TCへ再降下し初期対象外を理由付きdeferredにする
 - **workflow**: business risk/value→BR/REQ→NFR→measurement/threshold→failure/recovery→AC/TC
 - **対象範囲**: NFR-1〜11／stable BR/REQ／measurement／threshold／failure／recovery／evidence／phase
 - **対象外**: 節番号又はrisk IDだけを要求根拠とすること
-- **禁止事項**: AC/TC存在だけで品質受入済みとしない／他NFRをstable business rootの代用にしない
+- **禁止事項**: AC/TC存在だけで品質受入済みとしない／他NFR、旧MR/FR、節番号、risk ID又はdraft STCをstable business rootの代用にしない／旧phase又は未登録の測定閾値をpositive authorityへ暗黙昇格しない／root・actor・scope・phase未分類又は親digest staleのNFRを受入済みにしない
 - **人間判断**: 品質閾値・残余risk・deferred範囲はPOが判断
 - **副作用**: 現段階は要求再接続のみ
-- **証跡**: BR→REQ→NFR双方向trace／測定と閾値／recovery AC/TC／deferred再開条件／PO receipt
+- **証跡**: NFR11 parent meaning digestとtyped authority overlay／BR→REQ→NFR双方向trace及びPO row-set receipt／環境別measurement registration revision/digest／failure/recovery AC/TCとdeferred再開条件
 - **phase**: `requirements`
 - **受入候補**:
-  - `positive` RAC-NFR-AUTH-P: 各NFRがstable BR/REQ、測定、閾値、phase、failure/recoveryを持つ （RST-NFR-AUTH-P）
-  - `negative` RAC-NFR-AUTH-N: root不明又は測定不能NFRを受入済みにしない （RST-NFR-AUTH-N）
-  - `boundary` RAC-NFR-AUTH-B: N/A又は将来NFRは理由・risk・再開条件付きdeferredとする （RST-NFR-AUTH-B）
+  - `positive` RAC-NFR-AUTH-P: NFR11全件が既存meaning digestへ束縛されたstable root、actor/principal scope、applicability scope、phase、処遇、measurement authority及びfailure/recoveryを持つ （RST-NFR-AUTH-P）
+  - `negative` RAC-NFR-AUTH-N: root不明、親digest stale、意味軸未分類、旧NFR/phase/draft STC流用又は未登録閾値のNFRを受入済みにしない （RST-NFR-AUTH-N）
+  - `boundary` RAC-NFR-AUTH-B: N/A又は将来NFRはowner・理由・risk・再開条件付きdeferredとし、部分成立を全体受入へ昇格しない （RST-NFR-AUTH-B）
 - **PO個別質問**:
   - `RDQ-NFR-BUSINESS-AUTHORITY-01` (`authority_choice`): NFR-1〜11のstable root・actor・scope・phase・deferred範囲をPO判断で閉じる （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
-- **semantic digest**: `sha256:74ce0caacb64c40ad8e91c353209904ec6a3f01cc0b254006ab754a101ec31b9`
+- **semantic digest**: `sha256:f70dd7d7fcbfc46be0c34ddc379e49703ea765b6cff0e8a8fd6c308db9b52834`
 
 ## RRF-OFFICIAL-API-ROUTE-AUTHORITY — OFFICIAL-API-ROUTE-AUTHORITY
 
-- **状態**: `draft` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
+- **状態**: `specified` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
 - **scope候補**: `follow_on_candidate` （PO receiptとFull V再降下までは実装不可）
 - **source events**: RDE-000008 RDE-000026 RDE-000027 RDE-000045 RDE-000046
 - **主体**: 製品runtime／connector管理者／PO
@@ -792,109 +806,129 @@
   - `positive` RAC-ROUTE-P: 意味軸・根拠・許可境界を満たす対象だけを次工程へ進める （RST-ROUTE-P）
   - `negative` RAC-ROUTE-N: 未回答・未許可・意味trace欠落又は証跡不足をfail-closeで拒否する （RST-ROUTE-N）
   - `boundary` RAC-ROUTE-B: 一部だけ成立する場合は責務を分割又はdeferred/pivotし全体成立に読み替えない （RST-ROUTE-B）
-- **PO個別質問**:
-  - `RDQ-OFFICIAL-API-ROUTE-AUTHORITY-01` (`release_scope`): resolver回答をPOが再確認し、媒体別PoCで初期route registryを作る （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
-- **semantic digest**: `sha256:f451dc479d0974fac560a2606fe6574b5765d058cfaff9c5f34058380f08cd73`
+- **PO個別質問**: なし（ただしsubject approval receiptとfreezeは別）
+- **semantic digest**: `sha256:a2614cd4a2b2ea8347e9f9f04e8378303628965d9e81909643a0fb9c208b9e7d`
 
 ## RRF-PRODUCT-STATE-AUTHORITY — PRODUCT-STATE-AUTHORITY
 
-- **状態**: `draft` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
+- **状態**: `specified` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
 - **scope候補**: `initial_candidate` （PO receiptとFull V再降下までは実装不可）
-- **source events**: RDE-000128 RDE-000129
+- **source events**: RDE-000128 RDE-000129 RDE-000172 RDE-000173 RDE-000175
 - **主体**: PO／運用者／製品runtime
 - **受益者**: 一貫した状態を確認するPOと運用者
 - **価値**: UI、worker、通知の状態確定を一つのrevision付き正本へ集約する
-- **task**: 状態を読み、対象とrevisionを再検証し、許可更新とreceiptを残す
+- **task**: 状態を読み、対象とrevisionを再検証し、許可更新とreceiptを残す／stable transition IDとexpected prior revisionで状態変更を検証する／通知/seen/ack/adapter/retry signalを非authorityとして分類する／復旧を新しい認可transitionとして記録する／source/target stateと結果revisionをreceiptへ記録し成功又は不変outcomeを検証する／transitionをauthorization grant ID/revision/semantic digestへ束縛する／recovery actor identityとrecovery authorization grant permissionを分離する
 - **workflow**: 状態読取→対象/revision再検証→許可更新→receipt→全consumerから再読取
-- **対象範囲**: 製品状態／revision/CAS／owner／更新principal／保持/競合/復旧/監査
+- **対象範囲**: 製品状態／revisionと版一致条件付き更新／owner／更新principal／保持/競合/復旧/監査／typed transition binding／非authority signal分類／append-only transition history／recovery transition receipt／source state/target state/resulting revision／success/rejected/persistence-failure typed outcome
 - **対象外**: 具体DB/API設計／UI又は通知のlocal stateを正本とすること
-- **禁止事項**: stale write／複数正本／UI/worker/通知による独自確定
+- **禁止事項**: stale write／複数正本／UI/worker/通知による独自確定／通知配送、seen、acknowledged、外部adapter結果又はretry失敗から業務状態を暗黙変更する／通知又はretry失敗で既確定状態をrollbackする／復旧時に履歴又はprior revisionを書き換える／unknown transition、stale revision、競合又はunknown ownerで推測更新する／成功transitionでresulting revisionを進めない／拒否又は永続化失敗時にcurrent state又はrevisionを変更する／PRODUCT-STATE内でprincipal permissionを二重正本化する／recovery actor identityだけをpermission根拠にする
 - **人間判断**: 状態分類、保持、競合解決、復旧riskはPO
 - **副作用**: 現段階は要求候補のみ
-- **証跡**: state authority map／CAS negative case／recovery/receipt／PO receipt
+- **証跡**: state authority map／stale revision negative case／recovery/receipt／PO receipt／transition ID/subject/prior revision/owner/authorization grant ID/revision/semantic digest/effect/result receipt／signal non-authority negative test／conflict/stale/unknown owner rejection receipt／recovery transition and immutable history evidence／source/target state and resulting revision receipt／success revision progression and failure invariance mutation／authorization grant ID/revision/semantic digest in transition receipt
 - **phase**: `requirements`
 - **受入候補**:
-  - `positive` RAC-PRODUCT-STATE-P: 現revisionと許可principalへ束縛した更新だけを唯一正本へ反映する （RST-PRODUCT-STATE-P）
-  - `negative` RAC-PRODUCT-STATE-N: stale revision、未知owner、UI/通知local stateからの確定を拒否する （RST-PRODUCT-STATE-N）
-  - `boundary` RAC-PRODUCT-STATE-B: 競合、保存不能、復旧不成立では既存正本を維持してfail-closeする （RST-PRODUCT-STATE-B）
-- **PO個別質問**:
-  - `RDQ-PRODUCT-STATE-AUTHORITY-01` (`authority_choice`): 製品状態の種類、owner、revision/CAS、更新principal、保持、競合、復旧、監査境界をPO判断で閉じる （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
-- **semantic digest**: `sha256:aaf345a856ee3ae219d0764d888f9ac43b239ea16fb959e5264531785c5d53c9`
+  - `positive` RAC-PRODUCT-STATE-P: stable transition ID、subject、source state、target state、expected prior revision、expected priorより大きいresulting revision、単一owner、有効なauthorization grant ID/revision/semantic digest、effect、result及びreceiptが閉じた更新だけを唯一正本へ反映する （RST-PRODUCT-STATE-P）
+  - `negative` RAC-PRODUCT-STATE-N: unknown transition、stale revision、競合、unknown owner、missing/stale/expired authorization grant及び通知/seen/ack/adapter/retry signalからの暗黙更新又はrollbackを拒否する （RST-PRODUCT-STATE-N）
+  - `boundary` RAC-PRODUCT-STATE-B: 拒否、競合、保存不能又は復旧時はcurrent state、current revision及び履歴を維持し、復旧を新しい認可transitionとして記録するまでfail-closeする （RST-PRODUCT-STATE-B）
+- **PO個別質問**: なし（ただしsubject approval receiptとfreezeは別）
+- **semantic digest**: `sha256:634bd6202e1a5d464d9696ce4f698cc5d5eb40907eea96e198cc5d885e2b9878`
 
 ## RRF-RATE-QUOTA-COST-AUTHORITY — RATE-QUOTA-COST-AUTHORITY
 
-- **状態**: `draft` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
+- **状態**: `specified` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
 - **scope候補**: `requirements_governance` （PO receiptとFull V再降下までは実装不可）
-- **source events**: RDE-000134 RDE-000135
+- **source events**: RDE-000134 RDE-000135 RDE-000171
 - **主体**: PO／account所有者／connector管理者
 - **受益者**: 費用とaccount安全性を管理するPO
 - **価値**: rate、quota、read cap、cost、retryを別型で管理しcap回避と予期せぬ課金を防ぐ
-- **task**: 制限sourceを取得しscope/window/valueを評価して実行又は拒否する
+- **task**: 制限sourceを取得しscope/window/valueを評価して実行又は拒否する／effect別に未知limit時の開始可否を判定する／具体値をprofile/account/operation/risk別registration revisionへ束縛する
 - **workflow**: 制限取得→分類→予算/上限評価→実行又は拒否→receipt→再評価
-- **対象範囲**: provider quota／account cap／read safety cap／cost ceiling／retry/backoff/retry-after
+- **対象範囲**: provider quota／account cap／read safety cap／cost ceiling／retry/backoff/retry-after／external write/publish/money/additional retryの開始拒否／read-only残量取得の別effect分類／configuration/limit failure receipt
 - **対象外**: ブラウザ人間様待機をAPI quotaとみなすこと
-- **禁止事項**: 複数accountによるcap回避／retry-after無視／費用上限なし有償経路
+- **禁止事項**: 複数accountによるcap回避／retry-after無視／費用上限なし有償経路／未知・未登録・失効又は測定不能なlimitで外部作用を開始する／limit失敗を理由に既確定blocked/failed/safety-stopped状態をrollbackする／別profile/account/operationのlimit値を流用する
 - **人間判断**: cost ceiling、有償例外、未知値の再開はPO
 - **副作用**: 現段階は要求候補のみ
-- **証跡**: typed limit registry／source/window/scope／boundary tests／PO receipt
+- **証跡**: typed limit registry／source/window/scope／boundary tests／PO receipt／limit registration revision／effect classification／configuration/limit failure receipt／unknown/expired/scope mismatch mutation
 - **phase**: `requirements`
 - **受入候補**:
-  - `positive` RAC-RATE-QUOTA-P: 根拠、scope、window、値、費用上限が有効なoperationだけ実行する （RST-RATE-QUOTA-P）
-  - `negative` RAC-RATE-QUOTA-N: 未知値、cap回避、retry-after無視、上限なし有償経路を拒否する （RST-RATE-QUOTA-N）
-  - `boundary` RAC-RATE-QUOTA-B: 上限到達又は分類不明では対象operationだけ停止し他scopeへ値を流用しない （RST-RATE-QUOTA-B）
-- **PO個別質問**:
-  - `RDQ-RATE-QUOTA-COST-AUTHORITY-01` (`quality_target`): rate/quota/read cap/cost/retryの分類、値source、window、scope、更新、超過時挙動、未知値のdeferred条件をPO判断で閉じる （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
-- **semantic digest**: `sha256:6500b2100a24a610c879a85c736029e95f29834234f239502d95be1db9e80c3c`
+  - `positive` RAC-RATE-QUOTA-P: 有効なprofile/account/operation/risk別registrationとeffect分類があり、上限内のoperationだけを開始する。read-only残量取得は権限・quota・証跡が閉じる場合だけ別effectとして扱う （RST-RATE-QUOTA-P）
+  - `negative` RAC-RATE-QUOTA-N: 未知、未登録、失効、測定不能、scope不一致、retry-after違反又はcost ceiling欠落時にexternal write/publish/money/additional retryを拒否する （RST-RATE-QUOTA-N）
+  - `boundary` RAC-RATE-QUOTA-B: 上限到達又は分類不明では対象effectだけをblocked/deferredとし、既確定状態をrollbackせずfailure receiptを残す （RST-RATE-QUOTA-B）
+- **PO個別質問**: なし（ただしsubject approval receiptとfreezeは別）
+- **semantic digest**: `sha256:4d1941c135f4100df4286135bf534b7058473abaef0396495778df0fcccdcf41`
 
 ## RRF-REQ-AUTHORITY-NORMALIZATION — REQ-AUTHORITY-NORMALIZATION
 
 - **状態**: `draft` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
 - **scope候補**: `requirements_governance` （PO receiptとFull V再降下までは実装不可）
-- **source events**: RDE-000097 RDE-000098 RDE-000124 RDE-000127
+- **source events**: RDE-000097 RDE-000098 RDE-000124 RDE-000127 RDE-000182
 - **主体**: PO／要求分析者／要件エンジン
 - **受益者**: 一意な要求根拠を使う設計者と実装者
 - **価値**: REQ本文・出典・下流・充填を一つのJSON正本へ凍結しBRから下流への意味根拠を一意にする
-- **task**: 15 REQ・19 fieldの差分を意味選択する／JSON正本を凍結する／Markdownを生成view化する／traceを再検証する
-- **workflow**: 差分検出→意味選択→JSON正本freeze→Markdown生成→trace再検証
+- **task**: 既存REQ55意味inventoryを再利用し、ledgerとMarkdownの15 ID・19 field差分だけをsource value digest付きdelta overlayへ固定する／各差分をretain/replace/defer/obsoleteとしてPO分類し、単一candidate JSONを凍結する／Markdownをcandidate JSONから決定的に生成するviewへ限定する／traceを再生成し差分0、manifest/baseline同一commit及び独立Goを検証する
+- **workflow**: 両source snapshot→19 field delta exact partition→PO意味選択→単一candidate JSON→Markdown生成→trace再生成→manifest/baseline束縛→独立Go
 - **対象範囲**: REQ本文／source／downstream trace／fill route／JSON/Markdown authority
 - **対象外**: 旧Markdownの手編集／FR/NFRの自動採用／製品runtime変更
-- **禁止事項**: 同一ID又は件数だけで意味同値としない／JSONとMarkdownを並行正本にしない
+- **禁止事項**: 同一ID又は件数だけで意味同値としない／JSONとMarkdownを並行正本にしない／未分類、source stale、複数candidate、defer owner/resume欠落又はtrace差分残存でcutoverしない／旧REQ資料又は未批准candidateを実装入力にしない
 - **人間判断**: 正規意味とauthority cutoverはPOが決定
 - **副作用**: 要求authorityの変更だけ。現段階でruntime変更なし
-- **証跡**: 19 fieldのPO決定／単一JSON digest／生成Markdown／trace差分0／PO receipt
+- **証跡**: 既存REQ55 subset ID/meaning digestと両source artifact/content digest／15 ID・19 field delta overlay及びPO row-set receipt／単一candidate JSON、生成Markdown及びtrace digest／trace差分0、旧consumer隔離、manifest/baseline同一commit及び独立Go receipt
 - **phase**: `requirements`
 - **受入候補**:
-  - `positive` RAC-REQ-AUTH-P: POが全実質差分を決定し単一JSONからMarkdownを生成してtrace差分0となる （RST-REQ-AUTH-P）
-  - `negative` RAC-REQ-AUTH-N: 未決差分、独立手編集view、又はID件数一致だけのcutoverを拒否する （RST-REQ-AUTH-N）
-  - `boundary` RAC-REQ-AUTH-B: 表記同値は正規化するが本文・source・downstreamの実質差を消さない （RST-REQ-AUTH-B）
+  - `positive` RAC-REQ-AUTH-P: 既存REQ55意味inventoryと15 ID・19 field delta overlayをPO row-set receiptへ束縛し、単一candidate JSONからMarkdownとtraceを生成して差分0、旧consumer隔離、manifest/baseline同一commit及び独立Goを満たす （RST-REQ-AUTH-P）
+  - `negative` RAC-REQ-AUTH-N: 未分類又は重複差分、source digest stale、複数selected candidate、defer owner/resume欠落、独立手編集view、旧REQ再混入、trace差分又はPO row-set digest不一致を拒否する （RST-REQ-AUTH-N）
+  - `boundary` RAC-REQ-AUTH-B: 表記同値は正規化するが本文・source・downstreamの実質差を消さず、全条件成立前は旧資料とcandidateの双方をrevalidation-onlyに保つ （RST-REQ-AUTH-B）
 - **PO個別質問**:
   - `RDQ-REQ-AUTHORITY-NORMALIZATION-01` (`authority_choice`): REQの本文・出典・下流・充填を正規化し、唯一のJSON正本と生成Markdown境界をPO判断で閉じる （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
-- **semantic digest**: `sha256:508921e634a6aad46f9f3b3a35bc48083ed85f03f9394b212bd2f5aa30dc7e05`
+- **semantic digest**: `sha256:3b83b3e1af295d0e0152cce199a294f6591dccc61ac33067926b64aa3ea5ee80`
 
 ## RRF-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE — REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE
 
-- **状態**: `draft` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
-- **scope候補**: `requirements_governance` （PO receiptとFull V再降下までは実装不可）
-- **source events**: RDE-000009 RDE-000014 RDE-000028 RDE-000029 RDE-000047 RDE-000048
+- **状態**: `superseded` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
+- **scope候補**: `historical_superseded` （PO receiptとFull V再降下までは実装不可）
+- **source events**: RDE-000009 RDE-000014 RDE-000028 RDE-000029 RDE-000047 RDE-000048 RDE-000072
 - **主体**: PO／要求分析者／要件エンジン
 - **受益者**: 意味欠落のない要求を承認するPOと実装者
 - **価値**: 候補から仕様化までのunknownと意味軸を機械追跡し、要約又は同一IDの二重意味による承認を防ぐ
-- **task**: candidateを記録する／unknownへquestionを束縛する／12意味軸と品質観点を閉じる／同一IDの本文・出典・trace・充填を一意化する／反例/境界を定義する
+- **task**: candidateを記録する／unknownへquestionを束縛する／12意味軸と品質観点を閉じる／同一IDの本文・出典・trace・充填を一意化する／反例/境界を定義する／各意味軸をdirect/digest_inherited/not_applicable/deferredへexactly onceで分類する／品質閾値をsubject/risk/scope/revision付きregistrationへ分離する
 - **workflow**: candidate→question/observation/prototype→refinement→正本選択/生成view化→admission→PO decision→freeze
 - **対象範囲**: actor/value/workflow/scope/prohibition/HJ/side-effect/evidence/phase／security/privacy/accessibility/performance/availability/recovery/operation/migration/rollback／REQ JSON/Markdown authorityとsemantic drift
 - **対象外**: AI回答だけによるPO決定／一括承認／正本の自動mutation／意味未確認の文字列同期
-- **禁止事項**: 未回答unknownをspecifiedにしない／positive caseだけで承認しない／同一ID・件数一致だけで意味同値とみなさない／JSONとMarkdownを独立正本として並立させない
+- **禁止事項**: 未回答unknownをspecifiedにしない／positive caseだけで承認しない／同一ID・件数一致だけで意味同値とみなさない／JSONとMarkdownを独立正本として並立させない／core意味軸へnot_applicableを使う／空、unknown又は汎用的な該当なしをspecified又はfreezeへ昇格する／親semantic digest不一致又は循環を継承として認める／必要な品質閾値registrationが未登録、失効又は測定不能のまま承認する
 - **人間判断**: 価値・範囲・risk・正本意味・採否・freezeはPO
 - **副作用**: 要求authority cutoverだけ。製品runtimeを直接変更しない
-- **証跡**: event prefix／source-set digest／semantic digest／REQ field差分0／単一JSON正本からの生成view／三極性AC／PO receipt
+- **証跡**: event prefix／source-set digest／semantic digest／REQ field差分0／単一JSON正本からの生成view／三極性AC／PO receipt／ID×dimension exact partition digest／parent/delta digest及びcycle-free evidence／N/A applicability receipt／quality threshold registration revision／unknown/N/A/stale parent/missing threshold mutation results
 - **phase**: `requirements`
 - **受入候補**:
-  - `positive` RAC-DISCOVERY-P: 意味軸・根拠・許可境界を満たす対象だけを次工程へ進める （RST-DISCOVERY-P）
-  - `negative` RAC-DISCOVERY-N: 未回答・未許可・意味trace欠落又は証跡不足をfail-closeで拒否する （RST-DISCOVERY-N）
-  - `boundary` RAC-DISCOVERY-B: 一部だけ成立する場合は責務を分割又はdeferred/pivotし全体成立に読み替えない （RST-DISCOVERY-B）
-- **PO個別質問**:
-  - `RDQ-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE-01` (`requirements_policy`): resolver回答をPOが再確認し、品質閾値とN/A許容規則を閉じる （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
-- **semantic digest**: `sha256:18f1a8f4bdc73401ea669fa633b4f9bf40cfc7f0c36f8c524a66cdeaa78b351b`
+  - `positive` RAC-DISCOVERY-P: 全core軸がdirect又はdigest付き継承で閉じ、品質軸が同様に閉じるか証拠付きN/Aとなり、必要な閾値registrationが有効な対象だけを次工程へ進める （RST-DISCOVERY-P）
+  - `negative` RAC-DISCOVERY-N: unknown、空、汎用N/A、親digest不一致、継承循環又は必要な閾値registration欠落をfail-closeで拒否する （RST-DISCOVERY-N）
+  - `boundary` RAC-DISCOVERY-B: 一部だけ成立する場合は責務を分割又はdeferredとし、品質軸の一括N/Aや全体成立へ昇格しない （RST-DISCOVERY-B）
+- **PO個別質問**: なし（ただしsubject approval receiptとfreezeは別）
+- **semantic digest**: `sha256:ae73eac1dcff87687fb07345f4b59a072a33259bf7da9039fefe39e24378647f`
+
+## RRF-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2 — REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2
+
+- **状態**: `specified` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
+- **scope候補**: `requirements_governance` （PO receiptとFull V再降下までは実装不可）
+- **source events**: RDE-000169
+- **主体**: PO／要求分析者／要件エンジン
+- **受益者**: 意味欠落のない要求を承認するPOと実装者
+- **価値**: 候補から仕様化までのunknownと意味軸を機械追跡し、要約又は同一IDの二重意味による承認を防ぐ
+- **task**: candidateを記録する／unknownへquestionを束縛する／12意味軸と品質観点を閉じる／同一IDの本文・出典・trace・充填を一意化する／反例/境界を定義する／各意味軸をdirect/digest_inherited/not_applicable/deferredへexactly onceで分類する／品質閾値をsubject/risk/scope/revision付きregistrationへ分離する
+- **workflow**: candidate→question/observation/prototype→refinement→正本選択/生成view化→admission→PO decision→freeze
+- **対象範囲**: actor/value/workflow/scope/prohibition/HJ/side-effect/evidence/phase／security/privacy/accessibility/performance/availability/recovery/operation/migration/rollback／REQ JSON/Markdown authorityとsemantic drift
+- **対象外**: AI回答だけによるPO決定／一括承認／正本の自動mutation／意味未確認の文字列同期
+- **禁止事項**: 未回答unknownをspecifiedにしない／positive caseだけで承認しない／同一ID・件数一致だけで意味同値とみなさない／JSONとMarkdownを独立正本として並立させない／core意味軸へnot_applicableを使う／空、unknown又は汎用的な該当なしをspecified又はfreezeへ昇格する／親semantic digest不一致又は循環を継承として認める／必要な品質閾値registrationが未登録、失効又は測定不能のまま承認する
+- **人間判断**: 価値・範囲・risk・正本意味・採否・freezeはPO
+- **副作用**: 要求authority cutoverだけ。製品runtimeを直接変更しない
+- **証跡**: event prefix／source-set digest／semantic digest／REQ field差分0／単一JSON正本からの生成view／三極性AC／PO receipt／ID×dimension exact partition digest／parent/delta digest及びcycle-free evidence／N/A applicability receipt／quality threshold registration revision／unknown/N/A/stale parent/missing threshold mutation results
+- **phase**: `requirements`
+- **受入候補**:
+  - `positive` RAC-DISCOVERY-P: 全core軸がdirect又はdigest付き継承で閉じ、品質軸が同様に閉じるか証拠付きN/Aとなり、必要な閾値registrationが有効な対象だけを次工程へ進める （RST-DISCOVERY-P）
+  - `negative` RAC-DISCOVERY-N: unknown、空、汎用N/A、親digest不一致、継承循環又は必要な閾値registration欠落をfail-closeで拒否する （RST-DISCOVERY-N）
+  - `boundary` RAC-DISCOVERY-B: 一部だけ成立する場合は責務を分割又はdeferredとし、品質軸の一括N/Aや全体成立へ昇格しない （RST-DISCOVERY-B）
+- **PO個別質問**: なし（ただしsubject approval receiptとfreezeは別）
+- **semantic digest**: `sha256:68ce8384a857fac070f2394e20e6188358cae6fae262ea6f2c18b5f03a9ed403`
 
 ## RRF-RESEARCH-LED-CONTENT-GROWTH — RESEARCH-LED-CONTENT-GROWTH
 
@@ -923,27 +957,28 @@
 ## RRF-STRATEGY-REQUIREMENT-ADMISSION — STRATEGY-REQUIREMENT-ADMISSION
 
 - **状態**: `draft` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
-- **scope候補**: `follow_on_candidate` （PO receiptとFull V再降下までは実装不可）
-- **source events**: RDE-000107 RDE-000108
+- **scope候補**: `initial_candidate` （PO receiptとFull V再降下までは実装不可）
+- **source events**: RDE-000107 RDE-000108 RDE-000161
 - **主体**: PO／戦略責任者／検証責任者
 - **受益者**: 戦略判断の根拠を追跡するPO
-- **価値**: 戦略要求の記述・実装admission・test oracleを一意にする
+- **価値**: 旧SR-01〜16の戦略価値をresearch-led growthへ再接続し、高度分析SR-17〜19をdeferredに分離した上で要求admissionとtest authorityを一意にする
 - **task**: SR価値とphaseを再確認する／初期/deferredを分ける／SR→AC→STCを束縛する／test ledger authorityを一つにする
 - **workflow**: 戦略価値確認→phase/admission→SR→AC→STC→S4判断
-- **対象範囲**: SR-17〜19／AC-SR／TCC/STC authority／FN/CMP descent／deferred resume
+- **対象範囲**: SR-01〜16のcore model、loop governance及び初期scope責務の再降下／research evidence、商品/offer authority、marketing funnel、媒体役割、仮説及びKPI還流との接続／企画内容、改訂及び有効化の人間判断receipt／SR-17〜19／AC-SR／TCC/STC authority／FN/CMP descent／deferred resume
 - **対象外**: draft testをconfirmed oracleとすること
 - **禁止事項**: 要求記述だけを検証完了としない／TCC/STCを暗黙併用しない
-- **人間判断**: 戦略capabilityの価値・phase・admissionはPOが判断
+- **人間判断**: 戦略capabilityの価値・phase・admission、企画内容、改訂、有効化及び高度分析の再開はPOが判断
 - **副作用**: 現段階は要求とtest authorityの候補化のみ
 - **証跡**: SR→AC→STC双方向trace／test ledger digest／deferred再開条件／PO receipt
 - **phase**: `requirements`
 - **受入候補**:
-  - `positive` RAC-STRATEGY-ADMISSION-P: 採用SRがFN/CMP/ACとPO receipt付き単一STC oracleへ降下する （RST-STRATEGY-ADMISSION-P）
+  - `positive` RAC-STRATEGY-ADMISSION-P: 採用SRがFN/CMP/ACとPO receipt付きの単一current test authorityへ降下し、旧draft STC又は旧TCCを自動流用しない （RST-STRATEGY-ADMISSION-P）
   - `negative` RAC-STRATEGY-ADMISSION-N: draft STC又はACなしSRをimplementation-readyにしない （RST-STRATEGY-ADMISSION-N）
   - `boundary` RAC-STRATEGY-ADMISSION-B: 初期外SRは価値・依存・risk・再開条件付きdeferredとする （RST-STRATEGY-ADMISSION-B）
 - **PO個別質問**:
-  - `RDQ-STRATEGY-REQUIREMENT-ADMISSION-01` (`release_scope`): SR-17〜19と既存AC-SR/STCの初期/deferred及び唯一oracleをPO判断で閉じる （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
-- **semantic digest**: `sha256:4739de984abd793c928d5fc98516a44cbe86fe90703d830ba6fe992b280d7565`
+  - `RDQ-STRATEGY-REQUIREMENT-ADMISSION-01` (`release_scope`): SR-01〜16をresearch/funnel/media roleへ再降下する範囲と企画・改訂・有効化の判断receiptをPO判断で閉じる （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
+  - `RDQ-STRATEGY-REQUIREMENT-ADMISSION-02` (`authority_choice`): SR-17〜19と既存AC-SR/STCのdeferred範囲及び唯一のcurrent test authorityをPO判断で閉じる （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
+- **semantic digest**: `sha256:52f381f8b7c12da197f61fe39dd1e79474d5aabc8c97c70a8f97d423d115b2b8`
 
 ## RRF-TEST-ID-AUTHORITY-ALIGNMENT — TEST-ID-AUTHORITY-ALIGNMENT
 
@@ -972,79 +1007,75 @@
 
 ## RRF-VPS-CREDENTIAL-SECURITY-BOUNDARY — VPS-CREDENTIAL-SECURITY-BOUNDARY
 
-- **状態**: `draft` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
+- **状態**: `specified` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
 - **scope候補**: `initial_candidate` （PO receiptとFull V再降下までは実装不可）
-- **source events**: RDE-000109 RDE-000110
+- **source events**: RDE-000109 RDE-000110 RDE-000159 RDE-000162
 - **主体**: PO／security運用者／製品runtime
 - **受益者**: credential漏洩と越境を防ぐ運用者と外部account所有者
 - **価値**: 具体backendを先取りせずVPS credentialの保存・解除・注入・rotationを安全に閉じる
-- **task**: at-rest境界を決める／unlock/runtime注入を決める／rotation/recoveryを決める／test/prodとredactionを検証する
-- **workflow**: credential登録→at-rest保護→有人unlock/認可→scope付きruntime注入→使用→破棄→rotation/recovery
-- **対象範囲**: at-rest protection／unlock／runtime injection／rotation／backup/recovery／test/prod scope／redaction
-- **対象外**: 具体secret backend製品／平文envを暗号化storeと同一視すること
-- **禁止事項**: 0600だけをat-rest保護の十分条件にしない／test credentialをproductionへ注入しない
-- **人間判断**: unlock/rotation/recovery principalと残余riskはPO/security運用者が判断
+- **task**: 暗号化at-rest境界を検証する／unlockとscope付きruntime注入を検証する／rotation/recoveryと旧平文credential再発行を検証する／test/prod分離、間接参照及びredactionを検証する
+- **workflow**: credential登録→暗号化at-rest保護→実行系初期化時のunlock再認可→profile/account/operation束縛runtime注入→使用→破棄→rotation/recovery → VPS再起動→エージェント実行系停止→外部操作停止維持→人間による実行系再初期化→credential unlock/runtime注入再認可
+- **対象範囲**: at-rest protection／unlock／runtime injection／rotation／backup/recovery／test/prod scope／redaction／credential参照ID
+- **対象外**: 具体secret backend製品／unlockとruntime注入の具体mechanism／平文envを暗号化storeと同一視すること
+- **禁止事項**: 0600だけをat-rest保護の十分条件にしない／secret値をrepo/製品DB/log/journal/service unit/argv/dump/evidenceへ記録しない／credentialを製品状態backupへ含めない／test credentialをproductionへ注入しない／旧平文credentialをrotateせず新storeへ移送しない／現行runtime lifecycleでの無人unlock又は自動復旧／資格情報だけを復旧して停止中のエージェントが継続すると仮定すること
+- **人間判断**: VPS再起動後の実行系再初期化とcredential unlock/runtime注入は人間が再認可する／将来の常駐service、自動再起動及び無人unlockは別要求としてPO/security運用者が判断する
 - **副作用**: 現段階は要求候補のみ。credential移動やrotationを行わない
-- **証跡**: threat model／positive/negative/boundary AC／leakage test／rotation/recovery receipt／PO receipt
+- **証跡**: threat model／credential参照IDだけを持つoperation/evidence receipt／profile/account/operation scope negative test／test/prod tag mismatch negative test／positive/negative/boundary AC／leakage test／旧credential rotation receipt／rotation/recovery receipt／PO receipt
 - **phase**: `requirements`
 - **受入候補**:
-  - `positive` RAC-VPS-CREDENTIAL-P: at-rest保護とscope付き一時注入を満たし使用後にsecretを残さない （RST-VPS-CREDENTIAL-P）
-  - `negative` RAC-VPS-CREDENTIAL-N: 平文env、repo/DB/log/journal/argv/dump漏洩、scope越境を拒否する （RST-VPS-CREDENTIAL-N）
-  - `boundary` RAC-VPS-CREDENTIAL-B: unlock失敗・rotation・recovery時は外部操作をfail-closeし旧secret再利用を防ぐ （RST-VPS-CREDENTIAL-B）
-- **PO個別質問**:
-  - `RDQ-VPS-CREDENTIAL-SECURITY-BOUNDARY-01` (`safety_policy`): at-rest保護、unlock principal、runtime注入、rotation、backup/recovery、test/prod分離をPO判断で閉じる （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
-- **semantic digest**: `sha256:b200a95228475b76d930b3519423f587ed639c7e81794a479929b1bca4707ce0`
+  - `positive` RAC-VPS-CREDENTIAL-P: 暗号化at-rest保護とprofile/account/operation束縛一時注入を満たし、証跡は参照IDだけを保持して使用後にsecretを残さない （RST-VPS-CREDENTIAL-P）
+  - `negative` RAC-VPS-CREDENTIAL-N: 平文env、repo/製品DB/log/journal/service unit/argv/dump/evidence漏洩、scope越境、test/prod混用及びsecret backupを拒否する （RST-VPS-CREDENTIAL-N）
+  - `boundary` RAC-VPS-CREDENTIAL-B: VPS再起動又はunlock失敗時は外部操作停止を維持し、人間が実行系とcredential注入を再認可するまで自動復旧せず、旧平文credentialも再発行前に移送しない （RST-VPS-CREDENTIAL-B）
+- **PO個別質問**: なし（ただしsubject approval receiptとfreezeは別）
+- **semantic digest**: `sha256:16f222c23f0071263f5b28fc09a62e23c50719dbff0f9c4747d8de00bcb014df`
 
 ## RRF-VPS-UI-AUTHENTICATION-SESSION — VPS-UI-AUTHENTICATION-SESSION
 
-- **状態**: `draft` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
+- **状態**: `specified` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
 - **scope候補**: `initial_candidate` （PO receiptとFull V再降下までは実装不可）
-- **source events**: RDE-000132 RDE-000133
+- **source events**: RDE-000132 RDE-000133 RDE-000176 RDE-000177
 - **主体**: PO／許可運用者／security責任者
 - **受益者**: 不正操作を防ぐPOと運用者
 - **価値**: 高リスク判断を本人性とfresh sessionへ束縛する
-- **task**: identityを登録し認証/session/再認証/失効/recoveryを管理する
-- **workflow**: identity登録→認証→session発行→認可→高リスク再認証→失効/recovery→監査
-- **対象範囲**: identity lifecycle／session／CSRF／再認証／recovery／lockout／audit/emergency access
-- **対象外**: IdP/protocol/proxy/framework選定
-- **禁止事項**: 通知deep-linkを認証とみなさない／共有account／失効session利用
+- **task**: identity/session revision、authentication event、strength、expiry、revocation及びreauth freshnessを検証する／operationごとにauthorization grant ID/revision/digestを別検証する／VPS再起動後のruntime/credential/grant再認可を検証する
+- **workflow**: identity登録→authentication event→session発行→session/CSRF/strength/freshness検証→authorization grant検証→operation又はdeny→失効/recovery監査
+- **対象範囲**: identity lifecycle／session／CSRF／再認証／recovery／lockout／audit/emergency access／session binding and identity revision／authentication strength and reauth freshness／authorization grant reference／VPS restart credential/grant boundary／有人再認可後のbounded process-memory credential injection候補／non-secret session identifier又はone-way digest候補／secret-free authentication event canonical projection
+- **対象外**: IdP/protocol/proxy/framework選定／専用secret authority方式の先決め
+- **禁止事項**: 通知deep-linkを認証とみなさない／共有account／失効session利用／authentication又はsession成立からauthorizationを推論する／deep-linkをauthenticationとみなす／session fixation又はreplay／VPS再起動後に既存Web sessionからcredential又はgrant authorityを復元する／recovery又はbreak-glassでauthorization grantを迂回する／raw secret、raw bearer token又はcredential materialをrepo、製品DB、log又はinboxへ永続化又は露出する／authentication event digestへsecret又はcredential materialを混入する
 - **人間判断**: principal登録、recovery、emergency access、残余riskはPO/security authority
 - **副作用**: 現段階は要求候補のみ
-- **証跡**: identity/session lifecycle／negative auth cases／recovery/audit receipt／PO receipt
+- **証跡**: identity/session lifecycle／negative auth cases／recovery/audit receipt／PO receipt／session/identity/authentication event revision receipt／expired/revoked/stale/CSRF/strength/freshness negative tests／authorization grant separation receipt／post-reboot credential/grant reauthorization evidence／secret storage negative test／raw secret/bearer/credential material storage negative tests／secret-free authentication event digest projection／bounded process-memory injection receipt
 - **phase**: `requirements`
 - **受入候補**:
-  - `positive` RAC-UI-AUTH-P: 認証済みかつ有効なsessionと必要な再認証を満たすprincipalだけ操作できる （RST-UI-AUTH-P）
-  - `negative` RAC-UI-AUTH-N: 未認証、失効、CSRF不成立、共有account、deep-linkだけの操作を拒否する （RST-UI-AUTH-N）
-  - `boundary` RAC-UI-AUTH-B: lockout/recovery/emergency accessでもscope、期限、監査を省略しない （RST-UI-AUTH-B）
-- **PO個別質問**:
-  - `RDQ-VPS-UI-AUTHENTICATION-SESSION-01` (`safety_policy`): 初期principal、identity lifecycle、session期限/失効、再認証条件、recovery、lockout、監査、emergency accessをPO判断で閉じる （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
-- **semantic digest**: `sha256:57f1759d8ef5adb33f4129dddb4692d470956891f41f9fb94d68ed3e8a406758`
+  - `positive` RAC-UI-AUTH-P: 有効なidentity revision、authentication event/digest、session expiry/revocation、必要strength/freshness及びoperation別authorization grant ID/revision/digestを満たすprincipalだけ操作できる （RST-UI-AUTH-P）
+  - `negative` RAC-UI-AUTH-N: unknown/stale identity、expired/revoked/fixed/replayed session、CSRF不成立、strength/freshness不足、deep-linkのみ、grant欠落、raw secret/raw bearer token/credential materialのrepo・製品DB・log・inboxへの永続化又は露出、及びcredentialを含むauthentication event digestを拒否する （RST-UI-AUTH-N）
+  - `boundary` RAC-UI-AUTH-B: lockout/recovery/break-glass又はVPS再起動時もstate/revisionを維持し、runtime/credential再認可とfresh grantまで外部作用を停止する （RST-UI-AUTH-B）
+- **PO個別質問**: なし（ただしsubject approval receiptとfreezeは別）
+- **semantic digest**: `sha256:59583ac23bfdef85aafee36c120abced6cf938c25b6c905bf7bf364890468d04`
 
 ## RRF-VPS-UI-INBOX-LIFECYCLE — VPS-UI-INBOX-LIFECYCLE
 
-- **状態**: `draft` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
+- **状態**: `specified` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
 - **scope候補**: `initial_candidate` （PO receiptとFull V再降下までは実装不可）
-- **source events**: RDE-000100 RDE-000101 RDE-000102 RDE-000119
+- **source events**: RDE-000100 RDE-000101 RDE-000102 RDE-000119 RDE-000165 RDE-000166 RDE-000167 RDE-000168
 - **主体**: PO／許可された運用者／製品runtime
 - **受益者**: 異常と承認待ちを安全に監督するPO
 - **価値**: 通知lifecycleと業務状態を分離して通知失敗や重複による誤決定を防ぐ
-- **task**: 初期source eventをinboxへ記録する／利用者ごとのseen/acknowledgedを管理する／source状態に追随してresolved/expiredを管理する／重複を一itemへ収束する／記録失敗を業務状態と独立にretryする
-- **workflow**: source event→業務状態を先に確定→inbox記録attempt→recorded/failed/retry_exhausted receipt→利用者seen/acknowledged→source状態に追随したresolved/expired
-- **対象範囲**: VPS UI内inbox／purpose=action_required又はoperational_alert／source=approval_waiting/safety_stopped/execution_failed／recorded/failed/retry_exhausted evidence／per-principal seen/acknowledged／source-linked resolved/expired／deduplication／retry／retention
-- **対象外**: 外部adapter配送結果／Discord／Web Push／community media post／developer PR notice／具体DB/API/UI設計／通知操作による業務decision
-- **禁止事項**: 承認待ちと運用alertを同じpurposeにしない／seen/acknowledgedをapprove/reject又は再開とみなさない／通知記録失敗又はretry_exhaustedで先行する安全停止・失敗・承認待ち状態をrollbackしない／inbox記録と外部配送を同じ結果軸にしない／同一source eventから複数の現役itemを作らない／未決の時間・回数を設計者が補完しない
-- **人間判断**: approve/reject、停止後再開、中止はinbox lifecycleと別の許可principal判断／retry回数・backoff・retention・expiry時間はPOが品質要求として決定
-- **副作用**: 現段階は要求候補の記録のみ。将来はinbox itemと利用者別確認状態を記録する
-- **証跡**: source event identityと対象profile/resource/revision/purpose／recorded/failed/retry/retry_exhausted receipt／per-principal seen/acknowledged receipt／source-linked resolved/expired receipt／dedupe negative test／業務状態不変negative test／PO receipt
+- **task**: 初期source eventをinboxへ記録する／利用者ごとのseen/acknowledgedを管理する／source状態に追随してresolved/expiredを管理する／重複を一itemへ収束する／記録失敗を業務状態と独立にretryする／content quality retry exhaustionを一意なoperational alertとして記録する／source lifecycle、revision失効又はscope取消の正本eventだけからresolved/expiredを導出する／purpose/risk class/profile別の有効なretry budget registrationを検証する／retry上限到達時にretry_exhausted/failed receiptを残して通知処理だけを停止する／source terminal後にretention/legal hold/data classification policyへ従ってarchive/redact/purgeする／明示registrationがある場合だけactive未確認itemへ同一item内reminder又はurgency変更を行う
+- **workflow**: source event→業務状態を先に確定→inbox記録attempt→recorded/failed/retry_exhausted receipt→利用者seen/acknowledged→source状態に追随したresolved/expired→source terminal後のみretention policyに従うarchive/redact/purge。reminder policyは既定disabled
+- **対象範囲**: VPS UI内inbox／purpose=action_required又はoperational_alert／source=approval_waiting/safety_stopped/execution_failed／recorded/failed/retry_exhausted evidence／per-principal seen/acknowledged／source-linked resolved/expired／profile/resource/operation別list/read/seen/acknowledge認可／secret/credential/PII/raw errorの最小開示／deduplication／retry／retention／source=content_quality_retry_exhausted（通常retryを除外）／artifact/rule revision/retry exhaustion source identityによる一件dedupe／旧FR-43 repair failureを再降下したexecution_failed（旧ApprovalTransportを除外）／source-derived resolved/expired（inbox独自expiryなし）／有界inbox記録retry／terminal後retention/legal hold/data classification／同一item内reminder/urgency（明示登録時のみ）／secret/PIIを含まない最小tombstoneとpurge receipt
+- **対象外**: 外部adapter配送結果／Discord／Web Push／community media post／developer PR notice／具体DB/API/UI設計／通知操作による業務decision／inbox独自時刻によるaction_required expiry／inbox失敗時の外部通知fallback／active source itemのarchive/purge／既定有効のreminder/escalation
+- **禁止事項**: 承認待ちと運用alertを同じpurposeにしない／seen/acknowledgedをapprove/reject又は再開とみなさない／通知記録失敗又はretry_exhaustedで先行する安全停止・失敗・承認待ち状態をrollbackしない／inbox記録と外部配送を同じ結果軸にしない／同一source eventから複数の現役itemを作らない／認証済みであることだけで全profileのinboxを閲覧又は更新させない／secret、credential、個人情報又は不要なraw error payloadをinboxへ表示しない／未決の時間・回数を設計者が補完しない／通常のcontent quality retryをinbox itemにする／旧FR-43又はApprovalTransportを新inbox source authorityとして直接採用する／未確認、時間経過、stale表示又は記録失敗だけでaction_requiredをexpiredにする／reminder又はescalation表示からapprove/reject、停止解除又はsource expiryを導出する／無限retry／retry budget未登録・失効・不正時の自動運用開始又は追加retry／retry exhaustionから外部通知transportへfallbackする／active source itemを未確認期間だけでarchive又はpurgeする／retention policy不明又はlegal hold中の不可逆purge／reminder/escalationで別itemを量産する
+- **人間判断**: approve/reject、停止後再開、中止はinbox lifecycleと別の許可principal判断／retention、availability及びreminderの方針採用は要求authorityがratifyする。実値はprofile/purpose/risk class別registration revisionへ束縛し、未登録時は安全側停止とする
+- **副作用**: 現段階は要求候補の記録のみ。将来はinbox itemと利用者別確認状態を記録する／terminal itemのarchive/redact/purge候補／明示登録時の同一item内reminder又はurgency変更
+- **証跡**: source event identityと対象profile/resource/revision/purpose／recorded/failed/retry/retry_exhausted receipt／per-principal seen/acknowledged receipt／profile/resource/operation scopeに対するlist/read/seen/acknowledge認可receipt／cross-profile拒否及びsecret/PII最小開示negative test／source-linked resolved/expired receipt／dedupe negative test／業務状態不変negative test／PO receipt／content quality blocked source identity、artifact、rule revision及びretry exhaustion receipt／FR-43 replacement source identity、phase、risk及びfailure evidence／source lifecycle/revision/scope eventからのresolved/expired derivation receipt／inbox独自時間経過でactive itemが失効しないnegative test／retry budget registration revision、attempt履歴及びconfiguration-fault receipt／terminal source event、retention policy revision、data classification及びlegal-hold判定／archive/redact/purge receiptと非secret最小tombstone／reminder policy revisionと同一item dedupe negative test
 - **phase**: `requirements`
 - **受入候補**:
-  - `positive` RAC-UI-INBOX-P: approval_waiting/safety_stopped/execution_failedの業務状態を先に確定し、purposeと対象bindingを持つ一意なitemをrecordedとして残し、seen/acknowledgedを利用者別に記録する （RST-UI-INBOX-P）
-  - `negative` RAC-UI-INBOX-N: 通知失敗・重複・seen・acknowledged・resolved・expiredから業務状態、approve/reject又は停止後再開を変更しない （RST-UI-INBOX-N）
-  - `boundary` RAC-UI-INBOX-B: 未知source/purpose、同一identity再送、記録失敗、保持境界ではfail-closeし、業務状態を維持したまま一意なattempt/failed/expiry証跡を残す （RST-UI-INBOX-B）
-- **PO個別質問**:
-  - `RDQ-VPS-UI-INBOX-LIFECYCLE-01` (`quality_target`): inbox記録retry回数・backoff、retention、resolved後の保持、未確認itemのexpiry時間をPO品質判断で閉じる （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
-  - `RDQ-VPS-UI-INBOX-LIFECYCLE-02` (`release_scope`): FR-43等の後続source追加は各source要求のphaseとriskを凍結してから閉集合へ追加する （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
-- **semantic digest**: `sha256:b76638e55a85db15cd03a245780aaddd46b69a1c93f2ee7a5646978db87201e8`
+  - `positive` RAC-UI-INBOX-P: approval_waiting/safety_stoppedと外部operation・公開・保守のexecution_failedを先に確定し、purposeと対象bindingを持つ一意なitemをrecordedとして残し、seen/acknowledgedを利用者別に記録する。content_quality_retry_exhaustedは対象artifact、rule revision及びexhaustion source identityへ束縛したoperational alertを一件だけ記録する。resolved/expiredはsource lifecycle、revision失効又はscope取消の正本eventだけへ追随する。登録済み有界retry内で記録し、terminal後だけ登録済みretention policyに従って処理する （RST-UI-INBOX-P）
+  - `negative` RAC-UI-INBOX-N: 通知失敗・重複・seen・acknowledged・resolved・expiredから業務状態、approve/reject又は停止後再開を変更せず、scope外profileのitemとsecret/PII/raw errorを表示しない。通常のcontent quality retryを通知せず、retry exhaustion itemの記録失敗でもblocked状態を変更しない。旧FR-43又はApprovalTransportをinbox source authorityとして直接採用しない。未確認、時間経過、stale表示又は記録失敗だけでaction_requiredをexpiredにしない。無限retry、外部通知fallback、active itemの時間archive/purge、policy不明時purge、reminderからのdecision又は別item生成を拒否する （RST-UI-INBOX-N）
+  - `boundary` RAC-UI-INBOX-B: 未知source/purpose、同一identity再送、記録失敗、保持境界ではfail-closeし、業務状態を維持したまま一意なattempt/failed/expiry証跡を残す。content quality exhaustionの再送は同一source identityへdedupeし、別itemを作らない。長期未確認表示又はreminder候補からapprove/reject、停止解除又はsource expiryを導出しない。retry exhaustionではblockedを維持してfailed receiptを残し、retention不明又はlegal hold中はaccess制限して不可逆削除を停止し、reminder未登録時は無表示のままsource状態を維持する （RST-UI-INBOX-B）
+- **PO個別質問**: なし（ただしsubject approval receiptとfreezeは別）
+- **semantic digest**: `sha256:8e7014577d4ad96f3ded703a42f97f618cf2b56f3c89866d948fa7b9d1ed1fad`
 
 ## RRF-VPS-UI-PRIMARY-HUMAN-INTERFACE — VPS-UI-PRIMARY-HUMAN-INTERFACE
 
@@ -1054,72 +1085,72 @@
 - **主体**: PO／許可された運用者／製品runtime
 - **受益者**: 無人処理を監督するPO
 - **価値**: チャット製品に依存せずVPS上で状態・承認・通知を一体監督できる
-- **task**: 状態・失敗・KPI・承認待ちを確認する／初回activation・scope拡張・高リスク例外・停止後再開を明示決定する
+- **task**: 状態・失敗・KPI・承認待ちを確認する／初回activation・scope拡張・高リスク例外・停止後再開を明示決定する／structured feedbackと適用scopeを入力する／blocked成果物と検査・分類証跡を診断閲覧する／activationを取消す
 - **workflow**: 認証→対象表示→通知/承認待ち確認→直前認可→明示操作→証跡保存
-- **対象範囲**: VPS製品Web UI／UI内inbox／状態/証跡閲覧／初回自動運用activationと例外判断
+- **対象範囲**: VPS製品Web UI／UI内inbox／状態/証跡閲覧／blocked成果物と検査・分類証跡の診断閲覧／structured feedback入力とscope指定／activation取消／初回自動運用activationと例外判断
 - **対象外**: 認証protocol/IdP選定／session timeout数値／reverse proxy製品／公開URL／UI framework選定／Web Push／Discord補助／開発PR通知
-- **禁止事項**: 通知受信だけで意思決定を成立させない／要求正本をUIから更新しない
+- **禁止事項**: 通知受信だけで意思決定を成立させない／要求正本をUIから更新しない／VPS-UI-AUTHENTICATION-SESSION、VPS-UI-INBOX-LIFECYCLE、VPS-UI-QUALITY-ATTRIBUTES又はPRODUCT-STATE-AUTHORITYが未凍結のまま主入口を完了扱いしない
 - **人間判断**: 初回activation・scope拡張・課金・危険設定・重大rule変更・再開は許可principalが判断し、activation後の個別投稿は品質gate合格時に毎回承認を要求しない
 - **副作用**: 認可済みUI操作による製品状態変更
-- **証跡**: principal・対象・revision・binding・decision・状態遷移receipt
+- **証跡**: principal・対象・revision・binding・decision・状態遷移receipt／authentication/session、inbox、quality及びproduct-state各subjectのfrozen receipt
 - **phase**: `requirements`
 - **受入候補**:
   - `positive` RAC-VPS-UI-P: 認証済みprincipalが対象revisionを再表示して明示操作した場合だけ状態を更新する （RST-VPS-UI-P）
   - `negative` RAC-VPS-UI-N: 未認証・CSRF不成立・stale binding・通知deep-linkだけの操作を拒否する （RST-VPS-UI-N）
   - `boundary` RAC-VPS-UI-B: session失効・同時更新・高リスク再認証要求時はfail-closeし既存状態を維持する （RST-VPS-UI-B）
 - **PO個別質問**: なし（ただしsubject approval receiptとfreezeは別）
-- **semantic digest**: `sha256:7453d207a6d160ca25055edbf87eb8411593735a2b8da8043f0de2a6746edf76`
+- **semantic digest**: `sha256:229880f28abe6afce7c9576079bf3844130c3f47aa8d60a42e8079439e12478f`
 
 ## RRF-VPS-UI-QUALITY-ATTRIBUTES — VPS-UI-QUALITY-ATTRIBUTES
 
 - **状態**: `draft` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
 - **scope候補**: `initial_candidate` （PO receiptとFull V再降下までは実装不可）
-- **source events**: RDE-000094 RDE-000096
+- **source events**: RDE-000094 RDE-000096 RDE-000178
 - **主体**: PO／運用者／UI利用者
 - **受益者**: 安定して監督できるPOと運用者
 - **価値**: 設計製品を先取りせずVPS UIの品質と復旧可能性を反証可能にする
-- **task**: 品質目標を定義する／測定する／故障と復旧を検証する／migration/rollbackを受入判断する
-- **workflow**: 品質目標定義→測定→故障注入/復旧→受入判断
+- **task**: 各品質属性をscope、journey又はoperation、metric、unit、測定環境/window、applicability、threshold registration、evidence、failure outcome及びresume conditionへ束縛する／未知・未測定・未登録又は失効閾値をdeferredとしてfail-closeする／故障と復旧を検証し、部分passを全体passへ昇格しない／migration/rollback対象の有無と受入判断を分離する
+- **workflow**: 属性適用分類→閾値registration検証→測定→故障/復旧検証→属性別判定→全体受入判断
 - **対象範囲**: accessibility／performance／availability／recovery／operation／migration／rollback
-- **対象外**: protocol/IdP/proxy/UI framework選定
-- **禁止事項**: 具体製品を要求で先取りしない／閾値なしで利用可能としない
+- **対象外**: protocol/IdP/proxy/UI framework選定／製品状態のbackup/restore/reconciliation（NFR-10及びPRODUCT-STATE-AUTHORITY所掌）／worker又は外部connector側のavailability/recovery
+- **禁止事項**: 具体製品を要求で先取りしない／閾値なしで利用可能としない／generic N/Aを使用しない／部分passを全体pass又はrelease許可へ読み替えない／製品状態backup/restore又はworker/connector品質をUI品質証拠へ流用しない
 - **人間判断**: 品質閾値と残余riskをPOが判断
 - **副作用**: 現段階なし
-- **証跡**: 測定定義／故障/復旧結果／migration/rollback receipt
+- **証跡**: 測定定義／故障/復旧結果／migration/rollback receipt／属性別applicability partitionとthreshold registration revision/digest／failure outcomeとresume condition
 - **phase**: `requirements`
 - **受入候補**:
-  - `positive` RAC-VPS-UI-QUALITY-P: 全品質属性が測定方法・閾値・証跡を持ち受入条件を満たす （RST-VPS-UI-QUALITY-P）
-  - `negative` RAC-VPS-UI-QUALITY-N: 未測定、閾値未定、復旧不能又はrollback不能を利用可能として拒否する （RST-VPS-UI-QUALITY-N）
-  - `boundary` RAC-VPS-UI-QUALITY-B: 一部品質だけ成立する場合は制限又はdeferredとし全体受入に読み替えない （RST-VPS-UI-QUALITY-B）
+  - `positive` RAC-VPS-UI-QUALITY-P: 適用対象の全品質属性がscope、metric、unit、測定環境/window、有効なthreshold registration revision/digest、証跡、failure outcome及びresume conditionを持ち属性別受入条件を満たす （RST-VPS-UI-QUALITY-P）
+  - `negative` RAC-VPS-UI-QUALITY-N: generic N/A、未知・未測定・未登録又は失効閾値、測定環境又は証拠欠落、対象変更があるmigration/rollbackの未検証を利用可能又はrelease可能として拒否する （RST-VPS-UI-QUALITY-N）
+  - `boundary` RAC-VPS-UI-QUALITY-B: 一部品質だけ成立する場合はdeferredを維持し全体受入へ読み替えず、UI品質を製品状態backup/restore又はworker/connector品質へ拡張しない （RST-VPS-UI-QUALITY-B）
 - **PO個別質問**:
   - `RDQ-VPS-UI-QUALITY-ATTRIBUTES-01` (`quality_target`): 各品質属性の測定対象・閾値・N/A条件をPO判断で閉じる （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
-- **semantic digest**: `sha256:c79650b7473048c20976ba0af3ce002bf8cca2c475a285488b3e38ac801c1ded`
+- **semantic digest**: `sha256:a01e41d02b365a1eccb468d3bfbff53f3339b83904551addb102e0232ff63b28`
 
 ## RRF-WORDPRESS-CONTENT-OPERATIONS-RELEASE — WORDPRESS-CONTENT-OPERATIONS-RELEASE
 
 - **状態**: `draft` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
 - **scope候補**: `initial_candidate` （PO receiptとFull V再降下までは実装不可）
-- **source events**: RDE-000113 RDE-000114
+- **source events**: RDE-000113 RDE-000114 RDE-000160 RDE-000179
 - **主体**: PO／コンテンツ運用者／製品runtime
 - **受益者**: 公開コンテンツ利用者／日常運用を行うPO
 - **価値**: WordPressをcontent databaseとして日常公開運用し基盤保守riskから分離する
-- **task**: 登録/取得/下書き/リライト/media upload/固定ページ編集/preview/公開/更新をstable IDで行う
-- **workflow**: 対象取得→draft/preview→対象/revision再表示→承認→公開/更新→receipt
+- **task**: create draft、update draft、publish、update published in place、unpublish、delete及びrollbackを別operation/effectとして扱う／各attemptをtarget identity/revision、desired digest、capability/route、grant ID/revision/semantic digest、activation scope ID/revision/semantic digest、gate/idempotency及びresult receiptへ束縛する／API/MCPを優先しPlaywright確認をwrite authorityへ読み替えない／in-place非対応時は状態不変のunsupported non-action receiptを残し通知しない
+- **workflow**: 対象取得→draft/preview→activation scopeと対象/revision再検証→quality/risk gate→scope内合格時は毎回承認なしで公開/更新→receipt。未activation、scope拡張又はattended-onlyは明示判断へ分岐
 - **対象範囲**: content operation閉集合／stable ID/revision／公開証跡
 - **対象外**: core/plugin変更／security変更／AGENT NEO改修
-- **禁止事項**: content_publishでmaintenance/security変更を許可しない／PoCを本番受入に流用しない
-- **人間判断**: 公開可否と未決の削除/競合解決は許可principal
+- **禁止事項**: content_publishでmaintenance/security変更を許可しない／PoC又は旧Docker WP成功を本番受入に流用しない／update/publish/unpublish/delete/rollbackを相互に含意しない／in-place非対応時に別記事作成、再公開又は通知へ置換しない／Playwright確認成功をwrite authorityとみなさない
+- **人間判断**: 初回activation、scope拡張、attended-only operation及び未決の削除/非公開化/競合解決は許可principal。activation scope内のgate合格済み通常公開は毎回判断しない
 - **副作用**: WordPress content/media/page状態変更
-- **証跡**: preview diff／principal/decision／publication/update receipt／S4 receipt
+- **証跡**: preview diff／principal/decision／publication/update receipt／S4 receipt／capability、grant及びactivation scopeのID/revision/semantic digestとgate receipts／unsupported non-action又はoperation別result receipt
 - **phase**: `requirements`
 - **delivery admission**: standard=`full_v_l1_l12` ／ program-stage=1 ／ sequence=1 ／ increment=production_scrum／v_design_scrum_impl_hybrid ／ Discovery=`only_when_feasibility_or_success_condition_unknown` ／ predecessor=なし ／ completion=`po_s4_then_scrum_reverse_sr0_sr4_and_v_pair_closure`
 - **受入候補**:
-  - `positive` RAC-WP-CONTENT-P: stable IDとrevisionを再検証し承認済みcontent操作だけを実行してreceiptを残す （RST-WP-CONTENT-P）
-  - `negative` RAC-WP-CONTENT-N: content policyによるcore/plugin/security変更とstale/unknown対象writeを拒否する （RST-WP-CONTENT-N）
-  - `boundary` RAC-WP-CONTENT-B: 削除/非公開化/競合/保持が未決ならそのoperationだけdeferredにする （RST-WP-CONTENT-B）
+  - `positive` RAC-WP-CONTENT-P: stable content ID、remote revision、desired digest、capability、API/MCP優先route、grant ID/revision/semantic digest、activation scope ID/revision/semantic digest、content/risk/quality gate及びidempotencyを再検証し、scope内合格済みoperationだけ実行してreceiptを残す （RST-WP-CONTENT-P）
+  - `negative` RAC-WP-CONTENT-N: content policyによるcore/plugin/security変更、stale revision、grant又はactivation scopeの欠落/stale/digest不一致/identity不一致、gate/capability欠落、scope mismatch、unsupported operation及びrollback evidence欠落を拒否して既公開状態を維持する （RST-WP-CONTENT-N）
+  - `boundary` RAC-WP-CONTENT-B: in-place非対応の既公開物は別operationへ置換せずstate不変のunsupported non-action receiptを残して通知せず、削除/非公開化/競合/保持が未決ならそのoperationだけdeferredにする （RST-WP-CONTENT-B）
 - **PO個別質問**:
-  - `RDQ-WORDPRESS-CONTENT-OPERATIONS-RELEASE-01` (`release_scope`): increment順序、削除/非公開化、版競合、履歴保持、media差替え、再認証境界をPO判断で閉じる （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
-- **semantic digest**: `sha256:2f2ad97d5b2b234f704347aa6875a3a7823f6fc75b7d70a87b9ec588ec5b303f`
+  - `RDQ-WORDPRESS-CONTENT-OPERATIONS-RELEASE-01` (`release_scope`): 削除/非公開化の許可、履歴保持、content release admission及びrollback outcomeをPO判断で閉じる （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
+- **semantic digest**: `sha256:ec927831a0dcf8ccdb6df150815fbad24fa40f6623c8340e60671ecb8efc33ae`
 
 ## RRF-WORDPRESS-MAINTENANCE-BOUNDARIES — WORDPRESS-MAINTENANCE-BOUNDARIES
 
@@ -1149,50 +1180,50 @@
 
 - **状態**: `draft` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
 - **scope候補**: `follow_on_candidate` （PO receiptとFull V再降下までは実装不可）
-- **source events**: RDE-000115 RDE-000116
+- **source events**: RDE-000115 RDE-000116 RDE-000181
 - **主体**: PO／WordPress保守担当／製品runtime
 - **受益者**: 安定稼働するWordPressを必要とする運用者と利用者
 - **価値**: core/plugin変更と起因障害を日常content operationから分離してrollback可能にする
-- **task**: inventory/backup/互換性評価/core/plugin変更/smoke/regression/rollbackを行う
-- **workflow**: inventory→評価→backup/restore proof→承認→変更→検証→続行又はrollback→receipt
+- **task**: inventory確認、backup作成、restore検証、非security core更新、plugin導入/状態変更/非security更新、schema/config変更及びrollbackを別operation/effectとして扱う／read-only確認とmutationを分け、mutationだけをplatform grant、window、backup/restore、compatibility/smoke/regression及びrollback evidenceへ束縛する／security relevanceをmaintenance_only/security_intersection/unknownへ分類しunknownをdeferredにする／API/MCPを優先しPlaywright確認をwrite authorityへ読み替えない
+- **workflow**: 対象取得→read-only inventory分岐はidentity/current revision/inventory/read grant/routeを検証してreceipt→mutation分岐はsecurity relevance分類→backup/restore proof→platform grant/window→変更→検証→続行又はrollback→明示resume
 - **対象範囲**: core version update／plugin導入/状態変更/update／随伴schema/config／起因障害復旧
 - **対象外**: 日常content操作／security authority判断／AGENT NEO改善改修
-- **禁止事項**: content承認をmaintenanceへ流用しない／復旧proofなしで本番変更しない
+- **禁止事項**: content承認をmaintenanceへ流用しない／security grantだけをplatform authorityへ流用しない／復旧proofなしで本番変更しない／security relevance unknown又はintersectionのsecurity decision/grant欠落で実行しない／rollback後に再検証と明示resumeなしで自動再開しない
 - **人間判断**: 変更/停止/続行/rollback/残余riskはPOと保守担当
 - **副作用**: core/plugin/schema/config変更／rollback
 - **証跡**: before/after inventory／backup/restore proof／compatibility/smoke/regression／decision/rollback/S4 receipt
 - **phase**: `requirements`
 - **delivery admission**: standard=`full_v_l1_l12` ／ program-stage=1 ／ sequence=2 ／ increment=production_scrum／v_design_scrum_impl_hybrid ／ Discovery=`only_when_feasibility_or_success_condition_unknown` ／ predecessor=WORDPRESS-CONTENT-OPERATIONS-RELEASE ／ completion=`po_s4_then_scrum_reverse_sr0_sr4_and_v_pair_closure`
 - **受入候補**:
-  - `positive` RAC-WP-MAINT-P: 独立maintenance承認と復旧proofを持つ変更だけを実行し検証receiptを残す （RST-WP-MAINT-P）
-  - `negative` RAC-WP-MAINT-N: content承認、backup不足、互換性未検証又はrollback不能な変更を拒否する （RST-WP-MAINT-N）
-  - `boundary` RAC-WP-MAINT-B: plugin更新がsecurity修正を含んでも変更実施と脅威受容を別decisionへ束縛する （RST-WP-MAINT-B）
+  - `positive` RAC-WP-MAINT-P: read-only inventoryは対象identity/current revision/inventory digest/read grant/route/assessment evidenceを満たしてresult receiptを残し、mutationは独立platform grant、activation/window、capability/route、backup freshness/restore、compatibility/smoke/regression、remote revision及びidempotencyを満たしてresult/rollback receiptを残す （RST-WP-MAINT-P）
+  - `negative` RAC-WP-MAINT-N: content/security grant流用又はstale remote revisionを拒否し、mutationではbackup/restore/compatibility欠落、security relevance unknown又はrollback不能も拒否してsite stateを維持する （RST-WP-MAINT-N）
+  - `boundary` RAC-WP-MAINT-B: security intersectionはplatform grantに加えて別security decision/grantへ束縛し、rollback後は再検証と明示resumeまで通常operationを自動再開しない （RST-WP-MAINT-B）
 - **PO個別質問**:
-  - `RDQ-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE-01` (`safety_policy`): 自動/attended境界、maintenance window、backup freshness、smoke/regression、rollback閾値をPO判断で閉じる （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
-- **semantic digest**: `sha256:e5e6a588ff8440f3e5e45d482dda2c9e70db23d75a5d9db1363587fbc03300a1`
+  - `RDQ-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE-01` (`safety_policy`): 自動/attended境界、maintenance window、backup freshness及びrollback品質閾値をPO判断で閉じる （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
+- **semantic digest**: `sha256:32e41614f15f39347859b6c718d7321644bc5316a5a9daae719e3725adb346c3`
 
 ## RRF-WORDPRESS-SECURITY-MAINTENANCE-RELEASE — WORDPRESS-SECURITY-MAINTENANCE-RELEASE
 
 - **状態**: `draft` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
 - **scope候補**: `follow_on_candidate` （PO receiptとFull V再降下までは実装不可）
-- **source events**: RDE-000117 RDE-000118
+- **source events**: RDE-000117 RDE-000118 RDE-000180
 - **主体**: PO／security責任者／security運用者
 - **受益者**: サイト利用者／account所有者／安全な運用を必要とするPO
 - **価値**: security判断を日常運用/通常保守から分離し別authorityと証跡で閉じる
-- **task**: 脆弱性評価/security patch/credential rotation/権限変更/監査/隔離/停止/復旧を行う
+- **task**: assess、core/plugin/theme patch、permission change、credential rotation、quarantine及びrestore/rollbackを別operation/effectとして扱う／component/version/inventory/advisory/risk、security grant、maintenance window、preflight、backup/restore evidence、credential authority参照及びresult/rollback receiptを束縛する／content grant、advisory/scanner又はPlaywright確認をsecurity write authorityへ読み替えない／emergency後も再検証まで通常operationを自動再開しない
 - **workflow**: 脅威検知→影響評価→隔離/停止判断→変更→検証→復旧判断→監査receipt
 - **対象範囲**: vulnerability／security patch／credential/permission／audit／isolation/stop/recovery
 - **対象外**: 日常content操作／一般機能update／AGENT NEO機能改善
-- **禁止事項**: 通常保守又は公開承認でsecurity判断を代替しない／secretをrepo/DB/logへ残さない
+- **禁止事項**: 通常保守又は公開承認でsecurity判断を代替しない／認証鍵素材をrepo/product DB/log/inbox又はreceiptへ残さない／unknown component/version/sourceを自動patchしない／旧WP PoC成功をsecurity release admissionへ流用しない／emergencyでgrant/scope/期限/receiptを迂回しない
 - **人間判断**: 脅威受容/隔離/break-glass/復旧/残余riskはsecurity authorityとPO
 - **副作用**: credential/permission/security設定変更／隔離/停止/復旧
-- **証跡**: threat/vulnerability／principal/decision／change/rotation／isolation/recovery proof／independent S4 receipt
+- **証跡**: threat/vulnerability／principal/decision／change/rotation／isolation/recovery proof／independent S4 receipt／security grantとmaintenance activation/windowのID/revision/semantic digest／preflight及びbackup/restore evidence revision/digest／operation別result/rollback receipt
 - **phase**: `requirements`
 - **delivery admission**: standard=`full_v_l1_l12` ／ program-stage=1 ／ sequence=2 ／ increment=production_scrum／v_design_scrum_impl_hybrid ／ Discovery=`only_when_feasibility_or_success_condition_unknown` ／ predecessor=WORDPRESS-CONTENT-OPERATIONS-RELEASE ／ completion=`po_s4_then_scrum_reverse_sr0_sr4_and_v_pair_closure`
 - **受入候補**:
-  - `positive` RAC-WP-SECURITY-P: 別security authorityが脅威と対象を束縛して変更/隔離/復旧receiptを残す （RST-WP-SECURITY-P）
-  - `negative` RAC-WP-SECURITY-N: content又は通常保守の承認流用、secret漏洩、権限越境を拒否する （RST-WP-SECURITY-N）
-  - `boundary` RAC-WP-SECURITY-B: 緊急break-glassでもscope/期限/事後監査/復旧判断を省略しない （RST-WP-SECURITY-B）
+  - `positive` RAC-WP-SECURITY-P: 別security authorityがcomponent/version、inventory/advisory digest、risk、security grant、maintenance window、preflight、backup/restore evidence及びcredential authority参照を束縛しoperation別result/rollback receiptを残す （RST-WP-SECURITY-P）
+  - `negative` RAC-WP-SECURITY-N: content又は通常保守grant、advisory/scanner/browser確認のauthority化、unknown対象、grant/window/preflight/backup/rollback欠落、認証鍵素材露出及びscope越境を拒否して現site stateを維持する （RST-WP-SECURITY-N）
+  - `boundary` RAC-WP-SECURITY-B: 緊急break-glassでも別grant、scope、期限、receipt及び事後再検証を省略せず、通常operationを自動再開しない （RST-WP-SECURITY-B）
 - **PO個別質問**:
   - `RDQ-WORDPRESS-SECURITY-MAINTENANCE-RELEASE-01` (`safety_policy`): 対象脅威、patch、credential/権限/監査範囲、緊急principalとbreak-glass条件をPO判断で閉じる （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
-- **semantic digest**: `sha256:fd8b1a8ceb114d1606b8224fdab9d77699956e18b94c2d79aabe792c4b021660`
+- **semantic digest**: `sha256:7664222be30ace640e3a9780c6dc6da1c226dfdb46556f3eba36068537bf20a3`

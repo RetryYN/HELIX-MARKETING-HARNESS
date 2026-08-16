@@ -6,16 +6,10 @@ slice: S0
 
 # 基本設計書 v0.1（②）
 
-> [!WARNING]
-> **旧baselineの設計履歴。現要求に対するL4は未設計である。**
-> 現在は`requirements_baseline_status=revising` / `implementation_authorized=false`。
-> VPS Web UI・UI内inbox・通知用途分離・WordPressの運用/通常保守/security保守分離を
-> frozen要求からFull Vで再降下するまで、旧CMP・route・channel・phaseを実装入力にしない。
-
 > status: **confirmed**（2026-07-31 PO 承認 — 基本設計完遂指示。AI 起草）
 > pair: [integration-test-design_v0.1.md](../integration-tests/integration-test-design_v0.1.md)（総合テスト設計④ — HELIX 式 ②↔④ 文書ペア）
 > 上位文書: [s0-contract_v0.1.md](../../L3-system-requirements/canonical/s0-contract_v0.1.md)（DDL・状態遷移・WF 契約の正準）／
-> [fr-contracts.json](../../L3-system-requirements/canonical/functional/fr-contracts.json)／[nfr-contracts.json](../../L3-system-requirements/canonical/nonfunctional/nfr-contracts.json)／[ac-contracts.json](../../L3-system-requirements/canonical/acceptance/ac-contracts.json)（旧baseline契約・再検証対象）／
+> [requirements_v0.1.md](../../L3-system-requirements/canonical/functional/requirements_v0.1.md)（FR/NFR/AC）／
 > [function-list_v0.1.md](../../L3-system-requirements/canonical/functional/function-list_v0.1.md)（FN 61・スライス配分）
 > **設計契約正本（2026-08-01 全層再降下 §6）**: 各 CMP/SCM の 11 観点設計契約 =
 > [json/cmp-contracts.json](components/cmp-contracts.json)（ビュー [cmp-contracts_v0.1.md](../views/cmp-contracts_v0.1.md)）。

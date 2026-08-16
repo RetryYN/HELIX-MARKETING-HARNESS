@@ -715,6 +715,7 @@ def _strategy_pair(ctx: Ctx, sch: dict) -> None:
          mut_detects and acsr_ok and len(ctx.sr) == 19 == sr_md and len(ctx.scm) == 10 and pair_ok
          and sr_ids == cov_sr and {c["id"] for c in ctx.scm} == cov_scm
          and all(g in neg for g in STRAT_GATES) and not missing_fx,
-         f"SR19/SCM10/AC-SR6 双方向カバー＋4 文書相互 pair＋全戦略ゲートに拒否系 STC "
+         f"旧戦略資料の構造検査のみ: SR19/SCM10/AC-SR6 双方向カバー＋4 文書相互 pair＋全戦略ゲートに拒否系 STC。"
+         f"現要求の受入権威・実装可否はG-REQ-STRATEGY-TEST-AUTHORITYで別判定 "
          f"(SR差={sorted(sr_ids ^ cov_sr)}, AC-SR={acsr_ok}, negative欠={sorted(set(STRAT_GATES) - neg)}, "
          f"fixture欠={missing_fx})")

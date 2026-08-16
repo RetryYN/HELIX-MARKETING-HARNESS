@@ -6,8 +6,10 @@ PO 指示 §1〜§4 に対応する。manifest（docs/00-authority/artifact-mani
 
 from __future__ import annotations
 
+import hashlib
 import os
 import re
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -70,6 +72,18 @@ SELF_REFERENTIAL = (
     "docs/00-authority/approvals/",
     "docs/00-authority/reviews/",
 )
+CONTENT_BINDING_MIGRATIONS = AUTHORITY / "approvals" / "content-binding-migrations.json"
+CONTENT_BINDING_ALGORITHM = "sha256_full_markdown_including_frontmatter_v1"
+CONTENT_BINDING_MIGRATION_ALLOWLIST = {
+    "AUTH-ADR-ADR-013-VPS-PRODUCT-UI-PRIMARY-HUMAN-INTERFACE": {
+        "canonical_path": "docs/00-authority/adr/ADR-013-vps-product-ui-primary-human-interface.md",
+        "approval_target": "ADR-013-vps-product-ui-primary-human-interface",
+        "approval_version": "-",
+        "prior_po_approval_digest": "0f523543dcec",
+        "content_binding_digest": "e36352ef7e92",
+        "source_commit": "7488e8516a17f2c7e20f731de66e7345578ef9fc",
+    },
+}
 
 
 def _manifest_by_id(ctx: Ctx) -> dict[str, dict]:
@@ -98,6 +112,110 @@ def artifact_content_digest(path: Path) -> str:
         if isinstance(data, dict) and "approval_digest" in data:
             return canonical_json_digest(data)
     return doc_body_digest(path)
+
+
+def content_binding_migration_faults(ctx: Ctx, data: dict | None = None) -> list[str]:
+    """既存PO承認と後発の全文digest補正を分離して検証する。"""
+    if data is None:
+        try:
+            data = load(CONTENT_BINDING_MIGRATIONS)
+        except (OSError, ValueError):
+            return ["content-binding migration ledger 不在または不正"]
+    faults: list[str] = []
+    if not isinstance(data, dict) or set(data) != {"schema_version", "algorithm", "receipts"}:
+        return ["content-binding migration ledger shape 不正"]
+    if data.get("schema_version") != "1.0" or data.get("algorithm") != CONTENT_BINDING_ALGORITHM:
+        faults.append("content-binding migration ledger version/algorithm 不正")
+    receipts = data.get("receipts")
+    if not isinstance(receipts, list):
+        return faults + ["content-binding migration receipts が配列でない"]
+    required = {
+        "artifact_id", "canonical_path", "prior_po_approval_digest", "content_binding_digest",
+        "source_commit", "migration_actor", "migration_reason", "semantic_unchanged",
+        "grants_new_approval",
+    }
+    manifest = _manifest_by_id(ctx)
+    approvals = _approval_digests(ctx)
+    git_executable = shutil.which("git")
+    if git_executable is None:
+        return faults + ["content-binding migration検証用git executable不在"]
+    seen: set[str] = set()
+    for index, receipt in enumerate(receipts):
+        label = f"migration[{index}]"
+        if not isinstance(receipt, dict) or set(receipt) != required:
+            faults.append(f"{label}:shape 不正")
+            continue
+        artifact_id = receipt.get("artifact_id")
+        item = manifest.get(artifact_id) if isinstance(artifact_id, str) else None
+        expected = (
+            CONTENT_BINDING_MIGRATION_ALLOWLIST.get(artifact_id)
+            if isinstance(artifact_id, str)
+            else None
+        )
+        if artifact_id in seen:
+            faults.append(f"{label}:artifact 重複")
+        if isinstance(artifact_id, str):
+            seen.add(artifact_id)
+        if item is None or item.get("lifecycle_status") != "confirmed":
+            faults.append(f"{label}:confirmed manifest artifact 不在")
+            continue
+        if expected is None:
+            faults.append(f"{label}:code-exact migration allowlist 対象外")
+            continue
+        if any(receipt.get(key) != value for key, value in expected.items()
+               if key not in {"approval_target", "approval_version"}):
+            faults.append(f"{label}:code-exact migration allowlist 不一致")
+        if receipt.get("canonical_path") != item.get("canonical_path"):
+            faults.append(f"{label}:canonical path 不一致")
+        prior = receipt.get("prior_po_approval_digest")
+        if prior != item.get("approval_digest") or prior not in approvals:
+            faults.append(f"{label}:既存PO承認digest 不一致または承認行なし")
+        path = ROOT / item["canonical_path"]
+        if receipt.get("content_binding_digest") != artifact_content_digest(path):
+            faults.append(f"{label}:現内容digest 不一致")
+        source_commit = receipt.get("source_commit")
+        if not isinstance(source_commit, str) or not re.fullmatch(r"[0-9a-f]{40}", source_commit):
+            faults.append(f"{label}:source commit 不正")
+        else:
+            ancestor = subprocess.run(  # noqa: S603 -- code-allowlisted commit and fixed git argv
+                [git_executable, "merge-base", "--is-ancestor", source_commit, "HEAD"], cwd=ROOT,
+                capture_output=True, check=False,
+            )
+            source_doc = subprocess.run(  # noqa: S603 -- code-allowlisted commit/path
+                [git_executable, "show", f"{source_commit}:{item['canonical_path']}"], cwd=ROOT,
+                capture_output=True, check=False,
+            )
+            approval_path = rel(APPROVALS)
+            source_approvals = subprocess.run(  # noqa: S603 -- code-allowlisted commit/fixed path
+                [git_executable, "show", f"{source_commit}:{approval_path}"], cwd=ROOT,
+                capture_output=True, check=False,
+            )
+            if ancestor.returncode != 0:
+                faults.append(f"{label}:source commit が実在HEAD祖先でない")
+            if source_doc.returncode != 0 or hashlib.sha256(source_doc.stdout).hexdigest()[:12] != receipt.get(
+                    "content_binding_digest"):
+                faults.append(f"{label}:source commit blob digest 不一致")
+            approval_row = (
+                f"| 2026-08-14 | {expected['approval_target']} | {expected['approval_version']} | "
+                f"confirmed | PO | {receipt.get('prior_po_approval_digest')} |"
+            )
+            if source_approvals.returncode != 0 or approval_row.encode() not in source_approvals.stdout:
+                faults.append(f"{label}:source commit の対象別PO承認行不在")
+        if receipt.get("migration_actor") != "tool:authority-content-binding-migration":
+            faults.append(f"{label}:migration actor 不正")
+        reason = receipt.get("migration_reason")
+        if not isinstance(reason, str) or not reason.strip():
+            faults.append(f"{label}:migration reason 欠落")
+        if receipt.get("semantic_unchanged") is not True or receipt.get("grants_new_approval") is not False:
+            faults.append(f"{label}:意味不変・非承認境界の違反")
+    return faults
+
+
+def _content_binding_migrations(ctx: Ctx, data: dict | None = None) -> dict[str, dict]:
+    if content_binding_migration_faults(ctx, data):
+        return {}
+    ledger = data if data is not None else load(CONTENT_BINDING_MIGRATIONS)
+    return {row["artifact_id"]: row for row in ledger["receipts"]}
 
 
 # ---------------------------------------------------------------- 検出関数（mutation test が共用）
@@ -670,19 +788,26 @@ def _manifest(ctx: Ctx) -> None:
     gate("G-MANIFEST-DOMAIN", not dom_bad,
          f"domain は業務領域のみ（slice 名・階層名の混同を拒否） (違反={dom_bad[:4]})")
 
+    migration_bad = content_binding_migration_faults(ctx)
+    migrations = _content_binding_migrations(ctx)
     appr = _approval_digests(ctx)
-    st_bad: list[str] = []
+    st_bad: list[str] = [f"content binding:{fault}" for fault in migration_bad]
     for it in items:
         if it["lifecycle_status"] == "confirmed":
             want = artifact_content_digest(ROOT / it["canonical_path"])
-            if it["approval_digest"] != want:
+            migration = migrations.get(it["artifact_id"])
+            content_bound = it["approval_digest"] == want or (
+                migration is not None and migration["content_binding_digest"] == want
+            )
+            if not content_bound:
                 st_bad.append(f"{it['artifact_id']}:digest 不一致({it['approval_digest']}!={want})")
-            elif it["approval_digest"] not in appr:
+            if it["approval_digest"] not in appr:
                 st_bad.append(f"{it['artifact_id']}:approvals 行なし")
         elif it["approval_digest"] is not None:
             st_bad.append(f"{it['artifact_id']}:非 confirmed に approval_digest")
     gate("G-MANIFEST-STATUS", not st_bad,
-         f"confirmed artifact は内容束縛 digest＋承認行を持つ (違反={st_bad[:4]})")
+         "confirmed artifact は内容束縛 digest＋承認行を持ち、機械補正は既存PO承認へ束縛されて"
+         f"意味不変かつ新規承認を付与しない (違反={st_bad[:4]})")
 
     rev_digests: set[str] = set()
     for p in sorted((AUTHORITY / "reviews").glob("*.json")):
@@ -775,7 +900,14 @@ def _confirmed(ctx: Ctx) -> None:
         base = re.sub(r"_v[\d.]+$", "", p.stem)
         m = re.search(r"_v([\d.]+)$", p.stem)
         ver = f"v{m.group(1)}" if m else "-"
-        return doc_body_digest(p) in receipt_index.get((base, ver), set())
+        direct = doc_body_digest(p) in receipt_index.get((base, ver), set())
+        if direct:
+            return True
+        item = next((it for it in ctx.manifest_items if it.get("canonical_path") == rel(p)), None)
+        if item is None:
+            return False
+        migration = _content_binding_migrations(ctx).get(item["artifact_id"])
+        return bool(migration and migration["content_binding_digest"] == doc_body_digest(p))
 
     unbound = [f"{p.name}:{doc_body_digest(p)}" for p in live_markdown()
                if not p.samefile(APPROVALS)

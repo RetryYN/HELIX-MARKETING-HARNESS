@@ -6,20 +6,11 @@ slice: cross
 
 # 要件定義書 v0.1
 
-> [!WARNING]
-> **旧baselineの履歴view。現行要件の正本・設計・実装入力ではない。**
-> 下記`confirmed`は2026-07-31時点の成熟度と承認履歴だけを表す。現在は
-> `requirements_baseline_status=revising` / `implementation_authorized=false`であり、
-> 現行の要求候補・refinementをPO receipt付きfrozen revisionへ切り替え、Full Vを
-> 再降下するまで本書から設計・実装を開始しない。同一IDの旧一覧と契約JSONの
-> slice/trace差分は `G-REQ-SEMANTIC-DRIFT` の再検証対象である。
-
 > status: **confirmed**（2026-07-31 PO 承認 — 要件定義完遂指示。AI 起草）
 > pair: [verification-design_v0.1.md §2〜§6](../../verification/verification-design_v0.1.md)（検証設計③ — HELIX 式 ①↔③ 文書ペア）
 > 上位文書: [br-backbone_v0.1.md](../../../L1-business-requirements/canonical/br-backbone_v0.1.md)（BR 背骨）／ charter v0.3（層外 anchor）
 > 機械可読正本: 要件エンティティ（BR/REQ/FR/NFR/AC/FN/MR/WF）は [json/](../) に JSON 正本を併置する。
-> 「人の承認はMD、編集時は両方同期」は旧baselineの運用履歴である。現行は
-> authority policyとrefinement receiptを優先し、本MDを直接編集して正本に戻さない。
+> 人の承認は MD、実装・変換の入力は JSON を用い、編集時は両方を同期する（PO 方針 2026-07-30）。
 > 各 FR/NFR は BR に trace する。値はハードコードせず充填経路（H/R/C）を踏襲。
 > **実行契約正本（2026-08-01 全層再降下 §3-§4）**: 各 FR の 18 観点実行契約 =
 > [json/fr/fr-contracts.json](fr-contracts.json)（ビュー [fr-contracts_v0.1.md](../../views/fr-contracts_v0.1.md)）、

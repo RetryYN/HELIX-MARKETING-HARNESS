@@ -65,12 +65,13 @@ inventoryは非権威projectionであり、採否receiptの代替ではない。
 - ADR-007は実環境とXServer API/CLI PoC証跡に基づきVPS製品runtimeをacceptedとする。
 - ADR-010の投入順序は2026-08-14追補でDiscord先行からWeb UI先行へ改訂した。
 - ADR-013はWeb UI＋UI内inboxを初期主入口としてacceptedである。
-- VPS配備、UI主入口、UI内inbox初期搭載は確定した。ただし要求完了前に実装へ進まず、Web Push、
-  Discord補助通知、品質閾値の範囲を確定後、ADR-010/013と要求契約を正規化する。
+- VPS配備、UI主入口、UI内inbox初期搭載は確定した。Discordは製品通知、承認通知、deep-link補助及び
+  開発PR通知へ使用せず、community marketing媒体だけに限定する。ただし要求完了前に実装へ進まず、Web Push、
+  品質閾値及びUI認証・公開境界を確定後、ADR-010/013と要求契約を正規化する。
 
 解決した要求基準はVPS `helix-worker`への製品runtime配置方針、製品Web UI主入口、UI内inbox初期搭載である。
 runtime、service、UIの実装・配備は未着手であり、この要求決定を稼働済み証跡にしない。未解決は
-Web Push追加とDiscord補助の採否、認証・公開要件であり、L2以降はなお再降下待ちとする。
+Web Push追加の採否、認証・公開要件であり、L2以降はなお再降下待ちとする。Discord通知の再開条件は設けない。
 
 ### F-02 承認と運用通知の混同（Blocker）
 
@@ -330,6 +331,9 @@ accepted ADR-007はVPS上の`0600`環境fileをcredential保存先とするが�
 journal、argv、dumpへの漏えいを防がない。ADR-014は暗号化store又は有人一時注入への改訂候補だが未承認である。
 具体backendを設計で先取りせず、at-rest保護、unlock、runtime注入、rotation、backup/recovery、scope分離を要求として
 凍結し、ADR-007/014、FR-47、NFR-4、CMP-07、DU-14を同一receiptへ再降下するまでVPS credential実装を禁止する。
+PO回答RDE-000162により、現行VPS再起動ではエージェント実行系も停止するためcredential単独の無人unlockを行わず、
+外部操作停止を維持する。人間が実行系を再初期化するときにunlock／runtime注入も再認可する。将来の常駐service、
+自動再起動及び無人unlockは現要求へ暗黙追加せず、service lifecycleと漏洩半径を含む別要求として再判断する。
 
 ### F-33 要求定義済みと実装降下済みの混同（Major）
 
@@ -435,7 +439,8 @@ POとの要求確認で、(1)公式API／MCP優先＋Playwright fallback／brows
 marketing媒体として使う、(3)VPS UI内inboxで初回scope承認後は毎回承認なしで自動運用、(4)不合格contentは
 人間確認前に自動再生成・再検査、(5)feedbackをscope付き外部ruleへ追加、(6)YMYL等のrisk別厳格性とcase-by-caseの
 好み、(7)research→marketing funnel→媒体役割→KPI還流、(8)商品／offerごとの変更capability、(9)有料集客は超後期
-deferred、が回答された。これらを`captured_po_decisions`だけに残さず、RDE-000136〜147、PRC-30〜35及び6件の
+deferred、(10)VPS再起動後は外部作用を停止し実行系再初期化とcredential再認可を同時に行う、(11)通常retryは通知せず、
+retry exhaustionで`blocked`になった場合だけVPS UI内inboxへ通知する、が回答された。これらを`captured_po_decisions`だけに残さず、RDE-000136〜164、PRC-30〜35及び6件の
 意味軸付きrefinementへmaterializeした。`G-REQ-DECISION-PACKETS`は回答が要求subjectへmaterializeされない状態を拒否する。
 
 content gateとgrowth要求は、禁止語だけでなくpeople-firstの有用性、独自research／分析、claim-source対応、鮮度、経験／
@@ -455,15 +460,38 @@ PRC-05／31は`DISCORD-COMMUNITY-MARKETING-ROUTE`だけへ束縛し、gate mutat
 
 RDE-000142〜147の6質問は、会話上すでに回答済み又は対象登録時のcapabilityから決まる内容だったため、未回答の
 PO質問として残さない。RDE-000148〜153へ回答をappendし、Playwright route、Discord community、初回activation後
-自動運用、quality learning、risk classification、research-led growthの6 refinementを`specified`へ進めた。これは
+自動運用、risk classification、research-led growthの5 refinementを`specified`へ進めた。quality learningも
+RDE-000163／164で、通常retryは無通知、retry exhaustion時だけ`blocked`状態へ束縛したUI inbox eventを記録し、
+通知記録失敗で停止をrollbackしない要求として`specified`へ進めた。update-in-place非対応の既公開成果物は通知を含め
+何もしないという別境界を維持する。これは
 質問解消の証跡であり、subject全体のPO approval又はfrozen cutoverではない。operation別account情報や数値設定は
 媒体／campaign登録時に束縛し、全媒体共通の抽象質問としてPOへ再質問しない。
 
-旧`AUTO-MODE-DECISION-AUTHORITY`は過去にwithdrawn済みで、期限切れ時に毎回承認へ戻す旧意味を持つため履歴のまま変更しない。
+旧`AUTO-MODE-DECISION-AUTHORITY`は過去にwithdrawn済みで、期限切れ時に毎回承認へ戻す旧意味を持つため、
+`AUTOMATED-PUBLISHING-ADMISSION`を置換先に指定して`superseded`履歴へ移した。
 RDE-000154／155は新`AUTOMATED-PUBLISHING-ADMISSION`へ束縛し、固定期限を全対象へ強制せず、取消・権限喪失・scope外・
 重大rule変更又は停止条件成立時は外部writeを停止する要求へ置換した。停止後は個別承認modeへ暗黙復帰せず、対象scopeを
 再表示した明示re-activationまで停止を維持する。これにより機械criteriaは成果物gate又はactivation候補評価に限定され、
 activationそのものの代替にならない。
+
+9件の`captured_po_decisions`は会話のメモとして放置せず、decision ID以外の全field digest、決定ごとの型付きcontrol、
+required subject集合及び各refinementの全semantic contract digestへ束縛した。特にscope指定がないfeedbackは
+`source_feedback.media_account_id`だけをderived scopeとし、同一媒体の別account、全profile又は全媒体へ拡張しない。
+外部化rule、初回activation、再生成順序、update-in-place非対応時の無通知non-action、YMYL境界、research/funnel及び
+有料集客の超後期deferredを文章tokenではなくexact controlと反転mutationで検査する。これは回答内容の改変防止であり、
+個別refinementのPO approval又は要求freezeを意味しない。
+
+未回答一覧も再分類し、既回答の再確認は削除した。provider／capability／account／媒体別route／quota実値等は
+`registration_bindings`へ、backoff、競合制御、session実装、migration orchestration等は`design_later`へ移し、
+PO質問には要求policy、authority、risk、quality target、release scope及びdeferred再開判断だけを残した。
+terminalな`superseded` subjectはopen refinement及びcutoverのactive分母から除外する一方、既知の置換先を必須とし、
+registrationとdesign-laterの重複又は未知置換先をmutation testで拒否する。この分類は個別登録又はL2設計を実施済みと
+するものではない。
+
+registration及びdesign-laterは要求freeze自体を止めないが、各subject／種別／項目からstable obligation IDを導出する。
+`implementation_authorized=true`には全obligationのfulfillmentを要求し、登録row又は設計clauseをadmission対象artifactの
+JSON Pointer又は明示`CL-*` markerへ束縛する。該当node／clause digest、obligation receipt及び独立Go review digestを
+実体から再計算するため、架空target、一般語locator、任意digest又は無関係なL2〜L6成果物では実装admissionを通せない。
 
 ### F-46 旧L0の事業価値と実現手段のclause別移送（構造解消、承認未完）
 
@@ -500,7 +528,7 @@ Discord通知、ApprovalTransport再利用、通常投稿の毎回承認、機�
 しないことを検査する。これは旧契約の置換候補を明示しただけであり、新BR/REQ/FR/AC/TC又はL2設計への再降下は未実施である。
 全864 IDのrevalidation inventoryでもBR-H2/H3及びFR-16/43/46/75/76/77の判断ownerを新subjectへ差し替え、MR-DC-1〜3は
 Discord community専用subjectへ束縛した。旧`AUTO-MODE-DECISION-AUTHORITY`及び`DISCORD-MULTI-PURPOSE-BOUNDARIES`は
-履歴deferred packetへ隔離し、PRC-06／22の意味ownerは`AUTOMATED-PUBLISHING-ADMISSION`へ置換した。
+置換先付き`superseded`履歴へ隔離し、PRC-06／22の意味ownerは`AUTOMATED-PUBLISHING-ADMISSION`へ置換した。
 
 ### F-48 全要求層の意味降下policy（構造解消、個別再降下未完）
 
@@ -625,11 +653,16 @@ allowed alternatives及びfixed constraintsに従い、権限不明なら変更�
 旧FN 61件、AC 252件及びTC 258件は旧要求から派生しており、上位FR/SR/NFR/MRの意味、phase、通知、承認、provider及び
 媒体routeが置換対象である以上、IDが存在し旧試験が成功しても現要求の設計又は受入証拠にはならない。
 `legacy_derived_contract_policy`は各kindの全stable ID集合をcountとdigestで固定し、処置を
-`defer_until_parent_redescent`、statusを`legacy_revalidation_only`、`design_not_started=true`とした。
+`defer_until_parent_redescent`、statusを`legacy_revalidation_only`、`design_not_started=true`とした。加えてFN 61件、
+AC 252件、TC 258件をID別source snapshotと意味inventoryへ収載した。FNは親要求semantic digest、固有side effect、owner、
+evidence及び旧phaseを、ACは親要求/FN digest、旧oracle、polarity、critical family、owner/effect及びphaseを、TCは旧test oracleの
+全field、親AC digest、critical control、旧phase/aliasをexactに保持する。親再降下前は全TCをdeferし、旧成功結果を現受入証拠へ
+読み替えない。
 
 再利用には、親要求のPO receipt付きfrozen正本、actor/scope/HJ/side effect/evidence/phaseの再生成、FN→AC→TCの同一revision降下、
 通知/承認/community/金銭operationのpurpose分離及び旧TC alias/draft STCの解消が必要である。
-`G-REQ-LEGACY-DERIVED-CONTRACTS`は集合digestとこの境界を検査する。これは新FN/AC/TCの作成又は受入完了ではなく、
+`G-REQ-LEGACY-DERIVED-CONTRACTS`とFN/AC/TC各意味inventory gateは集合digest、親meaning digest、critical controls、
+分類approval及びこの境界を検査する。全inventoryはPO未承認であり、これは新FN/AC/TCの作成又は受入完了ではなく、
 要求確定前に旧下位成果物から設計を逆算しないためのfail-closeである。
 
 ### F-56 新要求revision方式のPO未決境界（候補明示、未解決）
@@ -645,16 +678,128 @@ supersedes mapping及び旧consumerの一括置換/historical隔離を推奨案�
 ### F-57 目的別完了証拠と非完了境界（構造解消、新要求freeze未完）
 
 `objective_completion_audit`は、全旧要求層の意味棚卸し、旧requirements consumer隔離、VPS UI/inbox要求、設計未着手及び
-新要求正本freezeを別々に評価する。全件棚卸し、旧参照隔離及び設計未着手は対応するexact coverage/digest/consumer/design gateにより
-`proven`とした。VPS UI/inboxは候補とdispositionまでで新BR/REQ/FR/NFRへの再降下がないため`incomplete`、新要求正本freezeは
-revision方式と全refinementのPO receiptが未決のため`blocked_by_po`である。
+新要求正本freezeを別々に評価する。旧参照隔離及び設計未着手は対応するconsumer/design gateにより`proven`である。
+全864 IDのsource/meaning/oracle候補はexact coverageとdigestで記録済みだが、個別処置と意味移送がPO未承認で、trace、phase、
+semantic dimensions及び新正本再降下も未完のため棚卸し目的は`incomplete`を維持する。VPS UI/inboxも候補とdispositionまでで
+新BR/REQ/FR/NFRへの再降下がないため`incomplete`、新要求正本freezeはrevision方式と全refinementのPO receiptが未決のため
+`blocked_by_po`である。
 
 `G-REQ-OBJECTIVE-COMPLETION-AUDIT`は証拠と残条件を検査し、棚卸し完了を要求完了、UI候補を実装済み、又は旧設計の隔離を
 新設計完了へ読み替えることを拒否する。
 
+### F-58 Discord拒否後の製品通知route（意味衝突解消、未批准）
+
+現役`DISCORD-NOTIFICATION-REJECTION-BOUNDARY` recordには、Discord拒否後を「UI inbox又は別承認済みadapter」とする句が
+残っていた。この句は同recordを親にするFR-16 policyの`no_external_fallback`、POD-002の
+`product_notification_route=vps_ui_inbox`及びVPS Web UI＋UI inboxを初期主入口にする要求候補と衝突していた。
+
+workflowとpositive acceptanceをVPS UI inbox限定へ修正し、record→FR-16 policy→Discord rejection policyの順に
+semantic/content/full digestを再束縛した。Discord community route、UI primary、publishing、quality、risk、growth、inbox及び
+authority coverage/ratification auditの依存digestも同じcandidate revisionへ追随した。旧「別承認済みadapter」句へrecordと
+local parent/policy digestを追随させてもcode-exact record pinが拒否するmutationを持つ。discovery ledgerに残る旧句は
+append-only source observationであり、現route又はfallback authorityではない。将来別channelを採用する場合は、新しい要求revisionと
+明示PO decisionが必要であり、現candidateの暗黙fallbackにはしない。
+
+### F-59 GENAI CLI routeの登録境界（曖昧語解消、未批准）
+
+現役`GENAI-EXECUTION-ROUTE` recordのscopeにあった「任意CLI adapter」は、任意採用という意図と、任意の未登録CLIを
+許す意味を区別できなかった。typed GENAI policyは`registered_cli`を別PO批准済みregistrationだけで採用し、runtime必須依存には
+しないため、recordを「個別登録済みCLI adapter」へ明確化した。provider-neutral、CLIのoptional性及びCodex/Claudeを必須runtimeに
+しない境界は維持する。旧曖昧句へrecordとpolicy digestを追随させてもcode-exact content pinが拒否するmutationを持つ。
+
+### F-60 doctorの旧fault再報告（運用診断をstage-aware化）
+
+標準入口`make doctor`は`engine_report`の内部raw fault配列をそのままNG表示し、全ゲートが
+`G-REQ-LEGACY-FAULT-STAGE-AUDIT`でexact quarantineした22群まで現行No-Goとして再報告していた。これはfail-openではないが、
+真の未承認箇所を埋没させ、唯一の合否正本である`run_all`へ到達する前に終了する不整合だった。
+
+requirement engineにstage-awareなactionable fault projectionを追加し、revising・implementation false・stage audit fault 0が
+同時成立するときだけ22 raw群をquarantine表示へ分離した。stage auditが1件でも壊れればraw faultは再びactionableになる。
+doctorはこの診断後もdocs checkと全ゲートを必ず実行し、最終exitを`run_all`へ委ねる。baseline更新前の監査時点では要求側8件と
+evidence側2件の合計10 No-Goだった。
+
+### F-61 superseded subjectの再批准導線（意味衝突解消）
+
+批准dependency auditは旧`AUTO-MODE-DECISION-AUTHORITY`、旧`DISCORD-MULTI-PURPOSE-BOUNDARIES`及び旧semantic
+coverage subjectをhistorical exclusionとしていたが、PO decision packet、PRC-24 meaning owner及びscope assignmentには前2件が
+deferred candidateとして残っていた。これではsuperseded履歴を旧意味のまま個別再開でき、現行の
+`AUTOMATED-PUBLISHING-ADMISSION`、Discord notification rejection及びcommunity routeとの二重authorityになる。
+
+actionable subject母集団をrecordの`lifecycle_status != superseded`から共通導出し、3件を
+`historical_superseded`へexact分類した。RDP deferred packetとPRC-24から旧2件を除去し、現役GENAI、legacy media及びstrategy
+subjectだけを判断対象・meaning ownerとして残した。各superseded recordの`superseded_by_subject_ids`は実在する非superseded
+ownerへ閉じることを検査し、旧subjectのpacket/PRC再混入又はdeferred復帰をmutationで拒否する。履歴recordとreplacement
+provenanceは保持するが、旧record自身を批准・実装・再開authorityにはしない。
+
+### F-62 AGENT NEO repo境界の重複PO質問（既回答として解消）
+
+`AGENT-NEO-HELIX-REDEFINITION`には、MARKETING HARNESSとAGENT NEOのrepo/authority/API/evidence境界を
+閉じる質問が残っていた。しかし現repo規約及びtyped resolverは、現repoの作用を要求authority・integration contract・digest
+evidence参照へ限定し、AGENT NEO repoをread-only、外部writeを別authorization・commit・review・Go必須としてすでに閉じている。
+site-build/product-evolution policyもrequirements cutoverと外部repo write authorityを分離し、credential、review及び旧成功receiptの
+横流用を禁止しているため、この質問は新しいbusiness判断ではなく回答済み境界の再質問だった。
+
+当該pending questionとclassificationを削除し、旧package、license、Automation SEO、CRM、SNS、外部API及びAI機能の採否だけを
+true PO判断として残した。repo/APIのinstance値はregistration、transport/schema/adapter等はdesign-later、将来の外部repo
+change-unit採否とrelease outcomeはproduct-evolution側の個別判断へ分離する。record、AGENT NEO parent、site-build及び
+product-evolution authority digestを同じcandidate revisionへ再束縛し、解決済みrepo境界の質問再混入をmutationで拒否する。
+
+### F-63 現役要求のpositive authority再走査（旧方式の再混入なし）
+
+F-58〜F-62反映後のrecord母集団は現役35件（specified 21、draft 14）とhistorical superseded 3件である。現役35件の
+actor/value/tasks/workflow/scope/side-effect/evidence/HJ/phase及びtop-level typed policyのrequired/allowed/current/
+operation/effect/authority側を再走査した。全現役phaseは`requirements`、残るtrue PO questionは15件であり、旧WSL runtime、cron、
+SQLite/home UI、ApprovalTransport、Notion decision sync、Docker WP成功、consumer Web UI無人操作、Claude/Codex固定provider、
+旧S0/L2+をpositive implementation authorityとして保持する現役recordはない。
+
+旧語の残存はsource snapshot、meaning inventory、obsolete/prohibited inheritance、scope-out、deferred/resume、design-later又は
+superseded historyに限定する。Discordのpositive routeはcommunity marketingの登録済みBot/guild/channel operationだけで、製品通知・
+approval・開発PR・self-botはno-send/prohibitedである。VPS Web UI＋UI inboxは初期human/product notification候補、API/MCPは
+公式優先、Playwrightはoperation別fallback又はread-only confirmation、credential restart後は外部作用停止として現行policyへ束縛される。
+この走査は批准又は実装許可ではなく、旧参照のpositive authority再混入がないことのcandidate監査である。
+
+### F-64 baseline更新のcontent-binding整合（機械補正、承認非生成）
+
+ADR-013は既存PO承認digestを保持したまま、frontmatterを含む全文digest計算法への機械的なcontent binding補正を
+`content-binding-migrations.json`へ分離している。従来の`--update-baseline`は現内容digestを承認行へ直接要求していたため、
+この非承認migrationを検証済みでもbaseline更新を拒否していた。`run_all.py`はauthority gateのcode-exact migration検証が
+成功した場合だけ、そのcontent digestをbaseline更新のreceipt indexへ追加するよう修正した。source commitの祖先性、source blob、
+対象PO承認行、現内容digest、`semantic_unchanged=true`及び`grants_new_approval=false`は引き続き必須であり、通常の未承認
+confirmed変更を許可する経路ではない。これによりG-BASE-ARTはPASSしたが、8件の要求批准No-Goと独立review bindingは残る。
+
+## 現worktreeのred gate disposition
+
+`python3 tools/gates/run_all.py`の現行9 FAILは次の3群であり、一括waive又は件数だけのgreen化をしない。
+
+旧compatibility契約のsemantic drift、trace、phase、意味軸、旧route、通知、媒体、L2、credential、human judgement、
+NFR/provider等22 raw gateは、`requirements_baseline_status=revising`かつ`implementation_authorized=false`の間だけ
+`G-REQ-LEGACY-FAULT-STAGE-AUDIT`で既知隔離する。各faultのexact count/sorted digest、契約source digest、ADR・refinement・
+L0〜L5 canonicalを含む146 fileのsnapshot digest、対応typed policy/inventory fault=0を同時に要求する。fault又は入力が1件でも
+増減すれば隔離は無効になる。approved cutoverでは隔離を使わずraw fault 0を要求するため、このPASSは意味解消・批准・実装許可を
+表さない。
+
+- 6件: BR／REQ／FR、SR／NFR、MR、FN、AC、TCのID別意味inventory。棚卸し構造は閉じたが、各分類のPO receiptが
+  ないためcutoverを止めている。inventory存在を意味採用又は実装許可へ読み替えない。
+- 1件: active refinementのpending、PO receipt及びfrozen未成立。既回答、registration、design-later及びterminal
+  supersededはPO質問分母から除外済みだが、真の要求判断は一問ずつ閉じる。
+- 1件: strategy test authorityが未批准であり、旧draft test ledgerを現oracleへ昇格しない。
+- 1件: review binding。manifest／confirmed digest／baseline hashは旧承認blob復元と
+  content-binding migrationの検証、及び非承認migration receiptを認識するbaseline更新によりPASSしている。残るレビューは
+  意味決定と生成物が確定した最終commit・独立レビューで束縛する証跡であり、作業途中に架空承認、自己申告review又はbaseline更新で隠さない。
+
+監査開始時のbranchは`agent/requirements-semantic-reaudit`、HEADは`7488e8516a17f2c7e20f731de66e7345578ef9fc`で
+`origin/main`より1 commit先行していた。全gate PASS前のpushを禁止するrepo規律に従い、candidate変更はローカルcheckpointへ
+commitしたが、GitHubへはまだ同期していない。これは同期完了ではなく、未承認を隠すpushを避けたfail-close状態である。
+remote fetch後も同名remote branchは未作成であり、ローカルcheckpointは`origin/main`との差分として残る。
+同期前の`make docs-check`、`make lint`、`make typecheck`及び`make imports`はPASSしている。要求gate 3 test fileも全PASSし、
+全gateのFAILは上記10件から増えていない。
+
+したがって現判定はNo-Goのままである。構造gateと旧fault隔離gateがPASSしていても、上記6未承認inventory、strategy test、
+active refinement及びauthority evidenceが残る限り、要求確定、L2設計済み又は製品実装可能とは宣言しない。
+
 ## 要求完了の必要条件
 
-1. F-01〜F-57を個別に解消又は要求候補へ束縛し、未解決findingにはquestion/answerとPO選択が
+1. F-01〜F-64を個別に解消又は要求候補へ束縛し、未解決findingにはquestion/answerとPO選択が
    discovery ledgerにappend-onlyで存在する。F-42のように機械隔離で解消したfindingへ不要なPO判断を要求しない。
 2. BR/REQ/FR/SR/NFR/MR/FNの各責務がactor・価値・scope・禁止・人間判断・副作用・証跡で一致する。
 3. 実行対象の各要求がAC/TCまで反証可能に降下し、未実装将来候補はdeferredと再開条件を持つ。

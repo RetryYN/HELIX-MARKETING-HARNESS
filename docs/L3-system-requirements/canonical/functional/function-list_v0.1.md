@@ -6,9 +6,6 @@ slice: cross
 
 # 機能一覧（FN）v0.1
 
-> [!WARNING]
-> **旧baselineの機能台帳。現行要求の設計・実装入力ではない。** `applicability_status=revalidation_required` / `implementation_input=false`。
-
 > status: **confirmed**（2026-07-31 PO 承認 — 要件定義完遂指示。AI 起草）
 > 実装単位でフラットに並べた機能の一覧。trace 先は **FR / NFR / MR の ID のみ**（BR への直接参照は不可 —
 > 業務要求は必ず FR/NFR を経由して機能へ降ろす）。

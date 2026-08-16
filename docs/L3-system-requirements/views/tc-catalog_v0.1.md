@@ -2,10 +2,6 @@
 
 # テストケース 検証契約カタログ（TC contracts）v0.1
 
-> [!WARNING]
-> **旧baselineの生成view。現行要求の正本・設計・実装入力ではない。**  `requirements_baseline_status=revising` / `implementation_authorized=false`。
-> 下記status/receiptは旧baselineの成熟度と承認履歴だけを示す。PO receipt付きfrozen refinementからFull Vを再降下しauthority cutoverするまで、本viewの内容をcurrentへ読み替えない。
-
 > status: **confirmed**（2026-08-01 PO 承認 — receipt f688c9d2612c）。JSON 内容正本の生成ビュー（全層再降下 §5）
 > 全 AC 検証契約と双方向接続（G-TRACE-BIDIR）。状態・DB 差分・証跡・禁止副作用・外部呼出回数を検証。
 > 旧体系のテストケースは historical 記録のみ（現行分母は本カタログ）。
