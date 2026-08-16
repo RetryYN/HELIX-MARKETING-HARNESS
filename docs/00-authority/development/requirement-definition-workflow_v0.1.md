@@ -35,8 +35,10 @@ side effect／evidence／phase、positive／negative／boundary acceptanceとsys
 
 ## 2. stable ID と trace
 
-- L1 の要求 ID（BR／REQ）は既存正本の ID を維持し、L3 FR／NFR は対応する上流 ID を `trace_up` に持つ。
-- AC は検証する契約節を明示し、TC は AC と同じ契約節を観測する。名称の部分一致や画面名だけで接続しない。
+- 旧L1要求ID（BR／REQ）と旧L3 FR／NFRの `trace_up` は再検証inventoryの固定参照として扱う。新要求のID・traceはPO分類・要求authority
+  cutover後に新selected clauseから再生成し、旧IDを自動維持・移送しない。
+- 旧AC／TCの契約節接続は再検証inventoryのoracle確認に限る。新AC／TCはPO分類・test authority cutover後に新selected clauseから生成し、
+  名称の部分一致や旧画面名だけで旧traceを継承しない。
 - 旧L2の画面 ID は `L2-UI-*` artifact と画面 ID（AP-01 等）を分けて評価する。旧画面は業務状態を独自定義せず、
   s0-contract と L3 契約の語彙を参照する。新要求からの画面ID・状態・UI設計はPO freeze後に再降下し、現段階の評価用draftから継承しない。
 - 不確実な媒体・外部接続は、提案中の ADR-011（実装前 PoC）の採否を PO が判断した後、その採択内容に従って

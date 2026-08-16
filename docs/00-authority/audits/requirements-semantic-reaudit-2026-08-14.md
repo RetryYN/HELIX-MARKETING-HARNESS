@@ -913,6 +913,16 @@ UI framework、認証、配備、API、画面、通知実装は未決定であ�
 自動運用、content gate及びresearch-led growthの方向は回答capture済みだが、個別refinementのPO承認、frozen cutover、
 媒体operation別境界及びL2以降の設計は未完了である。
 
+### F-73 要件定義ワークフローの旧ID／trace継承を再検証inventoryへ限定（PO不要修正）
+
+Fable lowの再監査で、workflowのL1 BR／REQ ID維持、FR／NFR `trace_up`、AC／TC契約節接続が現在形のまま残り、旧ID・旧traceを
+新要求へ自動移送できる意味穴を確認した。旧ID／trace／oracleは再検証inventoryの固定参照に限定し、新ID・trace・AC／TCはPO分類と
+要求／test authority cutover後に新selected clauseから生成するよう本文を修正した。
+
+`G-REQ-DESIGN-NOT-STARTED` に旧ID／AC-TC現在形句の禁止markerと、再検証限定のrequired markerを追加し、安全文を保持したまま
+旧句を追記するmutationを確認した。現HEADの `design_not_started_faults(Ctx())` は空であり、要求候補、VPS UI＋UI inbox、Discord
+製品通知拒否／community分離、全write=false、PO承認・独立Go・L2以降の設計未着手境界は不変である。
+
 ### F-72 要件定義ワークフロー入口の旧L2／旧契約方式を再検証sourceへ限定（PO不要修正）
 
 Fable lowの隣接入口走査で、`requirement-definition-workflow_v0.1.md` が旧BR／REQ／L2／9契約／s0の構造を現行workflowの

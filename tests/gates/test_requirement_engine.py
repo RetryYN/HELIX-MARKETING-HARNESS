@@ -1145,6 +1145,8 @@ def test_design_not_started_rejects_current_claude_design_constraint_entrypoint(
                 "新要求からのL2画面設計・旧方式の採用は、PO freeze、L2〜L6再設計、別admissionの後に新正本から再選択する。",
                 "新要求からの画面ID・状態・UI設計はPO freeze後に再降下し、現段階の評価用draftから継承しない。",
                 "旧承認 API／既存 config INSERT は再検証対象であり、新要求のwrite方式として継承しない。",
+                "旧L1要求ID（BR／REQ）と旧L3 FR／NFRの `trace_up` は再検証inventoryの固定参照として扱う。",
+                "旧AC／TCの契約節接続は再検証inventoryのoracle確認に限る。",
             )
         ),
         encoding="utf-8",
@@ -1169,6 +1171,13 @@ def test_design_not_started_rejects_current_claude_design_constraint_entrypoint(
     assert faults == []
     workflow_safe = workflow.read_text(encoding="utf-8")
     workflow.write_text(workflow_safe + "\n現行のJSON契約正本へPython-nativeに適応する手順\n", encoding="utf-8")
+    faults = requirement_engine.design_not_started_faults(ctx)
+    assert any("要件定義ワークフロー入口にL2設計又は旧方式の現在形命令" in fault for fault in faults)
+    workflow.write_text(workflow_safe, encoding="utf-8")
+    workflow.write_text(
+        workflow_safe + "\nL1 の要求 ID（BR／REQ）は既存正本の ID を維持し、L3 FR／NFR は対応する上流 ID を `trace_up` に持つ。\n",
+        encoding="utf-8",
+    )
     faults = requirement_engine.design_not_started_faults(ctx)
     assert any("要件定義ワークフロー入口にL2設計又は旧方式の現在形命令" in fault for fault in faults)
     workflow.write_text(workflow_safe, encoding="utf-8")

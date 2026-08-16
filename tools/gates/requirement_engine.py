@@ -10673,6 +10673,8 @@ def design_not_started_faults(ctx: Ctx) -> list[str]:
         "新要求からのL2画面設計・旧方式の採用は、PO freeze、L2〜L6再設計、別admissionの後に新正本から再選択する。",
         "新要求からの画面ID・状態・UI設計はPO freeze後に再降下し、現段階の評価用draftから継承しない。",
         "旧承認 API／既存 config INSERT は再検証対象であり、新要求のwrite方式として継承しない。",
+        "旧L1要求ID（BR／REQ）と旧L3 FR／NFRの `trace_up` は再検証inventoryの固定参照として扱う。",
+        "旧AC／TCの契約節接続は再検証inventoryのoracle確認に限る。",
     }
     missing_workflow = sorted(marker for marker in required_workflow_markers if marker not in workflow_text)
     if missing_workflow:
@@ -10686,6 +10688,8 @@ def design_not_started_faults(ctx: Ctx) -> list[str]:
         "L2 の画面 ID は `L2-UI-*` artifact と画面 ID（AP-01 等）を分ける。画面は業務状態を独自定義せず、s0-contract と",
         "L2 の画面案は URL から承認を確定させず、write 操作は承認 API または既存の config INSERT の契約に限定する。",
         "`requirement-engine-authority.json`が9契約JSONをsource authorityとして列挙する。",
+        "L1 の要求 ID（BR／REQ）は既存正本の ID を維持し、L3 FR／NFR は対応する上流 ID を `trace_up` に持つ。",
+        "AC は検証する契約節を明示し、TC は AC と同じ契約節を観測する。",
     }
     present_workflow = sorted(marker for marker in prohibited_workflow_markers if marker in workflow_text)
     if present_workflow:
