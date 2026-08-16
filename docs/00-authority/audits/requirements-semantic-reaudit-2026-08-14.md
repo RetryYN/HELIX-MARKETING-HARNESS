@@ -767,6 +767,28 @@ ADR-013は既存PO承認digestを保持したまま、frontmatterを含む全文
 対象PO承認行、現内容digest、`semantic_unchanged=true`及び`grants_new_approval=false`は引き続き必須であり、通常の未承認
 confirmed変更を許可する経路ではない。これによりG-BASE-ARTはPASSしたが、8件の要求批准No-Goと独立review bindingは残る。
 
+### F-65 現HEADでの継続監査（要求意味の状態を更新、批准は生成しない）
+
+継続監査時点の固定点は `b786b43d03decb05877bd9c2f905f91966d7ad94`、root tree は
+`702e88092ad25df7e88a6d101188742123824ce6` である。作業木はcleanで、現役recordは specified 21件、draft 14件、
+historical superseded 3件の計38件、現役35件の `semantic_dimensions.phase` はすべて `requirements` である。
+`requirements_baseline_status=revising`、`implementation_authorized=false`、implementation admission は
+`not_started` のまま維持し、要求候補・旧confirmed成果物・設計資料を実装入力へ昇格していない。
+
+標準pytestは `810 passed / 220 skipped`。`run_all.py` の9件のNo-Goは、strategy test authority、6つのlegacy
+meaning inventory、active refinementのPO分類・freeze・receipt、及び最終レビュー束縛である。いずれも現時点の
+承認・実装・設計を捏造せずに解消できる機械欠陥ではないため、件数だけを緑化しない。legacy fault stage audit、
+legacy consumer isolation、VPS UI primary/inbox、design-not-started、objective audit、baseline artifactはPASSである。
+
+旧方式のpositive authority再走査も同じHEADで再実施した。VPS Web UI＋UI内inboxは製品通知の候補経路として残り、Discordは
+製品通知・承認・deep-link・開発PR通知を拒否しcommunity marketingだけを別capability候補とする。WSL、cron、SQLite/home UI、
+Notion decision sync、Docker WP成功、固定provider、旧S0/L2設計は、source snapshot・prohibition・scope-out・deferred又は
+historical以外のpositive authorityとして現役recordに存在しない。これは要求候補の意味監査であり、PO批准・L2設計・実装許可ではない。
+
+GitHubは同名remote branch及びPRが存在せず、全gate PASS前のpushを禁止する規約に従い同期していない。最終要求revisionと
+独立レビューが成立するまでは、このlocal checkpointを候補監査の証跡として扱い、外部repoへのwriteや古いレビュー証跡の
+後付け継承を行わない。
+
 ## 現worktreeのred gate disposition
 
 `python3 tools/gates/run_all.py`の現行9 FAILは次の3群であり、一括waive又は件数だけのgreen化をしない。
