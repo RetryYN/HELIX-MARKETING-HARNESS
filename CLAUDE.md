@@ -139,15 +139,17 @@ codex exec -s workspace-write -m gpt-5.6-<sol|terra|luna> -c model_reasoning_eff
 4. 実装開始時に pytest ジョブと「CMP↔テストファイル対応」のペアゲートを CI に追加する
    （テストのない CMP を fail-close で検出）。
 
-## 実装時の設計制約（基本設計 §1・§4 の要点)
+## 旧baselineの設計制約（再検証資料・現行実装入力ではない）
 
-- fail-close 一元化（拒否はゲート層と状態機械に集約）／単方向依存（cli→kernel→gates→基盤）。
-- コネクタは業務状態を直接書かない。永続化はストア副層・kernel・evidence API 経由のみ。
-- 1 状態遷移 = 1 transaction。外部操作は「operation_log 証跡化 → 状態遷移」の順。
-- 時刻・乱数は Clock/Rng 注入。設定値はすべて config 行（ハードコード禁止）。
-- 旧baselineで外部writeを許可していたのは Docker WP のみだが、これも`revalidation_required`である。新baselineは
-  個別refinementのPO凍結とrelease受入まで全媒体writeを無効とする。Web UI内inboxは初期要求候補だが
-  refinement凍結まで実装しない。Notion審査同期と旧Discord承認tupleは
-  `revalidation_required`であり、新baselineの許可ではない。通知・媒体投稿・開発PR通知を相互流用しない。
-- 上流戦略正本は DB で保護する: brief の状態遷移は draft→active／active→superseded|retired のみ、
-  valid_until の延長は禁止（新版発行）、TLP の空配列判定は `json_array_length()` を使う。
+以下は旧baselineの基本設計に存在した制約を、再検証資料として記録する。現行要求・設計・実装を拘束しない。
+新要求のPO凍結・設計再降下後に、必要な制約だけを別途選択し、正本・manifest・baseline・独立レビューへ束縛する。
+
+- 旧baselineでは fail-close をゲート層と状態機械へ集約し、cli→kernel→gates→基盤という単方向依存を採用していた。
+- 旧baselineではコネクタから業務状態を直接書かず、ストア副層・kernel・evidence APIを経由させていた。
+- 旧baselineでは1状態遷移=1 transaction、外部操作はoperation_logの証跡化後に状態遷移する方式だった。
+- 旧baselineでは時刻・乱数をClock/Rngへ注入し、設定値をconfig行へ置く方式だった。
+- 旧baselineでは Docker WP のみ外部writeを許可していたが、現在は`revalidation_required`であり、新baselineの許可ではない。
+  現行候補では個別refinementのPO凍結とrelease受入まで全媒体writeを無効にし、Web UI内inboxも要求候補に留める。
+  Notion審査同期と旧Discord承認tupleも`revalidation_required`であり、通知・媒体投稿・開発PR通知を相互流用しない。
+- 旧baselineでは上流戦略正本をDBで保護し、briefの状態遷移、valid_until、TLPの空配列を特定のDDL/API方式で扱っていた。
+  上流戦略正本の保護方式は現行設計では未選択であり、DB/API/DDL方式をここから継承しない。

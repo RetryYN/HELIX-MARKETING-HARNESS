@@ -10628,6 +10628,17 @@ def design_not_started_faults(ctx: Ctx) -> list[str]:
     missing = sorted(marker for marker in required_markers if marker not in candidate)
     if missing:
         faults.append(f"要求候補に設計未着手境界がない={missing}")
+    claude_path = REPO_ROOT / "CLAUDE.md"
+    claude_text = claude_path.read_text(encoding="utf-8") if claude_path.is_file() else ""
+    required_claude_markers = {
+        "## 旧baselineの設計制約（再検証資料・現行実装入力ではない）",
+        "以下は旧baselineの基本設計に存在した制約を、再検証資料として記録する。現行要求・設計・実装を拘束しない。",
+        "新要求のPO凍結・設計再降下後に、必要な制約だけを別途選択し、正本・manifest・baseline・独立レビューへ束縛する。",
+        "上流戦略正本の保護方式は現行設計では未選択であり、DB/API/DDL方式をここから継承しない。",
+    }
+    missing_claude = sorted(marker for marker in required_claude_markers if marker not in claude_text)
+    if missing_claude:
+        faults.append(f"CLAUDEの設計入口が旧baseline再検証・現行未拘束境界を保持しない={missing_claude}")
     return faults
 
 

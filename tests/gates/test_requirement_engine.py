@@ -1087,6 +1087,27 @@ def test_l2_through_l6_remain_non_implementation_inputs_until_requirement_freeze
     assert any("旧L2がdraftでない" in fault for fault in faults)
 
 
+def test_design_not_started_rejects_current_claude_design_constraint_entrypoint(tmp_path, monkeypatch) -> None:
+    candidate = tmp_path / "docs/L1-business-requirements/canonical/product-requirement-baseline-candidate_v0.1.md"
+    candidate.parent.mkdir(parents=True)
+    candidate.write_text(
+        "\n".join(
+            (
+                "本ベースライン承認後にL2以降を新規に降下する",
+                "旧画面、API、DDL、状態、slice、AC／TC、実装単位は\n参考資料に限り",
+                "framework、component、URL、port、reverse proxy、認証protocol、session実装、CSRF方式、DB table、API、\nscreen ID、状態enum、retry回数、deployment topologyは設計事項である",
+            )
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "CLAUDE.md").write_text("## 実装時の設計制約\n- 旧方式を現在の実装命令として扱う\n", encoding="utf-8")
+    monkeypatch.setattr(requirement_engine, "REPO_ROOT", tmp_path)
+    ctx = Ctx()
+    ctx.__dict__["manifest_items"] = []
+    faults = requirement_engine.design_not_started_faults(ctx)
+    assert any("CLAUDEの設計入口が旧baseline再検証・現行未拘束境界を保持しない" in fault for fault in faults)
+
+
 def test_all_legacy_requirement_ids_have_typed_redescent_decision_routes() -> None:
     projection = requirement_engine.semantic_projection(Ctx())
     assert requirement_engine.projection_faults(projection) == []
