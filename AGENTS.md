@@ -20,7 +20,7 @@ Codex エージェント向けの要約入口。**詳細な作業規律の唯一
 - 旧baselineで外部writeを許可していたのはDocker WPのみだが、これも`revalidation_required`である。新baselineは
   個別refinementのPO凍結とrelease受入まで全媒体writeを無効とする。Notion審査同期と旧Discord承認tupleも
   新baselineの許可ではない。製品の初期承認・通知入口はVPS上のWeb UI＋UI内inbox候補、
-  Discordは未採用の任意deep-link補助候補であり、refinement凍結まで実装しない。credentialをrepo・DB・ログに書かない。
+  Discordは製品通知・承認・deep-link補助・開発PR通知の経路に採用せず、community marketingだけを別用途の候補として扱う。credentialをrepo・DB・ログに書かない。
 
 ## 実装正本
 

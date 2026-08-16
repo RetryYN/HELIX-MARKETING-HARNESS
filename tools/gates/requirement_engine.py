@@ -9599,6 +9599,30 @@ def vps_ui_requirement_descent_faults(ctx: Ctx) -> list[str]:
     )
     if "製品runtime、service、Web UI、これらの製品状態正本は\n実装・配備されていない" not in adr:
         faults.append("ADR-013: VPS配置方針と未実装runtime/UI/状態正本の現状を分離していない")
+    manifest_item = next(
+        (
+            item
+            for item in load(MANIFEST).get("items", [])
+            if isinstance(item, dict)
+            and item.get("artifact_id") == "AUTH-ADR-ADR-013-VPS-PRODUCT-UI-PRIMARY-HUMAN-INTERFACE"
+        ),
+        None,
+    )
+    if (
+        not isinstance(manifest_item, dict)
+        or manifest_item.get("applicability_status") != "revalidation_required"
+        or manifest_item.get("implementation_input") is not False
+    ):
+        faults.append("ADR-013: 旧deep-link補助を現行baselineへ適用せず再検証資料として隔離していない")
+    environment = (
+        REPO_ROOT / "docs/00-authority/development/development-environment_v0.1.md"
+    ).read_text(encoding="utf-8")
+    if (
+        "Discord 運用通知" not in environment
+        or "製品の運用通知はVPS UI内inboxに限定し、Discordは採用しない。" not in environment
+        or "一方向の運用通知候補" in environment
+    ):
+        faults.append("development environment: Discord運用通知をVPS UI inbox限定へ隔離していない")
     candidate = (
         REPO_ROOT / "docs/L1-business-requirements/canonical/product-requirement-baseline-candidate_v0.1.md"
     ).read_text(encoding="utf-8")
@@ -11681,7 +11705,7 @@ def legacy_fault_stage_audit_faults(
                 faults.append(f"{gate_id}: known quarantined fault集合が増減又は意味反転")
         if _digest(source_digests) != "sha256:ed8691d9069dca0e391996994c834f36f49beef33cf8dc9aad7440623d7ecbb9":
             faults.append("legacy contract source artifact集合digestがstale")
-        if _digest(expanded_source_digests) != "sha256:d86b7d19b46031d92e1f3540e083cc501de578a627bd74cc9cd60131f276c73d":
+        if _digest(expanded_source_digests) != "sha256:32168120c5a96abd528a085d4b09097da0e94c417ebf91d57ae255b95b0636c1":
             faults.append("legacy ADR/L2/refinement raw source snapshot digestがstale")
     elif cutover_complete and any(raw_faults.values()):
         faults.append("approved cutoverでは旧raw faultをquarantineせずzero closureが必要")

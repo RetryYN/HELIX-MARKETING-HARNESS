@@ -4371,7 +4371,7 @@
    "authority_format": "markdown",
    "authority_status": "active",
    "lifecycle_status": "confirmed",
-   "applicability_status": "current",
+   "applicability_status": "revalidation_required",
    "implementation_input": false,
    "canonical_path": "docs/00-authority/adr/ADR-013-vps-product-ui-primary-human-interface.md",
    "view_path": null,

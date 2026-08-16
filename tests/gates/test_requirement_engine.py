@@ -281,6 +281,51 @@ def test_old_api_only_evidence_contract_conflicts_with_vps_ui_primary_requiremen
     assert faults == ["FR-77: VPS UI主入口に必要なevidence/KPI閲覧を旧API-only契約が明示禁止"]
 
 
+def test_adr013_old_deep_link_clause_is_revalidation_only(monkeypatch, tmp_path: Path) -> None:
+    manifest = json.loads(requirement_engine.MANIFEST.read_text(encoding="utf-8"))
+    for item in manifest["items"]:
+        if item.get("artifact_id") == "AUTH-ADR-ADR-013-VPS-PRODUCT-UI-PRIMARY-HUMAN-INTERFACE":
+            item["applicability_status"] = "current"
+    manifest_path = tmp_path / "artifact-manifest.json"
+    manifest_path.write_text(json.dumps(manifest, ensure_ascii=False), encoding="utf-8")
+    monkeypatch.setattr(requirement_engine, "MANIFEST", manifest_path)
+    faults = requirement_engine.vps_ui_requirement_descent_faults(Ctx())
+    assert any("ADR-013: 旧deep-link補助" in fault for fault in faults)
+
+
+def test_vps_ui_rejects_discord_operational_notification_candidate(monkeypatch, tmp_path: Path) -> None:
+    original_root = requirement_engine.REPO_ROOT
+    root = tmp_path / "repo"
+    (root / "docs/00-authority/adr").mkdir(parents=True)
+    (root / "docs/00-authority/development").mkdir(parents=True)
+    (root / "docs/L1-business-requirements/canonical").mkdir(parents=True)
+    (root / "docs/00-authority/adr/ADR-013-vps-product-ui-primary-human-interface.md").write_text(
+        (original_root / "docs/00-authority/adr/ADR-013-vps-product-ui-primary-human-interface.md").read_text(
+            encoding="utf-8"
+        ),
+        encoding="utf-8",
+    )
+    (root / "docs/00-authority/development/development-environment_v0.1.md").write_text(
+        (original_root / "docs/00-authority/development/development-environment_v0.1.md")
+        .read_text(encoding="utf-8")
+        .replace("製品の運用通知はVPS UI内inboxに限定し、Discordは採用しない。", "一方向の運用通知候補。"),
+        encoding="utf-8",
+    )
+    (root / "docs/L1-business-requirements/canonical/product-requirement-baseline-candidate_v0.1.md").write_text(
+        (original_root / "docs/L1-business-requirements/canonical/product-requirement-baseline-candidate_v0.1.md").read_text(
+            encoding="utf-8"
+        ),
+        encoding="utf-8",
+    )
+    manifest = json.loads(requirement_engine.MANIFEST.read_text(encoding="utf-8"))
+    manifest_path = root / "docs/00-authority/artifact-manifest.json"
+    manifest_path.write_text(json.dumps(manifest, ensure_ascii=False), encoding="utf-8")
+    monkeypatch.setattr(requirement_engine, "REPO_ROOT", root)
+    monkeypatch.setattr(requirement_engine, "MANIFEST", manifest_path)
+    faults = requirement_engine.vps_ui_requirement_descent_faults(Ctx())
+    assert any("Discord運用通知をVPS UI inbox限定" in fault for fault in faults)
+
+
 def test_upstream_po_judgements_missing_from_acceptance_are_detected() -> None:
     faults = requirement_engine.human_judgement_descent_faults(Ctx())
     assert any("BR-A3->FR-71: brand計画確定・改訂承認" in fault for fault in faults)

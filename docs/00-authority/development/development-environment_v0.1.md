@@ -32,9 +32,9 @@ slice: cross
 | cross-review | author と別 principal／execution が commit・tree・artifact digest を read-only で検査する | 投稿可否や業務承認を行わない |
 | PR 対応依頼 | GitHub PR の current HEAD、check、未解決 finding を開発者へ知らせる | Discord `approval_request` を使わず、`ApprovalTransport`／`approvals`へ接続しない |
 | harness memory | commit 済み基準点に束縛した開発継続状態、判断根拠、次アクション | 製品DB、要求正本、discovery ledger、approval evidence の代替にしない |
-| Discord 承認補助通知 | 開発環境の機能ではない | ADR-013で初期範囲外。将来採用時も認証済みWeb UIへのdeep-linkだけを送り、Discord単体でapprove／rejectを確定しない |
-| Discord 運用通知 | 開発環境の機能ではない | 一方向の運用通知候補。投稿可否の判断を要求せず、承認補助・媒体投稿とは別policy／principal／receiptにする |
-| Discord 媒体投稿 | 開発環境の機能ではない | BR-M-DC／MR-DCの再検証対象。将来採用時も承認補助とは別のBot principal・policy・account・workflowを要求する |
+| Discord 承認補助通知 | 開発環境の機能ではない | 製品通知・承認・deep-link・開発PR通知の経路として採用しない。community marketingは別用途の候補であり、Discord単体でapprove／rejectを確定しない |
+| Discord 運用通知 | 開発環境の機能ではない | 製品の運用通知はVPS UI内inboxに限定し、Discordは採用しない。承認補助・媒体投稿とは別policy／principal／receiptにする |
+| Discord 媒体投稿 | 開発環境の機能ではない | BR-M-DC／MR-DCの再検証対象。community marketing用途だけを別候補として扱い、承認補助とは別のBot principal・policy・account・workflowを要求する |
 
 現行のレビュー JSON／ログと `G-REVIEW-BINDING` は cross-review の基礎を提供するが、GitHub からのPR対応依頼と
 repository-local harness memory はまだ実装されていない。HELIX-HARNESS の仕組みは移植可能だが、現在は

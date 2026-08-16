@@ -48,9 +48,9 @@ Python ゲートが二重化されないよう、既存正本を維持したま�
    一方、独立 cross-review、PR 対応依頼、継続状態／memory journal は製品機能ではなく開発環境の候補として分離し、
    Python-native な契約・保存形式・gate が揃うまでは `deferred` とする。
 9. **通知の非混同**: `approval_notification`／`discord_app`／`approval_request`は旧baselineの
-   Discord投稿可否承認tupleであり、現在は`revalidation_required`である。ADR-013の現行候補はVPS Web UIを
-   判断入口、UI内inboxを初期通知経路とし、Discordを未採用の将来deep-link補助に限定する。旧tupleを
-   現在の製品承認へ再導入せず、開発上の PR 対応依頼にも流用しない。
+   Discord投稿可否承認tupleであり、現在は`revalidation_required`である。現行要求候補はVPS Web UIを
+   判断入口、UI内inboxを初期通知経路とし、Discordを製品通知・承認・deep-link補助・開発PR通知へ採用しない。
+   Discordのcommunity marketingは別用途の候補として分離し、旧tupleを現在の製品承認へ再導入せず、開発上のPR対応依頼にも流用しない。
    PR 通知を導入する場合は GitHub の PR／check／review 状態だけを対象とする別の開発アダプターとし、製品の
    `ApprovalTransport`、`approvals`、公開許可、運用通知へ接続しない。
 10. **memory の非混同**: harness memory はセッションをまたぐ開発継続・判断根拠・次アクションの記録候補であり、
