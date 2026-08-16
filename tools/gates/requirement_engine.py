@@ -194,6 +194,11 @@ OBSOLETE_RUNTIME_ROUTE_MARKERS = {
     "docs/L3-system-requirements/canonical/functional/fr-contracts.json": [
         '"service": "discord_app"',
         '"operation": "approval_request"',
+        # FR-46 is a JSON document whose legacy tuple is embedded in prose
+        # (single-quoted values), not a current JSON object field.  Keep this
+        # precise tuple in the quarantine snapshot so the old ApprovalTransport
+        # route cannot disappear merely because the marker format differs.
+        "service='discord_app'・operation='approval_request'",
     ],
     "docs/L4-basic-design/canonical/tech-stack_v0.1.md": ["cron（WSL）"],
 }
@@ -9054,7 +9059,11 @@ def objective_completion_audit_faults(ctx: Ctx, refinements: dict[str, Any]) -> 
             faults.append(f"{objective_id}: provenなのに残条件がある")
         if actual_status != "proven" and not row.get("remaining_condition"):
             faults.append(f"{objective_id}: 未完なのに残条件がない")
-    if policy.get("implementation_authorized") not in {False, True}:
+    implementation_authorized = policy.get("implementation_authorized")
+    baseline_status = policy.get("requirements_baseline_status")
+    if type(implementation_authorized) is not bool:
+        faults.append("implementation_authorizedがboolでない")
+    elif baseline_status == "revising" and implementation_authorized is not False:
         faults.append("implementation_authorized=falseでない")
     records = refinements.get("records", [])
     frozen_subjects = (
@@ -9368,6 +9377,11 @@ def notification_purpose_boundary_faults(ctx: Ctx) -> list[str]:
     fr46 = json.dumps(contracts.get("FR-46", {}), ensure_ascii=False)
     if "approval_notification" not in fr46:
         faults.append("FR-46: approval_notification専用categoryがない")
+    if any(
+        marker in fr46
+        for marker in ("ApprovalTransport", "初期 Discord", "service='discord_app'", "operation='approval_request'")
+    ):
+        faults.append("FR-46: 承認通知が旧Discord/ApprovalTransport経路を再利用")
     fr76 = json.dumps(contracts.get("FR-76", {}), ensure_ascii=False)
     if "operational_notification" not in fr76:
         faults.append("FR-76: operational_notification categoryがない")
@@ -9425,6 +9439,23 @@ def connector_priority_semantic_faults() -> list[str]:
     return faults
 
 
+def _l2_discord_deep_link_without_notification_class(body: str) -> bool:
+    """Detect the old Discord→approval deep-link in its local context.
+
+    L2 prototypes are historical/revalidation material.  The old route must
+    remain a raw fault even if an unrelated section happens to mention a
+    ``policy_category`` field.  Inspecting a small line window around the
+    Discord/AP-02 reference prevents that unrelated token from suppressing the
+    quarantine while still allowing a future, explicitly classified route.
+    """
+    lines = body.splitlines()
+    for index, _line in enumerate(lines):
+        window = "\n".join(lines[max(0, index - 4) : index + 5])
+        if "Discord" in window and "AP-02" in window and "policy_category" not in window:
+            return True
+    return False
+
+
 def l2_revalidation_semantic_faults(ctx: Ctx) -> list[str]:
     """旧要求から作られたL2 prototypeの未定義操作・trace・越境候補を列挙する。"""
     paths = [
@@ -9437,7 +9468,7 @@ def l2_revalidation_semantic_faults(ctx: Ctx) -> list[str]:
     ]
     body = "\n".join(path.read_text(encoding="utf-8") for path in paths)
     faults: list[str] = []
-    if "Discord" in body and "AP-02" in body and "policy_category" not in body:
+    if _l2_discord_deep_link_without_notification_class(body):
         faults.append("L2: Discord deep-linkがnotification classなしでapproval surfaceへ接続")
     if any(token in body for token in ("差戻し", "[return]", "／return")):
         faults.append("L2: canonical approval decisionに存在しないreturn/差戻し操作")
@@ -11646,9 +11677,9 @@ def legacy_fault_stage_audit_faults(
         "G-REQ-PHASE-ALIGNMENT": (30, "sha256:49e139a6ee3bf1e3d9b04c7908df8ccc9f44cff94b691e96b6cd222b034ae925"),
         "G-REQ-SEMANTIC-DIMENSIONS": (4517, "sha256:15f295fd33df219d007296bac7b35f085b9c78cdcac40bbb78fa89834b67678c"),
         "G-REQ-LEGACY-MEDIA-TRACE": (48, "sha256:abab4ce97cafc914ee3220aced29fb2f42eca7f3efb82e7b65c4b154a8041d9e"),
-        "G-REQ-OBSOLETE-RUNTIME-ROUTES": (3, "sha256:9323b9b4b523fba606b65ef25b8bac09bb499cd850556c6d201cfa1e908c0fa5"),
+        "G-REQ-OBSOLETE-RUNTIME-ROUTES": (4, "sha256:73dee67b2acef2835fc2fd73ed4d6e082847c9a139570b398dffa11af06749a2"),
         "G-REQ-WP-RESPONSIBILITY-BOUNDARY": (10, "sha256:f1b139f8605ec8ed3559978c9c5ff1579f334c1d3c850e93635af3997dd8331e"),
-        "G-REQ-NOTIFICATION-PURPOSE-BOUNDARY": (3, "sha256:393d63305c246759e9b54b9be49d47e5f54c535a5ca9f911eb48fb4fcc32581c"),
+        "G-REQ-NOTIFICATION-PURPOSE-BOUNDARY": (4, "sha256:b556b29f6ecb41549c6238c04e7828df98779071b5d8d16078442359b22000e2"),
         "G-REQ-MEDIA-ROUTE-SEMANTICS": (4, "sha256:bc3298eb78237d84161449d1289be635638135f08338c653043470d852211c19"),
         "G-REQ-CONNECTOR-PRIORITY-SEMANTICS": (2, "sha256:f3d62c459ecb20dc27d9dee59fbf9c06f8f2328607e8df208590e250fd876cd9"),
         "G-REQ-L2-REVALIDATION-SEMANTICS": (5, "sha256:9afd68cd81285117f7af90e398594372b7d92107fb9fa51e3a087872cb648aca"),

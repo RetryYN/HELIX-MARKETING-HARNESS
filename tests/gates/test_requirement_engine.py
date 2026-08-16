@@ -972,6 +972,7 @@ def test_mutation_cutover_is_rejected_while_semantics_are_open() -> None:
 def test_current_obsolete_wsl_and_discord_routes_are_detected() -> None:
     faults = requirement_engine.obsolete_runtime_route_faults()
     assert any("ddl.sql" in fault and "discord" in fault for fault in faults)
+    assert any("fr-contracts.json" in fault and "approval_request" in fault for fault in faults)
     assert any("tech-stack_v0.1.md" in fault and "cron（WSL）" in fault for fault in faults)
 
 
@@ -997,6 +998,7 @@ def test_current_approval_and_operational_notifications_are_mixed() -> None:
     faults = requirement_engine.notification_purpose_boundary_faults(Ctx())
     assert any(fault.startswith("FR-16:") and "FR-46" in fault for fault in faults)
     assert any(fault.startswith("FR-43:") and "FR-46" in fault for fault in faults)
+    assert any(fault.startswith("FR-46:") and "旧Discord/ApprovalTransport" in fault for fault in faults)
     assert any(fault.startswith("FR-76:") and "承認transport" in fault for fault in faults)
 
 
@@ -1029,6 +1031,13 @@ def test_current_l2_prototype_semantic_gaps_are_detected() -> None:
     assert any("FR-78" in fault for fault in faults)
     assert any("subscription" in fault for fault in faults)
     assert any("全ブランドBI" in fault for fault in faults)
+
+
+def test_l2_discord_detection_is_not_disabled_by_unrelated_policy_category() -> None:
+    body = "Discord deep-link\nAP-02 approval surface\n" + ("unrelated text\n" * 8) + "policy_category=unrelated"
+    assert requirement_engine._l2_discord_deep_link_without_notification_class(body)
+    classified = "Discord deep-link AP-02 policy_category=notification"
+    assert not requirement_engine._l2_discord_deep_link_without_notification_class(classified)
 
 
 def test_current_vps_credential_contract_conflicts_are_detected() -> None:
@@ -5865,6 +5874,32 @@ def test_objective_completion_audit_does_not_overclaim_requirements_freeze() -> 
         "OBJ-01" in fault
         for fault in requirement_engine.objective_completion_audit_faults(Ctx(), inventory_overclaim)
     )
+
+
+def test_objective_completion_rejects_any_implementation_authorized_value_other_than_false(
+    monkeypatch, tmp_path: Path
+) -> None:
+    refinements = json.loads(requirement_engine.REFINEMENTS.read_text(encoding="utf-8"))
+    policy_path = tmp_path / "requirement-engine-authority.json"
+    policy = json.loads(requirement_engine.AUTHORITY_POLICY.read_text(encoding="utf-8"))
+    monkeypatch.setattr(requirement_engine, "AUTHORITY_POLICY", policy_path)
+
+    for value in (True, 0, 1, "false"):
+        mutated = copy.deepcopy(policy)
+        mutated["implementation_authorized"] = value
+        policy_path.write_text(json.dumps(mutated, ensure_ascii=False), encoding="utf-8")
+        faults = requirement_engine.objective_completion_audit_faults(Ctx(), refinements)
+        assert any(
+            "implementation_authorized" in fault
+            for fault in faults
+        )
+
+    approved = copy.deepcopy(policy)
+    approved["requirements_baseline_status"] = "approved"
+    approved["implementation_authorized"] = True
+    policy_path.write_text(json.dumps(approved, ensure_ascii=False), encoding="utf-8")
+    faults = requirement_engine.objective_completion_audit_faults(Ctx(), refinements)
+    assert not any("implementation_authorized" in fault for fault in faults)
 
 
 def test_objective_completion_audit_covers_every_legacy_inventory(monkeypatch) -> None:
