@@ -150,7 +150,20 @@ def environment_contract_faults() -> list[str]:
     if not isinstance(env, list):
         return ["旧S0環境fixtureのitemsが配列でない"]
 
-    targets = {e.get("target") for e in env if isinstance(e, dict)}
+    valid_targets: list[str] = []
+    for index, entry in enumerate(env):
+        if not isinstance(entry, dict):
+            faults.append(f"旧S0環境fixtureのitems[{index}]がobjectでない")
+            continue
+        target = entry.get("target")
+        if not isinstance(target, str) or not target.strip():
+            faults.append(f"旧S0環境fixtureのitems[{index}].targetが非空文字列でない")
+            continue
+        if target in valid_targets:
+            faults.append(f"旧S0環境fixtureのtargetが重複={target}")
+            continue
+        valid_targets.append(target)
+    targets = set(valid_targets)
     if targets != EXPECTED_ENVIRONMENT_TARGETS:
         faults.append(
             "旧S0環境fixtureのtarget集合が正本と不一致"

@@ -175,6 +175,28 @@ def test_environment_contract_rejects_local_wp_only_fixture(tmp_path, monkeypatc
     assert any("target集合" in fault for fault in faults)
 
 
+def test_environment_contract_rejects_unhashable_target_fixture(tmp_path, monkeypatch) -> None:
+    source = json.loads(requirements.ENVIRONMENT.read_text(encoding="utf-8"))
+    source["items"][0]["target"] = {"target": "ローカル WP"}
+    path = tmp_path / "environment.json"
+    path.write_text(json.dumps(source, ensure_ascii=False), encoding="utf-8")
+    monkeypatch.setattr(requirements, "ENVIRONMENT", path)
+
+    faults = requirements.environment_contract_faults()
+    assert any("非空文字列" in fault for fault in faults)
+
+
+def test_environment_contract_rejects_duplicate_target_fixture(tmp_path, monkeypatch) -> None:
+    source = json.loads(requirements.ENVIRONMENT.read_text(encoding="utf-8"))
+    source["items"][1]["target"] = source["items"][0]["target"]
+    path = tmp_path / "environment.json"
+    path.write_text(json.dumps(source, ensure_ascii=False), encoding="utf-8")
+    monkeypatch.setattr(requirements, "ENVIRONMENT", path)
+
+    faults = requirements.environment_contract_faults()
+    assert any("targetが重複" in fault for fault in faults)
+
+
 def test_environment_contract_rejects_old_fixture_as_approved_authority(tmp_path, monkeypatch) -> None:
     authority = json.loads(requirements.AUTHORITY_POLICY.read_text(encoding="utf-8"))
     authority["requirements_baseline_status"] = "approved"
