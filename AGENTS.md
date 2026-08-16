@@ -12,11 +12,10 @@ Codex エージェント向けの要約入口。**詳細な作業規律の唯一
   `python3 tools/gates/run_all.py`（全ゲート — 件数の正本は
   docs/00-authority/baselines/baseline.json の gate_count）を必ず PASS させる。
 - 成果物の権威正本は docs/00-authority/artifact-manifest.json。未登録の成果物を confirmed にしない。
-- DDL・状態遷移・evidence 型の正準は docs/L3-system-requirements/canonical/s0-contract_v0.1.md。
-  矛盾したら上位文書優先。
-- 上流戦略層の正本は docs/L3-system-requirements/canonical/strategy/ の要件・契約 ＋
-  docs/L3-system-requirements/canonical/schemas/strategy/（12 schema）。下流処理から上流戦略正本を
-  直接更新するコードを書かない（還流は TLP のみ）。
+- 旧baselineのDDL・状態遷移・evidence型は再検証資料であり、現行設計・実装入力ではない。
+  矛盾したら上位文書優先。現行方式は要求freeze後に新正本から再降下する。
+- 旧baselineの上流戦略層の要件・契約と12 schemaは再検証資料であり、現要求・設計・実装入力ではない。
+  下流処理から旧正本を直接更新するコードを書かず、現行の還流契約はfreeze後に選択する。
 - 旧baselineで外部writeを許可していたのはDocker WPのみだが、これも`revalidation_required`である。新baselineは
   個別refinementのPO凍結とrelease受入まで全媒体writeを無効とする。Notion審査同期と旧Discord承認tupleも
   新baselineの許可ではない。製品の初期承認・通知入口はVPS上のWeb UI＋UI内inbox候補、
@@ -25,7 +24,7 @@ Codex エージェント向けの要約入口。**詳細な作業規律の唯一
 ## 実装正本
 
 - Python パッケージは **`src/helix/`** に統一（二重パッケージなし）。
-- 契約 JSON 正本は9本（BR/FR/SR/NFR/AC/TC/CMP/DU contracts＋L6 implementation-units）。ただし
+- 旧baselineの契約 JSON 群は9本（BR/FR/SR/NFR/AC/TC/CMP/DU contracts＋L6 implementation-units）。ただし
   `requirement-engine-authority.json` が `requirements_baseline_status=revising`又は
   `implementation_authorized=false`の間は旧基準の再検証入力であり、製品実装入力にしない。意味ゲート0件、
   refinement個別承認、frozen cutover、独立Go後にだけ実装入力へ切り替える。MD生成ビューは手編集禁止。

@@ -868,6 +868,18 @@ L2〜L6 `revalidation_required`／implementation=falseを維持し、PO不要の
 pytestは811 passed／220 skipped。残9はPO receipt/freeze、strategy test authority、6 meaning inventory、及びレビュー束縛であり、
 承認又はGitHub同期をコードで代替していない。
 
+### F-69 CLAUDE／AGENTS入口の旧正本指定を要求先行境界へ統一（Fable low再監査）
+
+Fable lowが現HEADの入口を意味走査し、旧L3〜L6の文書ペア、戦略ペア、DDL／状態／evidence／WF、契約JSON群、L6
+`implementation-units.json`、L6 slice、旧DU-01〜12を、現行要求・設計・実装入力として読める無限定表現として検出した。
+これらを旧baselineの構造再検証資料へ明示的に降格し、要求freeze・L2〜L6再設計・admission後に新正本から再選択／再利用又は
+置換を判断する文へ改めた。AGENTS.mdにも同じDDL／戦略／契約境界を追加した。
+
+`G-REQ-DESIGN-NOT-STARTED` はCLAUDE／AGENTSの非権威境界をrequired markerとして要求し、旧現在形句をprohibited markerとして
+拒否する。安全境界を残したまま旧句を追記する共存mutationと、実ファイルを読む `Ctx()` のfault=0テストを追加した。
+targeted testは2件PASS、全pytestは812 passed／220 skippedである。VPS Web UI＋UI inbox、Discord製品通知拒否／community分離、
+全write=false、L2〜L6 `revalidation_required` は不変であり、PO承認・設計・独立Go・GitHub同期を生成していない。
+
 ## 要求完了の必要条件
 
 1. F-01〜F-64を個別に解消又は要求候補へ束縛し、未解決findingにはquestion/answerとPO選択が

@@ -10631,6 +10631,15 @@ def design_not_started_faults(ctx: Ctx) -> list[str]:
     claude_path = REPO_ROOT / "CLAUDE.md"
     claude_text = claude_path.read_text(encoding="utf-8") if claude_path.is_file() else ""
     required_claude_markers = {
+        "旧baseline L6のslice 4点一致（G-SLICE-PLACEMENT）は構造再検証専用の資料であり、現行のslice・",
+        "新要求のslice・forward_refs・実装降下先はPO freeze後に新正本から再選択する。",
+        "既存`src/helix/`のDU-01〜12は旧baselineの再検証対象であり、freeze・L2〜L6再設計・admission後に",
+        "旧baselineの文書ペア（HELIX 式・再検証資料。現行要求・設計・実装入力ではない）",
+        "旧baselineの戦略層は strategy-loop-requirements／strategy-learning-contract ↔ strategy-loop-design／",
+        "strategy-loop-test-design の再検証用ペア（SR 19／SCM 10／STC）である。現行戦略の受入・実装正本ではない。",
+        "旧baselineのDDL・状態遷移・evidence型・WF契約は再検証資料であり、現行要求・設計・実装入力ではない",
+        "旧baselineの契約 JSON 群（再検証資料・現行実装入力ではない）",
+        "旧baselineの L6 implementation-units.json",
         "## 旧baselineの設計制約（再検証資料・現行実装入力ではない）",
         "以下は旧baselineの基本設計に存在した制約を、再検証資料として記録する。現行要求・設計・実装を拘束しない。",
         "新要求のPO凍結・設計再降下後に、必要な制約だけを別途選択し、正本・manifest・baseline・独立レビューへ束縛する。",
@@ -10640,6 +10649,15 @@ def design_not_started_faults(ctx: Ctx) -> list[str]:
     if missing_claude:
         faults.append(f"CLAUDEの設計入口が旧baseline再検証・現行未拘束境界を保持しない={missing_claude}")
     prohibited_claude_markers = {
+        "**L6 のスライスは 4 点一致**",
+        "強制実装は S1 側の文書が正本",
+        "その後の条件付き実装候補は`src/helix/`のDU-01〜12",
+        "文書ペア（HELIX 式・片肺禁止）3 層:",
+        "- 戦略層は strategy-loop-requirements／strategy-learning-contract ↔ strategy-loop-design／",
+        "DDL・状態遷移・evidence 型・WF 契約の正準は docs/L3-system-requirements/canonical/s0-contract_v0.1.md。",
+        "契約 JSON 正本は9本（BR/FR/SR/NFR/AC/TC/CMP/DU contracts＋L6 implementation-units）。",
+        "旧設計基準の契約正本は下記9本。",
+        "**第 9 正本 implementation-units.json は手編集の confirmed 正本**",
         "## 実装時の設計制約（基本設計 §1・§4 の要点)",
         "第 3 層は文書ペア（⑤↔⑥）＋コードペア（モジュール↔pytest）の二重:",
         "du-contracts の `apis[].ut` が\nテストファイル対応",
@@ -10651,6 +10669,24 @@ def design_not_started_faults(ctx: Ctx) -> list[str]:
     present_prohibited = sorted(marker for marker in prohibited_claude_markers if marker in claude_text)
     if present_prohibited:
         faults.append(f"CLAUDEの設計入口に旧方式の現在形命令が残る={present_prohibited}")
+    agents_path = REPO_ROOT / "AGENTS.md"
+    agents_text = agents_path.read_text(encoding="utf-8") if agents_path.is_file() else ""
+    required_agents_markers = {
+        "旧baselineのDDL・状態遷移・evidence型は再検証資料であり、現行設計・実装入力ではない。",
+        "旧baselineの上流戦略層の要件・契約と12 schemaは再検証資料であり、現要求・設計・実装入力ではない。",
+        "旧baselineの契約 JSON 群は9本（BR/FR/SR/NFR/AC/TC/CMP/DU contracts＋L6 implementation-units）。",
+    }
+    missing_agents = sorted(marker for marker in required_agents_markers if marker not in agents_text)
+    if missing_agents:
+        faults.append(f"AGENTSの設計入口が旧baseline再検証・現行未拘束境界を保持しない={missing_agents}")
+    prohibited_agents_markers = {
+        "DDL・状態遷移・evidence 型の正準は docs/L3-system-requirements/canonical/s0-contract_v0.1.md。",
+        "上流戦略層の正本は docs/L3-system-requirements/canonical/strategy/ の要件・契約 ＋",
+        "契約 JSON 正本は9本（BR/FR/SR/NFR/AC/TC/CMP/DU contracts＋L6 implementation-units）。",
+    }
+    present_agents = sorted(marker for marker in prohibited_agents_markers if marker in agents_text)
+    if present_agents:
+        faults.append(f"AGENTSの設計入口に旧方式の現在形命令が残る={present_agents}")
     return faults
 
 

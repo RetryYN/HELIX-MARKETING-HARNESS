@@ -35,15 +35,17 @@ Codex／CI／人間作業者も本規約を共通入力として適用する。
   成熟度だけ）。markdown 正本は YAML frontmatter に `artifact_id`／`lifecycle_status`／`slice` を持ち、
   manifest と一致させる（生成ビューは frontmatter を持たない）。承認 digest は frontmatter を**含む
   全文**に対して計算する（ゲートが正本として読む slice／traces を承認束縛の外へ出さない）。
-- **L6 のスライスは 4 点一致**（G-SLICE-PLACEMENT）: 物理ディレクトリ（S0／S1／later）＝
-  `manifest.slice` ＝ frontmatter の `slice` ＝ frontmatter `traces` の FR／SR のスライス。
-  後続スライスの要求への言及は `forward_refs` に過不足なく宣言する（S0 文書は将来拡張点だけを
-  持ち、強制実装は S1 側の文書が正本）。
-- 文書ペア（HELIX 式・片肺禁止）3 層: ①要件定義↔③検証設計、②基本設計↔④総合テスト設計（ITC 16）、
-  ⑤詳細設計↔⑥単体テスト設計（DU 23）。ペアの正本は manifest の `pair_artifact_id`。
-  戦略層は strategy-loop-requirements／strategy-learning-contract ↔ strategy-loop-design／
-  strategy-loop-test-design のペア（SR 19／SCM 10／STC）。
-  DDL・状態遷移・evidence 型・WF 契約の正準は docs/L3-system-requirements/canonical/s0-contract_v0.1.md。
+- 旧baseline L6のslice 4点一致（G-SLICE-PLACEMENT）は構造再検証専用の資料であり、現行のslice・
+  強制実装正本ではない。旧baselineでは物理ディレクトリ（S0／S1／later）、`manifest.slice`、frontmatterの
+  `slice`、frontmatter `traces` のFR／SR sliceを照合し、後続要求の言及を `forward_refs` へ記録していた。
+  新要求のslice・forward_refs・実装降下先はPO freeze後に新正本から再選択する。
+- 旧baselineの文書ペア（HELIX 式・再検証資料。現行要求・設計・実装入力ではない）3 層: ①要件定義↔③検証設計、
+  ②基本設計↔④総合テスト設計（ITC 16）、⑤詳細設計↔⑥単体テスト設計（DU 23）。旧baselineの
+  pair_artifact_id は manifest の構造整合を再検証するためだけに読む。新要求のペアはfreeze後に新正本から再降下する。
+- 旧baselineの戦略層は strategy-loop-requirements／strategy-learning-contract ↔ strategy-loop-design／
+  strategy-loop-test-design の再検証用ペア（SR 19／SCM 10／STC）である。現行戦略の受入・実装正本ではない。
+- 旧baselineのDDL・状態遷移・evidence型・WF契約は再検証資料であり、現行要求・設計・実装入力ではない。
+  構造ゲートは旧資料の整合確認に限定し、方式はPO凍結後に新正本から選択する。
 - 現在地（この 8 行が正本。他所へ現在地を書かない。完了宣言は**更新単位**で、
   docs/L6-feature-design/S0/update-closure.json の宣言と実態の一致を G-UPDATE-DESIGN-CLOSURE が検査する）:
   - 旧baselineの物理配置・manifest登録・既存ゲート配線まで完了。新要求の権威cutoverは未完了
@@ -54,7 +56,7 @@ Codex／CI／人間作業者も本規約を共通入力として適用する。
   - ロジックツリー／統合因果分析（SR-17〜19）も旧L3に要求記述だけ存在し、AC／FN／CMP降下とPO凍結は未完了
   - 製品runtimeの配置方針はVPS `helix-worker`を採択済み。ただし製品runtime／service／Web UIは未実装・未配備である。Web UI・承認・通知要求を再定義中で、L2以降は未設計として再降下する
   - HELIX-HARNESS はread-only参照。Python-native開発loopを方法論bridgeとして部分適応済みであり、完全adoptedではない。L2は5点書式の物理templateだけを用意した`bridge`で、内容は旧要求の評価用draftである。要件確定エンジン、IR/refinement/semantic admission、新要求からのL2再作成が全て閉じるまで導入済み・要求確定・設計済みと名乗らない
-- 旧設計基準の契約正本は下記9本。`requirements_baseline_status=revising`または
+- **旧baselineの契約 JSON 群（再検証資料・現行実装入力ではない）**は下記9本。`requirements_baseline_status=revising`または
   `implementation_authorized=false`の間は実装入力に使用せず、新要求承認後にL2〜L6と同時に再降下する:
   BR = docs/L1-business-requirements/canonical/br/br-contracts.json ／
   FR = docs/L3-system-requirements/canonical/functional/fr-contracts.json ／
@@ -66,7 +68,7 @@ Codex／CI／人間作業者も本規約を共通入力として適用する。
   DU/API/UT = docs/L5-detailed-design/canonical/apis/du-contracts.json ／
   L6 責務/API/AC/TC/UT = docs/L6-feature-design/S0/implementation-units.json。
   生成ビューは `python3 scripts/render_views.py`（手編集禁止）。
-- **第 9 正本 implementation-units.json は手編集の confirmed 正本**（生成物ではない。schema =
+- 旧baselineの L6 implementation-units.json は手編集の confirmed 再検証資料（生成物ではない。schema =
   同ディレクトリの implementation-unit.schema.json・追加プロパティ禁止）。責務は `api_ref`
   （API 安定 ID 1 件・配列禁止）と `clause_refs`（当該 API の契約節 ID）で接続し、`ac_refs` の AC
   （`verifies_clause_refs`）と `ut_refs` の UT（`apis[].ut[].clause_refs`）が**同じ契約節**を
@@ -84,7 +86,8 @@ Codex／CI／人間作業者も本規約を共通入力として適用する。
 - 次 = **要求基準の再定義とPO決定**。VPS製品Web UI・承認・通知を含むBR〜NFRの意味衝突を閉じ、
   L2以降を新要求から再降下する。`requirements_baseline_status=approved`、
   `implementation_authorized=true`、新baselineの独立Goレビューが同時に成立するまでS0.1実装を開始しない。
-  その後の条件付き実装候補は`src/helix/`のDU-01〜12だが、旧契約のUT・skip budget・closureを
+  既存`src/helix/`のDU-01〜12は旧baselineの再検証対象であり、freeze・L2〜L6再設計・admission後に
+  再利用又は置換を判断する。現時点の実装候補とは扱わず、旧契約のUT・skip budget・closureを
   新要求の完了条件として流用しない。
 
 - HELIX-HARNESS 適応の正本は `docs/00-authority/template/helix-harness-alignment.json`、判断記録は

@@ -1102,6 +1102,15 @@ def test_design_not_started_rejects_current_claude_design_constraint_entrypoint(
     )
     required_claude = "\n".join(
         (
+            "旧baseline L6のslice 4点一致（G-SLICE-PLACEMENT）は構造再検証専用の資料であり、現行のslice・",
+            "新要求のslice・forward_refs・実装降下先はPO freeze後に新正本から再選択する。",
+            "既存`src/helix/`のDU-01〜12は旧baselineの再検証対象であり、freeze・L2〜L6再設計・admission後に",
+            "旧baselineの文書ペア（HELIX 式・再検証資料。現行要求・設計・実装入力ではない）",
+            "旧baselineの戦略層は strategy-loop-requirements／strategy-learning-contract ↔ strategy-loop-design／",
+            "strategy-loop-test-design の再検証用ペア（SR 19／SCM 10／STC）である。現行戦略の受入・実装正本ではない。",
+            "旧baselineのDDL・状態遷移・evidence型・WF契約は再検証資料であり、現行要求・設計・実装入力ではない",
+            "旧baselineの契約 JSON 群（再検証資料・現行実装入力ではない）",
+            "旧baselineの L6 implementation-units.json",
             "## 旧baselineの設計制約（再検証資料・現行実装入力ではない）",
             "以下は旧baselineの基本設計に存在した制約を、再検証資料として記録する。現行要求・設計・実装を拘束しない。",
             "新要求のPO凍結・設計再降下後に、必要な制約だけを別途選択し、正本・manifest・baseline・独立レビューへ束縛する。",
@@ -1109,6 +1118,16 @@ def test_design_not_started_rejects_current_claude_design_constraint_entrypoint(
         )
     )
     (tmp_path / "CLAUDE.md").write_text(required_claude, encoding="utf-8")
+    (tmp_path / "AGENTS.md").write_text(
+        "\n".join(
+            (
+                "旧baselineのDDL・状態遷移・evidence型は再検証資料であり、現行設計・実装入力ではない。",
+                "旧baselineの上流戦略層の要件・契約と12 schemaは再検証資料であり、現要求・設計・実装入力ではない。",
+                "旧baselineの契約 JSON 群は9本（BR/FR/SR/NFR/AC/TC/CMP/DU contracts＋L6 implementation-units）。",
+            )
+        ),
+        encoding="utf-8",
+    )
     monkeypatch.setattr(requirement_engine, "REPO_ROOT", tmp_path)
     ctx = Ctx()
     ctx.__dict__["manifest_items"] = []
@@ -1120,6 +1139,52 @@ def test_design_not_started_rejects_current_claude_design_constraint_entrypoint(
     )
     faults = requirement_engine.design_not_started_faults(ctx)
     assert any("CLAUDEの設計入口に旧方式の現在形命令が残る" in fault for fault in faults)
+    (tmp_path / "CLAUDE.md").write_text(
+        required_claude
+        + "\n- 戦略層は strategy-loop-requirements／strategy-learning-contract ↔ strategy-loop-design／\n"
+        + "strategy-loop-test-design のペア（SR 19／SCM 10／STC）。\n",
+        encoding="utf-8",
+    )
+    faults = requirement_engine.design_not_started_faults(ctx)
+    assert any("CLAUDEの設計入口に旧方式の現在形命令" in fault for fault in faults)
+    (tmp_path / "CLAUDE.md").write_text(
+        required_claude + "\nその後の条件付き実装候補は`src/helix/`のDU-01〜12だが、\n",
+        encoding="utf-8",
+    )
+    faults = requirement_engine.design_not_started_faults(ctx)
+    assert any("CLAUDEの設計入口に旧方式の現在形命令" in fault for fault in faults)
+    (tmp_path / "CLAUDE.md").write_text(
+        required_claude + "\n**L6 のスライスは 4 点一致**（G-SLICE-PLACEMENT）:\n",
+        encoding="utf-8",
+    )
+    faults = requirement_engine.design_not_started_faults(ctx)
+    assert any("CLAUDEの設計入口に旧方式の現在形命令" in fault for fault in faults)
+    (tmp_path / "CLAUDE.md").write_text(
+        required_claude + "\n旧設計基準の契約正本は下記9本。\n",
+        encoding="utf-8",
+    )
+    faults = requirement_engine.design_not_started_faults(ctx)
+    assert any("CLAUDEの設計入口に旧方式の現在形命令" in fault for fault in faults)
+    (tmp_path / "CLAUDE.md").write_text(
+        required_claude + "\n文書ペア（HELIX 式・片肺禁止）3 層:\n",
+        encoding="utf-8",
+    )
+    faults = requirement_engine.design_not_started_faults(ctx)
+    assert any("CLAUDEの設計入口に旧方式の現在形命令が残る" in fault for fault in faults)
+    (tmp_path / "CLAUDE.md").write_text(required_claude, encoding="utf-8")
+    (tmp_path / "AGENTS.md").write_text(
+        "旧baselineのDDL・状態遷移・evidence型は再検証資料であり、現行設計・実装入力ではない。\n"
+        "旧baselineの上流戦略層の要件・契約と12 schemaは再検証資料であり、現要求・設計・実装入力ではない。\n"
+        "旧baselineの契約 JSON 群は9本（BR/FR/SR/NFR/AC/TC/CMP/DU contracts＋L6 implementation-units）。\n"
+        "DDL・状態遷移・evidence 型の正準は docs/L3-system-requirements/canonical/s0-contract_v0.1.md。",
+        encoding="utf-8",
+    )
+    faults = requirement_engine.design_not_started_faults(ctx)
+    assert any("AGENTSの設計入口に旧方式の現在形命令が残る" in fault for fault in faults)
+
+
+def test_design_not_started_current_entrances_are_closed() -> None:
+    assert requirement_engine.design_not_started_faults(Ctx()) == []
 
 
 def test_all_legacy_requirement_ids_have_typed_redescent_decision_routes() -> None:
