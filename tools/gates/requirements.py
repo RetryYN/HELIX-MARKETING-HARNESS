@@ -14,7 +14,6 @@ from pathlib import Path
 from tools.gates.common import (
     AC_SCHEMA,
     AUTHORITY,
-    MANIFEST,
     BR_MEDIA_DIR,
     BR_SCHEMA,
     ENVIRONMENT,
@@ -24,6 +23,7 @@ from tools.gates.common import (
     L1,
     L3,
     LTW_DIR,
+    MANIFEST,
     MR_DIR,
     NFR_SCHEMA,
     ROOT,
