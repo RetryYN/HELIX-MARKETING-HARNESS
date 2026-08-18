@@ -12345,7 +12345,7 @@ def run(ctx: Ctx) -> None:
     gate(
         "G-REQ-IR-PROJECTION",
         not projection_errors,
-        f"決定的IR projection {len(projection['records'])}件 (違反={projection_errors})",
+        f"決定的IR projection {len(projection['records'])}件＋HELIX-HARNESS v2 candidate 5 shard (違反={projection_errors})",
     )
     gate(
         "G-REQ-LEGACY-FAULT-STAGE-AUDIT",
