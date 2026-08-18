@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://marketing-harness.local/schemas/candidate-requirement-ir.v2.json",
   "title": "HELIX-HARNESS shaped candidate requirement IR envelope",
-  "description": "Upstream v2 envelope. authority/status remain candidate-only until PO freeze and authority cutover.",
+  "description": "Upstream v2 manifest envelope. The five shard records use the upstream field vocabulary; local candidate IDs/statuses and exact shard shape are enforced by the requirement gate. authority/status remain candidate-only until PO freeze and authority cutover.",
   "type": "object",
   "additionalProperties": false,
   "required": [

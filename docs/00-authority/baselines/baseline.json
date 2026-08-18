@@ -272,7 +272,7 @@
     "docs/00-authority/audits/structural-trace-remediation-2026-08-02.md": "8ce4869eeabe1e018484d969e33710ffb7d3cd88a061ebfe81e26690a06da77b",
     "docs/00-authority/audits/update-boundary-remediation-2026-08-02.md": "02e867564eb47f0ddd8dfa632bc2eeb14ad9c5abcebb06c54d7e978adfdf5964",
     "docs/00-authority/audits/xserver-api-poc-evidence-2026-08-14.md": "135ab9e2b51da3a855a36f666966b0639806cf2b0b6cb0ab1cbed431a0b2f667",
-    "docs/00-authority/development/candidate-requirement-ir-v2.schema.json": "4d95f1bd0c009aa59729796fe41bb4faa13a401635e7719acfe003d6a1b1f188",
+    "docs/00-authority/development/candidate-requirement-ir-v2.schema.json": "827d3abdfb53dfd943f1bd264fec9623fd4359e4ce78fac6935af191322cc504",
     "docs/00-authority/development/requirement-discovery-event.schema.json": "c82a428669f2a81e9ce328dcaeb7e663fa2a65a88fb684e855c35d60f732c25e",
     "docs/00-authority/development/requirement-discovery-events.json": "32fec816ae9f989e7309f0c3e4464e0b0606af1f02a250251c789303acbddd2c",
     "docs/00-authority/development/requirement-engine-authority.json": "b495df03432f55776364e94ebd2939e487f2b34c1011112d37e7a941e9054565",
