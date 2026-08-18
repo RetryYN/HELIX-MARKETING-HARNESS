@@ -76,6 +76,8 @@ def _candidate_status(record: dict[str, Any]) -> tuple[str, str, str]:
 def _statement(dimensions: dict[str, Any]) -> str:
     """Keep every semantic dimension in a deterministic human-readable statement."""
     labels = (
+        ("actors", "actors"),
+        ("beneficiaries", "beneficiaries"),
         ("value", "value"),
         ("tasks", "tasks"),
         ("workflow", "workflow"),

@@ -2,12 +2,12 @@
   "authority": "candidate_non_authoritative",
   "baseline_root_digest": "sha256:a9384e42fb034bb92d9b52112fc74e2a8746c377cb83ebc6dac69b8c740d620f",
   "partition": "stable_id_keyed_shards",
-  "root_digest": "sha256:09f03122aa65063a648c27e0e6ee2cb5d1c4b6ce22f588a216ddb091701fa124",
+  "root_digest": "sha256:db514dfe7402a129e303832749a401aba045d9857f6314333f4c1dc0d2bdb2c3",
   "schema_version": "helix-requirement-ir.v2",
   "shards": [
     {
       "count": 38,
-      "digest": "sha256:2c4b129dbffc64ac85a3b9fa3330cd4cb346025e8ecf95cf6861de2b8e5a09dd",
+      "digest": "sha256:e87d238e41d728c797b557ba8575183682e309e320f75b96334401d93e22e4a4",
       "kind": "requirements",
       "path": "requirements-ir/requirements.json"
     },
@@ -31,7 +31,7 @@
     },
     {
       "count": 38,
-      "digest": "sha256:c152520a25608eec77b408a1a69cd87bc3ebfad5e790988f178ff67e1287af53",
+      "digest": "sha256:690cfde1ed6ba182375884c6858641ad9875cb24da80fd88c105cfe269787507",
       "kind": "refinement_contracts",
       "path": "requirements-ir/refinement_contracts.json"
     }

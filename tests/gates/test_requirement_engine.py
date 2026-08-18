@@ -87,6 +87,29 @@ def test_candidate_ir_v2_matches_helix_harness_shape_without_authority_promotion
     assert requirement_engine.candidate_ir_v2_faults() == []
 
 
+def test_candidate_ir_v2_statement_preserves_actor_and_beneficiary_axes() -> None:
+    from scripts.render_requirement_ir_v2_candidate import build_candidate_ir
+
+    source = json.loads(
+        Path("docs/00-authority/development/requirement-refinements.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    by_refinement = {
+        str(record["refinement_id"]): record
+        for record in source["records"]
+    }
+    built = build_candidate_ir()
+    for record in built["shards"]["refinement_contracts"].values():
+        source_record = by_refinement[record["refinement_contract_id"]]
+        statement = record["contract_requirement"]["statement"]
+        dimensions = source_record["semantic_dimensions"]
+        for axis in ("actors", "beneficiaries"):
+            values = dimensions[axis]
+            assert f"{axis}: " in statement
+            assert all(value in statement for value in values)
+
+
 def test_mutation_candidate_ir_v2_cannot_claim_canonical(monkeypatch) -> None:
     from scripts import render_requirement_ir_v2_candidate
 
