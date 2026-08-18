@@ -53,10 +53,12 @@ slice: cross
 ## Latest upstream verification
 
 - checked_at: `2026-08-19`
-- upstream_checked_commit: `032aeffb82cbd1f828409f144ab5e3f6553959c6`（`main`、read-only `git ls-remote`実測）
+- upstream_checked_commit: `e0073d01be1a0a4ce709a983ffde4ab1485dcb4e`（`main`、read-only `git ls-remote`実測）
 - adoption baseline: `57853db413e282b050ac5f37bab7809321c67842`（変更しない）
-- latest delta range: `fe6ffe6cfa0e11bd054dbc67e4278f0d3bd1234d..032aeffb82cbd1f828409f144ab5e3f6553959c6`
-- latest delta: GitHub Issue metadata labelの監査と更新lifecycleを追加した15ファイル（+275/-36）。これは
+- latest delta range: `032aeffb82cbd1f828409f144ab5e3f6553959c6..e0073d01be1a0a4ce709a983ffde4ab1485dcb4e`
+- latest delta: `789fecc6` の1コミット（`tests/claude-pr-convergence.test.ts`に、CI完了前のPR review receipt適用を拒否するCLI境界テストを追加）。これは
+  要求IRのmanifest／schema／shard形式、VPS UI／inbox、Python-native runtimeの意味を変更しない。前回までの
+  GitHub Issue metadata labelの監査と更新lifecycleを追加した15ファイル（+275/-36）も引き続き、これは
   upstreamのGitHub運用／TypeScript CLI境界であり、本repoが進めている製品要求、VPS UI／inbox、Full Vの
   delivery route、Python-native runtimeの意味を変更しない。Issue metadata enforcementは現適応範囲外とし、
   将来GitHub開発adapterを採用する場合に別途再監査する。
