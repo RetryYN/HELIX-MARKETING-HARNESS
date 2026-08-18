@@ -545,6 +545,28 @@ def candidate_ir_v2_faults() -> list[str]:
         "system_tests": {"schema_version", "system_test_id", "revision", "status", "system_contract_id", "acceptance_ids", "supporting_test_ids", "scenario", "required_evidence", "negative_boundary", "semantic_digest"},
         "refinement_contracts": {"schema_version", "refinement_contract_id", "revision", "lifecycle_status", "primary_system_contract_id", "related_system_contract_ids", "source", "plan_id", "responsibility_owner", "contract_requirement", "supporting_requirements", "acceptance_cases", "downstream_issue_ids", "acceptance_owners", "approval", "semantic_digest"},
     }
+    exact_fields = {kind: fields for kind, fields in required_fields.items()}
+    id_patterns = {
+        "requirements": re.compile(r"^MHH-REQ-[A-Z0-9-]+$"),
+        "system_contracts": re.compile(r"^MHH-SC-[A-Z0-9-]+$"),
+        "acceptance_cases": re.compile(r"^MHH-AC-[A-Z0-9-]+-[PNB]$"),
+        "system_tests": re.compile(r"^MHH-ST-[A-Z0-9-]+$"),
+        "refinement_contracts": re.compile(r"^RRF-[A-Z0-9-]+$"),
+    }
+    id_fields = {
+        "requirements": "requirement_id",
+        "system_contracts": "system_contract_id",
+        "acceptance_cases": "acceptance_id",
+        "system_tests": "system_test_id",
+        "refinement_contracts": "refinement_contract_id",
+    }
+    expected_schema_versions = {
+        "requirements": "helix-requirement.v1",
+        "system_contracts": "helix-system-contract.v1",
+        "acceptance_cases": "helix-acceptance-case.v1",
+        "system_tests": "helix-system-test.v1",
+        "refinement_contracts": "helix-requirement-refinement.v1",
+    }
     for kind in PARTITIONS:
         try:
             actual = load(CANDIDATE_IR_DIR / f"{kind}.json")
@@ -561,16 +583,50 @@ def candidate_ir_v2_faults() -> list[str]:
             if not isinstance(record, dict):
                 faults.append(f"candidate IR {kind}/{stable_id} が object でない")
                 continue
-            missing = required_fields[kind] - set(record)
+            fields = set(record)
+            missing = required_fields[kind] - fields
             if missing:
                 faults.append(f"candidate IR {kind}/{stable_id} required field 欠落={sorted(missing)}")
+            extra = fields - exact_fields[kind]
+            if extra:
+                faults.append(f"candidate IR {kind}/{stable_id} が upstream shard field 外を持つ={sorted(extra)}")
+            if not id_patterns[kind].fullmatch(stable_id):
+                faults.append(f"candidate IR {kind}/{stable_id} stable ID が候補ID語彙でない")
+            if record.get(id_fields[kind]) != stable_id:
+                faults.append(f"candidate IR {kind}/{stable_id} の内部IDがkeyと不一致")
+            if record.get("schema_version") != expected_schema_versions[kind]:
+                faults.append(f"candidate IR {kind}/{stable_id} schema_version が不正")
+            revision = record.get("revision")
+            if isinstance(revision, bool) or not isinstance(revision, int) or revision < 1:
+                faults.append(f"candidate IR {kind}/{stable_id} revision が正の整数でない")
             semantic = {key: value for key, value in record.items() if key != "semantic_digest"}
             if record.get("semantic_digest") != _digest(semantic):
                 faults.append(f"candidate IR {kind}/{stable_id} semantic digest 不一致")
-            if kind == "requirements" and record.get("definition_status") == "frozen":
-                faults.append(f"candidate IR {stable_id} が要求freezeを過大主張")
-            if kind == "refinement_contracts" and record.get("approval") is not None:
-                faults.append(f"candidate IR {stable_id} が未承認なのに approval を持つ")
+            if kind == "requirements":
+                if record.get("status") not in {"candidate_unratified", "historical_superseded"}:
+                    faults.append(f"candidate IR {stable_id} status が候補閉包外")
+                if record.get("definition_status") not in {"unfrozen", "superseded_history"}:
+                    faults.append(f"candidate IR {stable_id} が要求freezeを過大主張")
+                statement = record.get("statement")
+                if not isinstance(statement, dict) or set(statement) != {"text", "semantic_digest"}:
+                    faults.append(f"candidate IR {stable_id} statement がupstream shapeでない")
+                source = record.get("source")
+                if not isinstance(source, dict) or set(source) != {"canonical_pointer", "migration_source_pointer", "authority_id"}:
+                    faults.append(f"candidate IR {stable_id} source がupstream shapeでない")
+            elif kind in {"system_contracts", "acceptance_cases"}:
+                if record.get("status") not in {"candidate_unratified", "historical_superseded"}:
+                    faults.append(f"candidate IR {kind}/{stable_id} status が候補閉包外")
+            elif kind == "system_tests":
+                if record.get("status") not in {"designed_not_implemented", "historical_superseded"}:
+                    faults.append(f"candidate IR {stable_id} が未着手テスト境界を外れる")
+            else:
+                if record.get("lifecycle_status") not in {"draft", "specified", "superseded"}:
+                    faults.append(f"candidate IR {stable_id} lifecycle が候補閉包外")
+                source = record.get("source")
+                if not isinstance(source, dict) or set(source) != {"requirement_path", "requirement_digest", "acceptance_path", "acceptance_digest"}:
+                    faults.append(f"candidate IR {stable_id} refinement source がupstream shapeでない")
+                if record.get("approval") is not None:
+                    faults.append(f"candidate IR {stable_id} が未承認なのに approval を持つ")
     return faults
 
 

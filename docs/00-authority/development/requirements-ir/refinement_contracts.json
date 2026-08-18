@@ -7,7 +7,7 @@
         "requirement_ids": [
           "MHH-REQ-AGENT-NEO-HELIX-REDEFINITION"
         ],
-        "semantic_digest": "sha256:bec142df24fc7534f0daec7d7570f88e80db477915364e20ed53753c18729aba",
+        "semantic_digest": "sha256:98573fc30e0b2d60455bc33f7b4dbe801baa3923045b14ce84038259c228755d",
         "source_projection": "local_refinement_registry",
         "statement": "固定SHAから再定義したFull V要求・V-pair・repo境界を持ち、段階incrementはS4 receiptとSR0-SR4 closureを持つ場合だけ昇格する"
       },
@@ -17,7 +17,7 @@
         "requirement_ids": [
           "MHH-REQ-AGENT-NEO-HELIX-REDEFINITION"
         ],
-        "semantic_digest": "sha256:0772e2424376609b31088b2957be7cbf6fb99daea872434a606f8017683aebe5",
+        "semantic_digest": "sha256:4079312b254636fba1ca370d88a746ff9b75ac8a7ba52f2e24442dac3617c56d",
         "source_projection": "local_refinement_registry",
         "statement": "旧G4 PASS、別媒体の成功、S3 green、又はWP操作だけからAGENT NEO全体をacceptedとみなすことを拒否する"
       },
@@ -27,7 +27,7 @@
         "requirement_ids": [
           "MHH-REQ-AGENT-NEO-HELIX-REDEFINITION"
         ],
-        "semantic_digest": "sha256:ca83c1930349a4608812d45f241d236f90bdb425838e7139f978f852f490a57a",
+        "semantic_digest": "sha256:7a728da82d515a11375ce7055445825c6ec717232b4053342da4bbf345792cb5",
         "source_projection": "local_refinement_registry",
         "statement": "サイト構築能力とtheme/plugin改善能力を別releaseにし、互換性又はrollback未検証のupdateはenabledにしない"
       }
@@ -54,21 +54,12 @@
     "responsibility_owner": "AGENT-NEO-HELIX-REDEFINITION",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:72f3790f0fce9500a596175e5794e73bc3d82e09a3c2ae422de32fdc97a0f9a3",
+    "semantic_digest": "sha256:45d9df58b2764f35005b52295755636b466f61751e2842c8130bda57d7854c39",
     "source": {
       "acceptance_digest": "sha256:794c5aa9bbc6f58cbb56bb14763c9f15ddeb214b7813e32c2c580a208d83da66",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-AGENT-NEO-HELIX-REDEFINITION/acceptance_cases",
       "requirement_digest": "sha256:a98d63668a6bbf93c4918ea12a062780d803e7b6633f0e808c5e65427024bf27",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-AGENT-NEO-HELIX-REDEFINITION",
-      "source_event_ids": [
-        "RDE-000089",
-        "RDE-000090",
-        "RDE-000091",
-        "RDE-000092",
-        "RDE-000093",
-        "RDE-000099"
-      ],
-      "source_set_digest": "sha256:d8d42fd683f86f98c4690c4bf727bdd480dfe31eb302f4855070566649268396"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-AGENT-NEO-HELIX-REDEFINITION"
     },
     "supporting_requirements": []
   },
@@ -80,7 +71,7 @@
         "requirement_ids": [
           "MHH-REQ-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE"
         ],
-        "semantic_digest": "sha256:3518a46e9450365524dbd25f54bb2bb08587e806f1b6c4cc9d5dd41697bda6aa",
+        "semantic_digest": "sha256:10fa03b787b82e51ed2f29643db8883ef369d9a9146138fd8a4a64a64e95c538",
         "source_projection": "local_refinement_registry",
         "statement": "site-build closure後に影響、互換性、migration、rollback、回帰、独立S4を閉じた製品変更だけを昇格する"
       },
@@ -90,7 +81,7 @@
         "requirement_ids": [
           "MHH-REQ-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE"
         ],
-        "semantic_digest": "sha256:3f3e4a50461113135061ec6b5c7ba19343a4ab7690d5075f8f00c295fa6c864f",
+        "semantic_digest": "sha256:ca242d69087dd6fabdf0df25ef5e868ce5d533307e228c2f1b5cf4bb55b37bde",
         "source_projection": "local_refinement_registry",
         "statement": "site-build承認、単一site成功又は旧releaseを製品変更の互換性証明として拒否する"
       },
@@ -100,7 +91,7 @@
         "requirement_ids": [
           "MHH-REQ-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE"
         ],
-        "semantic_digest": "sha256:10fbaa6e4ef63c1b9cd25f5f894723f45f6f0ef42829a0012aa975591bff8183",
+        "semantic_digest": "sha256:bf4e03e5ebfeafa4f94df4b2cc5973a2871d7abb1d7048f94f512582c6bde500",
         "source_projection": "local_refinement_registry",
         "statement": "一部componentだけ成立する場合は変更unitを分割し未検証componentをdeferredにする"
       }
@@ -127,17 +118,12 @@
     "responsibility_owner": "AGENT-NEO-PRODUCT-EVOLUTION-RELEASE",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:a2aac0ed7244cc9fc530bbc0cffe77b309e718c75080f62fb99ca65a2115b6f6",
+    "semantic_digest": "sha256:46030c23846c6c4e66d3552d0cdf3efdf63c6347872cc8611cf9095cdecf5d41",
     "source": {
       "acceptance_digest": "sha256:81f75255ff767cceda7ffcc9fd4015c5ff6efdf6fc0344d2b0a90f20ae604f24",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE/acceptance_cases",
       "requirement_digest": "sha256:9d01b9da1cb025a10c43e6be4fc791ede640b687bc48bfa7271adc27aca632ba",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE",
-      "source_event_ids": [
-        "RDE-000122",
-        "RDE-000123"
-      ],
-      "source_set_digest": "sha256:0089b03cabeb4c913374982b25d6af2cc64d2429321f826f3b7a89132cd4991e"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE"
     },
     "supporting_requirements": []
   },
@@ -149,7 +135,7 @@
         "requirement_ids": [
           "MHH-REQ-AGENT-NEO-SITE-BUILD-RELEASE"
         ],
-        "semantic_digest": "sha256:49ebf7407ee0bb1d4de03cb598771bc62c2d0e78ca6013236749b1dd07a4d618",
+        "semantic_digest": "sha256:5231cef52d1160e3d8988953b540ae37afe92b7dc9469907fd32cee861bec17e",
         "source_projection": "local_refinement_registry",
         "statement": "固定SHA能力、Full V closure、対象site trace、migration/rollback、S4 receiptを持つsite-buildだけを昇格する"
       },
@@ -159,7 +145,7 @@
         "requirement_ids": [
           "MHH-REQ-AGENT-NEO-SITE-BUILD-RELEASE"
         ],
-        "semantic_digest": "sha256:9dd2fdde0531ce4872a2c94523f377a71c0d9a069e337ec7fd00c4cb727021eb",
+        "semantic_digest": "sha256:d031d160dec6a3617817074a4087267ec836550f41b00f4b5ae6c8fde2ba0254",
         "source_projection": "local_refinement_registry",
         "statement": "旧G4、WP操作成功、別site成功又はtheme変更をsite-build受入へ流用することを拒否する"
       },
@@ -169,7 +155,7 @@
         "requirement_ids": [
           "MHH-REQ-AGENT-NEO-SITE-BUILD-RELEASE"
         ],
-        "semantic_digest": "sha256:354511b37577111402cf3404f1f745bbb3b2e8fe7b437f3d410eef9e76c73175",
+        "semantic_digest": "sha256:a2612c64ff6438c1ce8ad1bcfbdccd9ed62be6e99c0bcc28f3dd13aa1066a4f2",
         "source_projection": "local_refinement_registry",
         "statement": "成立capabilityだけをreleaseし未閉capabilityはdeferredにする"
       }
@@ -196,17 +182,12 @@
     "responsibility_owner": "AGENT-NEO-SITE-BUILD-RELEASE",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:ae0878eee87c966b20dc929229276353357326472a3776e1e79c5ed32b5a6150",
+    "semantic_digest": "sha256:ddb9f69a227e79599f6dc8916a39a17f53ead90833b3da7b68e617157a081598",
     "source": {
       "acceptance_digest": "sha256:e7fd55f1e6864f3868d1bdd760617c4f5994bd45fc42d4f51e7bcfab10aff672",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-AGENT-NEO-SITE-BUILD-RELEASE/acceptance_cases",
       "requirement_digest": "sha256:9878b98db88c79f197240edfdca11c35e40dd265f4d8837b289ee5dac0099618",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-AGENT-NEO-SITE-BUILD-RELEASE",
-      "source_event_ids": [
-        "RDE-000120",
-        "RDE-000121"
-      ],
-      "source_set_digest": "sha256:1d1aa71656f617e97ddcdac5d03ec2f5b2d1c296f3a39a6670c7f0109b4e436c"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-AGENT-NEO-SITE-BUILD-RELEASE"
     },
     "supporting_requirements": []
   },
@@ -218,7 +199,7 @@
         "requirement_ids": [
           "MHH-REQ-AUTO-MODE-DECISION-AUTHORITY"
         ],
-        "semantic_digest": "sha256:ca152596b6c1bf46efb9f3475552041455944d906d0ff0b5b77894f440ad101f",
+        "semantic_digest": "sha256:5d465548fe773912425a8b31481f0de6414e24ab275128ad2f34153e812bf944",
         "source_projection": "local_refinement_registry",
         "statement": "適格性証跡とscope/期限へ束縛したPO enable receiptが両方有効な対象だけ個別承認を省略する"
       },
@@ -228,7 +209,7 @@
         "requirement_ids": [
           "MHH-REQ-AUTO-MODE-DECISION-AUTHORITY"
         ],
-        "semantic_digest": "sha256:439e4b66b30bfbe32f80f0d7ed75b4f07515163b2419d9746b9103d5bc01957c",
+        "semantic_digest": "sha256:27a5b4eb91371ad90a91b5e45b9173d93a3ccb47bc99c74c90386ea985b83aea",
         "source_projection": "local_refinement_registry",
         "statement": "機械適格判定だけ、PO receipt欠落、scope不一致、期限切れ、基準失効、金銭操作では常時承認を要求する"
       },
@@ -238,7 +219,7 @@
         "requirement_ids": [
           "MHH-REQ-AUTO-MODE-DECISION-AUTHORITY"
         ],
-        "semantic_digest": "sha256:7877664f0dc5d0aaceb431931cc8f05ecd41fd0dcd90c6e22098156e345684b8",
+        "semantic_digest": "sha256:b1af829ffa3401b91d07dd22f2e0a8cded83d1ad1f4d11de809dd543e5917624",
         "source_projection": "local_refinement_registry",
         "statement": "一媒体又は一operationだけのenableを他へ伝播せず、失効検知後の次操作から常時承認へ戻す"
       }
@@ -265,20 +246,12 @@
     "responsibility_owner": "AUTO-MODE-DECISION-AUTHORITY",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:d21006ca682b7f66a6ef927fbf99a2c31fd9c1debcafc57ebbbe5a3a5d767a9e",
+    "semantic_digest": "sha256:37dbddf11e2b6e05bf9e0342d737439f50ee44f76125a6108a207f079ce989c7",
     "source": {
       "acceptance_digest": "sha256:536da1cf2e39baebb2c5432f6c2778262ef895875d61af353588f37cc11c9d4a",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-AUTO-MODE-DECISION-AUTHORITY/acceptance_cases",
       "requirement_digest": "sha256:32c3282dc43db8348b9114f9dc31ca8c3d1784b06a520362a2b71b8a420f9167",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-AUTO-MODE-DECISION-AUTHORITY",
-      "source_event_ids": [
-        "RDE-000003",
-        "RDE-000017",
-        "RDE-000018",
-        "RDE-000033",
-        "RDE-000034"
-      ],
-      "source_set_digest": "sha256:135e32467cc2937666e53abd78caee61abbf846e427bf70c4495ed800704e4f1"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-AUTO-MODE-DECISION-AUTHORITY"
     },
     "supporting_requirements": []
   },
@@ -290,7 +263,7 @@
         "requirement_ids": [
           "MHH-REQ-AUTOMATED-PUBLISHING-ADMISSION"
         ],
-        "semantic_digest": "sha256:54b8f7dd17c26fbfcaaaa9022b6de0e3494472c5574abcafffa703a5aa9a09dd",
+        "semantic_digest": "sha256:b0a4a1cee4aeef98c3650bd7e5ac8b99393ca99b38933b7766e103e26400288f",
         "source_projection": "local_refinement_registry",
         "statement": "approval_waitingをinboxへ記録し、認証済みUIでscope/revision再表示と直前認可後に承認されたscope内でgate合格成果物だけを毎回承認なしで実行する"
       },
@@ -300,7 +273,7 @@
         "requirement_ids": [
           "MHH-REQ-AUTOMATED-PUBLISHING-ADMISSION"
         ],
-        "semantic_digest": "sha256:9d444ea15dfdcc2873a3a57043fc9c2a43e69c6d7da6701cc67a0c926eddae14",
+        "semantic_digest": "sha256:37bfa8ee517321dd324c08af3da7683a9777f47bcbb0c3fbe16d6192c2f1f560",
         "source_projection": "local_refinement_registry",
         "statement": "inbox操作だけの承認、scope未指定、未承認、scope外、取消、権限喪失、必須risk gate/risk境界/activation policy変更、停止条件成立又はgate不合格の外部writeを拒否する"
       },
@@ -310,7 +283,7 @@
         "requirement_ids": [
           "MHH-REQ-AUTOMATED-PUBLISHING-ADMISSION"
         ],
-        "semantic_digest": "sha256:ff132e7a86937fe2afc1c8ec850092081892b6e27a8417e7cf9c4c7f0f77d01b",
+        "semantic_digest": "sha256:4cdf2424feeace61db1ce794e6ef5e98da6f61f73947775a91ae5824bf7948be",
         "source_projection": "local_refinement_registry",
         "statement": "媒体account別又は個別feedbackの下位rule更新は再検査だけ行い、停止後は毎回承認modeへ戻さず対象scopeの明示re-activationまでwriteを停止する"
       }
@@ -337,20 +310,12 @@
     "responsibility_owner": "AUTOMATED-PUBLISHING-ADMISSION",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:8a1c38b468370d1d545679d1ab0c70754f5aa98a9cebab72914bf7fdb09aee39",
+    "semantic_digest": "sha256:8c5fe85318df651b5280241430b1ca77f2a25ef43a110611acdb533d12dffb23",
     "source": {
       "acceptance_digest": "sha256:34b33354f8bec09b45b36b40482d2b635b3f4811be7832046da9b84a5ecc14d4",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-AUTOMATED-PUBLISHING-ADMISSION/acceptance_cases",
       "requirement_digest": "sha256:4e3df9a130b8c7b919b6eb5dafe68112d84bfc3210cc1538c991c1db24c74313",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-AUTOMATED-PUBLISHING-ADMISSION",
-      "source_event_ids": [
-        "RDE-000138",
-        "RDE-000144",
-        "RDE-000150",
-        "RDE-000154",
-        "RDE-000155"
-      ],
-      "source_set_digest": "sha256:dec4ed0431d41568987806deb2f5f067d0e6a19f8425862ca0fa49a8ac123b45"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-AUTOMATED-PUBLISHING-ADMISSION"
     },
     "supporting_requirements": []
   },
@@ -362,7 +327,7 @@
         "requirement_ids": [
           "MHH-REQ-BUSINESS-PROFILE-AUTHORIZATION"
         ],
-        "semantic_digest": "sha256:98849ae81d0cb8f9450e45f406d49b2b189f3358122bcb6e677127d1a668af04",
+        "semantic_digest": "sha256:34d17e6f0818a3cf7b6bbe11a6abf325cad48c1bd91d0ce2bbd97ae35013cce4",
         "source_projection": "local_refinement_registry",
         "statement": "有効なgrant ID、principal、profile、resource、operation、effect、grant revision、grant semantic digest及びexpiryへexact束縛したoperationだけを許可する"
       },
@@ -372,7 +337,7 @@
         "requirement_ids": [
           "MHH-REQ-BUSINESS-PROFILE-AUTHORIZATION"
         ],
-        "semantic_digest": "sha256:3428c128b658996663be6a0ed005315627ef24f4b210567fb3a49776a05cf3b2",
+        "semantic_digest": "sha256:5c03edc7448d2fb12cc7061a0b0639748680eeba49b8abc8562ad5fe0993821e",
         "source_projection": "local_refinement_registry",
         "statement": "missing/unknown/stale/expired/scope mismatch、暗黙effect escalation、membership/role推論及びcross-profile without explicit grantを拒否する"
       },
@@ -382,7 +347,7 @@
         "requirement_ids": [
           "MHH-REQ-BUSINESS-PROFILE-AUTHORIZATION"
         ],
-        "semantic_digest": "sha256:1986f4018d78d227e7d5129bf49df873565f5b6a6394e994df9e6ed0c5baccc1",
+        "semantic_digest": "sha256:8bdde913000993f1f5cbd573e49596a3f10da0d461d4e697dea970642c154deb",
         "source_projection": "local_refinement_registry",
         "statement": "owner移管、delete/transfer、grant revision競合又はmulti-principal移行では旧session/grantを継承せず、製品state/revisionを維持して再認可までfail-closeする"
       }
@@ -409,18 +374,12 @@
     "responsibility_owner": "BUSINESS-PROFILE-AUTHORIZATION",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:8d44799d4c0c41d3468a0eedaa25c969b6f6d06278b298efe3301b338c891ff8",
+    "semantic_digest": "sha256:b48a7d5b446f07524324dc023b8d350f4f4183fb37f44386ec354ac948f5bdc0",
     "source": {
       "acceptance_digest": "sha256:0f252a8b9a719488e3e017c0f20a57e2222edaf653725ef0c36041df5ce9c5b4",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-BUSINESS-PROFILE-AUTHORIZATION/acceptance_cases",
       "requirement_digest": "sha256:ad26d3f40b9250e77f8e8be1aa3e387f294d170b05d3eef01b91e819c061b87a",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-BUSINESS-PROFILE-AUTHORIZATION",
-      "source_event_ids": [
-        "RDE-000130",
-        "RDE-000131",
-        "RDE-000174"
-      ],
-      "source_set_digest": "sha256:641f50ebd5fd6cf680d905c2ed4d3349fc4af5ff74b29546ac8b65ef6bff060a"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-BUSINESS-PROFILE-AUTHORIZATION"
     },
     "supporting_requirements": []
   },
@@ -432,7 +391,7 @@
         "requirement_ids": [
           "MHH-REQ-CONTENT-QUALITY-GATE-LEARNING"
         ],
-        "semantic_digest": "sha256:d169034bba93c84e4ad91baa6a8527e13379e6030a2a1a6580fbb43f1c44e20b",
+        "semantic_digest": "sha256:6af242e222c83aed3739e0d4ef21b07d4d0db3e59334f29af31700a14f0bdeca",
         "source_projection": "local_refinement_registry",
         "statement": "独自価値、claim-source対応及び対象audienceへの有用性を含むgateがartifact/claim、verdict、reason code、rule revisionを記録する。明示scopeがないfeedbackはsource feedbackのmedia_account_idだけへ束縛し、不合格を同一rule revisionで人間確認前に再生成して合格成果物だけを次工程へ進める。retry budgetを使い切っても不合格ならblocked状態とVPS UI内inbox通知を同じsource artifactへ束縛する"
       },
@@ -442,7 +401,7 @@
         "requirement_ids": [
           "MHH-REQ-CONTENT-QUALITY-GATE-LEARNING"
         ],
-        "semantic_digest": "sha256:32f98730f00de30ce7c4e0d651164ae9eb90e3f1b155e7e55154952315dec8ed",
+        "semantic_digest": "sha256:61ef4b94c7d25f567943209e9f2fa5496fc7096acc176220463d57c379a952fa",
         "source_projection": "local_refinement_registry",
         "statement": "不合格の正式review、次工程又は公開、retry中のrule自己緩和、scope外rule適用、retry budget未知時の継続、順位操作目的の低価値量産及び非対応媒体の公開済み変更を拒否する。通常retryごとの通知及び通知失敗によるblocked解除も拒否する"
       },
@@ -452,7 +411,7 @@
         "requirement_ids": [
           "MHH-REQ-CONTENT-QUALITY-GATE-LEARNING"
         ],
-        "semantic_digest": "sha256:b80003f61923ea4ccdfa80b8d5bcc90a5600b976de6a9754e18d9372dec61e5b",
+        "semantic_digest": "sha256:e2d10bf6f704d39e42230ee55fee624bbd018bbe5001017a287a6071b4f01c93",
         "source_projection": "local_refinement_registry",
         "statement": "明示scopeがないfeedbackはsource feedbackのmedia_account_idだけをderived scopeとし、同一媒体の別account、全profile又は全媒体へ拡張しない。retry budget上限到達時は未合格成果物をblockedで停止し、VPS UI内inboxへ一件のdurable eventを記録して診断閲覧を許可する。通知記録失敗でもblockedを維持する。update-in-place能力不明又は非対応なら公開済み成果物へ通知を含め何もしない"
       }
@@ -479,20 +438,12 @@
     "responsibility_owner": "CONTENT-QUALITY-GATE-LEARNING",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:843ee2aa0a6921e0eacf89b5e7edcc9b8d9a2ca3bc4e2d7bf2f301bd5fbe1d2d",
+    "semantic_digest": "sha256:11c67ddaac2a4889fbca0698f2889b2181c206d8f00291f30bbde43c5b8f3484",
     "source": {
       "acceptance_digest": "sha256:7c1bb6e3ce0a71a152cff075312ab33bf1c3ed164b1dff02d8b53e72f29ab435",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-CONTENT-QUALITY-GATE-LEARNING/acceptance_cases",
       "requirement_digest": "sha256:1c6e925b3a6b05f5ce4671469b53b18a6598191d550560da79df5502fbdf3721",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-CONTENT-QUALITY-GATE-LEARNING",
-      "source_event_ids": [
-        "RDE-000139",
-        "RDE-000145",
-        "RDE-000151",
-        "RDE-000163",
-        "RDE-000164"
-      ],
-      "source_set_digest": "sha256:6aef7ce740d55f5c11c73ac18f6a5a82c088142d13fa7841fb04ee8eabeb9a78"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-CONTENT-QUALITY-GATE-LEARNING"
     },
     "supporting_requirements": []
   },
@@ -504,7 +455,7 @@
         "requirement_ids": [
           "MHH-REQ-CONTENT-RISK-CLASSIFICATION"
         ],
-        "semantic_digest": "sha256:1d23928d5572bb7ed6bcf6a742c3e1612dda601ffd07dfff108c81a66669e3c4",
+        "semantic_digest": "sha256:fb2da169721c42a6cba22996b8c72fd0f4d982b6041419d9c19b23668b8b4bca",
         "source_projection": "local_refinement_registry",
         "statement": "claimへrisk class、確信度又は不確実性、根拠及びgate-set revisionを束縛し、必須gateと個別好みを合成して検査する"
       },
@@ -514,7 +465,7 @@
         "requirement_ids": [
           "MHH-REQ-CONTENT-RISK-CLASSIFICATION"
         ],
-        "semantic_digest": "sha256:3fc80d80cc7cc2228bfbefb7bcae1c7e08b4f8df9ad8ba33d7b66ca92cca71fc",
+        "semantic_digest": "sha256:31c3d1c4633d05a98b9a513762ec0586f4b17db1e18a0a770e14d6ceacc64c8e",
         "source_projection": "local_refinement_registry",
         "statement": "好み、feedback又はKPIでYMYL等の必須gateを弱めること及びrisk情報欠落の成果物を正式review、次工程又は公開へ進めることを拒否する"
       },
@@ -524,7 +475,7 @@
         "requirement_ids": [
           "MHH-REQ-CONTENT-RISK-CLASSIFICATION"
         ],
-        "semantic_digest": "sha256:6c049a26b6c096bdf1fb234a4e8cdcd7fb97c934ee6e05bac021f0317638131b",
+        "semantic_digest": "sha256:0a51a9ff55098e2c4418211f9321714d9407302d354101b1fb1e693050bfcf72",
         "source_projection": "local_refinement_registry",
         "statement": "risk分類が欠落又は不確実なら全影響軸のYMYL相当を含む最高厳格度で扱い、診断閲覧だけ許可して再調査又は分類解決後の再検査まで停止する"
       }
@@ -551,18 +502,12 @@
     "responsibility_owner": "CONTENT-RISK-CLASSIFICATION",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:e447afea559f8dca57f899687a2873a3e6509515037c405a5b6cbf9801ea9c90",
+    "semantic_digest": "sha256:43c1a9d890b03c496597bc0e3eb1d65517ec84a0e0cb03bff95703eed781fc04",
     "source": {
       "acceptance_digest": "sha256:5386df0dbc2672f3e38874f8a635f209cb4395ca7e331af8020db5abc02c2d06",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-CONTENT-RISK-CLASSIFICATION/acceptance_cases",
       "requirement_digest": "sha256:4ba4a208fcc0dcdcd551be40c81eadc31b75f311fa8274f8d8dfe66b20b88c49",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-CONTENT-RISK-CLASSIFICATION",
-      "source_event_ids": [
-        "RDE-000140",
-        "RDE-000146",
-        "RDE-000152"
-      ],
-      "source_set_digest": "sha256:40a05a0f0df992c02631444367020237916a95c16bace184727b8a174f252c98"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-CONTENT-RISK-CLASSIFICATION"
     },
     "supporting_requirements": []
   },
@@ -574,7 +519,7 @@
         "requirement_ids": [
           "MHH-REQ-CONTRACT-SEMANTIC-DESCENT-V2"
         ],
-        "semantic_digest": "sha256:59f8b3f1d9564ab5c240a6aefe95d87e67b005ddd867e9d1c63be2af0688f379",
+        "semantic_digest": "sha256:d04a834177df9dafa1e8088ff7ffb5dac3033a347f5775d06ddb27a8befcdb9a",
         "source_projection": "local_refinement_registry",
         "statement": "直接必須軸と選択親句digest、delta、owner、evidenceが閉じ、安全/HJ/prohibitionを弱化しない下位契約だけを次工程へ進める"
       },
@@ -584,7 +529,7 @@
         "requirement_ids": [
           "MHH-REQ-CONTRACT-SEMANTIC-DESCENT-V2"
         ],
-        "semantic_digest": "sha256:5258c955857cb9a65a06cb4031cbc8aa9795977e9f363b65b6141dddfffdb691",
+        "semantic_digest": "sha256:0a55bff03fa88f4c563b36c4d07d3fc822ce89c7665048d629cc637b7130f836",
         "source_projection": "local_refinement_registry",
         "statement": "stale digest、暗黙union、安全弱化、旧方式再混入、高作用の継承のみ又はcycleを拒否する"
       },
@@ -594,7 +539,7 @@
         "requirement_ids": [
           "MHH-REQ-CONTRACT-SEMANTIC-DESCENT-V2"
         ],
-        "semantic_digest": "sha256:f97c5570f4d6cc084fc770a766b6e9c5cc0e3bdad2bc37144f587d75a2816efb",
+        "semantic_digest": "sha256:5bf2955f78a78a4d84cfa2f71f1895ca63705278ad88364a2099354b259a295b",
         "source_projection": "local_refinement_registry",
         "statement": "親意味が未classified、cutover blocked又は競合未処置なら子をdeferredとしclassifiedへ昇格しない"
       }
@@ -621,18 +566,12 @@
     "responsibility_owner": "CONTRACT-SEMANTIC-DESCENT-V2",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:80a30d17d88e78ac64536895bc3bfb524ca615b487e73acbec07e8c0055647b0",
+    "semantic_digest": "sha256:ae7f29f84e745a2beb6723b2fb4e6c10f384b0856c7cabac5428bb94e8982db6",
     "source": {
       "acceptance_digest": "sha256:86c3ce047c2a48342d6cb93aa35b4a48062d470782cf958e1b3a3a42fa271263",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-CONTRACT-SEMANTIC-DESCENT-V2/acceptance_cases",
       "requirement_digest": "sha256:b1fe074d7bbcc73d48f1d2f7e0683e4ee5b3a19a8e67ea6fbf62f864cffdd2e3",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-CONTRACT-SEMANTIC-DESCENT-V2",
-      "source_event_ids": [
-        "RDE-000103",
-        "RDE-000104",
-        "RDE-000170"
-      ],
-      "source_set_digest": "sha256:00df05016e115d8ca046a89f3c233cde5733b94f6561ccea3921e1e3fd2ef7c1"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-CONTRACT-SEMANTIC-DESCENT-V2"
     },
     "supporting_requirements": []
   },
@@ -644,7 +583,7 @@
         "requirement_ids": [
           "MHH-REQ-DISCORD-COMMUNITY-MARKETING-ROUTE"
         ],
-        "semantic_digest": "sha256:bf9166a0e4be19ffad8321823ebdb65edda2ff058aed888a6163b83e5b756f3e",
+        "semantic_digest": "sha256:a57ca42c776da5f8b175c183ac4ec1a330e71a5ab2f74ee7aa292d57211af9d2",
         "source_projection": "local_refinement_registry",
         "statement": "Botと許可guild/channel/operationを束縛してcommunity operationを記録する"
       },
@@ -654,7 +593,7 @@
         "requirement_ids": [
           "MHH-REQ-DISCORD-COMMUNITY-MARKETING-ROUTE"
         ],
-        "semantic_digest": "sha256:4956082ee182bb3ec3111ed80f6d131210ce60826d3b78dfcf2e4f7bc1a1beaa",
+        "semantic_digest": "sha256:2b2134c1622f362835e7e6900f2fd5dc21fab7c3cd8de9187e0d2651d633e207",
         "source_projection": "local_refinement_registry",
         "statement": "通知用途への送信、self-bot、個人account操作及び用途間credential共有を拒否する"
       },
@@ -664,7 +603,7 @@
         "requirement_ids": [
           "MHH-REQ-DISCORD-COMMUNITY-MARKETING-ROUTE"
         ],
-        "semantic_digest": "sha256:68ce3079375df905c408399ed9fd419d7b02dd0837adf4ea05874b24ff074040",
+        "semantic_digest": "sha256:ecbf777bd9baa9fe8150eacfacb7e39fe3a72c5e3059e0130673563804d00f4d",
         "source_projection": "local_refinement_registry",
         "statement": "guild/channel/operation又はmoderation境界が不明なら当該operationを実行しない"
       }
@@ -691,18 +630,12 @@
     "responsibility_owner": "DISCORD-COMMUNITY-MARKETING-ROUTE",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:71ea957910a534a6331e6808b4abee9ed3f5b349ab157571fb06e6d79bd807d2",
+    "semantic_digest": "sha256:6287f5804d2e43e81d77a85baabb7e1ea74da67ff0b8ba0b8aed73ba8e20cfc4",
     "source": {
       "acceptance_digest": "sha256:0df69b460d2ab697c88f69f83727305b8b919508beab2dddaa9bb3bcda73593d",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-DISCORD-COMMUNITY-MARKETING-ROUTE/acceptance_cases",
       "requirement_digest": "sha256:70c0b5ab8cf5b8a163454726f2b18a0e4d4db23eeff4974409ae260358d81134",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-DISCORD-COMMUNITY-MARKETING-ROUTE",
-      "source_event_ids": [
-        "RDE-000137",
-        "RDE-000143",
-        "RDE-000149"
-      ],
-      "source_set_digest": "sha256:b21e9fa1019bac42db987b192051e8c03a246620cf378fabe81f638ec6e9f7fb"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-DISCORD-COMMUNITY-MARKETING-ROUTE"
     },
     "supporting_requirements": []
   },
@@ -714,7 +647,7 @@
         "requirement_ids": [
           "MHH-REQ-DISCORD-MULTI-PURPOSE-BOUNDARIES"
         ],
-        "semantic_digest": "sha256:6db3026b864e770304238bc969c1878c902096241aa51f0db39ef52d142a4d0e",
+        "semantic_digest": "sha256:a29099562df37f27ccbf69beaa613ef3c992c935388fd2db36afad81b4f4b784",
         "source_projection": "local_refinement_registry",
         "statement": "旧候補を現行入力から除外し、通知拒否とcommunity媒体を別subjectへ一意に引き渡す"
       },
@@ -724,7 +657,7 @@
         "requirement_ids": [
           "MHH-REQ-DISCORD-MULTI-PURPOSE-BOUNDARIES"
         ],
-        "semantic_digest": "sha256:2f000f6f86a2a1bdeae9cb534def92ad9fb05b54f87c7f89fbea9f3611f118db",
+        "semantic_digest": "sha256:8b5d2b410aa3208ef92031cb95173cd2701ac03fba3dd08a26925a24f91b4e20",
         "source_projection": "local_refinement_registry",
         "statement": "旧候補による通知route再開、community実行許可、credential共有及びself-botを拒否する"
       },
@@ -734,7 +667,7 @@
         "requirement_ids": [
           "MHH-REQ-DISCORD-MULTI-PURPOSE-BOUNDARIES"
         ],
-        "semantic_digest": "sha256:c6d61f30d099adde7fd8cab35bccc2817c9b9c9e428d9c6538241ff6345e200f",
+        "semantic_digest": "sha256:ec0e861fe02fb9a29d311b026ccd55c89c5132be426c36409369575cac86e3cc",
         "source_projection": "local_refinement_registry",
         "statement": "旧候補を参照した全外部送信を拒否し、再開条件を生成しない"
       }
@@ -761,23 +694,12 @@
     "responsibility_owner": "DISCORD-MULTI-PURPOSE-BOUNDARIES",
     "revision": 2,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:db197aa61cf6ed48dc4668cfc364f66b046b533fc802ecf817b6793379917a8f",
+    "semantic_digest": "sha256:143b3568b0859a8f0b80b5b7efddba2d15eacefff77ecfa048e13791b82d3717",
     "source": {
       "acceptance_digest": "sha256:1d8ee2cc4c908dd74719e99cf37a13cb6ea257bbc42bf8b0485fe2d1df4d1dc1",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-DISCORD-MULTI-PURPOSE-BOUNDARIES/acceptance_cases",
       "requirement_digest": "sha256:73e6cea0dff4bfd4f20372fa10ca44db500318eaa7a6dae4e69e7419763affd7",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-DISCORD-MULTI-PURPOSE-BOUNDARIES",
-      "source_event_ids": [
-        "RDE-000005",
-        "RDE-000022",
-        "RDE-000023",
-        "RDE-000041",
-        "RDE-000042",
-        "RDE-000052",
-        "RDE-000060",
-        "RDE-000068"
-      ],
-      "source_set_digest": "sha256:bae5f7293d63d61f2d2d67af402828e9465b21ff6d8e558bfaf2b277ccf0b6b5"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-DISCORD-MULTI-PURPOSE-BOUNDARIES"
     },
     "supporting_requirements": []
   },
@@ -789,7 +711,7 @@
         "requirement_ids": [
           "MHH-REQ-DISCORD-NOTIFICATION-REJECTION-BOUNDARY"
         ],
-        "semantic_digest": "sha256:29a3f88fe9792c07241f26e8708732916a20ba948e15561ccbe63fb689884557",
+        "semantic_digest": "sha256:c321de922ce31d3822c5f339483c4152dd0243dfdf2318d265c582c5b9fb5391",
         "source_projection": "local_refinement_registry",
         "statement": "製品通知をVPS UI inboxに限定しDiscordへ送信しない"
       },
@@ -799,7 +721,7 @@
         "requirement_ids": [
           "MHH-REQ-DISCORD-NOTIFICATION-REJECTION-BOUNDARY"
         ],
-        "semantic_digest": "sha256:84a80f0cde24c6e240b05181d9e0e236aae2b030a6efe564e16cde8a0e23c087",
+        "semantic_digest": "sha256:23bf5045137316bcdf2f8049628d1642f02432b3e41d312943211704a8b0f105",
         "source_projection": "local_refinement_registry",
         "statement": "承認通知、運用通知、deep-link補助又は開発PR通知のDiscord routeとcommunity credential共有を拒否する"
       },
@@ -809,7 +731,7 @@
         "requirement_ids": [
           "MHH-REQ-DISCORD-NOTIFICATION-REJECTION-BOUNDARY"
         ],
-        "semantic_digest": "sha256:2c31a0c428fdc84778584ada877d6b3fd3457a11dfc5d353c38cefbb5acafb0d",
+        "semantic_digest": "sha256:fd8fdcddf445f5829352907c00084b5709b3d0d168bac2f55d5631c8cf9dcdd7",
         "source_projection": "local_refinement_registry",
         "statement": "未知purpose又はDiscord通知routeが指定された場合は送信せず、再開条件を生成しない"
       }
@@ -836,18 +758,12 @@
     "responsibility_owner": "DISCORD-NOTIFICATION-REJECTION-BOUNDARY",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:0e94c5204a7a9c98a282dd3bd9dca92f9c753e0697fa55ef55ab194b2a32b318",
+    "semantic_digest": "sha256:9fda7bce3919f6e2525fa07b8af305813008483df36e90d32327a7972f6643d6",
     "source": {
       "acceptance_digest": "sha256:49f5b90e95c2bf4fe3e4185f79c3432f898eac299191ec5b237be2a8d41ebf43",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-DISCORD-NOTIFICATION-REJECTION-BOUNDARY/acceptance_cases",
       "requirement_digest": "sha256:9eaf6bb8e88b9ef540c8e0d26ba71ecff670cb0e38f05ce74397722b0ec7d88b",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-DISCORD-NOTIFICATION-REJECTION-BOUNDARY",
-      "source_event_ids": [
-        "RDE-000156",
-        "RDE-000157",
-        "RDE-000158"
-      ],
-      "source_set_digest": "sha256:7f02f2f9cf1b65ad4a15a874b38f8fe929668d66d88edd624732883e8a611b9a"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-DISCORD-NOTIFICATION-REJECTION-BOUNDARY"
     },
     "supporting_requirements": []
   },
@@ -859,7 +775,7 @@
         "requirement_ids": [
           "MHH-REQ-EXTERNAL-BROWSER-AUTOMATION-ROUTE"
         ],
-        "semantic_digest": "sha256:0547b85f801e2126d8bb065e9cdeb1ddfb0c27c06b2ae4453075520229b7cfe2",
+        "semantic_digest": "sha256:0e8060dc1e91eaa2bc009b3ef1116b2e27be4c4dc2f762645036d7aa5d13abc3",
         "source_projection": "local_refinement_registry",
         "statement": "公式API/MCPを優先し、最小credential又はallow-list、実行前plan、実行後receiptで強制された許可operationだけPlaywright fallback又は確認を実行する"
       },
@@ -869,7 +785,7 @@
         "requirement_ids": [
           "MHH-REQ-EXTERNAL-BROWSER-AUTOMATION-ROUTE"
         ],
-        "semantic_digest": "sha256:994df01d811f3194fa8d21be0709218876cc0a739eb7f5e32c65724389bf6fad",
+        "semantic_digest": "sha256:1e13507828ea940dd4d6382bae6639db53d55022477077354b0d3d72bff48ccb",
         "source_projection": "local_refinement_registry",
         "statement": "route、principal、effect、credential能力、read resource scope、operation強制又は規約境界が未確定のbrowser操作を拒否する"
       },
@@ -879,7 +795,7 @@
         "requirement_ids": [
           "MHH-REQ-EXTERNAL-BROWSER-AUTOMATION-ROUTE"
         ],
-        "semantic_digest": "sha256:ef650d7572a9c7f6456b95c990273832cf7619fd87611c6f8c678eb12dd35c38",
+        "semantic_digest": "sha256:9396db27fa5bcccbe1a7062b7c96116c1e2d5f891ac87c9d45d818f01733baf7",
         "source_projection": "local_refinement_registry",
         "statement": "媒体credentialが広く製品側でもoperation境界を強制できないwriteは自動実行せずattended-only又はdeferredを維持する"
       }
@@ -906,18 +822,12 @@
     "responsibility_owner": "EXTERNAL-BROWSER-AUTOMATION-ROUTE",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:799c63b17932cd92b2560388e47aecae7875a4a29e14a3ab48df16258d570553",
+    "semantic_digest": "sha256:fad2a9fbf61ec57deaa4255db6ec1a7c7f6ea67cd383a512f4b75e5a623cc894",
     "source": {
       "acceptance_digest": "sha256:f8c224426e481592ae1678a4c985694bec82821b9d2aa647c7d80af3eeb7dcf9",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-EXTERNAL-BROWSER-AUTOMATION-ROUTE/acceptance_cases",
       "requirement_digest": "sha256:656e7c8cab8e861e8c0cc39f2633f2f59605471734441a9fb7f41a127d6fc5d8",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-EXTERNAL-BROWSER-AUTOMATION-ROUTE",
-      "source_event_ids": [
-        "RDE-000136",
-        "RDE-000142",
-        "RDE-000148"
-      ],
-      "source_set_digest": "sha256:c7b1dfd68b4ded66696110fe9c5fcccb4f9afa61eecfc5a1d2c9308f6eccebd6"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-EXTERNAL-BROWSER-AUTOMATION-ROUTE"
     },
     "supporting_requirements": []
   },
@@ -929,7 +839,7 @@
         "requirement_ids": [
           "MHH-REQ-FR-16-NOTIFICATION-BOUNDARY"
         ],
-        "semantic_digest": "sha256:e10bb121a074acddc44eeed50c08c19369c49cf4a09169532add21aef3efc7ef",
+        "semantic_digest": "sha256:d181aed809a8ff9bfbc187c2d76c1eaad11c4b2956b44a12ac3f2b7630b3b89b",
         "source_projection": "local_refinement_registry",
         "statement": "異常時に停止を先に永続化しUI内inbox記録attemptと記録結果を別証跡化する"
       },
@@ -939,7 +849,7 @@
         "requirement_ids": [
           "MHH-REQ-FR-16-NOTIFICATION-BOUNDARY"
         ],
-        "semantic_digest": "sha256:54af47f62b86888c50e346c9757b6544a5419606d5a834d85e2e0d19bde5bfcd",
+        "semantic_digest": "sha256:e07c397fcbd9caa8be5226014e1716191aaf486dbb902c474f3d3f32392be5c0",
         "source_projection": "local_refinement_registry",
         "statement": "inbox書込み失敗でも停止状態をrollbackせずfailed receiptを残す"
       },
@@ -949,7 +859,7 @@
         "requirement_ids": [
           "MHH-REQ-FR-16-NOTIFICATION-BOUNDARY"
         ],
-        "semantic_digest": "sha256:5203815402120f15af22a149d474b485d6d2bf6ba28d35dd149e5150004f7208",
+        "semantic_digest": "sha256:215aa505daacfaf3a7636831c43ee69132deabd9f621600a1a0f1650cbd13dff",
         "source_projection": "local_refinement_registry",
         "statement": "重複event・retry上限・再開判断待ちで二重通知や自動再開を起こさない"
       }
@@ -976,20 +886,12 @@
     "responsibility_owner": "FR-16-NOTIFICATION-BOUNDARY",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:6d8ee7851bf5b11bb713b479877f1c3fef0752963b87ca490b9cbe4cf47622f5",
+    "semantic_digest": "sha256:3c2095a4c42013fc9a3077397f38a7e45be50a08a30f2565ca0884a8ecf5b9ce",
     "source": {
       "acceptance_digest": "sha256:b1944dca1657a3cbc8cbb68078a9de110a023e909c0b29833c36f1dcad6a7f7a",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-FR-16-NOTIFICATION-BOUNDARY/acceptance_cases",
       "requirement_digest": "sha256:fa328819de985985217c8b7268ee67b0fb1c725e7437b19c3dde8dc6498e0b2d",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-FR-16-NOTIFICATION-BOUNDARY",
-      "source_event_ids": [
-        "RDE-000002",
-        "RDE-000015",
-        "RDE-000016",
-        "RDE-000036",
-        "RDE-000037"
-      ],
-      "source_set_digest": "sha256:e567043a36df4e302e0f280eca87d58d9c4a302daabf789d2ceb80063ae2a33d"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-FR-16-NOTIFICATION-BOUNDARY"
     },
     "supporting_requirements": []
   },
@@ -1001,7 +903,7 @@
         "requirement_ids": [
           "MHH-REQ-FR-SLICE-AUTHORITY-ALIGNMENT"
         ],
-        "semantic_digest": "sha256:00df483314b3abb2d837f4354995688f688c3a7ef50406897e040f56584b4843",
+        "semantic_digest": "sha256:2207ea7950eb1809df6714504a2d9e9196a90b2f41bced9e06fd007876ac65ab",
         "source_projection": "local_refinement_registry",
         "statement": "意味軸・根拠・許可境界を満たす対象だけを次工程へ進める"
       },
@@ -1011,7 +913,7 @@
         "requirement_ids": [
           "MHH-REQ-FR-SLICE-AUTHORITY-ALIGNMENT"
         ],
-        "semantic_digest": "sha256:473f2a5f135df761c2b4c1b801a85cfb6dd34c676e7ad05ab43d876b86e13b2f",
+        "semantic_digest": "sha256:bc7acd7de4bc81686c6f8ebcd4f0cbf39acdd00a94b80bb776565cb594ab060c",
         "source_projection": "local_refinement_registry",
         "statement": "未回答・未許可・意味trace欠落又は証跡不足をfail-closeで拒否する"
       },
@@ -1021,7 +923,7 @@
         "requirement_ids": [
           "MHH-REQ-FR-SLICE-AUTHORITY-ALIGNMENT"
         ],
-        "semantic_digest": "sha256:dfdafa56c096f9231d7caa385b4d0270b8fd13d1a87614e7bf36715c24c9d6f3",
+        "semantic_digest": "sha256:626b54b8bc095b1543f6ed335b38b2799b4d12687a9a3eb31b8162e78b090643",
         "source_projection": "local_refinement_registry",
         "statement": "一部だけ成立する場合は責務を分割又はdeferred/pivotし全体成立に読み替えない"
       }
@@ -1048,22 +950,12 @@
     "responsibility_owner": "FR-SLICE-AUTHORITY-ALIGNMENT",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:b2c5cf7224a2799d53e23afdd53180983c194a634668c5c7bdc348097e35d638",
+    "semantic_digest": "sha256:f7c1f03a0ada66845afa092ea14aca9401cc44abd0953fae7c17c740c2132deb",
     "source": {
       "acceptance_digest": "sha256:2428320b2baabe78b19cb34dc6addc6e6671aa9d9c8c26008a7eb96cb9b4532d",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-FR-SLICE-AUTHORITY-ALIGNMENT/acceptance_cases",
       "requirement_digest": "sha256:f6b8ee938abf2391b9de7ce1729bfa7ecf1b832a7249ae334f169cb40082e4e2",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-FR-SLICE-AUTHORITY-ALIGNMENT",
-      "source_event_ids": [
-        "RDE-000004",
-        "RDE-000019",
-        "RDE-000020",
-        "RDE-000021",
-        "RDE-000038",
-        "RDE-000039",
-        "RDE-000040"
-      ],
-      "source_set_digest": "sha256:54a7325c1329b2d624cba75f1956eb997c8499a6f7f7b63d2e224770199c4056"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-FR-SLICE-AUTHORITY-ALIGNMENT"
     },
     "supporting_requirements": []
   },
@@ -1075,7 +967,7 @@
         "requirement_ids": [
           "MHH-REQ-GENAI-EXECUTION-ROUTE"
         ],
-        "semantic_digest": "sha256:53f2adbdaba3a857164d3b069ce224801be8fd0e0eb85a5e70047d7de87357cd",
+        "semantic_digest": "sha256:ce8b819c0fbbc34346cfcbd800e40cb404311cad3e612db9369ed3b3d4e4b8ca",
         "source_projection": "local_refinement_registry",
         "statement": "意味軸・根拠・許可境界を満たす対象だけを次工程へ進める"
       },
@@ -1085,7 +977,7 @@
         "requirement_ids": [
           "MHH-REQ-GENAI-EXECUTION-ROUTE"
         ],
-        "semantic_digest": "sha256:8eb6be1b504b151711994fac00decb61f8799d9433c0919e3796054be55fa6cd",
+        "semantic_digest": "sha256:c5eba47423ea0f0fe48103367d745888ba89d45d50e76b606e04a7ae3dd90c64",
         "source_projection": "local_refinement_registry",
         "statement": "未回答・未許可・意味trace欠落又は証跡不足をfail-closeで拒否する"
       },
@@ -1095,7 +987,7 @@
         "requirement_ids": [
           "MHH-REQ-GENAI-EXECUTION-ROUTE"
         ],
-        "semantic_digest": "sha256:e46283e5d6ceb315a212ee3bc528aaf9c435203118ae11a816bf5117ebbfdd9c",
+        "semantic_digest": "sha256:9a909e0cd01e21255af7731f27829440073ed2e325d59f596934b014f7a58aa8",
         "source_projection": "local_refinement_registry",
         "statement": "一部だけ成立する場合は責務を分割又はdeferred/pivotし全体成立に読み替えない"
       }
@@ -1122,20 +1014,12 @@
     "responsibility_owner": "GENAI-EXECUTION-ROUTE",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:bced2dab6effb7ebdd71418683fc682f749809bb4d1007ead40052ac5736903c",
+    "semantic_digest": "sha256:ca00960c37b0979e4ca5258f739d45dcb7d2b9b6ee7aa42118787657a6c20ce2",
     "source": {
       "acceptance_digest": "sha256:5fd121e6d4e3e49888c303d182d6213bd4055246abb83c4d8ad35d0f5ef08064",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-GENAI-EXECUTION-ROUTE/acceptance_cases",
       "requirement_digest": "sha256:37d8371bbc7053ae3168627da6c58b39cc44c9816d5bf5904fdd6bfef8e5d755",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-GENAI-EXECUTION-ROUTE",
-      "source_event_ids": [
-        "RDE-000006",
-        "RDE-000024",
-        "RDE-000025",
-        "RDE-000043",
-        "RDE-000044"
-      ],
-      "source_set_digest": "sha256:21c97b34420b6344d7cd964af69ef13cbb235f959199c64476e1fa5731b0568f"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-GENAI-EXECUTION-ROUTE"
     },
     "supporting_requirements": []
   },
@@ -1147,7 +1031,7 @@
         "requirement_ids": [
           "MHH-REQ-L0-NORTH-STAR-AUTHORITY-NORMALIZATION"
         ],
-        "semantic_digest": "sha256:f2008b347c7a1f38fcae17a346c3c6c2b57ee503845bc0731b52e1aaf432592f",
+        "semantic_digest": "sha256:7f82abe1db3aa1a6e10a125f69ead661f19b096871b7accf4b81fce02e1990cd",
         "source_projection": "local_refinement_registry",
         "statement": "全旧clauseが維持・置換・deferredの一つにPO決定され新L0からL1へtraceする"
       },
@@ -1157,7 +1041,7 @@
         "requirement_ids": [
           "MHH-REQ-L0-NORTH-STAR-AUTHORITY-NORMALIZATION"
         ],
-        "semantic_digest": "sha256:2d54f20038fdafde7d11ee9d6ff53cfb839453360cd11d511b83300dc4f0b6ca",
+        "semantic_digest": "sha256:c2117e6b8d8af281b1e5b11018101c2c47a10d3df720499d066c7b2cd62f7c38",
         "source_projection": "local_refinement_registry",
         "statement": "旧Discord/browser/provider等を下位ADRだけで暗黙置換又はcurrent利用することを拒否する"
       },
@@ -1167,7 +1051,7 @@
         "requirement_ids": [
           "MHH-REQ-L0-NORTH-STAR-AUTHORITY-NORMALIZATION"
         ],
-        "semantic_digest": "sha256:6909bd6585d3978df53bc0b5e045e8dc51bc02ec10aab0a155ffee75f758f8fb",
+        "semantic_digest": "sha256:fd010c035f5519e959ffa5fbd5f5f72e49b703bc1123220f34ed1cd08aed70f8",
         "source_projection": "local_refinement_registry",
         "statement": "事業価値を維持しても実現手段は独立に再決定し未決手段をdeferredとする"
       }
@@ -1194,17 +1078,12 @@
     "responsibility_owner": "L0-NORTH-STAR-AUTHORITY-NORMALIZATION",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:dfe996c8522f2a4696b2c4264046d24935f0cb21723cb21feb520daeeaca7113",
+    "semantic_digest": "sha256:7c3308612aaa3cb36f648c5c08ddc58410c2099c366798f3240b230c1ac69871",
     "source": {
       "acceptance_digest": "sha256:f0688fe44dddad277ae25b2371b0ef7023da7c248a985fc4e3ae50994fafd71a",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-L0-NORTH-STAR-AUTHORITY-NORMALIZATION/acceptance_cases",
       "requirement_digest": "sha256:d15ab07c6a88ca37e654d8277b009e02ebcec425b310d6b27bd438e67b2024ce",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-L0-NORTH-STAR-AUTHORITY-NORMALIZATION",
-      "source_event_ids": [
-        "RDE-000111",
-        "RDE-000112"
-      ],
-      "source_set_digest": "sha256:b46301b55399c518167e7fa0f6d72f79b4984e0798ed60546fa654c1ced408a6"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-L0-NORTH-STAR-AUTHORITY-NORMALIZATION"
     },
     "supporting_requirements": []
   },
@@ -1216,7 +1095,7 @@
         "requirement_ids": [
           "MHH-REQ-LEGACY-MEDIA-ADMISSION-INVENTORY"
         ],
-        "semantic_digest": "sha256:62af0b53f6d9640ec4ed5649ccc5904396577ce5c89609d004e1421fa6b45f6b",
+        "semantic_digest": "sha256:319ca95304a67b941fb89eabad8c775b3f62071b61e58b88456f99ec1c6e0293",
         "source_projection": "local_refinement_registry",
         "statement": "全旧MRをdeferredとして収載し意味とAC/TCを凍結したoperationだけ再開する"
       },
@@ -1226,7 +1105,7 @@
         "requirement_ids": [
           "MHH-REQ-LEGACY-MEDIA-ADMISSION-INVENTORY"
         ],
-        "semantic_digest": "sha256:508985f76c3bbad920b27ff6396cb0ef2ebbd5002375baf4021da9fa278c52be",
+        "semantic_digest": "sha256:191978b5b9e6f8c8217fe055489a0c6898b3e0a9dd678bbff1058cba06131cba",
         "source_projection": "local_refinement_registry",
         "statement": "棚卸し漏れ、旧本文からのenabled推測又は意味field未閉包の再開を拒否する"
       },
@@ -1236,7 +1115,7 @@
         "requirement_ids": [
           "MHH-REQ-LEGACY-MEDIA-ADMISSION-INVENTORY"
         ],
-        "semantic_digest": "sha256:91fa70c6cf9dbc9dc0627722f4f5a61de3f22bb565774ad985eac45fdf6e4ec6",
+        "semantic_digest": "sha256:62aaa7e8613e768776723d345c74a6aef3d407211e9addb564278a7f26f93aa0",
         "source_projection": "local_refinement_registry",
         "statement": "一部operationだけ成立する場合はそのoperationだけ再開し媒体全体をenabledにしない"
       }
@@ -1263,17 +1142,12 @@
     "responsibility_owner": "LEGACY-MEDIA-ADMISSION-INVENTORY",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:1adb080020f46bcc3fcb41528a5eec02f1ab73374654085e71c695c2c06cccc6",
+    "semantic_digest": "sha256:0d524d8ffd97f5b705ff8702c3f5a08a9321dcd258a4caed73fca53f6dac8b5b",
     "source": {
       "acceptance_digest": "sha256:39842b91cc7147bc8a85e8f75984bfba93bb579fa1f93e68444431426564b69f",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-LEGACY-MEDIA-ADMISSION-INVENTORY/acceptance_cases",
       "requirement_digest": "sha256:6f8d4c56fa4d22900b6ba39d6c7392e766f8adc3ea0eb62a3f910638d888cd0e",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-LEGACY-MEDIA-ADMISSION-INVENTORY",
-      "source_event_ids": [
-        "RDE-000125",
-        "RDE-000126"
-      ],
-      "source_set_digest": "sha256:d8bd64600bf1fbb2b065fdacbbced87f99524fd715521d5aba586512422ece23"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-LEGACY-MEDIA-ADMISSION-INVENTORY"
     },
     "supporting_requirements": []
   },
@@ -1285,7 +1159,7 @@
         "requirement_ids": [
           "MHH-REQ-MEDIA-POC-SCRUM-RELEASE"
         ],
-        "semantic_digest": "sha256:0c5762cc18950c9f2c89b36691c156f1b6cda827327cd3817cd8560aa8b0e4ae",
+        "semantic_digest": "sha256:5bb156ccf2a75bf05a5128237822368983e608d8ad80244d33d3c70f6fcca043",
         "source_projection": "local_refinement_registry",
         "statement": "Full V設計、increment検証、PO S4 receipt、Scrum Reverse SR0-SR4、release candidate V-pair closureを持つrelease unitだけを正本へ昇格する"
       },
@@ -1295,7 +1169,7 @@
         "requirement_ids": [
           "MHH-REQ-MEDIA-POC-SCRUM-RELEASE"
         ],
-        "semantic_digest": "sha256:43d1fa655c7891a2a0ad2d9ed2ebe5547714f4cecafac75f07a891e0625266eb",
+        "semantic_digest": "sha256:8099c8623ba884887a2e5b488a235f98781e58fb0dc205d711de0b90fa9006dc",
         "source_projection": "local_refinement_registry",
         "statement": "Full V closure不足、必要と判定したDiscovery未実施、証跡不足、PO未決、又は別媒体から推測したcapabilityを本番enabledとして拒否する"
       },
@@ -1305,7 +1179,7 @@
         "requirement_ids": [
           "MHH-REQ-MEDIA-POC-SCRUM-RELEASE"
         ],
-        "semantic_digest": "sha256:37bf14bea4d5648e672447c56dfd32d9253798626cc9eac026eb66779aa6f7b6",
+        "semantic_digest": "sha256:6961190b683d25c3a0e5c5665cd8b1ee07a9cd225b8bfd7e71b2770594aa7d4b",
         "source_projection": "local_refinement_registry",
         "statement": "一部capabilityだけが成立する場合はrelease unitを分割又はpivotし、媒体全体を一括acceptedにしない"
       }
@@ -1332,24 +1206,12 @@
     "responsibility_owner": "MEDIA-POC-SCRUM-RELEASE",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:a16ca84b9ab24793de3465fc1dad09eccfe7f627df01a95adbcdfe5eb0f3b009",
+    "semantic_digest": "sha256:75868e77ddcb7ea1dec8a9d0c5131529e70a64feec2063b3cd05bbeee197e842",
     "source": {
       "acceptance_digest": "sha256:33c02c6a9e7d6a2f078099580f48ac19508ba3f9c7bc3f19086375c9ad71345e",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-MEDIA-POC-SCRUM-RELEASE/acceptance_cases",
       "requirement_digest": "sha256:4cb3997604201fdd2f1cd7dd2f8eb48f1faa9c7d407f3112ca10ae0821540c6f",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-MEDIA-POC-SCRUM-RELEASE",
-      "source_event_ids": [
-        "RDE-000073",
-        "RDE-000074",
-        "RDE-000075",
-        "RDE-000076",
-        "RDE-000077",
-        "RDE-000078",
-        "RDE-000079",
-        "RDE-000082",
-        "RDE-000095"
-      ],
-      "source_set_digest": "sha256:70acdc618658dc79d4dc5e71ca0217236a5f7444d06043330c7ac2b60a87db03"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-MEDIA-POC-SCRUM-RELEASE"
     },
     "supporting_requirements": []
   },
@@ -1361,7 +1223,7 @@
         "requirement_ids": [
           "MHH-REQ-NFR-BUSINESS-AUTHORITY"
         ],
-        "semantic_digest": "sha256:5b11f1679262591a803dc9dfa15afdcb5d56dfb217b8d45ab5961fb3f1091d90",
+        "semantic_digest": "sha256:ec5e45573bb1ca43aed115301d182397d91e00f056642da06405c1de3c825287",
         "source_projection": "local_refinement_registry",
         "statement": "NFR11全件が既存meaning digestへ束縛されたstable root、actor/principal scope、applicability scope、phase、処遇、measurement authority及びfailure/recoveryを持つ"
       },
@@ -1371,7 +1233,7 @@
         "requirement_ids": [
           "MHH-REQ-NFR-BUSINESS-AUTHORITY"
         ],
-        "semantic_digest": "sha256:86df02d387e031aaf3ed7eb7f8d16600600e368762dfb68be04e62342acaf063",
+        "semantic_digest": "sha256:225deffc98bc22664d9de089ff46e886a86454b8f0d6ed5eca66c250ce5b2541",
         "source_projection": "local_refinement_registry",
         "statement": "root不明、親digest stale、意味軸未分類、旧NFR/phase/draft STC流用又は未登録閾値のNFRを受入済みにしない"
       },
@@ -1381,7 +1243,7 @@
         "requirement_ids": [
           "MHH-REQ-NFR-BUSINESS-AUTHORITY"
         ],
-        "semantic_digest": "sha256:634dd2825f280ff2fcd625a4d5f5728877babc81137c6d0f4de448e33c2f0d05",
+        "semantic_digest": "sha256:8bf63beddcc9698cd52e6b0d4fa6bb8651f83998c00810590f4cff021de40188",
         "source_projection": "local_refinement_registry",
         "statement": "N/A又は将来NFRはowner・理由・risk・再開条件付きdeferredとし、部分成立を全体受入へ昇格しない"
       }
@@ -1408,18 +1270,12 @@
     "responsibility_owner": "NFR-BUSINESS-AUTHORITY",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:dc2b0c7b919029ab67547711f5f063472287ed200af40f019eaa6e943740621f",
+    "semantic_digest": "sha256:aee16abc26941b4ab43b870096f271823c0642cb6e2d5c56cfd54e31129e1229",
     "source": {
       "acceptance_digest": "sha256:e02bbeb14bfd874d915fce6c58d6763de61f2b82a936e20f3614bcfe8f99b810",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-NFR-BUSINESS-AUTHORITY/acceptance_cases",
       "requirement_digest": "sha256:f70dd7d7fcbfc46be0c34ddc379e49703ea765b6cff0e8a8fd6c308db9b52834",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-NFR-BUSINESS-AUTHORITY",
-      "source_event_ids": [
-        "RDE-000105",
-        "RDE-000106",
-        "RDE-000183"
-      ],
-      "source_set_digest": "sha256:228a4cea27d70bf2a28e5489f9e5ca10c02c0b7019c4aae4ab99ece9fb544905"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-NFR-BUSINESS-AUTHORITY"
     },
     "supporting_requirements": []
   },
@@ -1431,7 +1287,7 @@
         "requirement_ids": [
           "MHH-REQ-OFFICIAL-API-ROUTE-AUTHORITY"
         ],
-        "semantic_digest": "sha256:2628772e16ea6f812512e7cf5b6d8758ac65471cdd4c809d9ad44481ff9e5fb6",
+        "semantic_digest": "sha256:ce8a3fbaacfde288c662cdf517c0a81be1db45aa12dcc23c2ec16f8c863f8b7f",
         "source_projection": "local_refinement_registry",
         "statement": "意味軸・根拠・許可境界を満たす対象だけを次工程へ進める"
       },
@@ -1441,7 +1297,7 @@
         "requirement_ids": [
           "MHH-REQ-OFFICIAL-API-ROUTE-AUTHORITY"
         ],
-        "semantic_digest": "sha256:c30191761ae78a197a8df674bf894d230285f7ab7b3de5faca8e6a78b6b4a6e7",
+        "semantic_digest": "sha256:63c5d87d89f7590ffd29b3bd0fd47fca70b096eb2952cc307f9ec045d995dee4",
         "source_projection": "local_refinement_registry",
         "statement": "未回答・未許可・意味trace欠落又は証跡不足をfail-closeで拒否する"
       },
@@ -1451,7 +1307,7 @@
         "requirement_ids": [
           "MHH-REQ-OFFICIAL-API-ROUTE-AUTHORITY"
         ],
-        "semantic_digest": "sha256:e09fefe82d5feb296b9a808c717bd5e0113b84436268108610b1f7a513f29638",
+        "semantic_digest": "sha256:0793687c660f1c26ef6972348cae907cc6803c7a8f5003f5cd4b6ce671bbbf2c",
         "source_projection": "local_refinement_registry",
         "statement": "一部だけ成立する場合は責務を分割又はdeferred/pivotし全体成立に読み替えない"
       }
@@ -1478,20 +1334,12 @@
     "responsibility_owner": "OFFICIAL-API-ROUTE-AUTHORITY",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:1e7c77490ce4b64339ef7ff5c799ac10835867621d66c950f5e3bde357970b83",
+    "semantic_digest": "sha256:943880dce641fe36634f4d524032e7045a433aee83c8ce0f8cdd9fefb0bea16c",
     "source": {
       "acceptance_digest": "sha256:5832d1cd56b5350ca1d2fa5336c342b80db784571ee0e5b390c970b32537c22b",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-OFFICIAL-API-ROUTE-AUTHORITY/acceptance_cases",
       "requirement_digest": "sha256:a2614cd4a2b2ea8347e9f9f04e8378303628965d9e81909643a0fb9c208b9e7d",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-OFFICIAL-API-ROUTE-AUTHORITY",
-      "source_event_ids": [
-        "RDE-000008",
-        "RDE-000026",
-        "RDE-000027",
-        "RDE-000045",
-        "RDE-000046"
-      ],
-      "source_set_digest": "sha256:1c69d48d7a51b7e8ee02a3f3d274f4a910e1192b16e74737b24915ee85eb07ae"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-OFFICIAL-API-ROUTE-AUTHORITY"
     },
     "supporting_requirements": []
   },
@@ -1503,7 +1351,7 @@
         "requirement_ids": [
           "MHH-REQ-PRODUCT-STATE-AUTHORITY"
         ],
-        "semantic_digest": "sha256:1d85d64a4fccfdedbdebc473f5fb12d803b7dcfcff1efa0e34690b6275ceef12",
+        "semantic_digest": "sha256:565d7adbf8088b4f5c05754c667bb69f69dd18777cc4eb52a6f62e24d5aa686e",
         "source_projection": "local_refinement_registry",
         "statement": "stable transition ID、subject、source state、target state、expected prior revision、expected priorより大きいresulting revision、単一owner、有効なauthorization grant ID/revision/semantic digest、effect、result及びreceiptが閉じた更新だけを唯一正本へ反映する"
       },
@@ -1513,7 +1361,7 @@
         "requirement_ids": [
           "MHH-REQ-PRODUCT-STATE-AUTHORITY"
         ],
-        "semantic_digest": "sha256:d552367089c5e079474810667da58ca5e89a6d7c14c66930399cafdc21ee480c",
+        "semantic_digest": "sha256:4c11bee51a3c356f74fe21eac595e4a5382dc7546bed22f0ee2fa4c15f57baf4",
         "source_projection": "local_refinement_registry",
         "statement": "unknown transition、stale revision、競合、unknown owner、missing/stale/expired authorization grant及び通知/seen/ack/adapter/retry signalからの暗黙更新又はrollbackを拒否する"
       },
@@ -1523,7 +1371,7 @@
         "requirement_ids": [
           "MHH-REQ-PRODUCT-STATE-AUTHORITY"
         ],
-        "semantic_digest": "sha256:27adb02df190d56497623da2b5406430cddd3d4c217cd23f1c95c19e26601b20",
+        "semantic_digest": "sha256:a2cfdddca5991fc5a006893f3ec32014bf233665324ad5e797deb1a880f52b9c",
         "source_projection": "local_refinement_registry",
         "statement": "拒否、競合、保存不能又は復旧時はcurrent state、current revision及び履歴を維持し、復旧を新しい認可transitionとして記録するまでfail-closeする"
       }
@@ -1550,20 +1398,12 @@
     "responsibility_owner": "PRODUCT-STATE-AUTHORITY",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:807725ed9d37a52402a97afeee90d69db74cfffb1427e4cb37456cb0e3fd8574",
+    "semantic_digest": "sha256:8e2e770456183b30645a679426ce23de3d25c4862eb64f9b4bb8c1059f77b811",
     "source": {
       "acceptance_digest": "sha256:fd356f8f805eb2cd67abcebc2d61dc74a17e961b0fd7016197de49bad971e2e9",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-PRODUCT-STATE-AUTHORITY/acceptance_cases",
       "requirement_digest": "sha256:634bd6202e1a5d464d9696ce4f698cc5d5eb40907eea96e198cc5d885e2b9878",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-PRODUCT-STATE-AUTHORITY",
-      "source_event_ids": [
-        "RDE-000128",
-        "RDE-000129",
-        "RDE-000172",
-        "RDE-000173",
-        "RDE-000175"
-      ],
-      "source_set_digest": "sha256:6532bbef8c1a0b9a66704a826a1c7da3ab670be93d6537061aee89cf3636e573"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-PRODUCT-STATE-AUTHORITY"
     },
     "supporting_requirements": []
   },
@@ -1575,7 +1415,7 @@
         "requirement_ids": [
           "MHH-REQ-RATE-QUOTA-COST-AUTHORITY"
         ],
-        "semantic_digest": "sha256:6270cb24fd24ac87c84c81d96f11af539f967fbc14c0fab81fcc428b0b3601c5",
+        "semantic_digest": "sha256:9ff4f8e1e69fa3f82937bcb04de3b0286e36130b94bff729709b6df983876a60",
         "source_projection": "local_refinement_registry",
         "statement": "有効なprofile/account/operation/risk別registrationとeffect分類があり、上限内のoperationだけを開始する。read-only残量取得は権限・quota・証跡が閉じる場合だけ別effectとして扱う"
       },
@@ -1585,7 +1425,7 @@
         "requirement_ids": [
           "MHH-REQ-RATE-QUOTA-COST-AUTHORITY"
         ],
-        "semantic_digest": "sha256:c97895421f1b91f37e601ba0ba78804bba0a6b03fcaec2d904fba6a0b495a6e0",
+        "semantic_digest": "sha256:fa3ecd64bbbda996d58a277705c7edc0983ae8a40966c254d33db158c8cdacb0",
         "source_projection": "local_refinement_registry",
         "statement": "未知、未登録、失効、測定不能、scope不一致、retry-after違反又はcost ceiling欠落時にexternal write/publish/money/additional retryを拒否する"
       },
@@ -1595,7 +1435,7 @@
         "requirement_ids": [
           "MHH-REQ-RATE-QUOTA-COST-AUTHORITY"
         ],
-        "semantic_digest": "sha256:9e46d06e3e137209604ea10d52a36690a3d0ed7984d115a65c02ea3e8856cdda",
+        "semantic_digest": "sha256:24fe8dc8b10ecd12869ea5652387fecac3e0558bd72ff7ca439c6de2b7ac96d3",
         "source_projection": "local_refinement_registry",
         "statement": "上限到達又は分類不明では対象effectだけをblocked/deferredとし、既確定状態をrollbackせずfailure receiptを残す"
       }
@@ -1622,18 +1462,12 @@
     "responsibility_owner": "RATE-QUOTA-COST-AUTHORITY",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:44fd9a7566fbe2663bfb93d3d5bd5f83bfc0c362aab3bc64a2303de15ffed5bb",
+    "semantic_digest": "sha256:6dde133ee5df88ab7c5911f5e583a238c62c6041b37696b3bb8dd7ee9fd69e43",
     "source": {
       "acceptance_digest": "sha256:41025f273b16dc2b091794ae1321c4c2585221e01368cdd9cb98bde43282fa39",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-RATE-QUOTA-COST-AUTHORITY/acceptance_cases",
       "requirement_digest": "sha256:4d1941c135f4100df4286135bf534b7058473abaef0396495778df0fcccdcf41",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-RATE-QUOTA-COST-AUTHORITY",
-      "source_event_ids": [
-        "RDE-000134",
-        "RDE-000135",
-        "RDE-000171"
-      ],
-      "source_set_digest": "sha256:7a81905c0f5c4effb3b78990322e75196f9830460140c82e460e480d08eb3be7"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-RATE-QUOTA-COST-AUTHORITY"
     },
     "supporting_requirements": []
   },
@@ -1645,7 +1479,7 @@
         "requirement_ids": [
           "MHH-REQ-REQ-AUTHORITY-NORMALIZATION"
         ],
-        "semantic_digest": "sha256:ea2c9eccb8bc7b3f19d0b17e8582d2cda8e874dbf79f30000c3e9f6d411a08ab",
+        "semantic_digest": "sha256:749f002fc12913393d83ddf476e607f96a52305bc4aad9dbd29d24f4b7d6d13b",
         "source_projection": "local_refinement_registry",
         "statement": "既存REQ55意味inventoryと15 ID・19 field delta overlayをPO row-set receiptへ束縛し、単一candidate JSONからMarkdownとtraceを生成して差分0、旧consumer隔離、manifest/baseline同一commit及び独立Goを満たす"
       },
@@ -1655,7 +1489,7 @@
         "requirement_ids": [
           "MHH-REQ-REQ-AUTHORITY-NORMALIZATION"
         ],
-        "semantic_digest": "sha256:5610be6f73c2e9898c03684cb6068a6193d5ea3a70d911814061c234ec499c32",
+        "semantic_digest": "sha256:d25ca5fd55fce3cca6a154634800b3f8eea6494a68a4774f428a4a6bfa8743d1",
         "source_projection": "local_refinement_registry",
         "statement": "未分類又は重複差分、source digest stale、複数selected candidate、defer owner/resume欠落、独立手編集view、旧REQ再混入、trace差分又はPO row-set digest不一致を拒否する"
       },
@@ -1665,7 +1499,7 @@
         "requirement_ids": [
           "MHH-REQ-REQ-AUTHORITY-NORMALIZATION"
         ],
-        "semantic_digest": "sha256:f15d56151f7cad6f4dd892d8b4d6cf18f3b4e80caa26eafddcefa77d451db09c",
+        "semantic_digest": "sha256:e7d616fe6013639ab076e481b94e6a1dfd48ebbeb7007955aeefc646386297ae",
         "source_projection": "local_refinement_registry",
         "statement": "表記同値は正規化するが本文・source・downstreamの実質差を消さず、全条件成立前は旧資料とcandidateの双方をrevalidation-onlyに保つ"
       }
@@ -1692,20 +1526,12 @@
     "responsibility_owner": "REQ-AUTHORITY-NORMALIZATION",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:c6173e522c647276eba6c8c35865aa8706c2025e75ade22518dc21ffe74732e7",
+    "semantic_digest": "sha256:036b0e8568d13114ea3506e5fd96234dc7aa483fed44dc87e957066de7fff2e6",
     "source": {
       "acceptance_digest": "sha256:4f031e149b6b4a3d802b60c32385a31eb7943f2f708b34d5bba23c280a8352ef",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-REQ-AUTHORITY-NORMALIZATION/acceptance_cases",
       "requirement_digest": "sha256:3b83b3e1af295d0e0152cce199a294f6591dccc61ac33067926b64aa3ea5ee80",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-REQ-AUTHORITY-NORMALIZATION",
-      "source_event_ids": [
-        "RDE-000097",
-        "RDE-000098",
-        "RDE-000124",
-        "RDE-000127",
-        "RDE-000182"
-      ],
-      "source_set_digest": "sha256:56dd17166d8907e13a78de1e49d7e5b32a8eb92d9f0deef04d49db286f185ea5"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-REQ-AUTHORITY-NORMALIZATION"
     },
     "supporting_requirements": []
   },
@@ -1717,7 +1543,7 @@
         "requirement_ids": [
           "MHH-REQ-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE"
         ],
-        "semantic_digest": "sha256:e4c2cf7e10455c131f9ffb2bd19557500a183b19fba9d42697a75a7a5d0fccd3",
+        "semantic_digest": "sha256:7336db07390b23c7ab035be65ca7b8c44bf29517fd564bfeabf9405803097525",
         "source_projection": "local_refinement_registry",
         "statement": "全core軸がdirect又はdigest付き継承で閉じ、品質軸が同様に閉じるか証拠付きN/Aとなり、必要な閾値registrationが有効な対象だけを次工程へ進める"
       },
@@ -1727,7 +1553,7 @@
         "requirement_ids": [
           "MHH-REQ-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE"
         ],
-        "semantic_digest": "sha256:c8633b96ce93ceec85f9b90535f8267084eda6cb13be13dbb6319b2655863ddd",
+        "semantic_digest": "sha256:35b660256fa6014b353bb13768426ef91b0104bf3b992985b1ffd38dde8ec55a",
         "source_projection": "local_refinement_registry",
         "statement": "unknown、空、汎用N/A、親digest不一致、継承循環又は必要な閾値registration欠落をfail-closeで拒否する"
       },
@@ -1737,7 +1563,7 @@
         "requirement_ids": [
           "MHH-REQ-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE"
         ],
-        "semantic_digest": "sha256:e1305cb25fe2cc10d56d9e86eef9a136b02e3ec57ff8ff5bc7d7b76f3df8d99b",
+        "semantic_digest": "sha256:bc50002275bdb55a98eecb5ad006955df55679b67e76998e3156729d9c7b34b2",
         "source_projection": "local_refinement_registry",
         "statement": "一部だけ成立する場合は責務を分割又はdeferredとし、品質軸の一括N/Aや全体成立へ昇格しない"
       }
@@ -1764,22 +1590,12 @@
     "responsibility_owner": "REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:0388026238cf002f50fdf923316bdfd59e4ba354afd643697f803821f4283b9a",
+    "semantic_digest": "sha256:adca4e748c0481f7dc99aee2f1563467e14a30ac11e6bbac01dde8969e0407ef",
     "source": {
       "acceptance_digest": "sha256:d272a8a23b1c3604dcfeabfcd11503a3f0a21b662977257ef1d94f69e20e053e",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE/acceptance_cases",
       "requirement_digest": "sha256:ae73eac1dcff87687fb07345f4b59a072a33259bf7da9039fefe39e24378647f",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE",
-      "source_event_ids": [
-        "RDE-000009",
-        "RDE-000014",
-        "RDE-000028",
-        "RDE-000029",
-        "RDE-000047",
-        "RDE-000048",
-        "RDE-000072"
-      ],
-      "source_set_digest": "sha256:d9fad2380027251222aed9bc54a88d5f2f2e038e761220c05d115d8d985bcbe7"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE"
     },
     "supporting_requirements": []
   },
@@ -1791,7 +1607,7 @@
         "requirement_ids": [
           "MHH-REQ-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2"
         ],
-        "semantic_digest": "sha256:8861ace98f38292d860c605b5c4a8cb3856cd5f8df093682313e09f626cba28a",
+        "semantic_digest": "sha256:68823fcd5a7995cf53f3f291aedb62c29f88d875c7378abe1dc7838dedce4862",
         "source_projection": "local_refinement_registry",
         "statement": "全core軸がdirect又はdigest付き継承で閉じ、品質軸が同様に閉じるか証拠付きN/Aとなり、必要な閾値registrationが有効な対象だけを次工程へ進める"
       },
@@ -1801,7 +1617,7 @@
         "requirement_ids": [
           "MHH-REQ-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2"
         ],
-        "semantic_digest": "sha256:0c0ee8062a8f403efdd5d9891dc08472a99a05002d5fc058d84025e9b7db7c70",
+        "semantic_digest": "sha256:b9da5b19fd0fddf9104d613d0ae14e6d61565fec39d160a188a3882966609c28",
         "source_projection": "local_refinement_registry",
         "statement": "unknown、空、汎用N/A、親digest不一致、継承循環又は必要な閾値registration欠落をfail-closeで拒否する"
       },
@@ -1811,7 +1627,7 @@
         "requirement_ids": [
           "MHH-REQ-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2"
         ],
-        "semantic_digest": "sha256:de9879644c29d0bf1564fc63fa76f0e83be5265e909db59c468f3514d33b1d6a",
+        "semantic_digest": "sha256:10b127b32811d6091651b6b482469dc479ce30d1fd8775cf27f2992c39b33038",
         "source_projection": "local_refinement_registry",
         "statement": "一部だけ成立する場合は責務を分割又はdeferredとし、品質軸の一括N/Aや全体成立へ昇格しない"
       }
@@ -1838,16 +1654,12 @@
     "responsibility_owner": "REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:d5b6c4a143a96f3b574e137a732b78f31f4ffb0d2ea3089836a25af43eab6bad",
+    "semantic_digest": "sha256:560109d26f171041ab5d0cffb44565337aad4af42bc757ab4e55f0b919c8e8f4",
     "source": {
       "acceptance_digest": "sha256:d272a8a23b1c3604dcfeabfcd11503a3f0a21b662977257ef1d94f69e20e053e",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2/acceptance_cases",
       "requirement_digest": "sha256:68ce8384a857fac070f2394e20e6188358cae6fae262ea6f2c18b5f03a9ed403",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2",
-      "source_event_ids": [
-        "RDE-000169"
-      ],
-      "source_set_digest": "sha256:f34c1a305393a3c1b90c3ff32b520a0d04d747b820a3904e506b10c3e8aca053"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2"
     },
     "supporting_requirements": []
   },
@@ -1859,7 +1671,7 @@
         "requirement_ids": [
           "MHH-REQ-RESEARCH-LED-CONTENT-GROWTH"
         ],
-        "semantic_digest": "sha256:7028fad0d2933a4ce6b352d76e91e59b883d6426e8b71ee82542e61e7fe2ac0c",
+        "semantic_digest": "sha256:7423473c71128004745517f3a0a38d34c900c6ee7cceb62695d16a8d6308c514",
         "source_projection": "local_refinement_registry",
         "statement": "source/claim/freshnessと独自価値を持つresearch仮説から媒体役割と成果物を作り、役割KPIを次の仮説へ還流する"
       },
@@ -1869,7 +1681,7 @@
         "requirement_ids": [
           "MHH-REQ-RESEARCH-LED-CONTENT-GROWTH"
         ],
-        "semantic_digest": "sha256:1e932b9398aab6f633c2863cf4453c55278affcafcbccea8eaea75088987b20c",
+        "semantic_digest": "sha256:98796c2f677a7d16fc6fc1743435e859ac3369c367669e0985430468d6f3f9d4",
         "source_projection": "local_refinement_registry",
         "statement": "research根拠なし制作、付加価値なきsource言い換え、順位操作目的の量産、全媒体一律KPI及び権限不明な商品変更を拒否する"
       },
@@ -1879,7 +1691,7 @@
         "requirement_ids": [
           "MHH-REQ-RESEARCH-LED-CONTENT-GROWTH"
         ],
-        "semantic_digest": "sha256:4f618b6cfcae1cdf6e98bbfd4fba5937edd00816ef3af5725815d9b1d0519e48",
+        "semantic_digest": "sha256:b4608286df6684af221fc6df0693012815cdf3fe91c99b02514857a8616d7a90",
         "source_projection": "local_refinement_registry",
         "statement": "有料集客は超後期の個別要求が承認されるまでdisabledを維持する"
       }
@@ -1906,18 +1718,12 @@
     "responsibility_owner": "RESEARCH-LED-CONTENT-GROWTH",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:69d40443d0fd9c2680e3e8870f1947b810fbc88f1dcc6a75f1ed3cb10368cf44",
+    "semantic_digest": "sha256:e8556477802ea74bab7970b9611baca289bbc08a2588aa0724fd4956bbcffc98",
     "source": {
       "acceptance_digest": "sha256:70b7007fea76ca518807f72b2a2997875038073e16395fe2d72a0969e440221d",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-RESEARCH-LED-CONTENT-GROWTH/acceptance_cases",
       "requirement_digest": "sha256:ea8db288dc6dd44db103766832cb6d8f73862e5de15c21c18fa0b43087e50b9e",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-RESEARCH-LED-CONTENT-GROWTH",
-      "source_event_ids": [
-        "RDE-000141",
-        "RDE-000147",
-        "RDE-000153"
-      ],
-      "source_set_digest": "sha256:b427f924782219458385964107cf738ad99c9fcdcce6069abb12257ec8526b25"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-RESEARCH-LED-CONTENT-GROWTH"
     },
     "supporting_requirements": []
   },
@@ -1929,7 +1735,7 @@
         "requirement_ids": [
           "MHH-REQ-STRATEGY-REQUIREMENT-ADMISSION"
         ],
-        "semantic_digest": "sha256:91b63cd906a738b50a86b254cd0cf1b109e7b45777ee6b493825dee7d9d26a69",
+        "semantic_digest": "sha256:854906d08ea0a83ca1987e21638d168ca5c957f1cffcebc5107ceb0288c01bc8",
         "source_projection": "local_refinement_registry",
         "statement": "採用SRがFN/CMP/ACとPO receipt付きの単一current test authorityへ降下し、旧draft STC又は旧TCCを自動流用しない"
       },
@@ -1939,7 +1745,7 @@
         "requirement_ids": [
           "MHH-REQ-STRATEGY-REQUIREMENT-ADMISSION"
         ],
-        "semantic_digest": "sha256:968d9dc64e5e0036cde36d26ba08d527c44fedda405cf19c1acf9e3576553bc8",
+        "semantic_digest": "sha256:f7fbd0244635ea30adfcadb625fc82eff512a01fc70d90860c8eced7f02a3d52",
         "source_projection": "local_refinement_registry",
         "statement": "draft STC又はACなしSRをimplementation-readyにしない"
       },
@@ -1949,7 +1755,7 @@
         "requirement_ids": [
           "MHH-REQ-STRATEGY-REQUIREMENT-ADMISSION"
         ],
-        "semantic_digest": "sha256:17419d6fb115a66fc3f941baf5ceed94a07478d00a0f118e017efda000313a4c",
+        "semantic_digest": "sha256:814597bc08a2ac1e8937b45ac313b02a53d1f47f2f0fb1880817c672ae584f56",
         "source_projection": "local_refinement_registry",
         "statement": "初期外SRは価値・依存・risk・再開条件付きdeferredとする"
       }
@@ -1976,18 +1782,12 @@
     "responsibility_owner": "STRATEGY-REQUIREMENT-ADMISSION",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:402cf3706c14f16e4eea5def2acd9b55266e855ae10a100fdc24f348caddea08",
+    "semantic_digest": "sha256:a8c41b106ecb15dfd6deb0b41df8cc54dca3efedd4339ed220e61b4e96ed3a2f",
     "source": {
       "acceptance_digest": "sha256:01114df6ad0c82bdcb46c03209ce5e3e4ad6eef484866a0ff0763e6d2e918eb2",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-STRATEGY-REQUIREMENT-ADMISSION/acceptance_cases",
       "requirement_digest": "sha256:52f381f8b7c12da197f61fe39dd1e79474d5aabc8c97c70a8f97d423d115b2b8",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-STRATEGY-REQUIREMENT-ADMISSION",
-      "source_event_ids": [
-        "RDE-000107",
-        "RDE-000108",
-        "RDE-000161"
-      ],
-      "source_set_digest": "sha256:8e1520317883e34caea1c3dc43a0efd8694892c92b761fee6aabe97bdd31c628"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-STRATEGY-REQUIREMENT-ADMISSION"
     },
     "supporting_requirements": []
   },
@@ -1999,7 +1799,7 @@
         "requirement_ids": [
           "MHH-REQ-TEST-ID-AUTHORITY-ALIGNMENT"
         ],
-        "semantic_digest": "sha256:1981c5e3e57d1e0e41d29623eac256b4b9f356605f822d0fc6a0af6798c8daf2",
+        "semantic_digest": "sha256:4a91a76c0579a0efbd5ee598be6c0b9b2fe39518e95ec2a83e7eb0030292a7e0",
         "source_projection": "local_refinement_registry",
         "statement": "全DU試験参照が実在TCC/STCへ一意に解決し試験意図が保存される"
       },
@@ -2009,7 +1809,7 @@
         "requirement_ids": [
           "MHH-REQ-TEST-ID-AUTHORITY-ALIGNMENT"
         ],
-        "semantic_digest": "sha256:89921c33608f71964f71bfa6ced7a4e31b33ccd023fd741ea12a654325e55fbc",
+        "semantic_digest": "sha256:8d0aabbe81c75ce1c66d208739b8ca5a068a41899b7e389e6041317c026e08ad",
         "source_projection": "local_refinement_registry",
         "statement": "不存在又は旧TC-*参照と意味未確認の置換を拒否する"
       },
@@ -2019,7 +1819,7 @@
         "requirement_ids": [
           "MHH-REQ-TEST-ID-AUTHORITY-ALIGNMENT"
         ],
-        "semantic_digest": "sha256:ed8cf8f0210503232d8da84dd335e02b164be9ccef8d43907cb779a11ec013ce",
+        "semantic_digest": "sha256:4296785184818fc7f5b210e820ddb0db6b3d503150ee0fc94d56717c70ed8627",
         "source_projection": "local_refinement_registry",
         "statement": "同値でない試験は統合せず新ID化又は明示廃止を要求する"
       }
@@ -2046,17 +1846,12 @@
     "responsibility_owner": "TEST-ID-AUTHORITY-ALIGNMENT",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:bbec605a9a3c2388fe0b4169c268820eed0fcfe4601de43f2c301210576c6779",
+    "semantic_digest": "sha256:7e26741f0566826226d0863467d8f470cb64df4d0b5d1fa25adbfed30dd31585",
     "source": {
       "acceptance_digest": "sha256:e7e8085ec758b83c7cf71c243f32a3784ad8bb01a3be249a35ddd26db385cfc0",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-TEST-ID-AUTHORITY-ALIGNMENT/acceptance_cases",
       "requirement_digest": "sha256:5df8bc9cff5ace92a0fe0e070ccc34b217cbe6b0a3af4770598c1932dcf6ace3",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-TEST-ID-AUTHORITY-ALIGNMENT",
-      "source_event_ids": [
-        "RDE-000080",
-        "RDE-000081"
-      ],
-      "source_set_digest": "sha256:4045b2c060d8303d7cc85e75f38f0b39b1a14477b162d9f4ea27994dcc2285af"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-TEST-ID-AUTHORITY-ALIGNMENT"
     },
     "supporting_requirements": []
   },
@@ -2068,7 +1863,7 @@
         "requirement_ids": [
           "MHH-REQ-VPS-CREDENTIAL-SECURITY-BOUNDARY"
         ],
-        "semantic_digest": "sha256:cda274b50659800add5d10cfe9460ab2557ba2440a3ee5f411d9674237fbc5f1",
+        "semantic_digest": "sha256:b08c5c6f46a3cca85db0bebfb2fd72e9e730857bd33cc8428c5f8b33dfd33349",
         "source_projection": "local_refinement_registry",
         "statement": "暗号化at-rest保護とprofile/account/operation束縛一時注入を満たし、証跡は参照IDだけを保持して使用後にsecretを残さない"
       },
@@ -2078,7 +1873,7 @@
         "requirement_ids": [
           "MHH-REQ-VPS-CREDENTIAL-SECURITY-BOUNDARY"
         ],
-        "semantic_digest": "sha256:31dfbd328607d53cf24d9f1663945cc645c2721043b0ce60803ce3edb87aac70",
+        "semantic_digest": "sha256:446b2c44a452a329259ad63b1b46aae1bc8108ecd8d37368a1372fb98dd2352d",
         "source_projection": "local_refinement_registry",
         "statement": "平文env、repo/製品DB/log/journal/service unit/argv/dump/evidence漏洩、scope越境、test/prod混用及びsecret backupを拒否する"
       },
@@ -2088,7 +1883,7 @@
         "requirement_ids": [
           "MHH-REQ-VPS-CREDENTIAL-SECURITY-BOUNDARY"
         ],
-        "semantic_digest": "sha256:0213f27ec9ed10fabeb47b28e00ceb2f653dd7ab3e8836d11c3849d0e8eed336",
+        "semantic_digest": "sha256:90a74fb4a06ddf27c3a82265db6f3ef874004d6b4831198d247c72e2b390e96b",
         "source_projection": "local_refinement_registry",
         "statement": "VPS再起動又はunlock失敗時は外部操作停止を維持し、人間が実行系とcredential注入を再認可するまで自動復旧せず、旧平文credentialも再発行前に移送しない"
       }
@@ -2115,19 +1910,12 @@
     "responsibility_owner": "VPS-CREDENTIAL-SECURITY-BOUNDARY",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:2f6e2ffb18eae159161b91e3f84820cc89a13d07bdadee1135a54101fd2d2e36",
+    "semantic_digest": "sha256:ff7bb5fb14dd23e55f6ec419f9b0682161ba606ae8aab63eb9a674ef0821687a",
     "source": {
       "acceptance_digest": "sha256:18565e9b9063e0287aebb0d7a0c1681361c1472671fb335c061d4924282d80e8",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-VPS-CREDENTIAL-SECURITY-BOUNDARY/acceptance_cases",
       "requirement_digest": "sha256:16f222c23f0071263f5b28fc09a62e23c50719dbff0f9c4747d8de00bcb014df",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-VPS-CREDENTIAL-SECURITY-BOUNDARY",
-      "source_event_ids": [
-        "RDE-000109",
-        "RDE-000110",
-        "RDE-000159",
-        "RDE-000162"
-      ],
-      "source_set_digest": "sha256:36cabb0597993ef05e0a38ced2a85010035be766318a81dde6a4be65bf244331"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-VPS-CREDENTIAL-SECURITY-BOUNDARY"
     },
     "supporting_requirements": []
   },
@@ -2139,7 +1927,7 @@
         "requirement_ids": [
           "MHH-REQ-VPS-UI-AUTHENTICATION-SESSION"
         ],
-        "semantic_digest": "sha256:eebff5fdd3ae6eb195f4f77cfee9e13278a97d5adbc93b9eae3fa699ce73cd20",
+        "semantic_digest": "sha256:bc4b482d4ad99bae98661d8eea09c902b93518671027a3a54968a568462bea3e",
         "source_projection": "local_refinement_registry",
         "statement": "有効なidentity revision、authentication event/digest、session expiry/revocation、必要strength/freshness及びoperation別authorization grant ID/revision/digestを満たすprincipalだけ操作できる"
       },
@@ -2149,7 +1937,7 @@
         "requirement_ids": [
           "MHH-REQ-VPS-UI-AUTHENTICATION-SESSION"
         ],
-        "semantic_digest": "sha256:ec211f438c20a17c4c6170658f2fac71c2c209cea9c9cec97d0d453bef2a5627",
+        "semantic_digest": "sha256:d63c97eca4f24a48cf4706ed5cbaa99efa3a572f03048b54f24a3af07fb9885b",
         "source_projection": "local_refinement_registry",
         "statement": "unknown/stale identity、expired/revoked/fixed/replayed session、CSRF不成立、strength/freshness不足、deep-linkのみ、grant欠落、raw secret/raw bearer token/credential materialのrepo・製品DB・log・inboxへの永続化又は露出、及びcredentialを含むauthentication event digestを拒否する"
       },
@@ -2159,7 +1947,7 @@
         "requirement_ids": [
           "MHH-REQ-VPS-UI-AUTHENTICATION-SESSION"
         ],
-        "semantic_digest": "sha256:5fa79e8a2358b2c803f20db6eab26fb9ea8fd51572a7d9cb73a925681b75d0ab",
+        "semantic_digest": "sha256:9b6fed59086c656871a5fd37c55320ee95b3436814123077bbbe42c00e5d2565",
         "source_projection": "local_refinement_registry",
         "statement": "lockout/recovery/break-glass又はVPS再起動時もstate/revisionを維持し、runtime/credential再認可とfresh grantまで外部作用を停止する"
       }
@@ -2186,19 +1974,12 @@
     "responsibility_owner": "VPS-UI-AUTHENTICATION-SESSION",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:378e34ddda90d0f0825dee7ea03e0f6c667418d816d0b17d0ee9c6f4955fde56",
+    "semantic_digest": "sha256:c9417abecf627b3a577f48ecd8e0453c93e9f5b9a97f1533cf5a32b251d27b30",
     "source": {
       "acceptance_digest": "sha256:426057b0403d23b2addf611d6b79a65c0c7fba339a05e2abcedcd097b6d86226",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-VPS-UI-AUTHENTICATION-SESSION/acceptance_cases",
       "requirement_digest": "sha256:59583ac23bfdef85aafee36c120abced6cf938c25b6c905bf7bf364890468d04",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-VPS-UI-AUTHENTICATION-SESSION",
-      "source_event_ids": [
-        "RDE-000132",
-        "RDE-000133",
-        "RDE-000176",
-        "RDE-000177"
-      ],
-      "source_set_digest": "sha256:604355cc05aab91fa3a0f64082152bd8036a8529e3f1904dc80fe254f7ceb6b0"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-VPS-UI-AUTHENTICATION-SESSION"
     },
     "supporting_requirements": []
   },
@@ -2210,7 +1991,7 @@
         "requirement_ids": [
           "MHH-REQ-VPS-UI-INBOX-LIFECYCLE"
         ],
-        "semantic_digest": "sha256:bb4d84e0a8ce2ea5f3107f072d42a45b43e7ede570a3567277119de433657428",
+        "semantic_digest": "sha256:a85529958fa32efbdaf6f91e91bad8d56344cc2e3f7ed7edbd8f20db55418827",
         "source_projection": "local_refinement_registry",
         "statement": "approval_waiting/safety_stoppedと外部operation・公開・保守のexecution_failedを先に確定し、purposeと対象bindingを持つ一意なitemをrecordedとして残し、seen/acknowledgedを利用者別に記録する。content_quality_retry_exhaustedは対象artifact、rule revision及びexhaustion source identityへ束縛したoperational alertを一件だけ記録する。resolved/expiredはsource lifecycle、revision失効又はscope取消の正本eventだけへ追随する。登録済み有界retry内で記録し、terminal後だけ登録済みretention policyに従って処理する"
       },
@@ -2220,7 +2001,7 @@
         "requirement_ids": [
           "MHH-REQ-VPS-UI-INBOX-LIFECYCLE"
         ],
-        "semantic_digest": "sha256:b39bf603b3e5b18c67ce89097074397ee1452fab2cdd9b25260973db23053d10",
+        "semantic_digest": "sha256:db3dd99edaa4309a3eb9e5540e644708be6cb0b89d0afec3389da94b85c464c8",
         "source_projection": "local_refinement_registry",
         "statement": "通知失敗・重複・seen・acknowledged・resolved・expiredから業務状態、approve/reject又は停止後再開を変更せず、scope外profileのitemとsecret/PII/raw errorを表示しない。通常のcontent quality retryを通知せず、retry exhaustion itemの記録失敗でもblocked状態を変更しない。旧FR-43又はApprovalTransportをinbox source authorityとして直接採用しない。未確認、時間経過、stale表示又は記録失敗だけでaction_requiredをexpiredにしない。無限retry、外部通知fallback、active itemの時間archive/purge、policy不明時purge、reminderからのdecision又は別item生成を拒否する"
       },
@@ -2230,7 +2011,7 @@
         "requirement_ids": [
           "MHH-REQ-VPS-UI-INBOX-LIFECYCLE"
         ],
-        "semantic_digest": "sha256:77002ef522f6cc7acf5f15c5dc6b3a312c044cdc6f9e74777423c9ff4d2b500f",
+        "semantic_digest": "sha256:5f91a739c2c97017384a1209e9f4f6101f549c6d1c65c60b1119e4fe1b3426ce",
         "source_projection": "local_refinement_registry",
         "statement": "未知source/purpose、同一identity再送、記録失敗、保持境界ではfail-closeし、業務状態を維持したまま一意なattempt/failed/expiry証跡を残す。content quality exhaustionの再送は同一source identityへdedupeし、別itemを作らない。長期未確認表示又はreminder候補からapprove/reject、停止解除又はsource expiryを導出しない。retry exhaustionではblockedを維持してfailed receiptを残し、retention不明又はlegal hold中はaccess制限して不可逆削除を停止し、reminder未登録時は無表示のままsource状態を維持する"
       }
@@ -2257,23 +2038,12 @@
     "responsibility_owner": "VPS-UI-INBOX-LIFECYCLE",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:ba51da6840335246f08acaf4a7555a58a10d28a7ec246f113cb33f10b47bf02c",
+    "semantic_digest": "sha256:f1558c2691cf5b11588ca689e36f86af3d2aea123a41f845444f14a3d13d2b5e",
     "source": {
       "acceptance_digest": "sha256:c7fcc8ba962426a8f9da5878b04e701ba3c7a4433329f149a99a25c5f8f390f4",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-VPS-UI-INBOX-LIFECYCLE/acceptance_cases",
       "requirement_digest": "sha256:8e7014577d4ad96f3ded703a42f97f618cf2b56f3c89866d948fa7b9d1ed1fad",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-VPS-UI-INBOX-LIFECYCLE",
-      "source_event_ids": [
-        "RDE-000100",
-        "RDE-000101",
-        "RDE-000102",
-        "RDE-000119",
-        "RDE-000165",
-        "RDE-000166",
-        "RDE-000167",
-        "RDE-000168"
-      ],
-      "source_set_digest": "sha256:cb8ce74d3ab72a49995b0fd2060d05c29ace6027486e790057123d79adcf050c"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-VPS-UI-INBOX-LIFECYCLE"
     },
     "supporting_requirements": []
   },
@@ -2285,7 +2055,7 @@
         "requirement_ids": [
           "MHH-REQ-VPS-UI-PRIMARY-HUMAN-INTERFACE"
         ],
-        "semantic_digest": "sha256:2b6a0ca2cfb0aa98ac71e5203ab10aa66391279b551aa61fd36d1447e687b48d",
+        "semantic_digest": "sha256:de791a3a3ce973c9b6f2c0c2fa5ca99c4544536d34ae2fcd36018430378bfb4d",
         "source_projection": "local_refinement_registry",
         "statement": "認証済みprincipalが対象revisionを再表示して明示操作した場合だけ状態を更新する"
       },
@@ -2295,7 +2065,7 @@
         "requirement_ids": [
           "MHH-REQ-VPS-UI-PRIMARY-HUMAN-INTERFACE"
         ],
-        "semantic_digest": "sha256:fc77a6f4855b1ba0c496b25a42e981b146d7362c1e0edcf9ac54c5b2882d1bf6",
+        "semantic_digest": "sha256:c7688d160579f15d4a11c0bc27eb884d421bbcb0a6091346e343f19a17775870",
         "source_projection": "local_refinement_registry",
         "statement": "未認証・CSRF不成立・stale binding・通知deep-linkだけの操作を拒否する"
       },
@@ -2305,7 +2075,7 @@
         "requirement_ids": [
           "MHH-REQ-VPS-UI-PRIMARY-HUMAN-INTERFACE"
         ],
-        "semantic_digest": "sha256:1a70df5b26deb0e8ef51dc32623c2de0b7019f9023a925ad098c0e117387d88a",
+        "semantic_digest": "sha256:f21c390a4076cb9c708982e2bd48b7eb4d81dbfd656c99ce53a2949551fb5a74",
         "source_projection": "local_refinement_registry",
         "statement": "session失効・同時更新・高リスク再認証要求時はfail-closeし既存状態を維持する"
       }
@@ -2332,24 +2102,12 @@
     "responsibility_owner": "VPS-UI-PRIMARY-HUMAN-INTERFACE",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:e3fa5eb252a9727ed95bc4c5d537012b833f2e82eb9f16ceda989eccf4cecb19",
+    "semantic_digest": "sha256:2d59d53f932dbb384136a0448a2c56677b3103aa6ad2df7786fcbd58506dab04",
     "source": {
       "acceptance_digest": "sha256:e171e9b32efeb2956dfec3d5defa73f38e281cf88e3a1e3833f586fda5426097",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-VPS-UI-PRIMARY-HUMAN-INTERFACE/acceptance_cases",
       "requirement_digest": "sha256:229880f28abe6afce7c9576079bf3844130c3f47aa8d60a42e8079439e12478f",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-VPS-UI-PRIMARY-HUMAN-INTERFACE",
-      "source_event_ids": [
-        "RDE-000007",
-        "RDE-000010",
-        "RDE-000011",
-        "RDE-000012",
-        "RDE-000013",
-        "RDE-000030",
-        "RDE-000031",
-        "RDE-000032",
-        "RDE-000035"
-      ],
-      "source_set_digest": "sha256:92139d319d5f714362976bb6ad73ca6f6746ff63aa33bf7b61cd015d1c1236fb"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-VPS-UI-PRIMARY-HUMAN-INTERFACE"
     },
     "supporting_requirements": []
   },
@@ -2361,7 +2119,7 @@
         "requirement_ids": [
           "MHH-REQ-VPS-UI-QUALITY-ATTRIBUTES"
         ],
-        "semantic_digest": "sha256:4af83356210286ff5b818c9017eb747f3f0c31b64e62bcbd013b6550ef8e3403",
+        "semantic_digest": "sha256:3a9ebf663b5b7145e1d026f817d9be37047569f64ab617aec4b58fdebfc2232f",
         "source_projection": "local_refinement_registry",
         "statement": "適用対象の全品質属性がscope、metric、unit、測定環境/window、有効なthreshold registration revision/digest、証跡、failure outcome及びresume conditionを持ち属性別受入条件を満たす"
       },
@@ -2371,7 +2129,7 @@
         "requirement_ids": [
           "MHH-REQ-VPS-UI-QUALITY-ATTRIBUTES"
         ],
-        "semantic_digest": "sha256:c59c0cd0f08704536c72db5f95392ddf00e03d67783be8454087f74aa7e4df95",
+        "semantic_digest": "sha256:a9e3dafc05d7826674122b08a1a4498aca60d8a3eb8cbc1a5ccb24389688ec3c",
         "source_projection": "local_refinement_registry",
         "statement": "generic N/A、未知・未測定・未登録又は失効閾値、測定環境又は証拠欠落、対象変更があるmigration/rollbackの未検証を利用可能又はrelease可能として拒否する"
       },
@@ -2381,7 +2139,7 @@
         "requirement_ids": [
           "MHH-REQ-VPS-UI-QUALITY-ATTRIBUTES"
         ],
-        "semantic_digest": "sha256:c0f64a92b0b9c580f432ce4f8885e7cf8eaab54872f4df52586d9e70158ae9fd",
+        "semantic_digest": "sha256:a15f6a3a170730c62fbf5d2a31048b587938b90b5429d776f1c6a5e11fe213fe",
         "source_projection": "local_refinement_registry",
         "statement": "一部品質だけ成立する場合はdeferredを維持し全体受入へ読み替えず、UI品質を製品状態backup/restore又はworker/connector品質へ拡張しない"
       }
@@ -2408,18 +2166,12 @@
     "responsibility_owner": "VPS-UI-QUALITY-ATTRIBUTES",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:a539488c470fd0878a9bf03c9e37c3f8d7bd377ca170efbfbb5282147e2b79f6",
+    "semantic_digest": "sha256:4f2b567f873f92701b7940c127107c42faae09871c46a8fc4c0e2e3636bc946b",
     "source": {
       "acceptance_digest": "sha256:c69b2317e087a08223b2e2bcca82f3d3d889bef52e17a192df7adcc5412254b9",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-VPS-UI-QUALITY-ATTRIBUTES/acceptance_cases",
       "requirement_digest": "sha256:a01e41d02b365a1eccb468d3bfbff53f3339b83904551addb102e0232ff63b28",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-VPS-UI-QUALITY-ATTRIBUTES",
-      "source_event_ids": [
-        "RDE-000094",
-        "RDE-000096",
-        "RDE-000178"
-      ],
-      "source_set_digest": "sha256:8da3d7fcad31d5dbb3dba254a1e5f6b9a5ec863a19e78fc5f7555c462f15b417"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-VPS-UI-QUALITY-ATTRIBUTES"
     },
     "supporting_requirements": []
   },
@@ -2431,7 +2183,7 @@
         "requirement_ids": [
           "MHH-REQ-WORDPRESS-CONTENT-OPERATIONS-RELEASE"
         ],
-        "semantic_digest": "sha256:437658249f2603c4a58e93b078ec47e244f1b71fe18ae24269c8474d44fa0fa6",
+        "semantic_digest": "sha256:f9ba53479589de9d418724aca1d93fd0022297573540c94e4f5c8429f9b43140",
         "source_projection": "local_refinement_registry",
         "statement": "stable content ID、remote revision、desired digest、capability、API/MCP優先route、grant ID/revision/semantic digest、activation scope ID/revision/semantic digest、content/risk/quality gate及びidempotencyを再検証し、scope内合格済みoperationだけ実行してreceiptを残す"
       },
@@ -2441,7 +2193,7 @@
         "requirement_ids": [
           "MHH-REQ-WORDPRESS-CONTENT-OPERATIONS-RELEASE"
         ],
-        "semantic_digest": "sha256:7072fd1bf2e594dc6a32c9dad53052476f7087ff47aa02e5d0b459b5efeb3cc2",
+        "semantic_digest": "sha256:bcd69a46f414fbf1b67ae88befcfde33436040218f3fa3d44439cc983890fa49",
         "source_projection": "local_refinement_registry",
         "statement": "content policyによるcore/plugin/security変更、stale revision、grant又はactivation scopeの欠落/stale/digest不一致/identity不一致、gate/capability欠落、scope mismatch、unsupported operation及びrollback evidence欠落を拒否して既公開状態を維持する"
       },
@@ -2451,7 +2203,7 @@
         "requirement_ids": [
           "MHH-REQ-WORDPRESS-CONTENT-OPERATIONS-RELEASE"
         ],
-        "semantic_digest": "sha256:9c7f55c34845d2697197e7627b85260267f2c206a898e46a282b848ed44d9dce",
+        "semantic_digest": "sha256:3291804d132c1a77a74e1a1a1bd4d76f4103ecd1e42ddf514c8395279c42993b",
         "source_projection": "local_refinement_registry",
         "statement": "in-place非対応の既公開物は別operationへ置換せずstate不変のunsupported non-action receiptを残して通知せず、削除/非公開化/競合/保持が未決ならそのoperationだけdeferredにする"
       }
@@ -2478,19 +2230,12 @@
     "responsibility_owner": "WORDPRESS-CONTENT-OPERATIONS-RELEASE",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:e49d1ec4a84e1bc8c0e949a6c53114e203b1d99a2cfd3d94748af6d55b2b57e4",
+    "semantic_digest": "sha256:0c9a7a6adb0d9e67638c30594f52bfd31bb80f8c7ed5cb8522c8d64e72aa0c37",
     "source": {
       "acceptance_digest": "sha256:af353807f8fbca8580dd65f9fb12a6b6e9312b72f220c8cd5a082b824a90777b",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-WORDPRESS-CONTENT-OPERATIONS-RELEASE/acceptance_cases",
       "requirement_digest": "sha256:ec927831a0dcf8ccdb6df150815fbad24fa40f6623c8340e60671ecb8efc33ae",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-WORDPRESS-CONTENT-OPERATIONS-RELEASE",
-      "source_event_ids": [
-        "RDE-000113",
-        "RDE-000114",
-        "RDE-000160",
-        "RDE-000179"
-      ],
-      "source_set_digest": "sha256:013f5feeb9efc90ea6afc13511d7315091dc45a58e897a1da55bea8f1814f13c"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-WORDPRESS-CONTENT-OPERATIONS-RELEASE"
     },
     "supporting_requirements": []
   },
@@ -2502,7 +2247,7 @@
         "requirement_ids": [
           "MHH-REQ-WORDPRESS-MAINTENANCE-BOUNDARIES"
         ],
-        "semantic_digest": "sha256:4733baa739ba0710cea9a5fcc8db1196e6b6c028459e7f978722082b4f1756ef",
+        "semantic_digest": "sha256:a04a690510a728ace890c302c046a1eaef8c102b54b61cc145573f1b58abe5e8",
         "source_projection": "local_refinement_registry",
         "statement": "公開・リライト・media upload・固定ページ編集は運用release、core/plugin変更と起因障害対応は保守releaseとして独立証跡を持つ"
       },
@@ -2512,7 +2257,7 @@
         "requirement_ids": [
           "MHH-REQ-WORDPRESS-MAINTENANCE-BOUNDARIES"
         ],
-        "semantic_digest": "sha256:065c31e800fea5abce1700b4c23ae895619a7a4e80240e7cff41217a2cd4be4f",
+        "semantic_digest": "sha256:2bbc542efcf9fc29096c76c47d5399531eef3a0bc1d6c5004ac6db07fb61c787",
         "source_projection": "local_refinement_registry",
         "statement": "運用操作によるcore/plugin変更、又は通常保守によるsecurity判断代替を拒否する"
       },
@@ -2522,7 +2267,7 @@
         "requirement_ids": [
           "MHH-REQ-WORDPRESS-MAINTENANCE-BOUNDARIES"
         ],
-        "semantic_digest": "sha256:e86e70171cc696443a61d8453158a5f3cb08224aee61b7190c68e4aa79bfe710",
+        "semantic_digest": "sha256:96b4940b39d9bb5e6b6a3f4e1e9b1305cd6ace00153af508f11882f8b18bbffc",
         "source_projection": "local_refinement_registry",
         "statement": "plugin更新にsecurity修正が含まれても変更作業は保守、脅威受容・緊急解除・credential/権限判断はsecurity保守として別receiptへ束縛する"
       }
@@ -2549,21 +2294,12 @@
     "responsibility_owner": "WORDPRESS-MAINTENANCE-BOUNDARIES",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:67a7976d04b3dd0a1b34b985ea34019da56a814f510c2f7ee63bf17050d4af72",
+    "semantic_digest": "sha256:e7de702c7e9961c0c2232b83aa5693883d08caac8687d77f208a4eaba17acbcf",
     "source": {
       "acceptance_digest": "sha256:7cbc24ed7cdd588ef21b74f1a54d0d9c482784b3a8e4a8ff20f6709629275492",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-WORDPRESS-MAINTENANCE-BOUNDARIES/acceptance_cases",
       "requirement_digest": "sha256:eafdb5ab01a64154bc42df57594ce221f4327aed4a5beb2b77ec0f80047f8201",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-WORDPRESS-MAINTENANCE-BOUNDARIES",
-      "source_event_ids": [
-        "RDE-000083",
-        "RDE-000084",
-        "RDE-000085",
-        "RDE-000086",
-        "RDE-000087",
-        "RDE-000088"
-      ],
-      "source_set_digest": "sha256:0172839854b67bc5ddaa4720d481eaf85d71d375dab05a659e4e1ff559c65438"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-WORDPRESS-MAINTENANCE-BOUNDARIES"
     },
     "supporting_requirements": []
   },
@@ -2575,7 +2311,7 @@
         "requirement_ids": [
           "MHH-REQ-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE"
         ],
-        "semantic_digest": "sha256:2c5b1ba14ae8c996816d49dcb6901c39d3b0a9528da458a37df7a901ae6acc73",
+        "semantic_digest": "sha256:a5c54090499ac7c9f6375bb7cd1acd245155183a3212048d3c24af5f57f0fb45",
         "source_projection": "local_refinement_registry",
         "statement": "read-only inventoryは対象identity/current revision/inventory digest/read grant/route/assessment evidenceを満たしてresult receiptを残し、mutationは独立platform grant、activation/window、capability/route、backup freshness/restore、compatibility/smoke/regression、remote revision及びidempotencyを満たしてresult/rollback receiptを残す"
       },
@@ -2585,7 +2321,7 @@
         "requirement_ids": [
           "MHH-REQ-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE"
         ],
-        "semantic_digest": "sha256:0807f21ac550191ef11ba699e980c14e19d3e4a242dc08e657587e67533d9cdb",
+        "semantic_digest": "sha256:c4ccb0a55fda2da5ee7a340b3968a0a029dce6b99ba7a6c0142380b69bed16d8",
         "source_projection": "local_refinement_registry",
         "statement": "content/security grant流用又はstale remote revisionを拒否し、mutationではbackup/restore/compatibility欠落、security relevance unknown又はrollback不能も拒否してsite stateを維持する"
       },
@@ -2595,7 +2331,7 @@
         "requirement_ids": [
           "MHH-REQ-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE"
         ],
-        "semantic_digest": "sha256:f6015752c99d29df2ad592e2bd3b8726d6580d75fe9492447831e0a481e33e97",
+        "semantic_digest": "sha256:a053751ff5c291a6ee14b258aaba018b691ab3523c84509f00e7ce47cceeaa0a",
         "source_projection": "local_refinement_registry",
         "statement": "security intersectionはplatform grantに加えて別security decision/grantへ束縛し、rollback後は再検証と明示resumeまで通常operationを自動再開しない"
       }
@@ -2622,18 +2358,12 @@
     "responsibility_owner": "WORDPRESS-PLATFORM-MAINTENANCE-RELEASE",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:78f5313d03600113de37161a45d5f106ed047e96e6532b69f70be2b80841dd4a",
+    "semantic_digest": "sha256:11f8849f632d0ebc374ae91c5d6a377fe91b9106e50f687af405cde51bbddfdd",
     "source": {
       "acceptance_digest": "sha256:faeb04ea093e7d65d6bdd4ab5394a477f253850dce2530213456fff73f71c645",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE/acceptance_cases",
       "requirement_digest": "sha256:32e41614f15f39347859b6c718d7321644bc5316a5a9daae719e3725adb346c3",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE",
-      "source_event_ids": [
-        "RDE-000115",
-        "RDE-000116",
-        "RDE-000181"
-      ],
-      "source_set_digest": "sha256:229e233958b69fe6401dd6cc2ecc8aba0cab62c4f7e9bf173ff4ca941a2555ab"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE"
     },
     "supporting_requirements": []
   },
@@ -2645,7 +2375,7 @@
         "requirement_ids": [
           "MHH-REQ-WORDPRESS-SECURITY-MAINTENANCE-RELEASE"
         ],
-        "semantic_digest": "sha256:01a5a9b6dc863796aa0275d4ac3bf815eda8e9ba29bfb2d64afa5a1a5b16856a",
+        "semantic_digest": "sha256:8cec6272bf302ef22eeed14e2cf5642e28dcc1cd0a8054de74e9de1c6f7046f8",
         "source_projection": "local_refinement_registry",
         "statement": "別security authorityがcomponent/version、inventory/advisory digest、risk、security grant、maintenance window、preflight、backup/restore evidence及びcredential authority参照を束縛しoperation別result/rollback receiptを残す"
       },
@@ -2655,7 +2385,7 @@
         "requirement_ids": [
           "MHH-REQ-WORDPRESS-SECURITY-MAINTENANCE-RELEASE"
         ],
-        "semantic_digest": "sha256:bee482536c668e79a300da0acef467d3faa3bf310377ec8b6e9d1f63745bbce8",
+        "semantic_digest": "sha256:c6c3ad9e7de8b77611d07afbbade455db2583d0f40b1804051924e60b361b8d0",
         "source_projection": "local_refinement_registry",
         "statement": "content又は通常保守grant、advisory/scanner/browser確認のauthority化、unknown対象、grant/window/preflight/backup/rollback欠落、認証鍵素材露出及びscope越境を拒否して現site stateを維持する"
       },
@@ -2665,7 +2395,7 @@
         "requirement_ids": [
           "MHH-REQ-WORDPRESS-SECURITY-MAINTENANCE-RELEASE"
         ],
-        "semantic_digest": "sha256:30a8fa31d6f63d9c85d044334cd816ab82502dac58a9172ce90320f41b60d858",
+        "semantic_digest": "sha256:6e1fcc47b79bda63b0d96017b9a8ec7a210713f7cee3842d59d810e18f9e46bc",
         "source_projection": "local_refinement_registry",
         "statement": "緊急break-glassでも別grant、scope、期限、receipt及び事後再検証を省略せず、通常operationを自動再開しない"
       }
@@ -2692,18 +2422,12 @@
     "responsibility_owner": "WORDPRESS-SECURITY-MAINTENANCE-RELEASE",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:fb130fa48da26c2b9fd3be24ccfa545ee40bd10455170c69668e196048db4043",
+    "semantic_digest": "sha256:9d178ecd49dd781972cd023b7738f1cc8c31c3e35370441220d2544e1e09a8eb",
     "source": {
       "acceptance_digest": "sha256:506fb85044f8c1b0472fe995de84c55fdbc331a87d920df24ef63464cb1b0cf4",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-WORDPRESS-SECURITY-MAINTENANCE-RELEASE/acceptance_cases",
       "requirement_digest": "sha256:7664222be30ace640e3a9780c6dc6da1c226dfdb46556f3eba36068537bf20a3",
-      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-WORDPRESS-SECURITY-MAINTENANCE-RELEASE",
-      "source_event_ids": [
-        "RDE-000117",
-        "RDE-000118",
-        "RDE-000180"
-      ],
-      "source_set_digest": "sha256:e5b6b6e37d6927df24c0fe8639edffa1dd2edad2318b82aaec926093ee0bac77"
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-WORDPRESS-SECURITY-MAINTENANCE-RELEASE"
     },
     "supporting_requirements": []
   }

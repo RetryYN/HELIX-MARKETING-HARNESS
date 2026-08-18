@@ -10,11 +10,7 @@
     "revision": 1,
     "scenario": "requirements meaning review for AGENT-NEO-HELIX-REDEFINITION; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:69a865cd4e9ad282c90c712969fd58f63fef7a0577399a81c6852e2cd74b47ef",
-    "source": {
-      "refinement_id": "RRF-AGENT-NEO-HELIX-REDEFINITION",
-      "source_semantic_digest": "sha256:a98d63668a6bbf93c4918ea12a062780d803e7b6633f0e808c5e65427024bf27"
-    },
+    "semantic_digest": "sha256:0ae50780242fe530c0c296627bf5abb56d41b4f11ae805385d3bbf334dfed131",
     "status": "designed_not_implemented",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-AGENT-NEO-HELIX-REDEFINITION",
@@ -31,11 +27,7 @@
     "revision": 1,
     "scenario": "requirements meaning review for AGENT-NEO-PRODUCT-EVOLUTION-RELEASE; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:b448941f38db11c8afd4a76208daea76e54f095370d386b2a7ebcbc5eb493c8b",
-    "source": {
-      "refinement_id": "RRF-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE",
-      "source_semantic_digest": "sha256:9d01b9da1cb025a10c43e6be4fc791ede640b687bc48bfa7271adc27aca632ba"
-    },
+    "semantic_digest": "sha256:e85ec824af8acf01b79aa2f676a92e251e4854087cea9324063905b267b409bd",
     "status": "designed_not_implemented",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE",
@@ -52,11 +44,7 @@
     "revision": 1,
     "scenario": "requirements meaning review for AGENT-NEO-SITE-BUILD-RELEASE; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:3662ff4eff6b6d45b2aee7f578bae1690afe0843c2f760a5a5c156eb87a29f85",
-    "source": {
-      "refinement_id": "RRF-AGENT-NEO-SITE-BUILD-RELEASE",
-      "source_semantic_digest": "sha256:9878b98db88c79f197240edfdca11c35e40dd265f4d8837b289ee5dac0099618"
-    },
+    "semantic_digest": "sha256:3df57c11e6c46eca8e89a4f6b3fb5f9f4ddcf4bd48fe503b7a04f941c17bdd9c",
     "status": "designed_not_implemented",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-AGENT-NEO-SITE-BUILD-RELEASE",
@@ -73,11 +61,7 @@
     "revision": 1,
     "scenario": "requirements meaning review for AUTO-MODE-DECISION-AUTHORITY; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:3371a966fe6689b00ee37600f445d0f129401f145489fa1d49825f5d52fc9f5d",
-    "source": {
-      "refinement_id": "RRF-AUTO-MODE-DECISION-AUTHORITY",
-      "source_semantic_digest": "sha256:32c3282dc43db8348b9114f9dc31ca8c3d1784b06a520362a2b71b8a420f9167"
-    },
+    "semantic_digest": "sha256:5ac4f99c34eb18fcc10ae0e736d2535a9069a72952cac605f9833ca47a68f82c",
     "status": "historical_superseded",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-AUTO-MODE-DECISION-AUTHORITY",
@@ -94,11 +78,7 @@
     "revision": 1,
     "scenario": "requirements meaning review for AUTOMATED-PUBLISHING-ADMISSION; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:8b425dc85f57d62781ab70ae6167b7dedc89cfefe9d937a8331f21f3c6ee8a7a",
-    "source": {
-      "refinement_id": "RRF-AUTOMATED-PUBLISHING-ADMISSION",
-      "source_semantic_digest": "sha256:4e3df9a130b8c7b919b6eb5dafe68112d84bfc3210cc1538c991c1db24c74313"
-    },
+    "semantic_digest": "sha256:810d92cafd895d1aacb73d5efed5bb427e8f5aeeb3847b7c4fa8c6bdba96bc8a",
     "status": "designed_not_implemented",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-AUTOMATED-PUBLISHING-ADMISSION",
@@ -115,11 +95,7 @@
     "revision": 1,
     "scenario": "requirements meaning review for BUSINESS-PROFILE-AUTHORIZATION; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:6b275b9ac98f66d11b8beb2d83c2455df20242671260f08c575c21e800625711",
-    "source": {
-      "refinement_id": "RRF-BUSINESS-PROFILE-AUTHORIZATION",
-      "source_semantic_digest": "sha256:ad26d3f40b9250e77f8e8be1aa3e387f294d170b05d3eef01b91e819c061b87a"
-    },
+    "semantic_digest": "sha256:e664cf6c3b1ddb87dff46efb071edfeb7113edf2f86f9e8bd445473243a14152",
     "status": "designed_not_implemented",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-BUSINESS-PROFILE-AUTHORIZATION",
@@ -136,11 +112,7 @@
     "revision": 1,
     "scenario": "requirements meaning review for CONTENT-QUALITY-GATE-LEARNING; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:dbc340698021f5b46b442613a3e3236cb31efa5848d54c39f52f0dcbb3d74226",
-    "source": {
-      "refinement_id": "RRF-CONTENT-QUALITY-GATE-LEARNING",
-      "source_semantic_digest": "sha256:1c6e925b3a6b05f5ce4671469b53b18a6598191d550560da79df5502fbdf3721"
-    },
+    "semantic_digest": "sha256:2c6bc14275f4aebc22e8e559e50590420a0a72acee51a878c7cd52bd8719cb78",
     "status": "designed_not_implemented",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-CONTENT-QUALITY-GATE-LEARNING",
@@ -157,11 +129,7 @@
     "revision": 1,
     "scenario": "requirements meaning review for CONTENT-RISK-CLASSIFICATION; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:8d21d9aa11b6e8e3357aebf7f8190e6c35d9ebe49d7245dd059e1490422b60ff",
-    "source": {
-      "refinement_id": "RRF-CONTENT-RISK-CLASSIFICATION",
-      "source_semantic_digest": "sha256:4ba4a208fcc0dcdcd551be40c81eadc31b75f311fa8274f8d8dfe66b20b88c49"
-    },
+    "semantic_digest": "sha256:53883bd7cbcdc4dcdba90e35d81e86bd052f6c985313b917695ea6903e65298a",
     "status": "designed_not_implemented",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-CONTENT-RISK-CLASSIFICATION",
@@ -178,11 +146,7 @@
     "revision": 1,
     "scenario": "requirements meaning review for CONTRACT-SEMANTIC-DESCENT-V2; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:78fdb91b78a6f8b3c7baf1e5795b61878f8f34b2f3e3c0fbd81a585fb3e010ee",
-    "source": {
-      "refinement_id": "RRF-CONTRACT-SEMANTIC-DESCENT-V2",
-      "source_semantic_digest": "sha256:b1fe074d7bbcc73d48f1d2f7e0683e4ee5b3a19a8e67ea6fbf62f864cffdd2e3"
-    },
+    "semantic_digest": "sha256:0a91fea4074906f37c5da613e3d4ccd71617400c5630f4c0674a99463a6768e7",
     "status": "designed_not_implemented",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-CONTRACT-SEMANTIC-DESCENT-V2",
@@ -199,11 +163,7 @@
     "revision": 1,
     "scenario": "requirements meaning review for DISCORD-COMMUNITY-MARKETING-ROUTE; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:3d8b54410b5fb401ce4490892227b1888f68a552eb9f8de761d699e0e78f828d",
-    "source": {
-      "refinement_id": "RRF-DISCORD-COMMUNITY-MARKETING-ROUTE",
-      "source_semantic_digest": "sha256:70c0b5ab8cf5b8a163454726f2b18a0e4d4db23eeff4974409ae260358d81134"
-    },
+    "semantic_digest": "sha256:241b8c90ebab789cedda94006926ca80439b103816c086e120bbcd1b1edd65a4",
     "status": "designed_not_implemented",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-DISCORD-COMMUNITY-MARKETING-ROUTE",
@@ -220,11 +180,7 @@
     "revision": 2,
     "scenario": "requirements meaning review for DISCORD-MULTI-PURPOSE-BOUNDARIES; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:ba85c0d9af8286adae2493fb13b1e34b2a177a775a2017c8512eb40be8dd013c",
-    "source": {
-      "refinement_id": "RRF-DISCORD-MULTI-PURPOSE-BOUNDARIES",
-      "source_semantic_digest": "sha256:73e6cea0dff4bfd4f20372fa10ca44db500318eaa7a6dae4e69e7419763affd7"
-    },
+    "semantic_digest": "sha256:2b773bc9cf62f240010ce668f60398cfa61d29b13d681e45c1c5fa7e42e5b0ab",
     "status": "historical_superseded",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-DISCORD-MULTI-PURPOSE-BOUNDARIES",
@@ -241,11 +197,7 @@
     "revision": 1,
     "scenario": "requirements meaning review for DISCORD-NOTIFICATION-REJECTION-BOUNDARY; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:a14f33d8f02b8fb4c11bef6677038b7bcf7694ed3193ff1677d68a10c84fdf68",
-    "source": {
-      "refinement_id": "RRF-DISCORD-NOTIFICATION-REJECTION-BOUNDARY",
-      "source_semantic_digest": "sha256:9eaf6bb8e88b9ef540c8e0d26ba71ecff670cb0e38f05ce74397722b0ec7d88b"
-    },
+    "semantic_digest": "sha256:f521166a110765d8430238d36ddfd1d6dff5963beabd442831c35ed9aad326db",
     "status": "designed_not_implemented",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-DISCORD-NOTIFICATION-REJECTION-BOUNDARY",
@@ -262,11 +214,7 @@
     "revision": 1,
     "scenario": "requirements meaning review for EXTERNAL-BROWSER-AUTOMATION-ROUTE; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:17072af7c09e343eecfff45d1a9cc126c2ba3f80051608777281e9216dbb9906",
-    "source": {
-      "refinement_id": "RRF-EXTERNAL-BROWSER-AUTOMATION-ROUTE",
-      "source_semantic_digest": "sha256:656e7c8cab8e861e8c0cc39f2633f2f59605471734441a9fb7f41a127d6fc5d8"
-    },
+    "semantic_digest": "sha256:c0ee242a5064e960d79dd1ccfb1928f1169d1f6b4d5a4cbb015b315f46ea6656",
     "status": "designed_not_implemented",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-EXTERNAL-BROWSER-AUTOMATION-ROUTE",
@@ -283,11 +231,7 @@
     "revision": 1,
     "scenario": "requirements meaning review for FR-16-NOTIFICATION-BOUNDARY; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:9d34c6061489a1489656edabeed4ca209c21684e25956835df0f80451b954ff3",
-    "source": {
-      "refinement_id": "RRF-FR-16-NOTIFICATION-BOUNDARY",
-      "source_semantic_digest": "sha256:fa328819de985985217c8b7268ee67b0fb1c725e7437b19c3dde8dc6498e0b2d"
-    },
+    "semantic_digest": "sha256:4abf22fcfee5d8088aa6a1f4781962e191f0be73635d41dd4399e3c87feeaf71",
     "status": "designed_not_implemented",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-FR-16-NOTIFICATION-BOUNDARY",
@@ -304,11 +248,7 @@
     "revision": 1,
     "scenario": "requirements meaning review for FR-SLICE-AUTHORITY-ALIGNMENT; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:6d19a4cb2b6fe708eff0f5d2473187c924d65b165aed2c21e0137fd2a765e2a7",
-    "source": {
-      "refinement_id": "RRF-FR-SLICE-AUTHORITY-ALIGNMENT",
-      "source_semantic_digest": "sha256:f6b8ee938abf2391b9de7ce1729bfa7ecf1b832a7249ae334f169cb40082e4e2"
-    },
+    "semantic_digest": "sha256:b3832d6bad883df2a79ac44cab4bc5f21a428d65e0e2f01a5cae27a65ee24272",
     "status": "designed_not_implemented",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-FR-SLICE-AUTHORITY-ALIGNMENT",
@@ -325,11 +265,7 @@
     "revision": 1,
     "scenario": "requirements meaning review for GENAI-EXECUTION-ROUTE; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:9866b78cab4ab28ba31e8ed16f0dab2fa75ebb961b887981e3a8416bea7d972b",
-    "source": {
-      "refinement_id": "RRF-GENAI-EXECUTION-ROUTE",
-      "source_semantic_digest": "sha256:37d8371bbc7053ae3168627da6c58b39cc44c9816d5bf5904fdd6bfef8e5d755"
-    },
+    "semantic_digest": "sha256:5498c3f1701949c8259ab8d7de4f017cfa2b7250f67a544d48f5bdf741e400f5",
     "status": "designed_not_implemented",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-GENAI-EXECUTION-ROUTE",
@@ -346,11 +282,7 @@
     "revision": 1,
     "scenario": "requirements meaning review for L0-NORTH-STAR-AUTHORITY-NORMALIZATION; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:3fd6206bfe366663641e85e2e53a3ab8a6726016a94403d757027505fc507f1f",
-    "source": {
-      "refinement_id": "RRF-L0-NORTH-STAR-AUTHORITY-NORMALIZATION",
-      "source_semantic_digest": "sha256:d15ab07c6a88ca37e654d8277b009e02ebcec425b310d6b27bd438e67b2024ce"
-    },
+    "semantic_digest": "sha256:8141be07533fd039168fdd1023e066126c222eb9a6015dccb8ec128b5f17169a",
     "status": "designed_not_implemented",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-L0-NORTH-STAR-AUTHORITY-NORMALIZATION",
@@ -367,11 +299,7 @@
     "revision": 1,
     "scenario": "requirements meaning review for LEGACY-MEDIA-ADMISSION-INVENTORY; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:10e393a34eff9d34faa6e6498ca584a49f8aae417cd3b3b1d82a595ffc9a8cff",
-    "source": {
-      "refinement_id": "RRF-LEGACY-MEDIA-ADMISSION-INVENTORY",
-      "source_semantic_digest": "sha256:6f8d4c56fa4d22900b6ba39d6c7392e766f8adc3ea0eb62a3f910638d888cd0e"
-    },
+    "semantic_digest": "sha256:79325d0b6155c38a31e5c228d2c3832049076826792bda0c67cfad1b845a5b20",
     "status": "designed_not_implemented",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-LEGACY-MEDIA-ADMISSION-INVENTORY",
@@ -388,11 +316,7 @@
     "revision": 1,
     "scenario": "requirements meaning review for MEDIA-POC-SCRUM-RELEASE; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:78535b92b85333c74cde25e9977cdd6c7cedd7a987600a209f6696bffc99574b",
-    "source": {
-      "refinement_id": "RRF-MEDIA-POC-SCRUM-RELEASE",
-      "source_semantic_digest": "sha256:4cb3997604201fdd2f1cd7dd2f8eb48f1faa9c7d407f3112ca10ae0821540c6f"
-    },
+    "semantic_digest": "sha256:5018d9001a364029eb0df28e4e40a6d67e19ad4973e6a9494ff41226b3adfa38",
     "status": "designed_not_implemented",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-MEDIA-POC-SCRUM-RELEASE",
@@ -409,11 +333,7 @@
     "revision": 1,
     "scenario": "requirements meaning review for NFR-BUSINESS-AUTHORITY; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:5adad66bfc2aefcc3f28d7525fa2795549886b32fe57752cdeac4bc0d5f5290c",
-    "source": {
-      "refinement_id": "RRF-NFR-BUSINESS-AUTHORITY",
-      "source_semantic_digest": "sha256:f70dd7d7fcbfc46be0c34ddc379e49703ea765b6cff0e8a8fd6c308db9b52834"
-    },
+    "semantic_digest": "sha256:414c0fc1ee49766ad6f3a7f04e787ec4ea648dfed3bc228f933242dd621bc2c8",
     "status": "designed_not_implemented",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-NFR-BUSINESS-AUTHORITY",
@@ -430,11 +350,7 @@
     "revision": 1,
     "scenario": "requirements meaning review for OFFICIAL-API-ROUTE-AUTHORITY; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:3ae4a9997b4a95bd76846c682b6c7f7c6034a67e5d0341c9b205f2ca02e1407d",
-    "source": {
-      "refinement_id": "RRF-OFFICIAL-API-ROUTE-AUTHORITY",
-      "source_semantic_digest": "sha256:a2614cd4a2b2ea8347e9f9f04e8378303628965d9e81909643a0fb9c208b9e7d"
-    },
+    "semantic_digest": "sha256:a136ac3d02e153566b1b3faa1acfd24fb6a837605b8349f54b1739d5d1a72e03",
     "status": "designed_not_implemented",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-OFFICIAL-API-ROUTE-AUTHORITY",
@@ -451,11 +367,7 @@
     "revision": 1,
     "scenario": "requirements meaning review for PRODUCT-STATE-AUTHORITY; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:08bca2de8140b2168017c04a379d5c3624c251fd0ae85faf9bddc2ed52274f6d",
-    "source": {
-      "refinement_id": "RRF-PRODUCT-STATE-AUTHORITY",
-      "source_semantic_digest": "sha256:634bd6202e1a5d464d9696ce4f698cc5d5eb40907eea96e198cc5d885e2b9878"
-    },
+    "semantic_digest": "sha256:2f9a0816780606d84853c70f384aa9316d5ef5704cfa3ce31339601a9b48bbf1",
     "status": "designed_not_implemented",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-PRODUCT-STATE-AUTHORITY",
@@ -472,11 +384,7 @@
     "revision": 1,
     "scenario": "requirements meaning review for RATE-QUOTA-COST-AUTHORITY; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:c7ce744bbe9aa2059f07ba19f6726fabe93b2c517b19d8a847a4f36b851deac3",
-    "source": {
-      "refinement_id": "RRF-RATE-QUOTA-COST-AUTHORITY",
-      "source_semantic_digest": "sha256:4d1941c135f4100df4286135bf534b7058473abaef0396495778df0fcccdcf41"
-    },
+    "semantic_digest": "sha256:d8f4ca4bf7b2ae5a9bc2c1a8d6dbd4a7346c60b980589b5df90e66b131cf4e1d",
     "status": "designed_not_implemented",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-RATE-QUOTA-COST-AUTHORITY",
@@ -493,11 +401,7 @@
     "revision": 1,
     "scenario": "requirements meaning review for REQ-AUTHORITY-NORMALIZATION; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:14f2b617bcc3d2615c41b5ae87f60ee7f1210f4f510e426cde187d0bc39886ff",
-    "source": {
-      "refinement_id": "RRF-REQ-AUTHORITY-NORMALIZATION",
-      "source_semantic_digest": "sha256:3b83b3e1af295d0e0152cce199a294f6591dccc61ac33067926b64aa3ea5ee80"
-    },
+    "semantic_digest": "sha256:fbba3e1650f435f1b05b1a2f5e32b98db02279cdf6733aaf6efa82a02c05baff",
     "status": "designed_not_implemented",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-REQ-AUTHORITY-NORMALIZATION",
@@ -514,11 +418,7 @@
     "revision": 1,
     "scenario": "requirements meaning review for REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:5c6e8c564d8a01b13544be34fea01cfe4a2303b572a5091ebc54eccd014aecc2",
-    "source": {
-      "refinement_id": "RRF-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE",
-      "source_semantic_digest": "sha256:ae73eac1dcff87687fb07345f4b59a072a33259bf7da9039fefe39e24378647f"
-    },
+    "semantic_digest": "sha256:a90d42bd760c15cd454080c04f515b4180b9d4b93dcf12a169e2997503f3afca",
     "status": "historical_superseded",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE",
@@ -535,11 +435,7 @@
     "revision": 1,
     "scenario": "requirements meaning review for REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:546ba72cd8013c89312efb8aebd98636fad57823d57c76762d0f923bd7842cb0",
-    "source": {
-      "refinement_id": "RRF-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2",
-      "source_semantic_digest": "sha256:68ce8384a857fac070f2394e20e6188358cae6fae262ea6f2c18b5f03a9ed403"
-    },
+    "semantic_digest": "sha256:87b11eeaec4dbf3a744461f50478355c5b3656ff37b1c60429ba87d9bd3895fc",
     "status": "designed_not_implemented",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2",
@@ -556,11 +452,7 @@
     "revision": 1,
     "scenario": "requirements meaning review for RESEARCH-LED-CONTENT-GROWTH; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:76b8fd1b087728105b7f5a0986caf2fc40ec4ebba0104c5341f1694010436a5b",
-    "source": {
-      "refinement_id": "RRF-RESEARCH-LED-CONTENT-GROWTH",
-      "source_semantic_digest": "sha256:ea8db288dc6dd44db103766832cb6d8f73862e5de15c21c18fa0b43087e50b9e"
-    },
+    "semantic_digest": "sha256:2cbfa4c2ab15eada0dd8bf6c1286f7a3b2e9f264c7d49f3ac270d1a61958d0f3",
     "status": "designed_not_implemented",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-RESEARCH-LED-CONTENT-GROWTH",
@@ -577,11 +469,7 @@
     "revision": 1,
     "scenario": "requirements meaning review for STRATEGY-REQUIREMENT-ADMISSION; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:fc19d3b2377fdd61c3ab390726f3021f419d1bf1e8beed6b6e76bcc2e054735c",
-    "source": {
-      "refinement_id": "RRF-STRATEGY-REQUIREMENT-ADMISSION",
-      "source_semantic_digest": "sha256:52f381f8b7c12da197f61fe39dd1e79474d5aabc8c97c70a8f97d423d115b2b8"
-    },
+    "semantic_digest": "sha256:3e10f54c0a6eadd82990d0cddb83c2dda3b988d1ee1e8afdc8b948a29def6a67",
     "status": "designed_not_implemented",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-STRATEGY-REQUIREMENT-ADMISSION",
@@ -598,11 +486,7 @@
     "revision": 1,
     "scenario": "requirements meaning review for TEST-ID-AUTHORITY-ALIGNMENT; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:b16633aeace458186ba55961bed2405102634af4ecac1956d09ebf716aa8fcd8",
-    "source": {
-      "refinement_id": "RRF-TEST-ID-AUTHORITY-ALIGNMENT",
-      "source_semantic_digest": "sha256:5df8bc9cff5ace92a0fe0e070ccc34b217cbe6b0a3af4770598c1932dcf6ace3"
-    },
+    "semantic_digest": "sha256:e9614eaf07f0d1543374b166de7ee4f9c21fb5bd82b0e9729c844bf1d0933d33",
     "status": "designed_not_implemented",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-TEST-ID-AUTHORITY-ALIGNMENT",
@@ -619,11 +503,7 @@
     "revision": 1,
     "scenario": "requirements meaning review for VPS-CREDENTIAL-SECURITY-BOUNDARY; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:85e653783ce6e7b9d2bcf8c573320837f1cad74cba6e1204fe5a9ffbea8be7ed",
-    "source": {
-      "refinement_id": "RRF-VPS-CREDENTIAL-SECURITY-BOUNDARY",
-      "source_semantic_digest": "sha256:16f222c23f0071263f5b28fc09a62e23c50719dbff0f9c4747d8de00bcb014df"
-    },
+    "semantic_digest": "sha256:a9f9bbbf27c6302fbf046247f7905b59a263431c7eb7b87ad7c3850a7b7db027",
     "status": "designed_not_implemented",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-VPS-CREDENTIAL-SECURITY-BOUNDARY",
@@ -640,11 +520,7 @@
     "revision": 1,
     "scenario": "requirements meaning review for VPS-UI-AUTHENTICATION-SESSION; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:412349bdd26a9a5278dbaf726d47c1d314f9e527666f7740956c231752da8b14",
-    "source": {
-      "refinement_id": "RRF-VPS-UI-AUTHENTICATION-SESSION",
-      "source_semantic_digest": "sha256:59583ac23bfdef85aafee36c120abced6cf938c25b6c905bf7bf364890468d04"
-    },
+    "semantic_digest": "sha256:8c96423ed7653f67ccaf0c99950a5d8392aec2e341c33a08dcdc537b25d10a2b",
     "status": "designed_not_implemented",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-VPS-UI-AUTHENTICATION-SESSION",
@@ -661,11 +537,7 @@
     "revision": 1,
     "scenario": "requirements meaning review for VPS-UI-INBOX-LIFECYCLE; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:b940a6cf3bf881ec53a2d1f6706c66898197c24d474281cf4b7012adeb87cb1d",
-    "source": {
-      "refinement_id": "RRF-VPS-UI-INBOX-LIFECYCLE",
-      "source_semantic_digest": "sha256:8e7014577d4ad96f3ded703a42f97f618cf2b56f3c89866d948fa7b9d1ed1fad"
-    },
+    "semantic_digest": "sha256:4608fb5f5d09bce7279debf087c0ab152e310f442d2631013fd531f7e76e5ffc",
     "status": "designed_not_implemented",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-VPS-UI-INBOX-LIFECYCLE",
@@ -682,11 +554,7 @@
     "revision": 1,
     "scenario": "requirements meaning review for VPS-UI-PRIMARY-HUMAN-INTERFACE; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:88cbda8329f5021a273dbdad51bd9de602a7d4586de5686c6c8cce3f8b86330b",
-    "source": {
-      "refinement_id": "RRF-VPS-UI-PRIMARY-HUMAN-INTERFACE",
-      "source_semantic_digest": "sha256:229880f28abe6afce7c9576079bf3844130c3f47aa8d60a42e8079439e12478f"
-    },
+    "semantic_digest": "sha256:46e406b1f1dddbdffd2d303e9c15e00930fcd0f6373c619485d16ba38a8ed341",
     "status": "designed_not_implemented",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-VPS-UI-PRIMARY-HUMAN-INTERFACE",
@@ -703,11 +571,7 @@
     "revision": 1,
     "scenario": "requirements meaning review for VPS-UI-QUALITY-ATTRIBUTES; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:144dda2f16cef906c34da3bfeb605b40a93404c4a157dd9782f966a7cdf48175",
-    "source": {
-      "refinement_id": "RRF-VPS-UI-QUALITY-ATTRIBUTES",
-      "source_semantic_digest": "sha256:a01e41d02b365a1eccb468d3bfbff53f3339b83904551addb102e0232ff63b28"
-    },
+    "semantic_digest": "sha256:c474c5f3519dd7fc9cd25d3383dfb674ff9c1820e01f3d354b63c4fad0a9c31d",
     "status": "designed_not_implemented",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-VPS-UI-QUALITY-ATTRIBUTES",
@@ -724,11 +588,7 @@
     "revision": 1,
     "scenario": "requirements meaning review for WORDPRESS-CONTENT-OPERATIONS-RELEASE; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:b41283663085cc5f61c8d523253dd2dfe48e5581d88b4c69a2f3b11e4141fbde",
-    "source": {
-      "refinement_id": "RRF-WORDPRESS-CONTENT-OPERATIONS-RELEASE",
-      "source_semantic_digest": "sha256:ec927831a0dcf8ccdb6df150815fbad24fa40f6623c8340e60671ecb8efc33ae"
-    },
+    "semantic_digest": "sha256:e8d68fd78c6a4cad4b253fd7dfea489872416ce33d516cf9ea4c9a277a70e2bc",
     "status": "designed_not_implemented",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-WORDPRESS-CONTENT-OPERATIONS-RELEASE",
@@ -745,11 +605,7 @@
     "revision": 1,
     "scenario": "requirements meaning review for WORDPRESS-MAINTENANCE-BOUNDARIES; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:4bac2d6737b30676041e786e7a586ad72ae44afc1494e9eba0bda85615e9775f",
-    "source": {
-      "refinement_id": "RRF-WORDPRESS-MAINTENANCE-BOUNDARIES",
-      "source_semantic_digest": "sha256:eafdb5ab01a64154bc42df57594ce221f4327aed4a5beb2b77ec0f80047f8201"
-    },
+    "semantic_digest": "sha256:fab9a0dd187e64416a5d8ca5a42f67b3298be021626fdf141970b73698e4e741",
     "status": "designed_not_implemented",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-WORDPRESS-MAINTENANCE-BOUNDARIES",
@@ -766,11 +622,7 @@
     "revision": 1,
     "scenario": "requirements meaning review for WORDPRESS-PLATFORM-MAINTENANCE-RELEASE; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:67ac1bed16a795ed50f4b91d612a65e4ecfa9bffb93c14118ca8245f62b99174",
-    "source": {
-      "refinement_id": "RRF-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE",
-      "source_semantic_digest": "sha256:32e41614f15f39347859b6c718d7321644bc5316a5a9daae719e3725adb346c3"
-    },
+    "semantic_digest": "sha256:b83779481a631ef206d3a15208f95c9a8c2f849fbbe1bf09c922fe4d5eae3c55",
     "status": "designed_not_implemented",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE",
@@ -787,11 +639,7 @@
     "revision": 1,
     "scenario": "requirements meaning review for WORDPRESS-SECURITY-MAINTENANCE-RELEASE; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:6b5fff7b3e64f5cda38142909084f0ad0120ab1d54f152d5cd49428944dcddff",
-    "source": {
-      "refinement_id": "RRF-WORDPRESS-SECURITY-MAINTENANCE-RELEASE",
-      "source_semantic_digest": "sha256:7664222be30ace640e3a9780c6dc6da1c226dfdb46556f3eba36068537bf20a3"
-    },
+    "semantic_digest": "sha256:a357459aaf5d947aa5647321e922846281b23010ad4d0a1db7f6bec45d7617cd",
     "status": "designed_not_implemented",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-WORDPRESS-SECURITY-MAINTENANCE-RELEASE",

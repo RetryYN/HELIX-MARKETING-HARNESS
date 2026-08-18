@@ -102,6 +102,21 @@ def test_mutation_candidate_ir_v2_cannot_claim_canonical(monkeypatch) -> None:
     assert any("canonical authority" in fault or "manifest" in fault for fault in faults)
 
 
+def test_mutation_candidate_ir_v2_rejects_non_upstream_shard_fields(monkeypatch) -> None:
+    original_load = requirement_engine.load
+
+    def mutated(path: Path) -> Any:
+        value = original_load(path)
+        if path.name == "requirements.json" and path.parent.name == "requirements-ir":
+            first_id = next(iter(value))
+            value[first_id]["local_only_source_events"] = []
+        return value
+
+    monkeypatch.setattr(requirement_engine, "load", mutated)
+    faults = requirement_engine.candidate_ir_v2_faults()
+    assert any("upstream shard field 外" in fault for fault in faults)
+
+
 def test_mutation_projection_digest_and_order_are_rejected() -> None:
     projection = requirement_engine.semantic_projection(Ctx())
     projection["records"][0]["semantic"]["id"] = "MUTATED"

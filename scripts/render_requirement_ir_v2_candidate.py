@@ -173,10 +173,6 @@ def build_candidate_ir() -> dict[str, Any]:
                 "canonical_pointer": f"requirements-ir/requirements.json#/{req_id}",
                 "migration_source_pointer": source_pointer,
                 "authority_id": refinement_id,
-                "refinement_id": refinement_id,
-                "source_event_ids": _list(source_record.get("source_event_ids")),
-                "source_set_digest": source_record.get("source_set_digest"),
-                "source_semantic_digest": source_digest,
             },
             "assertion_id": f"MHH-AS-{_slug(subject_id)}",
             "primary_system_contract_id": contract_id,
@@ -210,7 +206,6 @@ def build_candidate_ir() -> dict[str, Any]:
             "failure_and_evidence": f"prohibitions: {_join(dimensions.get('prohibitions'))}; evidence: {_join(dimensions.get('evidence'))}",
             "acceptance_ids": acceptance_ids,
             "system_test_id": test_id,
-            "source": {"refinement_id": refinement_id, "source_semantic_digest": source_digest},
         }
         contract["semantic_digest"] = _record_semantic_digest(contract)
         contracts[contract_id] = contract
@@ -233,11 +228,6 @@ def build_candidate_ir() -> dict[str, Any]:
                 "polarity": polarity,
                 "statement": statement,
                 "system_test_id": test_id,
-                "source": {
-                    "refinement_id": refinement_id,
-                    "source_acceptance_id": source_acceptance.get("acceptance_id"),
-                    "source_semantic_digest": source_digest,
-                },
             }
             acceptance["semantic_digest"] = _record_semantic_digest(acceptance)
             acceptances[generated_id] = acceptance
@@ -254,7 +244,6 @@ def build_candidate_ir() -> dict[str, Any]:
             "scenario": f"requirements meaning review for {subject_id}; no L2+ design or runtime execution",
             "required_evidence": _join(dimensions.get("evidence")) or "PO receipt, source digest, semantic review receipt",
             "negative_boundary": _join(dimensions.get("prohibitions")) or "unapproved or design-like input is rejected",
-            "source": {"refinement_id": refinement_id, "source_semantic_digest": source_digest},
         }
         test["semantic_digest"] = _record_semantic_digest(test)
         tests[test_id] = test
@@ -271,8 +260,6 @@ def build_candidate_ir() -> dict[str, Any]:
                 "requirement_digest": source_digest,
                 "acceptance_path": f"{source_pointer}/acceptance_cases",
                 "acceptance_digest": _digest(acceptance_cases),
-                "source_event_ids": _list(source_record.get("source_event_ids")),
-                "source_set_digest": source_record.get("source_set_digest"),
             },
             "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
             "responsibility_owner": subject_id,

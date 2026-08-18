@@ -12,11 +12,7 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:f77a0a7c20285e4e7f2fd0c6b9ceeac007ff632566d4d64d2132a1a0eef04499",
-    "source": {
-      "refinement_id": "RRF-AGENT-NEO-HELIX-REDEFINITION",
-      "source_semantic_digest": "sha256:a98d63668a6bbf93c4918ea12a062780d803e7b6633f0e808c5e65427024bf27"
-    },
+    "semantic_digest": "sha256:0da92458b8e0579500f515b313a7773b66720831b24cd72f9b0f0a9e21b954d8",
     "status": "candidate_unratified",
     "system_contract_id": "MHH-SC-AGENT-NEO-HELIX-REDEFINITION",
     "system_test_id": "MHH-ST-AGENT-NEO-HELIX-REDEFINITION",
@@ -35,11 +31,7 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:eeeb49e73c657eadc19a67218910517090c0ce849a06eaadd2b87aa64e1b26d9",
-    "source": {
-      "refinement_id": "RRF-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE",
-      "source_semantic_digest": "sha256:9d01b9da1cb025a10c43e6be4fc791ede640b687bc48bfa7271adc27aca632ba"
-    },
+    "semantic_digest": "sha256:a56dfcab7dc51624ee678ecbafef6a16a8ca543c99a2f5adadb7468d3d3171c3",
     "status": "candidate_unratified",
     "system_contract_id": "MHH-SC-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE",
     "system_test_id": "MHH-ST-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE",
@@ -58,11 +50,7 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:b2625a2dbe574b8c8e8088ebecb46f60d0154d9e9b20c2b40580ec52a240aa77",
-    "source": {
-      "refinement_id": "RRF-AGENT-NEO-SITE-BUILD-RELEASE",
-      "source_semantic_digest": "sha256:9878b98db88c79f197240edfdca11c35e40dd265f4d8837b289ee5dac0099618"
-    },
+    "semantic_digest": "sha256:5aa19f6853df712c1b83bcf3d7065460a2571a00beeefd1826dfe3c29df5fc23",
     "status": "candidate_unratified",
     "system_contract_id": "MHH-SC-AGENT-NEO-SITE-BUILD-RELEASE",
     "system_test_id": "MHH-ST-AGENT-NEO-SITE-BUILD-RELEASE",
@@ -81,11 +69,7 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:9cd29b394e5a09eef160cc90cd9322a43059a9b8de4f10c0cb54799c8e4477b3",
-    "source": {
-      "refinement_id": "RRF-AUTO-MODE-DECISION-AUTHORITY",
-      "source_semantic_digest": "sha256:32c3282dc43db8348b9114f9dc31ca8c3d1784b06a520362a2b71b8a420f9167"
-    },
+    "semantic_digest": "sha256:9d2d49004bc1fccd2df7a17aaaf1e2c0a37d7d37771feaec4cb9d4878245ea97",
     "status": "historical_superseded",
     "system_contract_id": "MHH-SC-AUTO-MODE-DECISION-AUTHORITY",
     "system_test_id": "MHH-ST-AUTO-MODE-DECISION-AUTHORITY",
@@ -104,11 +88,7 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:afef952f8934bc06852f6204b1db6baa1663f9038b5702847d4bccd87e457f96",
-    "source": {
-      "refinement_id": "RRF-AUTOMATED-PUBLISHING-ADMISSION",
-      "source_semantic_digest": "sha256:4e3df9a130b8c7b919b6eb5dafe68112d84bfc3210cc1538c991c1db24c74313"
-    },
+    "semantic_digest": "sha256:50f8000bb28a3a5bc6df132657d7ae108312a66fdd119cbd32f9c7fab34fe234",
     "status": "candidate_unratified",
     "system_contract_id": "MHH-SC-AUTOMATED-PUBLISHING-ADMISSION",
     "system_test_id": "MHH-ST-AUTOMATED-PUBLISHING-ADMISSION",
@@ -127,11 +107,7 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:0399be177f000562fc7b4ce1709bd4d4d226515886b9cb8ebb4997985b25b509",
-    "source": {
-      "refinement_id": "RRF-BUSINESS-PROFILE-AUTHORIZATION",
-      "source_semantic_digest": "sha256:ad26d3f40b9250e77f8e8be1aa3e387f294d170b05d3eef01b91e819c061b87a"
-    },
+    "semantic_digest": "sha256:17a19d7b21d86fba424a08f9c9a88afe4ef64a048899628c5d2baeb98737f586",
     "status": "candidate_unratified",
     "system_contract_id": "MHH-SC-BUSINESS-PROFILE-AUTHORIZATION",
     "system_test_id": "MHH-ST-BUSINESS-PROFILE-AUTHORIZATION",
@@ -150,11 +126,7 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:05176fa25711152cf9c8a3dead9e3c037633f5b00732fa96a1254119555e9e6d",
-    "source": {
-      "refinement_id": "RRF-CONTENT-QUALITY-GATE-LEARNING",
-      "source_semantic_digest": "sha256:1c6e925b3a6b05f5ce4671469b53b18a6598191d550560da79df5502fbdf3721"
-    },
+    "semantic_digest": "sha256:ca7b099f5360915d45984540d51431e0bb041df559fe6230ee893cb9dafc6bc1",
     "status": "candidate_unratified",
     "system_contract_id": "MHH-SC-CONTENT-QUALITY-GATE-LEARNING",
     "system_test_id": "MHH-ST-CONTENT-QUALITY-GATE-LEARNING",
@@ -173,11 +145,7 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:529fdd82ad4e4d6f2318546644f996758cce56960a1b1e4f5a142e45e44ccee3",
-    "source": {
-      "refinement_id": "RRF-CONTENT-RISK-CLASSIFICATION",
-      "source_semantic_digest": "sha256:4ba4a208fcc0dcdcd551be40c81eadc31b75f311fa8274f8d8dfe66b20b88c49"
-    },
+    "semantic_digest": "sha256:471718e73fe2c6bdc360434b856e6e4764b4a5be31826a737f049791370d5c44",
     "status": "candidate_unratified",
     "system_contract_id": "MHH-SC-CONTENT-RISK-CLASSIFICATION",
     "system_test_id": "MHH-ST-CONTENT-RISK-CLASSIFICATION",
@@ -196,11 +164,7 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:c2d9c364c6d631786bd44dedcef19e224944d39608cd9bd79ba976c9c284b0f5",
-    "source": {
-      "refinement_id": "RRF-CONTRACT-SEMANTIC-DESCENT-V2",
-      "source_semantic_digest": "sha256:b1fe074d7bbcc73d48f1d2f7e0683e4ee5b3a19a8e67ea6fbf62f864cffdd2e3"
-    },
+    "semantic_digest": "sha256:9c08b9b6782547b42b8271f9f63f6ab5b6a8d7ff56d1022142c643a3e15e7fce",
     "status": "candidate_unratified",
     "system_contract_id": "MHH-SC-CONTRACT-SEMANTIC-DESCENT-V2",
     "system_test_id": "MHH-ST-CONTRACT-SEMANTIC-DESCENT-V2",
@@ -219,11 +183,7 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:241baa0f9d2f125803e84c72557e01caea8162fe28b65a8133291affce42b227",
-    "source": {
-      "refinement_id": "RRF-DISCORD-COMMUNITY-MARKETING-ROUTE",
-      "source_semantic_digest": "sha256:70c0b5ab8cf5b8a163454726f2b18a0e4d4db23eeff4974409ae260358d81134"
-    },
+    "semantic_digest": "sha256:f53abd2a94cac8cf7ec2c58608454e92faaffcee55b5aa8f4bd5a0dac88a2c08",
     "status": "candidate_unratified",
     "system_contract_id": "MHH-SC-DISCORD-COMMUNITY-MARKETING-ROUTE",
     "system_test_id": "MHH-ST-DISCORD-COMMUNITY-MARKETING-ROUTE",
@@ -242,11 +202,7 @@
     ],
     "revision": 2,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:d1d1ae0ef87c10db2f971cdb863f923cad93cd1b4f625ab72a77df988a68d27e",
-    "source": {
-      "refinement_id": "RRF-DISCORD-MULTI-PURPOSE-BOUNDARIES",
-      "source_semantic_digest": "sha256:73e6cea0dff4bfd4f20372fa10ca44db500318eaa7a6dae4e69e7419763affd7"
-    },
+    "semantic_digest": "sha256:0465c45945f1b917f7465aa03681932b933520abd339cdb2fad40068d64e94c9",
     "status": "historical_superseded",
     "system_contract_id": "MHH-SC-DISCORD-MULTI-PURPOSE-BOUNDARIES",
     "system_test_id": "MHH-ST-DISCORD-MULTI-PURPOSE-BOUNDARIES",
@@ -265,11 +221,7 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:f6930b7d8c47358668db8b09349bf054801ad68aeef789f0375fa91b324bcb4d",
-    "source": {
-      "refinement_id": "RRF-DISCORD-NOTIFICATION-REJECTION-BOUNDARY",
-      "source_semantic_digest": "sha256:9eaf6bb8e88b9ef540c8e0d26ba71ecff670cb0e38f05ce74397722b0ec7d88b"
-    },
+    "semantic_digest": "sha256:18cee3cb89956a5a603303a89924d453f8dc35c9645ac07e34be3eb801724b9e",
     "status": "candidate_unratified",
     "system_contract_id": "MHH-SC-DISCORD-NOTIFICATION-REJECTION-BOUNDARY",
     "system_test_id": "MHH-ST-DISCORD-NOTIFICATION-REJECTION-BOUNDARY",
@@ -288,11 +240,7 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:29d5de415bd9e25f464ffea3995c3f4c0493ad7e1bd99902a44475f9f26386bf",
-    "source": {
-      "refinement_id": "RRF-EXTERNAL-BROWSER-AUTOMATION-ROUTE",
-      "source_semantic_digest": "sha256:656e7c8cab8e861e8c0cc39f2633f2f59605471734441a9fb7f41a127d6fc5d8"
-    },
+    "semantic_digest": "sha256:6767db54684d7552a76d3a870908f3765c2dc9ba4f753a6eee6ceefc07c5e85f",
     "status": "candidate_unratified",
     "system_contract_id": "MHH-SC-EXTERNAL-BROWSER-AUTOMATION-ROUTE",
     "system_test_id": "MHH-ST-EXTERNAL-BROWSER-AUTOMATION-ROUTE",
@@ -311,11 +259,7 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:bc6818d651d86473e61abcc3c7bdc94a12b5ed09ec8d17a0f19b0c976a0921d3",
-    "source": {
-      "refinement_id": "RRF-FR-16-NOTIFICATION-BOUNDARY",
-      "source_semantic_digest": "sha256:fa328819de985985217c8b7268ee67b0fb1c725e7437b19c3dde8dc6498e0b2d"
-    },
+    "semantic_digest": "sha256:da55a3660b82261b930e364613078a3316ba65fdba118626fcc4564db2bd2bc5",
     "status": "candidate_unratified",
     "system_contract_id": "MHH-SC-FR-16-NOTIFICATION-BOUNDARY",
     "system_test_id": "MHH-ST-FR-16-NOTIFICATION-BOUNDARY",
@@ -334,11 +278,7 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:524cc13330fa80870ca48efbbb98410e32a600b06dcfca8b52709e4c51af5e98",
-    "source": {
-      "refinement_id": "RRF-FR-SLICE-AUTHORITY-ALIGNMENT",
-      "source_semantic_digest": "sha256:f6b8ee938abf2391b9de7ce1729bfa7ecf1b832a7249ae334f169cb40082e4e2"
-    },
+    "semantic_digest": "sha256:36269b31bfe9155a426a4203473a329c3538d65691d7734183e0e1a6defa31a9",
     "status": "candidate_unratified",
     "system_contract_id": "MHH-SC-FR-SLICE-AUTHORITY-ALIGNMENT",
     "system_test_id": "MHH-ST-FR-SLICE-AUTHORITY-ALIGNMENT",
@@ -357,11 +297,7 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:a2923398feaa58871fb7c51eb70a3e659484e9c9c9a45494e8effa01d660b9a5",
-    "source": {
-      "refinement_id": "RRF-GENAI-EXECUTION-ROUTE",
-      "source_semantic_digest": "sha256:37d8371bbc7053ae3168627da6c58b39cc44c9816d5bf5904fdd6bfef8e5d755"
-    },
+    "semantic_digest": "sha256:0b0425bac4036c5c4dfb00556204d80df80fe6a12c7e8bf6521f8b04fc078127",
     "status": "candidate_unratified",
     "system_contract_id": "MHH-SC-GENAI-EXECUTION-ROUTE",
     "system_test_id": "MHH-ST-GENAI-EXECUTION-ROUTE",
@@ -380,11 +316,7 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:a736e6f44896fb1b4ad9b37df1f03a53522145c1330ef8679bd3d74746a33d57",
-    "source": {
-      "refinement_id": "RRF-L0-NORTH-STAR-AUTHORITY-NORMALIZATION",
-      "source_semantic_digest": "sha256:d15ab07c6a88ca37e654d8277b009e02ebcec425b310d6b27bd438e67b2024ce"
-    },
+    "semantic_digest": "sha256:cbd54fac1fce851b89457a0d09d3f4f5d45c2edaf78fd208e6217c1bb1c44414",
     "status": "candidate_unratified",
     "system_contract_id": "MHH-SC-L0-NORTH-STAR-AUTHORITY-NORMALIZATION",
     "system_test_id": "MHH-ST-L0-NORTH-STAR-AUTHORITY-NORMALIZATION",
@@ -403,11 +335,7 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:ea136b5c5718333bcea678671ff21d31abaa6b6874b347aea52b3f184a149de9",
-    "source": {
-      "refinement_id": "RRF-LEGACY-MEDIA-ADMISSION-INVENTORY",
-      "source_semantic_digest": "sha256:6f8d4c56fa4d22900b6ba39d6c7392e766f8adc3ea0eb62a3f910638d888cd0e"
-    },
+    "semantic_digest": "sha256:589ae8c584b45c7dfcd904927f4a2c6419560c62f7e1f6a9549cd11201cc766b",
     "status": "candidate_unratified",
     "system_contract_id": "MHH-SC-LEGACY-MEDIA-ADMISSION-INVENTORY",
     "system_test_id": "MHH-ST-LEGACY-MEDIA-ADMISSION-INVENTORY",
@@ -426,11 +354,7 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:002aa282472eb52a6791ff2046fc59abc6d14c9bf88133b6b50f45ebb7aaf965",
-    "source": {
-      "refinement_id": "RRF-MEDIA-POC-SCRUM-RELEASE",
-      "source_semantic_digest": "sha256:4cb3997604201fdd2f1cd7dd2f8eb48f1faa9c7d407f3112ca10ae0821540c6f"
-    },
+    "semantic_digest": "sha256:e56fb14ee007fb619ff92d3d67836f6d85b3f6dd7cc42510693067ecceb99d4d",
     "status": "candidate_unratified",
     "system_contract_id": "MHH-SC-MEDIA-POC-SCRUM-RELEASE",
     "system_test_id": "MHH-ST-MEDIA-POC-SCRUM-RELEASE",
@@ -449,11 +373,7 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:bb264579b48859a2ccddbc2c9b7399378d5786288a521cfda872a9dc97dab618",
-    "source": {
-      "refinement_id": "RRF-NFR-BUSINESS-AUTHORITY",
-      "source_semantic_digest": "sha256:f70dd7d7fcbfc46be0c34ddc379e49703ea765b6cff0e8a8fd6c308db9b52834"
-    },
+    "semantic_digest": "sha256:f0c7f4d978f6724209cf2c07c934714593217be6dab55ad956360399a8a3871c",
     "status": "candidate_unratified",
     "system_contract_id": "MHH-SC-NFR-BUSINESS-AUTHORITY",
     "system_test_id": "MHH-ST-NFR-BUSINESS-AUTHORITY",
@@ -472,11 +392,7 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:0a0413b7bacef28631baebe8375878ed5f5cbb36f2e6a0c1be7b265502961e7e",
-    "source": {
-      "refinement_id": "RRF-OFFICIAL-API-ROUTE-AUTHORITY",
-      "source_semantic_digest": "sha256:a2614cd4a2b2ea8347e9f9f04e8378303628965d9e81909643a0fb9c208b9e7d"
-    },
+    "semantic_digest": "sha256:3a7847013318cc25cb574b0f1d77c06faa2968f135b0c50d205367861b080f72",
     "status": "candidate_unratified",
     "system_contract_id": "MHH-SC-OFFICIAL-API-ROUTE-AUTHORITY",
     "system_test_id": "MHH-ST-OFFICIAL-API-ROUTE-AUTHORITY",
@@ -495,11 +411,7 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:b15d756134e357635bde20f17cb28e339547be65d82fd929bcd8142ace338151",
-    "source": {
-      "refinement_id": "RRF-PRODUCT-STATE-AUTHORITY",
-      "source_semantic_digest": "sha256:634bd6202e1a5d464d9696ce4f698cc5d5eb40907eea96e198cc5d885e2b9878"
-    },
+    "semantic_digest": "sha256:34d01a908fe838107f453fb338d379b2818b0e57c6735aa4e1997ed7a96ce3dc",
     "status": "candidate_unratified",
     "system_contract_id": "MHH-SC-PRODUCT-STATE-AUTHORITY",
     "system_test_id": "MHH-ST-PRODUCT-STATE-AUTHORITY",
@@ -518,11 +430,7 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:cc31b98c5a0c5e8e750b75f1501ea7084135b3396f9f3937b72c669a2fe29f4c",
-    "source": {
-      "refinement_id": "RRF-RATE-QUOTA-COST-AUTHORITY",
-      "source_semantic_digest": "sha256:4d1941c135f4100df4286135bf534b7058473abaef0396495778df0fcccdcf41"
-    },
+    "semantic_digest": "sha256:595bbc930ff4c75a2c291bb97d26780cd781db07e8932ff6497d9eada108e7cc",
     "status": "candidate_unratified",
     "system_contract_id": "MHH-SC-RATE-QUOTA-COST-AUTHORITY",
     "system_test_id": "MHH-ST-RATE-QUOTA-COST-AUTHORITY",
@@ -541,11 +449,7 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:23195fe5ffebf521e76b793c7a7296cd4f2eb53c1634c4bdfc99ecc0659b3f71",
-    "source": {
-      "refinement_id": "RRF-REQ-AUTHORITY-NORMALIZATION",
-      "source_semantic_digest": "sha256:3b83b3e1af295d0e0152cce199a294f6591dccc61ac33067926b64aa3ea5ee80"
-    },
+    "semantic_digest": "sha256:7acc620d7a191feab61c9671e3aeb77723621c523bff01457cd7488c0b5a72fc",
     "status": "candidate_unratified",
     "system_contract_id": "MHH-SC-REQ-AUTHORITY-NORMALIZATION",
     "system_test_id": "MHH-ST-REQ-AUTHORITY-NORMALIZATION",
@@ -564,11 +468,7 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:53e8ece06753f0e4fbecedaa0f9dfc907c1f2beb9ac510bf0214e9ed4cf8f0f3",
-    "source": {
-      "refinement_id": "RRF-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE",
-      "source_semantic_digest": "sha256:ae73eac1dcff87687fb07345f4b59a072a33259bf7da9039fefe39e24378647f"
-    },
+    "semantic_digest": "sha256:c90a820e47fded7da8310f0576c89dc3870842097c5725319e235199c4407a3b",
     "status": "historical_superseded",
     "system_contract_id": "MHH-SC-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE",
     "system_test_id": "MHH-ST-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE",
@@ -587,11 +487,7 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:a8612e0dd2f0680c44638a4916e40905a68042ce4d2dd3977e546ce5ab627399",
-    "source": {
-      "refinement_id": "RRF-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2",
-      "source_semantic_digest": "sha256:68ce8384a857fac070f2394e20e6188358cae6fae262ea6f2c18b5f03a9ed403"
-    },
+    "semantic_digest": "sha256:fb3d13f66744d97dba67d0418736251e66e2dd1419357706bc42f6a351fba83d",
     "status": "candidate_unratified",
     "system_contract_id": "MHH-SC-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2",
     "system_test_id": "MHH-ST-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2",
@@ -610,11 +506,7 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:5b5baef59401d8f01ebe0611d157eadc558cb718e95190d9f0f8ef93b43056e3",
-    "source": {
-      "refinement_id": "RRF-RESEARCH-LED-CONTENT-GROWTH",
-      "source_semantic_digest": "sha256:ea8db288dc6dd44db103766832cb6d8f73862e5de15c21c18fa0b43087e50b9e"
-    },
+    "semantic_digest": "sha256:d5c14126b71b8352892c5ef96852e2ef614a0409a3195c03567822e0ca4d6834",
     "status": "candidate_unratified",
     "system_contract_id": "MHH-SC-RESEARCH-LED-CONTENT-GROWTH",
     "system_test_id": "MHH-ST-RESEARCH-LED-CONTENT-GROWTH",
@@ -633,11 +525,7 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:914285d0b87d5910bd37825f2c1c1aac72f23bd2086269d8d962038bb18c82e6",
-    "source": {
-      "refinement_id": "RRF-STRATEGY-REQUIREMENT-ADMISSION",
-      "source_semantic_digest": "sha256:52f381f8b7c12da197f61fe39dd1e79474d5aabc8c97c70a8f97d423d115b2b8"
-    },
+    "semantic_digest": "sha256:550509c2825e47c03c5d07d6952d3addd64b7e09550776ff5bba420fd2c1a9b3",
     "status": "candidate_unratified",
     "system_contract_id": "MHH-SC-STRATEGY-REQUIREMENT-ADMISSION",
     "system_test_id": "MHH-ST-STRATEGY-REQUIREMENT-ADMISSION",
@@ -656,11 +544,7 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:737fec39635907f2003b9a592af1bb789c98784bf236cb39ac7465872a5a5e9e",
-    "source": {
-      "refinement_id": "RRF-TEST-ID-AUTHORITY-ALIGNMENT",
-      "source_semantic_digest": "sha256:5df8bc9cff5ace92a0fe0e070ccc34b217cbe6b0a3af4770598c1932dcf6ace3"
-    },
+    "semantic_digest": "sha256:908d11d157af8240f3e8941295e341060f3352fbb12713d3fdd87766194b5d9a",
     "status": "candidate_unratified",
     "system_contract_id": "MHH-SC-TEST-ID-AUTHORITY-ALIGNMENT",
     "system_test_id": "MHH-ST-TEST-ID-AUTHORITY-ALIGNMENT",
@@ -679,11 +563,7 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:c60f0eb52cc7fddbfaaf3a3da7fcb90feeb7ada11697ebbd841a44fc8cebcfb2",
-    "source": {
-      "refinement_id": "RRF-VPS-CREDENTIAL-SECURITY-BOUNDARY",
-      "source_semantic_digest": "sha256:16f222c23f0071263f5b28fc09a62e23c50719dbff0f9c4747d8de00bcb014df"
-    },
+    "semantic_digest": "sha256:e8912dce6039f273d4518831333d14c0ccb9e4a999a9e0cdb4b6dfb6c2fef05f",
     "status": "candidate_unratified",
     "system_contract_id": "MHH-SC-VPS-CREDENTIAL-SECURITY-BOUNDARY",
     "system_test_id": "MHH-ST-VPS-CREDENTIAL-SECURITY-BOUNDARY",
@@ -702,11 +582,7 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:bcf6e08e14d3430df6fa1e66b7375ca0ff6112f227c0212b2737d5dfa340b032",
-    "source": {
-      "refinement_id": "RRF-VPS-UI-AUTHENTICATION-SESSION",
-      "source_semantic_digest": "sha256:59583ac23bfdef85aafee36c120abced6cf938c25b6c905bf7bf364890468d04"
-    },
+    "semantic_digest": "sha256:b2e3fb64873c370f483bb9cd89480be457399e2c4a1721a749044d60745dc436",
     "status": "candidate_unratified",
     "system_contract_id": "MHH-SC-VPS-UI-AUTHENTICATION-SESSION",
     "system_test_id": "MHH-ST-VPS-UI-AUTHENTICATION-SESSION",
@@ -725,11 +601,7 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:be02ad2d93844542dbd0268e9c36ffeeb3982f47eccafd667c6f4d8787f9a1ae",
-    "source": {
-      "refinement_id": "RRF-VPS-UI-INBOX-LIFECYCLE",
-      "source_semantic_digest": "sha256:8e7014577d4ad96f3ded703a42f97f618cf2b56f3c89866d948fa7b9d1ed1fad"
-    },
+    "semantic_digest": "sha256:1a2758c773afc9bc53f0e1012906529f8d5270f60d946b119db8c84169b16a24",
     "status": "candidate_unratified",
     "system_contract_id": "MHH-SC-VPS-UI-INBOX-LIFECYCLE",
     "system_test_id": "MHH-ST-VPS-UI-INBOX-LIFECYCLE",
@@ -748,11 +620,7 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:c8cea117b221e4211bc7aaaaa43c76d29f8ddff5e2d82ba57cc37c634f9b6d33",
-    "source": {
-      "refinement_id": "RRF-VPS-UI-PRIMARY-HUMAN-INTERFACE",
-      "source_semantic_digest": "sha256:229880f28abe6afce7c9576079bf3844130c3f47aa8d60a42e8079439e12478f"
-    },
+    "semantic_digest": "sha256:d86a0bc763a974746932142dbb552377ebd061da655fd93c1dab4dfb9f2ad9ac",
     "status": "candidate_unratified",
     "system_contract_id": "MHH-SC-VPS-UI-PRIMARY-HUMAN-INTERFACE",
     "system_test_id": "MHH-ST-VPS-UI-PRIMARY-HUMAN-INTERFACE",
@@ -771,11 +639,7 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:cd1cf56f61b89d269786e8abd3e3be7e4f003e6bc16b3d598a39136a2f810bfb",
-    "source": {
-      "refinement_id": "RRF-VPS-UI-QUALITY-ATTRIBUTES",
-      "source_semantic_digest": "sha256:a01e41d02b365a1eccb468d3bfbff53f3339b83904551addb102e0232ff63b28"
-    },
+    "semantic_digest": "sha256:3ac42ade18c4bb97b9f4d38c49407143bfd3eaae9c8b8e8dc3d938edffe1deca",
     "status": "candidate_unratified",
     "system_contract_id": "MHH-SC-VPS-UI-QUALITY-ATTRIBUTES",
     "system_test_id": "MHH-ST-VPS-UI-QUALITY-ATTRIBUTES",
@@ -794,11 +658,7 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:ebbc59089abd5955295c1762215eba97f36c631dc6672657117be4c25221275f",
-    "source": {
-      "refinement_id": "RRF-WORDPRESS-CONTENT-OPERATIONS-RELEASE",
-      "source_semantic_digest": "sha256:ec927831a0dcf8ccdb6df150815fbad24fa40f6623c8340e60671ecb8efc33ae"
-    },
+    "semantic_digest": "sha256:1550db64608ba2cb9ad772f116b05d43e7adfbb9992393f6799bf8b60863ad1b",
     "status": "candidate_unratified",
     "system_contract_id": "MHH-SC-WORDPRESS-CONTENT-OPERATIONS-RELEASE",
     "system_test_id": "MHH-ST-WORDPRESS-CONTENT-OPERATIONS-RELEASE",
@@ -817,11 +677,7 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:96caf2a6d1e4dcc2f05d80a0aba1ee70868da938198cd83d22bf22c058a478e1",
-    "source": {
-      "refinement_id": "RRF-WORDPRESS-MAINTENANCE-BOUNDARIES",
-      "source_semantic_digest": "sha256:eafdb5ab01a64154bc42df57594ce221f4327aed4a5beb2b77ec0f80047f8201"
-    },
+    "semantic_digest": "sha256:c4371b2e0d14cada24311e49d83869ba57cc154ae352cbd2d9b59915e4f8b563",
     "status": "candidate_unratified",
     "system_contract_id": "MHH-SC-WORDPRESS-MAINTENANCE-BOUNDARIES",
     "system_test_id": "MHH-ST-WORDPRESS-MAINTENANCE-BOUNDARIES",
@@ -840,11 +696,7 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:26465059431d942765d19ba7a8a2da87bc1d7f3cb52517ac55c581a424486f1d",
-    "source": {
-      "refinement_id": "RRF-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE",
-      "source_semantic_digest": "sha256:32e41614f15f39347859b6c718d7321644bc5316a5a9daae719e3725adb346c3"
-    },
+    "semantic_digest": "sha256:8d318b26fe43ccc89315a127af09b2a76cec29aa2607ac46ec61a151bdd3f814",
     "status": "candidate_unratified",
     "system_contract_id": "MHH-SC-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE",
     "system_test_id": "MHH-ST-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE",
@@ -863,11 +715,7 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:3c38804bcd8550e9169d932955529e290ea4df22f49d2518add18dcfab9e1c45",
-    "source": {
-      "refinement_id": "RRF-WORDPRESS-SECURITY-MAINTENANCE-RELEASE",
-      "source_semantic_digest": "sha256:7664222be30ace640e3a9780c6dc6da1c226dfdb46556f3eba36068537bf20a3"
-    },
+    "semantic_digest": "sha256:69ec0b9c1072b28d9ce3b1bf47347579d0822183870cb7d5aa31eeeb6c5c8257",
     "status": "candidate_unratified",
     "system_contract_id": "MHH-SC-WORDPRESS-SECURITY-MAINTENANCE-RELEASE",
     "system_test_id": "MHH-ST-WORDPRESS-SECURITY-MAINTENANCE-RELEASE",
