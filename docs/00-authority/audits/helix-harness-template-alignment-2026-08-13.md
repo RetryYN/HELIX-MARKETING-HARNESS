@@ -22,7 +22,7 @@ slice: cross
 | テンプレートの設計要素 | 現行への対応 | 判定 | 根拠 |
 |---|---|---|---|
 | 現行Full V-modelとdelivery route | 旧L0〜L6は再検証資料に限定。L1〜L12 exactly once・6 V-pair、Production Scrum、V設計＋Scrum実装Hybrid、Discovery別軸、Scrum Reverse SR0〜SR4を新要求へ移植する | ブリッジ | `helix-harness-alignment.json` の `v-model`。要求freeze・route合意・pair closure前は適応完了を名乗らない |
-| requirement IR の stable ID 連鎖 | 既存の 9 契約 JSON、manifest、AC↔TC、L6 implementation-units を唯一の正本として接続 | ブリッジ | `requirement-ir`。並列 `requirements-ir/` は導入しない |
+| requirement IR の stable ID 連鎖 | 既存の 9 契約 JSON と refinement registry を source authority として保持し、HELIX-HARNESS v2 の manifest＋5つの stable-ID keyed shard を `candidate_non_authoritative` projection として生成 | ブリッジ | `docs/00-authority/development/requirements-ir/`。外部の canonical/frozen を未批准要求へ適用せず、PO receipt・freeze・authority cutoverまでは二重正本化しない |
 | discovery event と candidate lifecycle | 導入以後の候補→質問→試作→観測→仕様化→承認を append-only ledger に記録し、既存契約へ直接 mutation しない | 適応 | `requirement-discovery-events.json`、schema、`requirement_discovery.py` |
 | L2 5 点 screen 方法論 | 5点書式と補助business-flowを評価済み。内容は旧要求ベースなので新要求承認後に再作成 | ブリッジ | `docs/L2-prototypes/` |
 | doctor／build／typecheck／lint／test 導線 | Python の `make setup/doctor/docs/gates/test/check` と既存全ゲートへ写像 | 適応 | `Makefile`, `scripts/dev.py` |
@@ -40,8 +40,9 @@ slice: cross
 1. 固定採用点の旧L0〜L14表現と最新HELIXのL1〜L12 canonical V-modelを混同しない。下流ディレクトリを
    空のまま追加するのではなく、L1↔L12、L2↔L11、L3↔L10、L4↔L9、L5↔L8、L6↔L7のpair義務、
    route選択、右腕evidenceを本製品要求へ降ろしてから物理配置を決める。
-2. テンプレートの `requirements-ir/` を追加すると契約 JSON との二重正本になる。stable ID の考え方だけを既存の
-   契約・manifest・traceability へ写像した。
+2. テンプレートの `requirements-ir/` は、現在は既存契約 JSON／refinement registryから再生成する候補projectionとして
+   追加した。外部形式の field／manifest／5 shard は揃えるが、`authority=canonical`／`definition_status=frozen`は
+   未批准要求へ適用せず、候補IRをsource authority又は実装入力にしない。
 3. テンプレートの Bun コマンドをそのまま実行すると Python 単一パッケージ規律に反する。`scripts/dev.py` と
    `Makefile` は依存を増やさず、`uv.lock` と既存ゲートを呼び出す。
 4. 現行 L2 は screen-list だけだったため、残る 4 文書を追加し、入口・状態・失敗・戻る操作・read/write 境界を
@@ -51,10 +52,10 @@ slice: cross
 
 ## Latest upstream verification
 
-- checked_at: `2026-08-14`
-- upstream_checked_commit: `b19647a742a7511603940772b1afcf265abf6e3f`（`main`、read-only `git ls-remote`実測）
+- checked_at: `2026-08-19`
+- upstream_checked_commit: `032aeffb82cbd1f828409f144ab5e3f6553959c6`（`main`、read-only `git ls-remote`実測）
 - adoption baseline: `57853db413e282b050ac5f37bab7809321c67842`（変更しない）
-- latest delta range: `fe6ffe6cfa0e11bd054dbc67e4278f0d3bd1234d..b19647a742a7511603940772b1afcf265abf6e3f`
+- latest delta range: `fe6ffe6cfa0e11bd054dbc67e4278f0d3bd1234d..032aeffb82cbd1f828409f144ab5e3f6553959c6`
 - latest delta: GitHub Issue metadata labelの監査と更新lifecycleを追加した15ファイル（+275/-36）。これは
   upstreamのGitHub運用／TypeScript CLI境界であり、本repoが進めている製品要求、VPS UI／inbox、Full Vの
   delivery route、Python-native runtimeの意味を変更しない。Issue metadata enforcementは現適応範囲外とし、

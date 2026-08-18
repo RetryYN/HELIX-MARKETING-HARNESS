@@ -63,6 +63,45 @@ def test_projection_is_deterministic_and_non_authoritative() -> None:
     assert requirement_engine.projection_faults(first) == []
 
 
+def test_candidate_ir_v2_matches_helix_harness_shape_without_authority_promotion() -> None:
+    from scripts.render_requirement_ir_v2_candidate import PARTITIONS, build_candidate_ir
+
+    built = build_candidate_ir()
+    manifest = built["manifest"]
+    assert manifest["schema_version"] == "helix-requirement-ir.v2"
+    assert manifest["authority"] == "candidate_non_authoritative"
+    assert manifest["source_authority"] == "requirement_refinement_registry_projection"
+    assert [row["kind"] for row in manifest["shards"]] == list(PARTITIONS)
+    assert [row["path"] for row in manifest["shards"]] == [f"requirements-ir/{kind}.json" for kind in PARTITIONS]
+    assert len(built["shards"]["requirements"]) == 38
+    assert len(built["shards"]["system_contracts"]) == 38
+    assert len(built["shards"]["acceptance_cases"]) == 114
+    assert len(built["shards"]["system_tests"]) == 38
+    assert len(built["shards"]["refinement_contracts"]) == 38
+    assert all(
+        row["definition_status"] != "frozen"
+        for row in built["shards"]["requirements"].values()
+        if row["status"] != "historical_superseded"
+    )
+    assert all(row["approval"] is None for row in built["shards"]["refinement_contracts"].values())
+    assert requirement_engine.candidate_ir_v2_faults() == []
+
+
+def test_mutation_candidate_ir_v2_cannot_claim_canonical(monkeypatch) -> None:
+    from scripts import render_requirement_ir_v2_candidate
+
+    original = render_requirement_ir_v2_candidate.build_candidate_ir
+
+    def mutated() -> dict:
+        built = original()
+        built["manifest"]["authority"] = "canonical"
+        return built
+
+    monkeypatch.setattr(render_requirement_ir_v2_candidate, "build_candidate_ir", mutated)
+    faults = requirement_engine.candidate_ir_v2_faults()
+    assert any("canonical authority" in fault or "manifest" in fault for fault in faults)
+
+
 def test_mutation_projection_digest_and_order_are_rejected() -> None:
     projection = requirement_engine.semantic_projection(Ctx())
     projection["records"][0]["semantic"]["id"] = "MUTATED"

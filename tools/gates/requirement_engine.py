@@ -86,6 +86,9 @@ AUTHORITY_POLICY = ENGINE_DIR / "requirement-engine-authority.json"
 IR_SCHEMA = ENGINE_DIR / "requirement-ir.schema.json"
 REFINEMENT_SCHEMA = ENGINE_DIR / "requirement-refinement.schema.json"
 REFINEMENTS = ENGINE_DIR / "requirement-refinements.json"
+CANDIDATE_IR_DIR = ENGINE_DIR / "requirements-ir"
+CANDIDATE_IR_MANIFEST = CANDIDATE_IR_DIR / "manifest.json"
+CANDIDATE_IR_SCHEMA = ENGINE_DIR / "candidate-requirement-ir-v2.schema.json"
 COMPATIBILITY_VIEW = (
     Path(__file__).resolve().parents[2] / "docs/L3-system-requirements/canonical/functional/requirements.json"
 )
@@ -487,8 +490,93 @@ def semantic_projection(ctx: Ctx) -> dict[str, Any]:
     }
 
 
+def candidate_ir_v2_faults() -> list[str]:
+    """HELIX-HARNESS v2 envelope/shards の候補 projection を検証する。
+
+    外部テンプレートの canonical/frozen envelope を現在の未批准要求へ
+    そのまま適用すると、承認・凍結を捏造する。そこで field/partition は
+    upstream 形式へ合わせる一方、authority/status は local candidate の
+    閉集合にし、registry からの再生成結果と実ファイルを exact 比較する。
+    """
+    faults: list[str] = []
+    try:
+        from scripts.render_requirement_ir_v2_candidate import PARTITIONS, build_candidate_ir
+
+        built = build_candidate_ir()
+    except (OSError, ValueError, json.JSONDecodeError, ImportError) as exc:
+        return [f"HELIX-HARNESS v2 candidate projection を生成できない: {exc}"]
+
+    if not CANDIDATE_IR_SCHEMA.is_file():
+        faults.append("HELIX-HARNESS v2 candidate schema がない")
+    else:
+        try:
+            faults.extend(f"candidate manifest schema: {fault}" for fault in schema_check(
+                load(CANDIDATE_IR_SCHEMA), built["manifest"]
+            ))
+        except (OSError, json.JSONDecodeError, TypeError) as exc:
+            faults.append(f"candidate manifest schema を読めない: {exc}")
+
+    manifest = built["manifest"]
+    if manifest.get("schema_version") != "helix-requirement-ir.v2":
+        faults.append("candidate IR schema_version が upstream v2 でない")
+    if manifest.get("authority") != "candidate_non_authoritative":
+        faults.append("candidate IR が canonical authority を名乗る又は型が不正")
+    if manifest.get("source_authority") != "requirement_refinement_registry_projection":
+        faults.append("candidate IR source authority が refinement registry projection でない")
+    if manifest.get("partition") != "stable_id_keyed_shards":
+        faults.append("candidate IR partition が stable_id_keyed_shards でない")
+
+    paths = [CANDIDATE_IR_MANIFEST, *(CANDIDATE_IR_DIR / f"{kind}.json" for kind in PARTITIONS)]
+    if any(not path.is_file() for path in paths):
+        faults.extend(f"candidate IR generated file がない: {path.relative_to(REPO_ROOT)}" for path in paths if not path.is_file())
+        return faults
+
+    try:
+        actual_manifest = load(CANDIDATE_IR_MANIFEST)
+    except (OSError, json.JSONDecodeError) as exc:
+        return faults + [f"candidate IR manifest を読めない: {exc}"]
+    if actual_manifest != manifest:
+        faults.append("candidate IR manifest が refinement registry からの決定的生成結果と不一致")
+
+    required_fields = {
+        "requirements": {"schema_version", "requirement_id", "revision", "kind", "status", "definition_status", "evidence_origin", "statement", "source", "assertion_id", "primary_system_contract_id", "acceptance_ids", "system_test_id", "downstream_obligation", "actor_ids", "task_ids", "surface_ids", "design_template_ids", "design_obligation_ids", "required_design_artifact_kinds", "pending_resolution", "semantic_digest"},
+        "system_contracts": {"schema_version", "system_contract_id", "revision", "status", "requirement_ids", "behavior", "transition_contract", "failure_and_evidence", "acceptance_ids", "system_test_id", "semantic_digest"},
+        "acceptance_cases": {"schema_version", "acceptance_id", "revision", "status", "system_contract_id", "polarity", "statement", "system_test_id", "semantic_digest"},
+        "system_tests": {"schema_version", "system_test_id", "revision", "status", "system_contract_id", "acceptance_ids", "supporting_test_ids", "scenario", "required_evidence", "negative_boundary", "semantic_digest"},
+        "refinement_contracts": {"schema_version", "refinement_contract_id", "revision", "lifecycle_status", "primary_system_contract_id", "related_system_contract_ids", "source", "plan_id", "responsibility_owner", "contract_requirement", "supporting_requirements", "acceptance_cases", "downstream_issue_ids", "acceptance_owners", "approval", "semantic_digest"},
+    }
+    for kind in PARTITIONS:
+        try:
+            actual = load(CANDIDATE_IR_DIR / f"{kind}.json")
+        except (OSError, json.JSONDecodeError) as exc:
+            faults.append(f"candidate IR shard {kind} を読めない: {exc}")
+            continue
+        expected = built["shards"][kind]
+        if actual != expected:
+            faults.append(f"candidate IR shard {kind} が決定的生成結果と不一致")
+        if not isinstance(actual, dict) or list(actual) != sorted(actual):
+            faults.append(f"candidate IR shard {kind} が stable ID keyed・決定順でない")
+            continue
+        for stable_id, record in actual.items():
+            if not isinstance(record, dict):
+                faults.append(f"candidate IR {kind}/{stable_id} が object でない")
+                continue
+            missing = required_fields[kind] - set(record)
+            if missing:
+                faults.append(f"candidate IR {kind}/{stable_id} required field 欠落={sorted(missing)}")
+            semantic = {key: value for key, value in record.items() if key != "semantic_digest"}
+            if record.get("semantic_digest") != _digest(semantic):
+                faults.append(f"candidate IR {kind}/{stable_id} semantic digest 不一致")
+            if kind == "requirements" and record.get("definition_status") == "frozen":
+                faults.append(f"candidate IR {stable_id} が要求freezeを過大主張")
+            if kind == "refinement_contracts" and record.get("approval") is not None:
+                faults.append(f"candidate IR {stable_id} が未承認なのに approval を持つ")
+    return faults
+
+
 def projection_faults(projection: dict[str, Any]) -> list[str]:
     faults: list[str] = [f"IR schema: {fault}" for fault in schema_check(load(IR_SCHEMA), projection)]
+    faults.extend(candidate_ir_v2_faults())
     if projection.get("schema_version") != "marketing-harness-requirement-ir.v1":
         faults.append("IR schema_version不正")
     if projection.get("authority") != "generated_non_authoritative_projection":
@@ -11885,7 +11973,7 @@ def legacy_fault_stage_audit_faults(
                 faults.append(f"{gate_id}: known quarantined fault集合が増減又は意味反転")
         if _digest(source_digests) != "sha256:ed8691d9069dca0e391996994c834f36f49beef33cf8dc9aad7440623d7ecbb9":
             faults.append("legacy contract source artifact集合digestがstale")
-        if _digest(expanded_source_digests) != "sha256:0bee92f6906f629a4018e01e4b605240ed84e981d16e07937058e3a8dd74fcc8":
+        if _digest(expanded_source_digests) != "sha256:73185559f485fb2cb2f485f99a2d1930f5f1bc7f90ff2af5fb0184930a6acd53":
             faults.append("legacy ADR/L2/refinement raw source snapshot digestがstale")
     elif cutover_complete and any(raw_faults.values()):
         faults.append("approved cutoverでは旧raw faultをquarantineせずzero closureが必要")

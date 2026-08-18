@@ -31,8 +31,9 @@ Python ゲートが二重化されないよう、既存正本を維持したま�
 2. **再検証資料として保持するもの**: 旧baselineの契約 JSON 9 本、DDL・状態遷移・evidence 型は
    `revalidation_required` の構造資料であり、`requirements_baseline_status=revising` 又は
    `implementation_authorized=false` の間は現行要求・設計・実装入力にしない。成果物の権威は
-   artifact-manifest、検証入口は `tools/gates/run_all.py` とする。既存9正本を source adapter として読み、
-   HELIX-HARNESS と同等の正規化 IR を決定的に生成・検証する。IRを手編集可能な並列正本にはしない。
+   artifact-manifest、検証入口は `tools/gates/run_all.py` とする。既存9正本と refinement registry を source authority として読み、
+   HELIX-HARNESS v2 の manifest／stable-ID keyed shard 形式へ `candidate_non_authoritative` IR を決定的に生成・検証する。
+   候補IRを手編集可能な並列正本にせず、個別PO receipt・requirements freeze・authority cutoverまでは実装入力にしない。
 3. **ランタイム境界**: 本リポジトリの実装言語は Python、パッケージは `src/helix/`。テンプレートの Bun／Node
    ランタイム、`.helix` 実行系、外部サービス接続を本リポジトリの実装入力にしない。
 4. **導入範囲**: 要件定義〜L3 の要求候補と、旧要求に基づくL2 5点書式の評価用draftを直ちに利用可能にする。
@@ -72,6 +73,7 @@ Python ゲートが二重化されないよう、既存正本を維持したま�
 - 対応表 schema: `docs/00-authority/template/helix-harness-alignment.schema.json`
 - 適応監査: `docs/00-authority/audits/helix-harness-template-alignment-2026-08-13.md`
 - 要件定義手順: `docs/00-authority/development/requirement-definition-workflow_v0.1.md`
+- HELIX-HARNESS v2 candidate IR: `docs/00-authority/development/requirements-ir/`（生成専用。source authorityではない）
 - discovery ledger/schema: `docs/00-authority/development/requirement-discovery-events.json`／`requirement-discovery-event.schema.json`
 - L2 5 点セット: `docs/L2-prototypes/screens/`
 - 開発環境契約: `docs/00-authority/development/development-environment_v0.1.md`

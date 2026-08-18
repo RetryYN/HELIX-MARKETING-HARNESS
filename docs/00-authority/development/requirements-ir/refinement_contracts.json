@@ -1,0 +1,2710 @@
+{
+  "RRF-AGENT-NEO-HELIX-REDEFINITION": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-AGENT-NEO-HELIX-REDEFINITION-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-AGENT-NEO-HELIX-REDEFINITION"
+        ],
+        "semantic_digest": "sha256:bec142df24fc7534f0daec7d7570f88e80db477915364e20ed53753c18729aba",
+        "source_projection": "local_refinement_registry",
+        "statement": "固定SHAから再定義したFull V要求・V-pair・repo境界を持ち、段階incrementはS4 receiptとSR0-SR4 closureを持つ場合だけ昇格する"
+      },
+      {
+        "acceptance_id": "MHH-AC-AGENT-NEO-HELIX-REDEFINITION-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-AGENT-NEO-HELIX-REDEFINITION"
+        ],
+        "semantic_digest": "sha256:0772e2424376609b31088b2957be7cbf6fb99daea872434a606f8017683aebe5",
+        "source_projection": "local_refinement_registry",
+        "statement": "旧G4 PASS、別媒体の成功、S3 green、又はWP操作だけからAGENT NEO全体をacceptedとみなすことを拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-AGENT-NEO-HELIX-REDEFINITION-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-AGENT-NEO-HELIX-REDEFINITION"
+        ],
+        "semantic_digest": "sha256:ca83c1930349a4608812d45f241d236f90bdb425838e7139f978f852f490a57a",
+        "source_projection": "local_refinement_registry",
+        "statement": "サイト構築能力とtheme/plugin改善能力を別releaseにし、互換性又はrollback未検証のupdateはenabledにしない"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-AGENT-NEO-HELIX-REDEFINITION-P",
+        "MHH-AC-AGENT-NEO-HELIX-REDEFINITION-N",
+        "MHH-AC-AGENT-NEO-HELIX-REDEFINITION-B"
+      ],
+      "requirement_id": "MHH-REQ-AGENT-NEO-HELIX-REDEFINITION",
+      "semantic_digest": "sha256:a98d63668a6bbf93c4918ea12a062780d803e7b6633f0e808c5e65427024bf27",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: WordPress操作の実証とAGENT NEO全体要求を対応付け、サイト構築からtheme/plugin改善まで改修箇所が追跡可能な段階releaseへする\ntasks: AGENT NEO能力を固定SHAから棚卸しする / site identity／FSE styles／templates／navigation／patterns／blocks／media／content CRUD／preview・apply・rollback／SEO／measurement／migration／quality・security／health・audit／integration境界をFull V要求候補へ分類する / 旧package／license／Automation SEO／CRM／SNS／外部API／AI機能を自動採用せず採否を分離する / WP操作とtheme/plugin責務をmappingする / 改善・改修・updateを第三段階releaseにする\nworkflow: WP運用/保守実証→AGENT NEO Full V-model L1-L12＋V-pair→サイト構築release→必要な段階incrementだけV設計＋Scrum実装Hybrid→S4→SR0-SR4→AGENT NEO改善/改修/update release\nscope_in: Full V-model L1-L12と正規V-pair / site identityと対象site/profile境界 / FSE global styles・design token・theme設定 / template・template part・navigation / pattern・block・section・CTA・media / page・post・taxonomy・menuのstable ID付き操作 / preview・dry-run・diff・apply・version・rollback / SEO metadata・schema・OGP・indexing / consent付きmeasurement・tracking・export / migration・import・export / accessibility・performance・i18n・privacy・security / health・status・log・audit / MARKETING HARNESS判断とAGENT NEO決定論実行のintegration境界 / theme/plugin改善・改修・update / 別媒体Harness開発との並行backlog\nscope_out: AGENT-NEO repoへの現変更からの書込み / 旧G4 PASSの新要求への流用 / 旧package／license／課金の自動採用 / Automation SEO／CRM／SNS／外部APIの自動採用 / theme/plugin内AI判断 / ScrumとDiscoveryの同一視\nprohibitions: 外部repoを無断変更しない / 旧設計を無検証で移植しない / repo間で正本・credential・reviewを混在させない / S4だけでV-pair未閉鎖のincrementを完了にしない\nhuman_judgement: Full V要求freezeと、サイト構築release・AGENT NEO改修releaseの各S4判断をPOが分離して行う\nside_effects: 現段階は要求記録のみ。将来はAGENT NEOサイト構築とtheme/plugin/API変更\nevidence: HELIX adopted methodology SHA 57853db413e282b050ac5f37bab7809321c67842 / HELIX latest verification SHA fe6ffe6cfa0e11bd054dbc67e4278f0d3bd1234d / AGENT-NEO source SHA 9f5d679c0befce093ba077fcf11d514e4c75f17a / fixed-source capability inventory in RDE-000099 / L1-L12 V-pair closure / capability/repo boundary map / increment evidence / S4 receipt / SR0-SR4 closure / migration/rollback proof / 各repo独立review\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "draft",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-AGENT-NEO-HELIX-REDEFINITION",
+    "refinement_contract_id": "RRF-AGENT-NEO-HELIX-REDEFINITION",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "AGENT-NEO-HELIX-REDEFINITION",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:72f3790f0fce9500a596175e5794e73bc3d82e09a3c2ae422de32fdc97a0f9a3",
+    "source": {
+      "acceptance_digest": "sha256:794c5aa9bbc6f58cbb56bb14763c9f15ddeb214b7813e32c2c580a208d83da66",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-AGENT-NEO-HELIX-REDEFINITION/acceptance_cases",
+      "requirement_digest": "sha256:a98d63668a6bbf93c4918ea12a062780d803e7b6633f0e808c5e65427024bf27",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-AGENT-NEO-HELIX-REDEFINITION",
+      "source_event_ids": [
+        "RDE-000089",
+        "RDE-000090",
+        "RDE-000091",
+        "RDE-000092",
+        "RDE-000093",
+        "RDE-000099"
+      ],
+      "source_set_digest": "sha256:d8d42fd683f86f98c4690c4bf727bdd480dfe31eb302f4855070566649268396"
+    },
+    "supporting_requirements": []
+  },
+  "RRF-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE"
+        ],
+        "semantic_digest": "sha256:3518a46e9450365524dbd25f54bb2bb08587e806f1b6c4cc9d5dd41697bda6aa",
+        "source_projection": "local_refinement_registry",
+        "statement": "site-build closure後に影響、互換性、migration、rollback、回帰、独立S4を閉じた製品変更だけを昇格する"
+      },
+      {
+        "acceptance_id": "MHH-AC-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE"
+        ],
+        "semantic_digest": "sha256:3f3e4a50461113135061ec6b5c7ba19343a4ab7690d5075f8f00c295fa6c864f",
+        "source_projection": "local_refinement_registry",
+        "statement": "site-build承認、単一site成功又は旧releaseを製品変更の互換性証明として拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE"
+        ],
+        "semantic_digest": "sha256:10fbaa6e4ef63c1b9cd25f5f894723f45f6f0ef42829a0012aa975591bff8183",
+        "source_projection": "local_refinement_registry",
+        "statement": "一部componentだけ成立する場合は変更unitを分割し未検証componentをdeferredにする"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE-P",
+        "MHH-AC-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE-N",
+        "MHH-AC-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE-B"
+      ],
+      "requirement_id": "MHH-REQ-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE",
+      "semantic_digest": "sha256:9d01b9da1cb025a10c43e6be4fc791ede640b687bc48bfa7271adc27aca632ba",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: AGENT NEO自体の改善・改修・更新をサイト構築と別の影響・互換性・rollback判断で受入する\ntasks: 改善要求、影響分析、versioning、compatibility、migration、rollback、既存site regressionをFull Vへ降下する\nworkflow: site-build closure→改善要求→影響分析→L1-L12/V-pair→変更increment→互換性/migration/rollback検証→独立S4\nscope_in: theme/plugin改善 / bug fix / version update / compatibility / migration / rollback / 既存site regression / release notes\nscope_out: 日常content operation / WordPress通常保守 / WordPress security保守 / site-build承認の流用\nprohibitions: site-build成功を製品update互換性の証明にしない / migration/rollbackなしで破壊的変更を昇格しない / PO権限なしに外部repoへwriteしない\nhuman_judgement: 変更価値、互換性破壊、migration、rollback、repo write、release S4はPO\nside_effects: 現段階は要求記録のみ。将来は別権限下のAGENT-NEO repo変更\nevidence: change impact map / L1-L12 V-pair / compatibility matrix / migration/rollback proof / 既存site regression / 独立review / S4 receipt\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "draft",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE",
+    "refinement_contract_id": "RRF-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "AGENT-NEO-PRODUCT-EVOLUTION-RELEASE",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:a2aac0ed7244cc9fc530bbc0cffe77b309e718c75080f62fb99ca65a2115b6f6",
+    "source": {
+      "acceptance_digest": "sha256:81f75255ff767cceda7ffcc9fd4015c5ff6efdf6fc0344d2b0a90f20ae604f24",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE/acceptance_cases",
+      "requirement_digest": "sha256:9d01b9da1cb025a10c43e6be4fc791ede640b687bc48bfa7271adc27aca632ba",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE",
+      "source_event_ids": [
+        "RDE-000122",
+        "RDE-000123"
+      ],
+      "source_set_digest": "sha256:0089b03cabeb4c913374982b25d6af2cc64d2429321f826f3b7a89132cd4991e"
+    },
+    "supporting_requirements": []
+  },
+  "RRF-AGENT-NEO-SITE-BUILD-RELEASE": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-AGENT-NEO-SITE-BUILD-RELEASE-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-AGENT-NEO-SITE-BUILD-RELEASE"
+        ],
+        "semantic_digest": "sha256:49ebf7407ee0bb1d4de03cb598771bc62c2d0e78ca6013236749b1dd07a4d618",
+        "source_projection": "local_refinement_registry",
+        "statement": "固定SHA能力、Full V closure、対象site trace、migration/rollback、S4 receiptを持つsite-buildだけを昇格する"
+      },
+      {
+        "acceptance_id": "MHH-AC-AGENT-NEO-SITE-BUILD-RELEASE-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-AGENT-NEO-SITE-BUILD-RELEASE"
+        ],
+        "semantic_digest": "sha256:9dd2fdde0531ce4872a2c94523f377a71c0d9a069e337ec7fd00c4cb727021eb",
+        "source_projection": "local_refinement_registry",
+        "statement": "旧G4、WP操作成功、別site成功又はtheme変更をsite-build受入へ流用することを拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-AGENT-NEO-SITE-BUILD-RELEASE-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-AGENT-NEO-SITE-BUILD-RELEASE"
+        ],
+        "semantic_digest": "sha256:354511b37577111402cf3404f1f745bbb3b2e8fe7b437f3d410eef9e76c73175",
+        "source_projection": "local_refinement_registry",
+        "statement": "成立capabilityだけをreleaseし未閉capabilityはdeferredにする"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-AGENT-NEO-SITE-BUILD-RELEASE-P",
+        "MHH-AC-AGENT-NEO-SITE-BUILD-RELEASE-N",
+        "MHH-AC-AGENT-NEO-SITE-BUILD-RELEASE-B"
+      ],
+      "requirement_id": "MHH-REQ-AGENT-NEO-SITE-BUILD-RELEASE",
+      "semantic_digest": "sha256:9878b98db88c79f197240edfdca11c35e40dd265f4d8837b289ee5dac0099618",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: AGENT NEOを使うサイト構築をtheme製品改善から分離して再現可能に受入する\ntasks: 固定SHA能力を棚卸しし、site identity/FSE/template/navigation/pattern/content/SEO/measurement/migrationをFull Vへ降下する\nworkflow: 固定SHA棚卸し→L1-L12/V-pair→対象確定increment→S4→SR0-SR4→site-build closure\nscope_in: site identity / FSE styles / template/navigation/pattern/block / content/media / preview/apply/rollback / SEO/measurement / migration / health/audit\nscope_out: theme/plugin code改善 / 外部repo write / 旧G4 PASSの流用\nprohibitions: サイト構築受入をAGENT NEO製品改善の受入に読み替えない / 未知capabilityを実装者が補完しない\nhuman_judgement: capability閉集合、対象site、公開、migration、rollback、S4はPO\nside_effects: 現段階は要求記録のみ\nevidence: fixed SHA inventory / L1-L12 V-pair / site/revision/principal trace / migration/rollback proof / S4 receipt / SR0-SR4 closure\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "draft",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-AGENT-NEO-SITE-BUILD-RELEASE",
+    "refinement_contract_id": "RRF-AGENT-NEO-SITE-BUILD-RELEASE",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "AGENT-NEO-SITE-BUILD-RELEASE",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:ae0878eee87c966b20dc929229276353357326472a3776e1e79c5ed32b5a6150",
+    "source": {
+      "acceptance_digest": "sha256:e7fd55f1e6864f3868d1bdd760617c4f5994bd45fc42d4f51e7bcfab10aff672",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-AGENT-NEO-SITE-BUILD-RELEASE/acceptance_cases",
+      "requirement_digest": "sha256:9878b98db88c79f197240edfdca11c35e40dd265f4d8837b289ee5dac0099618",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-AGENT-NEO-SITE-BUILD-RELEASE",
+      "source_event_ids": [
+        "RDE-000120",
+        "RDE-000121"
+      ],
+      "source_set_digest": "sha256:1d1aa71656f617e97ddcdac5d03ec2f5b2d1c296f3a39a6670c7f0109b4e436c"
+    },
+    "supporting_requirements": []
+  },
+  "RRF-AUTO-MODE-DECISION-AUTHORITY": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-AUTO-MODE-DECISION-AUTHORITY-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-AUTO-MODE-DECISION-AUTHORITY"
+        ],
+        "semantic_digest": "sha256:ca152596b6c1bf46efb9f3475552041455944d906d0ff0b5b77894f440ad101f",
+        "source_projection": "local_refinement_registry",
+        "statement": "適格性証跡とscope/期限へ束縛したPO enable receiptが両方有効な対象だけ個別承認を省略する"
+      },
+      {
+        "acceptance_id": "MHH-AC-AUTO-MODE-DECISION-AUTHORITY-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-AUTO-MODE-DECISION-AUTHORITY"
+        ],
+        "semantic_digest": "sha256:439e4b66b30bfbe32f80f0d7ed75b4f07515163b2419d9746b9103d5bc01957c",
+        "source_projection": "local_refinement_registry",
+        "statement": "機械適格判定だけ、PO receipt欠落、scope不一致、期限切れ、基準失効、金銭操作では常時承認を要求する"
+      },
+      {
+        "acceptance_id": "MHH-AC-AUTO-MODE-DECISION-AUTHORITY-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-AUTO-MODE-DECISION-AUTHORITY"
+        ],
+        "semantic_digest": "sha256:7877664f0dc5d0aaceb431931cc8f05ecd41fd0dcd90c6e22098156e345684b8",
+        "source_projection": "local_refinement_registry",
+        "statement": "一媒体又は一operationだけのenableを他へ伝播せず、失効検知後の次操作から常時承認へ戻す"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-AUTO-MODE-DECISION-AUTHORITY-P",
+        "MHH-AC-AUTO-MODE-DECISION-AUTHORITY-N",
+        "MHH-AC-AUTO-MODE-DECISION-AUTHORITY-B"
+      ],
+      "requirement_id": "MHH-REQ-AUTO-MODE-DECISION-AUTHORITY",
+      "semantic_digest": "sha256:32c3282dc43db8348b9114f9dc31ca8c3d1784b06a520362a2b71b8a420f9167",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: 基準評価を自動化しつつ公開承認省略の有効化・継続・解除判断をPOに残す\ntasks: 移行基準を評価する / 移行候補を提示する / POがscopeと期限を指定して移行を決定する / 基準を継続監視する / 失効時に常時承認へ戻す\nworkflow: criteria評価→auto_eligible→対象/影響/binding再表示→PO enable decision→期限付きauto mode→継続監視→失効時常時承認へ復帰\nscope_in: auto-mode候補 / 媒体・operation binding / enable/disable decision / 期限・再承認 / criteria失効 / mode遷移証跡\nscope_out: 機械判定だけのmode移行 / 具体UI設計 / 通知transport選定 / 金銭操作の承認省略\nprohibitions: 基準充足を承認とみなさない / PO receiptなしでauto-modeへ移行しない / 別媒体又は別operationへ承認を流用しない / 期限切れ又は基準失効後に公開しない\nhuman_judgement: 有効化・scope・期限・継続・解除の最終判断はPO\nside_effects: 承認されたscopeと期間だけ個別公開承認を省略する / 失効時に常時承認へ復帰する\nevidence: eligibility評価結果 / 候補digest / PO decision receipt / scope/expiry binding / 失効検知 / mode transitionと復帰証跡\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "superseded",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-AUTO-MODE-DECISION-AUTHORITY",
+    "refinement_contract_id": "RRF-AUTO-MODE-DECISION-AUTHORITY",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "AUTO-MODE-DECISION-AUTHORITY",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:d21006ca682b7f66a6ef927fbf99a2c31fd9c1debcafc57ebbbe5a3a5d767a9e",
+    "source": {
+      "acceptance_digest": "sha256:536da1cf2e39baebb2c5432f6c2778262ef895875d61af353588f37cc11c9d4a",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-AUTO-MODE-DECISION-AUTHORITY/acceptance_cases",
+      "requirement_digest": "sha256:32c3282dc43db8348b9114f9dc31ca8c3d1784b06a520362a2b71b8a420f9167",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-AUTO-MODE-DECISION-AUTHORITY",
+      "source_event_ids": [
+        "RDE-000003",
+        "RDE-000017",
+        "RDE-000018",
+        "RDE-000033",
+        "RDE-000034"
+      ],
+      "source_set_digest": "sha256:135e32467cc2937666e53abd78caee61abbf846e427bf70c4495ed800704e4f1"
+    },
+    "supporting_requirements": []
+  },
+  "RRF-AUTOMATED-PUBLISHING-ADMISSION": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-AUTOMATED-PUBLISHING-ADMISSION-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-AUTOMATED-PUBLISHING-ADMISSION"
+        ],
+        "semantic_digest": "sha256:54b8f7dd17c26fbfcaaaa9022b6de0e3494472c5574abcafffa703a5aa9a09dd",
+        "source_projection": "local_refinement_registry",
+        "statement": "approval_waitingをinboxへ記録し、認証済みUIでscope/revision再表示と直前認可後に承認されたscope内でgate合格成果物だけを毎回承認なしで実行する"
+      },
+      {
+        "acceptance_id": "MHH-AC-AUTOMATED-PUBLISHING-ADMISSION-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-AUTOMATED-PUBLISHING-ADMISSION"
+        ],
+        "semantic_digest": "sha256:9d444ea15dfdcc2873a3a57043fc9c2a43e69c6d7da6701cc67a0c926eddae14",
+        "source_projection": "local_refinement_registry",
+        "statement": "inbox操作だけの承認、scope未指定、未承認、scope外、取消、権限喪失、必須risk gate/risk境界/activation policy変更、停止条件成立又はgate不合格の外部writeを拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-AUTOMATED-PUBLISHING-ADMISSION-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-AUTOMATED-PUBLISHING-ADMISSION"
+        ],
+        "semantic_digest": "sha256:ff132e7a86937fe2afc1c8ec850092081892b6e27a8417e7cf9c4c7f0f77d01b",
+        "source_projection": "local_refinement_registry",
+        "statement": "媒体account別又は個別feedbackの下位rule更新は再検査だけ行い、停止後は毎回承認modeへ戻さず対象scopeの明示re-activationまでwriteを停止する"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-AUTOMATED-PUBLISHING-ADMISSION-P",
+        "MHH-AC-AUTOMATED-PUBLISHING-ADMISSION-N",
+        "MHH-AC-AUTOMATED-PUBLISHING-ADMISSION-B"
+      ],
+      "requirement_id": "MHH-REQ-AUTOMATED-PUBLISHING-ADMISSION",
+      "semantic_digest": "sha256:4e3df9a130b8c7b919b6eb5dafe68112d84bfc3210cc1538c991c1db24c74313",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: VPS UIで初回scopeを承認した後も成果物gateを維持して自動運用する\ntasks: activation要求をinboxへ記録する / 認証済みUIでscope/revisionを再表示し直前認可後に承認する / 各成果物のcampaign/funnel role/content purpose/risk/quality admissionを独立検査する / attended-only operationを自動writeから分離する / 取消・権限喪失・必須risk gate集合/risk境界/activation policy変更時にwriteを停止する / 停止後にscopeを再表示してre-activationする\nworkflow: activation要求→inboxへapproval_waiting記録→認証済みUIでscope/revision再表示→直前認可→明示承認→自動運用又はattended-only→成果物別purpose/risk/quality gate→停止条件成立→明示re-activation待ち\nscope_in: profile/media/account/operation単位activation / campaign/funnel role/content purpose/risk binding / attended-only operation / 自動公開admission / 取消・停止・re-activation\nscope_out: 全媒体一括activation / scope未指定activationの既定補完 / 毎回の公開承認 / quality gate省略 / feedback scopeによるwrite activation拡張 / 固定期限の全対象一律強制\nprohibitions: inbox item操作だけでactivationを成立させること / scope未指定のactivation / machine eligibilityだけのactivation / attended-only operationの自動write昇格 / scope外write / activation passによる成果物gate省略 / 不合格成果物公開 / 媒体account別/個別feedback rule更新だけでactivationを停止すること / 停止後に毎回承認modeへ暗黙復帰してwriteを続けること\nhuman_judgement: 初回activation、scope拡張、attended-only個別実行、必須risk gate集合/risk境界/activation policy変更後の再開、取消、停止後re-activationはユーザー\nside_effects: activation scope内かつ成果物gate合格時の自動媒体write / 停止条件成立時の外部write停止\nevidence: inbox approval_waiting receipt / activation decision receipt / scope/revision/fresh authorization binding / campaign/funnel role/content purpose/risk binding / execution mode / gate pass receipt / revocation/stop/re-activation negative test\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "specified",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-AUTOMATED-PUBLISHING-ADMISSION",
+    "refinement_contract_id": "RRF-AUTOMATED-PUBLISHING-ADMISSION",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "AUTOMATED-PUBLISHING-ADMISSION",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:8a1c38b468370d1d545679d1ab0c70754f5aa98a9cebab72914bf7fdb09aee39",
+    "source": {
+      "acceptance_digest": "sha256:34b33354f8bec09b45b36b40482d2b635b3f4811be7832046da9b84a5ecc14d4",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-AUTOMATED-PUBLISHING-ADMISSION/acceptance_cases",
+      "requirement_digest": "sha256:4e3df9a130b8c7b919b6eb5dafe68112d84bfc3210cc1538c991c1db24c74313",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-AUTOMATED-PUBLISHING-ADMISSION",
+      "source_event_ids": [
+        "RDE-000138",
+        "RDE-000144",
+        "RDE-000150",
+        "RDE-000154",
+        "RDE-000155"
+      ],
+      "source_set_digest": "sha256:dec4ed0431d41568987806deb2f5f067d0e6a19f8425862ca0fa49a8ac123b45"
+    },
+    "supporting_requirements": []
+  },
+  "RRF-BUSINESS-PROFILE-AUTHORIZATION": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-BUSINESS-PROFILE-AUTHORIZATION-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-BUSINESS-PROFILE-AUTHORIZATION"
+        ],
+        "semantic_digest": "sha256:98849ae81d0cb8f9450e45f406d49b2b189f3358122bcb6e677127d1a668af04",
+        "source_projection": "local_refinement_registry",
+        "statement": "有効なgrant ID、principal、profile、resource、operation、effect、grant revision、grant semantic digest及びexpiryへexact束縛したoperationだけを許可する"
+      },
+      {
+        "acceptance_id": "MHH-AC-BUSINESS-PROFILE-AUTHORIZATION-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-BUSINESS-PROFILE-AUTHORIZATION"
+        ],
+        "semantic_digest": "sha256:3428c128b658996663be6a0ed005315627ef24f4b210567fb3a49776a05cf3b2",
+        "source_projection": "local_refinement_registry",
+        "statement": "missing/unknown/stale/expired/scope mismatch、暗黙effect escalation、membership/role推論及びcross-profile without explicit grantを拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-BUSINESS-PROFILE-AUTHORIZATION-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-BUSINESS-PROFILE-AUTHORIZATION"
+        ],
+        "semantic_digest": "sha256:1986f4018d78d227e7d5129bf49df873565f5b6a6394e994df9e6ed0c5baccc1",
+        "source_projection": "local_refinement_registry",
+        "statement": "owner移管、delete/transfer、grant revision競合又はmulti-principal移行では旧session/grantを継承せず、製品state/revisionを維持して再認可までfail-closeする"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-BUSINESS-PROFILE-AUTHORIZATION-P",
+        "MHH-AC-BUSINESS-PROFILE-AUTHORIZATION-N",
+        "MHH-AC-BUSINESS-PROFILE-AUTHORIZATION-B"
+      ],
+      "requirement_id": "MHH-REQ-BUSINESS-PROFILE-AUTHORIZATION",
+      "semantic_digest": "sha256:ad26d3f40b9250e77f8e8be1aa3e387f294d170b05d3eef01b91e819c061b87a",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: stable profile IDでprincipal/resource/actionを隔離し越境を防ぐ\ntasks: grant ID/revision/digestとprincipal/profile/resource/operation/effect/expiryを検証して認可又は拒否する / cross-profile、高作用effect及びmulti-principal移行を明示再認可する\nworkflow: authentication/session→explicit grant lookup→revision/expiry/scope/effect検証→operation又はdeny→profile-bound authorization receipt\nscope_in: profile lifecycle / membership/role / resource/action / 横断集約 / 移管/削除 / explicit grant revision/digest/expiry / effect classes list/read/seen/ack/state_write/external_write/money/delete/transfer / deny state invariance\nscope_out: 表示brand名を認可IDとすること / 具体RBAC製品\nprohibitions: 暗黙共有 / 権限合算 / cross-profile write / credential/data/evidence越境 / authentication又はsession成立をauthorizationとみなす / membership又はrole名だけからpermissionを推論する / readからwrite、cross-profile aggregate又は別effectを推論する / delete/transferで暗黙cascade又は旧grant再利用を行う / 将来multi-principal化で既存session/grantを自動継承する\nhuman_judgement: membership、role、横断集約、移管、削除は許可principal\nside_effects: 現段階は要求候補のみ\nevidence: authorization matrix / profile-bound receipt / cross-profile negative case / PO receipt / grant ID/revision/semantic digest/expiry receipt / cross-profile and effect escalation negative tests / denial state/revision invariance / transfer/delete separate transition evidence\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "specified",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-BUSINESS-PROFILE-AUTHORIZATION",
+    "refinement_contract_id": "RRF-BUSINESS-PROFILE-AUTHORIZATION",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "BUSINESS-PROFILE-AUTHORIZATION",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:8d44799d4c0c41d3468a0eedaa25c969b6f6d06278b298efe3301b338c891ff8",
+    "source": {
+      "acceptance_digest": "sha256:0f252a8b9a719488e3e017c0f20a57e2222edaf653725ef0c36041df5ce9c5b4",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-BUSINESS-PROFILE-AUTHORIZATION/acceptance_cases",
+      "requirement_digest": "sha256:ad26d3f40b9250e77f8e8be1aa3e387f294d170b05d3eef01b91e819c061b87a",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-BUSINESS-PROFILE-AUTHORIZATION",
+      "source_event_ids": [
+        "RDE-000130",
+        "RDE-000131",
+        "RDE-000174"
+      ],
+      "source_set_digest": "sha256:641f50ebd5fd6cf680d905c2ed4d3349fc4af5ff74b29546ac8b65ef6bff060a"
+    },
+    "supporting_requirements": []
+  },
+  "RRF-CONTENT-QUALITY-GATE-LEARNING": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-CONTENT-QUALITY-GATE-LEARNING-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-CONTENT-QUALITY-GATE-LEARNING"
+        ],
+        "semantic_digest": "sha256:d169034bba93c84e4ad91baa6a8527e13379e6030a2a1a6580fbb43f1c44e20b",
+        "source_projection": "local_refinement_registry",
+        "statement": "独自価値、claim-source対応及び対象audienceへの有用性を含むgateがartifact/claim、verdict、reason code、rule revisionを記録する。明示scopeがないfeedbackはsource feedbackのmedia_account_idだけへ束縛し、不合格を同一rule revisionで人間確認前に再生成して合格成果物だけを次工程へ進める。retry budgetを使い切っても不合格ならblocked状態とVPS UI内inbox通知を同じsource artifactへ束縛する"
+      },
+      {
+        "acceptance_id": "MHH-AC-CONTENT-QUALITY-GATE-LEARNING-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-CONTENT-QUALITY-GATE-LEARNING"
+        ],
+        "semantic_digest": "sha256:32f98730f00de30ce7c4e0d651164ae9eb90e3f1b155e7e55154952315dec8ed",
+        "source_projection": "local_refinement_registry",
+        "statement": "不合格の正式review、次工程又は公開、retry中のrule自己緩和、scope外rule適用、retry budget未知時の継続、順位操作目的の低価値量産及び非対応媒体の公開済み変更を拒否する。通常retryごとの通知及び通知失敗によるblocked解除も拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-CONTENT-QUALITY-GATE-LEARNING-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-CONTENT-QUALITY-GATE-LEARNING"
+        ],
+        "semantic_digest": "sha256:b80003f61923ea4ccdfa80b8d5bcc90a5600b976de6a9754e18d9372dec61e5b",
+        "source_projection": "local_refinement_registry",
+        "statement": "明示scopeがないfeedbackはsource feedbackのmedia_account_idだけをderived scopeとし、同一媒体の別account、全profile又は全媒体へ拡張しない。retry budget上限到達時は未合格成果物をblockedで停止し、VPS UI内inboxへ一件のdurable eventを記録して診断閲覧を許可する。通知記録失敗でもblockedを維持する。update-in-place能力不明又は非対応なら公開済み成果物へ通知を含め何もしない"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-CONTENT-QUALITY-GATE-LEARNING-P",
+        "MHH-AC-CONTENT-QUALITY-GATE-LEARNING-N",
+        "MHH-AC-CONTENT-QUALITY-GATE-LEARNING-B"
+      ],
+      "requirement_id": "MHH-REQ-CONTENT-QUALITY-GATE-LEARNING",
+      "semantic_digest": "sha256:1c6e925b3a6b05f5ce4671469b53b18a6598191d550560da79df5502fbdf3721",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: 不合格成果物を人間へ流さずfeedbackを再利用可能なruleへ変えて、人に有用で独自性と根拠のある品質を継続改善する\ntasks: 成果物を検査する / 機械可読なverdictとreason codeを記録する / retry系列中のrule revisionを凍結する / 外部設定された回数・時間・費用上限内で不合格を自動修正又は再生成する / 解消不能時は正式な人間確認又は次工程へ送らずblockedで停止する / feedbackをscope付きruleへ変換する / 明示scopeがないfeedbackはsource feedbackのmedia_account_idを既定scopeとして導出する / 対象成果物を再検査する / 独自価値とclaim-source対応を検査する / retry budgetを使い切ってblockedになった場合だけVPS UI内inboxへ通知eventを記録する\nworkflow: 生成→gate→不合格時同一rule revisionで修正/再生成→再検査→合格時のみ次工程／上限到達時blocked＋UI inbox通知→feedback rule化→明示scope又はsource feedbackのmedia_account_idへ束縛→新gate実行→対象再検査\nscope_in: 禁止語 / 表現 / 形式/型 / 根拠 / 対象audienceへの有用性 / 独自research/分析/経験 / claim-source対応と鮮度 / 誇張しない見出し / structured feedback / source feedbackから導出したmedia account scope / rule revision / version付きretry budget / 停止成果物と証跡の診断閲覧 / 未公開成果物再検査 / retry exhaustion時のVPS UI内inbox通知\nscope_out: 製品codeへのrule hard-code / 非対応媒体の公開済み成果物変更 / 通常の不合格retryごとの通知\nprohibitions: 不合格成果物の人間reviewへの正式投入、次工程投入又は公開 / retry中のrule自己緩和 / 無限再生成 / retry budget未知時の実行継続 / scope未指定feedbackの全体適用 / feedback scopeによるwrite activation拡張 / 順位操作目的の大量生成 / query variationごとの低価値量産 / 付加価値のないsource要約 / retry exhaustion前の人間通知 / inbox記録失敗によるblocked状態のrollback\nhuman_judgement: feedback内容と明示scopeはユーザー。明示scopeがない場合はsource feedbackに束縛されたmedia_account_idだけを機械的に既定scopeとする。risk必須ruleを最優先し、媒体account rule、個別feedbackの順で合成する。risk境界内の通常rule更新はAI。ただしretry中の成果物には新ruleを遡及しない\nside_effects: 対応媒体のgate合格済み公開成果物へのupdate-in-place / retry exhaustion時のVPS UI内inbox event記録\nevidence: artifact/claim-bound verdict / reason code / applied rule revision / rule revision / fixture / gate result / regeneration history / retry count/time/cost budget / retry exhaustion/stop receipt / source feedback IDとderived media_account_id scope evidence / claim-source map / originality/value assessment / scope-bound update receipt / source:https://developers.google.com/search/docs/fundamentals/creating-helpful-content / source:https://developers.google.com/search/docs/fundamentals/ai-optimization-guide / blocked source stateと通知IDのbinding / retry exhaustion inbox recorded/failed receipt\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "specified",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-CONTENT-QUALITY-GATE-LEARNING",
+    "refinement_contract_id": "RRF-CONTENT-QUALITY-GATE-LEARNING",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "CONTENT-QUALITY-GATE-LEARNING",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:843ee2aa0a6921e0eacf89b5e7edcc9b8d9a2ca3bc4e2d7bf2f301bd5fbe1d2d",
+    "source": {
+      "acceptance_digest": "sha256:7c1bb6e3ce0a71a152cff075312ab33bf1c3ed164b1dff02d8b53e72f29ab435",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-CONTENT-QUALITY-GATE-LEARNING/acceptance_cases",
+      "requirement_digest": "sha256:1c6e925b3a6b05f5ce4671469b53b18a6598191d550560da79df5502fbdf3721",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-CONTENT-QUALITY-GATE-LEARNING",
+      "source_event_ids": [
+        "RDE-000139",
+        "RDE-000145",
+        "RDE-000151",
+        "RDE-000163",
+        "RDE-000164"
+      ],
+      "source_set_digest": "sha256:6aef7ce740d55f5c11c73ac18f6a5a82c088142d13fa7841fb04ee8eabeb9a78"
+    },
+    "supporting_requirements": []
+  },
+  "RRF-CONTENT-RISK-CLASSIFICATION": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-CONTENT-RISK-CLASSIFICATION-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-CONTENT-RISK-CLASSIFICATION"
+        ],
+        "semantic_digest": "sha256:1d23928d5572bb7ed6bcf6a742c3e1612dda601ffd07dfff108c81a66669e3c4",
+        "source_projection": "local_refinement_registry",
+        "statement": "claimへrisk class、確信度又は不確実性、根拠及びgate-set revisionを束縛し、必須gateと個別好みを合成して検査する"
+      },
+      {
+        "acceptance_id": "MHH-AC-CONTENT-RISK-CLASSIFICATION-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-CONTENT-RISK-CLASSIFICATION"
+        ],
+        "semantic_digest": "sha256:3fc80d80cc7cc2228bfbefb7bcae1c7e08b4f8df9ad8ba33d7b66ca92cca71fc",
+        "source_projection": "local_refinement_registry",
+        "statement": "好み、feedback又はKPIでYMYL等の必須gateを弱めること及びrisk情報欠落の成果物を正式review、次工程又は公開へ進めることを拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-CONTENT-RISK-CLASSIFICATION-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-CONTENT-RISK-CLASSIFICATION"
+        ],
+        "semantic_digest": "sha256:6c049a26b6c096bdf1fb234a4e8cdcd7fb97c934ee6e05bac021f0317638131b",
+        "source_projection": "local_refinement_registry",
+        "statement": "risk分類が欠落又は不確実なら全影響軸のYMYL相当を含む最高厳格度で扱い、診断閲覧だけ許可して再調査又は分類解決後の再検査まで停止する"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-CONTENT-RISK-CLASSIFICATION-P",
+        "MHH-AC-CONTENT-RISK-CLASSIFICATION-N",
+        "MHH-AC-CONTENT-RISK-CLASSIFICATION-B"
+      ],
+      "requirement_id": "MHH-REQ-CONTENT-RISK-CLASSIFICATION",
+      "semantic_digest": "sha256:4ba4a208fcc0dcdcd551be40c81eadc31b75f311fa8274f8d8dfe66b20b88c49",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: case-by-caseの好みを反映しつつ、人の健康、金融上の安定、安全又は社会の福祉に影響するYMYL相当contentを厳格に扱う\ntasks: content/claimをrisk分類する / risk class、確信度又は不確実性、根拠及びgate-set revisionを束縛する / 健康・金融安定・安全・社会的福祉への影響を評価する / 必須gateを選ぶ / 個別の好みruleを合成する / 分類と検査根拠を保存する\nworkflow: content/claim抽出→影響軸別risk分類→分類完全性確認→必須gate→好みrule合成→検査→evidence\nscope_in: content/claim risk / risk confidence/uncertainty / 健康 / 金融上の安定 / 安全 / 社会の福祉/well-being / YMYL / 根拠/鮮度/経験/専門性/表現/safety gate / case-by-case preference / 停止成果物と分類証跡の診断閲覧 / version付きconfidence rule\nscope_out: ブランド一律risk固定 / 好みによる最低基準緩和 / 要件へ埋め込む固定confidence閾値\nprohibitions: feedback又は成長KPIによる必須risk gate迂回 / risk class又は分類根拠欠落時の正式review、次工程又は公開 / 不確実時に低riskへ推測しない\nhuman_judgement: ユーザーは案件、成果物又はclaimごとの好みを指定できる\nside_effects: 適用gate集合とcontent可否の変更\nevidence: risk class/confidence binding / classification rationale / impact-axis assessment / gate-set revision / rule composition / risk gate result / uncertainty negative test / source:https://developers.google.com/search/docs/fundamentals/creating-helpful-content\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "specified",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-CONTENT-RISK-CLASSIFICATION",
+    "refinement_contract_id": "RRF-CONTENT-RISK-CLASSIFICATION",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "CONTENT-RISK-CLASSIFICATION",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:e447afea559f8dca57f899687a2873a3e6509515037c405a5b6cbf9801ea9c90",
+    "source": {
+      "acceptance_digest": "sha256:5386df0dbc2672f3e38874f8a635f209cb4395ca7e331af8020db5abc02c2d06",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-CONTENT-RISK-CLASSIFICATION/acceptance_cases",
+      "requirement_digest": "sha256:4ba4a208fcc0dcdcd551be40c81eadc31b75f311fa8274f8d8dfe66b20b88c49",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-CONTENT-RISK-CLASSIFICATION",
+      "source_event_ids": [
+        "RDE-000140",
+        "RDE-000146",
+        "RDE-000152"
+      ],
+      "source_set_digest": "sha256:40a05a0f0df992c02631444367020237916a95c16bace184727b8a174f252c98"
+    },
+    "supporting_requirements": []
+  },
+  "RRF-CONTRACT-SEMANTIC-DESCENT-V2": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-CONTRACT-SEMANTIC-DESCENT-V2-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-CONTRACT-SEMANTIC-DESCENT-V2"
+        ],
+        "semantic_digest": "sha256:59f8b3f1d9564ab5c240a6aefe95d87e67b005ddd867e9d1c63be2af0688f379",
+        "source_projection": "local_refinement_registry",
+        "statement": "直接必須軸と選択親句digest、delta、owner、evidenceが閉じ、安全/HJ/prohibitionを弱化しない下位契約だけを次工程へ進める"
+      },
+      {
+        "acceptance_id": "MHH-AC-CONTRACT-SEMANTIC-DESCENT-V2-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-CONTRACT-SEMANTIC-DESCENT-V2"
+        ],
+        "semantic_digest": "sha256:5258c955857cb9a65a06cb4031cbc8aa9795977e9f363b65b6141dddfffdb691",
+        "source_projection": "local_refinement_registry",
+        "statement": "stale digest、暗黙union、安全弱化、旧方式再混入、高作用の継承のみ又はcycleを拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-CONTRACT-SEMANTIC-DESCENT-V2-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-CONTRACT-SEMANTIC-DESCENT-V2"
+        ],
+        "semantic_digest": "sha256:f97c5570f4d6cc084fc770a766b6e9c5cc0e3bdad2bc37144f587d75a2816efb",
+        "source_projection": "local_refinement_registry",
+        "statement": "親意味が未classified、cutover blocked又は競合未処置なら子をdeferredとしclassifiedへ昇格しない"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-CONTRACT-SEMANTIC-DESCENT-V2-P",
+        "MHH-AC-CONTRACT-SEMANTIC-DESCENT-V2-N",
+        "MHH-AC-CONTRACT-SEMANTIC-DESCENT-V2-B"
+      ],
+      "requirement_id": "MHH-REQ-CONTRACT-SEMANTIC-DESCENT-V2",
+      "semantic_digest": "sha256:b1fe074d7bbcc73d48f1d2f7e0683e4ee5b3a19a8e67ea6fbf62f864cffdd2e3",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: 要求からAC/TCまで意味軸・scope・PO判断receiptを型付きで閉じる\ntasks: 直接必須fieldを決める / 継承可能/禁止fieldを決める / 14 HJ経路をreceiptへ降下する / mutationで欠落を拒否する / 下位契約の直接必須軸と選択句digest継承を分離する / multi-parentの選択句exact unionと競合処遇を検証する / 安全/HJ/prohibitionの非弱化と旧方式非継承を検証する\nworkflow: BR意味→REQ正規化→FR/SR/NFR/MR/FN降下→AC/TC反証→PO receipt検査\nscope_in: actor / beneficiary / value / workflow / scope / prohibition / human judgement / side effect / evidence / phase / decision receipt / stable child/parent clause ID / parent semantic digest / explicit delta / conflict disposition / direct/inherited/replaced/deferred partition\nscope_out: target IDをbusiness scopeとみなすこと / agent審査をPO判断とみなすこと\nprohibitions: 欠落fieldを実装者が推測しない / 機械判定でPO decisionを代替しない / multi-parentを暗黙unionする / safety/prohibition/human judgementを子で削除又は弱化する / provider/runtime/route/storage/fixture/mock/固定閾値/旧phase/旧通知承認transportをpositive継承する / 高作用契約のactor/scope/HJ/effect/evidence/phaseをfully inherited又は空にする\nhuman_judgement: 意味fieldの継承可否と各PO判断点はPOが凍結\nside_effects: 現段階は要求契約の候補化のみ\nevidence: schema / 継承mapping / 14 HJ経路のreceipt AC/TC / negative mutation / PO receipt / ID×clause disposition exact partition / parent clause/semantic digestとdelta / conflict/cycle/stale digest mutation / 高作用direct dimension negative test\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "specified",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-CONTRACT-SEMANTIC-DESCENT-V2",
+    "refinement_contract_id": "RRF-CONTRACT-SEMANTIC-DESCENT-V2",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "CONTRACT-SEMANTIC-DESCENT-V2",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:80a30d17d88e78ac64536895bc3bfb524ca615b487e73acbec07e8c0055647b0",
+    "source": {
+      "acceptance_digest": "sha256:86c3ce047c2a48342d6cb93aa35b4a48062d470782cf958e1b3a3a42fa271263",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-CONTRACT-SEMANTIC-DESCENT-V2/acceptance_cases",
+      "requirement_digest": "sha256:b1fe074d7bbcc73d48f1d2f7e0683e4ee5b3a19a8e67ea6fbf62f864cffdd2e3",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-CONTRACT-SEMANTIC-DESCENT-V2",
+      "source_event_ids": [
+        "RDE-000103",
+        "RDE-000104",
+        "RDE-000170"
+      ],
+      "source_set_digest": "sha256:00df05016e115d8ca046a89f3c233cde5733b94f6561ccea3921e1e3fd2ef7c1"
+    },
+    "supporting_requirements": []
+  },
+  "RRF-DISCORD-COMMUNITY-MARKETING-ROUTE": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-DISCORD-COMMUNITY-MARKETING-ROUTE-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-DISCORD-COMMUNITY-MARKETING-ROUTE"
+        ],
+        "semantic_digest": "sha256:bf9166a0e4be19ffad8321823ebdb65edda2ff058aed888a6163b83e5b756f3e",
+        "source_projection": "local_refinement_registry",
+        "statement": "Botと許可guild/channel/operationを束縛してcommunity operationを記録する"
+      },
+      {
+        "acceptance_id": "MHH-AC-DISCORD-COMMUNITY-MARKETING-ROUTE-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-DISCORD-COMMUNITY-MARKETING-ROUTE"
+        ],
+        "semantic_digest": "sha256:4956082ee182bb3ec3111ed80f6d131210ce60826d3b78dfcf2e4f7bc1a1beaa",
+        "source_projection": "local_refinement_registry",
+        "statement": "通知用途への送信、self-bot、個人account操作及び用途間credential共有を拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-DISCORD-COMMUNITY-MARKETING-ROUTE-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-DISCORD-COMMUNITY-MARKETING-ROUTE"
+        ],
+        "semantic_digest": "sha256:68ce3079375df905c408399ed9fd419d7b02dd0837adf4ea05874b24ff074040",
+        "source_projection": "local_refinement_registry",
+        "statement": "guild/channel/operation又はmoderation境界が不明なら当該operationを実行しない"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-DISCORD-COMMUNITY-MARKETING-ROUTE-P",
+        "MHH-AC-DISCORD-COMMUNITY-MARKETING-ROUTE-N",
+        "MHH-AC-DISCORD-COMMUNITY-MARKETING-ROUTE-B"
+      ],
+      "requirement_id": "MHH-REQ-DISCORD-COMMUNITY-MARKETING-ROUTE",
+      "semantic_digest": "sha256:70c0b5ab8cf5b8a163454726f2b18a0e4d4db23eeff4974409ae260358d81134",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: Discordを製品通知から分離したcommunity marketing媒体として利用する\ntasks: community contentを投稿する / 応答とmoderationを行う / 反応を計測する\nworkflow: community企画→quality/risk gate→Bot operation→反応取得→KPI還流\nscope_in: community投稿 / 応答 / moderation / 計測\nscope_out: 製品承認通知 / 運用通知 / 開発PR通知\nprohibitions: self-bot / 個人user account無人操作 / 通知credential又はchannel共有\nhuman_judgement: community方針とmoderation境界は媒体account所有者\nside_effects: Discord communityへの許可投稿又は応答\nevidence: purpose-specific route / Bot/account/guild/channel binding / operation receipt / cross-purpose negative test\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "specified",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-DISCORD-COMMUNITY-MARKETING-ROUTE",
+    "refinement_contract_id": "RRF-DISCORD-COMMUNITY-MARKETING-ROUTE",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "DISCORD-COMMUNITY-MARKETING-ROUTE",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:71ea957910a534a6331e6808b4abee9ed3f5b349ab157571fb06e6d79bd807d2",
+    "source": {
+      "acceptance_digest": "sha256:0df69b460d2ab697c88f69f83727305b8b919508beab2dddaa9bb3bcda73593d",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-DISCORD-COMMUNITY-MARKETING-ROUTE/acceptance_cases",
+      "requirement_digest": "sha256:70c0b5ab8cf5b8a163454726f2b18a0e4d4db23eeff4974409ae260358d81134",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-DISCORD-COMMUNITY-MARKETING-ROUTE",
+      "source_event_ids": [
+        "RDE-000137",
+        "RDE-000143",
+        "RDE-000149"
+      ],
+      "source_set_digest": "sha256:b21e9fa1019bac42db987b192051e8c03a246620cf378fabe81f638ec6e9f7fb"
+    },
+    "supporting_requirements": []
+  },
+  "RRF-DISCORD-MULTI-PURPOSE-BOUNDARIES": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-DISCORD-MULTI-PURPOSE-BOUNDARIES-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-DISCORD-MULTI-PURPOSE-BOUNDARIES"
+        ],
+        "semantic_digest": "sha256:6db3026b864e770304238bc969c1878c902096241aa51f0db39ef52d142a4d0e",
+        "source_projection": "local_refinement_registry",
+        "statement": "旧候補を現行入力から除外し、通知拒否とcommunity媒体を別subjectへ一意に引き渡す"
+      },
+      {
+        "acceptance_id": "MHH-AC-DISCORD-MULTI-PURPOSE-BOUNDARIES-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-DISCORD-MULTI-PURPOSE-BOUNDARIES"
+        ],
+        "semantic_digest": "sha256:2f000f6f86a2a1bdeae9cb534def92ad9fb05b54f87c7f89fbea9f3611f118db",
+        "source_projection": "local_refinement_registry",
+        "statement": "旧候補による通知route再開、community実行許可、credential共有及びself-botを拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-DISCORD-MULTI-PURPOSE-BOUNDARIES-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-DISCORD-MULTI-PURPOSE-BOUNDARIES"
+        ],
+        "semantic_digest": "sha256:c6d61f30d099adde7fd8cab35bccc2817c9b9c9e428d9c6538241ff6345e200f",
+        "source_projection": "local_refinement_registry",
+        "statement": "旧候補を参照した全外部送信を拒否し、再開条件を生成しない"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-DISCORD-MULTI-PURPOSE-BOUNDARIES-P",
+        "MHH-AC-DISCORD-MULTI-PURPOSE-BOUNDARIES-N",
+        "MHH-AC-DISCORD-MULTI-PURPOSE-BOUNDARIES-B"
+      ],
+      "requirement_id": "MHH-REQ-DISCORD-MULTI-PURPOSE-BOUNDARIES",
+      "semantic_digest": "sha256:73e6cea0dff4bfd4f20372fa10ca44db500318eaa7a6dae4e69e7419763affd7",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: 旧Discord複数用途候補を現要求へ継承せず、通知不採用とcommunity媒体を別の現行subjectへ移す\ntasks: 旧候補の再開導線を閉じる / 通知拒否とcommunity媒体を別subjectへ引き渡す\nworkflow: 旧候補識別→通知route拒否→DISCORD-NOTIFICATION-REJECTION-BOUNDARYへ移管→community要件はDISCORD-COMMUNITY-MARKETING-ROUTEへ移管\nscope_in: 旧Discord承認通知候補 / 旧Discord運用通知候補 / 旧Discord deep-link候補 / 旧Discord媒体候補\nscope_out: 現行通知要求の所有 / 現行community媒体要求の所有 / 設計又は実装\nprohibitions: 旧候補からDiscord通知adapterを再開しない / 旧候補をcommunity媒体の実行許可にしない / 個人user accountを無人操作しない\nhuman_judgement: PO回答RDE-000158により通知routeは不採用。community媒体は別subjectで判断する\nside_effects: なし。旧候補はsupersededであり外部送信を許可しない\nevidence: supersession evidence / 通知route拒否negative test / community subject分離test\nphase: requirements_history"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "superseded",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-DISCORD-MULTI-PURPOSE-BOUNDARIES",
+    "refinement_contract_id": "RRF-DISCORD-MULTI-PURPOSE-BOUNDARIES",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "DISCORD-MULTI-PURPOSE-BOUNDARIES",
+    "revision": 2,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:db197aa61cf6ed48dc4668cfc364f66b046b533fc802ecf817b6793379917a8f",
+    "source": {
+      "acceptance_digest": "sha256:1d8ee2cc4c908dd74719e99cf37a13cb6ea257bbc42bf8b0485fe2d1df4d1dc1",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-DISCORD-MULTI-PURPOSE-BOUNDARIES/acceptance_cases",
+      "requirement_digest": "sha256:73e6cea0dff4bfd4f20372fa10ca44db500318eaa7a6dae4e69e7419763affd7",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-DISCORD-MULTI-PURPOSE-BOUNDARIES",
+      "source_event_ids": [
+        "RDE-000005",
+        "RDE-000022",
+        "RDE-000023",
+        "RDE-000041",
+        "RDE-000042",
+        "RDE-000052",
+        "RDE-000060",
+        "RDE-000068"
+      ],
+      "source_set_digest": "sha256:bae5f7293d63d61f2d2d67af402828e9465b21ff6d8e558bfaf2b277ccf0b6b5"
+    },
+    "supporting_requirements": []
+  },
+  "RRF-DISCORD-NOTIFICATION-REJECTION-BOUNDARY": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-DISCORD-NOTIFICATION-REJECTION-BOUNDARY-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-DISCORD-NOTIFICATION-REJECTION-BOUNDARY"
+        ],
+        "semantic_digest": "sha256:29a3f88fe9792c07241f26e8708732916a20ba948e15561ccbe63fb689884557",
+        "source_projection": "local_refinement_registry",
+        "statement": "製品通知をVPS UI inboxに限定しDiscordへ送信しない"
+      },
+      {
+        "acceptance_id": "MHH-AC-DISCORD-NOTIFICATION-REJECTION-BOUNDARY-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-DISCORD-NOTIFICATION-REJECTION-BOUNDARY"
+        ],
+        "semantic_digest": "sha256:84a80f0cde24c6e240b05181d9e0e236aae2b030a6efe564e16cde8a0e23c087",
+        "source_projection": "local_refinement_registry",
+        "statement": "承認通知、運用通知、deep-link補助又は開発PR通知のDiscord routeとcommunity credential共有を拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-DISCORD-NOTIFICATION-REJECTION-BOUNDARY-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-DISCORD-NOTIFICATION-REJECTION-BOUNDARY"
+        ],
+        "semantic_digest": "sha256:2c31a0c428fdc84778584ada877d6b3fd3457a11dfc5d353c38cefbb5acafb0d",
+        "source_projection": "local_refinement_registry",
+        "statement": "未知purpose又はDiscord通知routeが指定された場合は送信せず、再開条件を生成しない"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-DISCORD-NOTIFICATION-REJECTION-BOUNDARY-P",
+        "MHH-AC-DISCORD-NOTIFICATION-REJECTION-BOUNDARY-N",
+        "MHH-AC-DISCORD-NOTIFICATION-REJECTION-BOUNDARY-B"
+      ],
+      "requirement_id": "MHH-REQ-DISCORD-NOTIFICATION-REJECTION-BOUNDARY",
+      "semantic_digest": "sha256:9eaf6bb8e88b9ef540c8e0d26ba71ecff670cb0e38f05ce74397722b0ec7d88b",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: Discord community marketingと製品通知・開発PR通知を恒久分離する\ntasks: 通知purposeを判定する / Discord通知routeを不採用として拒否する / community capabilityとのcross-purpose利用を拒否する\nworkflow: 通知要求→purpose判定→Discord route拒否→VPS UI inboxに限定\nscope_in: 承認通知 / 運用通知 / deep-link補助 / 開発PR通知との分離\nscope_out: Discord community marketing operation\nprohibitions: Discord通知adapterの再開 / 通知routeのdeferred化 / community credential/account/channel/evidenceの通知流用\nhuman_judgement: Discord通知不採用はPO決定。community方針は別media capabilityで判断する\nside_effects: Discord通知送信なし\nevidence: notification route rejection receipt / community/notification cross-purpose negative test / PO回答source\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "specified",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-DISCORD-NOTIFICATION-REJECTION-BOUNDARY",
+    "refinement_contract_id": "RRF-DISCORD-NOTIFICATION-REJECTION-BOUNDARY",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "DISCORD-NOTIFICATION-REJECTION-BOUNDARY",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:0e94c5204a7a9c98a282dd3bd9dca92f9c753e0697fa55ef55ab194b2a32b318",
+    "source": {
+      "acceptance_digest": "sha256:49f5b90e95c2bf4fe3e4185f79c3432f898eac299191ec5b237be2a8d41ebf43",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-DISCORD-NOTIFICATION-REJECTION-BOUNDARY/acceptance_cases",
+      "requirement_digest": "sha256:9eaf6bb8e88b9ef540c8e0d26ba71ecff670cb0e38f05ce74397722b0ec7d88b",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-DISCORD-NOTIFICATION-REJECTION-BOUNDARY",
+      "source_event_ids": [
+        "RDE-000156",
+        "RDE-000157",
+        "RDE-000158"
+      ],
+      "source_set_digest": "sha256:7f02f2f9cf1b65ad4a15a874b38f8fe929668d66d88edd624732883e8a611b9a"
+    },
+    "supporting_requirements": []
+  },
+  "RRF-EXTERNAL-BROWSER-AUTOMATION-ROUTE": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-EXTERNAL-BROWSER-AUTOMATION-ROUTE-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-EXTERNAL-BROWSER-AUTOMATION-ROUTE"
+        ],
+        "semantic_digest": "sha256:0547b85f801e2126d8bb065e9cdeb1ddfb0c27c06b2ae4453075520229b7cfe2",
+        "source_projection": "local_refinement_registry",
+        "statement": "公式API/MCPを優先し、最小credential又はallow-list、実行前plan、実行後receiptで強制された許可operationだけPlaywright fallback又は確認を実行する"
+      },
+      {
+        "acceptance_id": "MHH-AC-EXTERNAL-BROWSER-AUTOMATION-ROUTE-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-EXTERNAL-BROWSER-AUTOMATION-ROUTE"
+        ],
+        "semantic_digest": "sha256:994df01d811f3194fa8d21be0709218876cc0a739eb7f5e32c65724389bf6fad",
+        "source_projection": "local_refinement_registry",
+        "statement": "route、principal、effect、credential能力、read resource scope、operation強制又は規約境界が未確定のbrowser操作を拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-EXTERNAL-BROWSER-AUTOMATION-ROUTE-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-EXTERNAL-BROWSER-AUTOMATION-ROUTE"
+        ],
+        "semantic_digest": "sha256:ef650d7572a9c7f6456b95c990273832cf7619fd87611c6f8c678eb12dd35c38",
+        "source_projection": "local_refinement_registry",
+        "statement": "媒体credentialが広く製品側でもoperation境界を強制できないwriteは自動実行せずattended-only又はdeferredを維持する"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-EXTERNAL-BROWSER-AUTOMATION-ROUTE-P",
+        "MHH-AC-EXTERNAL-BROWSER-AUTOMATION-ROUTE-N",
+        "MHH-AC-EXTERNAL-BROWSER-AUTOMATION-ROUTE-B"
+      ],
+      "requirement_id": "MHH-REQ-EXTERNAL-BROWSER-AUTOMATION-ROUTE",
+      "semantic_digest": "sha256:656e7c8cab8e861e8c0cc39f2633f2f59605471734441a9fb7f41a127d6fc5d8",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: 公式経路を優先しつつ必要なPlaywright automationとbrowser確認をoperation単位で安全に使う\ntasks: 公式API/MCP能力を判定する / credential能力と製品側operation強制を判定する / 許可時だけPlaywright fallback又は確認を行う\nworkflow: operation要求→API/MCP確認→credential/operation allow-list確認→実行前plan検査→route許可判定→実行→receipt照合→browser確認\nscope_in: 公式API / 公式MCP / Playwright fallback / 登録済みaccount/operation/resourceのbrowser結果確認 / operation allow-list\nscope_out: 他browser engine / 経路不明operation\nprohibitions: 媒体全体へのbrowser write一括許可 / allow-list外browser read / 利用規約又はcredential境界の推測 / 製品側でoperation境界を強制できない無人browser write\nhuman_judgement: write routeの採用と残余riskは対象登録時の許可主体\nside_effects: 許可された媒体read又はwrite\nevidence: route decision / principal/effect binding / credential capability / execution plan / operation enforcement receipt / execution/confirmation receipt / negative route test\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "specified",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-EXTERNAL-BROWSER-AUTOMATION-ROUTE",
+    "refinement_contract_id": "RRF-EXTERNAL-BROWSER-AUTOMATION-ROUTE",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "EXTERNAL-BROWSER-AUTOMATION-ROUTE",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:799c63b17932cd92b2560388e47aecae7875a4a29e14a3ab48df16258d570553",
+    "source": {
+      "acceptance_digest": "sha256:f8c224426e481592ae1678a4c985694bec82821b9d2aa647c7d80af3eeb7dcf9",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-EXTERNAL-BROWSER-AUTOMATION-ROUTE/acceptance_cases",
+      "requirement_digest": "sha256:656e7c8cab8e861e8c0cc39f2633f2f59605471734441a9fb7f41a127d6fc5d8",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-EXTERNAL-BROWSER-AUTOMATION-ROUTE",
+      "source_event_ids": [
+        "RDE-000136",
+        "RDE-000142",
+        "RDE-000148"
+      ],
+      "source_set_digest": "sha256:c7b1dfd68b4ded66696110fe9c5fcccb4f9afa61eecfc5a1d2c9308f6eccebd6"
+    },
+    "supporting_requirements": []
+  },
+  "RRF-FR-16-NOTIFICATION-BOUNDARY": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-FR-16-NOTIFICATION-BOUNDARY-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-FR-16-NOTIFICATION-BOUNDARY"
+        ],
+        "semantic_digest": "sha256:e10bb121a074acddc44eeed50c08c19369c49cf4a09169532add21aef3efc7ef",
+        "source_projection": "local_refinement_registry",
+        "statement": "異常時に停止を先に永続化しUI内inbox記録attemptと記録結果を別証跡化する"
+      },
+      {
+        "acceptance_id": "MHH-AC-FR-16-NOTIFICATION-BOUNDARY-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-FR-16-NOTIFICATION-BOUNDARY"
+        ],
+        "semantic_digest": "sha256:54af47f62b86888c50e346c9757b6544a5419606d5a834d85e2e0d19bde5bfcd",
+        "source_projection": "local_refinement_registry",
+        "statement": "inbox書込み失敗でも停止状態をrollbackせずfailed receiptを残す"
+      },
+      {
+        "acceptance_id": "MHH-AC-FR-16-NOTIFICATION-BOUNDARY-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-FR-16-NOTIFICATION-BOUNDARY"
+        ],
+        "semantic_digest": "sha256:5203815402120f15af22a149d474b485d6d2bf6ba28d35dd149e5150004f7208",
+        "source_projection": "local_refinement_registry",
+        "statement": "重複event・retry上限・再開判断待ちで二重通知や自動再開を起こさない"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-FR-16-NOTIFICATION-BOUNDARY-P",
+        "MHH-AC-FR-16-NOTIFICATION-BOUNDARY-N",
+        "MHH-AC-FR-16-NOTIFICATION-BOUNDARY-B"
+      ],
+      "requirement_id": "MHH-REQ-FR-16-NOTIFICATION-BOUNDARY",
+      "semantic_digest": "sha256:fa328819de985985217c8b7268ee67b0fb1c725e7437b19c3dde8dc6498e0b2d",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: 安全停止を通知障害から独立させつつUI内で異常を見逃さない\ntasks: 異常時に安全停止する / 通知attemptをinboxへ記録する / 再開/中止を判断する\nworkflow: 異常検知→安全停止永続化→inbox記録attempt→recorded/failed/retry_exhausted永続化→PO判断\nscope_in: 安全停止 / UI内operational inbox / 記録成功/失敗/retry exhaustion receipt\nscope_out: 投稿可否承認 / 外部通知adapter配送 / Discord送信 / 媒体投稿 / 開発PR通知\nprohibitions: 通知記録失敗で停止をrollbackしない / 通知からapprove/rejectを導出しない / inbox記録と外部配送を同じ結果軸にしない\nhuman_judgement: 停止後の再開又は中止はPO\nside_effects: 製品状態の停止 / UI内通知行の追加\nevidence: 停止遷移 / inbox記録attempt/recorded/failed/retry/retry_exhausted receipt\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "specified",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-FR-16-NOTIFICATION-BOUNDARY",
+    "refinement_contract_id": "RRF-FR-16-NOTIFICATION-BOUNDARY",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "FR-16-NOTIFICATION-BOUNDARY",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:6d8ee7851bf5b11bb713b479877f1c3fef0752963b87ca490b9cbe4cf47622f5",
+    "source": {
+      "acceptance_digest": "sha256:b1944dca1657a3cbc8cbb68078a9de110a023e909c0b29833c36f1dcad6a7f7a",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-FR-16-NOTIFICATION-BOUNDARY/acceptance_cases",
+      "requirement_digest": "sha256:fa328819de985985217c8b7268ee67b0fb1c725e7437b19c3dde8dc6498e0b2d",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-FR-16-NOTIFICATION-BOUNDARY",
+      "source_event_ids": [
+        "RDE-000002",
+        "RDE-000015",
+        "RDE-000016",
+        "RDE-000036",
+        "RDE-000037"
+      ],
+      "source_set_digest": "sha256:e567043a36df4e302e0f280eca87d58d9c4a302daabf789d2ceb80063ae2a33d"
+    },
+    "supporting_requirements": []
+  },
+  "RRF-FR-SLICE-AUTHORITY-ALIGNMENT": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-FR-SLICE-AUTHORITY-ALIGNMENT-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-FR-SLICE-AUTHORITY-ALIGNMENT"
+        ],
+        "semantic_digest": "sha256:00df483314b3abb2d837f4354995688f688c3a7ef50406897e040f56584b4843",
+        "source_projection": "local_refinement_registry",
+        "statement": "意味軸・根拠・許可境界を満たす対象だけを次工程へ進める"
+      },
+      {
+        "acceptance_id": "MHH-AC-FR-SLICE-AUTHORITY-ALIGNMENT-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-FR-SLICE-AUTHORITY-ALIGNMENT"
+        ],
+        "semantic_digest": "sha256:473f2a5f135df761c2b4c1b801a85cfb6dd34c676e7ad05ab43d876b86e13b2f",
+        "source_projection": "local_refinement_registry",
+        "statement": "未回答・未許可・意味trace欠落又は証跡不足をfail-closeで拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-FR-SLICE-AUTHORITY-ALIGNMENT-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-FR-SLICE-AUTHORITY-ALIGNMENT"
+        ],
+        "semantic_digest": "sha256:dfdafa56c096f9231d7caa385b4d0270b8fd13d1a87614e7bf36715c24c9d6f3",
+        "source_projection": "local_refinement_registry",
+        "statement": "一部だけ成立する場合は責務を分割又はdeferred/pivotし全体成立に読み替えない"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-FR-SLICE-AUTHORITY-ALIGNMENT-P",
+        "MHH-AC-FR-SLICE-AUTHORITY-ALIGNMENT-N",
+        "MHH-AC-FR-SLICE-AUTHORITY-ALIGNMENT-B"
+      ],
+      "requirement_id": "MHH-REQ-FR-SLICE-AUTHORITY-ALIGNMENT",
+      "semantic_digest": "sha256:f6b8ee938abf2391b9de7ce1729bfa7ecf1b832a7249ae334f169cb40082e4e2",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: 複合責務を厳密phaseへ分割し、FR/FN/AC/TCの実装順逆転を防ぐ\ntasks: 複合FRを責務分割する / 各責務へ厳密phaseを付ける / FN/AC/TCを付け直す\nworkflow: 意味差分検出→責務分割→phase決定→trace再降下→境界test\nscope_in: FR-16/42/44/55と同型の複合責務 / FR/FN/AC/TC phase\nscope_out: S1+/S3+を実装phaseとして使うこと\nprohibitions: 単一FRに異なるphaseの責務を混在させない / ID維持だけで意味同値とみなさない\nhuman_judgement: 責務境界とrelease phaseはPOが要求価値から確認\nside_effects: 旧IDの分割・supersessionとtrace再構成\nevidence: 責務別semantic digest / phase整合 / bidirectional trace / 境界test\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "draft",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-FR-SLICE-AUTHORITY-ALIGNMENT",
+    "refinement_contract_id": "RRF-FR-SLICE-AUTHORITY-ALIGNMENT",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "FR-SLICE-AUTHORITY-ALIGNMENT",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:b2c5cf7224a2799d53e23afdd53180983c194a634668c5c7bdc348097e35d638",
+    "source": {
+      "acceptance_digest": "sha256:2428320b2baabe78b19cb34dc6addc6e6671aa9d9c8c26008a7eb96cb9b4532d",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-FR-SLICE-AUTHORITY-ALIGNMENT/acceptance_cases",
+      "requirement_digest": "sha256:f6b8ee938abf2391b9de7ce1729bfa7ecf1b832a7249ae334f169cb40082e4e2",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-FR-SLICE-AUTHORITY-ALIGNMENT",
+      "source_event_ids": [
+        "RDE-000004",
+        "RDE-000019",
+        "RDE-000020",
+        "RDE-000021",
+        "RDE-000038",
+        "RDE-000039",
+        "RDE-000040"
+      ],
+      "source_set_digest": "sha256:54a7325c1329b2d624cba75f1956eb997c8499a6f7f7b63d2e224770199c4056"
+    },
+    "supporting_requirements": []
+  },
+  "RRF-GENAI-EXECUTION-ROUTE": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-GENAI-EXECUTION-ROUTE-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-GENAI-EXECUTION-ROUTE"
+        ],
+        "semantic_digest": "sha256:53f2adbdaba3a857164d3b069ce224801be8fd0e0eb85a5e70047d7de87357cd",
+        "source_projection": "local_refinement_registry",
+        "statement": "意味軸・根拠・許可境界を満たす対象だけを次工程へ進める"
+      },
+      {
+        "acceptance_id": "MHH-AC-GENAI-EXECUTION-ROUTE-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-GENAI-EXECUTION-ROUTE"
+        ],
+        "semantic_digest": "sha256:8eb6be1b504b151711994fac00decb61f8799d9433c0919e3796054be55fa6cd",
+        "source_projection": "local_refinement_registry",
+        "statement": "未回答・未許可・意味trace欠落又は証跡不足をfail-closeで拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-GENAI-EXECUTION-ROUTE-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-GENAI-EXECUTION-ROUTE"
+        ],
+        "semantic_digest": "sha256:e46283e5d6ceb315a212ee3bc528aaf9c435203118ae11a816bf5117ebbfdd9c",
+        "source_projection": "local_refinement_registry",
+        "statement": "一部だけ成立する場合は責務を分割又はdeferred/pivotし全体成立に読み替えない"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-GENAI-EXECUTION-ROUTE-P",
+        "MHH-AC-GENAI-EXECUTION-ROUTE-N",
+        "MHH-AC-GENAI-EXECUTION-ROUTE-B"
+      ],
+      "requirement_id": "MHH-REQ-GENAI-EXECUTION-ROUTE",
+      "semantic_digest": "sha256:37d8371bbc7053ae3168627da6c58b39cc44c9816d5bf5904fdd6bfef8e5d755",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: provider-neutralな許可経路で生成し、禁止されたconsumer Web UI自動化を排除する\ntasks: provider capabilityを登録する / 許可API adapterで生成する / 不能時に停止又はattended manualへ渡す\nworkflow: capability/規約/quota確認→API実行→証跡→不能時fail-close/attended handoff\nscope_in: provider-neutral API adapter / 個別登録済みCLI adapter / attended manual fallback\nscope_out: Codex/Claudeの必須runtime依存 / consumer Web UI無人操作\nprohibitions: 非許可Web UI自動化へfallbackしない / credential/quotaを迂回しない\nhuman_judgement: adapter採用とattended生成物の採否はPO/運用者\nside_effects: 許可providerへの生成request / attended handoff\nevidence: provider/version/terms check / request/response digest / quota / human handoff receipt\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "specified",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-GENAI-EXECUTION-ROUTE",
+    "refinement_contract_id": "RRF-GENAI-EXECUTION-ROUTE",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "GENAI-EXECUTION-ROUTE",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:bced2dab6effb7ebdd71418683fc682f749809bb4d1007ead40052ac5736903c",
+    "source": {
+      "acceptance_digest": "sha256:5fd121e6d4e3e49888c303d182d6213bd4055246abb83c4d8ad35d0f5ef08064",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-GENAI-EXECUTION-ROUTE/acceptance_cases",
+      "requirement_digest": "sha256:37d8371bbc7053ae3168627da6c58b39cc44c9816d5bf5904fdd6bfef8e5d755",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-GENAI-EXECUTION-ROUTE",
+      "source_event_ids": [
+        "RDE-000006",
+        "RDE-000024",
+        "RDE-000025",
+        "RDE-000043",
+        "RDE-000044"
+      ],
+      "source_set_digest": "sha256:21c97b34420b6344d7cd964af69ef13cbb235f959199c64476e1fa5731b0568f"
+    },
+    "supporting_requirements": []
+  },
+  "RRF-L0-NORTH-STAR-AUTHORITY-NORMALIZATION": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-L0-NORTH-STAR-AUTHORITY-NORMALIZATION-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-L0-NORTH-STAR-AUTHORITY-NORMALIZATION"
+        ],
+        "semantic_digest": "sha256:f2008b347c7a1f38fcae17a346c3c6c2b57ee503845bc0731b52e1aaf432592f",
+        "source_projection": "local_refinement_registry",
+        "statement": "全旧clauseが維持・置換・deferredの一つにPO決定され新L0からL1へtraceする"
+      },
+      {
+        "acceptance_id": "MHH-AC-L0-NORTH-STAR-AUTHORITY-NORMALIZATION-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-L0-NORTH-STAR-AUTHORITY-NORMALIZATION"
+        ],
+        "semantic_digest": "sha256:2d54f20038fdafde7d11ee9d6ff53cfb839453360cd11d511b83300dc4f0b6ca",
+        "source_projection": "local_refinement_registry",
+        "statement": "旧Discord/browser/provider等を下位ADRだけで暗黙置換又はcurrent利用することを拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-L0-NORTH-STAR-AUTHORITY-NORMALIZATION-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-L0-NORTH-STAR-AUTHORITY-NORMALIZATION"
+        ],
+        "semantic_digest": "sha256:6909bd6585d3978df53bc0b5e045e8dc51bc02ec10aab0a155ffee75f758f8fb",
+        "source_projection": "local_refinement_registry",
+        "statement": "事業価値を維持しても実現手段は独立に再決定し未決手段をdeferredとする"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-L0-NORTH-STAR-AUTHORITY-NORMALIZATION-P",
+        "MHH-AC-L0-NORTH-STAR-AUTHORITY-NORMALIZATION-N",
+        "MHH-AC-L0-NORTH-STAR-AUTHORITY-NORMALIZATION-B"
+      ],
+      "requirement_id": "MHH-REQ-L0-NORTH-STAR-AUTHORITY-NORMALIZATION",
+      "semantic_digest": "sha256:d15ab07c6a88ca37e654d8277b009e02ebcec425b310d6b27bd438e67b2024ce",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: 旧L0の事業価値と旧手段を分離しVPS/UI/API/provider-neutralな新baselineへ一方向再降下する\ntasks: 旧L0 clauseを棚卸しする / 価値と手段を分離する / 維持/置換/deferredを決める / scope別supersessionとL1 traceを作る\nworkflow: 旧L0 clause棚卸し→価値/手段分離→維持/置換/deferred決定→新L0 freeze→L1以降再降下\nscope_in: 事業目的 / 価値 / human interface / external route / provider dependency / auto-mode / media scope / runtime placement\nscope_out: 旧L0の無承認手編集 / L2以降の設計選択\nprohibitions: 下位ADRだけでL0全体を暗黙上書きしない / 旧手段を事業価値と同一視しない\nhuman_judgement: 維持・置換・deferred・supersessionはPOが決定\nside_effects: 現段階はnorth-star要求候補のみ\nevidence: clause disposition map / 新L0 digest / scope別supersession / L1 trace / PO receipt\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "draft",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-L0-NORTH-STAR-AUTHORITY-NORMALIZATION",
+    "refinement_contract_id": "RRF-L0-NORTH-STAR-AUTHORITY-NORMALIZATION",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "L0-NORTH-STAR-AUTHORITY-NORMALIZATION",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:dfe996c8522f2a4696b2c4264046d24935f0cb21723cb21feb520daeeaca7113",
+    "source": {
+      "acceptance_digest": "sha256:f0688fe44dddad277ae25b2371b0ef7023da7c248a985fc4e3ae50994fafd71a",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-L0-NORTH-STAR-AUTHORITY-NORMALIZATION/acceptance_cases",
+      "requirement_digest": "sha256:d15ab07c6a88ca37e654d8277b009e02ebcec425b310d6b27bd438e67b2024ce",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-L0-NORTH-STAR-AUTHORITY-NORMALIZATION",
+      "source_event_ids": [
+        "RDE-000111",
+        "RDE-000112"
+      ],
+      "source_set_digest": "sha256:b46301b55399c518167e7fa0f6d72f79b4984e0798ed60546fa654c1ced408a6"
+    },
+    "supporting_requirements": []
+  },
+  "RRF-LEGACY-MEDIA-ADMISSION-INVENTORY": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-LEGACY-MEDIA-ADMISSION-INVENTORY-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-LEGACY-MEDIA-ADMISSION-INVENTORY"
+        ],
+        "semantic_digest": "sha256:62af0b53f6d9640ec4ed5649ccc5904396577ce5c89609d004e1421fa6b45f6b",
+        "source_projection": "local_refinement_registry",
+        "statement": "全旧MRをdeferredとして収載し意味とAC/TCを凍結したoperationだけ再開する"
+      },
+      {
+        "acceptance_id": "MHH-AC-LEGACY-MEDIA-ADMISSION-INVENTORY-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-LEGACY-MEDIA-ADMISSION-INVENTORY"
+        ],
+        "semantic_digest": "sha256:508985f76c3bbad920b27ff6396cb0ef2ebbd5002375baf4021da9fa278c52be",
+        "source_projection": "local_refinement_registry",
+        "statement": "棚卸し漏れ、旧本文からのenabled推測又は意味field未閉包の再開を拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-LEGACY-MEDIA-ADMISSION-INVENTORY-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-LEGACY-MEDIA-ADMISSION-INVENTORY"
+        ],
+        "semantic_digest": "sha256:91fa70c6cf9dbc9dc0627722f4f5a61de3f22bb565774ad985eac45fdf6e4ec6",
+        "source_projection": "local_refinement_registry",
+        "statement": "一部operationだけ成立する場合はそのoperationだけ再開し媒体全体をenabledにしない"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-LEGACY-MEDIA-ADMISSION-INVENTORY-P",
+        "MHH-AC-LEGACY-MEDIA-ADMISSION-INVENTORY-N",
+        "MHH-AC-LEGACY-MEDIA-ADMISSION-INVENTORY-B"
+      ],
+      "requirement_id": "MHH-REQ-LEGACY-MEDIA-ADMISSION-INVENTORY",
+      "semantic_digest": "sha256:6f8d4c56fa4d22900b6ba39d6c7392e766f8adc3ea0eb62a3f910638d888cd0e",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: 旧MRを一旦全件deferredへ閉じ、新baselineの意味と受入を凍結したoperationだけ再開する\ntasks: 旧MRを全件棚卸しする / 安全側deferredへ隔離する / operation単位で意味fieldとAC/TCを閉じる\nworkflow: 旧MR棚卸し→全件deferred→媒体operation別意味確認→PO freeze→個別再開\nscope_in: 旧MR 54件 / capability status / execution mode / principal / effect / policy / credential / quota / evidence / AC/TC\nscope_out: 旧connection/actionsからの実行許可推測 / 一括媒体有効化\nprohibitions: 旧MR本文だけでenabledにしない / 一媒体のgreenを別媒体へ流用しない\nhuman_judgement: 業務価値、route、status、risk、再開はPO\nside_effects: 現段階は要求inventoryのみ\nevidence: 全54件収載 / operation別意味field / 三極性AC/TC / PO receipt\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "specified",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-LEGACY-MEDIA-ADMISSION-INVENTORY",
+    "refinement_contract_id": "RRF-LEGACY-MEDIA-ADMISSION-INVENTORY",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "LEGACY-MEDIA-ADMISSION-INVENTORY",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:1adb080020f46bcc3fcb41528a5eec02f1ab73374654085e71c695c2c06cccc6",
+    "source": {
+      "acceptance_digest": "sha256:39842b91cc7147bc8a85e8f75984bfba93bb579fa1f93e68444431426564b69f",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-LEGACY-MEDIA-ADMISSION-INVENTORY/acceptance_cases",
+      "requirement_digest": "sha256:6f8d4c56fa4d22900b6ba39d6c7392e766f8adc3ea0eb62a3f910638d888cd0e",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-LEGACY-MEDIA-ADMISSION-INVENTORY",
+      "source_event_ids": [
+        "RDE-000125",
+        "RDE-000126"
+      ],
+      "source_set_digest": "sha256:d8bd64600bf1fbb2b065fdacbbced87f99524fd715521d5aba586512422ece23"
+    },
+    "supporting_requirements": []
+  },
+  "RRF-MEDIA-POC-SCRUM-RELEASE": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-MEDIA-POC-SCRUM-RELEASE-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-MEDIA-POC-SCRUM-RELEASE"
+        ],
+        "semantic_digest": "sha256:0c5762cc18950c9f2c89b36691c156f1b6cda827327cd3817cd8560aa8b0e4ae",
+        "source_projection": "local_refinement_registry",
+        "statement": "Full V設計、increment検証、PO S4 receipt、Scrum Reverse SR0-SR4、release candidate V-pair closureを持つrelease unitだけを正本へ昇格する"
+      },
+      {
+        "acceptance_id": "MHH-AC-MEDIA-POC-SCRUM-RELEASE-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-MEDIA-POC-SCRUM-RELEASE"
+        ],
+        "semantic_digest": "sha256:43d1fa655c7891a2a0ad2d9ed2ebe5547714f4cecafac75f07a891e0625266eb",
+        "source_projection": "local_refinement_registry",
+        "statement": "Full V closure不足、必要と判定したDiscovery未実施、証跡不足、PO未決、又は別媒体から推測したcapabilityを本番enabledとして拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-MEDIA-POC-SCRUM-RELEASE-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-MEDIA-POC-SCRUM-RELEASE"
+        ],
+        "semantic_digest": "sha256:37bf14bea4d5648e672447c56dfd32d9253798626cc9eac026eb66779aa6f7b6",
+        "source_projection": "local_refinement_registry",
+        "statement": "一部capabilityだけが成立する場合はrelease unitを分割又はpivotし、媒体全体を一括acceptedにしない"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-MEDIA-POC-SCRUM-RELEASE-P",
+        "MHH-AC-MEDIA-POC-SCRUM-RELEASE-N",
+        "MHH-AC-MEDIA-POC-SCRUM-RELEASE-B"
+      ],
+      "requirement_id": "MHH-REQ-MEDIA-POC-SCRUM-RELEASE",
+      "semantic_digest": "sha256:4cb3997604201fdd2f1cd7dd2f8eb48f1faa9c7d407f3112ca10ae0821540c6f",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: 媒体ごとの要求をFull Vで閉じ、受入済みcapabilityだけを段階releaseする\ntasks: 媒体/capability要求をFull Vへ降下する / WordPressをコンテンツDBとして登録・取得・更新・公開する / 対象が概ね決まった段階incrementだけScrum deliveryする / S4で受入・却下・pivot・停止を判断する\nworkflow: Full V-model要求/設計→WordPress content DB/publication release→V設計＋Scrum実装Hybrid increment→S4→Scrum Reverse SR0-SR4→V-pair closure→別の保守/security release\nscope_in: Full V-model / WordPress content database/publication release unit / content CRUD/stable ID/publication/evidence increment / 対象確定後のV設計＋Scrum実装Hybrid / S4 decision / Scrum Reverse SR0-SR4\nscope_out: 全媒体一括承認 / Discovery/PoCの標準工程化 / PoC成功だけによる本番有効化 / 未検証経路の横展開 / 基盤・運用保守 / セキュリティ保守\nprohibitions: ScrumをDiscovery/PoCと同一視しない / PoCと本番のcredential/data/write policyを共有しない / S3 greenをPO判断の代替にしない / 未検証capabilityをenabledにしない\nhuman_judgement: POがrelease unitごとにconfirmed/rejected/pivot/stopを決定する\nside_effects: 要求で許可された検証環境への操作 / 承認済みrelease unitだけの本番有効化\nevidence: source freshness / V-pair closure / increment verification / positive/negative/boundary結果 / acceptance gap / residual risk / PO S4 receipt / Scrum Reverse SR0-SR4 trace\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "draft",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-MEDIA-POC-SCRUM-RELEASE",
+    "refinement_contract_id": "RRF-MEDIA-POC-SCRUM-RELEASE",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "MEDIA-POC-SCRUM-RELEASE",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:a16ca84b9ab24793de3465fc1dad09eccfe7f627df01a95adbcdfe5eb0f3b009",
+    "source": {
+      "acceptance_digest": "sha256:33c02c6a9e7d6a2f078099580f48ac19508ba3f9c7bc3f19086375c9ad71345e",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-MEDIA-POC-SCRUM-RELEASE/acceptance_cases",
+      "requirement_digest": "sha256:4cb3997604201fdd2f1cd7dd2f8eb48f1faa9c7d407f3112ca10ae0821540c6f",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-MEDIA-POC-SCRUM-RELEASE",
+      "source_event_ids": [
+        "RDE-000073",
+        "RDE-000074",
+        "RDE-000075",
+        "RDE-000076",
+        "RDE-000077",
+        "RDE-000078",
+        "RDE-000079",
+        "RDE-000082",
+        "RDE-000095"
+      ],
+      "source_set_digest": "sha256:70acdc618658dc79d4dc5e71ca0217236a5f7444d06043330c7ac2b60a87db03"
+    },
+    "supporting_requirements": []
+  },
+  "RRF-NFR-BUSINESS-AUTHORITY": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-NFR-BUSINESS-AUTHORITY-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-NFR-BUSINESS-AUTHORITY"
+        ],
+        "semantic_digest": "sha256:5b11f1679262591a803dc9dfa15afdcb5d56dfb217b8d45ab5961fb3f1091d90",
+        "source_projection": "local_refinement_registry",
+        "statement": "NFR11全件が既存meaning digestへ束縛されたstable root、actor/principal scope、applicability scope、phase、処遇、measurement authority及びfailure/recoveryを持つ"
+      },
+      {
+        "acceptance_id": "MHH-AC-NFR-BUSINESS-AUTHORITY-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-NFR-BUSINESS-AUTHORITY"
+        ],
+        "semantic_digest": "sha256:86df02d387e031aaf3ed7eb7f8d16600600e368762dfb68be04e62342acaf063",
+        "source_projection": "local_refinement_registry",
+        "statement": "root不明、親digest stale、意味軸未分類、旧NFR/phase/draft STC流用又は未登録閾値のNFRを受入済みにしない"
+      },
+      {
+        "acceptance_id": "MHH-AC-NFR-BUSINESS-AUTHORITY-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-NFR-BUSINESS-AUTHORITY"
+        ],
+        "semantic_digest": "sha256:634dd2825f280ff2fcd625a4d5f5728877babc81137c6d0f4de448e33c2f0d05",
+        "source_projection": "local_refinement_registry",
+        "statement": "N/A又は将来NFRはowner・理由・risk・再開条件付きdeferredとし、部分成立を全体受入へ昇格しない"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-NFR-BUSINESS-AUTHORITY-P",
+        "MHH-AC-NFR-BUSINESS-AUTHORITY-N",
+        "MHH-AC-NFR-BUSINESS-AUTHORITY-B"
+      ],
+      "requirement_id": "MHH-REQ-NFR-BUSINESS-AUTHORITY",
+      "semantic_digest": "sha256:f70dd7d7fcbfc46be0c34ddc379e49703ea765b6cff0e8a8fd6c308db9b52834",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: NFRをstable business rootと測定・failure/recoveryへ接続する\ntasks: 既存NFR11意味inventoryを親digestとして再利用しstable root・actor/principal scope・applicability scope・phaseだけを分類する / NFRごとのretain/replace/defer/obsolete、owner及びresume conditionをPO分類する / measurement authorityと環境別measurement registrationを分離する / failure/recoveryを新AC/TCへ再降下し初期対象外を理由付きdeferredにする\nworkflow: business risk/value→BR/REQ→NFR→measurement/threshold→failure/recovery→AC/TC\nscope_in: NFR-1〜11 / stable BR/REQ / measurement / threshold / failure / recovery / evidence / phase\nscope_out: 節番号又はrisk IDだけを要求根拠とすること\nprohibitions: AC/TC存在だけで品質受入済みとしない / 他NFR、旧MR/FR、節番号、risk ID又はdraft STCをstable business rootの代用にしない / 旧phase又は未登録の測定閾値をpositive authorityへ暗黙昇格しない / root・actor・scope・phase未分類又は親digest staleのNFRを受入済みにしない\nhuman_judgement: 品質閾値・残余risk・deferred範囲はPOが判断\nside_effects: 現段階は要求再接続のみ\nevidence: NFR11 parent meaning digestとtyped authority overlay / BR→REQ→NFR双方向trace及びPO row-set receipt / 環境別measurement registration revision/digest / failure/recovery AC/TCとdeferred再開条件\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "draft",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-NFR-BUSINESS-AUTHORITY",
+    "refinement_contract_id": "RRF-NFR-BUSINESS-AUTHORITY",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "NFR-BUSINESS-AUTHORITY",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:dc2b0c7b919029ab67547711f5f063472287ed200af40f019eaa6e943740621f",
+    "source": {
+      "acceptance_digest": "sha256:e02bbeb14bfd874d915fce6c58d6763de61f2b82a936e20f3614bcfe8f99b810",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-NFR-BUSINESS-AUTHORITY/acceptance_cases",
+      "requirement_digest": "sha256:f70dd7d7fcbfc46be0c34ddc379e49703ea765b6cff0e8a8fd6c308db9b52834",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-NFR-BUSINESS-AUTHORITY",
+      "source_event_ids": [
+        "RDE-000105",
+        "RDE-000106",
+        "RDE-000183"
+      ],
+      "source_set_digest": "sha256:228a4cea27d70bf2a28e5489f9e5ca10c02c0b7019c4aae4ab99ece9fb544905"
+    },
+    "supporting_requirements": []
+  },
+  "RRF-OFFICIAL-API-ROUTE-AUTHORITY": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-OFFICIAL-API-ROUTE-AUTHORITY-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-OFFICIAL-API-ROUTE-AUTHORITY"
+        ],
+        "semantic_digest": "sha256:2628772e16ea6f812512e7cf5b6d8758ac65471cdd4c809d9ad44481ff9e5fb6",
+        "source_projection": "local_refinement_registry",
+        "statement": "意味軸・根拠・許可境界を満たす対象だけを次工程へ進める"
+      },
+      {
+        "acceptance_id": "MHH-AC-OFFICIAL-API-ROUTE-AUTHORITY-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-OFFICIAL-API-ROUTE-AUTHORITY"
+        ],
+        "semantic_digest": "sha256:c30191761ae78a197a8df674bf894d230285f7ab7b3de5faca8e6a78b6b4a6e7",
+        "source_projection": "local_refinement_registry",
+        "statement": "未回答・未許可・意味trace欠落又は証跡不足をfail-closeで拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-OFFICIAL-API-ROUTE-AUTHORITY-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-OFFICIAL-API-ROUTE-AUTHORITY"
+        ],
+        "semantic_digest": "sha256:e09fefe82d5feb296b9a808c717bd5e0113b84436268108610b1f7a513f29638",
+        "source_projection": "local_refinement_registry",
+        "statement": "一部だけ成立する場合は責務を分割又はdeferred/pivotし全体成立に読み替えない"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-OFFICIAL-API-ROUTE-AUTHORITY-P",
+        "MHH-AC-OFFICIAL-API-ROUTE-AUTHORITY-N",
+        "MHH-AC-OFFICIAL-API-ROUTE-AUTHORITY-B"
+      ],
+      "requirement_id": "MHH-REQ-OFFICIAL-API-ROUTE-AUTHORITY",
+      "semantic_digest": "sha256:a2614cd4a2b2ea8347e9f9f04e8378303628965d9e81909643a0fb9c208b9e7d",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: 媒体ごとの公式automation interfaceを安全性・証跡・quotaで選び、危険なbrowser fallbackを防ぐ\ntasks: capability routeを登録する / source freshnessを検査する / 許可routeを選ぶ / 不能時に停止/attendedへ渡す\nworkflow: 媒体/capability→公式source検証→allow-list route→実行→evidence→fallback判定\nscope_in: 公式API / 公式MCP / official export / attended manual\nscope_out: 一律MCP-first / 無人consumer browser / 有償経路の暗黙選択\nprohibitions: 未知routeを実行しない / credential/rate/cost制約を迂回しない\nhuman_judgement: 有償経路・attended fallback・新route採用はPO/許可運用者\nside_effects: 公式外部serviceへのread/write / attended handoff\nevidence: source/version/terms freshness / policy tuple / quota / operation receipt\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "specified",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-OFFICIAL-API-ROUTE-AUTHORITY",
+    "refinement_contract_id": "RRF-OFFICIAL-API-ROUTE-AUTHORITY",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "OFFICIAL-API-ROUTE-AUTHORITY",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:1e7c77490ce4b64339ef7ff5c799ac10835867621d66c950f5e3bde357970b83",
+    "source": {
+      "acceptance_digest": "sha256:5832d1cd56b5350ca1d2fa5336c342b80db784571ee0e5b390c970b32537c22b",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-OFFICIAL-API-ROUTE-AUTHORITY/acceptance_cases",
+      "requirement_digest": "sha256:a2614cd4a2b2ea8347e9f9f04e8378303628965d9e81909643a0fb9c208b9e7d",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-OFFICIAL-API-ROUTE-AUTHORITY",
+      "source_event_ids": [
+        "RDE-000008",
+        "RDE-000026",
+        "RDE-000027",
+        "RDE-000045",
+        "RDE-000046"
+      ],
+      "source_set_digest": "sha256:1c69d48d7a51b7e8ee02a3f3d274f4a910e1192b16e74737b24915ee85eb07ae"
+    },
+    "supporting_requirements": []
+  },
+  "RRF-PRODUCT-STATE-AUTHORITY": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-PRODUCT-STATE-AUTHORITY-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-PRODUCT-STATE-AUTHORITY"
+        ],
+        "semantic_digest": "sha256:1d85d64a4fccfdedbdebc473f5fb12d803b7dcfcff1efa0e34690b6275ceef12",
+        "source_projection": "local_refinement_registry",
+        "statement": "stable transition ID、subject、source state、target state、expected prior revision、expected priorより大きいresulting revision、単一owner、有効なauthorization grant ID/revision/semantic digest、effect、result及びreceiptが閉じた更新だけを唯一正本へ反映する"
+      },
+      {
+        "acceptance_id": "MHH-AC-PRODUCT-STATE-AUTHORITY-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-PRODUCT-STATE-AUTHORITY"
+        ],
+        "semantic_digest": "sha256:d552367089c5e079474810667da58ca5e89a6d7c14c66930399cafdc21ee480c",
+        "source_projection": "local_refinement_registry",
+        "statement": "unknown transition、stale revision、競合、unknown owner、missing/stale/expired authorization grant及び通知/seen/ack/adapter/retry signalからの暗黙更新又はrollbackを拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-PRODUCT-STATE-AUTHORITY-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-PRODUCT-STATE-AUTHORITY"
+        ],
+        "semantic_digest": "sha256:27adb02df190d56497623da2b5406430cddd3d4c217cd23f1c95c19e26601b20",
+        "source_projection": "local_refinement_registry",
+        "statement": "拒否、競合、保存不能又は復旧時はcurrent state、current revision及び履歴を維持し、復旧を新しい認可transitionとして記録するまでfail-closeする"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-PRODUCT-STATE-AUTHORITY-P",
+        "MHH-AC-PRODUCT-STATE-AUTHORITY-N",
+        "MHH-AC-PRODUCT-STATE-AUTHORITY-B"
+      ],
+      "requirement_id": "MHH-REQ-PRODUCT-STATE-AUTHORITY",
+      "semantic_digest": "sha256:634bd6202e1a5d464d9696ce4f698cc5d5eb40907eea96e198cc5d885e2b9878",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: UI、worker、通知の状態確定を一つのrevision付き正本へ集約する\ntasks: 状態を読み、対象とrevisionを再検証し、許可更新とreceiptを残す / stable transition IDとexpected prior revisionで状態変更を検証する / 通知/seen/ack/adapter/retry signalを非authorityとして分類する / 復旧を新しい認可transitionとして記録する / source/target stateと結果revisionをreceiptへ記録し成功又は不変outcomeを検証する / transitionをauthorization grant ID/revision/semantic digestへ束縛する / recovery actor identityとrecovery authorization grant permissionを分離する\nworkflow: 状態読取→対象/revision再検証→許可更新→receipt→全consumerから再読取\nscope_in: 製品状態 / revisionと版一致条件付き更新 / owner / 更新principal / 保持/競合/復旧/監査 / typed transition binding / 非authority signal分類 / append-only transition history / recovery transition receipt / source state/target state/resulting revision / success/rejected/persistence-failure typed outcome\nscope_out: 具体DB/API設計 / UI又は通知のlocal stateを正本とすること\nprohibitions: stale write / 複数正本 / UI/worker/通知による独自確定 / 通知配送、seen、acknowledged、外部adapter結果又はretry失敗から業務状態を暗黙変更する / 通知又はretry失敗で既確定状態をrollbackする / 復旧時に履歴又はprior revisionを書き換える / unknown transition、stale revision、競合又はunknown ownerで推測更新する / 成功transitionでresulting revisionを進めない / 拒否又は永続化失敗時にcurrent state又はrevisionを変更する / PRODUCT-STATE内でprincipal permissionを二重正本化する / recovery actor identityだけをpermission根拠にする\nhuman_judgement: 状態分類、保持、競合解決、復旧riskはPO\nside_effects: 現段階は要求候補のみ\nevidence: state authority map / stale revision negative case / recovery/receipt / PO receipt / transition ID/subject/prior revision/owner/authorization grant ID/revision/semantic digest/effect/result receipt / signal non-authority negative test / conflict/stale/unknown owner rejection receipt / recovery transition and immutable history evidence / source/target state and resulting revision receipt / success revision progression and failure invariance mutation / authorization grant ID/revision/semantic digest in transition receipt\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "specified",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-PRODUCT-STATE-AUTHORITY",
+    "refinement_contract_id": "RRF-PRODUCT-STATE-AUTHORITY",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "PRODUCT-STATE-AUTHORITY",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:807725ed9d37a52402a97afeee90d69db74cfffb1427e4cb37456cb0e3fd8574",
+    "source": {
+      "acceptance_digest": "sha256:fd356f8f805eb2cd67abcebc2d61dc74a17e961b0fd7016197de49bad971e2e9",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-PRODUCT-STATE-AUTHORITY/acceptance_cases",
+      "requirement_digest": "sha256:634bd6202e1a5d464d9696ce4f698cc5d5eb40907eea96e198cc5d885e2b9878",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-PRODUCT-STATE-AUTHORITY",
+      "source_event_ids": [
+        "RDE-000128",
+        "RDE-000129",
+        "RDE-000172",
+        "RDE-000173",
+        "RDE-000175"
+      ],
+      "source_set_digest": "sha256:6532bbef8c1a0b9a66704a826a1c7da3ab670be93d6537061aee89cf3636e573"
+    },
+    "supporting_requirements": []
+  },
+  "RRF-RATE-QUOTA-COST-AUTHORITY": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-RATE-QUOTA-COST-AUTHORITY-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-RATE-QUOTA-COST-AUTHORITY"
+        ],
+        "semantic_digest": "sha256:6270cb24fd24ac87c84c81d96f11af539f967fbc14c0fab81fcc428b0b3601c5",
+        "source_projection": "local_refinement_registry",
+        "statement": "有効なprofile/account/operation/risk別registrationとeffect分類があり、上限内のoperationだけを開始する。read-only残量取得は権限・quota・証跡が閉じる場合だけ別effectとして扱う"
+      },
+      {
+        "acceptance_id": "MHH-AC-RATE-QUOTA-COST-AUTHORITY-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-RATE-QUOTA-COST-AUTHORITY"
+        ],
+        "semantic_digest": "sha256:c97895421f1b91f37e601ba0ba78804bba0a6b03fcaec2d904fba6a0b495a6e0",
+        "source_projection": "local_refinement_registry",
+        "statement": "未知、未登録、失効、測定不能、scope不一致、retry-after違反又はcost ceiling欠落時にexternal write/publish/money/additional retryを拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-RATE-QUOTA-COST-AUTHORITY-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-RATE-QUOTA-COST-AUTHORITY"
+        ],
+        "semantic_digest": "sha256:9e46d06e3e137209604ea10d52a36690a3d0ed7984d115a65c02ea3e8856cdda",
+        "source_projection": "local_refinement_registry",
+        "statement": "上限到達又は分類不明では対象effectだけをblocked/deferredとし、既確定状態をrollbackせずfailure receiptを残す"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-RATE-QUOTA-COST-AUTHORITY-P",
+        "MHH-AC-RATE-QUOTA-COST-AUTHORITY-N",
+        "MHH-AC-RATE-QUOTA-COST-AUTHORITY-B"
+      ],
+      "requirement_id": "MHH-REQ-RATE-QUOTA-COST-AUTHORITY",
+      "semantic_digest": "sha256:4d1941c135f4100df4286135bf534b7058473abaef0396495778df0fcccdcf41",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: rate、quota、read cap、cost、retryを別型で管理しcap回避と予期せぬ課金を防ぐ\ntasks: 制限sourceを取得しscope/window/valueを評価して実行又は拒否する / effect別に未知limit時の開始可否を判定する / 具体値をprofile/account/operation/risk別registration revisionへ束縛する\nworkflow: 制限取得→分類→予算/上限評価→実行又は拒否→receipt→再評価\nscope_in: provider quota / account cap / read safety cap / cost ceiling / retry/backoff/retry-after / external write/publish/money/additional retryの開始拒否 / read-only残量取得の別effect分類 / configuration/limit failure receipt\nscope_out: ブラウザ人間様待機をAPI quotaとみなすこと\nprohibitions: 複数accountによるcap回避 / retry-after無視 / 費用上限なし有償経路 / 未知・未登録・失効又は測定不能なlimitで外部作用を開始する / limit失敗を理由に既確定blocked/failed/safety-stopped状態をrollbackする / 別profile/account/operationのlimit値を流用する\nhuman_judgement: cost ceiling、有償例外、未知値の再開はPO\nside_effects: 現段階は要求候補のみ\nevidence: typed limit registry / source/window/scope / boundary tests / PO receipt / limit registration revision / effect classification / configuration/limit failure receipt / unknown/expired/scope mismatch mutation\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "specified",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-RATE-QUOTA-COST-AUTHORITY",
+    "refinement_contract_id": "RRF-RATE-QUOTA-COST-AUTHORITY",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "RATE-QUOTA-COST-AUTHORITY",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:44fd9a7566fbe2663bfb93d3d5bd5f83bfc0c362aab3bc64a2303de15ffed5bb",
+    "source": {
+      "acceptance_digest": "sha256:41025f273b16dc2b091794ae1321c4c2585221e01368cdd9cb98bde43282fa39",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-RATE-QUOTA-COST-AUTHORITY/acceptance_cases",
+      "requirement_digest": "sha256:4d1941c135f4100df4286135bf534b7058473abaef0396495778df0fcccdcf41",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-RATE-QUOTA-COST-AUTHORITY",
+      "source_event_ids": [
+        "RDE-000134",
+        "RDE-000135",
+        "RDE-000171"
+      ],
+      "source_set_digest": "sha256:7a81905c0f5c4effb3b78990322e75196f9830460140c82e460e480d08eb3be7"
+    },
+    "supporting_requirements": []
+  },
+  "RRF-REQ-AUTHORITY-NORMALIZATION": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-REQ-AUTHORITY-NORMALIZATION-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-REQ-AUTHORITY-NORMALIZATION"
+        ],
+        "semantic_digest": "sha256:ea2c9eccb8bc7b3f19d0b17e8582d2cda8e874dbf79f30000c3e9f6d411a08ab",
+        "source_projection": "local_refinement_registry",
+        "statement": "既存REQ55意味inventoryと15 ID・19 field delta overlayをPO row-set receiptへ束縛し、単一candidate JSONからMarkdownとtraceを生成して差分0、旧consumer隔離、manifest/baseline同一commit及び独立Goを満たす"
+      },
+      {
+        "acceptance_id": "MHH-AC-REQ-AUTHORITY-NORMALIZATION-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-REQ-AUTHORITY-NORMALIZATION"
+        ],
+        "semantic_digest": "sha256:5610be6f73c2e9898c03684cb6068a6193d5ea3a70d911814061c234ec499c32",
+        "source_projection": "local_refinement_registry",
+        "statement": "未分類又は重複差分、source digest stale、複数selected candidate、defer owner/resume欠落、独立手編集view、旧REQ再混入、trace差分又はPO row-set digest不一致を拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-REQ-AUTHORITY-NORMALIZATION-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-REQ-AUTHORITY-NORMALIZATION"
+        ],
+        "semantic_digest": "sha256:f15d56151f7cad6f4dd892d8b4d6cf18f3b4e80caa26eafddcefa77d451db09c",
+        "source_projection": "local_refinement_registry",
+        "statement": "表記同値は正規化するが本文・source・downstreamの実質差を消さず、全条件成立前は旧資料とcandidateの双方をrevalidation-onlyに保つ"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-REQ-AUTHORITY-NORMALIZATION-P",
+        "MHH-AC-REQ-AUTHORITY-NORMALIZATION-N",
+        "MHH-AC-REQ-AUTHORITY-NORMALIZATION-B"
+      ],
+      "requirement_id": "MHH-REQ-REQ-AUTHORITY-NORMALIZATION",
+      "semantic_digest": "sha256:3b83b3e1af295d0e0152cce199a294f6591dccc61ac33067926b64aa3ea5ee80",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: REQ本文・出典・下流・充填を一つのJSON正本へ凍結しBRから下流への意味根拠を一意にする\ntasks: 既存REQ55意味inventoryを再利用し、ledgerとMarkdownの15 ID・19 field差分だけをsource value digest付きdelta overlayへ固定する / 各差分をretain/replace/defer/obsoleteとしてPO分類し、単一candidate JSONを凍結する / Markdownをcandidate JSONから決定的に生成するviewへ限定する / traceを再生成し差分0、manifest/baseline同一commit及び独立Goを検証する\nworkflow: 両source snapshot→19 field delta exact partition→PO意味選択→単一candidate JSON→Markdown生成→trace再生成→manifest/baseline束縛→独立Go\nscope_in: REQ本文 / source / downstream trace / fill route / JSON/Markdown authority\nscope_out: 旧Markdownの手編集 / FR/NFRの自動採用 / 製品runtime変更\nprohibitions: 同一ID又は件数だけで意味同値としない / JSONとMarkdownを並行正本にしない / 未分類、source stale、複数candidate、defer owner/resume欠落又はtrace差分残存でcutoverしない / 旧REQ資料又は未批准candidateを実装入力にしない\nhuman_judgement: 正規意味とauthority cutoverはPOが決定\nside_effects: 要求authorityの変更だけ。現段階でruntime変更なし\nevidence: 既存REQ55 subset ID/meaning digestと両source artifact/content digest / 15 ID・19 field delta overlay及びPO row-set receipt / 単一candidate JSON、生成Markdown及びtrace digest / trace差分0、旧consumer隔離、manifest/baseline同一commit及び独立Go receipt\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "draft",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-REQ-AUTHORITY-NORMALIZATION",
+    "refinement_contract_id": "RRF-REQ-AUTHORITY-NORMALIZATION",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "REQ-AUTHORITY-NORMALIZATION",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:c6173e522c647276eba6c8c35865aa8706c2025e75ade22518dc21ffe74732e7",
+    "source": {
+      "acceptance_digest": "sha256:4f031e149b6b4a3d802b60c32385a31eb7943f2f708b34d5bba23c280a8352ef",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-REQ-AUTHORITY-NORMALIZATION/acceptance_cases",
+      "requirement_digest": "sha256:3b83b3e1af295d0e0152cce199a294f6591dccc61ac33067926b64aa3ea5ee80",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-REQ-AUTHORITY-NORMALIZATION",
+      "source_event_ids": [
+        "RDE-000097",
+        "RDE-000098",
+        "RDE-000124",
+        "RDE-000127",
+        "RDE-000182"
+      ],
+      "source_set_digest": "sha256:56dd17166d8907e13a78de1e49d7e5b32a8eb92d9f0deef04d49db286f185ea5"
+    },
+    "supporting_requirements": []
+  },
+  "RRF-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE"
+        ],
+        "semantic_digest": "sha256:e4c2cf7e10455c131f9ffb2bd19557500a183b19fba9d42697a75a7a5d0fccd3",
+        "source_projection": "local_refinement_registry",
+        "statement": "全core軸がdirect又はdigest付き継承で閉じ、品質軸が同様に閉じるか証拠付きN/Aとなり、必要な閾値registrationが有効な対象だけを次工程へ進める"
+      },
+      {
+        "acceptance_id": "MHH-AC-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE"
+        ],
+        "semantic_digest": "sha256:c8633b96ce93ceec85f9b90535f8267084eda6cb13be13dbb6319b2655863ddd",
+        "source_projection": "local_refinement_registry",
+        "statement": "unknown、空、汎用N/A、親digest不一致、継承循環又は必要な閾値registration欠落をfail-closeで拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE"
+        ],
+        "semantic_digest": "sha256:e1305cb25fe2cc10d56d9e86eef9a136b02e3ec57ff8ff5bc7d7b76f3df8d99b",
+        "source_projection": "local_refinement_registry",
+        "statement": "一部だけ成立する場合は責務を分割又はdeferredとし、品質軸の一括N/Aや全体成立へ昇格しない"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE-P",
+        "MHH-AC-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE-N",
+        "MHH-AC-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE-B"
+      ],
+      "requirement_id": "MHH-REQ-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE",
+      "semantic_digest": "sha256:ae73eac1dcff87687fb07345f4b59a072a33259bf7da9039fefe39e24378647f",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: 候補から仕様化までのunknownと意味軸を機械追跡し、要約又は同一IDの二重意味による承認を防ぐ\ntasks: candidateを記録する / unknownへquestionを束縛する / 12意味軸と品質観点を閉じる / 同一IDの本文・出典・trace・充填を一意化する / 反例/境界を定義する / 各意味軸をdirect/digest_inherited/not_applicable/deferredへexactly onceで分類する / 品質閾値をsubject/risk/scope/revision付きregistrationへ分離する\nworkflow: candidate→question/observation/prototype→refinement→正本選択/生成view化→admission→PO decision→freeze\nscope_in: actor/value/workflow/scope/prohibition/HJ/side-effect/evidence/phase / security/privacy/accessibility/performance/availability/recovery/operation/migration/rollback / REQ JSON/Markdown authorityとsemantic drift\nscope_out: AI回答だけによるPO決定 / 一括承認 / 正本の自動mutation / 意味未確認の文字列同期\nprohibitions: 未回答unknownをspecifiedにしない / positive caseだけで承認しない / 同一ID・件数一致だけで意味同値とみなさない / JSONとMarkdownを独立正本として並立させない / core意味軸へnot_applicableを使う / 空、unknown又は汎用的な該当なしをspecified又はfreezeへ昇格する / 親semantic digest不一致又は循環を継承として認める / 必要な品質閾値registrationが未登録、失効又は測定不能のまま承認する\nhuman_judgement: 価値・範囲・risk・正本意味・採否・freezeはPO\nside_effects: 要求authority cutoverだけ。製品runtimeを直接変更しない\nevidence: event prefix / source-set digest / semantic digest / REQ field差分0 / 単一JSON正本からの生成view / 三極性AC / PO receipt / ID×dimension exact partition digest / parent/delta digest及びcycle-free evidence / N/A applicability receipt / quality threshold registration revision / unknown/N/A/stale parent/missing threshold mutation results\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "superseded",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE",
+    "refinement_contract_id": "RRF-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:0388026238cf002f50fdf923316bdfd59e4ba354afd643697f803821f4283b9a",
+    "source": {
+      "acceptance_digest": "sha256:d272a8a23b1c3604dcfeabfcd11503a3f0a21b662977257ef1d94f69e20e053e",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE/acceptance_cases",
+      "requirement_digest": "sha256:ae73eac1dcff87687fb07345f4b59a072a33259bf7da9039fefe39e24378647f",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE",
+      "source_event_ids": [
+        "RDE-000009",
+        "RDE-000014",
+        "RDE-000028",
+        "RDE-000029",
+        "RDE-000047",
+        "RDE-000048",
+        "RDE-000072"
+      ],
+      "source_set_digest": "sha256:d9fad2380027251222aed9bc54a88d5f2f2e038e761220c05d115d8d985bcbe7"
+    },
+    "supporting_requirements": []
+  },
+  "RRF-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2"
+        ],
+        "semantic_digest": "sha256:8861ace98f38292d860c605b5c4a8cb3856cd5f8df093682313e09f626cba28a",
+        "source_projection": "local_refinement_registry",
+        "statement": "全core軸がdirect又はdigest付き継承で閉じ、品質軸が同様に閉じるか証拠付きN/Aとなり、必要な閾値registrationが有効な対象だけを次工程へ進める"
+      },
+      {
+        "acceptance_id": "MHH-AC-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2"
+        ],
+        "semantic_digest": "sha256:0c0ee8062a8f403efdd5d9891dc08472a99a05002d5fc058d84025e9b7db7c70",
+        "source_projection": "local_refinement_registry",
+        "statement": "unknown、空、汎用N/A、親digest不一致、継承循環又は必要な閾値registration欠落をfail-closeで拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2"
+        ],
+        "semantic_digest": "sha256:de9879644c29d0bf1564fc63fa76f0e83be5265e909db59c468f3514d33b1d6a",
+        "source_projection": "local_refinement_registry",
+        "statement": "一部だけ成立する場合は責務を分割又はdeferredとし、品質軸の一括N/Aや全体成立へ昇格しない"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2-P",
+        "MHH-AC-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2-N",
+        "MHH-AC-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2-B"
+      ],
+      "requirement_id": "MHH-REQ-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2",
+      "semantic_digest": "sha256:68ce8384a857fac070f2394e20e6188358cae6fae262ea6f2c18b5f03a9ed403",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: 候補から仕様化までのunknownと意味軸を機械追跡し、要約又は同一IDの二重意味による承認を防ぐ\ntasks: candidateを記録する / unknownへquestionを束縛する / 12意味軸と品質観点を閉じる / 同一IDの本文・出典・trace・充填を一意化する / 反例/境界を定義する / 各意味軸をdirect/digest_inherited/not_applicable/deferredへexactly onceで分類する / 品質閾値をsubject/risk/scope/revision付きregistrationへ分離する\nworkflow: candidate→question/observation/prototype→refinement→正本選択/生成view化→admission→PO decision→freeze\nscope_in: actor/value/workflow/scope/prohibition/HJ/side-effect/evidence/phase / security/privacy/accessibility/performance/availability/recovery/operation/migration/rollback / REQ JSON/Markdown authorityとsemantic drift\nscope_out: AI回答だけによるPO決定 / 一括承認 / 正本の自動mutation / 意味未確認の文字列同期\nprohibitions: 未回答unknownをspecifiedにしない / positive caseだけで承認しない / 同一ID・件数一致だけで意味同値とみなさない / JSONとMarkdownを独立正本として並立させない / core意味軸へnot_applicableを使う / 空、unknown又は汎用的な該当なしをspecified又はfreezeへ昇格する / 親semantic digest不一致又は循環を継承として認める / 必要な品質閾値registrationが未登録、失効又は測定不能のまま承認する\nhuman_judgement: 価値・範囲・risk・正本意味・採否・freezeはPO\nside_effects: 要求authority cutoverだけ。製品runtimeを直接変更しない\nevidence: event prefix / source-set digest / semantic digest / REQ field差分0 / 単一JSON正本からの生成view / 三極性AC / PO receipt / ID×dimension exact partition digest / parent/delta digest及びcycle-free evidence / N/A applicability receipt / quality threshold registration revision / unknown/N/A/stale parent/missing threshold mutation results\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "specified",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2",
+    "refinement_contract_id": "RRF-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:d5b6c4a143a96f3b574e137a732b78f31f4ffb0d2ea3089836a25af43eab6bad",
+    "source": {
+      "acceptance_digest": "sha256:d272a8a23b1c3604dcfeabfcd11503a3f0a21b662977257ef1d94f69e20e053e",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2/acceptance_cases",
+      "requirement_digest": "sha256:68ce8384a857fac070f2394e20e6188358cae6fae262ea6f2c18b5f03a9ed403",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2",
+      "source_event_ids": [
+        "RDE-000169"
+      ],
+      "source_set_digest": "sha256:f34c1a305393a3c1b90c3ff32b520a0d04d747b820a3904e506b10c3e8aca053"
+    },
+    "supporting_requirements": []
+  },
+  "RRF-RESEARCH-LED-CONTENT-GROWTH": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-RESEARCH-LED-CONTENT-GROWTH-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-RESEARCH-LED-CONTENT-GROWTH"
+        ],
+        "semantic_digest": "sha256:7028fad0d2933a4ce6b352d76e91e59b883d6426e8b71ee82542e61e7fe2ac0c",
+        "source_projection": "local_refinement_registry",
+        "statement": "source/claim/freshnessと独自価値を持つresearch仮説から媒体役割と成果物を作り、役割KPIを次の仮説へ還流する"
+      },
+      {
+        "acceptance_id": "MHH-AC-RESEARCH-LED-CONTENT-GROWTH-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-RESEARCH-LED-CONTENT-GROWTH"
+        ],
+        "semantic_digest": "sha256:1e932b9398aab6f633c2863cf4453c55278affcafcbccea8eaea75088987b20c",
+        "source_projection": "local_refinement_registry",
+        "statement": "research根拠なし制作、付加価値なきsource言い換え、順位操作目的の量産、全媒体一律KPI及び権限不明な商品変更を拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-RESEARCH-LED-CONTENT-GROWTH-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-RESEARCH-LED-CONTENT-GROWTH"
+        ],
+        "semantic_digest": "sha256:4f618b6cfcae1cdf6e98bbfd4fba5937edd00816ef3af5725815d9b1d0519e48",
+        "source_projection": "local_refinement_registry",
+        "statement": "有料集客は超後期の個別要求が承認されるまでdisabledを維持する"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-RESEARCH-LED-CONTENT-GROWTH-P",
+        "MHH-AC-RESEARCH-LED-CONTENT-GROWTH-N",
+        "MHH-AC-RESEARCH-LED-CONTENT-GROWTH-B"
+      ],
+      "requirement_id": "MHH-REQ-RESEARCH-LED-CONTENT-GROWTH",
+      "semantic_digest": "sha256:ea8db288dc6dd44db103766832cb6d8f73862e5de15c21c18fa0b43087e50b9e",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: researchとmarketing funnelに基づき媒体の役割を決め、人に有用な独自価値を保ちながらKPIから継続的に成長する\ntasks: 市場と競合をresearchする / source/取得時点/claim/鮮度を記録する / 既存情報へ追加する独自価値を定義する / 成長仮説とfunnelを作る / 媒体/成果物へ役割を割り当てる / KPIを仮説へ還流する\nworkflow: source付きresearch→独自価値と成長仮説→商品/offer別funnel→媒体/成果物役割→制作/公開→KPI→仮説更新\nscope_in: 市場/検索/競合/trend research / source provenance/freshness / 独自経験/比較/検証/分析 / marketing funnel / 媒体複数役割 / 商品/offer capability / KPI feedback\nscope_out: 全媒体一律売上KPI / 初期/中期の有料集客\nprohibitions: 権限不明な商品/offer変更 / 成長を理由にrisk/legal/media policyを迂回 / 検索順位操作だけを目的にした量産 / 既存sourceの付加価値なき言い換え\nhuman_judgement: 商品/offer登録時の変更authorityと超後期有料集客再開はユーザー\nside_effects: 許可対象の商材選定/差替えと媒体operation\nevidence: source/claim/freshness付きresearch evidence / original value statement / hypothesis / funnel/role binding / KPI result / learning revision / source:https://developers.google.com/search/docs/fundamentals/creating-helpful-content / source:https://developers.google.com/search/docs/fundamentals/ai-optimization-guide\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "specified",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-RESEARCH-LED-CONTENT-GROWTH",
+    "refinement_contract_id": "RRF-RESEARCH-LED-CONTENT-GROWTH",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "RESEARCH-LED-CONTENT-GROWTH",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:69d40443d0fd9c2680e3e8870f1947b810fbc88f1dcc6a75f1ed3cb10368cf44",
+    "source": {
+      "acceptance_digest": "sha256:70b7007fea76ca518807f72b2a2997875038073e16395fe2d72a0969e440221d",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-RESEARCH-LED-CONTENT-GROWTH/acceptance_cases",
+      "requirement_digest": "sha256:ea8db288dc6dd44db103766832cb6d8f73862e5de15c21c18fa0b43087e50b9e",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-RESEARCH-LED-CONTENT-GROWTH",
+      "source_event_ids": [
+        "RDE-000141",
+        "RDE-000147",
+        "RDE-000153"
+      ],
+      "source_set_digest": "sha256:b427f924782219458385964107cf738ad99c9fcdcce6069abb12257ec8526b25"
+    },
+    "supporting_requirements": []
+  },
+  "RRF-STRATEGY-REQUIREMENT-ADMISSION": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-STRATEGY-REQUIREMENT-ADMISSION-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-STRATEGY-REQUIREMENT-ADMISSION"
+        ],
+        "semantic_digest": "sha256:91b63cd906a738b50a86b254cd0cf1b109e7b45777ee6b493825dee7d9d26a69",
+        "source_projection": "local_refinement_registry",
+        "statement": "採用SRがFN/CMP/ACとPO receipt付きの単一current test authorityへ降下し、旧draft STC又は旧TCCを自動流用しない"
+      },
+      {
+        "acceptance_id": "MHH-AC-STRATEGY-REQUIREMENT-ADMISSION-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-STRATEGY-REQUIREMENT-ADMISSION"
+        ],
+        "semantic_digest": "sha256:968d9dc64e5e0036cde36d26ba08d527c44fedda405cf19c1acf9e3576553bc8",
+        "source_projection": "local_refinement_registry",
+        "statement": "draft STC又はACなしSRをimplementation-readyにしない"
+      },
+      {
+        "acceptance_id": "MHH-AC-STRATEGY-REQUIREMENT-ADMISSION-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-STRATEGY-REQUIREMENT-ADMISSION"
+        ],
+        "semantic_digest": "sha256:17419d6fb115a66fc3f941baf5ceed94a07478d00a0f118e017efda000313a4c",
+        "source_projection": "local_refinement_registry",
+        "statement": "初期外SRは価値・依存・risk・再開条件付きdeferredとする"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-STRATEGY-REQUIREMENT-ADMISSION-P",
+        "MHH-AC-STRATEGY-REQUIREMENT-ADMISSION-N",
+        "MHH-AC-STRATEGY-REQUIREMENT-ADMISSION-B"
+      ],
+      "requirement_id": "MHH-REQ-STRATEGY-REQUIREMENT-ADMISSION",
+      "semantic_digest": "sha256:52f381f8b7c12da197f61fe39dd1e79474d5aabc8c97c70a8f97d423d115b2b8",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: 旧SR-01〜16の戦略価値をresearch-led growthへ再接続し、高度分析SR-17〜19をdeferredに分離した上で要求admissionとtest authorityを一意にする\ntasks: SR価値とphaseを再確認する / 初期/deferredを分ける / SR→AC→STCを束縛する / test ledger authorityを一つにする\nworkflow: 戦略価値確認→phase/admission→SR→AC→STC→S4判断\nscope_in: SR-01〜16のcore model、loop governance及び初期scope責務の再降下 / research evidence、商品/offer authority、marketing funnel、媒体役割、仮説及びKPI還流との接続 / 企画内容、改訂及び有効化の人間判断receipt / SR-17〜19 / AC-SR / TCC/STC authority / FN/CMP descent / deferred resume\nscope_out: draft testをconfirmed oracleとすること\nprohibitions: 要求記述だけを検証完了としない / TCC/STCを暗黙併用しない\nhuman_judgement: 戦略capabilityの価値・phase・admission、企画内容、改訂、有効化及び高度分析の再開はPOが判断\nside_effects: 現段階は要求とtest authorityの候補化のみ\nevidence: SR→AC→STC双方向trace / test ledger digest / deferred再開条件 / PO receipt\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "draft",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-STRATEGY-REQUIREMENT-ADMISSION",
+    "refinement_contract_id": "RRF-STRATEGY-REQUIREMENT-ADMISSION",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "STRATEGY-REQUIREMENT-ADMISSION",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:402cf3706c14f16e4eea5def2acd9b55266e855ae10a100fdc24f348caddea08",
+    "source": {
+      "acceptance_digest": "sha256:01114df6ad0c82bdcb46c03209ce5e3e4ad6eef484866a0ff0763e6d2e918eb2",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-STRATEGY-REQUIREMENT-ADMISSION/acceptance_cases",
+      "requirement_digest": "sha256:52f381f8b7c12da197f61fe39dd1e79474d5aabc8c97c70a8f97d423d115b2b8",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-STRATEGY-REQUIREMENT-ADMISSION",
+      "source_event_ids": [
+        "RDE-000107",
+        "RDE-000108",
+        "RDE-000161"
+      ],
+      "source_set_digest": "sha256:8e1520317883e34caea1c3dc43a0efd8694892c92b761fee6aabe97bdd31c628"
+    },
+    "supporting_requirements": []
+  },
+  "RRF-TEST-ID-AUTHORITY-ALIGNMENT": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-TEST-ID-AUTHORITY-ALIGNMENT-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-TEST-ID-AUTHORITY-ALIGNMENT"
+        ],
+        "semantic_digest": "sha256:1981c5e3e57d1e0e41d29623eac256b4b9f356605f822d0fc6a0af6798c8daf2",
+        "source_projection": "local_refinement_registry",
+        "statement": "全DU試験参照が実在TCC/STCへ一意に解決し試験意図が保存される"
+      },
+      {
+        "acceptance_id": "MHH-AC-TEST-ID-AUTHORITY-ALIGNMENT-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-TEST-ID-AUTHORITY-ALIGNMENT"
+        ],
+        "semantic_digest": "sha256:89921c33608f71964f71bfa6ced7a4e31b33ccd023fd741ea12a654325e55fbc",
+        "source_projection": "local_refinement_registry",
+        "statement": "不存在又は旧TC-*参照と意味未確認の置換を拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-TEST-ID-AUTHORITY-ALIGNMENT-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-TEST-ID-AUTHORITY-ALIGNMENT"
+        ],
+        "semantic_digest": "sha256:ed8cf8f0210503232d8da84dd335e02b164be9ccef8d43907cb779a11ec013ce",
+        "source_projection": "local_refinement_registry",
+        "statement": "同値でない試験は統合せず新ID化又は明示廃止を要求する"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-TEST-ID-AUTHORITY-ALIGNMENT-P",
+        "MHH-AC-TEST-ID-AUTHORITY-ALIGNMENT-N",
+        "MHH-AC-TEST-ID-AUTHORITY-ALIGNMENT-B"
+      ],
+      "requirement_id": "MHH-REQ-TEST-ID-AUTHORITY-ALIGNMENT",
+      "semantic_digest": "sha256:5df8bc9cff5ace92a0fe0e070ccc34b217cbe6b0a3af4770598c1932dcf6ace3",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: DUから検証正本への参照を一意にし、不存在の旧TC IDによる偽の完了判定を防ぐ\ntasks: 旧TC参照を抽出する / 試験意図を比較する / TCC/STCへ統合・新設又は廃止する / 全traceを検証する\nworkflow: 旧参照抽出→試験意図比較→PO mapping判断→DU/AC/TC再trace→negative gate\nscope_in: DU trace.tc / TCC契約 / STC台帳 / L4/L6試験参照\nscope_out: 製品実装 / 意味確認なしの文字列置換\nprohibitions: 不存在IDを完了証跡に使わない / 試験意図を失ったまま旧IDを削除しない\nhuman_judgement: 統合・新設・廃止はPOが要求責務と反証条件から決定する\nside_effects: 要求・検証traceの変更のみ\nevidence: 旧新ID mapping / 試験意図digest / 全参照解決 / negative mutation test\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "draft",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-TEST-ID-AUTHORITY-ALIGNMENT",
+    "refinement_contract_id": "RRF-TEST-ID-AUTHORITY-ALIGNMENT",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "TEST-ID-AUTHORITY-ALIGNMENT",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:bbec605a9a3c2388fe0b4169c268820eed0fcfe4601de43f2c301210576c6779",
+    "source": {
+      "acceptance_digest": "sha256:e7e8085ec758b83c7cf71c243f32a3784ad8bb01a3be249a35ddd26db385cfc0",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-TEST-ID-AUTHORITY-ALIGNMENT/acceptance_cases",
+      "requirement_digest": "sha256:5df8bc9cff5ace92a0fe0e070ccc34b217cbe6b0a3af4770598c1932dcf6ace3",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-TEST-ID-AUTHORITY-ALIGNMENT",
+      "source_event_ids": [
+        "RDE-000080",
+        "RDE-000081"
+      ],
+      "source_set_digest": "sha256:4045b2c060d8303d7cc85e75f38f0b39b1a14477b162d9f4ea27994dcc2285af"
+    },
+    "supporting_requirements": []
+  },
+  "RRF-VPS-CREDENTIAL-SECURITY-BOUNDARY": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-VPS-CREDENTIAL-SECURITY-BOUNDARY-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-VPS-CREDENTIAL-SECURITY-BOUNDARY"
+        ],
+        "semantic_digest": "sha256:cda274b50659800add5d10cfe9460ab2557ba2440a3ee5f411d9674237fbc5f1",
+        "source_projection": "local_refinement_registry",
+        "statement": "暗号化at-rest保護とprofile/account/operation束縛一時注入を満たし、証跡は参照IDだけを保持して使用後にsecretを残さない"
+      },
+      {
+        "acceptance_id": "MHH-AC-VPS-CREDENTIAL-SECURITY-BOUNDARY-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-VPS-CREDENTIAL-SECURITY-BOUNDARY"
+        ],
+        "semantic_digest": "sha256:31dfbd328607d53cf24d9f1663945cc645c2721043b0ce60803ce3edb87aac70",
+        "source_projection": "local_refinement_registry",
+        "statement": "平文env、repo/製品DB/log/journal/service unit/argv/dump/evidence漏洩、scope越境、test/prod混用及びsecret backupを拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-VPS-CREDENTIAL-SECURITY-BOUNDARY-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-VPS-CREDENTIAL-SECURITY-BOUNDARY"
+        ],
+        "semantic_digest": "sha256:0213f27ec9ed10fabeb47b28e00ceb2f653dd7ab3e8836d11c3849d0e8eed336",
+        "source_projection": "local_refinement_registry",
+        "statement": "VPS再起動又はunlock失敗時は外部操作停止を維持し、人間が実行系とcredential注入を再認可するまで自動復旧せず、旧平文credentialも再発行前に移送しない"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-VPS-CREDENTIAL-SECURITY-BOUNDARY-P",
+        "MHH-AC-VPS-CREDENTIAL-SECURITY-BOUNDARY-N",
+        "MHH-AC-VPS-CREDENTIAL-SECURITY-BOUNDARY-B"
+      ],
+      "requirement_id": "MHH-REQ-VPS-CREDENTIAL-SECURITY-BOUNDARY",
+      "semantic_digest": "sha256:16f222c23f0071263f5b28fc09a62e23c50719dbff0f9c4747d8de00bcb014df",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: 具体backendを先取りせずVPS credentialの保存・解除・注入・rotationを安全に閉じる\ntasks: 暗号化at-rest境界を検証する / unlockとscope付きruntime注入を検証する / rotation/recoveryと旧平文credential再発行を検証する / test/prod分離、間接参照及びredactionを検証する\nworkflow: credential登録→暗号化at-rest保護→実行系初期化時のunlock再認可→profile/account/operation束縛runtime注入→使用→破棄→rotation/recovery / VPS再起動→エージェント実行系停止→外部操作停止維持→人間による実行系再初期化→credential unlock/runtime注入再認可\nscope_in: at-rest protection / unlock / runtime injection / rotation / backup/recovery / test/prod scope / redaction / credential参照ID\nscope_out: 具体secret backend製品 / unlockとruntime注入の具体mechanism / 平文envを暗号化storeと同一視すること\nprohibitions: 0600だけをat-rest保護の十分条件にしない / secret値をrepo/製品DB/log/journal/service unit/argv/dump/evidenceへ記録しない / credentialを製品状態backupへ含めない / test credentialをproductionへ注入しない / 旧平文credentialをrotateせず新storeへ移送しない / 現行runtime lifecycleでの無人unlock又は自動復旧 / 資格情報だけを復旧して停止中のエージェントが継続すると仮定すること\nhuman_judgement: VPS再起動後の実行系再初期化とcredential unlock/runtime注入は人間が再認可する / 将来の常駐service、自動再起動及び無人unlockは別要求としてPO/security運用者が判断する\nside_effects: 現段階は要求候補のみ。credential移動やrotationを行わない\nevidence: threat model / credential参照IDだけを持つoperation/evidence receipt / profile/account/operation scope negative test / test/prod tag mismatch negative test / positive/negative/boundary AC / leakage test / 旧credential rotation receipt / rotation/recovery receipt / PO receipt\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "specified",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-VPS-CREDENTIAL-SECURITY-BOUNDARY",
+    "refinement_contract_id": "RRF-VPS-CREDENTIAL-SECURITY-BOUNDARY",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "VPS-CREDENTIAL-SECURITY-BOUNDARY",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:2f6e2ffb18eae159161b91e3f84820cc89a13d07bdadee1135a54101fd2d2e36",
+    "source": {
+      "acceptance_digest": "sha256:18565e9b9063e0287aebb0d7a0c1681361c1472671fb335c061d4924282d80e8",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-VPS-CREDENTIAL-SECURITY-BOUNDARY/acceptance_cases",
+      "requirement_digest": "sha256:16f222c23f0071263f5b28fc09a62e23c50719dbff0f9c4747d8de00bcb014df",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-VPS-CREDENTIAL-SECURITY-BOUNDARY",
+      "source_event_ids": [
+        "RDE-000109",
+        "RDE-000110",
+        "RDE-000159",
+        "RDE-000162"
+      ],
+      "source_set_digest": "sha256:36cabb0597993ef05e0a38ced2a85010035be766318a81dde6a4be65bf244331"
+    },
+    "supporting_requirements": []
+  },
+  "RRF-VPS-UI-AUTHENTICATION-SESSION": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-VPS-UI-AUTHENTICATION-SESSION-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-VPS-UI-AUTHENTICATION-SESSION"
+        ],
+        "semantic_digest": "sha256:eebff5fdd3ae6eb195f4f77cfee9e13278a97d5adbc93b9eae3fa699ce73cd20",
+        "source_projection": "local_refinement_registry",
+        "statement": "有効なidentity revision、authentication event/digest、session expiry/revocation、必要strength/freshness及びoperation別authorization grant ID/revision/digestを満たすprincipalだけ操作できる"
+      },
+      {
+        "acceptance_id": "MHH-AC-VPS-UI-AUTHENTICATION-SESSION-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-VPS-UI-AUTHENTICATION-SESSION"
+        ],
+        "semantic_digest": "sha256:ec211f438c20a17c4c6170658f2fac71c2c209cea9c9cec97d0d453bef2a5627",
+        "source_projection": "local_refinement_registry",
+        "statement": "unknown/stale identity、expired/revoked/fixed/replayed session、CSRF不成立、strength/freshness不足、deep-linkのみ、grant欠落、raw secret/raw bearer token/credential materialのrepo・製品DB・log・inboxへの永続化又は露出、及びcredentialを含むauthentication event digestを拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-VPS-UI-AUTHENTICATION-SESSION-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-VPS-UI-AUTHENTICATION-SESSION"
+        ],
+        "semantic_digest": "sha256:5fa79e8a2358b2c803f20db6eab26fb9ea8fd51572a7d9cb73a925681b75d0ab",
+        "source_projection": "local_refinement_registry",
+        "statement": "lockout/recovery/break-glass又はVPS再起動時もstate/revisionを維持し、runtime/credential再認可とfresh grantまで外部作用を停止する"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-VPS-UI-AUTHENTICATION-SESSION-P",
+        "MHH-AC-VPS-UI-AUTHENTICATION-SESSION-N",
+        "MHH-AC-VPS-UI-AUTHENTICATION-SESSION-B"
+      ],
+      "requirement_id": "MHH-REQ-VPS-UI-AUTHENTICATION-SESSION",
+      "semantic_digest": "sha256:59583ac23bfdef85aafee36c120abced6cf938c25b6c905bf7bf364890468d04",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: 高リスク判断を本人性とfresh sessionへ束縛する\ntasks: identity/session revision、authentication event、strength、expiry、revocation及びreauth freshnessを検証する / operationごとにauthorization grant ID/revision/digestを別検証する / VPS再起動後のruntime/credential/grant再認可を検証する\nworkflow: identity登録→authentication event→session発行→session/CSRF/strength/freshness検証→authorization grant検証→operation又はdeny→失効/recovery監査\nscope_in: identity lifecycle / session / CSRF / 再認証 / recovery / lockout / audit/emergency access / session binding and identity revision / authentication strength and reauth freshness / authorization grant reference / VPS restart credential/grant boundary / 有人再認可後のbounded process-memory credential injection候補 / non-secret session identifier又はone-way digest候補 / secret-free authentication event canonical projection\nscope_out: IdP/protocol/proxy/framework選定 / 専用secret authority方式の先決め\nprohibitions: 通知deep-linkを認証とみなさない / 共有account / 失効session利用 / authentication又はsession成立からauthorizationを推論する / deep-linkをauthenticationとみなす / session fixation又はreplay / VPS再起動後に既存Web sessionからcredential又はgrant authorityを復元する / recovery又はbreak-glassでauthorization grantを迂回する / raw secret、raw bearer token又はcredential materialをrepo、製品DB、log又はinboxへ永続化又は露出する / authentication event digestへsecret又はcredential materialを混入する\nhuman_judgement: principal登録、recovery、emergency access、残余riskはPO/security authority\nside_effects: 現段階は要求候補のみ\nevidence: identity/session lifecycle / negative auth cases / recovery/audit receipt / PO receipt / session/identity/authentication event revision receipt / expired/revoked/stale/CSRF/strength/freshness negative tests / authorization grant separation receipt / post-reboot credential/grant reauthorization evidence / secret storage negative test / raw secret/bearer/credential material storage negative tests / secret-free authentication event digest projection / bounded process-memory injection receipt\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "specified",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-VPS-UI-AUTHENTICATION-SESSION",
+    "refinement_contract_id": "RRF-VPS-UI-AUTHENTICATION-SESSION",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "VPS-UI-AUTHENTICATION-SESSION",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:378e34ddda90d0f0825dee7ea03e0f6c667418d816d0b17d0ee9c6f4955fde56",
+    "source": {
+      "acceptance_digest": "sha256:426057b0403d23b2addf611d6b79a65c0c7fba339a05e2abcedcd097b6d86226",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-VPS-UI-AUTHENTICATION-SESSION/acceptance_cases",
+      "requirement_digest": "sha256:59583ac23bfdef85aafee36c120abced6cf938c25b6c905bf7bf364890468d04",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-VPS-UI-AUTHENTICATION-SESSION",
+      "source_event_ids": [
+        "RDE-000132",
+        "RDE-000133",
+        "RDE-000176",
+        "RDE-000177"
+      ],
+      "source_set_digest": "sha256:604355cc05aab91fa3a0f64082152bd8036a8529e3f1904dc80fe254f7ceb6b0"
+    },
+    "supporting_requirements": []
+  },
+  "RRF-VPS-UI-INBOX-LIFECYCLE": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-VPS-UI-INBOX-LIFECYCLE-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-VPS-UI-INBOX-LIFECYCLE"
+        ],
+        "semantic_digest": "sha256:bb4d84e0a8ce2ea5f3107f072d42a45b43e7ede570a3567277119de433657428",
+        "source_projection": "local_refinement_registry",
+        "statement": "approval_waiting/safety_stoppedと外部operation・公開・保守のexecution_failedを先に確定し、purposeと対象bindingを持つ一意なitemをrecordedとして残し、seen/acknowledgedを利用者別に記録する。content_quality_retry_exhaustedは対象artifact、rule revision及びexhaustion source identityへ束縛したoperational alertを一件だけ記録する。resolved/expiredはsource lifecycle、revision失効又はscope取消の正本eventだけへ追随する。登録済み有界retry内で記録し、terminal後だけ登録済みretention policyに従って処理する"
+      },
+      {
+        "acceptance_id": "MHH-AC-VPS-UI-INBOX-LIFECYCLE-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-VPS-UI-INBOX-LIFECYCLE"
+        ],
+        "semantic_digest": "sha256:b39bf603b3e5b18c67ce89097074397ee1452fab2cdd9b25260973db23053d10",
+        "source_projection": "local_refinement_registry",
+        "statement": "通知失敗・重複・seen・acknowledged・resolved・expiredから業務状態、approve/reject又は停止後再開を変更せず、scope外profileのitemとsecret/PII/raw errorを表示しない。通常のcontent quality retryを通知せず、retry exhaustion itemの記録失敗でもblocked状態を変更しない。旧FR-43又はApprovalTransportをinbox source authorityとして直接採用しない。未確認、時間経過、stale表示又は記録失敗だけでaction_requiredをexpiredにしない。無限retry、外部通知fallback、active itemの時間archive/purge、policy不明時purge、reminderからのdecision又は別item生成を拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-VPS-UI-INBOX-LIFECYCLE-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-VPS-UI-INBOX-LIFECYCLE"
+        ],
+        "semantic_digest": "sha256:77002ef522f6cc7acf5f15c5dc6b3a312c044cdc6f9e74777423c9ff4d2b500f",
+        "source_projection": "local_refinement_registry",
+        "statement": "未知source/purpose、同一identity再送、記録失敗、保持境界ではfail-closeし、業務状態を維持したまま一意なattempt/failed/expiry証跡を残す。content quality exhaustionの再送は同一source identityへdedupeし、別itemを作らない。長期未確認表示又はreminder候補からapprove/reject、停止解除又はsource expiryを導出しない。retry exhaustionではblockedを維持してfailed receiptを残し、retention不明又はlegal hold中はaccess制限して不可逆削除を停止し、reminder未登録時は無表示のままsource状態を維持する"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-VPS-UI-INBOX-LIFECYCLE-P",
+        "MHH-AC-VPS-UI-INBOX-LIFECYCLE-N",
+        "MHH-AC-VPS-UI-INBOX-LIFECYCLE-B"
+      ],
+      "requirement_id": "MHH-REQ-VPS-UI-INBOX-LIFECYCLE",
+      "semantic_digest": "sha256:8e7014577d4ad96f3ded703a42f97f618cf2b56f3c89866d948fa7b9d1ed1fad",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: 通知lifecycleと業務状態を分離して通知失敗や重複による誤決定を防ぐ\ntasks: 初期source eventをinboxへ記録する / 利用者ごとのseen/acknowledgedを管理する / source状態に追随してresolved/expiredを管理する / 重複を一itemへ収束する / 記録失敗を業務状態と独立にretryする / content quality retry exhaustionを一意なoperational alertとして記録する / source lifecycle、revision失効又はscope取消の正本eventだけからresolved/expiredを導出する / purpose/risk class/profile別の有効なretry budget registrationを検証する / retry上限到達時にretry_exhausted/failed receiptを残して通知処理だけを停止する / source terminal後にretention/legal hold/data classification policyへ従ってarchive/redact/purgeする / 明示registrationがある場合だけactive未確認itemへ同一item内reminder又はurgency変更を行う\nworkflow: source event→業務状態を先に確定→inbox記録attempt→recorded/failed/retry_exhausted receipt→利用者seen/acknowledged→source状態に追随したresolved/expired→source terminal後のみretention policyに従うarchive/redact/purge。reminder policyは既定disabled\nscope_in: VPS UI内inbox / purpose=action_required又はoperational_alert / source=approval_waiting/safety_stopped/execution_failed / recorded/failed/retry_exhausted evidence / per-principal seen/acknowledged / source-linked resolved/expired / profile/resource/operation別list/read/seen/acknowledge認可 / secret/credential/PII/raw errorの最小開示 / deduplication / retry / retention / source=content_quality_retry_exhausted（通常retryを除外） / artifact/rule revision/retry exhaustion source identityによる一件dedupe / 旧FR-43 repair failureを再降下したexecution_failed（旧ApprovalTransportを除外） / source-derived resolved/expired（inbox独自expiryなし） / 有界inbox記録retry / terminal後retention/legal hold/data classification / 同一item内reminder/urgency（明示登録時のみ） / secret/PIIを含まない最小tombstoneとpurge receipt\nscope_out: 外部adapter配送結果 / Discord / Web Push / community media post / developer PR notice / 具体DB/API/UI設計 / 通知操作による業務decision / inbox独自時刻によるaction_required expiry / inbox失敗時の外部通知fallback / active source itemのarchive/purge / 既定有効のreminder/escalation\nprohibitions: 承認待ちと運用alertを同じpurposeにしない / seen/acknowledgedをapprove/reject又は再開とみなさない / 通知記録失敗又はretry_exhaustedで先行する安全停止・失敗・承認待ち状態をrollbackしない / inbox記録と外部配送を同じ結果軸にしない / 同一source eventから複数の現役itemを作らない / 認証済みであることだけで全profileのinboxを閲覧又は更新させない / secret、credential、個人情報又は不要なraw error payloadをinboxへ表示しない / 未決の時間・回数を設計者が補完しない / 通常のcontent quality retryをinbox itemにする / 旧FR-43又はApprovalTransportを新inbox source authorityとして直接採用する / 未確認、時間経過、stale表示又は記録失敗だけでaction_requiredをexpiredにする / reminder又はescalation表示からapprove/reject、停止解除又はsource expiryを導出する / 無限retry / retry budget未登録・失効・不正時の自動運用開始又は追加retry / retry exhaustionから外部通知transportへfallbackする / active source itemを未確認期間だけでarchive又はpurgeする / retention policy不明又はlegal hold中の不可逆purge / reminder/escalationで別itemを量産する\nhuman_judgement: approve/reject、停止後再開、中止はinbox lifecycleと別の許可principal判断 / retention、availability及びreminderの方針採用は要求authorityがratifyする。実値はprofile/purpose/risk class別registration revisionへ束縛し、未登録時は安全側停止とする\nside_effects: 現段階は要求候補の記録のみ。将来はinbox itemと利用者別確認状態を記録する / terminal itemのarchive/redact/purge候補 / 明示登録時の同一item内reminder又はurgency変更\nevidence: source event identityと対象profile/resource/revision/purpose / recorded/failed/retry/retry_exhausted receipt / per-principal seen/acknowledged receipt / profile/resource/operation scopeに対するlist/read/seen/acknowledge認可receipt / cross-profile拒否及びsecret/PII最小開示negative test / source-linked resolved/expired receipt / dedupe negative test / 業務状態不変negative test / PO receipt / content quality blocked source identity、artifact、rule revision及びretry exhaustion receipt / FR-43 replacement source identity、phase、risk及びfailure evidence / source lifecycle/revision/scope eventからのresolved/expired derivation receipt / inbox独自時間経過でactive itemが失効しないnegative test / retry budget registration revision、attempt履歴及びconfiguration-fault receipt / terminal source event、retention policy revision、data classification及びlegal-hold判定 / archive/redact/purge receiptと非secret最小tombstone / reminder policy revisionと同一item dedupe negative test\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "specified",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-VPS-UI-INBOX-LIFECYCLE",
+    "refinement_contract_id": "RRF-VPS-UI-INBOX-LIFECYCLE",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "VPS-UI-INBOX-LIFECYCLE",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:ba51da6840335246f08acaf4a7555a58a10d28a7ec246f113cb33f10b47bf02c",
+    "source": {
+      "acceptance_digest": "sha256:c7fcc8ba962426a8f9da5878b04e701ba3c7a4433329f149a99a25c5f8f390f4",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-VPS-UI-INBOX-LIFECYCLE/acceptance_cases",
+      "requirement_digest": "sha256:8e7014577d4ad96f3ded703a42f97f618cf2b56f3c89866d948fa7b9d1ed1fad",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-VPS-UI-INBOX-LIFECYCLE",
+      "source_event_ids": [
+        "RDE-000100",
+        "RDE-000101",
+        "RDE-000102",
+        "RDE-000119",
+        "RDE-000165",
+        "RDE-000166",
+        "RDE-000167",
+        "RDE-000168"
+      ],
+      "source_set_digest": "sha256:cb8ce74d3ab72a49995b0fd2060d05c29ace6027486e790057123d79adcf050c"
+    },
+    "supporting_requirements": []
+  },
+  "RRF-VPS-UI-PRIMARY-HUMAN-INTERFACE": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-VPS-UI-PRIMARY-HUMAN-INTERFACE-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-VPS-UI-PRIMARY-HUMAN-INTERFACE"
+        ],
+        "semantic_digest": "sha256:2b6a0ca2cfb0aa98ac71e5203ab10aa66391279b551aa61fd36d1447e687b48d",
+        "source_projection": "local_refinement_registry",
+        "statement": "認証済みprincipalが対象revisionを再表示して明示操作した場合だけ状態を更新する"
+      },
+      {
+        "acceptance_id": "MHH-AC-VPS-UI-PRIMARY-HUMAN-INTERFACE-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-VPS-UI-PRIMARY-HUMAN-INTERFACE"
+        ],
+        "semantic_digest": "sha256:fc77a6f4855b1ba0c496b25a42e981b146d7362c1e0edcf9ac54c5b2882d1bf6",
+        "source_projection": "local_refinement_registry",
+        "statement": "未認証・CSRF不成立・stale binding・通知deep-linkだけの操作を拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-VPS-UI-PRIMARY-HUMAN-INTERFACE-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-VPS-UI-PRIMARY-HUMAN-INTERFACE"
+        ],
+        "semantic_digest": "sha256:1a70df5b26deb0e8ef51dc32623c2de0b7019f9023a925ad098c0e117387d88a",
+        "source_projection": "local_refinement_registry",
+        "statement": "session失効・同時更新・高リスク再認証要求時はfail-closeし既存状態を維持する"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-VPS-UI-PRIMARY-HUMAN-INTERFACE-P",
+        "MHH-AC-VPS-UI-PRIMARY-HUMAN-INTERFACE-N",
+        "MHH-AC-VPS-UI-PRIMARY-HUMAN-INTERFACE-B"
+      ],
+      "requirement_id": "MHH-REQ-VPS-UI-PRIMARY-HUMAN-INTERFACE",
+      "semantic_digest": "sha256:229880f28abe6afce7c9576079bf3844130c3f47aa8d60a42e8079439e12478f",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: チャット製品に依存せずVPS上で状態・承認・通知を一体監督できる\ntasks: 状態・失敗・KPI・承認待ちを確認する / 初回activation・scope拡張・高リスク例外・停止後再開を明示決定する / structured feedbackと適用scopeを入力する / blocked成果物と検査・分類証跡を診断閲覧する / activationを取消す\nworkflow: 認証→対象表示→通知/承認待ち確認→直前認可→明示操作→証跡保存\nscope_in: VPS製品Web UI / UI内inbox / 状態/証跡閲覧 / blocked成果物と検査・分類証跡の診断閲覧 / structured feedback入力とscope指定 / activation取消 / 初回自動運用activationと例外判断\nscope_out: 認証protocol/IdP選定 / session timeout数値 / reverse proxy製品 / 公開URL / UI framework選定 / Web Push / Discord補助 / 開発PR通知\nprohibitions: 通知受信だけで意思決定を成立させない / 要求正本をUIから更新しない / VPS-UI-AUTHENTICATION-SESSION、VPS-UI-INBOX-LIFECYCLE、VPS-UI-QUALITY-ATTRIBUTES又はPRODUCT-STATE-AUTHORITYが未凍結のまま主入口を完了扱いしない\nhuman_judgement: 初回activation・scope拡張・課金・危険設定・重大rule変更・再開は許可principalが判断し、activation後の個別投稿は品質gate合格時に毎回承認を要求しない\nside_effects: 認可済みUI操作による製品状態変更\nevidence: principal・対象・revision・binding・decision・状態遷移receipt / authentication/session、inbox、quality及びproduct-state各subjectのfrozen receipt\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "specified",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-VPS-UI-PRIMARY-HUMAN-INTERFACE",
+    "refinement_contract_id": "RRF-VPS-UI-PRIMARY-HUMAN-INTERFACE",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "VPS-UI-PRIMARY-HUMAN-INTERFACE",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:e3fa5eb252a9727ed95bc4c5d537012b833f2e82eb9f16ceda989eccf4cecb19",
+    "source": {
+      "acceptance_digest": "sha256:e171e9b32efeb2956dfec3d5defa73f38e281cf88e3a1e3833f586fda5426097",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-VPS-UI-PRIMARY-HUMAN-INTERFACE/acceptance_cases",
+      "requirement_digest": "sha256:229880f28abe6afce7c9576079bf3844130c3f47aa8d60a42e8079439e12478f",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-VPS-UI-PRIMARY-HUMAN-INTERFACE",
+      "source_event_ids": [
+        "RDE-000007",
+        "RDE-000010",
+        "RDE-000011",
+        "RDE-000012",
+        "RDE-000013",
+        "RDE-000030",
+        "RDE-000031",
+        "RDE-000032",
+        "RDE-000035"
+      ],
+      "source_set_digest": "sha256:92139d319d5f714362976bb6ad73ca6f6746ff63aa33bf7b61cd015d1c1236fb"
+    },
+    "supporting_requirements": []
+  },
+  "RRF-VPS-UI-QUALITY-ATTRIBUTES": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-VPS-UI-QUALITY-ATTRIBUTES-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-VPS-UI-QUALITY-ATTRIBUTES"
+        ],
+        "semantic_digest": "sha256:4af83356210286ff5b818c9017eb747f3f0c31b64e62bcbd013b6550ef8e3403",
+        "source_projection": "local_refinement_registry",
+        "statement": "適用対象の全品質属性がscope、metric、unit、測定環境/window、有効なthreshold registration revision/digest、証跡、failure outcome及びresume conditionを持ち属性別受入条件を満たす"
+      },
+      {
+        "acceptance_id": "MHH-AC-VPS-UI-QUALITY-ATTRIBUTES-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-VPS-UI-QUALITY-ATTRIBUTES"
+        ],
+        "semantic_digest": "sha256:c59c0cd0f08704536c72db5f95392ddf00e03d67783be8454087f74aa7e4df95",
+        "source_projection": "local_refinement_registry",
+        "statement": "generic N/A、未知・未測定・未登録又は失効閾値、測定環境又は証拠欠落、対象変更があるmigration/rollbackの未検証を利用可能又はrelease可能として拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-VPS-UI-QUALITY-ATTRIBUTES-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-VPS-UI-QUALITY-ATTRIBUTES"
+        ],
+        "semantic_digest": "sha256:c0f64a92b0b9c580f432ce4f8885e7cf8eaab54872f4df52586d9e70158ae9fd",
+        "source_projection": "local_refinement_registry",
+        "statement": "一部品質だけ成立する場合はdeferredを維持し全体受入へ読み替えず、UI品質を製品状態backup/restore又はworker/connector品質へ拡張しない"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-VPS-UI-QUALITY-ATTRIBUTES-P",
+        "MHH-AC-VPS-UI-QUALITY-ATTRIBUTES-N",
+        "MHH-AC-VPS-UI-QUALITY-ATTRIBUTES-B"
+      ],
+      "requirement_id": "MHH-REQ-VPS-UI-QUALITY-ATTRIBUTES",
+      "semantic_digest": "sha256:a01e41d02b365a1eccb468d3bfbff53f3339b83904551addb102e0232ff63b28",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: 設計製品を先取りせずVPS UIの品質と復旧可能性を反証可能にする\ntasks: 各品質属性をscope、journey又はoperation、metric、unit、測定環境/window、applicability、threshold registration、evidence、failure outcome及びresume conditionへ束縛する / 未知・未測定・未登録又は失効閾値をdeferredとしてfail-closeする / 故障と復旧を検証し、部分passを全体passへ昇格しない / migration/rollback対象の有無と受入判断を分離する\nworkflow: 属性適用分類→閾値registration検証→測定→故障/復旧検証→属性別判定→全体受入判断\nscope_in: accessibility / performance / availability / recovery / operation / migration / rollback\nscope_out: protocol/IdP/proxy/UI framework選定 / 製品状態のbackup/restore/reconciliation（NFR-10及びPRODUCT-STATE-AUTHORITY所掌） / worker又は外部connector側のavailability/recovery\nprohibitions: 具体製品を要求で先取りしない / 閾値なしで利用可能としない / generic N/Aを使用しない / 部分passを全体pass又はrelease許可へ読み替えない / 製品状態backup/restore又はworker/connector品質をUI品質証拠へ流用しない\nhuman_judgement: 品質閾値と残余riskをPOが判断\nside_effects: 現段階なし\nevidence: 測定定義 / 故障/復旧結果 / migration/rollback receipt / 属性別applicability partitionとthreshold registration revision/digest / failure outcomeとresume condition\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "draft",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-VPS-UI-QUALITY-ATTRIBUTES",
+    "refinement_contract_id": "RRF-VPS-UI-QUALITY-ATTRIBUTES",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "VPS-UI-QUALITY-ATTRIBUTES",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:a539488c470fd0878a9bf03c9e37c3f8d7bd377ca170efbfbb5282147e2b79f6",
+    "source": {
+      "acceptance_digest": "sha256:c69b2317e087a08223b2e2bcca82f3d3d889bef52e17a192df7adcc5412254b9",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-VPS-UI-QUALITY-ATTRIBUTES/acceptance_cases",
+      "requirement_digest": "sha256:a01e41d02b365a1eccb468d3bfbff53f3339b83904551addb102e0232ff63b28",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-VPS-UI-QUALITY-ATTRIBUTES",
+      "source_event_ids": [
+        "RDE-000094",
+        "RDE-000096",
+        "RDE-000178"
+      ],
+      "source_set_digest": "sha256:8da3d7fcad31d5dbb3dba254a1e5f6b9a5ec863a19e78fc5f7555c462f15b417"
+    },
+    "supporting_requirements": []
+  },
+  "RRF-WORDPRESS-CONTENT-OPERATIONS-RELEASE": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-WORDPRESS-CONTENT-OPERATIONS-RELEASE-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-WORDPRESS-CONTENT-OPERATIONS-RELEASE"
+        ],
+        "semantic_digest": "sha256:437658249f2603c4a58e93b078ec47e244f1b71fe18ae24269c8474d44fa0fa6",
+        "source_projection": "local_refinement_registry",
+        "statement": "stable content ID、remote revision、desired digest、capability、API/MCP優先route、grant ID/revision/semantic digest、activation scope ID/revision/semantic digest、content/risk/quality gate及びidempotencyを再検証し、scope内合格済みoperationだけ実行してreceiptを残す"
+      },
+      {
+        "acceptance_id": "MHH-AC-WORDPRESS-CONTENT-OPERATIONS-RELEASE-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-WORDPRESS-CONTENT-OPERATIONS-RELEASE"
+        ],
+        "semantic_digest": "sha256:7072fd1bf2e594dc6a32c9dad53052476f7087ff47aa02e5d0b459b5efeb3cc2",
+        "source_projection": "local_refinement_registry",
+        "statement": "content policyによるcore/plugin/security変更、stale revision、grant又はactivation scopeの欠落/stale/digest不一致/identity不一致、gate/capability欠落、scope mismatch、unsupported operation及びrollback evidence欠落を拒否して既公開状態を維持する"
+      },
+      {
+        "acceptance_id": "MHH-AC-WORDPRESS-CONTENT-OPERATIONS-RELEASE-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-WORDPRESS-CONTENT-OPERATIONS-RELEASE"
+        ],
+        "semantic_digest": "sha256:9c7f55c34845d2697197e7627b85260267f2c206a898e46a282b848ed44d9dce",
+        "source_projection": "local_refinement_registry",
+        "statement": "in-place非対応の既公開物は別operationへ置換せずstate不変のunsupported non-action receiptを残して通知せず、削除/非公開化/競合/保持が未決ならそのoperationだけdeferredにする"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-WORDPRESS-CONTENT-OPERATIONS-RELEASE-P",
+        "MHH-AC-WORDPRESS-CONTENT-OPERATIONS-RELEASE-N",
+        "MHH-AC-WORDPRESS-CONTENT-OPERATIONS-RELEASE-B"
+      ],
+      "requirement_id": "MHH-REQ-WORDPRESS-CONTENT-OPERATIONS-RELEASE",
+      "semantic_digest": "sha256:ec927831a0dcf8ccdb6df150815fbad24fa40f6623c8340e60671ecb8efc33ae",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: WordPressをcontent databaseとして日常公開運用し基盤保守riskから分離する\ntasks: create draft、update draft、publish、update published in place、unpublish、delete及びrollbackを別operation/effectとして扱う / 各attemptをtarget identity/revision、desired digest、capability/route、grant ID/revision/semantic digest、activation scope ID/revision/semantic digest、gate/idempotency及びresult receiptへ束縛する / API/MCPを優先しPlaywright確認をwrite authorityへ読み替えない / in-place非対応時は状態不変のunsupported non-action receiptを残し通知しない\nworkflow: 対象取得→draft/preview→activation scopeと対象/revision再検証→quality/risk gate→scope内合格時は毎回承認なしで公開/更新→receipt。未activation、scope拡張又はattended-onlyは明示判断へ分岐\nscope_in: content operation閉集合 / stable ID/revision / 公開証跡\nscope_out: core/plugin変更 / security変更 / AGENT NEO改修\nprohibitions: content_publishでmaintenance/security変更を許可しない / PoC又は旧Docker WP成功を本番受入に流用しない / update/publish/unpublish/delete/rollbackを相互に含意しない / in-place非対応時に別記事作成、再公開又は通知へ置換しない / Playwright確認成功をwrite authorityとみなさない\nhuman_judgement: 初回activation、scope拡張、attended-only operation及び未決の削除/非公開化/競合解決は許可principal。activation scope内のgate合格済み通常公開は毎回判断しない\nside_effects: WordPress content/media/page状態変更\nevidence: preview diff / principal/decision / publication/update receipt / S4 receipt / capability、grant及びactivation scopeのID/revision/semantic digestとgate receipts / unsupported non-action又はoperation別result receipt\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "draft",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-WORDPRESS-CONTENT-OPERATIONS-RELEASE",
+    "refinement_contract_id": "RRF-WORDPRESS-CONTENT-OPERATIONS-RELEASE",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "WORDPRESS-CONTENT-OPERATIONS-RELEASE",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:e49d1ec4a84e1bc8c0e949a6c53114e203b1d99a2cfd3d94748af6d55b2b57e4",
+    "source": {
+      "acceptance_digest": "sha256:af353807f8fbca8580dd65f9fb12a6b6e9312b72f220c8cd5a082b824a90777b",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-WORDPRESS-CONTENT-OPERATIONS-RELEASE/acceptance_cases",
+      "requirement_digest": "sha256:ec927831a0dcf8ccdb6df150815fbad24fa40f6623c8340e60671ecb8efc33ae",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-WORDPRESS-CONTENT-OPERATIONS-RELEASE",
+      "source_event_ids": [
+        "RDE-000113",
+        "RDE-000114",
+        "RDE-000160",
+        "RDE-000179"
+      ],
+      "source_set_digest": "sha256:013f5feeb9efc90ea6afc13511d7315091dc45a58e897a1da55bea8f1814f13c"
+    },
+    "supporting_requirements": []
+  },
+  "RRF-WORDPRESS-MAINTENANCE-BOUNDARIES": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-WORDPRESS-MAINTENANCE-BOUNDARIES-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-WORDPRESS-MAINTENANCE-BOUNDARIES"
+        ],
+        "semantic_digest": "sha256:4733baa739ba0710cea9a5fcc8db1196e6b6c028459e7f978722082b4f1756ef",
+        "source_projection": "local_refinement_registry",
+        "statement": "公開・リライト・media upload・固定ページ編集は運用release、core/plugin変更と起因障害対応は保守releaseとして独立証跡を持つ"
+      },
+      {
+        "acceptance_id": "MHH-AC-WORDPRESS-MAINTENANCE-BOUNDARIES-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-WORDPRESS-MAINTENANCE-BOUNDARIES"
+        ],
+        "semantic_digest": "sha256:065c31e800fea5abce1700b4c23ae895619a7a4e80240e7cff41217a2cd4be4f",
+        "source_projection": "local_refinement_registry",
+        "statement": "運用操作によるcore/plugin変更、又は通常保守によるsecurity判断代替を拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-WORDPRESS-MAINTENANCE-BOUNDARIES-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-WORDPRESS-MAINTENANCE-BOUNDARIES"
+        ],
+        "semantic_digest": "sha256:e86e70171cc696443a61d8453158a5f3cb08224aee61b7190c68e4aa79bfe710",
+        "source_projection": "local_refinement_registry",
+        "statement": "plugin更新にsecurity修正が含まれても変更作業は保守、脅威受容・緊急解除・credential/権限判断はsecurity保守として別receiptへ束縛する"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-WORDPRESS-MAINTENANCE-BOUNDARIES-P",
+        "MHH-AC-WORDPRESS-MAINTENANCE-BOUNDARIES-N",
+        "MHH-AC-WORDPRESS-MAINTENANCE-BOUNDARIES-B"
+      ],
+      "requirement_id": "MHH-REQ-WORDPRESS-MAINTENANCE-BOUNDARIES",
+      "semantic_digest": "sha256:eafdb5ab01a64154bc42df57594ce221f4327aed4a5beb2b77ec0f80047f8201",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: コンテンツ価値提供、変更保守、セキュリティ対応を独立releaseにして異なるrisk・停止・rollback判断を混同しない\ntasks: コンテンツを公開・リライトする / メディアをアップロードする / 固定ページを編集する / WordPress本体をversion updateする / pluginを導入・updateする / 変更起因障害を復旧する\nworkflow: content operation release→独立S4 / WordPress maintenance release→変更前backup/PoC→更新→smoke→rollback判断→独立S4 / security maintenance release→別risk/authority/AC/TC\nscope_in: 運用: 公開・リライト・メディアupload・固定ページ編集 / 保守: WordPress本体version updateと随伴変更 / 保守: plugin導入/updateと変更起因障害対応 / security保守の独立境界\nscope_out: 三領域の一括受入 / 通常運用による保守変更 / 通常保守判断によるsecurity停止解除\nprohibitions: コンテンツ操作を保守へ分類しない / core/plugin変更を日常運用へ分類しない / security保守を通常保守へ混在させない / backup/smoke/rollbackなしで更新を本番昇格しない\nhuman_judgement: 各release unitをPOが個別S4判断する / version/plugin変更後の障害は保守担当が停止・rollback候補を提示する / security緊急判断は別権限境界で行う\nside_effects: 公開コンテンツ変更 / WordPress core/plugin変更 / 変更起因rollback / 別releaseでのsecurity変更\nevidence: publication/edit/media receipt / version/plugin inventory before/after / backup/restore proof / smoke/regression result / incident/rollback receipt / separate security receipt\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "specified",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-WORDPRESS-MAINTENANCE-BOUNDARIES",
+    "refinement_contract_id": "RRF-WORDPRESS-MAINTENANCE-BOUNDARIES",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "WORDPRESS-MAINTENANCE-BOUNDARIES",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:67a7976d04b3dd0a1b34b985ea34019da56a814f510c2f7ee63bf17050d4af72",
+    "source": {
+      "acceptance_digest": "sha256:7cbc24ed7cdd588ef21b74f1a54d0d9c482784b3a8e4a8ff20f6709629275492",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-WORDPRESS-MAINTENANCE-BOUNDARIES/acceptance_cases",
+      "requirement_digest": "sha256:eafdb5ab01a64154bc42df57594ce221f4327aed4a5beb2b77ec0f80047f8201",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-WORDPRESS-MAINTENANCE-BOUNDARIES",
+      "source_event_ids": [
+        "RDE-000083",
+        "RDE-000084",
+        "RDE-000085",
+        "RDE-000086",
+        "RDE-000087",
+        "RDE-000088"
+      ],
+      "source_set_digest": "sha256:0172839854b67bc5ddaa4720d481eaf85d71d375dab05a659e4e1ff559c65438"
+    },
+    "supporting_requirements": []
+  },
+  "RRF-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE"
+        ],
+        "semantic_digest": "sha256:2c5b1ba14ae8c996816d49dcb6901c39d3b0a9528da458a37df7a901ae6acc73",
+        "source_projection": "local_refinement_registry",
+        "statement": "read-only inventoryは対象identity/current revision/inventory digest/read grant/route/assessment evidenceを満たしてresult receiptを残し、mutationは独立platform grant、activation/window、capability/route、backup freshness/restore、compatibility/smoke/regression、remote revision及びidempotencyを満たしてresult/rollback receiptを残す"
+      },
+      {
+        "acceptance_id": "MHH-AC-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE"
+        ],
+        "semantic_digest": "sha256:0807f21ac550191ef11ba699e980c14e19d3e4a242dc08e657587e67533d9cdb",
+        "source_projection": "local_refinement_registry",
+        "statement": "content/security grant流用又はstale remote revisionを拒否し、mutationではbackup/restore/compatibility欠落、security relevance unknown又はrollback不能も拒否してsite stateを維持する"
+      },
+      {
+        "acceptance_id": "MHH-AC-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE"
+        ],
+        "semantic_digest": "sha256:f6015752c99d29df2ad592e2bd3b8726d6580d75fe9492447831e0a481e33e97",
+        "source_projection": "local_refinement_registry",
+        "statement": "security intersectionはplatform grantに加えて別security decision/grantへ束縛し、rollback後は再検証と明示resumeまで通常operationを自動再開しない"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE-P",
+        "MHH-AC-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE-N",
+        "MHH-AC-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE-B"
+      ],
+      "requirement_id": "MHH-REQ-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE",
+      "semantic_digest": "sha256:32e41614f15f39347859b6c718d7321644bc5316a5a9daae719e3725adb346c3",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: core/plugin変更と起因障害を日常content operationから分離してrollback可能にする\ntasks: inventory確認、backup作成、restore検証、非security core更新、plugin導入/状態変更/非security更新、schema/config変更及びrollbackを別operation/effectとして扱う / read-only確認とmutationを分け、mutationだけをplatform grant、window、backup/restore、compatibility/smoke/regression及びrollback evidenceへ束縛する / security relevanceをmaintenance_only/security_intersection/unknownへ分類しunknownをdeferredにする / API/MCPを優先しPlaywright確認をwrite authorityへ読み替えない\nworkflow: 対象取得→read-only inventory分岐はidentity/current revision/inventory/read grant/routeを検証してreceipt→mutation分岐はsecurity relevance分類→backup/restore proof→platform grant/window→変更→検証→続行又はrollback→明示resume\nscope_in: core version update / plugin導入/状態変更/update / 随伴schema/config / 起因障害復旧\nscope_out: 日常content操作 / security authority判断 / AGENT NEO改善改修\nprohibitions: content承認をmaintenanceへ流用しない / security grantだけをplatform authorityへ流用しない / 復旧proofなしで本番変更しない / security relevance unknown又はintersectionのsecurity decision/grant欠落で実行しない / rollback後に再検証と明示resumeなしで自動再開しない\nhuman_judgement: 変更/停止/続行/rollback/残余riskはPOと保守担当\nside_effects: core/plugin/schema/config変更 / rollback\nevidence: before/after inventory / backup/restore proof / compatibility/smoke/regression / decision/rollback/S4 receipt\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "draft",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE",
+    "refinement_contract_id": "RRF-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "WORDPRESS-PLATFORM-MAINTENANCE-RELEASE",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:78f5313d03600113de37161a45d5f106ed047e96e6532b69f70be2b80841dd4a",
+    "source": {
+      "acceptance_digest": "sha256:faeb04ea093e7d65d6bdd4ab5394a477f253850dce2530213456fff73f71c645",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE/acceptance_cases",
+      "requirement_digest": "sha256:32e41614f15f39347859b6c718d7321644bc5316a5a9daae719e3725adb346c3",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE",
+      "source_event_ids": [
+        "RDE-000115",
+        "RDE-000116",
+        "RDE-000181"
+      ],
+      "source_set_digest": "sha256:229e233958b69fe6401dd6cc2ecc8aba0cab62c4f7e9bf173ff4ca941a2555ab"
+    },
+    "supporting_requirements": []
+  },
+  "RRF-WORDPRESS-SECURITY-MAINTENANCE-RELEASE": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-WORDPRESS-SECURITY-MAINTENANCE-RELEASE-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-WORDPRESS-SECURITY-MAINTENANCE-RELEASE"
+        ],
+        "semantic_digest": "sha256:01a5a9b6dc863796aa0275d4ac3bf815eda8e9ba29bfb2d64afa5a1a5b16856a",
+        "source_projection": "local_refinement_registry",
+        "statement": "別security authorityがcomponent/version、inventory/advisory digest、risk、security grant、maintenance window、preflight、backup/restore evidence及びcredential authority参照を束縛しoperation別result/rollback receiptを残す"
+      },
+      {
+        "acceptance_id": "MHH-AC-WORDPRESS-SECURITY-MAINTENANCE-RELEASE-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-WORDPRESS-SECURITY-MAINTENANCE-RELEASE"
+        ],
+        "semantic_digest": "sha256:bee482536c668e79a300da0acef467d3faa3bf310377ec8b6e9d1f63745bbce8",
+        "source_projection": "local_refinement_registry",
+        "statement": "content又は通常保守grant、advisory/scanner/browser確認のauthority化、unknown対象、grant/window/preflight/backup/rollback欠落、認証鍵素材露出及びscope越境を拒否して現site stateを維持する"
+      },
+      {
+        "acceptance_id": "MHH-AC-WORDPRESS-SECURITY-MAINTENANCE-RELEASE-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-WORDPRESS-SECURITY-MAINTENANCE-RELEASE"
+        ],
+        "semantic_digest": "sha256:30a8fa31d6f63d9c85d044334cd816ab82502dac58a9172ce90320f41b60d858",
+        "source_projection": "local_refinement_registry",
+        "statement": "緊急break-glassでも別grant、scope、期限、receipt及び事後再検証を省略せず、通常operationを自動再開しない"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-WORDPRESS-SECURITY-MAINTENANCE-RELEASE-P",
+        "MHH-AC-WORDPRESS-SECURITY-MAINTENANCE-RELEASE-N",
+        "MHH-AC-WORDPRESS-SECURITY-MAINTENANCE-RELEASE-B"
+      ],
+      "requirement_id": "MHH-REQ-WORDPRESS-SECURITY-MAINTENANCE-RELEASE",
+      "semantic_digest": "sha256:7664222be30ace640e3a9780c6dc6da1c226dfdb46556f3eba36068537bf20a3",
+      "source_projection": "local_refinement_registry",
+      "statement": "value: security判断を日常運用/通常保守から分離し別authorityと証跡で閉じる\ntasks: assess、core/plugin/theme patch、permission change、credential rotation、quarantine及びrestore/rollbackを別operation/effectとして扱う / component/version/inventory/advisory/risk、security grant、maintenance window、preflight、backup/restore evidence、credential authority参照及びresult/rollback receiptを束縛する / content grant、advisory/scanner又はPlaywright確認をsecurity write authorityへ読み替えない / emergency後も再検証まで通常operationを自動再開しない\nworkflow: 脅威検知→影響評価→隔離/停止判断→変更→検証→復旧判断→監査receipt\nscope_in: vulnerability / security patch / credential/permission / audit / isolation/stop/recovery\nscope_out: 日常content操作 / 一般機能update / AGENT NEO機能改善\nprohibitions: 通常保守又は公開承認でsecurity判断を代替しない / 認証鍵素材をrepo/product DB/log/inbox又はreceiptへ残さない / unknown component/version/sourceを自動patchしない / 旧WP PoC成功をsecurity release admissionへ流用しない / emergencyでgrant/scope/期限/receiptを迂回しない\nhuman_judgement: 脅威受容/隔離/break-glass/復旧/残余riskはsecurity authorityとPO\nside_effects: credential/permission/security設定変更 / 隔離/停止/復旧\nevidence: threat/vulnerability / principal/decision / change/rotation / isolation/recovery proof / independent S4 receipt / security grantとmaintenance activation/windowのID/revision/semantic digest / preflight及びbackup/restore evidence revision/digest / operation別result/rollback receipt\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "draft",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-WORDPRESS-SECURITY-MAINTENANCE-RELEASE",
+    "refinement_contract_id": "RRF-WORDPRESS-SECURITY-MAINTENANCE-RELEASE",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "WORDPRESS-SECURITY-MAINTENANCE-RELEASE",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:fb130fa48da26c2b9fd3be24ccfa545ee40bd10455170c69668e196048db4043",
+    "source": {
+      "acceptance_digest": "sha256:506fb85044f8c1b0472fe995de84c55fdbc331a87d920df24ef63464cb1b0cf4",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-WORDPRESS-SECURITY-MAINTENANCE-RELEASE/acceptance_cases",
+      "requirement_digest": "sha256:7664222be30ace640e3a9780c6dc6da1c226dfdb46556f3eba36068537bf20a3",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-WORDPRESS-SECURITY-MAINTENANCE-RELEASE",
+      "source_event_ids": [
+        "RDE-000117",
+        "RDE-000118",
+        "RDE-000180"
+      ],
+      "source_set_digest": "sha256:e5b6b6e37d6927df24c0fe8639edffa1dd2edad2318b82aaec926093ee0bac77"
+    },
+    "supporting_requirements": []
+  }
+}

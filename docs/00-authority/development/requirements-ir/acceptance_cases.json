@@ -1,0 +1,1826 @@
+{
+  "MHH-AC-AGENT-NEO-HELIX-REDEFINITION-B": {
+    "acceptance_id": "MHH-AC-AGENT-NEO-HELIX-REDEFINITION-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:ca83c1930349a4608812d45f241d236f90bdb425838e7139f978f852f490a57a",
+    "source": {
+      "refinement_id": "RRF-AGENT-NEO-HELIX-REDEFINITION",
+      "source_acceptance_id": "RAC-AGENT-NEO-B",
+      "source_semantic_digest": "sha256:a98d63668a6bbf93c4918ea12a062780d803e7b6633f0e808c5e65427024bf27"
+    },
+    "statement": "サイト構築能力とtheme/plugin改善能力を別releaseにし、互換性又はrollback未検証のupdateはenabledにしない",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-AGENT-NEO-HELIX-REDEFINITION",
+    "system_test_id": "MHH-ST-AGENT-NEO-HELIX-REDEFINITION"
+  },
+  "MHH-AC-AGENT-NEO-HELIX-REDEFINITION-N": {
+    "acceptance_id": "MHH-AC-AGENT-NEO-HELIX-REDEFINITION-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:0772e2424376609b31088b2957be7cbf6fb99daea872434a606f8017683aebe5",
+    "source": {
+      "refinement_id": "RRF-AGENT-NEO-HELIX-REDEFINITION",
+      "source_acceptance_id": "RAC-AGENT-NEO-N",
+      "source_semantic_digest": "sha256:a98d63668a6bbf93c4918ea12a062780d803e7b6633f0e808c5e65427024bf27"
+    },
+    "statement": "旧G4 PASS、別媒体の成功、S3 green、又はWP操作だけからAGENT NEO全体をacceptedとみなすことを拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-AGENT-NEO-HELIX-REDEFINITION",
+    "system_test_id": "MHH-ST-AGENT-NEO-HELIX-REDEFINITION"
+  },
+  "MHH-AC-AGENT-NEO-HELIX-REDEFINITION-P": {
+    "acceptance_id": "MHH-AC-AGENT-NEO-HELIX-REDEFINITION-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:bec142df24fc7534f0daec7d7570f88e80db477915364e20ed53753c18729aba",
+    "source": {
+      "refinement_id": "RRF-AGENT-NEO-HELIX-REDEFINITION",
+      "source_acceptance_id": "RAC-AGENT-NEO-P",
+      "source_semantic_digest": "sha256:a98d63668a6bbf93c4918ea12a062780d803e7b6633f0e808c5e65427024bf27"
+    },
+    "statement": "固定SHAから再定義したFull V要求・V-pair・repo境界を持ち、段階incrementはS4 receiptとSR0-SR4 closureを持つ場合だけ昇格する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-AGENT-NEO-HELIX-REDEFINITION",
+    "system_test_id": "MHH-ST-AGENT-NEO-HELIX-REDEFINITION"
+  },
+  "MHH-AC-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE-B": {
+    "acceptance_id": "MHH-AC-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:10fbaa6e4ef63c1b9cd25f5f894723f45f6f0ef42829a0012aa975591bff8183",
+    "source": {
+      "refinement_id": "RRF-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE",
+      "source_acceptance_id": "RAC-AGENT-NEO-EVOLUTION-B",
+      "source_semantic_digest": "sha256:9d01b9da1cb025a10c43e6be4fc791ede640b687bc48bfa7271adc27aca632ba"
+    },
+    "statement": "一部componentだけ成立する場合は変更unitを分割し未検証componentをdeferredにする",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE",
+    "system_test_id": "MHH-ST-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE"
+  },
+  "MHH-AC-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE-N": {
+    "acceptance_id": "MHH-AC-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:3f3e4a50461113135061ec6b5c7ba19343a4ab7690d5075f8f00c295fa6c864f",
+    "source": {
+      "refinement_id": "RRF-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE",
+      "source_acceptance_id": "RAC-AGENT-NEO-EVOLUTION-N",
+      "source_semantic_digest": "sha256:9d01b9da1cb025a10c43e6be4fc791ede640b687bc48bfa7271adc27aca632ba"
+    },
+    "statement": "site-build承認、単一site成功又は旧releaseを製品変更の互換性証明として拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE",
+    "system_test_id": "MHH-ST-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE"
+  },
+  "MHH-AC-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE-P": {
+    "acceptance_id": "MHH-AC-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:3518a46e9450365524dbd25f54bb2bb08587e806f1b6c4cc9d5dd41697bda6aa",
+    "source": {
+      "refinement_id": "RRF-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE",
+      "source_acceptance_id": "RAC-AGENT-NEO-EVOLUTION-P",
+      "source_semantic_digest": "sha256:9d01b9da1cb025a10c43e6be4fc791ede640b687bc48bfa7271adc27aca632ba"
+    },
+    "statement": "site-build closure後に影響、互換性、migration、rollback、回帰、独立S4を閉じた製品変更だけを昇格する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE",
+    "system_test_id": "MHH-ST-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE"
+  },
+  "MHH-AC-AGENT-NEO-SITE-BUILD-RELEASE-B": {
+    "acceptance_id": "MHH-AC-AGENT-NEO-SITE-BUILD-RELEASE-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:354511b37577111402cf3404f1f745bbb3b2e8fe7b437f3d410eef9e76c73175",
+    "source": {
+      "refinement_id": "RRF-AGENT-NEO-SITE-BUILD-RELEASE",
+      "source_acceptance_id": "RAC-AGENT-NEO-SITE-B",
+      "source_semantic_digest": "sha256:9878b98db88c79f197240edfdca11c35e40dd265f4d8837b289ee5dac0099618"
+    },
+    "statement": "成立capabilityだけをreleaseし未閉capabilityはdeferredにする",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-AGENT-NEO-SITE-BUILD-RELEASE",
+    "system_test_id": "MHH-ST-AGENT-NEO-SITE-BUILD-RELEASE"
+  },
+  "MHH-AC-AGENT-NEO-SITE-BUILD-RELEASE-N": {
+    "acceptance_id": "MHH-AC-AGENT-NEO-SITE-BUILD-RELEASE-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:9dd2fdde0531ce4872a2c94523f377a71c0d9a069e337ec7fd00c4cb727021eb",
+    "source": {
+      "refinement_id": "RRF-AGENT-NEO-SITE-BUILD-RELEASE",
+      "source_acceptance_id": "RAC-AGENT-NEO-SITE-N",
+      "source_semantic_digest": "sha256:9878b98db88c79f197240edfdca11c35e40dd265f4d8837b289ee5dac0099618"
+    },
+    "statement": "旧G4、WP操作成功、別site成功又はtheme変更をsite-build受入へ流用することを拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-AGENT-NEO-SITE-BUILD-RELEASE",
+    "system_test_id": "MHH-ST-AGENT-NEO-SITE-BUILD-RELEASE"
+  },
+  "MHH-AC-AGENT-NEO-SITE-BUILD-RELEASE-P": {
+    "acceptance_id": "MHH-AC-AGENT-NEO-SITE-BUILD-RELEASE-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:49ebf7407ee0bb1d4de03cb598771bc62c2d0e78ca6013236749b1dd07a4d618",
+    "source": {
+      "refinement_id": "RRF-AGENT-NEO-SITE-BUILD-RELEASE",
+      "source_acceptance_id": "RAC-AGENT-NEO-SITE-P",
+      "source_semantic_digest": "sha256:9878b98db88c79f197240edfdca11c35e40dd265f4d8837b289ee5dac0099618"
+    },
+    "statement": "固定SHA能力、Full V closure、対象site trace、migration/rollback、S4 receiptを持つsite-buildだけを昇格する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-AGENT-NEO-SITE-BUILD-RELEASE",
+    "system_test_id": "MHH-ST-AGENT-NEO-SITE-BUILD-RELEASE"
+  },
+  "MHH-AC-AUTO-MODE-DECISION-AUTHORITY-B": {
+    "acceptance_id": "MHH-AC-AUTO-MODE-DECISION-AUTHORITY-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:7877664f0dc5d0aaceb431931cc8f05ecd41fd0dcd90c6e22098156e345684b8",
+    "source": {
+      "refinement_id": "RRF-AUTO-MODE-DECISION-AUTHORITY",
+      "source_acceptance_id": "RAC-AUTO-MODE-B",
+      "source_semantic_digest": "sha256:32c3282dc43db8348b9114f9dc31ca8c3d1784b06a520362a2b71b8a420f9167"
+    },
+    "statement": "一媒体又は一operationだけのenableを他へ伝播せず、失効検知後の次操作から常時承認へ戻す",
+    "status": "historical_superseded",
+    "system_contract_id": "MHH-SC-AUTO-MODE-DECISION-AUTHORITY",
+    "system_test_id": "MHH-ST-AUTO-MODE-DECISION-AUTHORITY"
+  },
+  "MHH-AC-AUTO-MODE-DECISION-AUTHORITY-N": {
+    "acceptance_id": "MHH-AC-AUTO-MODE-DECISION-AUTHORITY-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:439e4b66b30bfbe32f80f0d7ed75b4f07515163b2419d9746b9103d5bc01957c",
+    "source": {
+      "refinement_id": "RRF-AUTO-MODE-DECISION-AUTHORITY",
+      "source_acceptance_id": "RAC-AUTO-MODE-N",
+      "source_semantic_digest": "sha256:32c3282dc43db8348b9114f9dc31ca8c3d1784b06a520362a2b71b8a420f9167"
+    },
+    "statement": "機械適格判定だけ、PO receipt欠落、scope不一致、期限切れ、基準失効、金銭操作では常時承認を要求する",
+    "status": "historical_superseded",
+    "system_contract_id": "MHH-SC-AUTO-MODE-DECISION-AUTHORITY",
+    "system_test_id": "MHH-ST-AUTO-MODE-DECISION-AUTHORITY"
+  },
+  "MHH-AC-AUTO-MODE-DECISION-AUTHORITY-P": {
+    "acceptance_id": "MHH-AC-AUTO-MODE-DECISION-AUTHORITY-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:ca152596b6c1bf46efb9f3475552041455944d906d0ff0b5b77894f440ad101f",
+    "source": {
+      "refinement_id": "RRF-AUTO-MODE-DECISION-AUTHORITY",
+      "source_acceptance_id": "RAC-AUTO-MODE-P",
+      "source_semantic_digest": "sha256:32c3282dc43db8348b9114f9dc31ca8c3d1784b06a520362a2b71b8a420f9167"
+    },
+    "statement": "適格性証跡とscope/期限へ束縛したPO enable receiptが両方有効な対象だけ個別承認を省略する",
+    "status": "historical_superseded",
+    "system_contract_id": "MHH-SC-AUTO-MODE-DECISION-AUTHORITY",
+    "system_test_id": "MHH-ST-AUTO-MODE-DECISION-AUTHORITY"
+  },
+  "MHH-AC-AUTOMATED-PUBLISHING-ADMISSION-B": {
+    "acceptance_id": "MHH-AC-AUTOMATED-PUBLISHING-ADMISSION-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:ff132e7a86937fe2afc1c8ec850092081892b6e27a8417e7cf9c4c7f0f77d01b",
+    "source": {
+      "refinement_id": "RRF-AUTOMATED-PUBLISHING-ADMISSION",
+      "source_acceptance_id": "RAC-AUTO-PUBLISH-B",
+      "source_semantic_digest": "sha256:4e3df9a130b8c7b919b6eb5dafe68112d84bfc3210cc1538c991c1db24c74313"
+    },
+    "statement": "媒体account別又は個別feedbackの下位rule更新は再検査だけ行い、停止後は毎回承認modeへ戻さず対象scopeの明示re-activationまでwriteを停止する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-AUTOMATED-PUBLISHING-ADMISSION",
+    "system_test_id": "MHH-ST-AUTOMATED-PUBLISHING-ADMISSION"
+  },
+  "MHH-AC-AUTOMATED-PUBLISHING-ADMISSION-N": {
+    "acceptance_id": "MHH-AC-AUTOMATED-PUBLISHING-ADMISSION-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:9d444ea15dfdcc2873a3a57043fc9c2a43e69c6d7da6701cc67a0c926eddae14",
+    "source": {
+      "refinement_id": "RRF-AUTOMATED-PUBLISHING-ADMISSION",
+      "source_acceptance_id": "RAC-AUTO-PUBLISH-N",
+      "source_semantic_digest": "sha256:4e3df9a130b8c7b919b6eb5dafe68112d84bfc3210cc1538c991c1db24c74313"
+    },
+    "statement": "inbox操作だけの承認、scope未指定、未承認、scope外、取消、権限喪失、必須risk gate/risk境界/activation policy変更、停止条件成立又はgate不合格の外部writeを拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-AUTOMATED-PUBLISHING-ADMISSION",
+    "system_test_id": "MHH-ST-AUTOMATED-PUBLISHING-ADMISSION"
+  },
+  "MHH-AC-AUTOMATED-PUBLISHING-ADMISSION-P": {
+    "acceptance_id": "MHH-AC-AUTOMATED-PUBLISHING-ADMISSION-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:54b8f7dd17c26fbfcaaaa9022b6de0e3494472c5574abcafffa703a5aa9a09dd",
+    "source": {
+      "refinement_id": "RRF-AUTOMATED-PUBLISHING-ADMISSION",
+      "source_acceptance_id": "RAC-AUTO-PUBLISH-P",
+      "source_semantic_digest": "sha256:4e3df9a130b8c7b919b6eb5dafe68112d84bfc3210cc1538c991c1db24c74313"
+    },
+    "statement": "approval_waitingをinboxへ記録し、認証済みUIでscope/revision再表示と直前認可後に承認されたscope内でgate合格成果物だけを毎回承認なしで実行する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-AUTOMATED-PUBLISHING-ADMISSION",
+    "system_test_id": "MHH-ST-AUTOMATED-PUBLISHING-ADMISSION"
+  },
+  "MHH-AC-BUSINESS-PROFILE-AUTHORIZATION-B": {
+    "acceptance_id": "MHH-AC-BUSINESS-PROFILE-AUTHORIZATION-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:1986f4018d78d227e7d5129bf49df873565f5b6a6394e994df9e6ed0c5baccc1",
+    "source": {
+      "refinement_id": "RRF-BUSINESS-PROFILE-AUTHORIZATION",
+      "source_acceptance_id": "RAC-PROFILE-AUTH-B",
+      "source_semantic_digest": "sha256:ad26d3f40b9250e77f8e8be1aa3e387f294d170b05d3eef01b91e819c061b87a"
+    },
+    "statement": "owner移管、delete/transfer、grant revision競合又はmulti-principal移行では旧session/grantを継承せず、製品state/revisionを維持して再認可までfail-closeする",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-BUSINESS-PROFILE-AUTHORIZATION",
+    "system_test_id": "MHH-ST-BUSINESS-PROFILE-AUTHORIZATION"
+  },
+  "MHH-AC-BUSINESS-PROFILE-AUTHORIZATION-N": {
+    "acceptance_id": "MHH-AC-BUSINESS-PROFILE-AUTHORIZATION-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:3428c128b658996663be6a0ed005315627ef24f4b210567fb3a49776a05cf3b2",
+    "source": {
+      "refinement_id": "RRF-BUSINESS-PROFILE-AUTHORIZATION",
+      "source_acceptance_id": "RAC-PROFILE-AUTH-N",
+      "source_semantic_digest": "sha256:ad26d3f40b9250e77f8e8be1aa3e387f294d170b05d3eef01b91e819c061b87a"
+    },
+    "statement": "missing/unknown/stale/expired/scope mismatch、暗黙effect escalation、membership/role推論及びcross-profile without explicit grantを拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-BUSINESS-PROFILE-AUTHORIZATION",
+    "system_test_id": "MHH-ST-BUSINESS-PROFILE-AUTHORIZATION"
+  },
+  "MHH-AC-BUSINESS-PROFILE-AUTHORIZATION-P": {
+    "acceptance_id": "MHH-AC-BUSINESS-PROFILE-AUTHORIZATION-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:98849ae81d0cb8f9450e45f406d49b2b189f3358122bcb6e677127d1a668af04",
+    "source": {
+      "refinement_id": "RRF-BUSINESS-PROFILE-AUTHORIZATION",
+      "source_acceptance_id": "RAC-PROFILE-AUTH-P",
+      "source_semantic_digest": "sha256:ad26d3f40b9250e77f8e8be1aa3e387f294d170b05d3eef01b91e819c061b87a"
+    },
+    "statement": "有効なgrant ID、principal、profile、resource、operation、effect、grant revision、grant semantic digest及びexpiryへexact束縛したoperationだけを許可する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-BUSINESS-PROFILE-AUTHORIZATION",
+    "system_test_id": "MHH-ST-BUSINESS-PROFILE-AUTHORIZATION"
+  },
+  "MHH-AC-CONTENT-QUALITY-GATE-LEARNING-B": {
+    "acceptance_id": "MHH-AC-CONTENT-QUALITY-GATE-LEARNING-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:b80003f61923ea4ccdfa80b8d5bcc90a5600b976de6a9754e18d9372dec61e5b",
+    "source": {
+      "refinement_id": "RRF-CONTENT-QUALITY-GATE-LEARNING",
+      "source_acceptance_id": "RAC-CONTENT-GATE-B",
+      "source_semantic_digest": "sha256:1c6e925b3a6b05f5ce4671469b53b18a6598191d550560da79df5502fbdf3721"
+    },
+    "statement": "明示scopeがないfeedbackはsource feedbackのmedia_account_idだけをderived scopeとし、同一媒体の別account、全profile又は全媒体へ拡張しない。retry budget上限到達時は未合格成果物をblockedで停止し、VPS UI内inboxへ一件のdurable eventを記録して診断閲覧を許可する。通知記録失敗でもblockedを維持する。update-in-place能力不明又は非対応なら公開済み成果物へ通知を含め何もしない",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-CONTENT-QUALITY-GATE-LEARNING",
+    "system_test_id": "MHH-ST-CONTENT-QUALITY-GATE-LEARNING"
+  },
+  "MHH-AC-CONTENT-QUALITY-GATE-LEARNING-N": {
+    "acceptance_id": "MHH-AC-CONTENT-QUALITY-GATE-LEARNING-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:32f98730f00de30ce7c4e0d651164ae9eb90e3f1b155e7e55154952315dec8ed",
+    "source": {
+      "refinement_id": "RRF-CONTENT-QUALITY-GATE-LEARNING",
+      "source_acceptance_id": "RAC-CONTENT-GATE-N",
+      "source_semantic_digest": "sha256:1c6e925b3a6b05f5ce4671469b53b18a6598191d550560da79df5502fbdf3721"
+    },
+    "statement": "不合格の正式review、次工程又は公開、retry中のrule自己緩和、scope外rule適用、retry budget未知時の継続、順位操作目的の低価値量産及び非対応媒体の公開済み変更を拒否する。通常retryごとの通知及び通知失敗によるblocked解除も拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-CONTENT-QUALITY-GATE-LEARNING",
+    "system_test_id": "MHH-ST-CONTENT-QUALITY-GATE-LEARNING"
+  },
+  "MHH-AC-CONTENT-QUALITY-GATE-LEARNING-P": {
+    "acceptance_id": "MHH-AC-CONTENT-QUALITY-GATE-LEARNING-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:d169034bba93c84e4ad91baa6a8527e13379e6030a2a1a6580fbb43f1c44e20b",
+    "source": {
+      "refinement_id": "RRF-CONTENT-QUALITY-GATE-LEARNING",
+      "source_acceptance_id": "RAC-CONTENT-GATE-P",
+      "source_semantic_digest": "sha256:1c6e925b3a6b05f5ce4671469b53b18a6598191d550560da79df5502fbdf3721"
+    },
+    "statement": "独自価値、claim-source対応及び対象audienceへの有用性を含むgateがartifact/claim、verdict、reason code、rule revisionを記録する。明示scopeがないfeedbackはsource feedbackのmedia_account_idだけへ束縛し、不合格を同一rule revisionで人間確認前に再生成して合格成果物だけを次工程へ進める。retry budgetを使い切っても不合格ならblocked状態とVPS UI内inbox通知を同じsource artifactへ束縛する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-CONTENT-QUALITY-GATE-LEARNING",
+    "system_test_id": "MHH-ST-CONTENT-QUALITY-GATE-LEARNING"
+  },
+  "MHH-AC-CONTENT-RISK-CLASSIFICATION-B": {
+    "acceptance_id": "MHH-AC-CONTENT-RISK-CLASSIFICATION-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:6c049a26b6c096bdf1fb234a4e8cdcd7fb97c934ee6e05bac021f0317638131b",
+    "source": {
+      "refinement_id": "RRF-CONTENT-RISK-CLASSIFICATION",
+      "source_acceptance_id": "RAC-CONTENT-RISK-B",
+      "source_semantic_digest": "sha256:4ba4a208fcc0dcdcd551be40c81eadc31b75f311fa8274f8d8dfe66b20b88c49"
+    },
+    "statement": "risk分類が欠落又は不確実なら全影響軸のYMYL相当を含む最高厳格度で扱い、診断閲覧だけ許可して再調査又は分類解決後の再検査まで停止する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-CONTENT-RISK-CLASSIFICATION",
+    "system_test_id": "MHH-ST-CONTENT-RISK-CLASSIFICATION"
+  },
+  "MHH-AC-CONTENT-RISK-CLASSIFICATION-N": {
+    "acceptance_id": "MHH-AC-CONTENT-RISK-CLASSIFICATION-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:3fc80d80cc7cc2228bfbefb7bcae1c7e08b4f8df9ad8ba33d7b66ca92cca71fc",
+    "source": {
+      "refinement_id": "RRF-CONTENT-RISK-CLASSIFICATION",
+      "source_acceptance_id": "RAC-CONTENT-RISK-N",
+      "source_semantic_digest": "sha256:4ba4a208fcc0dcdcd551be40c81eadc31b75f311fa8274f8d8dfe66b20b88c49"
+    },
+    "statement": "好み、feedback又はKPIでYMYL等の必須gateを弱めること及びrisk情報欠落の成果物を正式review、次工程又は公開へ進めることを拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-CONTENT-RISK-CLASSIFICATION",
+    "system_test_id": "MHH-ST-CONTENT-RISK-CLASSIFICATION"
+  },
+  "MHH-AC-CONTENT-RISK-CLASSIFICATION-P": {
+    "acceptance_id": "MHH-AC-CONTENT-RISK-CLASSIFICATION-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:1d23928d5572bb7ed6bcf6a742c3e1612dda601ffd07dfff108c81a66669e3c4",
+    "source": {
+      "refinement_id": "RRF-CONTENT-RISK-CLASSIFICATION",
+      "source_acceptance_id": "RAC-CONTENT-RISK-P",
+      "source_semantic_digest": "sha256:4ba4a208fcc0dcdcd551be40c81eadc31b75f311fa8274f8d8dfe66b20b88c49"
+    },
+    "statement": "claimへrisk class、確信度又は不確実性、根拠及びgate-set revisionを束縛し、必須gateと個別好みを合成して検査する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-CONTENT-RISK-CLASSIFICATION",
+    "system_test_id": "MHH-ST-CONTENT-RISK-CLASSIFICATION"
+  },
+  "MHH-AC-CONTRACT-SEMANTIC-DESCENT-V2-B": {
+    "acceptance_id": "MHH-AC-CONTRACT-SEMANTIC-DESCENT-V2-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:f97c5570f4d6cc084fc770a766b6e9c5cc0e3bdad2bc37144f587d75a2816efb",
+    "source": {
+      "refinement_id": "RRF-CONTRACT-SEMANTIC-DESCENT-V2",
+      "source_acceptance_id": "RAC-SEMANTIC-DESCENT-B",
+      "source_semantic_digest": "sha256:b1fe074d7bbcc73d48f1d2f7e0683e4ee5b3a19a8e67ea6fbf62f864cffdd2e3"
+    },
+    "statement": "親意味が未classified、cutover blocked又は競合未処置なら子をdeferredとしclassifiedへ昇格しない",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-CONTRACT-SEMANTIC-DESCENT-V2",
+    "system_test_id": "MHH-ST-CONTRACT-SEMANTIC-DESCENT-V2"
+  },
+  "MHH-AC-CONTRACT-SEMANTIC-DESCENT-V2-N": {
+    "acceptance_id": "MHH-AC-CONTRACT-SEMANTIC-DESCENT-V2-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:5258c955857cb9a65a06cb4031cbc8aa9795977e9f363b65b6141dddfffdb691",
+    "source": {
+      "refinement_id": "RRF-CONTRACT-SEMANTIC-DESCENT-V2",
+      "source_acceptance_id": "RAC-SEMANTIC-DESCENT-N",
+      "source_semantic_digest": "sha256:b1fe074d7bbcc73d48f1d2f7e0683e4ee5b3a19a8e67ea6fbf62f864cffdd2e3"
+    },
+    "statement": "stale digest、暗黙union、安全弱化、旧方式再混入、高作用の継承のみ又はcycleを拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-CONTRACT-SEMANTIC-DESCENT-V2",
+    "system_test_id": "MHH-ST-CONTRACT-SEMANTIC-DESCENT-V2"
+  },
+  "MHH-AC-CONTRACT-SEMANTIC-DESCENT-V2-P": {
+    "acceptance_id": "MHH-AC-CONTRACT-SEMANTIC-DESCENT-V2-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:59f8b3f1d9564ab5c240a6aefe95d87e67b005ddd867e9d1c63be2af0688f379",
+    "source": {
+      "refinement_id": "RRF-CONTRACT-SEMANTIC-DESCENT-V2",
+      "source_acceptance_id": "RAC-SEMANTIC-DESCENT-P",
+      "source_semantic_digest": "sha256:b1fe074d7bbcc73d48f1d2f7e0683e4ee5b3a19a8e67ea6fbf62f864cffdd2e3"
+    },
+    "statement": "直接必須軸と選択親句digest、delta、owner、evidenceが閉じ、安全/HJ/prohibitionを弱化しない下位契約だけを次工程へ進める",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-CONTRACT-SEMANTIC-DESCENT-V2",
+    "system_test_id": "MHH-ST-CONTRACT-SEMANTIC-DESCENT-V2"
+  },
+  "MHH-AC-DISCORD-COMMUNITY-MARKETING-ROUTE-B": {
+    "acceptance_id": "MHH-AC-DISCORD-COMMUNITY-MARKETING-ROUTE-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:68ce3079375df905c408399ed9fd419d7b02dd0837adf4ea05874b24ff074040",
+    "source": {
+      "refinement_id": "RRF-DISCORD-COMMUNITY-MARKETING-ROUTE",
+      "source_acceptance_id": "RAC-DISCORD-COMMUNITY-B",
+      "source_semantic_digest": "sha256:70c0b5ab8cf5b8a163454726f2b18a0e4d4db23eeff4974409ae260358d81134"
+    },
+    "statement": "guild/channel/operation又はmoderation境界が不明なら当該operationを実行しない",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-DISCORD-COMMUNITY-MARKETING-ROUTE",
+    "system_test_id": "MHH-ST-DISCORD-COMMUNITY-MARKETING-ROUTE"
+  },
+  "MHH-AC-DISCORD-COMMUNITY-MARKETING-ROUTE-N": {
+    "acceptance_id": "MHH-AC-DISCORD-COMMUNITY-MARKETING-ROUTE-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:4956082ee182bb3ec3111ed80f6d131210ce60826d3b78dfcf2e4f7bc1a1beaa",
+    "source": {
+      "refinement_id": "RRF-DISCORD-COMMUNITY-MARKETING-ROUTE",
+      "source_acceptance_id": "RAC-DISCORD-COMMUNITY-N",
+      "source_semantic_digest": "sha256:70c0b5ab8cf5b8a163454726f2b18a0e4d4db23eeff4974409ae260358d81134"
+    },
+    "statement": "通知用途への送信、self-bot、個人account操作及び用途間credential共有を拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-DISCORD-COMMUNITY-MARKETING-ROUTE",
+    "system_test_id": "MHH-ST-DISCORD-COMMUNITY-MARKETING-ROUTE"
+  },
+  "MHH-AC-DISCORD-COMMUNITY-MARKETING-ROUTE-P": {
+    "acceptance_id": "MHH-AC-DISCORD-COMMUNITY-MARKETING-ROUTE-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:bf9166a0e4be19ffad8321823ebdb65edda2ff058aed888a6163b83e5b756f3e",
+    "source": {
+      "refinement_id": "RRF-DISCORD-COMMUNITY-MARKETING-ROUTE",
+      "source_acceptance_id": "RAC-DISCORD-COMMUNITY-P",
+      "source_semantic_digest": "sha256:70c0b5ab8cf5b8a163454726f2b18a0e4d4db23eeff4974409ae260358d81134"
+    },
+    "statement": "Botと許可guild/channel/operationを束縛してcommunity operationを記録する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-DISCORD-COMMUNITY-MARKETING-ROUTE",
+    "system_test_id": "MHH-ST-DISCORD-COMMUNITY-MARKETING-ROUTE"
+  },
+  "MHH-AC-DISCORD-MULTI-PURPOSE-BOUNDARIES-B": {
+    "acceptance_id": "MHH-AC-DISCORD-MULTI-PURPOSE-BOUNDARIES-B",
+    "polarity": "boundary",
+    "revision": 2,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:c6d61f30d099adde7fd8cab35bccc2817c9b9c9e428d9c6538241ff6345e200f",
+    "source": {
+      "refinement_id": "RRF-DISCORD-MULTI-PURPOSE-BOUNDARIES",
+      "source_acceptance_id": "RAC-DISCORD-BOUNDARY-B",
+      "source_semantic_digest": "sha256:73e6cea0dff4bfd4f20372fa10ca44db500318eaa7a6dae4e69e7419763affd7"
+    },
+    "statement": "旧候補を参照した全外部送信を拒否し、再開条件を生成しない",
+    "status": "historical_superseded",
+    "system_contract_id": "MHH-SC-DISCORD-MULTI-PURPOSE-BOUNDARIES",
+    "system_test_id": "MHH-ST-DISCORD-MULTI-PURPOSE-BOUNDARIES"
+  },
+  "MHH-AC-DISCORD-MULTI-PURPOSE-BOUNDARIES-N": {
+    "acceptance_id": "MHH-AC-DISCORD-MULTI-PURPOSE-BOUNDARIES-N",
+    "polarity": "negative",
+    "revision": 2,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:2f000f6f86a2a1bdeae9cb534def92ad9fb05b54f87c7f89fbea9f3611f118db",
+    "source": {
+      "refinement_id": "RRF-DISCORD-MULTI-PURPOSE-BOUNDARIES",
+      "source_acceptance_id": "RAC-DISCORD-BOUNDARY-N",
+      "source_semantic_digest": "sha256:73e6cea0dff4bfd4f20372fa10ca44db500318eaa7a6dae4e69e7419763affd7"
+    },
+    "statement": "旧候補による通知route再開、community実行許可、credential共有及びself-botを拒否する",
+    "status": "historical_superseded",
+    "system_contract_id": "MHH-SC-DISCORD-MULTI-PURPOSE-BOUNDARIES",
+    "system_test_id": "MHH-ST-DISCORD-MULTI-PURPOSE-BOUNDARIES"
+  },
+  "MHH-AC-DISCORD-MULTI-PURPOSE-BOUNDARIES-P": {
+    "acceptance_id": "MHH-AC-DISCORD-MULTI-PURPOSE-BOUNDARIES-P",
+    "polarity": "positive",
+    "revision": 2,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:6db3026b864e770304238bc969c1878c902096241aa51f0db39ef52d142a4d0e",
+    "source": {
+      "refinement_id": "RRF-DISCORD-MULTI-PURPOSE-BOUNDARIES",
+      "source_acceptance_id": "RAC-DISCORD-BOUNDARY-P",
+      "source_semantic_digest": "sha256:73e6cea0dff4bfd4f20372fa10ca44db500318eaa7a6dae4e69e7419763affd7"
+    },
+    "statement": "旧候補を現行入力から除外し、通知拒否とcommunity媒体を別subjectへ一意に引き渡す",
+    "status": "historical_superseded",
+    "system_contract_id": "MHH-SC-DISCORD-MULTI-PURPOSE-BOUNDARIES",
+    "system_test_id": "MHH-ST-DISCORD-MULTI-PURPOSE-BOUNDARIES"
+  },
+  "MHH-AC-DISCORD-NOTIFICATION-REJECTION-BOUNDARY-B": {
+    "acceptance_id": "MHH-AC-DISCORD-NOTIFICATION-REJECTION-BOUNDARY-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:2c31a0c428fdc84778584ada877d6b3fd3457a11dfc5d353c38cefbb5acafb0d",
+    "source": {
+      "refinement_id": "RRF-DISCORD-NOTIFICATION-REJECTION-BOUNDARY",
+      "source_acceptance_id": "RAC-DISCORD-NOTIFICATION-REJECT-B",
+      "source_semantic_digest": "sha256:9eaf6bb8e88b9ef540c8e0d26ba71ecff670cb0e38f05ce74397722b0ec7d88b"
+    },
+    "statement": "未知purpose又はDiscord通知routeが指定された場合は送信せず、再開条件を生成しない",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-DISCORD-NOTIFICATION-REJECTION-BOUNDARY",
+    "system_test_id": "MHH-ST-DISCORD-NOTIFICATION-REJECTION-BOUNDARY"
+  },
+  "MHH-AC-DISCORD-NOTIFICATION-REJECTION-BOUNDARY-N": {
+    "acceptance_id": "MHH-AC-DISCORD-NOTIFICATION-REJECTION-BOUNDARY-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:84a80f0cde24c6e240b05181d9e0e236aae2b030a6efe564e16cde8a0e23c087",
+    "source": {
+      "refinement_id": "RRF-DISCORD-NOTIFICATION-REJECTION-BOUNDARY",
+      "source_acceptance_id": "RAC-DISCORD-NOTIFICATION-REJECT-N",
+      "source_semantic_digest": "sha256:9eaf6bb8e88b9ef540c8e0d26ba71ecff670cb0e38f05ce74397722b0ec7d88b"
+    },
+    "statement": "承認通知、運用通知、deep-link補助又は開発PR通知のDiscord routeとcommunity credential共有を拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-DISCORD-NOTIFICATION-REJECTION-BOUNDARY",
+    "system_test_id": "MHH-ST-DISCORD-NOTIFICATION-REJECTION-BOUNDARY"
+  },
+  "MHH-AC-DISCORD-NOTIFICATION-REJECTION-BOUNDARY-P": {
+    "acceptance_id": "MHH-AC-DISCORD-NOTIFICATION-REJECTION-BOUNDARY-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:29a3f88fe9792c07241f26e8708732916a20ba948e15561ccbe63fb689884557",
+    "source": {
+      "refinement_id": "RRF-DISCORD-NOTIFICATION-REJECTION-BOUNDARY",
+      "source_acceptance_id": "RAC-DISCORD-NOTIFICATION-REJECT-P",
+      "source_semantic_digest": "sha256:9eaf6bb8e88b9ef540c8e0d26ba71ecff670cb0e38f05ce74397722b0ec7d88b"
+    },
+    "statement": "製品通知をVPS UI inboxに限定しDiscordへ送信しない",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-DISCORD-NOTIFICATION-REJECTION-BOUNDARY",
+    "system_test_id": "MHH-ST-DISCORD-NOTIFICATION-REJECTION-BOUNDARY"
+  },
+  "MHH-AC-EXTERNAL-BROWSER-AUTOMATION-ROUTE-B": {
+    "acceptance_id": "MHH-AC-EXTERNAL-BROWSER-AUTOMATION-ROUTE-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:ef650d7572a9c7f6456b95c990273832cf7619fd87611c6f8c678eb12dd35c38",
+    "source": {
+      "refinement_id": "RRF-EXTERNAL-BROWSER-AUTOMATION-ROUTE",
+      "source_acceptance_id": "RAC-BROWSER-ROUTE-B",
+      "source_semantic_digest": "sha256:656e7c8cab8e861e8c0cc39f2633f2f59605471734441a9fb7f41a127d6fc5d8"
+    },
+    "statement": "媒体credentialが広く製品側でもoperation境界を強制できないwriteは自動実行せずattended-only又はdeferredを維持する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-EXTERNAL-BROWSER-AUTOMATION-ROUTE",
+    "system_test_id": "MHH-ST-EXTERNAL-BROWSER-AUTOMATION-ROUTE"
+  },
+  "MHH-AC-EXTERNAL-BROWSER-AUTOMATION-ROUTE-N": {
+    "acceptance_id": "MHH-AC-EXTERNAL-BROWSER-AUTOMATION-ROUTE-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:994df01d811f3194fa8d21be0709218876cc0a739eb7f5e32c65724389bf6fad",
+    "source": {
+      "refinement_id": "RRF-EXTERNAL-BROWSER-AUTOMATION-ROUTE",
+      "source_acceptance_id": "RAC-BROWSER-ROUTE-N",
+      "source_semantic_digest": "sha256:656e7c8cab8e861e8c0cc39f2633f2f59605471734441a9fb7f41a127d6fc5d8"
+    },
+    "statement": "route、principal、effect、credential能力、read resource scope、operation強制又は規約境界が未確定のbrowser操作を拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-EXTERNAL-BROWSER-AUTOMATION-ROUTE",
+    "system_test_id": "MHH-ST-EXTERNAL-BROWSER-AUTOMATION-ROUTE"
+  },
+  "MHH-AC-EXTERNAL-BROWSER-AUTOMATION-ROUTE-P": {
+    "acceptance_id": "MHH-AC-EXTERNAL-BROWSER-AUTOMATION-ROUTE-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:0547b85f801e2126d8bb065e9cdeb1ddfb0c27c06b2ae4453075520229b7cfe2",
+    "source": {
+      "refinement_id": "RRF-EXTERNAL-BROWSER-AUTOMATION-ROUTE",
+      "source_acceptance_id": "RAC-BROWSER-ROUTE-P",
+      "source_semantic_digest": "sha256:656e7c8cab8e861e8c0cc39f2633f2f59605471734441a9fb7f41a127d6fc5d8"
+    },
+    "statement": "公式API/MCPを優先し、最小credential又はallow-list、実行前plan、実行後receiptで強制された許可operationだけPlaywright fallback又は確認を実行する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-EXTERNAL-BROWSER-AUTOMATION-ROUTE",
+    "system_test_id": "MHH-ST-EXTERNAL-BROWSER-AUTOMATION-ROUTE"
+  },
+  "MHH-AC-FR-16-NOTIFICATION-BOUNDARY-B": {
+    "acceptance_id": "MHH-AC-FR-16-NOTIFICATION-BOUNDARY-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:5203815402120f15af22a149d474b485d6d2bf6ba28d35dd149e5150004f7208",
+    "source": {
+      "refinement_id": "RRF-FR-16-NOTIFICATION-BOUNDARY",
+      "source_acceptance_id": "RAC-FR-16-NOTIFICATION-B",
+      "source_semantic_digest": "sha256:fa328819de985985217c8b7268ee67b0fb1c725e7437b19c3dde8dc6498e0b2d"
+    },
+    "statement": "重複event・retry上限・再開判断待ちで二重通知や自動再開を起こさない",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-FR-16-NOTIFICATION-BOUNDARY",
+    "system_test_id": "MHH-ST-FR-16-NOTIFICATION-BOUNDARY"
+  },
+  "MHH-AC-FR-16-NOTIFICATION-BOUNDARY-N": {
+    "acceptance_id": "MHH-AC-FR-16-NOTIFICATION-BOUNDARY-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:54af47f62b86888c50e346c9757b6544a5419606d5a834d85e2e0d19bde5bfcd",
+    "source": {
+      "refinement_id": "RRF-FR-16-NOTIFICATION-BOUNDARY",
+      "source_acceptance_id": "RAC-FR-16-NOTIFICATION-N",
+      "source_semantic_digest": "sha256:fa328819de985985217c8b7268ee67b0fb1c725e7437b19c3dde8dc6498e0b2d"
+    },
+    "statement": "inbox書込み失敗でも停止状態をrollbackせずfailed receiptを残す",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-FR-16-NOTIFICATION-BOUNDARY",
+    "system_test_id": "MHH-ST-FR-16-NOTIFICATION-BOUNDARY"
+  },
+  "MHH-AC-FR-16-NOTIFICATION-BOUNDARY-P": {
+    "acceptance_id": "MHH-AC-FR-16-NOTIFICATION-BOUNDARY-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:e10bb121a074acddc44eeed50c08c19369c49cf4a09169532add21aef3efc7ef",
+    "source": {
+      "refinement_id": "RRF-FR-16-NOTIFICATION-BOUNDARY",
+      "source_acceptance_id": "RAC-FR-16-NOTIFICATION-P",
+      "source_semantic_digest": "sha256:fa328819de985985217c8b7268ee67b0fb1c725e7437b19c3dde8dc6498e0b2d"
+    },
+    "statement": "異常時に停止を先に永続化しUI内inbox記録attemptと記録結果を別証跡化する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-FR-16-NOTIFICATION-BOUNDARY",
+    "system_test_id": "MHH-ST-FR-16-NOTIFICATION-BOUNDARY"
+  },
+  "MHH-AC-FR-SLICE-AUTHORITY-ALIGNMENT-B": {
+    "acceptance_id": "MHH-AC-FR-SLICE-AUTHORITY-ALIGNMENT-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:dfdafa56c096f9231d7caa385b4d0270b8fd13d1a87614e7bf36715c24c9d6f3",
+    "source": {
+      "refinement_id": "RRF-FR-SLICE-AUTHORITY-ALIGNMENT",
+      "source_acceptance_id": "RAC-SLICE-B",
+      "source_semantic_digest": "sha256:f6b8ee938abf2391b9de7ce1729bfa7ecf1b832a7249ae334f169cb40082e4e2"
+    },
+    "statement": "一部だけ成立する場合は責務を分割又はdeferred/pivotし全体成立に読み替えない",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-FR-SLICE-AUTHORITY-ALIGNMENT",
+    "system_test_id": "MHH-ST-FR-SLICE-AUTHORITY-ALIGNMENT"
+  },
+  "MHH-AC-FR-SLICE-AUTHORITY-ALIGNMENT-N": {
+    "acceptance_id": "MHH-AC-FR-SLICE-AUTHORITY-ALIGNMENT-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:473f2a5f135df761c2b4c1b801a85cfb6dd34c676e7ad05ab43d876b86e13b2f",
+    "source": {
+      "refinement_id": "RRF-FR-SLICE-AUTHORITY-ALIGNMENT",
+      "source_acceptance_id": "RAC-SLICE-N",
+      "source_semantic_digest": "sha256:f6b8ee938abf2391b9de7ce1729bfa7ecf1b832a7249ae334f169cb40082e4e2"
+    },
+    "statement": "未回答・未許可・意味trace欠落又は証跡不足をfail-closeで拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-FR-SLICE-AUTHORITY-ALIGNMENT",
+    "system_test_id": "MHH-ST-FR-SLICE-AUTHORITY-ALIGNMENT"
+  },
+  "MHH-AC-FR-SLICE-AUTHORITY-ALIGNMENT-P": {
+    "acceptance_id": "MHH-AC-FR-SLICE-AUTHORITY-ALIGNMENT-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:00df483314b3abb2d837f4354995688f688c3a7ef50406897e040f56584b4843",
+    "source": {
+      "refinement_id": "RRF-FR-SLICE-AUTHORITY-ALIGNMENT",
+      "source_acceptance_id": "RAC-SLICE-P",
+      "source_semantic_digest": "sha256:f6b8ee938abf2391b9de7ce1729bfa7ecf1b832a7249ae334f169cb40082e4e2"
+    },
+    "statement": "意味軸・根拠・許可境界を満たす対象だけを次工程へ進める",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-FR-SLICE-AUTHORITY-ALIGNMENT",
+    "system_test_id": "MHH-ST-FR-SLICE-AUTHORITY-ALIGNMENT"
+  },
+  "MHH-AC-GENAI-EXECUTION-ROUTE-B": {
+    "acceptance_id": "MHH-AC-GENAI-EXECUTION-ROUTE-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:e46283e5d6ceb315a212ee3bc528aaf9c435203118ae11a816bf5117ebbfdd9c",
+    "source": {
+      "refinement_id": "RRF-GENAI-EXECUTION-ROUTE",
+      "source_acceptance_id": "RAC-GENAI-B",
+      "source_semantic_digest": "sha256:37d8371bbc7053ae3168627da6c58b39cc44c9816d5bf5904fdd6bfef8e5d755"
+    },
+    "statement": "一部だけ成立する場合は責務を分割又はdeferred/pivotし全体成立に読み替えない",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-GENAI-EXECUTION-ROUTE",
+    "system_test_id": "MHH-ST-GENAI-EXECUTION-ROUTE"
+  },
+  "MHH-AC-GENAI-EXECUTION-ROUTE-N": {
+    "acceptance_id": "MHH-AC-GENAI-EXECUTION-ROUTE-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:8eb6be1b504b151711994fac00decb61f8799d9433c0919e3796054be55fa6cd",
+    "source": {
+      "refinement_id": "RRF-GENAI-EXECUTION-ROUTE",
+      "source_acceptance_id": "RAC-GENAI-N",
+      "source_semantic_digest": "sha256:37d8371bbc7053ae3168627da6c58b39cc44c9816d5bf5904fdd6bfef8e5d755"
+    },
+    "statement": "未回答・未許可・意味trace欠落又は証跡不足をfail-closeで拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-GENAI-EXECUTION-ROUTE",
+    "system_test_id": "MHH-ST-GENAI-EXECUTION-ROUTE"
+  },
+  "MHH-AC-GENAI-EXECUTION-ROUTE-P": {
+    "acceptance_id": "MHH-AC-GENAI-EXECUTION-ROUTE-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:53f2adbdaba3a857164d3b069ce224801be8fd0e0eb85a5e70047d7de87357cd",
+    "source": {
+      "refinement_id": "RRF-GENAI-EXECUTION-ROUTE",
+      "source_acceptance_id": "RAC-GENAI-P",
+      "source_semantic_digest": "sha256:37d8371bbc7053ae3168627da6c58b39cc44c9816d5bf5904fdd6bfef8e5d755"
+    },
+    "statement": "意味軸・根拠・許可境界を満たす対象だけを次工程へ進める",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-GENAI-EXECUTION-ROUTE",
+    "system_test_id": "MHH-ST-GENAI-EXECUTION-ROUTE"
+  },
+  "MHH-AC-L0-NORTH-STAR-AUTHORITY-NORMALIZATION-B": {
+    "acceptance_id": "MHH-AC-L0-NORTH-STAR-AUTHORITY-NORMALIZATION-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:6909bd6585d3978df53bc0b5e045e8dc51bc02ec10aab0a155ffee75f758f8fb",
+    "source": {
+      "refinement_id": "RRF-L0-NORTH-STAR-AUTHORITY-NORMALIZATION",
+      "source_acceptance_id": "RAC-L0-AUTH-B",
+      "source_semantic_digest": "sha256:d15ab07c6a88ca37e654d8277b009e02ebcec425b310d6b27bd438e67b2024ce"
+    },
+    "statement": "事業価値を維持しても実現手段は独立に再決定し未決手段をdeferredとする",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-L0-NORTH-STAR-AUTHORITY-NORMALIZATION",
+    "system_test_id": "MHH-ST-L0-NORTH-STAR-AUTHORITY-NORMALIZATION"
+  },
+  "MHH-AC-L0-NORTH-STAR-AUTHORITY-NORMALIZATION-N": {
+    "acceptance_id": "MHH-AC-L0-NORTH-STAR-AUTHORITY-NORMALIZATION-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:2d54f20038fdafde7d11ee9d6ff53cfb839453360cd11d511b83300dc4f0b6ca",
+    "source": {
+      "refinement_id": "RRF-L0-NORTH-STAR-AUTHORITY-NORMALIZATION",
+      "source_acceptance_id": "RAC-L0-AUTH-N",
+      "source_semantic_digest": "sha256:d15ab07c6a88ca37e654d8277b009e02ebcec425b310d6b27bd438e67b2024ce"
+    },
+    "statement": "旧Discord/browser/provider等を下位ADRだけで暗黙置換又はcurrent利用することを拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-L0-NORTH-STAR-AUTHORITY-NORMALIZATION",
+    "system_test_id": "MHH-ST-L0-NORTH-STAR-AUTHORITY-NORMALIZATION"
+  },
+  "MHH-AC-L0-NORTH-STAR-AUTHORITY-NORMALIZATION-P": {
+    "acceptance_id": "MHH-AC-L0-NORTH-STAR-AUTHORITY-NORMALIZATION-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:f2008b347c7a1f38fcae17a346c3c6c2b57ee503845bc0731b52e1aaf432592f",
+    "source": {
+      "refinement_id": "RRF-L0-NORTH-STAR-AUTHORITY-NORMALIZATION",
+      "source_acceptance_id": "RAC-L0-AUTH-P",
+      "source_semantic_digest": "sha256:d15ab07c6a88ca37e654d8277b009e02ebcec425b310d6b27bd438e67b2024ce"
+    },
+    "statement": "全旧clauseが維持・置換・deferredの一つにPO決定され新L0からL1へtraceする",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-L0-NORTH-STAR-AUTHORITY-NORMALIZATION",
+    "system_test_id": "MHH-ST-L0-NORTH-STAR-AUTHORITY-NORMALIZATION"
+  },
+  "MHH-AC-LEGACY-MEDIA-ADMISSION-INVENTORY-B": {
+    "acceptance_id": "MHH-AC-LEGACY-MEDIA-ADMISSION-INVENTORY-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:91fa70c6cf9dbc9dc0627722f4f5a61de3f22bb565774ad985eac45fdf6e4ec6",
+    "source": {
+      "refinement_id": "RRF-LEGACY-MEDIA-ADMISSION-INVENTORY",
+      "source_acceptance_id": "RAC-LEGACY-MEDIA-B",
+      "source_semantic_digest": "sha256:6f8d4c56fa4d22900b6ba39d6c7392e766f8adc3ea0eb62a3f910638d888cd0e"
+    },
+    "statement": "一部operationだけ成立する場合はそのoperationだけ再開し媒体全体をenabledにしない",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-LEGACY-MEDIA-ADMISSION-INVENTORY",
+    "system_test_id": "MHH-ST-LEGACY-MEDIA-ADMISSION-INVENTORY"
+  },
+  "MHH-AC-LEGACY-MEDIA-ADMISSION-INVENTORY-N": {
+    "acceptance_id": "MHH-AC-LEGACY-MEDIA-ADMISSION-INVENTORY-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:508985f76c3bbad920b27ff6396cb0ef2ebbd5002375baf4021da9fa278c52be",
+    "source": {
+      "refinement_id": "RRF-LEGACY-MEDIA-ADMISSION-INVENTORY",
+      "source_acceptance_id": "RAC-LEGACY-MEDIA-N",
+      "source_semantic_digest": "sha256:6f8d4c56fa4d22900b6ba39d6c7392e766f8adc3ea0eb62a3f910638d888cd0e"
+    },
+    "statement": "棚卸し漏れ、旧本文からのenabled推測又は意味field未閉包の再開を拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-LEGACY-MEDIA-ADMISSION-INVENTORY",
+    "system_test_id": "MHH-ST-LEGACY-MEDIA-ADMISSION-INVENTORY"
+  },
+  "MHH-AC-LEGACY-MEDIA-ADMISSION-INVENTORY-P": {
+    "acceptance_id": "MHH-AC-LEGACY-MEDIA-ADMISSION-INVENTORY-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:62af0b53f6d9640ec4ed5649ccc5904396577ce5c89609d004e1421fa6b45f6b",
+    "source": {
+      "refinement_id": "RRF-LEGACY-MEDIA-ADMISSION-INVENTORY",
+      "source_acceptance_id": "RAC-LEGACY-MEDIA-P",
+      "source_semantic_digest": "sha256:6f8d4c56fa4d22900b6ba39d6c7392e766f8adc3ea0eb62a3f910638d888cd0e"
+    },
+    "statement": "全旧MRをdeferredとして収載し意味とAC/TCを凍結したoperationだけ再開する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-LEGACY-MEDIA-ADMISSION-INVENTORY",
+    "system_test_id": "MHH-ST-LEGACY-MEDIA-ADMISSION-INVENTORY"
+  },
+  "MHH-AC-MEDIA-POC-SCRUM-RELEASE-B": {
+    "acceptance_id": "MHH-AC-MEDIA-POC-SCRUM-RELEASE-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:37bf14bea4d5648e672447c56dfd32d9253798626cc9eac026eb66779aa6f7b6",
+    "source": {
+      "refinement_id": "RRF-MEDIA-POC-SCRUM-RELEASE",
+      "source_acceptance_id": "RAC-MEDIA-POC-SCRUM-B",
+      "source_semantic_digest": "sha256:4cb3997604201fdd2f1cd7dd2f8eb48f1faa9c7d407f3112ca10ae0821540c6f"
+    },
+    "statement": "一部capabilityだけが成立する場合はrelease unitを分割又はpivotし、媒体全体を一括acceptedにしない",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-POC-SCRUM-RELEASE",
+    "system_test_id": "MHH-ST-MEDIA-POC-SCRUM-RELEASE"
+  },
+  "MHH-AC-MEDIA-POC-SCRUM-RELEASE-N": {
+    "acceptance_id": "MHH-AC-MEDIA-POC-SCRUM-RELEASE-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:43d1fa655c7891a2a0ad2d9ed2ebe5547714f4cecafac75f07a891e0625266eb",
+    "source": {
+      "refinement_id": "RRF-MEDIA-POC-SCRUM-RELEASE",
+      "source_acceptance_id": "RAC-MEDIA-POC-SCRUM-N",
+      "source_semantic_digest": "sha256:4cb3997604201fdd2f1cd7dd2f8eb48f1faa9c7d407f3112ca10ae0821540c6f"
+    },
+    "statement": "Full V closure不足、必要と判定したDiscovery未実施、証跡不足、PO未決、又は別媒体から推測したcapabilityを本番enabledとして拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-POC-SCRUM-RELEASE",
+    "system_test_id": "MHH-ST-MEDIA-POC-SCRUM-RELEASE"
+  },
+  "MHH-AC-MEDIA-POC-SCRUM-RELEASE-P": {
+    "acceptance_id": "MHH-AC-MEDIA-POC-SCRUM-RELEASE-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:0c5762cc18950c9f2c89b36691c156f1b6cda827327cd3817cd8560aa8b0e4ae",
+    "source": {
+      "refinement_id": "RRF-MEDIA-POC-SCRUM-RELEASE",
+      "source_acceptance_id": "RAC-MEDIA-POC-SCRUM-P",
+      "source_semantic_digest": "sha256:4cb3997604201fdd2f1cd7dd2f8eb48f1faa9c7d407f3112ca10ae0821540c6f"
+    },
+    "statement": "Full V設計、increment検証、PO S4 receipt、Scrum Reverse SR0-SR4、release candidate V-pair closureを持つrelease unitだけを正本へ昇格する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-POC-SCRUM-RELEASE",
+    "system_test_id": "MHH-ST-MEDIA-POC-SCRUM-RELEASE"
+  },
+  "MHH-AC-NFR-BUSINESS-AUTHORITY-B": {
+    "acceptance_id": "MHH-AC-NFR-BUSINESS-AUTHORITY-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:634dd2825f280ff2fcd625a4d5f5728877babc81137c6d0f4de448e33c2f0d05",
+    "source": {
+      "refinement_id": "RRF-NFR-BUSINESS-AUTHORITY",
+      "source_acceptance_id": "RAC-NFR-AUTH-B",
+      "source_semantic_digest": "sha256:f70dd7d7fcbfc46be0c34ddc379e49703ea765b6cff0e8a8fd6c308db9b52834"
+    },
+    "statement": "N/A又は将来NFRはowner・理由・risk・再開条件付きdeferredとし、部分成立を全体受入へ昇格しない",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-NFR-BUSINESS-AUTHORITY",
+    "system_test_id": "MHH-ST-NFR-BUSINESS-AUTHORITY"
+  },
+  "MHH-AC-NFR-BUSINESS-AUTHORITY-N": {
+    "acceptance_id": "MHH-AC-NFR-BUSINESS-AUTHORITY-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:86df02d387e031aaf3ed7eb7f8d16600600e368762dfb68be04e62342acaf063",
+    "source": {
+      "refinement_id": "RRF-NFR-BUSINESS-AUTHORITY",
+      "source_acceptance_id": "RAC-NFR-AUTH-N",
+      "source_semantic_digest": "sha256:f70dd7d7fcbfc46be0c34ddc379e49703ea765b6cff0e8a8fd6c308db9b52834"
+    },
+    "statement": "root不明、親digest stale、意味軸未分類、旧NFR/phase/draft STC流用又は未登録閾値のNFRを受入済みにしない",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-NFR-BUSINESS-AUTHORITY",
+    "system_test_id": "MHH-ST-NFR-BUSINESS-AUTHORITY"
+  },
+  "MHH-AC-NFR-BUSINESS-AUTHORITY-P": {
+    "acceptance_id": "MHH-AC-NFR-BUSINESS-AUTHORITY-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:5b11f1679262591a803dc9dfa15afdcb5d56dfb217b8d45ab5961fb3f1091d90",
+    "source": {
+      "refinement_id": "RRF-NFR-BUSINESS-AUTHORITY",
+      "source_acceptance_id": "RAC-NFR-AUTH-P",
+      "source_semantic_digest": "sha256:f70dd7d7fcbfc46be0c34ddc379e49703ea765b6cff0e8a8fd6c308db9b52834"
+    },
+    "statement": "NFR11全件が既存meaning digestへ束縛されたstable root、actor/principal scope、applicability scope、phase、処遇、measurement authority及びfailure/recoveryを持つ",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-NFR-BUSINESS-AUTHORITY",
+    "system_test_id": "MHH-ST-NFR-BUSINESS-AUTHORITY"
+  },
+  "MHH-AC-OFFICIAL-API-ROUTE-AUTHORITY-B": {
+    "acceptance_id": "MHH-AC-OFFICIAL-API-ROUTE-AUTHORITY-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:e09fefe82d5feb296b9a808c717bd5e0113b84436268108610b1f7a513f29638",
+    "source": {
+      "refinement_id": "RRF-OFFICIAL-API-ROUTE-AUTHORITY",
+      "source_acceptance_id": "RAC-ROUTE-B",
+      "source_semantic_digest": "sha256:a2614cd4a2b2ea8347e9f9f04e8378303628965d9e81909643a0fb9c208b9e7d"
+    },
+    "statement": "一部だけ成立する場合は責務を分割又はdeferred/pivotし全体成立に読み替えない",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-OFFICIAL-API-ROUTE-AUTHORITY",
+    "system_test_id": "MHH-ST-OFFICIAL-API-ROUTE-AUTHORITY"
+  },
+  "MHH-AC-OFFICIAL-API-ROUTE-AUTHORITY-N": {
+    "acceptance_id": "MHH-AC-OFFICIAL-API-ROUTE-AUTHORITY-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:c30191761ae78a197a8df674bf894d230285f7ab7b3de5faca8e6a78b6b4a6e7",
+    "source": {
+      "refinement_id": "RRF-OFFICIAL-API-ROUTE-AUTHORITY",
+      "source_acceptance_id": "RAC-ROUTE-N",
+      "source_semantic_digest": "sha256:a2614cd4a2b2ea8347e9f9f04e8378303628965d9e81909643a0fb9c208b9e7d"
+    },
+    "statement": "未回答・未許可・意味trace欠落又は証跡不足をfail-closeで拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-OFFICIAL-API-ROUTE-AUTHORITY",
+    "system_test_id": "MHH-ST-OFFICIAL-API-ROUTE-AUTHORITY"
+  },
+  "MHH-AC-OFFICIAL-API-ROUTE-AUTHORITY-P": {
+    "acceptance_id": "MHH-AC-OFFICIAL-API-ROUTE-AUTHORITY-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:2628772e16ea6f812512e7cf5b6d8758ac65471cdd4c809d9ad44481ff9e5fb6",
+    "source": {
+      "refinement_id": "RRF-OFFICIAL-API-ROUTE-AUTHORITY",
+      "source_acceptance_id": "RAC-ROUTE-P",
+      "source_semantic_digest": "sha256:a2614cd4a2b2ea8347e9f9f04e8378303628965d9e81909643a0fb9c208b9e7d"
+    },
+    "statement": "意味軸・根拠・許可境界を満たす対象だけを次工程へ進める",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-OFFICIAL-API-ROUTE-AUTHORITY",
+    "system_test_id": "MHH-ST-OFFICIAL-API-ROUTE-AUTHORITY"
+  },
+  "MHH-AC-PRODUCT-STATE-AUTHORITY-B": {
+    "acceptance_id": "MHH-AC-PRODUCT-STATE-AUTHORITY-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:27adb02df190d56497623da2b5406430cddd3d4c217cd23f1c95c19e26601b20",
+    "source": {
+      "refinement_id": "RRF-PRODUCT-STATE-AUTHORITY",
+      "source_acceptance_id": "RAC-PRODUCT-STATE-B",
+      "source_semantic_digest": "sha256:634bd6202e1a5d464d9696ce4f698cc5d5eb40907eea96e198cc5d885e2b9878"
+    },
+    "statement": "拒否、競合、保存不能又は復旧時はcurrent state、current revision及び履歴を維持し、復旧を新しい認可transitionとして記録するまでfail-closeする",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-PRODUCT-STATE-AUTHORITY",
+    "system_test_id": "MHH-ST-PRODUCT-STATE-AUTHORITY"
+  },
+  "MHH-AC-PRODUCT-STATE-AUTHORITY-N": {
+    "acceptance_id": "MHH-AC-PRODUCT-STATE-AUTHORITY-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:d552367089c5e079474810667da58ca5e89a6d7c14c66930399cafdc21ee480c",
+    "source": {
+      "refinement_id": "RRF-PRODUCT-STATE-AUTHORITY",
+      "source_acceptance_id": "RAC-PRODUCT-STATE-N",
+      "source_semantic_digest": "sha256:634bd6202e1a5d464d9696ce4f698cc5d5eb40907eea96e198cc5d885e2b9878"
+    },
+    "statement": "unknown transition、stale revision、競合、unknown owner、missing/stale/expired authorization grant及び通知/seen/ack/adapter/retry signalからの暗黙更新又はrollbackを拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-PRODUCT-STATE-AUTHORITY",
+    "system_test_id": "MHH-ST-PRODUCT-STATE-AUTHORITY"
+  },
+  "MHH-AC-PRODUCT-STATE-AUTHORITY-P": {
+    "acceptance_id": "MHH-AC-PRODUCT-STATE-AUTHORITY-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:1d85d64a4fccfdedbdebc473f5fb12d803b7dcfcff1efa0e34690b6275ceef12",
+    "source": {
+      "refinement_id": "RRF-PRODUCT-STATE-AUTHORITY",
+      "source_acceptance_id": "RAC-PRODUCT-STATE-P",
+      "source_semantic_digest": "sha256:634bd6202e1a5d464d9696ce4f698cc5d5eb40907eea96e198cc5d885e2b9878"
+    },
+    "statement": "stable transition ID、subject、source state、target state、expected prior revision、expected priorより大きいresulting revision、単一owner、有効なauthorization grant ID/revision/semantic digest、effect、result及びreceiptが閉じた更新だけを唯一正本へ反映する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-PRODUCT-STATE-AUTHORITY",
+    "system_test_id": "MHH-ST-PRODUCT-STATE-AUTHORITY"
+  },
+  "MHH-AC-RATE-QUOTA-COST-AUTHORITY-B": {
+    "acceptance_id": "MHH-AC-RATE-QUOTA-COST-AUTHORITY-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:9e46d06e3e137209604ea10d52a36690a3d0ed7984d115a65c02ea3e8856cdda",
+    "source": {
+      "refinement_id": "RRF-RATE-QUOTA-COST-AUTHORITY",
+      "source_acceptance_id": "RAC-RATE-QUOTA-B",
+      "source_semantic_digest": "sha256:4d1941c135f4100df4286135bf534b7058473abaef0396495778df0fcccdcf41"
+    },
+    "statement": "上限到達又は分類不明では対象effectだけをblocked/deferredとし、既確定状態をrollbackせずfailure receiptを残す",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-RATE-QUOTA-COST-AUTHORITY",
+    "system_test_id": "MHH-ST-RATE-QUOTA-COST-AUTHORITY"
+  },
+  "MHH-AC-RATE-QUOTA-COST-AUTHORITY-N": {
+    "acceptance_id": "MHH-AC-RATE-QUOTA-COST-AUTHORITY-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:c97895421f1b91f37e601ba0ba78804bba0a6b03fcaec2d904fba6a0b495a6e0",
+    "source": {
+      "refinement_id": "RRF-RATE-QUOTA-COST-AUTHORITY",
+      "source_acceptance_id": "RAC-RATE-QUOTA-N",
+      "source_semantic_digest": "sha256:4d1941c135f4100df4286135bf534b7058473abaef0396495778df0fcccdcf41"
+    },
+    "statement": "未知、未登録、失効、測定不能、scope不一致、retry-after違反又はcost ceiling欠落時にexternal write/publish/money/additional retryを拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-RATE-QUOTA-COST-AUTHORITY",
+    "system_test_id": "MHH-ST-RATE-QUOTA-COST-AUTHORITY"
+  },
+  "MHH-AC-RATE-QUOTA-COST-AUTHORITY-P": {
+    "acceptance_id": "MHH-AC-RATE-QUOTA-COST-AUTHORITY-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:6270cb24fd24ac87c84c81d96f11af539f967fbc14c0fab81fcc428b0b3601c5",
+    "source": {
+      "refinement_id": "RRF-RATE-QUOTA-COST-AUTHORITY",
+      "source_acceptance_id": "RAC-RATE-QUOTA-P",
+      "source_semantic_digest": "sha256:4d1941c135f4100df4286135bf534b7058473abaef0396495778df0fcccdcf41"
+    },
+    "statement": "有効なprofile/account/operation/risk別registrationとeffect分類があり、上限内のoperationだけを開始する。read-only残量取得は権限・quota・証跡が閉じる場合だけ別effectとして扱う",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-RATE-QUOTA-COST-AUTHORITY",
+    "system_test_id": "MHH-ST-RATE-QUOTA-COST-AUTHORITY"
+  },
+  "MHH-AC-REQ-AUTHORITY-NORMALIZATION-B": {
+    "acceptance_id": "MHH-AC-REQ-AUTHORITY-NORMALIZATION-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:f15d56151f7cad6f4dd892d8b4d6cf18f3b4e80caa26eafddcefa77d451db09c",
+    "source": {
+      "refinement_id": "RRF-REQ-AUTHORITY-NORMALIZATION",
+      "source_acceptance_id": "RAC-REQ-AUTH-B",
+      "source_semantic_digest": "sha256:3b83b3e1af295d0e0152cce199a294f6591dccc61ac33067926b64aa3ea5ee80"
+    },
+    "statement": "表記同値は正規化するが本文・source・downstreamの実質差を消さず、全条件成立前は旧資料とcandidateの双方をrevalidation-onlyに保つ",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-REQ-AUTHORITY-NORMALIZATION",
+    "system_test_id": "MHH-ST-REQ-AUTHORITY-NORMALIZATION"
+  },
+  "MHH-AC-REQ-AUTHORITY-NORMALIZATION-N": {
+    "acceptance_id": "MHH-AC-REQ-AUTHORITY-NORMALIZATION-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:5610be6f73c2e9898c03684cb6068a6193d5ea3a70d911814061c234ec499c32",
+    "source": {
+      "refinement_id": "RRF-REQ-AUTHORITY-NORMALIZATION",
+      "source_acceptance_id": "RAC-REQ-AUTH-N",
+      "source_semantic_digest": "sha256:3b83b3e1af295d0e0152cce199a294f6591dccc61ac33067926b64aa3ea5ee80"
+    },
+    "statement": "未分類又は重複差分、source digest stale、複数selected candidate、defer owner/resume欠落、独立手編集view、旧REQ再混入、trace差分又はPO row-set digest不一致を拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-REQ-AUTHORITY-NORMALIZATION",
+    "system_test_id": "MHH-ST-REQ-AUTHORITY-NORMALIZATION"
+  },
+  "MHH-AC-REQ-AUTHORITY-NORMALIZATION-P": {
+    "acceptance_id": "MHH-AC-REQ-AUTHORITY-NORMALIZATION-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:ea2c9eccb8bc7b3f19d0b17e8582d2cda8e874dbf79f30000c3e9f6d411a08ab",
+    "source": {
+      "refinement_id": "RRF-REQ-AUTHORITY-NORMALIZATION",
+      "source_acceptance_id": "RAC-REQ-AUTH-P",
+      "source_semantic_digest": "sha256:3b83b3e1af295d0e0152cce199a294f6591dccc61ac33067926b64aa3ea5ee80"
+    },
+    "statement": "既存REQ55意味inventoryと15 ID・19 field delta overlayをPO row-set receiptへ束縛し、単一candidate JSONからMarkdownとtraceを生成して差分0、旧consumer隔離、manifest/baseline同一commit及び独立Goを満たす",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-REQ-AUTHORITY-NORMALIZATION",
+    "system_test_id": "MHH-ST-REQ-AUTHORITY-NORMALIZATION"
+  },
+  "MHH-AC-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE-B": {
+    "acceptance_id": "MHH-AC-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:e1305cb25fe2cc10d56d9e86eef9a136b02e3ec57ff8ff5bc7d7b76f3df8d99b",
+    "source": {
+      "refinement_id": "RRF-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE",
+      "source_acceptance_id": "RAC-DISCOVERY-B",
+      "source_semantic_digest": "sha256:ae73eac1dcff87687fb07345f4b59a072a33259bf7da9039fefe39e24378647f"
+    },
+    "statement": "一部だけ成立する場合は責務を分割又はdeferredとし、品質軸の一括N/Aや全体成立へ昇格しない",
+    "status": "historical_superseded",
+    "system_contract_id": "MHH-SC-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE",
+    "system_test_id": "MHH-ST-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE"
+  },
+  "MHH-AC-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE-N": {
+    "acceptance_id": "MHH-AC-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:c8633b96ce93ceec85f9b90535f8267084eda6cb13be13dbb6319b2655863ddd",
+    "source": {
+      "refinement_id": "RRF-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE",
+      "source_acceptance_id": "RAC-DISCOVERY-N",
+      "source_semantic_digest": "sha256:ae73eac1dcff87687fb07345f4b59a072a33259bf7da9039fefe39e24378647f"
+    },
+    "statement": "unknown、空、汎用N/A、親digest不一致、継承循環又は必要な閾値registration欠落をfail-closeで拒否する",
+    "status": "historical_superseded",
+    "system_contract_id": "MHH-SC-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE",
+    "system_test_id": "MHH-ST-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE"
+  },
+  "MHH-AC-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE-P": {
+    "acceptance_id": "MHH-AC-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:e4c2cf7e10455c131f9ffb2bd19557500a183b19fba9d42697a75a7a5d0fccd3",
+    "source": {
+      "refinement_id": "RRF-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE",
+      "source_acceptance_id": "RAC-DISCOVERY-P",
+      "source_semantic_digest": "sha256:ae73eac1dcff87687fb07345f4b59a072a33259bf7da9039fefe39e24378647f"
+    },
+    "statement": "全core軸がdirect又はdigest付き継承で閉じ、品質軸が同様に閉じるか証拠付きN/Aとなり、必要な閾値registrationが有効な対象だけを次工程へ進める",
+    "status": "historical_superseded",
+    "system_contract_id": "MHH-SC-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE",
+    "system_test_id": "MHH-ST-REQUIREMENT-DISCOVERY-SEMANTIC-COVERAGE"
+  },
+  "MHH-AC-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2-B": {
+    "acceptance_id": "MHH-AC-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:de9879644c29d0bf1564fc63fa76f0e83be5265e909db59c468f3514d33b1d6a",
+    "source": {
+      "refinement_id": "RRF-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2",
+      "source_acceptance_id": "RAC-DISCOVERY-B",
+      "source_semantic_digest": "sha256:68ce8384a857fac070f2394e20e6188358cae6fae262ea6f2c18b5f03a9ed403"
+    },
+    "statement": "一部だけ成立する場合は責務を分割又はdeferredとし、品質軸の一括N/Aや全体成立へ昇格しない",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2",
+    "system_test_id": "MHH-ST-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2"
+  },
+  "MHH-AC-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2-N": {
+    "acceptance_id": "MHH-AC-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:0c0ee8062a8f403efdd5d9891dc08472a99a05002d5fc058d84025e9b7db7c70",
+    "source": {
+      "refinement_id": "RRF-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2",
+      "source_acceptance_id": "RAC-DISCOVERY-N",
+      "source_semantic_digest": "sha256:68ce8384a857fac070f2394e20e6188358cae6fae262ea6f2c18b5f03a9ed403"
+    },
+    "statement": "unknown、空、汎用N/A、親digest不一致、継承循環又は必要な閾値registration欠落をfail-closeで拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2",
+    "system_test_id": "MHH-ST-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2"
+  },
+  "MHH-AC-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2-P": {
+    "acceptance_id": "MHH-AC-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:8861ace98f38292d860c605b5c4a8cb3856cd5f8df093682313e09f626cba28a",
+    "source": {
+      "refinement_id": "RRF-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2",
+      "source_acceptance_id": "RAC-DISCOVERY-P",
+      "source_semantic_digest": "sha256:68ce8384a857fac070f2394e20e6188358cae6fae262ea6f2c18b5f03a9ed403"
+    },
+    "statement": "全core軸がdirect又はdigest付き継承で閉じ、品質軸が同様に閉じるか証拠付きN/Aとなり、必要な閾値registrationが有効な対象だけを次工程へ進める",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2",
+    "system_test_id": "MHH-ST-REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2"
+  },
+  "MHH-AC-RESEARCH-LED-CONTENT-GROWTH-B": {
+    "acceptance_id": "MHH-AC-RESEARCH-LED-CONTENT-GROWTH-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:4f618b6cfcae1cdf6e98bbfd4fba5937edd00816ef3af5725815d9b1d0519e48",
+    "source": {
+      "refinement_id": "RRF-RESEARCH-LED-CONTENT-GROWTH",
+      "source_acceptance_id": "RAC-RESEARCH-GROWTH-B",
+      "source_semantic_digest": "sha256:ea8db288dc6dd44db103766832cb6d8f73862e5de15c21c18fa0b43087e50b9e"
+    },
+    "statement": "有料集客は超後期の個別要求が承認されるまでdisabledを維持する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-RESEARCH-LED-CONTENT-GROWTH",
+    "system_test_id": "MHH-ST-RESEARCH-LED-CONTENT-GROWTH"
+  },
+  "MHH-AC-RESEARCH-LED-CONTENT-GROWTH-N": {
+    "acceptance_id": "MHH-AC-RESEARCH-LED-CONTENT-GROWTH-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:1e932b9398aab6f633c2863cf4453c55278affcafcbccea8eaea75088987b20c",
+    "source": {
+      "refinement_id": "RRF-RESEARCH-LED-CONTENT-GROWTH",
+      "source_acceptance_id": "RAC-RESEARCH-GROWTH-N",
+      "source_semantic_digest": "sha256:ea8db288dc6dd44db103766832cb6d8f73862e5de15c21c18fa0b43087e50b9e"
+    },
+    "statement": "research根拠なし制作、付加価値なきsource言い換え、順位操作目的の量産、全媒体一律KPI及び権限不明な商品変更を拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-RESEARCH-LED-CONTENT-GROWTH",
+    "system_test_id": "MHH-ST-RESEARCH-LED-CONTENT-GROWTH"
+  },
+  "MHH-AC-RESEARCH-LED-CONTENT-GROWTH-P": {
+    "acceptance_id": "MHH-AC-RESEARCH-LED-CONTENT-GROWTH-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:7028fad0d2933a4ce6b352d76e91e59b883d6426e8b71ee82542e61e7fe2ac0c",
+    "source": {
+      "refinement_id": "RRF-RESEARCH-LED-CONTENT-GROWTH",
+      "source_acceptance_id": "RAC-RESEARCH-GROWTH-P",
+      "source_semantic_digest": "sha256:ea8db288dc6dd44db103766832cb6d8f73862e5de15c21c18fa0b43087e50b9e"
+    },
+    "statement": "source/claim/freshnessと独自価値を持つresearch仮説から媒体役割と成果物を作り、役割KPIを次の仮説へ還流する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-RESEARCH-LED-CONTENT-GROWTH",
+    "system_test_id": "MHH-ST-RESEARCH-LED-CONTENT-GROWTH"
+  },
+  "MHH-AC-STRATEGY-REQUIREMENT-ADMISSION-B": {
+    "acceptance_id": "MHH-AC-STRATEGY-REQUIREMENT-ADMISSION-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:17419d6fb115a66fc3f941baf5ceed94a07478d00a0f118e017efda000313a4c",
+    "source": {
+      "refinement_id": "RRF-STRATEGY-REQUIREMENT-ADMISSION",
+      "source_acceptance_id": "RAC-STRATEGY-ADMISSION-B",
+      "source_semantic_digest": "sha256:52f381f8b7c12da197f61fe39dd1e79474d5aabc8c97c70a8f97d423d115b2b8"
+    },
+    "statement": "初期外SRは価値・依存・risk・再開条件付きdeferredとする",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-STRATEGY-REQUIREMENT-ADMISSION",
+    "system_test_id": "MHH-ST-STRATEGY-REQUIREMENT-ADMISSION"
+  },
+  "MHH-AC-STRATEGY-REQUIREMENT-ADMISSION-N": {
+    "acceptance_id": "MHH-AC-STRATEGY-REQUIREMENT-ADMISSION-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:968d9dc64e5e0036cde36d26ba08d527c44fedda405cf19c1acf9e3576553bc8",
+    "source": {
+      "refinement_id": "RRF-STRATEGY-REQUIREMENT-ADMISSION",
+      "source_acceptance_id": "RAC-STRATEGY-ADMISSION-N",
+      "source_semantic_digest": "sha256:52f381f8b7c12da197f61fe39dd1e79474d5aabc8c97c70a8f97d423d115b2b8"
+    },
+    "statement": "draft STC又はACなしSRをimplementation-readyにしない",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-STRATEGY-REQUIREMENT-ADMISSION",
+    "system_test_id": "MHH-ST-STRATEGY-REQUIREMENT-ADMISSION"
+  },
+  "MHH-AC-STRATEGY-REQUIREMENT-ADMISSION-P": {
+    "acceptance_id": "MHH-AC-STRATEGY-REQUIREMENT-ADMISSION-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:91b63cd906a738b50a86b254cd0cf1b109e7b45777ee6b493825dee7d9d26a69",
+    "source": {
+      "refinement_id": "RRF-STRATEGY-REQUIREMENT-ADMISSION",
+      "source_acceptance_id": "RAC-STRATEGY-ADMISSION-P",
+      "source_semantic_digest": "sha256:52f381f8b7c12da197f61fe39dd1e79474d5aabc8c97c70a8f97d423d115b2b8"
+    },
+    "statement": "採用SRがFN/CMP/ACとPO receipt付きの単一current test authorityへ降下し、旧draft STC又は旧TCCを自動流用しない",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-STRATEGY-REQUIREMENT-ADMISSION",
+    "system_test_id": "MHH-ST-STRATEGY-REQUIREMENT-ADMISSION"
+  },
+  "MHH-AC-TEST-ID-AUTHORITY-ALIGNMENT-B": {
+    "acceptance_id": "MHH-AC-TEST-ID-AUTHORITY-ALIGNMENT-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:ed8cf8f0210503232d8da84dd335e02b164be9ccef8d43907cb779a11ec013ce",
+    "source": {
+      "refinement_id": "RRF-TEST-ID-AUTHORITY-ALIGNMENT",
+      "source_acceptance_id": "RAC-TEST-ID-B",
+      "source_semantic_digest": "sha256:5df8bc9cff5ace92a0fe0e070ccc34b217cbe6b0a3af4770598c1932dcf6ace3"
+    },
+    "statement": "同値でない試験は統合せず新ID化又は明示廃止を要求する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-TEST-ID-AUTHORITY-ALIGNMENT",
+    "system_test_id": "MHH-ST-TEST-ID-AUTHORITY-ALIGNMENT"
+  },
+  "MHH-AC-TEST-ID-AUTHORITY-ALIGNMENT-N": {
+    "acceptance_id": "MHH-AC-TEST-ID-AUTHORITY-ALIGNMENT-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:89921c33608f71964f71bfa6ced7a4e31b33ccd023fd741ea12a654325e55fbc",
+    "source": {
+      "refinement_id": "RRF-TEST-ID-AUTHORITY-ALIGNMENT",
+      "source_acceptance_id": "RAC-TEST-ID-N",
+      "source_semantic_digest": "sha256:5df8bc9cff5ace92a0fe0e070ccc34b217cbe6b0a3af4770598c1932dcf6ace3"
+    },
+    "statement": "不存在又は旧TC-*参照と意味未確認の置換を拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-TEST-ID-AUTHORITY-ALIGNMENT",
+    "system_test_id": "MHH-ST-TEST-ID-AUTHORITY-ALIGNMENT"
+  },
+  "MHH-AC-TEST-ID-AUTHORITY-ALIGNMENT-P": {
+    "acceptance_id": "MHH-AC-TEST-ID-AUTHORITY-ALIGNMENT-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:1981c5e3e57d1e0e41d29623eac256b4b9f356605f822d0fc6a0af6798c8daf2",
+    "source": {
+      "refinement_id": "RRF-TEST-ID-AUTHORITY-ALIGNMENT",
+      "source_acceptance_id": "RAC-TEST-ID-P",
+      "source_semantic_digest": "sha256:5df8bc9cff5ace92a0fe0e070ccc34b217cbe6b0a3af4770598c1932dcf6ace3"
+    },
+    "statement": "全DU試験参照が実在TCC/STCへ一意に解決し試験意図が保存される",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-TEST-ID-AUTHORITY-ALIGNMENT",
+    "system_test_id": "MHH-ST-TEST-ID-AUTHORITY-ALIGNMENT"
+  },
+  "MHH-AC-VPS-CREDENTIAL-SECURITY-BOUNDARY-B": {
+    "acceptance_id": "MHH-AC-VPS-CREDENTIAL-SECURITY-BOUNDARY-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:0213f27ec9ed10fabeb47b28e00ceb2f653dd7ab3e8836d11c3849d0e8eed336",
+    "source": {
+      "refinement_id": "RRF-VPS-CREDENTIAL-SECURITY-BOUNDARY",
+      "source_acceptance_id": "RAC-VPS-CREDENTIAL-B",
+      "source_semantic_digest": "sha256:16f222c23f0071263f5b28fc09a62e23c50719dbff0f9c4747d8de00bcb014df"
+    },
+    "statement": "VPS再起動又はunlock失敗時は外部操作停止を維持し、人間が実行系とcredential注入を再認可するまで自動復旧せず、旧平文credentialも再発行前に移送しない",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-VPS-CREDENTIAL-SECURITY-BOUNDARY",
+    "system_test_id": "MHH-ST-VPS-CREDENTIAL-SECURITY-BOUNDARY"
+  },
+  "MHH-AC-VPS-CREDENTIAL-SECURITY-BOUNDARY-N": {
+    "acceptance_id": "MHH-AC-VPS-CREDENTIAL-SECURITY-BOUNDARY-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:31dfbd328607d53cf24d9f1663945cc645c2721043b0ce60803ce3edb87aac70",
+    "source": {
+      "refinement_id": "RRF-VPS-CREDENTIAL-SECURITY-BOUNDARY",
+      "source_acceptance_id": "RAC-VPS-CREDENTIAL-N",
+      "source_semantic_digest": "sha256:16f222c23f0071263f5b28fc09a62e23c50719dbff0f9c4747d8de00bcb014df"
+    },
+    "statement": "平文env、repo/製品DB/log/journal/service unit/argv/dump/evidence漏洩、scope越境、test/prod混用及びsecret backupを拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-VPS-CREDENTIAL-SECURITY-BOUNDARY",
+    "system_test_id": "MHH-ST-VPS-CREDENTIAL-SECURITY-BOUNDARY"
+  },
+  "MHH-AC-VPS-CREDENTIAL-SECURITY-BOUNDARY-P": {
+    "acceptance_id": "MHH-AC-VPS-CREDENTIAL-SECURITY-BOUNDARY-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:cda274b50659800add5d10cfe9460ab2557ba2440a3ee5f411d9674237fbc5f1",
+    "source": {
+      "refinement_id": "RRF-VPS-CREDENTIAL-SECURITY-BOUNDARY",
+      "source_acceptance_id": "RAC-VPS-CREDENTIAL-P",
+      "source_semantic_digest": "sha256:16f222c23f0071263f5b28fc09a62e23c50719dbff0f9c4747d8de00bcb014df"
+    },
+    "statement": "暗号化at-rest保護とprofile/account/operation束縛一時注入を満たし、証跡は参照IDだけを保持して使用後にsecretを残さない",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-VPS-CREDENTIAL-SECURITY-BOUNDARY",
+    "system_test_id": "MHH-ST-VPS-CREDENTIAL-SECURITY-BOUNDARY"
+  },
+  "MHH-AC-VPS-UI-AUTHENTICATION-SESSION-B": {
+    "acceptance_id": "MHH-AC-VPS-UI-AUTHENTICATION-SESSION-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:5fa79e8a2358b2c803f20db6eab26fb9ea8fd51572a7d9cb73a925681b75d0ab",
+    "source": {
+      "refinement_id": "RRF-VPS-UI-AUTHENTICATION-SESSION",
+      "source_acceptance_id": "RAC-UI-AUTH-B",
+      "source_semantic_digest": "sha256:59583ac23bfdef85aafee36c120abced6cf938c25b6c905bf7bf364890468d04"
+    },
+    "statement": "lockout/recovery/break-glass又はVPS再起動時もstate/revisionを維持し、runtime/credential再認可とfresh grantまで外部作用を停止する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-VPS-UI-AUTHENTICATION-SESSION",
+    "system_test_id": "MHH-ST-VPS-UI-AUTHENTICATION-SESSION"
+  },
+  "MHH-AC-VPS-UI-AUTHENTICATION-SESSION-N": {
+    "acceptance_id": "MHH-AC-VPS-UI-AUTHENTICATION-SESSION-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:ec211f438c20a17c4c6170658f2fac71c2c209cea9c9cec97d0d453bef2a5627",
+    "source": {
+      "refinement_id": "RRF-VPS-UI-AUTHENTICATION-SESSION",
+      "source_acceptance_id": "RAC-UI-AUTH-N",
+      "source_semantic_digest": "sha256:59583ac23bfdef85aafee36c120abced6cf938c25b6c905bf7bf364890468d04"
+    },
+    "statement": "unknown/stale identity、expired/revoked/fixed/replayed session、CSRF不成立、strength/freshness不足、deep-linkのみ、grant欠落、raw secret/raw bearer token/credential materialのrepo・製品DB・log・inboxへの永続化又は露出、及びcredentialを含むauthentication event digestを拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-VPS-UI-AUTHENTICATION-SESSION",
+    "system_test_id": "MHH-ST-VPS-UI-AUTHENTICATION-SESSION"
+  },
+  "MHH-AC-VPS-UI-AUTHENTICATION-SESSION-P": {
+    "acceptance_id": "MHH-AC-VPS-UI-AUTHENTICATION-SESSION-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:eebff5fdd3ae6eb195f4f77cfee9e13278a97d5adbc93b9eae3fa699ce73cd20",
+    "source": {
+      "refinement_id": "RRF-VPS-UI-AUTHENTICATION-SESSION",
+      "source_acceptance_id": "RAC-UI-AUTH-P",
+      "source_semantic_digest": "sha256:59583ac23bfdef85aafee36c120abced6cf938c25b6c905bf7bf364890468d04"
+    },
+    "statement": "有効なidentity revision、authentication event/digest、session expiry/revocation、必要strength/freshness及びoperation別authorization grant ID/revision/digestを満たすprincipalだけ操作できる",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-VPS-UI-AUTHENTICATION-SESSION",
+    "system_test_id": "MHH-ST-VPS-UI-AUTHENTICATION-SESSION"
+  },
+  "MHH-AC-VPS-UI-INBOX-LIFECYCLE-B": {
+    "acceptance_id": "MHH-AC-VPS-UI-INBOX-LIFECYCLE-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:77002ef522f6cc7acf5f15c5dc6b3a312c044cdc6f9e74777423c9ff4d2b500f",
+    "source": {
+      "refinement_id": "RRF-VPS-UI-INBOX-LIFECYCLE",
+      "source_acceptance_id": "RAC-UI-INBOX-B",
+      "source_semantic_digest": "sha256:8e7014577d4ad96f3ded703a42f97f618cf2b56f3c89866d948fa7b9d1ed1fad"
+    },
+    "statement": "未知source/purpose、同一identity再送、記録失敗、保持境界ではfail-closeし、業務状態を維持したまま一意なattempt/failed/expiry証跡を残す。content quality exhaustionの再送は同一source identityへdedupeし、別itemを作らない。長期未確認表示又はreminder候補からapprove/reject、停止解除又はsource expiryを導出しない。retry exhaustionではblockedを維持してfailed receiptを残し、retention不明又はlegal hold中はaccess制限して不可逆削除を停止し、reminder未登録時は無表示のままsource状態を維持する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-VPS-UI-INBOX-LIFECYCLE",
+    "system_test_id": "MHH-ST-VPS-UI-INBOX-LIFECYCLE"
+  },
+  "MHH-AC-VPS-UI-INBOX-LIFECYCLE-N": {
+    "acceptance_id": "MHH-AC-VPS-UI-INBOX-LIFECYCLE-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:b39bf603b3e5b18c67ce89097074397ee1452fab2cdd9b25260973db23053d10",
+    "source": {
+      "refinement_id": "RRF-VPS-UI-INBOX-LIFECYCLE",
+      "source_acceptance_id": "RAC-UI-INBOX-N",
+      "source_semantic_digest": "sha256:8e7014577d4ad96f3ded703a42f97f618cf2b56f3c89866d948fa7b9d1ed1fad"
+    },
+    "statement": "通知失敗・重複・seen・acknowledged・resolved・expiredから業務状態、approve/reject又は停止後再開を変更せず、scope外profileのitemとsecret/PII/raw errorを表示しない。通常のcontent quality retryを通知せず、retry exhaustion itemの記録失敗でもblocked状態を変更しない。旧FR-43又はApprovalTransportをinbox source authorityとして直接採用しない。未確認、時間経過、stale表示又は記録失敗だけでaction_requiredをexpiredにしない。無限retry、外部通知fallback、active itemの時間archive/purge、policy不明時purge、reminderからのdecision又は別item生成を拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-VPS-UI-INBOX-LIFECYCLE",
+    "system_test_id": "MHH-ST-VPS-UI-INBOX-LIFECYCLE"
+  },
+  "MHH-AC-VPS-UI-INBOX-LIFECYCLE-P": {
+    "acceptance_id": "MHH-AC-VPS-UI-INBOX-LIFECYCLE-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:bb4d84e0a8ce2ea5f3107f072d42a45b43e7ede570a3567277119de433657428",
+    "source": {
+      "refinement_id": "RRF-VPS-UI-INBOX-LIFECYCLE",
+      "source_acceptance_id": "RAC-UI-INBOX-P",
+      "source_semantic_digest": "sha256:8e7014577d4ad96f3ded703a42f97f618cf2b56f3c89866d948fa7b9d1ed1fad"
+    },
+    "statement": "approval_waiting/safety_stoppedと外部operation・公開・保守のexecution_failedを先に確定し、purposeと対象bindingを持つ一意なitemをrecordedとして残し、seen/acknowledgedを利用者別に記録する。content_quality_retry_exhaustedは対象artifact、rule revision及びexhaustion source identityへ束縛したoperational alertを一件だけ記録する。resolved/expiredはsource lifecycle、revision失効又はscope取消の正本eventだけへ追随する。登録済み有界retry内で記録し、terminal後だけ登録済みretention policyに従って処理する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-VPS-UI-INBOX-LIFECYCLE",
+    "system_test_id": "MHH-ST-VPS-UI-INBOX-LIFECYCLE"
+  },
+  "MHH-AC-VPS-UI-PRIMARY-HUMAN-INTERFACE-B": {
+    "acceptance_id": "MHH-AC-VPS-UI-PRIMARY-HUMAN-INTERFACE-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:1a70df5b26deb0e8ef51dc32623c2de0b7019f9023a925ad098c0e117387d88a",
+    "source": {
+      "refinement_id": "RRF-VPS-UI-PRIMARY-HUMAN-INTERFACE",
+      "source_acceptance_id": "RAC-VPS-UI-B",
+      "source_semantic_digest": "sha256:229880f28abe6afce7c9576079bf3844130c3f47aa8d60a42e8079439e12478f"
+    },
+    "statement": "session失効・同時更新・高リスク再認証要求時はfail-closeし既存状態を維持する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-VPS-UI-PRIMARY-HUMAN-INTERFACE",
+    "system_test_id": "MHH-ST-VPS-UI-PRIMARY-HUMAN-INTERFACE"
+  },
+  "MHH-AC-VPS-UI-PRIMARY-HUMAN-INTERFACE-N": {
+    "acceptance_id": "MHH-AC-VPS-UI-PRIMARY-HUMAN-INTERFACE-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:fc77a6f4855b1ba0c496b25a42e981b146d7362c1e0edcf9ac54c5b2882d1bf6",
+    "source": {
+      "refinement_id": "RRF-VPS-UI-PRIMARY-HUMAN-INTERFACE",
+      "source_acceptance_id": "RAC-VPS-UI-N",
+      "source_semantic_digest": "sha256:229880f28abe6afce7c9576079bf3844130c3f47aa8d60a42e8079439e12478f"
+    },
+    "statement": "未認証・CSRF不成立・stale binding・通知deep-linkだけの操作を拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-VPS-UI-PRIMARY-HUMAN-INTERFACE",
+    "system_test_id": "MHH-ST-VPS-UI-PRIMARY-HUMAN-INTERFACE"
+  },
+  "MHH-AC-VPS-UI-PRIMARY-HUMAN-INTERFACE-P": {
+    "acceptance_id": "MHH-AC-VPS-UI-PRIMARY-HUMAN-INTERFACE-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:2b6a0ca2cfb0aa98ac71e5203ab10aa66391279b551aa61fd36d1447e687b48d",
+    "source": {
+      "refinement_id": "RRF-VPS-UI-PRIMARY-HUMAN-INTERFACE",
+      "source_acceptance_id": "RAC-VPS-UI-P",
+      "source_semantic_digest": "sha256:229880f28abe6afce7c9576079bf3844130c3f47aa8d60a42e8079439e12478f"
+    },
+    "statement": "認証済みprincipalが対象revisionを再表示して明示操作した場合だけ状態を更新する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-VPS-UI-PRIMARY-HUMAN-INTERFACE",
+    "system_test_id": "MHH-ST-VPS-UI-PRIMARY-HUMAN-INTERFACE"
+  },
+  "MHH-AC-VPS-UI-QUALITY-ATTRIBUTES-B": {
+    "acceptance_id": "MHH-AC-VPS-UI-QUALITY-ATTRIBUTES-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:c0f64a92b0b9c580f432ce4f8885e7cf8eaab54872f4df52586d9e70158ae9fd",
+    "source": {
+      "refinement_id": "RRF-VPS-UI-QUALITY-ATTRIBUTES",
+      "source_acceptance_id": "RAC-VPS-UI-QUALITY-B",
+      "source_semantic_digest": "sha256:a01e41d02b365a1eccb468d3bfbff53f3339b83904551addb102e0232ff63b28"
+    },
+    "statement": "一部品質だけ成立する場合はdeferredを維持し全体受入へ読み替えず、UI品質を製品状態backup/restore又はworker/connector品質へ拡張しない",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-VPS-UI-QUALITY-ATTRIBUTES",
+    "system_test_id": "MHH-ST-VPS-UI-QUALITY-ATTRIBUTES"
+  },
+  "MHH-AC-VPS-UI-QUALITY-ATTRIBUTES-N": {
+    "acceptance_id": "MHH-AC-VPS-UI-QUALITY-ATTRIBUTES-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:c59c0cd0f08704536c72db5f95392ddf00e03d67783be8454087f74aa7e4df95",
+    "source": {
+      "refinement_id": "RRF-VPS-UI-QUALITY-ATTRIBUTES",
+      "source_acceptance_id": "RAC-VPS-UI-QUALITY-N",
+      "source_semantic_digest": "sha256:a01e41d02b365a1eccb468d3bfbff53f3339b83904551addb102e0232ff63b28"
+    },
+    "statement": "generic N/A、未知・未測定・未登録又は失効閾値、測定環境又は証拠欠落、対象変更があるmigration/rollbackの未検証を利用可能又はrelease可能として拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-VPS-UI-QUALITY-ATTRIBUTES",
+    "system_test_id": "MHH-ST-VPS-UI-QUALITY-ATTRIBUTES"
+  },
+  "MHH-AC-VPS-UI-QUALITY-ATTRIBUTES-P": {
+    "acceptance_id": "MHH-AC-VPS-UI-QUALITY-ATTRIBUTES-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:4af83356210286ff5b818c9017eb747f3f0c31b64e62bcbd013b6550ef8e3403",
+    "source": {
+      "refinement_id": "RRF-VPS-UI-QUALITY-ATTRIBUTES",
+      "source_acceptance_id": "RAC-VPS-UI-QUALITY-P",
+      "source_semantic_digest": "sha256:a01e41d02b365a1eccb468d3bfbff53f3339b83904551addb102e0232ff63b28"
+    },
+    "statement": "適用対象の全品質属性がscope、metric、unit、測定環境/window、有効なthreshold registration revision/digest、証跡、failure outcome及びresume conditionを持ち属性別受入条件を満たす",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-VPS-UI-QUALITY-ATTRIBUTES",
+    "system_test_id": "MHH-ST-VPS-UI-QUALITY-ATTRIBUTES"
+  },
+  "MHH-AC-WORDPRESS-CONTENT-OPERATIONS-RELEASE-B": {
+    "acceptance_id": "MHH-AC-WORDPRESS-CONTENT-OPERATIONS-RELEASE-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:9c7f55c34845d2697197e7627b85260267f2c206a898e46a282b848ed44d9dce",
+    "source": {
+      "refinement_id": "RRF-WORDPRESS-CONTENT-OPERATIONS-RELEASE",
+      "source_acceptance_id": "RAC-WP-CONTENT-B",
+      "source_semantic_digest": "sha256:ec927831a0dcf8ccdb6df150815fbad24fa40f6623c8340e60671ecb8efc33ae"
+    },
+    "statement": "in-place非対応の既公開物は別operationへ置換せずstate不変のunsupported non-action receiptを残して通知せず、削除/非公開化/競合/保持が未決ならそのoperationだけdeferredにする",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-WORDPRESS-CONTENT-OPERATIONS-RELEASE",
+    "system_test_id": "MHH-ST-WORDPRESS-CONTENT-OPERATIONS-RELEASE"
+  },
+  "MHH-AC-WORDPRESS-CONTENT-OPERATIONS-RELEASE-N": {
+    "acceptance_id": "MHH-AC-WORDPRESS-CONTENT-OPERATIONS-RELEASE-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:7072fd1bf2e594dc6a32c9dad53052476f7087ff47aa02e5d0b459b5efeb3cc2",
+    "source": {
+      "refinement_id": "RRF-WORDPRESS-CONTENT-OPERATIONS-RELEASE",
+      "source_acceptance_id": "RAC-WP-CONTENT-N",
+      "source_semantic_digest": "sha256:ec927831a0dcf8ccdb6df150815fbad24fa40f6623c8340e60671ecb8efc33ae"
+    },
+    "statement": "content policyによるcore/plugin/security変更、stale revision、grant又はactivation scopeの欠落/stale/digest不一致/identity不一致、gate/capability欠落、scope mismatch、unsupported operation及びrollback evidence欠落を拒否して既公開状態を維持する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-WORDPRESS-CONTENT-OPERATIONS-RELEASE",
+    "system_test_id": "MHH-ST-WORDPRESS-CONTENT-OPERATIONS-RELEASE"
+  },
+  "MHH-AC-WORDPRESS-CONTENT-OPERATIONS-RELEASE-P": {
+    "acceptance_id": "MHH-AC-WORDPRESS-CONTENT-OPERATIONS-RELEASE-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:437658249f2603c4a58e93b078ec47e244f1b71fe18ae24269c8474d44fa0fa6",
+    "source": {
+      "refinement_id": "RRF-WORDPRESS-CONTENT-OPERATIONS-RELEASE",
+      "source_acceptance_id": "RAC-WP-CONTENT-P",
+      "source_semantic_digest": "sha256:ec927831a0dcf8ccdb6df150815fbad24fa40f6623c8340e60671ecb8efc33ae"
+    },
+    "statement": "stable content ID、remote revision、desired digest、capability、API/MCP優先route、grant ID/revision/semantic digest、activation scope ID/revision/semantic digest、content/risk/quality gate及びidempotencyを再検証し、scope内合格済みoperationだけ実行してreceiptを残す",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-WORDPRESS-CONTENT-OPERATIONS-RELEASE",
+    "system_test_id": "MHH-ST-WORDPRESS-CONTENT-OPERATIONS-RELEASE"
+  },
+  "MHH-AC-WORDPRESS-MAINTENANCE-BOUNDARIES-B": {
+    "acceptance_id": "MHH-AC-WORDPRESS-MAINTENANCE-BOUNDARIES-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:e86e70171cc696443a61d8453158a5f3cb08224aee61b7190c68e4aa79bfe710",
+    "source": {
+      "refinement_id": "RRF-WORDPRESS-MAINTENANCE-BOUNDARIES",
+      "source_acceptance_id": "RAC-WP-BOUNDARY-B",
+      "source_semantic_digest": "sha256:eafdb5ab01a64154bc42df57594ce221f4327aed4a5beb2b77ec0f80047f8201"
+    },
+    "statement": "plugin更新にsecurity修正が含まれても変更作業は保守、脅威受容・緊急解除・credential/権限判断はsecurity保守として別receiptへ束縛する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-WORDPRESS-MAINTENANCE-BOUNDARIES",
+    "system_test_id": "MHH-ST-WORDPRESS-MAINTENANCE-BOUNDARIES"
+  },
+  "MHH-AC-WORDPRESS-MAINTENANCE-BOUNDARIES-N": {
+    "acceptance_id": "MHH-AC-WORDPRESS-MAINTENANCE-BOUNDARIES-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:065c31e800fea5abce1700b4c23ae895619a7a4e80240e7cff41217a2cd4be4f",
+    "source": {
+      "refinement_id": "RRF-WORDPRESS-MAINTENANCE-BOUNDARIES",
+      "source_acceptance_id": "RAC-WP-BOUNDARY-N",
+      "source_semantic_digest": "sha256:eafdb5ab01a64154bc42df57594ce221f4327aed4a5beb2b77ec0f80047f8201"
+    },
+    "statement": "運用操作によるcore/plugin変更、又は通常保守によるsecurity判断代替を拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-WORDPRESS-MAINTENANCE-BOUNDARIES",
+    "system_test_id": "MHH-ST-WORDPRESS-MAINTENANCE-BOUNDARIES"
+  },
+  "MHH-AC-WORDPRESS-MAINTENANCE-BOUNDARIES-P": {
+    "acceptance_id": "MHH-AC-WORDPRESS-MAINTENANCE-BOUNDARIES-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:4733baa739ba0710cea9a5fcc8db1196e6b6c028459e7f978722082b4f1756ef",
+    "source": {
+      "refinement_id": "RRF-WORDPRESS-MAINTENANCE-BOUNDARIES",
+      "source_acceptance_id": "RAC-WP-BOUNDARY-P",
+      "source_semantic_digest": "sha256:eafdb5ab01a64154bc42df57594ce221f4327aed4a5beb2b77ec0f80047f8201"
+    },
+    "statement": "公開・リライト・media upload・固定ページ編集は運用release、core/plugin変更と起因障害対応は保守releaseとして独立証跡を持つ",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-WORDPRESS-MAINTENANCE-BOUNDARIES",
+    "system_test_id": "MHH-ST-WORDPRESS-MAINTENANCE-BOUNDARIES"
+  },
+  "MHH-AC-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE-B": {
+    "acceptance_id": "MHH-AC-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:f6015752c99d29df2ad592e2bd3b8726d6580d75fe9492447831e0a481e33e97",
+    "source": {
+      "refinement_id": "RRF-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE",
+      "source_acceptance_id": "RAC-WP-MAINT-B",
+      "source_semantic_digest": "sha256:32e41614f15f39347859b6c718d7321644bc5316a5a9daae719e3725adb346c3"
+    },
+    "statement": "security intersectionはplatform grantに加えて別security decision/grantへ束縛し、rollback後は再検証と明示resumeまで通常operationを自動再開しない",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE",
+    "system_test_id": "MHH-ST-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE"
+  },
+  "MHH-AC-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE-N": {
+    "acceptance_id": "MHH-AC-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:0807f21ac550191ef11ba699e980c14e19d3e4a242dc08e657587e67533d9cdb",
+    "source": {
+      "refinement_id": "RRF-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE",
+      "source_acceptance_id": "RAC-WP-MAINT-N",
+      "source_semantic_digest": "sha256:32e41614f15f39347859b6c718d7321644bc5316a5a9daae719e3725adb346c3"
+    },
+    "statement": "content/security grant流用又はstale remote revisionを拒否し、mutationではbackup/restore/compatibility欠落、security relevance unknown又はrollback不能も拒否してsite stateを維持する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE",
+    "system_test_id": "MHH-ST-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE"
+  },
+  "MHH-AC-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE-P": {
+    "acceptance_id": "MHH-AC-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:2c5b1ba14ae8c996816d49dcb6901c39d3b0a9528da458a37df7a901ae6acc73",
+    "source": {
+      "refinement_id": "RRF-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE",
+      "source_acceptance_id": "RAC-WP-MAINT-P",
+      "source_semantic_digest": "sha256:32e41614f15f39347859b6c718d7321644bc5316a5a9daae719e3725adb346c3"
+    },
+    "statement": "read-only inventoryは対象identity/current revision/inventory digest/read grant/route/assessment evidenceを満たしてresult receiptを残し、mutationは独立platform grant、activation/window、capability/route、backup freshness/restore、compatibility/smoke/regression、remote revision及びidempotencyを満たしてresult/rollback receiptを残す",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE",
+    "system_test_id": "MHH-ST-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE"
+  },
+  "MHH-AC-WORDPRESS-SECURITY-MAINTENANCE-RELEASE-B": {
+    "acceptance_id": "MHH-AC-WORDPRESS-SECURITY-MAINTENANCE-RELEASE-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:30a8fa31d6f63d9c85d044334cd816ab82502dac58a9172ce90320f41b60d858",
+    "source": {
+      "refinement_id": "RRF-WORDPRESS-SECURITY-MAINTENANCE-RELEASE",
+      "source_acceptance_id": "RAC-WP-SECURITY-B",
+      "source_semantic_digest": "sha256:7664222be30ace640e3a9780c6dc6da1c226dfdb46556f3eba36068537bf20a3"
+    },
+    "statement": "緊急break-glassでも別grant、scope、期限、receipt及び事後再検証を省略せず、通常operationを自動再開しない",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-WORDPRESS-SECURITY-MAINTENANCE-RELEASE",
+    "system_test_id": "MHH-ST-WORDPRESS-SECURITY-MAINTENANCE-RELEASE"
+  },
+  "MHH-AC-WORDPRESS-SECURITY-MAINTENANCE-RELEASE-N": {
+    "acceptance_id": "MHH-AC-WORDPRESS-SECURITY-MAINTENANCE-RELEASE-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:bee482536c668e79a300da0acef467d3faa3bf310377ec8b6e9d1f63745bbce8",
+    "source": {
+      "refinement_id": "RRF-WORDPRESS-SECURITY-MAINTENANCE-RELEASE",
+      "source_acceptance_id": "RAC-WP-SECURITY-N",
+      "source_semantic_digest": "sha256:7664222be30ace640e3a9780c6dc6da1c226dfdb46556f3eba36068537bf20a3"
+    },
+    "statement": "content又は通常保守grant、advisory/scanner/browser確認のauthority化、unknown対象、grant/window/preflight/backup/rollback欠落、認証鍵素材露出及びscope越境を拒否して現site stateを維持する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-WORDPRESS-SECURITY-MAINTENANCE-RELEASE",
+    "system_test_id": "MHH-ST-WORDPRESS-SECURITY-MAINTENANCE-RELEASE"
+  },
+  "MHH-AC-WORDPRESS-SECURITY-MAINTENANCE-RELEASE-P": {
+    "acceptance_id": "MHH-AC-WORDPRESS-SECURITY-MAINTENANCE-RELEASE-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:01a5a9b6dc863796aa0275d4ac3bf815eda8e9ba29bfb2d64afa5a1a5b16856a",
+    "source": {
+      "refinement_id": "RRF-WORDPRESS-SECURITY-MAINTENANCE-RELEASE",
+      "source_acceptance_id": "RAC-WP-SECURITY-P",
+      "source_semantic_digest": "sha256:7664222be30ace640e3a9780c6dc6da1c226dfdb46556f3eba36068537bf20a3"
+    },
+    "statement": "別security authorityがcomponent/version、inventory/advisory digest、risk、security grant、maintenance window、preflight、backup/restore evidence及びcredential authority参照を束縛しoperation別result/rollback receiptを残す",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-WORDPRESS-SECURITY-MAINTENANCE-RELEASE",
+    "system_test_id": "MHH-ST-WORDPRESS-SECURITY-MAINTENANCE-RELEASE"
+  }
+}

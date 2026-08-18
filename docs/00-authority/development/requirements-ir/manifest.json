@@ -1,0 +1,40 @@
+{
+  "authority": "candidate_non_authoritative",
+  "baseline_root_digest": "sha256:a9384e42fb034bb92d9b52112fc74e2a8746c377cb83ebc6dac69b8c740d620f",
+  "partition": "stable_id_keyed_shards",
+  "root_digest": "sha256:247efe90afc5a271cbd7f419178482bbae8a2d2e1d9c0493d0f62e0e0136169b",
+  "schema_version": "helix-requirement-ir.v2",
+  "shards": [
+    {
+      "count": 38,
+      "digest": "sha256:f0b446c38d81021b570fbc1dd1dbc856c182ebaf7c3f4c74098a38740ba2ef35",
+      "kind": "requirements",
+      "path": "requirements-ir/requirements.json"
+    },
+    {
+      "count": 38,
+      "digest": "sha256:a340bf157a950ba43898c581e7de30c5f8c90439e3aebbf5c1392560184d6106",
+      "kind": "system_contracts",
+      "path": "requirements-ir/system_contracts.json"
+    },
+    {
+      "count": 114,
+      "digest": "sha256:1836d3c82c52a92c3c82f44d9f838856c05c542645a6a5f22b2dc8797de09f4b",
+      "kind": "acceptance_cases",
+      "path": "requirements-ir/acceptance_cases.json"
+    },
+    {
+      "count": 38,
+      "digest": "sha256:5ee5880dfdaf8267dfa345016c62a4489076f9ca635345434681807dd60407d0",
+      "kind": "system_tests",
+      "path": "requirements-ir/system_tests.json"
+    },
+    {
+      "count": 38,
+      "digest": "sha256:d35022bf10f54668d57ecdda377408ece92df281e1b7e290a2cf14723669aa4b",
+      "kind": "refinement_contracts",
+      "path": "requirements-ir/refinement_contracts.json"
+    }
+  ],
+  "source_authority": "requirement_refinement_registry_projection"
+}

@@ -100,6 +100,9 @@
   },
   "projection": {
     "schema": "docs/00-authority/development/requirement-ir.schema.json",
+    "candidate_schema": "docs/00-authority/development/candidate-requirement-ir-v2.schema.json",
+    "candidate_format": "helix-requirement-ir.v2",
+    "candidate_root": "docs/00-authority/development/requirements-ir/manifest.json",
     "authority": "generated_non_authoritative_projection",
     "write_policy": "regenerate_only",
     "dual_authority": "forbidden"

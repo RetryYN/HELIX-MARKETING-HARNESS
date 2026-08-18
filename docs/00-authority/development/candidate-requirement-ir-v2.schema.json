@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://marketing-harness.local/schemas/candidate-requirement-ir.v2.json",
+  "title": "HELIX-HARNESS shaped candidate requirement IR envelope",
+  "description": "Upstream v2 envelope. authority/status remain candidate-only until PO freeze and authority cutover.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "authority",
+    "source_authority",
+    "partition",
+    "shards",
+    "baseline_root_digest",
+    "root_digest"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "helix-requirement-ir.v2"
+    },
+    "authority": {
+      "const": "candidate_non_authoritative"
+    },
+    "source_authority": {
+      "const": "requirement_refinement_registry_projection"
+    },
+    "partition": {
+      "const": "stable_id_keyed_shards"
+    },
+    "shards": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "path", "count", "digest"],
+        "properties": {
+          "kind": {
+            "enum": ["requirements", "system_contracts", "acceptance_cases", "system_tests", "refinement_contracts"]
+          },
+          "path": {
+            "type": "string",
+            "pattern": "^requirements-ir/[a-z_]+\\.json$"
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "digest": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          }
+        }
+      }
+    },
+    "baseline_root_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "root_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    }
+  }
+}

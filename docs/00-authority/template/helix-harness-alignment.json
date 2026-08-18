@@ -5,8 +5,8 @@
     "repository": "RetryYN/HELIX-HARNESS",
     "url": "https://github.com/RetryYN/HELIX-HARNESS/",
     "commit": "57853db413e282b050ac5f37bab7809321c67842",
-    "latest_checked_commit": "b19647a742a7511603940772b1afcf265abf6e3f",
-    "latest_checked_at": "2026-08-14",
+    "latest_checked_commit": "032aeffb82cbd1f828409f144ab5e3f6553959c6",
+    "latest_checked_at": "2026-08-19",
     "delta_disposition": "partially-adapted",
     "read_only": true
   },
@@ -37,9 +37,9 @@
     {
       "id": "requirement-ir",
       "template_paths": ["requirements-ir/manifest.json", "requirements-ir/*.json", "config/requirement-ir-schema.json", "config/requirement-ir-authority.json", "src/requirements/requirement-refinement-authority.ts", "src/requirements/requirement-ir-authority-cutover.ts"],
-      "current_paths": ["docs/L1-business-requirements/canonical/br/br-contracts.json", "docs/L3-system-requirements/canonical/functional/fr-contracts.json", "docs/L3-system-requirements/canonical/acceptance/ac-contracts.json", "docs/L3-system-requirements/verification/tc-contracts.json", "docs/L6-feature-design/S0/implementation-units.json", "docs/00-authority/adr/ADR-012-helix-harness-template-adoption.md", "docs/00-authority/development/requirement-engine-authority.json", "docs/00-authority/development/requirement-ir.schema.json", "docs/00-authority/development/requirement-refinement.schema.json", "docs/00-authority/development/requirement-refinements.json", "tools/gates/requirement_engine.py", "tests/gates/test_requirement_engine.py"],
+      "current_paths": ["docs/L1-business-requirements/canonical/br/br-contracts.json", "docs/L3-system-requirements/canonical/functional/fr-contracts.json", "docs/L3-system-requirements/canonical/acceptance/ac-contracts.json", "docs/L3-system-requirements/verification/tc-contracts.json", "docs/L6-feature-design/S0/implementation-units.json", "docs/00-authority/adr/ADR-012-helix-harness-template-adoption.md", "docs/00-authority/development/requirement-engine-authority.json", "docs/00-authority/development/requirement-ir.schema.json", "docs/00-authority/development/candidate-requirement-ir-v2.schema.json", "docs/00-authority/development/requirements-ir/manifest.json", "docs/00-authority/development/requirements-ir/requirements.json", "docs/00-authority/development/requirements-ir/system_contracts.json", "docs/00-authority/development/requirements-ir/acceptance_cases.json", "docs/00-authority/development/requirements-ir/system_tests.json", "docs/00-authority/development/requirements-ir/refinement_contracts.json", "docs/00-authority/development/requirement-refinement.schema.json", "docs/00-authority/development/requirement-refinements.json", "scripts/render_requirement_ir_v2_candidate.py", "tools/gates/requirement_engine.py", "tests/gates/test_requirement_engine.py"],
       "status": "bridge",
-      "rationale": "現時点はstable IDと構造連鎖だけの不完全なbridge。既存契約JSON 9本をsource authorityとして維持しつつ、正規化IR、refinement、semantic digest/drift、approval admission、authority cutover、生成viewをPython-nativeに移植するまでadaptedとしない。"
+      "rationale": "HELIX-HARNESS v2のmanifest＋stable-ID keyed 5 shard形式を、現行refinement registryからcandidate_non_authoritative projectionとして生成する。外部のcanonical/frozen stateは未批准の要求へ移さず、既存契約JSON・refinement registryをsource authorityとして維持する。PO個別receipt、requirements freeze、semantic gate、authority cutover、独立Goが揃うまでcandidateをimplementation input又は二重正本にしない。"
     },
     {
       "id": "discovery-lifecycle",
