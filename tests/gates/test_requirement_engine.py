@@ -110,6 +110,17 @@ def test_candidate_ir_v2_statement_preserves_actor_and_beneficiary_axes() -> Non
             assert all(value in statement for value in values)
 
 
+def test_generated_candidate_view_keeps_blockquote_paragraphs_contiguous() -> None:
+    _, rendered = render_requirement_candidates()
+    lines = rendered.splitlines()
+    for index in range(1, len(lines) - 1):
+        if lines[index] == "":
+            assert not (
+                lines[index - 1].startswith(">")
+                and lines[index + 1].startswith(">")
+            ), "generated candidate view must not contain a blank line inside a blockquote"
+
+
 def test_mutation_candidate_ir_v2_cannot_claim_canonical(monkeypatch) -> None:
     from scripts import render_requirement_ir_v2_candidate
 

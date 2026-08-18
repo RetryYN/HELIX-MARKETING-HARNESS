@@ -5,7 +5,6 @@
 > [!CAUTION]
 > **提案専用の生成view。現行要求の正本・PO承認・設計・実装入力ではない。**  `requirements_baseline_status=revising` / `implementation_authorized=false`。
 > 各候補は個別のPO receiptで承認・freezeされ、Full Vを再降下してauthority cutoverするまでcurrentにならない。本view全体を一括承認として扱わない。
-
 > 集計: 候補 **38** 件 ／ approval receiptあり **0** 件 ／ 未承認 **38** 件。
 
 ## PO確認順（decision packets）

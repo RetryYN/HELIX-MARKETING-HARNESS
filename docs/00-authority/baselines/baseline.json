@@ -414,7 +414,7 @@
     "scripts/dev.py": "b8df3ea7a7396024c24e4c5cfc166492d2ca200827b18cdd83bb21619dc25188",
     "scripts/hooks/pre-git-gate.sh": "c479c573bdb491a57716c47c2cf54cda2a094e7cde8103ac2f6952fbb230e080",
     "scripts/render_requirement_ir_v2_candidate.py": "fe88ac88a2e45763069bda7809aa79ed32041a08344c602ab4da83b9285cb60e",
-    "scripts/render_views.py": "607b077aa7b925748a89b00c0ddf9c7df412c025780a2b276c97a4b646f46281",
+    "scripts/render_views.py": "563901658d026892e9507d83113bfca90fd6b75ad07e2c6664fe12e69ae87cd0",
     "scripts/validate_requirements.py": "0b6987900ebc9b70a6f33b9b7aea458d9c7b62f539415c90790ac83160b8c852",
     "tests/coverage-floor.json": "0071cce81b8844ea787f3ba8e07278f3eb632eff5905836efe23f7c9b9124020",
     "tests/skip-budget.json": "133a86f7e43b45adc90ef472d4c5691536be9152ccebd257ed32c7afde9add66",
