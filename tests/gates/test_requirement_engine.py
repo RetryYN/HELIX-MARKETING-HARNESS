@@ -1164,6 +1164,22 @@ def test_design_not_started_rejects_current_claude_design_constraint_entrypoint(
         ),
         encoding="utf-8",
     )
+    adr012 = tmp_path / "docs/00-authority/adr/ADR-012-helix-harness-template-adoption.md"
+    adr012.parent.mkdir(parents=True, exist_ok=True)
+    adr012.write_text(
+        "\n".join(
+            (
+                "L2は旧要求に基づく5点書式の評価用draftだけを扱い、新要求からのL2設計は要求freeze後に再降下する。",
+                "旧要求評価用のL2 5点書式",
+                "新要求からのL2プロトタイプ／画面設計は要求freeze・L2〜L6再設計・別admission後に開始する。",
+                "旧baselineの契約 JSON 9 本、DDL・状態遷移・evidence 型は revalidation_required の構造資料であり、",
+                "現行要求・設計・実装入力にしない。",
+                "現段階では旧要求評価用の",
+                "  L2 5点書式だけを検証し、新要求からのUI設計・認証・CSRF・再認証・principal束縛の方式は要求freeze後に再降下する。",
+            )
+        ),
+        encoding="utf-8",
+    )
     monkeypatch.setattr(requirement_engine, "REPO_ROOT", tmp_path)
     ctx = Ctx()
     ctx.__dict__["manifest_items"] = []
@@ -1265,6 +1281,7 @@ def test_design_not_started_rejects_current_l2_environment_scope(tmp_path, monke
         "CLAUDE.md",
         "AGENTS.md",
         "docs/L1-business-requirements/canonical/product-requirement-baseline-candidate_v0.1.md",
+        "docs/00-authority/adr/ADR-012-helix-harness-template-adoption.md",
         "docs/00-authority/development/development-environment_v0.1.md",
         "docs/00-authority/development/requirement-definition-workflow_v0.1.md",
     )
@@ -1279,6 +1296,22 @@ def test_design_not_started_rejects_current_l2_environment_scope(tmp_path, monke
     environment = root / "docs/00-authority/development/development-environment_v0.1.md"
     safe_text = environment.read_text(encoding="utf-8")
     assert requirement_engine.design_not_started_faults(ctx) == []
+
+    adr012 = root / "docs/00-authority/adr/ADR-012-helix-harness-template-adoption.md"
+    adr012_safe = adr012.read_text(encoding="utf-8")
+    adr012.write_text(
+        adr012_safe + "\nL2 プロトタイプ設計までを直ちに利用可能にする\n",
+        encoding="utf-8",
+    )
+    faults = requirement_engine.design_not_started_faults(ctx)
+    assert any("ADR-012にL2設計又は旧方式の現在形命令" in fault for fault in faults)
+    adr012.write_text(
+        adr012_safe + "\n実装入力は既存の契約 JSON 9 本\n",
+        encoding="utf-8",
+    )
+    faults = requirement_engine.design_not_started_faults(ctx)
+    assert any("ADR-012にL2設計又は旧方式の現在形命令" in fault for fault in faults)
+    adr012.write_text(adr012_safe, encoding="utf-8")
 
     environment.write_text(
         safe_text.replace("新要求からのL2画面設計は要求freeze後に再降下するまで開始しない。", ""),

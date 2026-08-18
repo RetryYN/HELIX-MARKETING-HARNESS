@@ -10694,6 +10694,27 @@ def design_not_started_faults(ctx: Ctx) -> list[str]:
     present_workflow = sorted(marker for marker in prohibited_workflow_markers if marker in workflow_text)
     if present_workflow:
         faults.append(f"要件定義ワークフロー入口にL2設計又は旧方式の現在形命令が残る={present_workflow}")
+    adr012_path = REPO_ROOT / "docs/00-authority/adr/ADR-012-helix-harness-template-adoption.md"
+    adr012_text = adr012_path.read_text(encoding="utf-8") if adr012_path.is_file() else ""
+    required_adr012_markers = {
+        "L2は旧要求に基づく5点書式の評価用draftだけを扱い、新要求からのL2設計は要求freeze後に再降下する。",
+        "旧要求評価用のL2 5点書式",
+        "新要求からのL2プロトタイプ／画面設計は要求freeze・L2〜L6再設計・別admission後に開始する。",
+        "旧baselineの契約 JSON 9 本、DDL・状態遷移・evidence 型は",
+        "現行要求・設計・実装入力にしない。",
+        "現段階では旧要求評価用の\n  L2 5点書式だけを検証し、新要求からのUI設計・認証・CSRF・再認証・principal束縛の方式は要求freeze後に再降下する。",
+    }
+    missing_adr012 = sorted(marker for marker in required_adr012_markers if marker not in adr012_text)
+    if missing_adr012:
+        faults.append(f"ADR-012のL2評価用draft・旧方式非継承境界がない={missing_adr012}")
+    prohibited_adr012_markers = {
+        "L2 プロトタイプ設計までを直ちに利用可能にする",
+        "実装入力は既存の契約 JSON 9 本",
+        "UI は L2 設計を先行し",
+    }
+    present_adr012 = sorted(marker for marker in prohibited_adr012_markers if marker in adr012_text)
+    if present_adr012:
+        faults.append(f"ADR-012にL2設計又は旧方式の現在形命令が残る={present_adr012}")
     claude_path = REPO_ROOT / "CLAUDE.md"
     claude_text = claude_path.read_text(encoding="utf-8") if claude_path.is_file() else ""
     required_claude_markers = {
@@ -11864,7 +11885,7 @@ def legacy_fault_stage_audit_faults(
                 faults.append(f"{gate_id}: known quarantined fault集合が増減又は意味反転")
         if _digest(source_digests) != "sha256:ed8691d9069dca0e391996994c834f36f49beef33cf8dc9aad7440623d7ecbb9":
             faults.append("legacy contract source artifact集合digestがstale")
-        if _digest(expanded_source_digests) != "sha256:32168120c5a96abd528a085d4b09097da0e94c417ebf91d57ae255b95b0636c1":
+        if _digest(expanded_source_digests) != "sha256:0bee92f6906f629a4018e01e4b605240ed84e981d16e07937058e3a8dd74fcc8":
             faults.append("legacy ADR/L2/refinement raw source snapshot digestがstale")
     elif cutover_complete and any(raw_faults.values()):
         faults.append("approved cutoverでは旧raw faultをquarantineせずzero closureが必要")

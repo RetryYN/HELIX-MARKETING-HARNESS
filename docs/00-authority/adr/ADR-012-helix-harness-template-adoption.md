@@ -7,7 +7,7 @@ slice: cross
 # ADR-012: HELIX-HARNESS 設計テンプレートの適応
 
 > status: **draft**。設計テンプレートと、要件定義から確定までの要求エンジンを適応する方針を記録する。
-> 製品ランタイムを移植する決定ではない。
+> 製品ランタイムを移植する決定ではない。L2は旧要求に基づく5点書式の評価用draftだけを扱い、新要求からのL2設計は要求freeze後に再降下する。
 
 - date: 2026-08-13
 - decision_authority: PO 指示に基づく適応案（内容は draft。confirmed 化には承認 receipt が必要）
@@ -26,15 +26,18 @@ Python ゲートが二重化されないよう、既存正本を維持したま�
 
 1. **適応するもの**: V-model の工程語彙、要件発見→候補→質問→試作→仕様化→個別承認→凍結のライフサイクル、
    stable ID、requirement IR、refinement contract、semantic digest／drift、authority cutover、要件→契約→AC→TC の
-   意味連鎖、生成ビュー、L2 5 点セット、doctor／docs／gates／test の開発コマンド。要件定義から確定までの
-   判定順序と fail-close 条件は省略しない。
-2. **正本を変えないもの**: 実装入力は既存の契約 JSON 9 本、DDL・状態遷移・evidence 型は s0-contract、成果物の
-   権威は artifact-manifest、検証入口は `tools/gates/run_all.py` とする。既存9正本を source adapter として読み、
+   意味連鎖、旧要求評価用のL2 5点書式、doctor／docs／gates／test の開発コマンド。要件定義から確定までの
+   判定順序と fail-close 条件は省略しない。新要求からのL2プロトタイプ／画面設計は要求freeze・L2〜L6再設計・別admission後に開始する。
+2. **再検証資料として保持するもの**: 旧baselineの契約 JSON 9 本、DDL・状態遷移・evidence 型は
+   `revalidation_required` の構造資料であり、`requirements_baseline_status=revising` 又は
+   `implementation_authorized=false` の間は現行要求・設計・実装入力にしない。成果物の権威は
+   artifact-manifest、検証入口は `tools/gates/run_all.py` とする。既存9正本を source adapter として読み、
    HELIX-HARNESS と同等の正規化 IR を決定的に生成・検証する。IRを手編集可能な並列正本にはしない。
 3. **ランタイム境界**: 本リポジトリの実装言語は Python、パッケージは `src/helix/`。テンプレートの Bun／Node
    ランタイム、`.helix` 実行系、外部サービス接続を本リポジトリの実装入力にしない。
-4. **導入範囲**: 要件定義〜L3 の要求確定と L2 プロトタイプ設計までを直ちに利用可能にする。L4 以降と製品実装は
-   既存スライス・PoC・承認・test-first の規律を継続する。
+4. **導入範囲**: 要件定義〜L3 の要求候補と、旧要求に基づくL2 5点書式の評価用draftを直ちに利用可能にする。
+   新要求からのL2プロトタイプ／画面設計は、要求freeze、L2〜L6再設計、別admissionの後に新正本から再降下する。
+   L4 以降と製品実装は既存スライス・PoC・承認・test-first の規律を再検証資料として扱う。
 5. **外部参照の固定**: テンプレートの適応判断は source_commit に固定した read-only 監査で更新する。最新版を取り込む
    際は source_commit と対応表を更新し、旧テンプレート側へ書き込まない。
 6. **最新版確認の運用**: upstream `main` は read-only で最新 SHA と source_commit からの意味差分を確認する。採用範囲に
@@ -76,8 +79,9 @@ Python ゲートが二重化されないよう、既存正本を維持したま�
 ## 帰結と未決事項
 
 - `make setup`／`make doctor`／`make docs`／`make gates`／`make test` で、VPS とローカルの同一手順を提供する。
-- Bun／Node を追加しないため、テンプレートの UI ランタイムをそのまま実行することはできない。UI は L2 設計を先行し、
-  認証・CSRF・再認証・principal 束縛の契約が confirmed になるまで実装を開始しない。
+- Bun／Node を追加しないため、テンプレートの UI ランタイムをそのまま実行することはできない。現段階では旧要求評価用の
+  L2 5点書式だけを検証し、新要求からのUI設計・認証・CSRF・再認証・principal束縛の方式は要求freeze後に再降下する。
+  その契約がconfirmedになるまで製品UI実装を開始しない。
 - テンプレートの将来更新を追随するか、別の source_commit に固定するかは、各更新時の監査で PO が判断する。
 - cross-review／PR 対応依頼と harness memory は移植可能だが、現時点では要件と境界を記録した段階で未実装である。
   Discord を開発通知へ転用せず、GitHub 開発アダプターと repository-local memory の schema／保持期間／秘密検査／
