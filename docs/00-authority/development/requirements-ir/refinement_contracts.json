@@ -1215,6 +1215,70 @@
     },
     "supporting_requirements": []
   },
+  "RRF-MEDIA-HARNESS-CANVA": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-MEDIA-HARNESS-CANVA-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-MEDIA-HARNESS-CANVA"
+        ],
+        "semantic_digest": "sha256:477f1f9dba97054da8cdcc1e61a1ad29aa9b34abb07ce301c1d389bfb2150d48",
+        "source_projection": "local_refinement_registry",
+        "statement": "Canvaの承認境界・write境界・route policyがCanva専用refinementだけへ束縛された独立ハーネスとして構成される"
+      },
+      {
+        "acceptance_id": "MHH-AC-MEDIA-HARNESS-CANVA-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-MEDIA-HARNESS-CANVA"
+        ],
+        "semantic_digest": "sha256:09ff704439f99bd59cf60d6549b23c85d7a07cf0b4998d755b234b38e63d481f",
+        "source_projection": "local_refinement_registry",
+        "statement": "Canvaと他媒体の承認境界・write境界を単一ハーネスへ混載した構成、及びPO指示なしの外部リポジトリ作成を拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-MEDIA-HARNESS-CANVA-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-MEDIA-HARNESS-CANVA"
+        ],
+        "semantic_digest": "sha256:ecae113499fe07ad9def00a1b32f84ac743bd4b53c2f93a9b6c5fb4ada4ea2f2",
+        "source_projection": "local_refinement_registry",
+        "statement": "Canvaハーネスの失敗・停止時も他媒体ハーネスの承認・運用状態を変更せずfail-closeで自媒体側だけを停止する"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-MEDIA-HARNESS-CANVA-P",
+        "MHH-AC-MEDIA-HARNESS-CANVA-N",
+        "MHH-AC-MEDIA-HARNESS-CANVA-B"
+      ],
+      "requirement_id": "MHH-REQ-MEDIA-HARNESS-CANVA",
+      "semantic_digest": "sha256:7222135a2e70f84de7344419a92cc3ec0d62547bdb292a8e3436b2d44f9089ff",
+      "source_projection": "local_refinement_registry",
+      "statement": "actors: PO / Canva媒体運用者 / 製品runtime\nbeneficiaries: Canvaを他媒体から分離して監督したいPO / Canva媒体運用者\nvalue: Canvaを1つの独立ハーネスとして分離し、承認境界・write境界・障害影響・route policyをCanva単位で独立に凍結・運用でき、将来の独立リポジトリ分離を自己完結に行える\ntasks: Canvaハーネスの承認境界・write境界を定義する / Canvaのroute policy・credential scope・証跡を自媒体refinementへ束縛する / 共有基盤との分離線と独立リポジトリ分離条件を確定する\nworkflow: candidate→媒体別refinement降下→媒体別PO凍結→媒体別release受入→将来の独立リポジトリ分離\nscope_in: Canva専用ハーネスの構成 / Canvaの承認境界・write境界・route policy束縛 / 独立リポジトリ分離前提の自己完結設計\nscope_out: 他媒体ハーネスの内容 / 共有基盤の実装方式選択（design-later） / 外部リポジトリの実作成（PO明示指示まで行わない） / PO approval又は要求freeze\nprohibitions: Canvaの承認・write境界を他媒体ハーネスへ混載しない / 分離を理由に承認境界・禁止事項・fail-close規律を弱めない / PO指示なしに外部リポジトリを作成しない\nhuman_judgement: Canvaハーネスの境界確定・採否・freeze・リポジトリ分離時期はPOが判断する\nside_effects: 要求候補とrefinement構成だけ。製品runtime・媒体への外部writeを変更しない\nevidence: Canva別refinementのPO凍結receipt / Canva承認境界のtyped contract / 独立リポジトリ分離条件の記録\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "draft",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-MEDIA-HARNESS-CANVA",
+    "refinement_contract_id": "RRF-MEDIA-HARNESS-CANVA",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "MEDIA-HARNESS-CANVA",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:9dd50061d35a831cd702664216e540edf9a53c0d74ab98092d32f322d618ed2d",
+    "source": {
+      "acceptance_digest": "sha256:f67bfbc331d7f61221a690ff12b01b3b31c72fba77e890021f2427e7ea417285",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-MEDIA-HARNESS-CANVA/acceptance_cases",
+      "requirement_digest": "sha256:7222135a2e70f84de7344419a92cc3ec0d62547bdb292a8e3436b2d44f9089ff",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-MEDIA-HARNESS-CANVA"
+    },
+    "supporting_requirements": []
+  },
   "RRF-MEDIA-HARNESS-DISCORD-COMMUNITY": {
     "acceptance_cases": [
       {

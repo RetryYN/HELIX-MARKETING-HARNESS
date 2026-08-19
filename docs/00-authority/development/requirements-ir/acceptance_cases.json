@@ -626,6 +626,39 @@
     "system_contract_id": "MHH-SC-MEDIA-HARNESS-AFFILIATE",
     "system_test_id": "MHH-ST-MEDIA-HARNESS-AFFILIATE"
   },
+  "MHH-AC-MEDIA-HARNESS-CANVA-B": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-CANVA-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:ecae113499fe07ad9def00a1b32f84ac743bd4b53c2f93a9b6c5fb4ada4ea2f2",
+    "statement": "Canvaハーネスの失敗・停止時も他媒体ハーネスの承認・運用状態を変更せずfail-closeで自媒体側だけを停止する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-CANVA",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-CANVA"
+  },
+  "MHH-AC-MEDIA-HARNESS-CANVA-N": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-CANVA-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:09ff704439f99bd59cf60d6549b23c85d7a07cf0b4998d755b234b38e63d481f",
+    "statement": "Canvaと他媒体の承認境界・write境界を単一ハーネスへ混載した構成、及びPO指示なしの外部リポジトリ作成を拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-CANVA",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-CANVA"
+  },
+  "MHH-AC-MEDIA-HARNESS-CANVA-P": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-CANVA-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:477f1f9dba97054da8cdcc1e61a1ad29aa9b34abb07ce301c1d389bfb2150d48",
+    "statement": "Canvaの承認境界・write境界・route policyがCanva専用refinementだけへ束縛された独立ハーネスとして構成される",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-CANVA",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-CANVA"
+  },
   "MHH-AC-MEDIA-HARNESS-DISCORD-COMMUNITY-B": {
     "acceptance_id": "MHH-AC-MEDIA-HARNESS-DISCORD-COMMUNITY-B",
     "polarity": "boundary",

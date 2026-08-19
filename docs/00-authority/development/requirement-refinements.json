@@ -44,7 +44,8 @@
     "RDQ-MEDIA-HARNESS-DISCORD-COMMUNITY-01": "requirements_policy",
     "RDQ-MEDIA-HARNESS-LINE-01": "requirements_policy",
     "RDQ-MEDIA-HARNESS-GENAI-01": "requirements_policy",
-    "RDQ-MEDIA-HARNESS-AFFILIATE-01": "requirements_policy"
+    "RDQ-MEDIA-HARNESS-AFFILIATE-01": "requirements_policy",
+    "RDQ-MEDIA-HARNESS-CANVA-01": "requirements_policy"
   },
   "decision_class_contracts": {
     "requirements_policy": [
@@ -47721,7 +47722,8 @@
     "MEDIA-HARNESS-DISCORD-COMMUNITY": "follow_on_candidate",
     "MEDIA-HARNESS-LINE": "deferred_candidate",
     "MEDIA-HARNESS-GENAI": "deferred_candidate",
-    "MEDIA-HARNESS-AFFILIATE": "deferred_candidate"
+    "MEDIA-HARNESS-AFFILIATE": "deferred_candidate",
+    "MEDIA-HARNESS-CANVA": "deferred_candidate"
   },
   "candidate_requirement_bindings": {
     "PRC-01": [
@@ -47861,7 +47863,8 @@
       "MEDIA-HARNESS-DISCORD-COMMUNITY",
       "MEDIA-HARNESS-LINE",
       "MEDIA-HARNESS-GENAI",
-      "MEDIA-HARNESS-AFFILIATE"
+      "MEDIA-HARNESS-AFFILIATE",
+      "MEDIA-HARNESS-CANVA"
     ]
   },
   "decision_packets": [
@@ -47992,6 +47995,15 @@
         "MEDIA-HARNESS-AFFILIATE"
       ],
       "decision_question": "アフィリエイトを独立ハーネス1つとして分離構成するか、その承認境界・共有基盤分離線・リポジトリ分離条件をどう確定するか",
+      "bulk_decision_forbidden": true
+    },
+    {
+      "packet_id": "RDP-MEDIA-HARNESS-CANVA",
+      "decision_order": 12,
+      "subject_ids": [
+        "MEDIA-HARNESS-CANVA"
+      ],
+      "decision_question": "Canvaを独立ハーネス1つとして分離構成するか、その承認境界・共有基盤分離線・リポジトリ分離条件をどう確定するか",
       "bulk_decision_forbidden": true
     }
   ],
@@ -52486,6 +52498,90 @@
       ],
       "approval": null,
       "semantic_digest": "sha256:c441fd35643a1d5580ce750983f4e679fb3fa326769d00d8e8fd635a9a7ccb70"
+    },
+    {
+      "refinement_id": "RRF-MEDIA-HARNESS-CANVA",
+      "subject_id": "MEDIA-HARNESS-CANVA",
+      "revision": 1,
+      "lifecycle_status": "draft",
+      "source_event_ids": [
+        "RDE-000199",
+        "RDE-000200"
+      ],
+      "source_set_digest": "sha256:fc3f808d21094b202102f205f3bc3aac8703cc09d108a6813c91b9cb97ece271",
+      "semantic_dimensions": {
+        "actors": [
+          "PO",
+          "Canva媒体運用者",
+          "製品runtime"
+        ],
+        "beneficiaries": [
+          "Canvaを他媒体から分離して監督したいPO",
+          "Canva媒体運用者"
+        ],
+        "value": "Canvaを1つの独立ハーネスとして分離し、承認境界・write境界・障害影響・route policyをCanva単位で独立に凍結・運用でき、将来の独立リポジトリ分離を自己完結に行える",
+        "tasks": [
+          "Canvaハーネスの承認境界・write境界を定義する",
+          "Canvaのroute policy・credential scope・証跡を自媒体refinementへ束縛する",
+          "共有基盤との分離線と独立リポジトリ分離条件を確定する"
+        ],
+        "workflow": [
+          "candidate→媒体別refinement降下→媒体別PO凍結→媒体別release受入→将来の独立リポジトリ分離"
+        ],
+        "scope_in": [
+          "Canva専用ハーネスの構成",
+          "Canvaの承認境界・write境界・route policy束縛",
+          "独立リポジトリ分離前提の自己完結設計"
+        ],
+        "scope_out": [
+          "他媒体ハーネスの内容",
+          "共有基盤の実装方式選択（design-later）",
+          "外部リポジトリの実作成（PO明示指示まで行わない）",
+          "PO approval又は要求freeze"
+        ],
+        "prohibitions": [
+          "Canvaの承認・write境界を他媒体ハーネスへ混載しない",
+          "分離を理由に承認境界・禁止事項・fail-close規律を弱めない",
+          "PO指示なしに外部リポジトリを作成しない"
+        ],
+        "human_judgement": [
+          "Canvaハーネスの境界確定・採否・freeze・リポジトリ分離時期はPOが判断する"
+        ],
+        "side_effects": [
+          "要求候補とrefinement構成だけ。製品runtime・媒体への外部writeを変更しない"
+        ],
+        "evidence": [
+          "Canva別refinementのPO凍結receipt",
+          "Canva承認境界のtyped contract",
+          "独立リポジトリ分離条件の記録"
+        ],
+        "phase": "requirements"
+      },
+      "acceptance_cases": [
+        {
+          "acceptance_id": "RAC-MEDIA-HARNESS-CANVA-P",
+          "polarity": "positive",
+          "statement": "Canvaの承認境界・write境界・route policyがCanva専用refinementだけへ束縛された独立ハーネスとして構成される",
+          "system_test_id": "RST-MEDIA-HARNESS-CANVA-P"
+        },
+        {
+          "acceptance_id": "RAC-MEDIA-HARNESS-CANVA-N",
+          "polarity": "negative",
+          "statement": "Canvaと他媒体の承認境界・write境界を単一ハーネスへ混載した構成、及びPO指示なしの外部リポジトリ作成を拒否する",
+          "system_test_id": "RST-MEDIA-HARNESS-CANVA-N"
+        },
+        {
+          "acceptance_id": "RAC-MEDIA-HARNESS-CANVA-B",
+          "polarity": "boundary",
+          "statement": "Canvaハーネスの失敗・停止時も他媒体ハーネスの承認・運用状態を変更せずfail-closeで自媒体側だけを停止する",
+          "system_test_id": "RST-MEDIA-HARNESS-CANVA-B"
+        }
+      ],
+      "pending_resolution": [
+        "Canvaハーネスの承認境界・write境界・共有基盤との分離線、及び独立リポジトリ分離の時期・条件はどこで確定するか"
+      ],
+      "approval": null,
+      "semantic_digest": "sha256:7222135a2e70f84de7344419a92cc3ec0d62547bdb292a8e3436b2d44f9089ff"
     }
   ],
   "automated_publishing_admission_policy": {

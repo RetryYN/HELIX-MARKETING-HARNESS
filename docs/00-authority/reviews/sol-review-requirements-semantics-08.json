@@ -1,0 +1,31 @@
+{
+ "review_id": "REV-SOL-REQUIREMENTS-SEMANTICS-08",
+ "reviewer_principal": "codex-sol-reviewer",
+ "author_principal": "claude-fable-primary",
+ "author_execution_id": "claude-fable-20260820-media-per-harness",
+ "reviewer_execution_id": "01a01b43-8a6e-7fd3-85c5-a4f90e02ddbf",
+ "review_run_id": "REV-SOL-REQUIREMENTS-SEMANTICS-08-R1",
+ "reviewer_provider": "openai-codex-cli",
+ "review_log_path": "docs/00-authority/reviews/logs/REV-SOL-REQUIREMENTS-SEMANTICS-08.jsonl",
+ "review_log_digest": "b2e96cbb5241d077",
+ "separation_status": "self_attested",
+ "model": "gpt-5.6-sol",
+ "target_commit": "22dd8ad537f0c943f5081db83a0067bb66f6467e",
+ "target_tree": "53ae1cc4362fff0f29bfbe1ab8979e20c4733ae1",
+ "scope": "媒体別ハーネス分離（Canva）: MEDIA-HARNESS-CANVA候補（draft・deferred維持・write無効・外部リポジトリ作成禁止）、IR 45 records、6媒体分離候補の完了、pin/baseline更新",
+ "supersedes_review": [
+  "REV-SOL-REQUIREMENTS-SEMANTICS-07"
+ ],
+ "reviewed_artifact_digests": {
+  "docs/00-authority/artifact-manifest.json": "a553d72e5d4a7e65",
+  "docs/00-authority/baselines/baseline.json": "4b2efd65940b128d",
+  "docs/00-authority/development/requirement-discovery-events.json": "5d97c8f7024af547"
+ },
+ "resolution_commits": [
+  "22dd8ad537f0c943f5081db83a0067bb66f6467e"
+ ],
+ "verdict": "Go",
+ "completed_at": "2026-08-20",
+ "rounds": 1,
+ "findings": []
+}
