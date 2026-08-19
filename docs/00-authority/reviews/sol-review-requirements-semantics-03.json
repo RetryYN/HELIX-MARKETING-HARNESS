@@ -10,8 +10,8 @@
  "review_log_digest": "8b707a70ce1f57bf",
  "separation_status": "self_attested",
  "model": "gpt-5.6-sol",
- "target_commit": "39f334374536f5e6792fe7cdfe7dafe4aed9fd42",
- "target_tree": "badf74d83d8870ffa64c2e0c6dbd9736417a04fd",
+ "target_commit": "05962f3da389787faa8deddfb474cacd955ccd32",
+ "target_tree": "17cccf7d2ff9ba01172151971fd2f974bcc173f4",
  "scope": "媒体別ハーネス分離1件目（WordPress）: PO回答RDE-000188の親refinement伝播（媒体一覧確定・旧4媒体deferred維持）、MEDIA-HARNESS-WORDPRESS候補（draft・write無効・外部リポジトリ作成禁止）、IR 40 records再生成、pin/baseline更新のSolレビュー",
  "supersedes_review": [
   "REV-SOL-REQUIREMENTS-SEMANTICS-02"
@@ -23,7 +23,7 @@
   "tests/gates/test_review_binding.py": "59de6c1ebdcda02c"
  },
  "resolution_commits": [
-  "39f334374536f5e6792fe7cdfe7dafe4aed9fd42"
+  "05962f3da389787faa8deddfb474cacd955ccd32"
  ],
  "verdict": "Go",
  "completed_at": "2026-08-20",
