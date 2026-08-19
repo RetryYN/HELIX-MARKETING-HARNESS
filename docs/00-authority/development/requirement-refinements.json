@@ -38,9 +38,9 @@
     "RDQ-WORDPRESS-SECURITY-MAINTENANCE-RELEASE-01": "safety_policy",
     "RDQ-AGENT-NEO-SITE-BUILD-RELEASE-01": "release_scope",
     "RDQ-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE-01": "release_scope",
-    "RDQ-MEDIA-PER-MEDIUM-HARNESS-01": "release_scope",
-    "RDQ-MEDIA-PER-MEDIUM-HARNESS-02": "requirements_policy",
-    "RDQ-MEDIA-PER-MEDIUM-HARNESS-03": "requirements_policy"
+    "RDQ-MEDIA-HARNESS-WORDPRESS-01": "requirements_policy",
+    "RDQ-MEDIA-PER-MEDIUM-HARNESS-01": "requirements_policy",
+    "RDQ-MEDIA-PER-MEDIUM-HARNESS-02": "requirements_policy"
   },
   "decision_class_contracts": {
     "requirements_policy": [
@@ -47712,7 +47712,8 @@
     "CONTENT-RISK-CLASSIFICATION": "initial_candidate",
     "RESEARCH-LED-CONTENT-GROWTH": "initial_candidate",
     "REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2": "requirements_governance",
-    "MEDIA-PER-MEDIUM-HARNESS": "requirements_governance"
+    "MEDIA-PER-MEDIUM-HARNESS": "requirements_governance",
+    "MEDIA-HARNESS-WORDPRESS": "follow_on_candidate"
   },
   "candidate_requirement_bindings": {
     "PRC-01": [
@@ -47847,7 +47848,8 @@
       "RESEARCH-LED-CONTENT-GROWTH"
     ],
     "PRC-36": [
-      "MEDIA-PER-MEDIUM-HARNESS"
+      "MEDIA-PER-MEDIUM-HARNESS",
+      "MEDIA-HARNESS-WORDPRESS"
     ]
   },
   "decision_packets": [
@@ -47933,6 +47935,15 @@
         "MEDIA-PER-MEDIUM-HARNESS"
       ],
       "decision_question": "各媒体を1つずつの独立ハーネスとして分離構成するか、対象媒体一覧・共通基盤範囲・分離境界をどう確定するか",
+      "bulk_decision_forbidden": true
+    },
+    {
+      "packet_id": "RDP-MEDIA-HARNESS-WORDPRESS",
+      "decision_order": 7,
+      "subject_ids": [
+        "MEDIA-HARNESS-WORDPRESS"
+      ],
+      "decision_question": "WordPressを独立ハーネス1つとして分離構成するか、その承認境界・共有基盤分離線・リポジトリ分離条件をどう確定するか",
       "bulk_decision_forbidden": true
     }
   ],
@@ -51926,9 +51937,10 @@
         "RDE-000184",
         "RDE-000185",
         "RDE-000186",
-        "RDE-000187"
+        "RDE-000187",
+        "RDE-000188"
       ],
-      "source_set_digest": "sha256:de6f54973c3a6c2cd197e65f88d7a68e1c410ce6a9164b5e1a39e3fa46427903",
+      "source_set_digest": "sha256:ae0653f97243ad812260e48b0e1136c2a6bfc9dd9b71455ef2ee15e86cd27f3c",
       "semantic_dimensions": {
         "actors": [
           "PO",
@@ -51952,16 +51964,20 @@
         "scope_in": [
           "媒体単位のハーネス分離構成",
           "媒体別の承認境界・write境界・route policy束縛",
-          "媒体別の障害影響分離"
+          "媒体別の障害影響分離",
+          "PO確定済み6媒体（WordPress・Discord community・LINE・生成AI・アフィリエイト・Canva）の媒体別分離",
+          "将来の媒体別独立リポジトリ分離前提の自己完結設計"
         ],
         "scope_out": [
-          "対象媒体一覧の確定（PO判断）",
           "共通基盤の実装方式選択（design-later）",
-          "PO approval又は要求freeze"
+          "PO approval又は要求freeze",
+          "外部リポジトリの実作成（PO明示指示まで行わない）",
+          "旧媒体（LINE・生成AI・アフィリエイト・Canva）のdeferred運用の再開（分離は構成単位の分離であり運用再開を意味しない）"
         ],
         "prohibitions": [
           "複数媒体の承認・write境界を単一ハーネスへ暗黙に混載しない",
-          "媒体別分離を理由に承認境界・禁止事項・fail-close規律を弱めない"
+          "媒体別分離を理由に承認境界・禁止事項・fail-close規律を弱めない",
+          "媒体別ハーネス分離を根拠に旧媒体（LINE・生成AI・アフィリエイト・Canva）のdeferred運用を暗黙に再開しない"
         ],
         "human_judgement": [
           "対象媒体一覧・分離境界・共有基盤範囲・採否・freezeはPOが判断する"
@@ -51986,7 +52002,7 @@
         {
           "acceptance_id": "RAC-MEDIA-PER-HARNESS-N",
           "polarity": "negative",
-          "statement": "複数媒体の承認境界・write境界を単一ハーネスへ混載した構成、及び媒体一覧未確定のままのハーネス凍結を拒否する",
+          "statement": "複数媒体の承認境界・write境界を単一ハーネスへ混載した構成、及び媒体一覧未確定のままのハーネス凍結を拒否する。媒体別ハーネス分離を根拠とした旧媒体（LINE・生成AI・アフィリエイト・Canva）のdeferred運用の暗黙再開も拒否する",
           "system_test_id": "RST-MEDIA-PER-HARNESS-N"
         },
         {
@@ -51997,12 +52013,95 @@
         }
       ],
       "pending_resolution": [
-        "対象媒体の閉じた一覧（WordPress／Discord community以外に何を含めるか）はどれか",
         "媒体横断で共有する共通基盤（credential store・evidence・kernel）の範囲と、ハーネス分離の境界線はどこか",
         "既存の共通ハーネス前提の要求候補（route policy・content gate等）を媒体別refinementへどう再割当するか"
       ],
       "approval": null,
-      "semantic_digest": "sha256:2cd7762deb17c10787faab5471557d4cfd92c000cb0de3eb3c403f7571d892e0"
+      "semantic_digest": "sha256:31c4dc7ede336f95b42c169b6c562f13de43246e04cfe5b12a512cdde628227f"
+    },
+    {
+      "refinement_id": "RRF-MEDIA-HARNESS-WORDPRESS",
+      "subject_id": "MEDIA-HARNESS-WORDPRESS",
+      "revision": 1,
+      "lifecycle_status": "draft",
+      "source_event_ids": [
+        "RDE-000189",
+        "RDE-000190"
+      ],
+      "source_set_digest": "sha256:57c4501f3520b808091869c879458e7327f8941afb7218475fe7182a5e18b63e",
+      "semantic_dimensions": {
+        "actors": [
+          "PO",
+          "WordPress媒体運用者",
+          "製品runtime"
+        ],
+        "beneficiaries": [
+          "WordPressを他媒体から分離して監督したいPO",
+          "WordPress媒体運用者"
+        ],
+        "value": "WordPressを1つの独立ハーネスとして分離し、承認境界・write境界・障害影響・route policyをWordPress単位で独立に凍結・運用でき、将来の独立リポジトリ分離を自己完結に行える",
+        "tasks": [
+          "WordPressハーネスの承認境界・write境界を定義する",
+          "WordPressのroute policy・credential scope・証跡を自媒体refinementへ束縛する",
+          "共有基盤との分離線と独立リポジトリ分離条件を確定する"
+        ],
+        "workflow": [
+          "candidate→媒体別refinement降下→媒体別PO凍結→媒体別release受入→将来の独立リポジトリ分離"
+        ],
+        "scope_in": [
+          "WordPress専用ハーネスの構成",
+          "WordPressの承認境界・write境界・route policy束縛",
+          "独立リポジトリ分離前提の自己完結設計"
+        ],
+        "scope_out": [
+          "他媒体ハーネスの内容",
+          "共有基盤の実装方式選択（design-later）",
+          "外部リポジトリの実作成（PO明示指示まで行わない）",
+          "PO approval又は要求freeze"
+        ],
+        "prohibitions": [
+          "WordPressの承認・write境界を他媒体ハーネスへ混載しない",
+          "分離を理由に承認境界・禁止事項・fail-close規律を弱めない",
+          "PO指示なしに外部リポジトリを作成しない"
+        ],
+        "human_judgement": [
+          "WordPressハーネスの境界確定・採否・freeze・リポジトリ分離時期はPOが判断する"
+        ],
+        "side_effects": [
+          "要求候補とrefinement構成だけ。製品runtime・媒体への外部writeを変更しない"
+        ],
+        "evidence": [
+          "WordPress別refinementのPO凍結receipt",
+          "WordPress承認境界のtyped contract",
+          "独立リポジトリ分離条件の記録"
+        ],
+        "phase": "requirements"
+      },
+      "acceptance_cases": [
+        {
+          "acceptance_id": "RAC-MEDIA-HARNESS-WORDPRESS-P",
+          "polarity": "positive",
+          "statement": "WordPressの承認境界・write境界・route policyがWordPress専用refinementだけへ束縛された独立ハーネスとして構成される",
+          "system_test_id": "RST-MEDIA-HARNESS-WORDPRESS-P"
+        },
+        {
+          "acceptance_id": "RAC-MEDIA-HARNESS-WORDPRESS-N",
+          "polarity": "negative",
+          "statement": "WordPressと他媒体の承認境界・write境界を単一ハーネスへ混載した構成、及びPO指示なしの外部リポジトリ作成を拒否する",
+          "system_test_id": "RST-MEDIA-HARNESS-WORDPRESS-N"
+        },
+        {
+          "acceptance_id": "RAC-MEDIA-HARNESS-WORDPRESS-B",
+          "polarity": "boundary",
+          "statement": "WordPressハーネスの失敗・停止時も他媒体ハーネスの承認・運用状態を変更せずfail-closeで自媒体側だけを停止する",
+          "system_test_id": "RST-MEDIA-HARNESS-WORDPRESS-B"
+        }
+      ],
+      "pending_resolution": [
+        "WordPressハーネスの承認境界・write境界・共有基盤との分離線、及び独立リポジトリ分離の時期・条件はどこで確定するか"
+      ],
+      "approval": null,
+      "semantic_digest": "sha256:eeab02880e90fb0d7777b8dc9985dd4e7c081380ce9ce21d49bb64cfce6b92fa"
     }
   ],
   "automated_publishing_admission_policy": {

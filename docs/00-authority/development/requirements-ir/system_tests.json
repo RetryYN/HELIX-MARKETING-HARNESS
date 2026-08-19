@@ -305,18 +305,35 @@
     "system_contract_id": "MHH-SC-LEGACY-MEDIA-ADMISSION-INVENTORY",
     "system_test_id": "MHH-ST-LEGACY-MEDIA-ADMISSION-INVENTORY"
   },
+  "MHH-ST-MEDIA-HARNESS-WORDPRESS": {
+    "acceptance_ids": [
+      "MHH-AC-MEDIA-HARNESS-WORDPRESS-P",
+      "MHH-AC-MEDIA-HARNESS-WORDPRESS-N",
+      "MHH-AC-MEDIA-HARNESS-WORDPRESS-B"
+    ],
+    "negative_boundary": "WordPressの承認・write境界を他媒体ハーネスへ混載しない / 分離を理由に承認境界・禁止事項・fail-close規律を弱めない / PO指示なしに外部リポジトリを作成しない",
+    "required_evidence": "WordPress別refinementのPO凍結receipt / WordPress承認境界のtyped contract / 独立リポジトリ分離条件の記録",
+    "revision": 1,
+    "scenario": "requirements meaning review for MEDIA-HARNESS-WORDPRESS; no L2+ design or runtime execution",
+    "schema_version": "helix-system-test.v1",
+    "semantic_digest": "sha256:6ddef25a0b24c8f7415fa7f17e00e28fb5ae5454dc408714b41a36d2ac6e7636",
+    "status": "designed_not_implemented",
+    "supporting_test_ids": [],
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-WORDPRESS",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-WORDPRESS"
+  },
   "MHH-ST-MEDIA-PER-MEDIUM-HARNESS": {
     "acceptance_ids": [
       "MHH-AC-MEDIA-PER-MEDIUM-HARNESS-P",
       "MHH-AC-MEDIA-PER-MEDIUM-HARNESS-N",
       "MHH-AC-MEDIA-PER-MEDIUM-HARNESS-B"
     ],
-    "negative_boundary": "複数媒体の承認・write境界を単一ハーネスへ暗黙に混載しない / 媒体別分離を理由に承認境界・禁止事項・fail-close規律を弱めない",
+    "negative_boundary": "複数媒体の承認・write境界を単一ハーネスへ暗黙に混載しない / 媒体別分離を理由に承認境界・禁止事項・fail-close規律を弱めない / 媒体別ハーネス分離を根拠に旧媒体（LINE・生成AI・アフィリエイト・Canva）のdeferred運用を暗黙に再開しない",
     "required_evidence": "媒体一覧のPO確定record / 媒体別refinement subjectの降下 / 媒体別承認境界のtyped contract",
     "revision": 1,
     "scenario": "requirements meaning review for MEDIA-PER-MEDIUM-HARNESS; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:b180333e70e2c3035029773d68c75914e99110cb49dd0dd2587c884b75485aba",
+    "semantic_digest": "sha256:654cd0d86be9b5f1841f4c45f84f7ee668d1f39761dec99f88ddeb309f3a818e",
     "status": "designed_not_implemented",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-MEDIA-PER-MEDIUM-HARNESS",

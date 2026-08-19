@@ -593,6 +593,39 @@
     "system_contract_id": "MHH-SC-LEGACY-MEDIA-ADMISSION-INVENTORY",
     "system_test_id": "MHH-ST-LEGACY-MEDIA-ADMISSION-INVENTORY"
   },
+  "MHH-AC-MEDIA-HARNESS-WORDPRESS-B": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-WORDPRESS-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:be7bf94749a17fde0990823ea36ea9210c18be5444eeb21b1407206532e5cfd6",
+    "statement": "WordPressハーネスの失敗・停止時も他媒体ハーネスの承認・運用状態を変更せずfail-closeで自媒体側だけを停止する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-WORDPRESS",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-WORDPRESS"
+  },
+  "MHH-AC-MEDIA-HARNESS-WORDPRESS-N": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-WORDPRESS-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:ec469954fa1242c585133d859beaf1108c3394eecf01c8144e4068efadedb722",
+    "statement": "WordPressと他媒体の承認境界・write境界を単一ハーネスへ混載した構成、及びPO指示なしの外部リポジトリ作成を拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-WORDPRESS",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-WORDPRESS"
+  },
+  "MHH-AC-MEDIA-HARNESS-WORDPRESS-P": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-WORDPRESS-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:29a01da41bbe9d19532067acc4e72cf21a15b956371e556c6f0baad24ea54c74",
+    "statement": "WordPressの承認境界・write境界・route policyがWordPress専用refinementだけへ束縛された独立ハーネスとして構成される",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-WORDPRESS",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-WORDPRESS"
+  },
   "MHH-AC-MEDIA-PER-MEDIUM-HARNESS-B": {
     "acceptance_id": "MHH-AC-MEDIA-PER-MEDIUM-HARNESS-B",
     "polarity": "boundary",
@@ -609,8 +642,8 @@
     "polarity": "negative",
     "revision": 1,
     "schema_version": "helix-acceptance-case.v1",
-    "semantic_digest": "sha256:44f70c9e105851e4e3ae7b1bdaa36ceaf09372ef8ef48a21ae2477ddd975fff0",
-    "statement": "複数媒体の承認境界・write境界を単一ハーネスへ混載した構成、及び媒体一覧未確定のままのハーネス凍結を拒否する",
+    "semantic_digest": "sha256:9e71bafb7ce991fcbfc1335e959af2c600818ab624a5d4212bf13ef6f9674bc6",
+    "statement": "複数媒体の承認境界・write境界を単一ハーネスへ混載した構成、及び媒体一覧未確定のままのハーネス凍結を拒否する。媒体別ハーネス分離を根拠とした旧媒体（LINE・生成AI・アフィリエイト・Canva）のdeferred運用の暗黙再開も拒否する",
     "status": "candidate_unratified",
     "system_contract_id": "MHH-SC-MEDIA-PER-MEDIUM-HARNESS",
     "system_test_id": "MHH-ST-MEDIA-PER-MEDIUM-HARNESS"

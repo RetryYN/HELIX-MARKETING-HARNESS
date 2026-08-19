@@ -5,7 +5,7 @@
 > [!CAUTION]
 > **提案専用の生成view。現行要求の正本・PO承認・設計・実装入力ではない。**  `requirements_baseline_status=revising` / `implementation_authorized=false`。
 > 各候補は個別のPO receiptで承認・freezeされ、Full Vを再降下してauthority cutoverするまでcurrentにならない。本view全体を一括承認として扱わない。
-> 集計: 候補 **39** 件 ／ approval receiptあり **0** 件 ／ 未承認 **39** 件。
+> 集計: 候補 **40** 件 ／ approval receiptあり **0** 件 ／ 未承認 **40** 件。
 
 ## PO確認順（decision packets）
 
@@ -17,6 +17,7 @@
 4. **RDP-FOLLOW-ON-FULL-V** — 後続媒体、戦略、AGENT NEOのFull V releaseをどの順で再開するか  対象: OFFICIAL-API-ROUTE-AUTHORITY, EXTERNAL-BROWSER-AUTOMATION-ROUTE, DISCORD-COMMUNITY-MARKETING-ROUTE, MEDIA-POC-SCRUM-RELEASE, STRATEGY-REQUIREMENT-ADMISSION, AGENT-NEO-HELIX-REDEFINITION, AGENT-NEO-SITE-BUILD-RELEASE, AGENT-NEO-PRODUCT-EVOLUTION-RELEASE
 5. **RDP-DEFERRED-EXTERNAL-CAPABILITIES** — 初期scope外の生成AIと旧媒体capabilityをdeferredのまま維持するか個別に再開するか  対象: GENAI-EXECUTION-ROUTE, LEGACY-MEDIA-ADMISSION-INVENTORY
 6. **RDP-MEDIA-PER-MEDIUM-HARNESS** — 各媒体を1つずつの独立ハーネスとして分離構成するか、対象媒体一覧・共通基盤範囲・分離境界をどう確定するか  対象: MEDIA-PER-MEDIUM-HARNESS
+7. **RDP-MEDIA-HARNESS-WORDPRESS** — WordPressを独立ハーネス1つとして分離構成するか、その承認境界・共有基盤分離線・リポジトリ分離条件をどう確定するか  対象: MEDIA-HARNESS-WORDPRESS
 
 ## 回答済み事項（要求へ再降下前）
 
@@ -71,7 +72,7 @@
 - **PRC-33**: CONTENT-QUALITY-GATE-LEARNING
 - **PRC-34**: CONTENT-RISK-CLASSIFICATION
 - **PRC-35**: RESEARCH-LED-CONTENT-GROWTH
-- **PRC-36**: MEDIA-PER-MEDIUM-HARNESS
+- **PRC-36**: MEDIA-PER-MEDIUM-HARNESS, MEDIA-HARNESS-WORDPRESS
 
 ## 旧L0 clause disposition候補
 
@@ -735,32 +736,56 @@
 - **PO個別質問**: なし（ただしsubject approval receiptとfreezeは別）
 - **semantic digest**: `sha256:6f8d4c56fa4d22900b6ba39d6c7392e766f8adc3ea0eb62a3f910638d888cd0e`
 
+## RRF-MEDIA-HARNESS-WORDPRESS — MEDIA-HARNESS-WORDPRESS
+
+- **状態**: `draft` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
+- **scope候補**: `follow_on_candidate` （PO receiptとFull V再降下までは実装不可）
+- **source events**: RDE-000189 RDE-000190
+- **主体**: PO／WordPress媒体運用者／製品runtime
+- **受益者**: WordPressを他媒体から分離して監督したいPO／WordPress媒体運用者
+- **価値**: WordPressを1つの独立ハーネスとして分離し、承認境界・write境界・障害影響・route policyをWordPress単位で独立に凍結・運用でき、将来の独立リポジトリ分離を自己完結に行える
+- **task**: WordPressハーネスの承認境界・write境界を定義する／WordPressのroute policy・credential scope・証跡を自媒体refinementへ束縛する／共有基盤との分離線と独立リポジトリ分離条件を確定する
+- **workflow**: candidate→媒体別refinement降下→媒体別PO凍結→媒体別release受入→将来の独立リポジトリ分離
+- **対象範囲**: WordPress専用ハーネスの構成／WordPressの承認境界・write境界・route policy束縛／独立リポジトリ分離前提の自己完結設計
+- **対象外**: 他媒体ハーネスの内容／共有基盤の実装方式選択（design-later）／外部リポジトリの実作成（PO明示指示まで行わない）／PO approval又は要求freeze
+- **禁止事項**: WordPressの承認・write境界を他媒体ハーネスへ混載しない／分離を理由に承認境界・禁止事項・fail-close規律を弱めない／PO指示なしに外部リポジトリを作成しない
+- **人間判断**: WordPressハーネスの境界確定・採否・freeze・リポジトリ分離時期はPOが判断する
+- **副作用**: 要求候補とrefinement構成だけ。製品runtime・媒体への外部writeを変更しない
+- **証跡**: WordPress別refinementのPO凍結receipt／WordPress承認境界のtyped contract／独立リポジトリ分離条件の記録
+- **phase**: `requirements`
+- **受入候補**:
+  - `positive` RAC-MEDIA-HARNESS-WORDPRESS-P: WordPressの承認境界・write境界・route policyがWordPress専用refinementだけへ束縛された独立ハーネスとして構成される （RST-MEDIA-HARNESS-WORDPRESS-P）
+  - `negative` RAC-MEDIA-HARNESS-WORDPRESS-N: WordPressと他媒体の承認境界・write境界を単一ハーネスへ混載した構成、及びPO指示なしの外部リポジトリ作成を拒否する （RST-MEDIA-HARNESS-WORDPRESS-N）
+  - `boundary` RAC-MEDIA-HARNESS-WORDPRESS-B: WordPressハーネスの失敗・停止時も他媒体ハーネスの承認・運用状態を変更せずfail-closeで自媒体側だけを停止する （RST-MEDIA-HARNESS-WORDPRESS-B）
+- **PO個別質問**:
+  - `RDQ-MEDIA-HARNESS-WORDPRESS-01` (`requirements_policy`): WordPressハーネスの承認境界・write境界・共有基盤との分離線、及び独立リポジトリ分離の時期・条件はどこで確定するか （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
+- **semantic digest**: `sha256:eeab02880e90fb0d7777b8dc9985dd4e7c081380ce9ce21d49bb64cfce6b92fa`
+
 ## RRF-MEDIA-PER-MEDIUM-HARNESS — MEDIA-PER-MEDIUM-HARNESS
 
 - **状態**: `draft` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
 - **scope候補**: `requirements_governance` （PO receiptとFull V再降下までは実装不可）
-- **source events**: RDE-000184 RDE-000185 RDE-000186 RDE-000187
+- **source events**: RDE-000184 RDE-000185 RDE-000186 RDE-000187 RDE-000188
 - **主体**: PO／媒体運用者／製品runtime
 - **受益者**: 媒体別に承認・障害影響を分離して監督したいPO／媒体運用者
 - **価値**: 媒体ごとに1つの独立ハーネスへ分離し、承認境界・write境界・障害影響・route policyを媒体単位で独立に凍結・運用できる
 - **task**: 対象媒体一覧を確定する／媒体別ハーネスの承認境界・write境界を定義する／共通基盤とハーネス分離の境界線を確定する／既存の共通ハーネス前提候補を媒体別refinementへ再割当する
 - **workflow**: candidate→媒体一覧のPO確定→媒体別refinement降下→媒体別PO凍結→媒体別release受入
-- **対象範囲**: 媒体単位のハーネス分離構成／媒体別の承認境界・write境界・route policy束縛／媒体別の障害影響分離
-- **対象外**: 対象媒体一覧の確定（PO判断）／共通基盤の実装方式選択（design-later）／PO approval又は要求freeze
-- **禁止事項**: 複数媒体の承認・write境界を単一ハーネスへ暗黙に混載しない／媒体別分離を理由に承認境界・禁止事項・fail-close規律を弱めない
+- **対象範囲**: 媒体単位のハーネス分離構成／媒体別の承認境界・write境界・route policy束縛／媒体別の障害影響分離／PO確定済み6媒体（WordPress・Discord community・LINE・生成AI・アフィリエイト・Canva）の媒体別分離／将来の媒体別独立リポジトリ分離前提の自己完結設計
+- **対象外**: 共通基盤の実装方式選択（design-later）／PO approval又は要求freeze／外部リポジトリの実作成（PO明示指示まで行わない）／旧媒体（LINE・生成AI・アフィリエイト・Canva）のdeferred運用の再開（分離は構成単位の分離であり運用再開を意味しない）
+- **禁止事項**: 複数媒体の承認・write境界を単一ハーネスへ暗黙に混載しない／媒体別分離を理由に承認境界・禁止事項・fail-close規律を弱めない／媒体別ハーネス分離を根拠に旧媒体（LINE・生成AI・アフィリエイト・Canva）のdeferred運用を暗黙に再開しない
 - **人間判断**: 対象媒体一覧・分離境界・共有基盤範囲・採否・freezeはPOが判断する
 - **副作用**: 要求候補とrefinement構成だけ。製品runtime・媒体への外部writeを変更しない
 - **証跡**: 媒体一覧のPO確定record／媒体別refinement subjectの降下／媒体別承認境界のtyped contract
 - **phase**: `requirements`
 - **受入候補**:
   - `positive` RAC-MEDIA-PER-HARNESS-P: PO確定済み媒体一覧の各媒体が、承認境界・write境界・route policyを自媒体refinementだけへ束縛した独立ハーネスを1つ持つ （RST-MEDIA-PER-HARNESS-P）
-  - `negative` RAC-MEDIA-PER-HARNESS-N: 複数媒体の承認境界・write境界を単一ハーネスへ混載した構成、及び媒体一覧未確定のままのハーネス凍結を拒否する （RST-MEDIA-PER-HARNESS-N）
+  - `negative` RAC-MEDIA-PER-HARNESS-N: 複数媒体の承認境界・write境界を単一ハーネスへ混載した構成、及び媒体一覧未確定のままのハーネス凍結を拒否する。媒体別ハーネス分離を根拠とした旧媒体（LINE・生成AI・アフィリエイト・Canva）のdeferred運用の暗黙再開も拒否する （RST-MEDIA-PER-HARNESS-N）
   - `boundary` RAC-MEDIA-PER-HARNESS-B: 単一媒体ハーネスの失敗・停止時も他媒体ハーネスの承認・運用状態を変更せずfail-closeで維持する （RST-MEDIA-PER-HARNESS-B）
 - **PO個別質問**:
-  - `RDQ-MEDIA-PER-MEDIUM-HARNESS-01` (`release_scope`): 対象媒体の閉じた一覧（WordPress／Discord community以外に何を含めるか）はどれか （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
-  - `RDQ-MEDIA-PER-MEDIUM-HARNESS-02` (`requirements_policy`): 媒体横断で共有する共通基盤（credential store・evidence・kernel）の範囲と、ハーネス分離の境界線はどこか （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
-  - `RDQ-MEDIA-PER-MEDIUM-HARNESS-03` (`requirements_policy`): 既存の共通ハーネス前提の要求候補（route policy・content gate等）を媒体別refinementへどう再割当するか （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
-- **semantic digest**: `sha256:2cd7762deb17c10787faab5471557d4cfd92c000cb0de3eb3c403f7571d892e0`
+  - `RDQ-MEDIA-PER-MEDIUM-HARNESS-01` (`requirements_policy`): 媒体横断で共有する共通基盤（credential store・evidence・kernel）の範囲と、ハーネス分離の境界線はどこか （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
+  - `RDQ-MEDIA-PER-MEDIUM-HARNESS-02` (`requirements_policy`): 既存の共通ハーネス前提の要求候補（route policy・content gate等）を媒体別refinementへどう再割当するか （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
+- **semantic digest**: `sha256:31c4dc7ede336f95b42c169b6c562f13de43246e04cfe5b12a512cdde628227f`
 
 ## RRF-MEDIA-POC-SCRUM-RELEASE — MEDIA-POC-SCRUM-RELEASE
 

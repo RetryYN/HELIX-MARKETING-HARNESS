@@ -1,0 +1,51 @@
+{
+ "review_id": "REV-SOL-REQUIREMENTS-SEMANTICS-03",
+ "reviewer_principal": "codex-sol-reviewer",
+ "author_principal": "claude-fable-primary",
+ "author_execution_id": "claude-fable-20260820-media-per-harness",
+ "reviewer_execution_id": "01a01b14-d7fc-73f2-8116-a38ab2ded240",
+ "review_run_id": "REV-SOL-REQUIREMENTS-SEMANTICS-03-R1",
+ "reviewer_provider": "openai-codex-cli",
+ "review_log_path": "docs/00-authority/reviews/logs/REV-SOL-REQUIREMENTS-SEMANTICS-02.jsonl",
+ "review_log_digest": "8b707a70ce1f57bf",
+ "separation_status": "self_attested",
+ "model": "gpt-5.6-sol",
+ "target_commit": "39f334374536f5e6792fe7cdfe7dafe4aed9fd42",
+ "target_tree": "badf74d83d8870ffa64c2e0c6dbd9736417a04fd",
+ "scope": "媒体別ハーネス分離1件目（WordPress）: PO回答RDE-000188の親refinement伝播（媒体一覧確定・旧4媒体deferred維持）、MEDIA-HARNESS-WORDPRESS候補（draft・write無効・外部リポジトリ作成禁止）、IR 40 records再生成、pin/baseline更新のSolレビュー",
+ "supersedes_review": [
+  "REV-SOL-REQUIREMENTS-SEMANTICS-02"
+ ],
+ "reviewed_artifact_digests": {
+  "docs/00-authority/artifact-manifest.json": "78a14e537c1974cf",
+  "docs/00-authority/baselines/baseline.json": "a3d2b0127c99861d",
+  "docs/00-authority/development/requirement-discovery-events.json": "02f29a226f401cdc",
+  "tests/gates/test_review_binding.py": "59de6c1ebdcda02c"
+ },
+ "resolution_commits": [
+  "39f334374536f5e6792fe7cdfe7dafe4aed9fd42"
+ ],
+ "verdict": "Go",
+ "completed_at": "2026-08-20",
+ "rounds": 3,
+ "findings": [
+  {
+   "severity": "major",
+   "status": "resolved",
+   "summary": "PO回答RDE-000188の媒体一覧確定が親refinementのsource/pending/意味軸へ伝播していなかった。source_event_ids追加・回答済み質問除去・scope反映で解消。",
+   "resolution": "RRF-MEDIA-PER-MEDIUM-HARNESSへRDE-000188を束縛しdigest再計算。"
+  },
+  {
+   "severity": "major",
+   "status": "resolved",
+   "summary": "旧4媒体（LINE・生成AI・アフィリエイト・Canva）のdeferred運用維持がPO回答から親refinementへ脱落していた。scope_out・prohibitions・negative acceptanceへ伝播して解消。",
+   "resolution": "分離＝運用再開ではない旨をtyped意味軸へ追加しdigest再計算。"
+  },
+  {
+   "severity": "minor",
+   "status": "resolved",
+   "summary": "HISTORICAL_UNVERIFIEDへの追加は証跡ラチェットの後退のため撤回し、実行ログ付きself_attestedへ置換した。",
+   "resolution": "codex CLI実実行のセッションログをreviews/logsへ束縛。"
+  }
+ ]
+}

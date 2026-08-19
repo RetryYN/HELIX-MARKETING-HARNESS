@@ -341,6 +341,25 @@
     "system_test_id": "MHH-ST-LEGACY-MEDIA-ADMISSION-INVENTORY",
     "transition_contract": "candidate_unratified -> frozen only after individual PO receipt; no design or runtime transition is admitted"
   },
+  "MHH-SC-MEDIA-HARNESS-WORDPRESS": {
+    "acceptance_ids": [
+      "MHH-AC-MEDIA-HARNESS-WORDPRESS-P",
+      "MHH-AC-MEDIA-HARNESS-WORDPRESS-N",
+      "MHH-AC-MEDIA-HARNESS-WORDPRESS-B"
+    ],
+    "behavior": "requirements candidate only: WordPressハーネスの承認境界・write境界を定義する / WordPressのroute policy・credential scope・証跡を自媒体refinementへ束縛する / 共有基盤との分離線と独立リポジトリ分離条件を確定する",
+    "failure_and_evidence": "prohibitions: WordPressの承認・write境界を他媒体ハーネスへ混載しない / 分離を理由に承認境界・禁止事項・fail-close規律を弱めない / PO指示なしに外部リポジトリを作成しない; evidence: WordPress別refinementのPO凍結receipt / WordPress承認境界のtyped contract / 独立リポジトリ分離条件の記録",
+    "requirement_ids": [
+      "MHH-REQ-MEDIA-HARNESS-WORDPRESS"
+    ],
+    "revision": 1,
+    "schema_version": "helix-system-contract.v1",
+    "semantic_digest": "sha256:c965ab9e989c64a584570af816ed0745a39b434781e25a22c5b92d96cc13d608",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-WORDPRESS",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-WORDPRESS",
+    "transition_contract": "candidate_unratified -> frozen only after individual PO receipt; no design or runtime transition is admitted"
+  },
   "MHH-SC-MEDIA-PER-MEDIUM-HARNESS": {
     "acceptance_ids": [
       "MHH-AC-MEDIA-PER-MEDIUM-HARNESS-P",
@@ -348,13 +367,13 @@
       "MHH-AC-MEDIA-PER-MEDIUM-HARNESS-B"
     ],
     "behavior": "requirements candidate only: 対象媒体一覧を確定する / 媒体別ハーネスの承認境界・write境界を定義する / 共通基盤とハーネス分離の境界線を確定する / 既存の共通ハーネス前提候補を媒体別refinementへ再割当する",
-    "failure_and_evidence": "prohibitions: 複数媒体の承認・write境界を単一ハーネスへ暗黙に混載しない / 媒体別分離を理由に承認境界・禁止事項・fail-close規律を弱めない; evidence: 媒体一覧のPO確定record / 媒体別refinement subjectの降下 / 媒体別承認境界のtyped contract",
+    "failure_and_evidence": "prohibitions: 複数媒体の承認・write境界を単一ハーネスへ暗黙に混載しない / 媒体別分離を理由に承認境界・禁止事項・fail-close規律を弱めない / 媒体別ハーネス分離を根拠に旧媒体（LINE・生成AI・アフィリエイト・Canva）のdeferred運用を暗黙に再開しない; evidence: 媒体一覧のPO確定record / 媒体別refinement subjectの降下 / 媒体別承認境界のtyped contract",
     "requirement_ids": [
       "MHH-REQ-MEDIA-PER-MEDIUM-HARNESS"
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:133133f3879fe02a23bc5f224f27bb61d0884212b8213d9cfd96dfe3bedcbb03",
+    "semantic_digest": "sha256:e0d0d3ffb3664627d2bfcd9765bffeffeda161e1e7b813e5478355380434357e",
     "status": "candidate_unratified",
     "system_contract_id": "MHH-SC-MEDIA-PER-MEDIUM-HARNESS",
     "system_test_id": "MHH-ST-MEDIA-PER-MEDIUM-HARNESS",

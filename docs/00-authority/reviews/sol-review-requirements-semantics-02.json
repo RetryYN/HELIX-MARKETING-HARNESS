@@ -1,7 +1,7 @@
 {
  "review_id": "REV-SOL-REQUIREMENTS-SEMANTICS-02",
  "reviewer_principal": "codex-sol-reviewer",
- "separation_status": "unverified",
+ "separation_status": "self_attested",
  "model": "gpt-5.6-sol",
  "target_commit": "45b3a7184dee021ae29f886156a9ad6572dde694",
  "target_tree": "1bc3f68852910d363bcc879f3dbef65c515b9190",
@@ -92,7 +92,7 @@
  ],
  "verdict": "Go",
  "completed_at": "2026-08-20",
- "rounds": 1,
+ "rounds": 2,
  "findings": [
   {
    "severity": "blocker",
@@ -100,5 +100,12 @@
    "summary": "変更成果物を引き継ぐ後続Goレビューが未登録でG-REVIEW-BINDINGがFAILしていた。本レビュー成果物の登録と対象コミットへの束縛で解消する。",
    "resolution": "本レビューJSONをsupersedes_reviewで旧レビューへ接続し、対象コミット確定後にtarget_treeを再束縛する。"
   }
- ]
+ ],
+ "author_principal": "claude-fable-primary",
+ "author_execution_id": "claude-fable-20260820-media-per-harness",
+ "reviewer_execution_id": "01a01b14-d7fc-73f2-8116-a38ab2ded240",
+ "review_run_id": "REV-SOL-REQUIREMENTS-SEMANTICS-02-R2",
+ "reviewer_provider": "openai-codex-cli",
+ "review_log_path": "docs/00-authority/reviews/logs/REV-SOL-REQUIREMENTS-SEMANTICS-02.jsonl",
+ "review_log_digest": "8b707a70ce1f57bf"
 }

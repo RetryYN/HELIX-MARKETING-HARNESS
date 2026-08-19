@@ -1076,6 +1076,61 @@
       "operation単位で意味fieldとAC/TCを閉じる"
     ]
   },
+  "MHH-REQ-MEDIA-HARNESS-WORDPRESS": {
+    "acceptance_ids": [
+      "MHH-AC-MEDIA-HARNESS-WORDPRESS-P",
+      "MHH-AC-MEDIA-HARNESS-WORDPRESS-N",
+      "MHH-AC-MEDIA-HARNESS-WORDPRESS-B"
+    ],
+    "actor_ids": [
+      "PO",
+      "WordPress媒体運用者",
+      "製品runtime"
+    ],
+    "assertion_id": "MHH-AS-MEDIA-HARNESS-WORDPRESS",
+    "definition_status": "unfrozen",
+    "design_obligation_ids": [],
+    "design_template_ids": [],
+    "downstream_obligation": {
+      "obligation_id": "MHH-DOWNSTREAM-MEDIA-HARNESS-WORDPRESS",
+      "owner_id": "MHH-SC-MEDIA-HARNESS-WORDPRESS",
+      "route_issue_ids": [],
+      "status": "pending_requirements_freeze"
+    },
+    "evidence_origin": "current_refinement_registry",
+    "kind": "functional",
+    "pending_resolution": [
+      "WordPressハーネスの承認境界・write境界・共有基盤との分離線、及び独立リポジトリ分離の時期・条件はどこで確定するか",
+      "PO receipt and requirements freeze remain pending"
+    ],
+    "primary_system_contract_id": "MHH-SC-MEDIA-HARNESS-WORDPRESS",
+    "required_design_artifact_kinds": [],
+    "requirement_id": "MHH-REQ-MEDIA-HARNESS-WORDPRESS",
+    "revision": 1,
+    "schema_version": "helix-requirement.v1",
+    "semantic_digest": "sha256:8f79ab622ee4a8fe2542fa54d0ce756dfcbc12cc81599ee04769c71297de8e63",
+    "source": {
+      "authority_id": "RRF-MEDIA-HARNESS-WORDPRESS",
+      "canonical_pointer": "requirements-ir/requirements.json#/MHH-REQ-MEDIA-HARNESS-WORDPRESS",
+      "migration_source_pointer": "docs/00-authority/development/requirement-refinements.json#/records/RRF-MEDIA-HARNESS-WORDPRESS"
+    },
+    "statement": {
+      "semantic_digest": "sha256:fbab0ca1e4e99ff32884278779f376d42dba8790bac1960d5ee5e77faa921c61",
+      "text": "actors: PO / WordPress媒体運用者 / 製品runtime\nbeneficiaries: WordPressを他媒体から分離して監督したいPO / WordPress媒体運用者\nvalue: WordPressを1つの独立ハーネスとして分離し、承認境界・write境界・障害影響・route policyをWordPress単位で独立に凍結・運用でき、将来の独立リポジトリ分離を自己完結に行える\ntasks: WordPressハーネスの承認境界・write境界を定義する / WordPressのroute policy・credential scope・証跡を自媒体refinementへ束縛する / 共有基盤との分離線と独立リポジトリ分離条件を確定する\nworkflow: candidate→媒体別refinement降下→媒体別PO凍結→媒体別release受入→将来の独立リポジトリ分離\nscope_in: WordPress専用ハーネスの構成 / WordPressの承認境界・write境界・route policy束縛 / 独立リポジトリ分離前提の自己完結設計\nscope_out: 他媒体ハーネスの内容 / 共有基盤の実装方式選択（design-later） / 外部リポジトリの実作成（PO明示指示まで行わない） / PO approval又は要求freeze\nprohibitions: WordPressの承認・write境界を他媒体ハーネスへ混載しない / 分離を理由に承認境界・禁止事項・fail-close規律を弱めない / PO指示なしに外部リポジトリを作成しない\nhuman_judgement: WordPressハーネスの境界確定・採否・freeze・リポジトリ分離時期はPOが判断する\nside_effects: 要求候補とrefinement構成だけ。製品runtime・媒体への外部writeを変更しない\nevidence: WordPress別refinementのPO凍結receipt / WordPress承認境界のtyped contract / 独立リポジトリ分離条件の記録\nphase: requirements"
+    },
+    "status": "candidate_unratified",
+    "surface_ids": [
+      "WordPress専用ハーネスの構成",
+      "WordPressの承認境界・write境界・route policy束縛",
+      "独立リポジトリ分離前提の自己完結設計"
+    ],
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-WORDPRESS",
+    "task_ids": [
+      "WordPressハーネスの承認境界・write境界を定義する",
+      "WordPressのroute policy・credential scope・証跡を自媒体refinementへ束縛する",
+      "共有基盤との分離線と独立リポジトリ分離条件を確定する"
+    ]
+  },
   "MHH-REQ-MEDIA-PER-MEDIUM-HARNESS": {
     "acceptance_ids": [
       "MHH-AC-MEDIA-PER-MEDIUM-HARNESS-P",
@@ -1100,7 +1155,6 @@
     "evidence_origin": "current_refinement_registry",
     "kind": "business",
     "pending_resolution": [
-      "対象媒体の閉じた一覧（WordPress／Discord community以外に何を含めるか）はどれか",
       "媒体横断で共有する共通基盤（credential store・evidence・kernel）の範囲と、ハーネス分離の境界線はどこか",
       "既存の共通ハーネス前提の要求候補（route policy・content gate等）を媒体別refinementへどう再割当するか",
       "PO receipt and requirements freeze remain pending"
@@ -1110,21 +1164,23 @@
     "requirement_id": "MHH-REQ-MEDIA-PER-MEDIUM-HARNESS",
     "revision": 1,
     "schema_version": "helix-requirement.v1",
-    "semantic_digest": "sha256:143b606a422d06b20d10255391934395a1046cfc8a9a9e299ee69282edf3fcce",
+    "semantic_digest": "sha256:1225d056491bb75638718ee07af215cb1572f271bed5d1ac80708fd686b91413",
     "source": {
       "authority_id": "RRF-MEDIA-PER-MEDIUM-HARNESS",
       "canonical_pointer": "requirements-ir/requirements.json#/MHH-REQ-MEDIA-PER-MEDIUM-HARNESS",
       "migration_source_pointer": "docs/00-authority/development/requirement-refinements.json#/records/RRF-MEDIA-PER-MEDIUM-HARNESS"
     },
     "statement": {
-      "semantic_digest": "sha256:a19198590aaf2bb37b274f4c212cd8fb3a5c42abb90ed8de810d00fa2f2dc582",
-      "text": "actors: PO / 媒体運用者 / 製品runtime\nbeneficiaries: 媒体別に承認・障害影響を分離して監督したいPO / 媒体運用者\nvalue: 媒体ごとに1つの独立ハーネスへ分離し、承認境界・write境界・障害影響・route policyを媒体単位で独立に凍結・運用できる\ntasks: 対象媒体一覧を確定する / 媒体別ハーネスの承認境界・write境界を定義する / 共通基盤とハーネス分離の境界線を確定する / 既存の共通ハーネス前提候補を媒体別refinementへ再割当する\nworkflow: candidate→媒体一覧のPO確定→媒体別refinement降下→媒体別PO凍結→媒体別release受入\nscope_in: 媒体単位のハーネス分離構成 / 媒体別の承認境界・write境界・route policy束縛 / 媒体別の障害影響分離\nscope_out: 対象媒体一覧の確定（PO判断） / 共通基盤の実装方式選択（design-later） / PO approval又は要求freeze\nprohibitions: 複数媒体の承認・write境界を単一ハーネスへ暗黙に混載しない / 媒体別分離を理由に承認境界・禁止事項・fail-close規律を弱めない\nhuman_judgement: 対象媒体一覧・分離境界・共有基盤範囲・採否・freezeはPOが判断する\nside_effects: 要求候補とrefinement構成だけ。製品runtime・媒体への外部writeを変更しない\nevidence: 媒体一覧のPO確定record / 媒体別refinement subjectの降下 / 媒体別承認境界のtyped contract\nphase: requirements"
+      "semantic_digest": "sha256:443adc1f0174fae91d355add8eb07739ea205b147a11f6e8c9c4f5883283602c",
+      "text": "actors: PO / 媒体運用者 / 製品runtime\nbeneficiaries: 媒体別に承認・障害影響を分離して監督したいPO / 媒体運用者\nvalue: 媒体ごとに1つの独立ハーネスへ分離し、承認境界・write境界・障害影響・route policyを媒体単位で独立に凍結・運用できる\ntasks: 対象媒体一覧を確定する / 媒体別ハーネスの承認境界・write境界を定義する / 共通基盤とハーネス分離の境界線を確定する / 既存の共通ハーネス前提候補を媒体別refinementへ再割当する\nworkflow: candidate→媒体一覧のPO確定→媒体別refinement降下→媒体別PO凍結→媒体別release受入\nscope_in: 媒体単位のハーネス分離構成 / 媒体別の承認境界・write境界・route policy束縛 / 媒体別の障害影響分離 / PO確定済み6媒体（WordPress・Discord community・LINE・生成AI・アフィリエイト・Canva）の媒体別分離 / 将来の媒体別独立リポジトリ分離前提の自己完結設計\nscope_out: 共通基盤の実装方式選択（design-later） / PO approval又は要求freeze / 外部リポジトリの実作成（PO明示指示まで行わない） / 旧媒体（LINE・生成AI・アフィリエイト・Canva）のdeferred運用の再開（分離は構成単位の分離であり運用再開を意味しない）\nprohibitions: 複数媒体の承認・write境界を単一ハーネスへ暗黙に混載しない / 媒体別分離を理由に承認境界・禁止事項・fail-close規律を弱めない / 媒体別ハーネス分離を根拠に旧媒体（LINE・生成AI・アフィリエイト・Canva）のdeferred運用を暗黙に再開しない\nhuman_judgement: 対象媒体一覧・分離境界・共有基盤範囲・採否・freezeはPOが判断する\nside_effects: 要求候補とrefinement構成だけ。製品runtime・媒体への外部writeを変更しない\nevidence: 媒体一覧のPO確定record / 媒体別refinement subjectの降下 / 媒体別承認境界のtyped contract\nphase: requirements"
     },
     "status": "candidate_unratified",
     "surface_ids": [
       "媒体単位のハーネス分離構成",
       "媒体別の承認境界・write境界・route policy束縛",
-      "媒体別の障害影響分離"
+      "媒体別の障害影響分離",
+      "PO確定済み6媒体（WordPress・Discord community・LINE・生成AI・アフィリエイト・Canva）の媒体別分離",
+      "将来の媒体別独立リポジトリ分離前提の自己完結設計"
     ],
     "system_test_id": "MHH-ST-MEDIA-PER-MEDIUM-HARNESS",
     "task_ids": [
