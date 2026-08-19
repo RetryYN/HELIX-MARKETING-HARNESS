@@ -10,8 +10,8 @@
  "review_log_digest": "b2e96cbb5241d077",
  "separation_status": "self_attested",
  "model": "gpt-5.6-sol",
- "target_commit": "22dd8ad537f0c943f5081db83a0067bb66f6467e",
- "target_tree": "53ae1cc4362fff0f29bfbe1ab8979e20c4733ae1",
+ "target_commit": "66b19c9072aada079b4ea921cdb073a4811fe6a9",
+ "target_tree": "4f924686ffdff541c4d169e892edf09683e30d3f",
  "scope": "媒体別ハーネス分離（Canva）: MEDIA-HARNESS-CANVA候補（draft・deferred維持・write無効・外部リポジトリ作成禁止）、IR 45 records、6媒体分離候補の完了、pin/baseline更新",
  "supersedes_review": [
   "REV-SOL-REQUIREMENTS-SEMANTICS-07"
@@ -22,7 +22,7 @@
   "docs/00-authority/development/requirement-discovery-events.json": "5d97c8f7024af547"
  },
  "resolution_commits": [
-  "22dd8ad537f0c943f5081db83a0067bb66f6467e"
+  "66b19c9072aada079b4ea921cdb073a4811fe6a9"
  ],
  "verdict": "Go",
  "completed_at": "2026-08-20",
