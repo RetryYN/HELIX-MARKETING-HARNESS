@@ -322,6 +322,23 @@
     "system_contract_id": "MHH-SC-MEDIA-HARNESS-DISCORD-COMMUNITY",
     "system_test_id": "MHH-ST-MEDIA-HARNESS-DISCORD-COMMUNITY"
   },
+  "MHH-ST-MEDIA-HARNESS-GENAI": {
+    "acceptance_ids": [
+      "MHH-AC-MEDIA-HARNESS-GENAI-P",
+      "MHH-AC-MEDIA-HARNESS-GENAI-N",
+      "MHH-AC-MEDIA-HARNESS-GENAI-B"
+    ],
+    "negative_boundary": "生成AIの承認・write境界を他媒体ハーネスへ混載しない / 分離を理由に承認境界・禁止事項・fail-close規律を弱めない / PO指示なしに外部リポジトリを作成しない",
+    "required_evidence": "生成AI別refinementのPO凍結receipt / 生成AI承認境界のtyped contract / 独立リポジトリ分離条件の記録",
+    "revision": 1,
+    "scenario": "requirements meaning review for MEDIA-HARNESS-GENAI; no L2+ design or runtime execution",
+    "schema_version": "helix-system-test.v1",
+    "semantic_digest": "sha256:6d1c6e761c90a5cd3941cef2ff8cf57413bb679a83b51e39cbbe32a40ef25d06",
+    "status": "designed_not_implemented",
+    "supporting_test_ids": [],
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-GENAI",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-GENAI"
+  },
   "MHH-ST-MEDIA-HARNESS-LINE": {
     "acceptance_ids": [
       "MHH-AC-MEDIA-HARNESS-LINE-P",

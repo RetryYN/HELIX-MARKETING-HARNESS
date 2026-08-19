@@ -6713,6 +6713,100 @@
         "question": "LINEハーネスの承認境界・write境界・共有基盤との分離線、及び独立リポジトリ分離の時期・条件はどこで確定するか",
         "dimension": "constraints"
       }
+    },
+    {
+      "event_id": "RDE-000195",
+      "sequence": 195,
+      "subject_id": "MEDIA-HARNESS-GENAI",
+      "event_type": "candidate_recorded",
+      "occurred_at": "2026-08-20T01:01:00Z",
+      "recorded_at": "2026-08-20T01:01:00Z",
+      "actor_principal": "po",
+      "references": [
+        {
+          "kind": "event",
+          "id": "RDE-000184"
+        }
+      ],
+      "payload": {
+        "title": "生成AIを独立ハーネス1つとして分離構成する",
+        "problem_statement": "MEDIA-PER-MEDIUM-HARNESSのPO回答により対象媒体一覧が6媒体で確定した。生成AIの承認境界・write境界・route policy・credential scope・証跡を他媒体と混載しない独立ハーネスとして媒体別に定義する必要がある。",
+        "value_hypothesis": "生成AIハーネスを独立に凍結・運用できれば、生成AIの失敗・仕様変更が他媒体へ波及せず、将来の独立リポジトリ分離も自己完結に行える。",
+        "unresolved_questions": [
+          "生成AIハーネスの承認境界・write境界・共有基盤との分離線、及び独立リポジトリ分離の時期・条件はどこで確定するか"
+        ],
+        "semantic_dimensions": {
+          "business_actors": [
+            "PO",
+            "生成AI媒体運用者",
+            "製品runtime"
+          ],
+          "beneficiaries": [
+            "生成AIを他媒体から分離して監督したいPO",
+            "生成AI媒体運用者"
+          ],
+          "workflow": [
+            "candidate→媒体別refinement降下→媒体別PO凍結→媒体別release受入→将来の独立リポジトリ分離"
+          ],
+          "scope_in": [
+            "生成AI専用ハーネスの構成",
+            "生成AIの承認境界・write境界・route policy束縛",
+            "独立リポジトリ分離前提の自己完結設計"
+          ],
+          "scope_out": [
+            "他媒体ハーネスの内容",
+            "共有基盤の実装方式選択（design-later）",
+            "外部リポジトリの実作成（PO明示指示まで行わない）",
+            "PO approval又は要求freeze"
+          ],
+          "constraints": [
+            "1媒体=1ハーネスとして生成AIの構成・承認・運用単位を一致させる",
+            "既存のfail-close・PO凍結・全媒体write無効の現行候補規律に従う"
+          ],
+          "prohibitions": [
+            "生成AIの承認・write境界を他媒体ハーネスへ混載しない",
+            "分離を理由に承認境界・禁止事項を弱めない",
+            "PO指示なしに外部リポジトリを作成しない"
+          ],
+          "human_judgement": [
+            "生成AIハーネスの境界確定・採否・freeze・リポジトリ分離時期はPO"
+          ],
+          "external_side_effects": [
+            "要求候補とrefinement構成だけ。製品runtime・媒体への外部writeを変更しない"
+          ],
+          "completion_evidence": [
+            "生成AI別refinementのPO凍結",
+            "生成AI承認境界のtyped contract",
+            "独立リポジトリ分離条件の記録"
+          ],
+          "target_phase": "requirements",
+          "unknown_dimensions": [
+            {
+              "dimension": "constraints",
+              "question": "生成AIハーネスの承認境界・write境界・共有基盤との分離線、及び独立リポジトリ分離の時期・条件はどこで確定するか"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "event_id": "RDE-000196",
+      "sequence": 196,
+      "subject_id": "MEDIA-HARNESS-GENAI",
+      "event_type": "question_raised",
+      "occurred_at": "2026-08-20T01:02:00Z",
+      "recorded_at": "2026-08-20T01:02:00Z",
+      "actor_principal": "po",
+      "references": [
+        {
+          "kind": "event",
+          "id": "RDE-000195"
+        }
+      ],
+      "payload": {
+        "question": "生成AIハーネスの承認境界・write境界・共有基盤との分離線、及び独立リポジトリ分離の時期・条件はどこで確定するか",
+        "dimension": "constraints"
+      }
     }
   ]
 }

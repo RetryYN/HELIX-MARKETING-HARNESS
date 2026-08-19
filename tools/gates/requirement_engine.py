@@ -12032,7 +12032,7 @@ def legacy_fault_stage_audit_faults(
                 faults.append(f"{gate_id}: known quarantined fault集合が増減又は意味反転")
         if _digest(source_digests) != "sha256:ed8691d9069dca0e391996994c834f36f49beef33cf8dc9aad7440623d7ecbb9":
             faults.append("legacy contract source artifact集合digestがstale")
-        if _digest(expanded_source_digests) != "sha256:638fd3334736477ee0386322ecf00c54df6888cc32c83d0948bb5d23544a0672":
+        if _digest(expanded_source_digests) != "sha256:61fd281a2aa058c520cd7201441d5f9067e6166575353fea461e5e56a198a05b":
             faults.append("legacy ADR/L2/refinement raw source snapshot digestがstale")
     elif cutover_complete and any(raw_faults.values()):
         faults.append("approved cutoverでは旧raw faultをquarantineせずzero closureが必要")

@@ -360,6 +360,25 @@
     "system_test_id": "MHH-ST-MEDIA-HARNESS-DISCORD-COMMUNITY",
     "transition_contract": "candidate_unratified -> frozen only after individual PO receipt; no design or runtime transition is admitted"
   },
+  "MHH-SC-MEDIA-HARNESS-GENAI": {
+    "acceptance_ids": [
+      "MHH-AC-MEDIA-HARNESS-GENAI-P",
+      "MHH-AC-MEDIA-HARNESS-GENAI-N",
+      "MHH-AC-MEDIA-HARNESS-GENAI-B"
+    ],
+    "behavior": "requirements candidate only: 生成AIハーネスの承認境界・write境界を定義する / 生成AIのroute policy・credential scope・証跡を自媒体refinementへ束縛する / 共有基盤との分離線と独立リポジトリ分離条件を確定する",
+    "failure_and_evidence": "prohibitions: 生成AIの承認・write境界を他媒体ハーネスへ混載しない / 分離を理由に承認境界・禁止事項・fail-close規律を弱めない / PO指示なしに外部リポジトリを作成しない; evidence: 生成AI別refinementのPO凍結receipt / 生成AI承認境界のtyped contract / 独立リポジトリ分離条件の記録",
+    "requirement_ids": [
+      "MHH-REQ-MEDIA-HARNESS-GENAI"
+    ],
+    "revision": 1,
+    "schema_version": "helix-system-contract.v1",
+    "semantic_digest": "sha256:c9cb2c5474e188cb35c94b1858da6f5eee3b605c1f37db819d694405e38b9435",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-GENAI",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-GENAI",
+    "transition_contract": "candidate_unratified -> frozen only after individual PO receipt; no design or runtime transition is admitted"
+  },
   "MHH-SC-MEDIA-HARNESS-LINE": {
     "acceptance_ids": [
       "MHH-AC-MEDIA-HARNESS-LINE-P",

@@ -626,6 +626,39 @@
     "system_contract_id": "MHH-SC-MEDIA-HARNESS-DISCORD-COMMUNITY",
     "system_test_id": "MHH-ST-MEDIA-HARNESS-DISCORD-COMMUNITY"
   },
+  "MHH-AC-MEDIA-HARNESS-GENAI-B": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-GENAI-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:42cdca92a9d09b52e7df59e4abe7b080452e41236a916def71db7dc93c894e1a",
+    "statement": "生成AIハーネスの失敗・停止時も他媒体ハーネスの承認・運用状態を変更せずfail-closeで自媒体側だけを停止する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-GENAI",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-GENAI"
+  },
+  "MHH-AC-MEDIA-HARNESS-GENAI-N": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-GENAI-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:e349072eb0916d341eccdcf2378b4c09fe207e0da2dcf7b5e4467232e3c4f2ef",
+    "statement": "生成AIと他媒体の承認境界・write境界を単一ハーネスへ混載した構成、及びPO指示なしの外部リポジトリ作成を拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-GENAI",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-GENAI"
+  },
+  "MHH-AC-MEDIA-HARNESS-GENAI-P": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-GENAI-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:b4bda8e0e53cc2c8cddc3b152f68df4aee781c9198bcb29eacdccab0a0e0e388",
+    "statement": "生成AIの承認境界・write境界・route policyが生成AI専用refinementだけへ束縛された独立ハーネスとして構成される",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-GENAI",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-GENAI"
+  },
   "MHH-AC-MEDIA-HARNESS-LINE-B": {
     "acceptance_id": "MHH-AC-MEDIA-HARNESS-LINE-B",
     "polarity": "boundary",

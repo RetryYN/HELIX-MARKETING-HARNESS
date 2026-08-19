@@ -1131,6 +1131,61 @@
       "共有基盤との分離線と独立リポジトリ分離条件を確定する"
     ]
   },
+  "MHH-REQ-MEDIA-HARNESS-GENAI": {
+    "acceptance_ids": [
+      "MHH-AC-MEDIA-HARNESS-GENAI-P",
+      "MHH-AC-MEDIA-HARNESS-GENAI-N",
+      "MHH-AC-MEDIA-HARNESS-GENAI-B"
+    ],
+    "actor_ids": [
+      "PO",
+      "生成AI媒体運用者",
+      "製品runtime"
+    ],
+    "assertion_id": "MHH-AS-MEDIA-HARNESS-GENAI",
+    "definition_status": "unfrozen",
+    "design_obligation_ids": [],
+    "design_template_ids": [],
+    "downstream_obligation": {
+      "obligation_id": "MHH-DOWNSTREAM-MEDIA-HARNESS-GENAI",
+      "owner_id": "MHH-SC-MEDIA-HARNESS-GENAI",
+      "route_issue_ids": [],
+      "status": "pending_requirements_freeze"
+    },
+    "evidence_origin": "current_refinement_registry",
+    "kind": "business",
+    "pending_resolution": [
+      "生成AIハーネスの承認境界・write境界・共有基盤との分離線、及び独立リポジトリ分離の時期・条件はどこで確定するか",
+      "PO receipt and requirements freeze remain pending"
+    ],
+    "primary_system_contract_id": "MHH-SC-MEDIA-HARNESS-GENAI",
+    "required_design_artifact_kinds": [],
+    "requirement_id": "MHH-REQ-MEDIA-HARNESS-GENAI",
+    "revision": 1,
+    "schema_version": "helix-requirement.v1",
+    "semantic_digest": "sha256:67a68bf5c2264460e8ba8664296752d70ffc42ed64fad44414f490a4a2e17d6a",
+    "source": {
+      "authority_id": "RRF-MEDIA-HARNESS-GENAI",
+      "canonical_pointer": "requirements-ir/requirements.json#/MHH-REQ-MEDIA-HARNESS-GENAI",
+      "migration_source_pointer": "docs/00-authority/development/requirement-refinements.json#/records/RRF-MEDIA-HARNESS-GENAI"
+    },
+    "statement": {
+      "semantic_digest": "sha256:fe63b2a6ee257e14e92e87ec3da167439551e8bb13e0179a1d8fb069c6a7bc3c",
+      "text": "actors: PO / 生成AI媒体運用者 / 製品runtime\nbeneficiaries: 生成AIを他媒体から分離して監督したいPO / 生成AI媒体運用者\nvalue: 生成AIを1つの独立ハーネスとして分離し、承認境界・write境界・障害影響・route policyを生成AI単位で独立に凍結・運用でき、将来の独立リポジトリ分離を自己完結に行える\ntasks: 生成AIハーネスの承認境界・write境界を定義する / 生成AIのroute policy・credential scope・証跡を自媒体refinementへ束縛する / 共有基盤との分離線と独立リポジトリ分離条件を確定する\nworkflow: candidate→媒体別refinement降下→媒体別PO凍結→媒体別release受入→将来の独立リポジトリ分離\nscope_in: 生成AI専用ハーネスの構成 / 生成AIの承認境界・write境界・route policy束縛 / 独立リポジトリ分離前提の自己完結設計\nscope_out: 他媒体ハーネスの内容 / 共有基盤の実装方式選択（design-later） / 外部リポジトリの実作成（PO明示指示まで行わない） / PO approval又は要求freeze\nprohibitions: 生成AIの承認・write境界を他媒体ハーネスへ混載しない / 分離を理由に承認境界・禁止事項・fail-close規律を弱めない / PO指示なしに外部リポジトリを作成しない\nhuman_judgement: 生成AIハーネスの境界確定・採否・freeze・リポジトリ分離時期はPOが判断する\nside_effects: 要求候補とrefinement構成だけ。製品runtime・媒体への外部writeを変更しない\nevidence: 生成AI別refinementのPO凍結receipt / 生成AI承認境界のtyped contract / 独立リポジトリ分離条件の記録\nphase: requirements"
+    },
+    "status": "candidate_unratified",
+    "surface_ids": [
+      "生成AI専用ハーネスの構成",
+      "生成AIの承認境界・write境界・route policy束縛",
+      "独立リポジトリ分離前提の自己完結設計"
+    ],
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-GENAI",
+    "task_ids": [
+      "生成AIハーネスの承認境界・write境界を定義する",
+      "生成AIのroute policy・credential scope・証跡を自媒体refinementへ束縛する",
+      "共有基盤との分離線と独立リポジトリ分離条件を確定する"
+    ]
+  },
   "MHH-REQ-MEDIA-HARNESS-LINE": {
     "acceptance_ids": [
       "MHH-AC-MEDIA-HARNESS-LINE-P",
