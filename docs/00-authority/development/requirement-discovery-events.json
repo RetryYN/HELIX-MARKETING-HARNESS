@@ -5932,8 +5932,14 @@
       "recorded_at": "2026-08-15T00:34:00Z",
       "actor_principal": "requirements-authority-resolver",
       "references": [
-        {"kind": "event", "id": "RDE-000104"},
-        {"kind": "event", "id": "RDE-000169"}
+        {
+          "kind": "event",
+          "id": "RDE-000104"
+        },
+        {
+          "kind": "event",
+          "id": "RDE-000169"
+        }
       ],
       "payload": {
         "observation": "ユーザーへ追加質問せず安全側resolver候補として、下位契約はactor/principal、scope、human judgement、allowed/forbidden side effect、evidence、phaseを直接宣言し、AC/TCはpolarity、failure、recoveryも直接持つ。beneficiary/value/task/workflowと上位safety句だけをstable親句ID＋親semantic digest＋明示deltaで選択継承できる。multi-parent暗黙union、安全/HJ/prohibition弱化、provider/runtime/route/storage/fixture/mock/固定閾値/旧phase/旧通知承認transportのpositive継承を禁止する。これはPO approval、要求freeze又はschema設計完了ではない。",
@@ -5949,8 +5955,14 @@
       "recorded_at": "2026-08-15T00:35:00Z",
       "actor_principal": "requirements-authority-resolver",
       "references": [
-        {"kind": "event", "id": "RDE-000135"},
-        {"kind": "event", "id": "RDE-000168"}
+        {
+          "kind": "event",
+          "id": "RDE-000135"
+        },
+        {
+          "kind": "event",
+          "id": "RDE-000168"
+        }
       ],
       "payload": {
         "observation": "ユーザーへ追加質問せず安全側resolver候補として、未知・未登録・失効又は測定不能なrate/quota/cost/retry budgetでは外部write、publish、money operation及び追加retryを開始しない。既確定のblocked/failed/safety-stopped状態はrollbackせずreceiptを残す。read-only残量取得は権限・quota・証跡が閉じる場合に別effectとして許容候補とする。具体値、window、currency、scopeはprofile/account/operation/risk別revision付きregistrationへ分離し、業務outcome、許容超過及び課金承認principalは将来PO判断、adapter/backoff/counter/storageはdesign-laterとする。これはPO approval又は要求freezeではない。",
@@ -5966,8 +5978,14 @@
       "recorded_at": "2026-08-15T00:36:00Z",
       "actor_principal": "requirements-authority-resolver",
       "references": [
-        {"kind": "event", "id": "RDE-000129"},
-        {"kind": "event", "id": "RDE-000170"}
+        {
+          "kind": "event",
+          "id": "RDE-000129"
+        },
+        {
+          "kind": "event",
+          "id": "RDE-000170"
+        }
       ],
       "payload": {
         "observation": "ユーザーへ追加質問せず安全側resolver候補として、製品状態変更はstable transition ID、対象subject、expected prior revision、単一owner、許可principal、effect、result及びreceiptへ束縛する。通知・seen/acknowledged・外部adapter結果・retry失敗は業務状態を暗黙変更又はrollbackしない。未知transition、stale revision、競合又はowner不明では現状態を維持してfail-closeし、復旧は履歴書換えでなく新しい認可transitionとする。状態taxonomy、transition別principal、競合時business outcome、保持/recovery目標は将来PO判断、閾値はregistration、DB/locking/event実装はdesign-laterとする。これはPO approval又は要求freezeではない。",
@@ -5982,7 +6000,12 @@
       "occurred_at": "2026-08-15T00:37:00Z",
       "recorded_at": "2026-08-15T00:37:00Z",
       "actor_principal": "requirements-authority-resolver",
-      "references": [{"kind": "event", "id": "RDE-000172"}],
+      "references": [
+        {
+          "kind": "event",
+          "id": "RDE-000172"
+        }
+      ],
       "payload": {
         "observation": "Fable low再監査に基づき、typed transition receiptへsource_state、target_state及びresulting_revisionを追加する。成功時はresulting_revisionがexpected_prior_revisionより進み、拒否又は永続化失敗時はcurrent stateとrevisionを不変にする。採番、locking及び保存方式はdesign-laterのままとし、これはPO approval又は要求freezeではない。",
         "evidence_ref": "source:fable-low-state-transition-revision-review"
@@ -5997,8 +6020,14 @@
       "recorded_at": "2026-08-15T00:38:00Z",
       "actor_principal": "requirements-authority-resolver",
       "references": [
-        {"kind": "event", "id": "RDE-000131"},
-        {"kind": "event", "id": "RDE-000173"}
+        {
+          "kind": "event",
+          "id": "RDE-000131"
+        },
+        {
+          "kind": "event",
+          "id": "RDE-000173"
+        }
       ],
       "payload": {
         "observation": "ユーザーへ追加質問せず安全側resolver候補として、authentication/session成立をauthorizationとみなさず、各操作をprincipal/profile/resource/operation/effect/grant revision/expiryへ束縛する。missing、unknown、stale、expired又はscope mismatchはdenyし、readからwrite、横断集約又は高作用effectを推論しない。cross-profileは明示grant、delete/transferは別高作用transition、将来multi-principal化は再認可とする。拒否は製品状態を変えずreceiptを残す。role taxonomy、移管/削除outcome、横断集約主体、delegation/break-glassは将来PO判断、grant実値はregistration、RBAC/ABAC/store/cache/UIはdesign-laterとする。これはPO approval又は要求freezeではない。",
@@ -6014,8 +6043,14 @@
       "recorded_at": "2026-08-15T00:39:00Z",
       "actor_principal": "requirements-authority-resolver",
       "references": [
-        {"kind": "event", "id": "RDE-000173"},
-        {"kind": "event", "id": "RDE-000174"}
+        {
+          "kind": "event",
+          "id": "RDE-000173"
+        },
+        {
+          "kind": "event",
+          "id": "RDE-000174"
+        }
       ],
       "payload": {
         "observation": "PRODUCT-STATEのauthorized_principalを二重正本化せず、transition receiptはBUSINESS-PROFILE-AUTHORIZATIONのgrant ID、grant revision及びgrant semantic digestを参照する。grant missing/stale/expired時はtransitionを拒否してstate/revisionを維持する。これはPO approval又は設計完了ではない。",
@@ -6031,9 +6066,18 @@
       "recorded_at": "2026-08-15T00:40:00Z",
       "actor_principal": "requirements-authority-resolver",
       "references": [
-        {"kind": "event", "id": "RDE-000133"},
-        {"kind": "event", "id": "RDE-000162"},
-        {"kind": "event", "id": "RDE-000174"}
+        {
+          "kind": "event",
+          "id": "RDE-000133"
+        },
+        {
+          "kind": "event",
+          "id": "RDE-000162"
+        },
+        {
+          "kind": "event",
+          "id": "RDE-000174"
+        }
       ],
       "payload": {
         "observation": "ユーザーへ追加質問せず安全側resolver候補として、sessionをsession ID、authenticated principal、identity revision、authentication event ID/digest、issued/expiry、revocation revision、authentication strength及びlast reauthenticatedへ束縛する。authentication/session/deep-linkはauthorizationを含意せず、operationごとに別途grant ID/revision/digestを検証する。unknown/expired/revoked/stale identity、CSRF不成立又は必要strength/freshness不足はdenyしstate/revisionを維持してreceiptを残す。session fixation/replay、共有identity、secret/token/credentialのrepo/DB/log/inbox露出を禁止する。VPS再起動後はWeb sessionの存否に関係なくcredential再認可とfresh grantまで外部作用を停止する。方式・強度・期限・recoveryは将来PO判断、実値はregistration、IdP/cookie/store/CSRF/UIはdesign-laterとする。これはPO approval又は要求freezeではない。",
@@ -6049,8 +6093,14 @@
       "recorded_at": "2026-08-15T00:41:00Z",
       "actor_principal": "requirements-authority-resolver",
       "references": [
-        {"kind": "event", "id": "RDE-000176"},
-        {"kind": "event", "id": "RDE-000162"}
+        {
+          "kind": "event",
+          "id": "RDE-000176"
+        },
+        {
+          "kind": "event",
+          "id": "RDE-000162"
+        }
       ],
       "payload": {
         "observation": "Fable low再監査に基づき、禁止対象を未加工の認証鍵素材及び認証ヘッダ値のrepo・product DB・log・inboxへの永続化又は露出へ限定する。有人再認可後のbounded process-memory injectionと将来選択する専用機密情報authorityは候補として分離し、session永続化は非機密identifier又はone-way digestだけを許容候補とする。authentication event digestは認証鍵素材を含まないcanonical projectionから生成する。これは専用保管方式の採用又はPO approvalではない。",
@@ -6066,9 +6116,18 @@
       "recorded_at": "2026-08-15T00:42:00Z",
       "actor_principal": "requirements-authority-resolver",
       "references": [
-        {"kind": "event", "id": "RDE-000094"},
-        {"kind": "event", "id": "RDE-000096"},
-        {"kind": "event", "id": "RDE-000169"}
+        {
+          "kind": "event",
+          "id": "RDE-000094"
+        },
+        {
+          "kind": "event",
+          "id": "RDE-000096"
+        },
+        {
+          "kind": "event",
+          "id": "RDE-000169"
+        }
       ],
       "payload": {
         "observation": "追加PO回答なしの安全側resolver候補として、VPS UI品質をaccessibility、performance、availability、recovery、operation、migration及びrollbackのexact集合へ限定する。各属性はscope、journey又はoperation、metric、unit、measurement environment/window、applicability、threshold registration revision/digest、evidence、failure outcome及びresume conditionへ束縛する。generic N/A、未知・未測定・未登録又は失効閾値、測定環境又は証拠欠落はdeferredとしrelease又は全体passへ昇格しない。部分passは全体passではなく、製品状態backupやworker/connector品質をUI品質へ流用しない。具体閾値・適用採否・許容risk・release必須属性はPO判断、実値はregistration、計測方式はdesign-laterであり、これはPO approval又は要求freezeではない。",
@@ -6084,9 +6143,18 @@
       "recorded_at": "2026-08-15T00:43:00Z",
       "actor_principal": "requirements-authority-resolver",
       "references": [
-        {"kind": "event", "id": "RDE-000113"},
-        {"kind": "event", "id": "RDE-000160"},
-        {"kind": "event", "id": "RDE-000165"}
+        {
+          "kind": "event",
+          "id": "RDE-000113"
+        },
+        {
+          "kind": "event",
+          "id": "RDE-000160"
+        },
+        {
+          "kind": "event",
+          "id": "RDE-000165"
+        }
       ],
       "payload": {
         "observation": "追加PO回答なしの安全側resolver候補として、WordPress content operationをcreate draft、update draft、publish、update published in place、unpublish、delete及びrollbackへ分離する。各attemptはprofile/site/account、stable content ID、source/current remote revision、desired digest、operation/effect、capability binding revision/digest、route、authorization grant、activation scope revision、content/risk/quality gate receipt、idempotency key及びresult receiptへ束縛する。API又はMCPを利用可能なら優先し、Playwright確認をwrite authorityへ読み替えない。in-place非対応の既公開物は隣接operationへ置換せずstate不変のunsupported non-action receiptを残し通知しない。stale revision又はgrant/activation/gate/capability欠落はfail-closeし既公開状態を維持する。削除等の許可はPO判断、実値はregistration、adapter/競合/rollback方式はdesign-laterであり、これはPO approval又は要求freezeではない。",
@@ -6102,9 +6170,18 @@
       "recorded_at": "2026-08-15T00:44:00Z",
       "actor_principal": "requirements-authority-resolver",
       "references": [
-        {"kind": "event", "id": "RDE-000117"},
-        {"kind": "event", "id": "RDE-000118"},
-        {"kind": "event", "id": "RDE-000179"}
+        {
+          "kind": "event",
+          "id": "RDE-000117"
+        },
+        {
+          "kind": "event",
+          "id": "RDE-000118"
+        },
+        {
+          "kind": "event",
+          "id": "RDE-000179"
+        }
       ],
       "payload": {
         "observation": "追加PO回答なしの安全側resolver候補として、WordPress security maintenanceをassess、core/plugin/theme patch、permission change、credential rotation、quarantine及びrestore/rollbackへ分離する。各attemptはsite/component identityとversion、inventory/advisory digest、risk、security grant、maintenance activation/window、preflight、backup/restore evidence、credential authority参照、route/capability及びresult/rollback receiptへ束縛する。content grant、advisory又はscanner結果だけをpatch authorityにせず、unknown対象、grant/window/preflight/backup/rollback欠落、scope違い又は認証鍵素材露出時はmutationを開始しない。emergencyも別grant・期限・scope・receiptを要求し、成功後は再検証まで通常operationを自動再開しない。risk受容等はPO判断、実値はregistration、adapter/backup/rotation方式はdesign-laterであり、これはPO approval又は要求freezeではない。",
@@ -6120,17 +6197,28 @@
       "recorded_at": "2026-08-15T00:45:00Z",
       "actor_principal": "requirements-authority-resolver",
       "references": [
-        {"kind": "event", "id": "RDE-000115"},
-        {"kind": "event", "id": "RDE-000116"},
-        {"kind": "event", "id": "RDE-000179"},
-        {"kind": "event", "id": "RDE-000180"}
+        {
+          "kind": "event",
+          "id": "RDE-000115"
+        },
+        {
+          "kind": "event",
+          "id": "RDE-000116"
+        },
+        {
+          "kind": "event",
+          "id": "RDE-000179"
+        },
+        {
+          "kind": "event",
+          "id": "RDE-000180"
+        }
       ],
       "payload": {
         "observation": "追加PO回答なしの安全側resolver候補として、WordPress platform maintenanceをinventory確認、backup作成、restore検証、非security core更新、plugin導入/状態変更/非security更新、schema/config変更及びrollbackへ分離する。read-only確認にwindow/backup/rollbackを要求せず、mutationだけをplatform grant、activation/window、capability/route、backup freshness、restore、compatibility/smoke/regression、remote revision、idempotency及びresult/rollback receiptへ束縛する。content又はsecurity grantをplatform authorityへ流用しない。security relevanceをmaintenance only/security intersection/unknownへ分類し、intersectionは別security decision/grant、unknownはdeferredとする。API/MCPを優先しPlaywright確認をwrite authorityにせず、rollback後は再検証と明示resumeまで自動再開しない。具体境界はPO判断、実値はregistration、adapter/orchestration方式はdesign-laterでありPO approval又は要求freezeではない。",
         "evidence_ref": "source:fable-low-wordpress-platform-maintenance-safety-review"
       }
-    }
-    ,
+    },
     {
       "event_id": "RDE-000182",
       "sequence": 182,
@@ -6140,17 +6228,28 @@
       "recorded_at": "2026-08-15T00:46:00Z",
       "actor_principal": "requirements-authority-resolver",
       "references": [
-        {"kind": "event", "id": "RDE-000097"},
-        {"kind": "event", "id": "RDE-000098"},
-        {"kind": "artifact", "id": "L1-REQ"},
-        {"kind": "artifact", "id": "L1-REQUIREMENT-LIST"}
+        {
+          "kind": "event",
+          "id": "RDE-000097"
+        },
+        {
+          "kind": "event",
+          "id": "RDE-000098"
+        },
+        {
+          "kind": "artifact",
+          "id": "L1-REQ"
+        },
+        {
+          "kind": "artifact",
+          "id": "L1-REQUIREMENT-LIST"
+        }
       ],
       "payload": {
         "observation": "追加PO回答なしの安全側resolver候補として、既存REQ55意味inventoryを再利用し、機械REQ ledgerとconfirmed Markdownの実差分15 ID・19 fieldだけをsource value digest付きdelta overlayへ固定する。各差分の意味選択、唯一正本へのcutover、supersession及び下流影響はPO判断とし、未分類、source stale、複数選択、defer owner/resume欠落又はtrace差分残存ではfail-closeする。単一candidate JSONだけを将来正本候補としMarkdownは生成viewに限定するが、全row分類、PO receipt、manifest/view/trace digest、同一commit baseline及び独立Goまでは旧資料とcandidateの双方を実装入力にしない。schema、renderer、diff UI、migration及びtrace再生成方式はdesign-laterであり、これはPO approval又は要求freezeではない。",
         "evidence_ref": "source:fable-low-req-authority-normalization-review"
       }
-    }
-    ,
+    },
     {
       "event_id": "RDE-000183",
       "sequence": 183,
@@ -6159,10 +6258,159 @@
       "occurred_at": "2026-08-16T00:01:00Z",
       "recorded_at": "2026-08-16T00:01:00Z",
       "actor_principal": "requirements-authority-resolver",
-      "references": [{"kind": "event", "id": "RDE-000105"}, {"kind": "event", "id": "RDE-000106"}],
+      "references": [
+        {
+          "kind": "event",
+          "id": "RDE-000105"
+        },
+        {
+          "kind": "event",
+          "id": "RDE-000106"
+        }
+      ],
       "payload": {
         "observation": "追加PO回答なしの安全側resolver候補として、既存NFR-1〜11のsource digest及び価値・安全・人間判断・旧方式非継承inventoryを再利用し、stable business root、actor/principal scope、applicability scope、phase、処遇、owner/resume及びmeasurement authorityだけをtyped overlayへ分離する。root不明、親digest stale、意味軸未分類又はdefer owner/resume欠落ではfail-closeし、旧NFR本文、旧phase、別NFR、旧MR/FR又はdraft STCをpositive authorityへ昇格しない。意味処遇、stable root、品質目標、risk acceptance及びsupersessionはPO判断、環境別測定値はregistration、telemetry等の方式はdesign-laterであり、これはPO approval又は要求freezeではない。",
         "evidence_ref": "source:fable-low-nfr-business-authority-review"
+      }
+    },
+    {
+      "event_id": "RDE-000184",
+      "sequence": 184,
+      "subject_id": "MEDIA-PER-MEDIUM-HARNESS",
+      "event_type": "candidate_recorded",
+      "occurred_at": "2026-08-20T00:00:00Z",
+      "recorded_at": "2026-08-20T00:00:00Z",
+      "actor_principal": "po",
+      "references": [
+        {
+          "kind": "artifact",
+          "id": "L1-PRODUCT-REQUIREMENT-BASELINE-CANDIDATE"
+        }
+      ],
+      "payload": {
+        "title": "媒体ごとに1つの独立したハーネスを構成する",
+        "problem_statement": "現行の要求候補では媒体（WordPress・Discord community等）横断の共通ハーネス構成が暗黙であり、媒体別の承認境界・route policy・失敗影響が単一ハーネス内で混線し得る。POは各媒体を1つずつの独立ハーネスとして分離構成したい。",
+        "value_hypothesis": "媒体単位でハーネスを分離すれば、媒体別のPO承認・write境界・障害影響・route policyを媒体ごとに独立に凍結・運用でき、単一媒体の失敗や仕様変更が他媒体のハーネスへ波及しない。",
+        "unresolved_questions": [
+          "対象媒体の閉じた一覧（WordPress／Discord community以外に何を含めるか）はどれか",
+          "媒体横断で共有する共通基盤（credential store・evidence・kernel）の範囲と、ハーネス分離の境界線はどこか",
+          "既存の共通ハーネス前提の要求候補（route policy・content gate等）を媒体別refinementへどう再割当するか"
+        ],
+        "semantic_dimensions": {
+          "business_actors": [
+            "PO",
+            "媒体運用者",
+            "製品runtime"
+          ],
+          "beneficiaries": [
+            "媒体別に承認・障害影響を分離して監督したいPO",
+            "媒体運用者"
+          ],
+          "workflow": [
+            "candidate→媒体一覧のPO確定→媒体別refinement降下→媒体別PO凍結→媒体別release受入"
+          ],
+          "scope_in": [
+            "媒体単位のハーネス分離構成",
+            "媒体別の承認境界・write境界・route policy束縛",
+            "媒体別の障害影響分離"
+          ],
+          "scope_out": [
+            "対象媒体一覧の確定（PO判断）",
+            "共通基盤の実装方式選択（design-later）",
+            "PO approval又は要求freeze"
+          ],
+          "constraints": [
+            "1媒体=1ハーネスとして構成・承認・運用の単位を一致させる",
+            "媒体別ハーネスも既存のfail-close・PO凍結・全媒体write無効の現行候補規律に従う"
+          ],
+          "prohibitions": [
+            "複数媒体の承認・write境界を単一ハーネスへ暗黙に混載すること",
+            "媒体別分離を理由に承認境界・禁止事項を弱めること"
+          ],
+          "human_judgement": [
+            "対象媒体一覧・分離境界・共有基盤範囲・採否・freezeはPO"
+          ],
+          "external_side_effects": [
+            "要求候補とrefinementの構成だけ。製品runtime・媒体への外部writeを変更しない"
+          ],
+          "completion_evidence": [
+            "媒体一覧のPO確定record",
+            "媒体別refinement subjectの降下",
+            "媒体別承認境界のtyped contract"
+          ],
+          "target_phase": "requirements",
+          "unknown_dimensions": [
+            {
+              "dimension": "scope_in",
+              "question": "対象媒体の閉じた一覧（WordPress／Discord community以外に何を含めるか）はどれか"
+            },
+            {
+              "dimension": "constraints",
+              "question": "媒体横断で共有する共通基盤（credential store・evidence・kernel）の範囲と、ハーネス分離の境界線はどこか"
+            },
+            {
+              "dimension": "workflow",
+              "question": "既存の共通ハーネス前提の要求候補（route policy・content gate等）を媒体別refinementへどう再割当するか"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "event_id": "RDE-000185",
+      "sequence": 185,
+      "subject_id": "MEDIA-PER-MEDIUM-HARNESS",
+      "event_type": "question_raised",
+      "occurred_at": "2026-08-20T00:01:00Z",
+      "recorded_at": "2026-08-20T00:01:00Z",
+      "actor_principal": "po",
+      "references": [
+        {
+          "kind": "event",
+          "id": "RDE-000184"
+        }
+      ],
+      "payload": {
+        "question": "対象媒体の閉じた一覧（WordPress／Discord community以外に何を含めるか）はどれか",
+        "dimension": "scope_in"
+      }
+    },
+    {
+      "event_id": "RDE-000186",
+      "sequence": 186,
+      "subject_id": "MEDIA-PER-MEDIUM-HARNESS",
+      "event_type": "question_raised",
+      "occurred_at": "2026-08-20T00:01:00Z",
+      "recorded_at": "2026-08-20T00:01:00Z",
+      "actor_principal": "po",
+      "references": [
+        {
+          "kind": "event",
+          "id": "RDE-000184"
+        }
+      ],
+      "payload": {
+        "question": "媒体横断で共有する共通基盤（credential store・evidence・kernel）の範囲と、ハーネス分離の境界線はどこか",
+        "dimension": "constraints"
+      }
+    },
+    {
+      "event_id": "RDE-000187",
+      "sequence": 187,
+      "subject_id": "MEDIA-PER-MEDIUM-HARNESS",
+      "event_type": "question_raised",
+      "occurred_at": "2026-08-20T00:01:00Z",
+      "recorded_at": "2026-08-20T00:01:00Z",
+      "actor_principal": "po",
+      "references": [
+        {
+          "kind": "event",
+          "id": "RDE-000184"
+        }
+      ],
+      "payload": {
+        "question": "既存の共通ハーネス前提の要求候補（route policy・content gate等）を媒体別refinementへどう再割当するか",
+        "dimension": "workflow"
       }
     }
   ]

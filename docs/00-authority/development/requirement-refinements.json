@@ -37,7 +37,10 @@
     "RDQ-WORDPRESS-PLATFORM-MAINTENANCE-RELEASE-01": "safety_policy",
     "RDQ-WORDPRESS-SECURITY-MAINTENANCE-RELEASE-01": "safety_policy",
     "RDQ-AGENT-NEO-SITE-BUILD-RELEASE-01": "release_scope",
-    "RDQ-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE-01": "release_scope"
+    "RDQ-AGENT-NEO-PRODUCT-EVOLUTION-RELEASE-01": "release_scope",
+    "RDQ-MEDIA-PER-MEDIUM-HARNESS-01": "release_scope",
+    "RDQ-MEDIA-PER-MEDIUM-HARNESS-02": "requirements_policy",
+    "RDQ-MEDIA-PER-MEDIUM-HARNESS-03": "requirements_policy"
   },
   "decision_class_contracts": {
     "requirements_policy": [
@@ -2789,7 +2792,7 @@
       "PRC-32": "sha256:4af20c99cc7e27b15ad829587a62304e24f968dfd2a34417b43a193622559d52",
       "PRC-33": "sha256:1a90db1b890d973de7eb96e4cacc938cbed9101b4a63ea7cf0198b6290c43d45",
       "PRC-34": "sha256:4186303bb04389087b5cf5fc890943400da10c58a2c6e38676907f913c6c425c",
-      "PRC-35": "sha256:c1ee701b02c5ad5e73e31159d038aea4fbb869100e79c54c36426e4692a5a11a"
+      "PRC-35": "sha256:d23851c383688a9c7e6505d3449d59f68b53595a9a3492b5a82ba1dc27cc6cfa"
     },
     "captured_po_projection_digest": "sha256:73403e2de0bccaa442f54c5d5ac5061217fbf4fa820f4b1d71f9b802cf7a67b0",
     "classification_state": {
@@ -2807,7 +2810,7 @@
     "sr_ids_digest": "sha256:9ccea582a8582103d372b21d632b7ee947560baba9b14ceecc8a2ecfbcdb2960",
     "source_sr_snapshot_digest": "sha256:7adb512cb5eaf1782130b930c8f4d246e2e855d8138809c5523223e5846d183c",
     "parent_meaning_inventory_digest": "sha256:46679541e0389a4bf712e26fb3566004efbf2748de0a2db28b0fd705d75c6e77",
-    "l0_north_star_policy_digest": "sha256:552960bb0d406c999951ea35ce05dce45b7266a9989280dde17bfdad18007a8a",
+    "l0_north_star_policy_digest": "sha256:1614e8b4124f756fa90ab519b2f46490b3059c14e756afb7ce8461ab08ba170a",
     "test_authority_policy_digest": "sha256:21280f862ffe96dd1957f1049eb803553b7fec2c75c47e325a7a4513ada188a8",
     "meaning_axis_bindings": {
       "content_risk_quality": {
@@ -2878,7 +2881,7 @@
     "capability_count": 19,
     "capability_inventory_digest": "sha256:e11f5466ac391ed7ad9db06e5b3dc7f76c91aa33bd3879d9e035ff11cb72969c",
     "capability_classification_candidates_digest": "sha256:a872310c47cd2f53957782bfebaf5321c6645aec5a0dd1fce1c8843f3b9e46fa",
-    "authority_semantic_digest": "sha256:95448a50bffa47c9cc758971ced66913dc46ad23e32769b5a39be9349e932416",
+    "authority_semantic_digest": "sha256:da9f1747711495ea344f6975e250c94582db62d785c958b10ae69305fd7c6aae",
     "capability_classification_candidates": {
       "defaults": {
         "repo_authority": "helix_read_only",
@@ -3336,7 +3339,7 @@
     },
     "parent_policy_digests": {
       "business_profile_authorization_policy": "sha256:ce2f8cb794fe721083dca50353bd8eda587cb5568a203ff9f46bfbaadb38d8c5",
-      "l0_north_star_authority_normalization_policy": "sha256:552960bb0d406c999951ea35ce05dce45b7266a9989280dde17bfdad18007a8a",
+      "l0_north_star_authority_normalization_policy": "sha256:1614e8b4124f756fa90ab519b2f46490b3059c14e756afb7ce8461ab08ba170a",
       "nfr_business_authority_policy": "sha256:313bd27104049e53f72062850884d6f78f98817f34f1c8113644e575a98823d8",
       "req_authority_normalization_policy": "sha256:6915f7153e54cc3cef1493b3392d9db056a3c42ae5b8b5a2b521e677a28186c7",
       "wordpress_content_operations_policy": "sha256:d3f0c8185ef4eda24b5c4c7a34e6f5d874ffcb9d2e1830cee87f1aac6226ad0b",
@@ -3378,14 +3381,14 @@
   },
   "agent_neo_site_build_release_policy": {
     "status": "candidate_unratified",
-    "authority_semantic_digest": "sha256:beb7470dc85d6d0dca45388264c1218ea1b2264096d5bd7116555371edf1090d",
+    "authority_semantic_digest": "sha256:7e41eed93526bb0a7c8270b417eb1bf03d0b971b0bfaa1b5103203059d35a520",
     "source_event_digests": {
       "RDE-000120": "sha256:f3dc247dbdc72b118d0e4613dd9284154adb96c2cb1e79f7d12bc0014cc2ac89",
       "RDE-000121": "sha256:517928914ea491c44d827556219de8d9dd3ce1515918c5ab466a8736be5eb759"
     },
     "refinement_record_digest": "sha256:7ad5e99d1500247e124d73ccb1f4f9c4b4b8e3395088d3cb44e9e404402df587",
     "parent_policy_digests": {
-      "agent_neo_helix_redefinition_policy": "sha256:cd9a7476f52ee0df59b278c2c336e3972354e166b51d55cf9893ffa55c66a652",
+      "agent_neo_helix_redefinition_policy": "sha256:3fdeb7f50062c486c9c4cd2c6eece2743a711775d19c9f4f3334066daf87785f",
       "business_profile_authorization_policy": "sha256:ce2f8cb794fe721083dca50353bd8eda587cb5568a203ff9f46bfbaadb38d8c5",
       "product_state_authority_policy": "sha256:5a910a420c36cdb9ecf285eff9e31b4a1f20cf1b75684239d5cefc6cd1620156",
       "wordpress_content_operations_policy": "sha256:d3f0c8185ef4eda24b5c4c7a34e6f5d874ffcb9d2e1830cee87f1aac6226ad0b",
@@ -3606,15 +3609,15 @@
   },
   "agent_neo_product_evolution_release_policy": {
     "status": "candidate_unratified",
-    "authority_semantic_digest": "sha256:c6d72f00fff3cb8447b6af1fa6dfaad52d7e1cb668ac8c599ffccd034798b05d",
+    "authority_semantic_digest": "sha256:48d8e907049683d9d0efbb124dc021f4a615b8cdb54594b07353eca4b5ca8cb3",
     "source_event_digests": {
       "RDE-000122": "sha256:4685e1e6996cb31cbae5df6cf21fea3d5088ecb06b1ae74d54ef4b37e0a701ba",
       "RDE-000123": "sha256:bda415b03e901ed48a40d9ad36273e748276ef54684cf2c12dc9f7f29cc794c2"
     },
     "refinement_record_digest": "sha256:e8d7176e1747f6b9620ad7055aa41aae19ab97ce7e328bd09b74201de83759b6",
     "parent_policy_digests": {
-      "agent_neo_helix_redefinition_policy": "sha256:cd9a7476f52ee0df59b278c2c336e3972354e166b51d55cf9893ffa55c66a652",
-      "agent_neo_site_build_release_policy": "sha256:931255a994f089ae4e21d8bdc536b7ba79040e8c8538b5ebccc5ab6e1d147b9c",
+      "agent_neo_helix_redefinition_policy": "sha256:3fdeb7f50062c486c9c4cd2c6eece2743a711775d19c9f4f3334066daf87785f",
+      "agent_neo_site_build_release_policy": "sha256:774cd2881239e0a8b753ddfca9e824abadb6b0f219245c169c69ea3d45d05330",
       "business_profile_authorization_policy": "sha256:ce2f8cb794fe721083dca50353bd8eda587cb5568a203ff9f46bfbaadb38d8c5",
       "product_state_authority_policy": "sha256:5a910a420c36cdb9ecf285eff9e31b4a1f20cf1b75684239d5cefc6cd1620156",
       "wordpress_content_operations_policy": "sha256:d3f0c8185ef4eda24b5c4c7a34e6f5d874ffcb9d2e1830cee87f1aac6226ad0b",
@@ -47708,7 +47711,8 @@
     "CONTENT-QUALITY-GATE-LEARNING": "initial_candidate",
     "CONTENT-RISK-CLASSIFICATION": "initial_candidate",
     "RESEARCH-LED-CONTENT-GROWTH": "initial_candidate",
-    "REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2": "requirements_governance"
+    "REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2": "requirements_governance",
+    "MEDIA-PER-MEDIUM-HARNESS": "requirements_governance"
   },
   "candidate_requirement_bindings": {
     "PRC-01": [
@@ -47841,6 +47845,9 @@
     ],
     "PRC-35": [
       "RESEARCH-LED-CONTENT-GROWTH"
+    ],
+    "PRC-36": [
+      "MEDIA-PER-MEDIUM-HARNESS"
     ]
   },
   "decision_packets": [
@@ -47917,6 +47924,15 @@
         "LEGACY-MEDIA-ADMISSION-INVENTORY"
       ],
       "decision_question": "初期scope外の生成AIと旧媒体capabilityをdeferredのまま維持するか個別に再開するか",
+      "bulk_decision_forbidden": true
+    },
+    {
+      "packet_id": "RDP-MEDIA-PER-MEDIUM-HARNESS",
+      "decision_order": 6,
+      "subject_ids": [
+        "MEDIA-PER-MEDIUM-HARNESS"
+      ],
+      "decision_question": "各媒体を1つずつの独立ハーネスとして分離構成するか、対象媒体一覧・共通基盤範囲・分離境界をどう確定するか",
       "bulk_decision_forbidden": true
     }
   ],
@@ -51900,6 +51916,93 @@
       "pending_resolution": [],
       "approval": null,
       "semantic_digest": "sha256:ea8db288dc6dd44db103766832cb6d8f73862e5de15c21c18fa0b43087e50b9e"
+    },
+    {
+      "refinement_id": "RRF-MEDIA-PER-MEDIUM-HARNESS",
+      "subject_id": "MEDIA-PER-MEDIUM-HARNESS",
+      "revision": 1,
+      "lifecycle_status": "draft",
+      "source_event_ids": [
+        "RDE-000184",
+        "RDE-000185",
+        "RDE-000186",
+        "RDE-000187"
+      ],
+      "source_set_digest": "sha256:de6f54973c3a6c2cd197e65f88d7a68e1c410ce6a9164b5e1a39e3fa46427903",
+      "semantic_dimensions": {
+        "actors": [
+          "PO",
+          "媒体運用者",
+          "製品runtime"
+        ],
+        "beneficiaries": [
+          "媒体別に承認・障害影響を分離して監督したいPO",
+          "媒体運用者"
+        ],
+        "value": "媒体ごとに1つの独立ハーネスへ分離し、承認境界・write境界・障害影響・route policyを媒体単位で独立に凍結・運用できる",
+        "tasks": [
+          "対象媒体一覧を確定する",
+          "媒体別ハーネスの承認境界・write境界を定義する",
+          "共通基盤とハーネス分離の境界線を確定する",
+          "既存の共通ハーネス前提候補を媒体別refinementへ再割当する"
+        ],
+        "workflow": [
+          "candidate→媒体一覧のPO確定→媒体別refinement降下→媒体別PO凍結→媒体別release受入"
+        ],
+        "scope_in": [
+          "媒体単位のハーネス分離構成",
+          "媒体別の承認境界・write境界・route policy束縛",
+          "媒体別の障害影響分離"
+        ],
+        "scope_out": [
+          "対象媒体一覧の確定（PO判断）",
+          "共通基盤の実装方式選択（design-later）",
+          "PO approval又は要求freeze"
+        ],
+        "prohibitions": [
+          "複数媒体の承認・write境界を単一ハーネスへ暗黙に混載しない",
+          "媒体別分離を理由に承認境界・禁止事項・fail-close規律を弱めない"
+        ],
+        "human_judgement": [
+          "対象媒体一覧・分離境界・共有基盤範囲・採否・freezeはPOが判断する"
+        ],
+        "side_effects": [
+          "要求候補とrefinement構成だけ。製品runtime・媒体への外部writeを変更しない"
+        ],
+        "evidence": [
+          "媒体一覧のPO確定record",
+          "媒体別refinement subjectの降下",
+          "媒体別承認境界のtyped contract"
+        ],
+        "phase": "requirements"
+      },
+      "acceptance_cases": [
+        {
+          "acceptance_id": "RAC-MEDIA-PER-HARNESS-P",
+          "polarity": "positive",
+          "statement": "PO確定済み媒体一覧の各媒体が、承認境界・write境界・route policyを自媒体refinementだけへ束縛した独立ハーネスを1つ持つ",
+          "system_test_id": "RST-MEDIA-PER-HARNESS-P"
+        },
+        {
+          "acceptance_id": "RAC-MEDIA-PER-HARNESS-N",
+          "polarity": "negative",
+          "statement": "複数媒体の承認境界・write境界を単一ハーネスへ混載した構成、及び媒体一覧未確定のままのハーネス凍結を拒否する",
+          "system_test_id": "RST-MEDIA-PER-HARNESS-N"
+        },
+        {
+          "acceptance_id": "RAC-MEDIA-PER-HARNESS-B",
+          "polarity": "boundary",
+          "statement": "単一媒体ハーネスの失敗・停止時も他媒体ハーネスの承認・運用状態を変更せずfail-closeで維持する",
+          "system_test_id": "RST-MEDIA-PER-HARNESS-B"
+        }
+      ],
+      "pending_resolution": [
+        "対象媒体の閉じた一覧（WordPress／Discord community以外に何を含めるか）はどれか",
+        "媒体横断で共有する共通基盤（credential store・evidence・kernel）の範囲と、ハーネス分離の境界線はどこか",
+        "既存の共通ハーネス前提の要求候補（route policy・content gate等）を媒体別refinementへどう再割当するか"
+      ],
+      "approval": null,
+      "semantic_digest": "sha256:2cd7762deb17c10787faab5471557d4cfd92c000cb0de3eb3c403f7571d892e0"
     }
   ],
   "automated_publishing_admission_policy": {
@@ -52728,7 +52831,7 @@
     "parent_semantic_digests": {
       "content_quality": "sha256:78daf3fdbef76f86af634a08ead1d4b2878d90819205c72f4380dfd6976fd35e",
       "content_risk": "sha256:f8496c6e29c2410025ba1bcc0c69c0572e1f35c388dda6bd71a23759f1197886",
-      "strategy_admission": "sha256:85f4fbcba520d40d8b68dafb7625c1accc92ea210e87d7544fc89c8899877048",
+      "strategy_admission": "sha256:4a1084cb7cf02e61ec4c3bdd96d0ed6088373eb9badbfd1d3554ed50e85c400a",
       "strategy_authority_record": "sha256:a97d1da9a12ed807d36f0391b0f873d50d47f3942997c27c4767db1c1a4662fb"
     },
     "cycle_field_universe": [
@@ -53004,7 +53107,7 @@
       "direct_strategy_mutation",
       "legacy_browser_provider_or_phase_success"
     ],
-    "authority_semantic_digest": "sha256:f3eeb6b163aa4ff4f10b6aa643d60c28d2400201fbf91a4504325afb796d34cc"
+    "authority_semantic_digest": "sha256:06647d4ac1783321f868af7c47c08bf4e269697c356c0a641992aa499bf9ac77"
   },
   "discord_community_marketing_route_policy": {
     "status": "candidate_unratified",
@@ -53038,7 +53141,7 @@
     },
     "parent_semantic_digests": {
       "notification_rejection": "sha256:99b2ae486e93f7bf7c2d9ab52e99f21b83bcc9f4c5aa3536fe24369b72f9939f",
-      "research_growth": "sha256:d053f1bccbfb04e0295ec9f4301de645ee31527e0819eea4010946e2d262587e",
+      "research_growth": "sha256:73ff7ea44d54b6ec071c3b694253fa3401b47c8eb27713ae1ef89bf684347b86",
       "content_quality": "sha256:78daf3fdbef76f86af634a08ead1d4b2878d90819205c72f4380dfd6976fd35e",
       "content_risk": "sha256:f8496c6e29c2410025ba1bcc0c69c0572e1f35c388dda6bd71a23759f1197886",
       "official_route": "sha256:76163adfc8cad415312216a473f5b8186bf568a880571b706b650941e6c3c6f9",
@@ -53316,7 +53419,7 @@
       "post_success_as_growth_or_authority",
       "legacy_browser_provider_or_phase_success"
     ],
-    "authority_semantic_digest": "sha256:d7f72da1832591da03017584778c64372ef051946526ec009e7330a911d28658"
+    "authority_semantic_digest": "sha256:b960f90cc6927bd7c6b52b328cac62d81a43c69ca2f26d2714407b8c3a22110e"
   },
   "vps_credential_security_boundary_policy": {
     "status": "candidate_unratified",
@@ -54713,7 +54816,7 @@
           {
             "role": "historical_replacement",
             "authority_id": "discord_community_marketing_route_policy",
-            "authority_digest": "sha256:a7e7f690c3b66514ab89626115085b7281a61bdc1fe6a266e6784e6ce898fa9c",
+            "authority_digest": "sha256:5d8d6bab059e9fcd9e2d1fcbb87fbc8f691255e24ff68faba38ac9d1e8950739",
             "gate_id": "G-REQ-DISCORD-COMMUNITY-MARKETING-ROUTE-POLICY",
             "fault_binding": "discord_community_marketing_route_policy_faults"
           }
@@ -54992,7 +55095,7 @@
           {
             "role": "primary_policy",
             "authority_id": "discord_community_marketing_route_policy",
-            "authority_digest": "sha256:a7e7f690c3b66514ab89626115085b7281a61bdc1fe6a266e6784e6ce898fa9c",
+            "authority_digest": "sha256:5d8d6bab059e9fcd9e2d1fcbb87fbc8f691255e24ff68faba38ac9d1e8950739",
             "gate_id": "G-REQ-DISCORD-COMMUNITY-MARKETING-ROUTE-POLICY",
             "fault_binding": "discord_community_marketing_route_policy_faults"
           }
@@ -55056,7 +55159,7 @@
           {
             "role": "primary_policy",
             "authority_id": "research_led_content_growth_policy",
-            "authority_digest": "sha256:d053f1bccbfb04e0295ec9f4301de645ee31527e0819eea4010946e2d262587e",
+            "authority_digest": "sha256:73ff7ea44d54b6ec071c3b694253fa3401b47c8eb27713ae1ef89bf684347b86",
             "gate_id": "G-REQ-RESEARCH-LED-CONTENT-GROWTH-POLICY",
             "fault_binding": "research_led_content_growth_policy_faults"
           }
@@ -55064,7 +55167,7 @@
         "implementation_authority": "not_granted"
       }
     ],
-    "coverage_rows_digest": "sha256:c7a1e345be10c5d2c7024ea2cec88328658a383ff58795e5222e79707a6af5f2",
+    "coverage_rows_digest": "sha256:69983f53ccc259fc8313076f90cf41d7545191fa2fb05a7ed7c765f79c43d2fe",
     "authority_validation_bindings": {
       "vps_ui_primary_interface_policy": {
         "gate_id": "G-REQ-VPS-UI-PRIMARY-INTERFACE-POLICY",
@@ -55164,14 +55267,14 @@
       "candidate_as_ratified": "prohibited",
       "registration_or_design_values_as_requirement_authority": "prohibited"
     },
-    "audit_digest": "sha256:c66f5e484df703416c2d08509ff6f01f821eb9bdf1bdf93bb68d10a384a1e656"
+    "audit_digest": "sha256:2c86ae30471650d409bb8c35fd1707bdb411479eb97c5712c1ff6627c808864c"
   },
   "ratification_dependency_audit": {
     "status": "candidate_unratified",
     "approval": null,
     "implementation_authorized": false,
     "external_write_authorized": false,
-    "coverage_audit_digest": "sha256:c66f5e484df703416c2d08509ff6f01f821eb9bdf1bdf93bb68d10a384a1e656",
+    "coverage_audit_digest": "sha256:2c86ae30471650d409bb8c35fd1707bdb411479eb97c5712c1ff6627c808864c",
     "stage_order": [
       "semantic_governance",
       "core_authority",
@@ -55358,7 +55461,7 @@
           "semantic_coverage_policy",
           "contract_semantic_descent_policy"
         ],
-        "semantic_digest": "sha256:85f4fbcba520d40d8b68dafb7625c1accc92ea210e87d7544fc89c8899877048",
+        "semantic_digest": "sha256:4a1084cb7cf02e61ec4c3bdd96d0ed6088373eb9badbfd1d3554ed50e85c400a",
         "ratification_state": "candidate_unratified",
         "ratification_readiness": "blocked_on_true_po_refinement",
         "downstream_admission": "blocked",
@@ -55611,7 +55714,7 @@
           "vps_ui_quality_attributes_policy",
           "strategy_requirement_admission_policy"
         ],
-        "semantic_digest": "sha256:d053f1bccbfb04e0295ec9f4301de645ee31527e0819eea4010946e2d262587e",
+        "semantic_digest": "sha256:73ff7ea44d54b6ec071c3b694253fa3401b47c8eb27713ae1ef89bf684347b86",
         "ratification_state": "candidate_unratified",
         "ratification_readiness": "blocked_on_foundation_prerequisites",
         "downstream_admission": "blocked_until_all_scc_members_and_foundations_ratified",
@@ -55634,7 +55737,7 @@
           "vps_ui_quality_attributes_policy",
           "strategy_requirement_admission_policy"
         ],
-        "semantic_digest": "sha256:a7e7f690c3b66514ab89626115085b7281a61bdc1fe6a266e6784e6ce898fa9c",
+        "semantic_digest": "sha256:5d8d6bab059e9fcd9e2d1fcbb87fbc8f691255e24ff68faba38ac9d1e8950739",
         "ratification_state": "candidate_unratified",
         "ratification_readiness": "blocked_on_foundation_prerequisites",
         "downstream_admission": "blocked_until_all_scc_members_and_foundations_ratified",
@@ -55697,7 +55800,7 @@
         "external_write_authority": "not_granted"
       }
     ],
-    "authority_rows_digest": "sha256:3299c0d6fc58f022e88a8cd2d0dd8217f7261b412fff9b83b7a3464aa7ce373a",
+    "authority_rows_digest": "sha256:1ef97724585ffd141cf374bf28ba3f703a8cbde3aa217e62f58f66105f257097",
     "readiness_bindings": {
       "vps_ui_quality_attributes_policy": {
         "record_subject_id": "VPS-UI-QUALITY-ATTRIBUTES",
@@ -55711,7 +55814,7 @@
         "pending_resolution_digest": "sha256:ae644e53aa480873fcb967e1ec934a1f32fdcc0565eed9e5ff5d7a436cc1f01a",
         "resume_condition": "sr_descent_and_unique_test_authority_po_resolved",
         "parent_closure_digests": {
-          "l0": "sha256:552960bb0d406c999951ea35ce05dce45b7266a9989280dde17bfdad18007a8a",
+          "l0": "sha256:1614e8b4124f756fa90ab519b2f46490b3059c14e756afb7ce8461ab08ba170a",
           "test_id": "sha256:21280f862ffe96dd1957f1049eb803553b7fec2c75c47e325a7a4513ada188a8",
           "strategy_meaning_inventory": "sha256:38c79fb26a399d9fa26328ff1c6937b5d61cc83c42961cada792f18d3a74c19b"
         }
@@ -55768,6 +55871,6 @@
       "registration_instance_values_in_packet": "prohibited",
       "design_artifacts_in_packet": "prohibited"
     },
-    "audit_digest": "sha256:98def7cbf2a96d2533dcaa6122cdb65708baa9b47472e4bdf6524de8310e946a"
+    "audit_digest": "sha256:4b49fd5a04dec988bf6d69a5404c77505f18995f1443904a0ba7eb2b3d5b49ae"
   }
 }

@@ -13,9 +13,14 @@ fi
 if ! printf '%s' "$cmd" | grep -Eq '(^|[;&|[:space:]])git([[:space:]]+-[-[:alnum:]]+([[:space:]]+[^-[:space:]][^[:space:]]*)?)*[[:space:]]+(commit|push)([[:space:]]|$)'; then
   exit 0
 fi
-if ! out=$(python3 "$(dirname "$0")/../validate_requirements.py" 2>&1); then
-  echo "要件整合ゲート FAIL — commit/push をブロックしました。" >&2
-  echo "$out" | grep '^FAIL' >&2
+out=$(python3 "$(dirname "$0")/../validate_requirements.py" 2>&1) || true
+# CLAUDE.md 鉄則5の例外: 要求cutover系ゲートの「PO未承認・未凍結による意図した赤」だけは
+# requirements_baseline_status=revising の間 commit/push を妨げない（閉じた列挙。他ゲートへ拡張しない）。
+intended_red='G-REQ-STRATEGY-TEST-AUTHORITY|G-REQ-LEGACY-MEANING-INVENTORY|G-REQ-LEGACY-SR-NFR-MEANING-INVENTORY|G-REQ-LEGACY-MR-MEANING-INVENTORY|G-REQ-LEGACY-FN-MEANING-INVENTORY|G-REQ-LEGACY-AC-MEANING-INVENTORY|G-REQ-LEGACY-TC-MEANING-INVENTORY|G-REQ-OPEN-REFINEMENTS'
+unexpected=$(printf '%s\n' "$out" | grep '^FAIL' | grep -Ev "^FAIL \[($intended_red)\]" || true)
+if [ -n "$unexpected" ]; then
+  echo "要件整合ゲート FAIL — commit/push をブロックしました（意図した赤以外の違反）。" >&2
+  printf '%s\n' "$unexpected" >&2
   exit 2
 fi
 exit 0

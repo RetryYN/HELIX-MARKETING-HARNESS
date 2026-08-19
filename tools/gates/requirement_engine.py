@@ -5003,7 +5003,7 @@ def ratification_dependency_audit_faults(refinements: dict[str, Any]) -> list[st
         faults.append("provider-neutral foundation prerequisiteが健全でない")
     if refinements.get("vps_ui_quality_attributes_policy") != _expected_vps_ui_quality_attributes_policy():
         faults.append("VPS UI quality foundation prerequisiteがcode正本と不一致")
-    if _digest(refinements.get("strategy_requirement_admission_policy")) != "sha256:85f4fbcba520d40d8b68dafb7625c1accc92ea210e87d7544fc89c8899877048":
+    if _digest(refinements.get("strategy_requirement_admission_policy")) != "sha256:4a1084cb7cf02e61ec4c3bdd96d0ed6088373eb9badbfd1d3554ed50e85c400a":
         faults.append("strategy admission foundation prerequisiteがcode正本digestと不一致")
     quality_record = records.get("VPS-UI-QUALITY-ATTRIBUTES", {})
     strategy_record = records.get("STRATEGY-REQUIREMENT-ADMISSION", {})
@@ -11261,7 +11261,10 @@ def active_approval_requests(data: dict[str, Any]) -> list[str]:
 
 def refinement_faults(data: dict[str, Any], discovery: dict[str, Any]) -> list[str]:
     """refinement recordの意味閉包・digest・承認束縛を検査する。"""
-    faults: list[str] = []
+    faults: list[str] = [
+        f"refinement schema: {fault}"
+        for fault in schema_check(load(REFINEMENT_SCHEMA), data)
+    ]
     if data.get("schema_version") != "marketing-harness-requirements-refinement.v1":
         faults.append("refinement schema_version が不正")
     if data.get("authority") != "canonical":
@@ -12029,7 +12032,7 @@ def legacy_fault_stage_audit_faults(
                 faults.append(f"{gate_id}: known quarantined fault集合が増減又は意味反転")
         if _digest(source_digests) != "sha256:ed8691d9069dca0e391996994c834f36f49beef33cf8dc9aad7440623d7ecbb9":
             faults.append("legacy contract source artifact集合digestがstale")
-        if _digest(expanded_source_digests) != "sha256:73185559f485fb2cb2f485f99a2d1930f5f1bc7f90ff2af5fb0184930a6acd53":
+        if _digest(expanded_source_digests) != "sha256:d8f8e9d7c23e036272bdf8528314f9c1c767a58dd3debc00b7d7021eda16e17a":
             faults.append("legacy ADR/L2/refinement raw source snapshot digestがstale")
     elif cutover_complete and any(raw_faults.values()):
         faults.append("approved cutoverでは旧raw faultをquarantineせずzero closureが必要")

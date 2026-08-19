@@ -593,6 +593,39 @@
     "system_contract_id": "MHH-SC-LEGACY-MEDIA-ADMISSION-INVENTORY",
     "system_test_id": "MHH-ST-LEGACY-MEDIA-ADMISSION-INVENTORY"
   },
+  "MHH-AC-MEDIA-PER-MEDIUM-HARNESS-B": {
+    "acceptance_id": "MHH-AC-MEDIA-PER-MEDIUM-HARNESS-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:be7df0b477a90783e7a3b49bd14d120b333f646addb697eb3f73096aecc51660",
+    "statement": "単一媒体ハーネスの失敗・停止時も他媒体ハーネスの承認・運用状態を変更せずfail-closeで維持する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-PER-MEDIUM-HARNESS",
+    "system_test_id": "MHH-ST-MEDIA-PER-MEDIUM-HARNESS"
+  },
+  "MHH-AC-MEDIA-PER-MEDIUM-HARNESS-N": {
+    "acceptance_id": "MHH-AC-MEDIA-PER-MEDIUM-HARNESS-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:44f70c9e105851e4e3ae7b1bdaa36ceaf09372ef8ef48a21ae2477ddd975fff0",
+    "statement": "複数媒体の承認境界・write境界を単一ハーネスへ混載した構成、及び媒体一覧未確定のままのハーネス凍結を拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-PER-MEDIUM-HARNESS",
+    "system_test_id": "MHH-ST-MEDIA-PER-MEDIUM-HARNESS"
+  },
+  "MHH-AC-MEDIA-PER-MEDIUM-HARNESS-P": {
+    "acceptance_id": "MHH-AC-MEDIA-PER-MEDIUM-HARNESS-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:b59e2e0d458e19347ebf7ab0edb6c9d93c62cf249646e3f444cfcb7a470a77cb",
+    "statement": "PO確定済み媒体一覧の各媒体が、承認境界・write境界・route policyを自媒体refinementだけへ束縛した独立ハーネスを1つ持つ",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-PER-MEDIUM-HARNESS",
+    "system_test_id": "MHH-ST-MEDIA-PER-MEDIUM-HARNESS"
+  },
   "MHH-AC-MEDIA-POC-SCRUM-RELEASE-B": {
     "acceptance_id": "MHH-AC-MEDIA-POC-SCRUM-RELEASE-B",
     "polarity": "boundary",

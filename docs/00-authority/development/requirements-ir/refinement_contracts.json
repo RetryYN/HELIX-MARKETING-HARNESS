@@ -1151,6 +1151,70 @@
     },
     "supporting_requirements": []
   },
+  "RRF-MEDIA-PER-MEDIUM-HARNESS": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-MEDIA-PER-MEDIUM-HARNESS-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-MEDIA-PER-MEDIUM-HARNESS"
+        ],
+        "semantic_digest": "sha256:b59e2e0d458e19347ebf7ab0edb6c9d93c62cf249646e3f444cfcb7a470a77cb",
+        "source_projection": "local_refinement_registry",
+        "statement": "PO確定済み媒体一覧の各媒体が、承認境界・write境界・route policyを自媒体refinementだけへ束縛した独立ハーネスを1つ持つ"
+      },
+      {
+        "acceptance_id": "MHH-AC-MEDIA-PER-MEDIUM-HARNESS-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-MEDIA-PER-MEDIUM-HARNESS"
+        ],
+        "semantic_digest": "sha256:44f70c9e105851e4e3ae7b1bdaa36ceaf09372ef8ef48a21ae2477ddd975fff0",
+        "source_projection": "local_refinement_registry",
+        "statement": "複数媒体の承認境界・write境界を単一ハーネスへ混載した構成、及び媒体一覧未確定のままのハーネス凍結を拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-MEDIA-PER-MEDIUM-HARNESS-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-MEDIA-PER-MEDIUM-HARNESS"
+        ],
+        "semantic_digest": "sha256:be7df0b477a90783e7a3b49bd14d120b333f646addb697eb3f73096aecc51660",
+        "source_projection": "local_refinement_registry",
+        "statement": "単一媒体ハーネスの失敗・停止時も他媒体ハーネスの承認・運用状態を変更せずfail-closeで維持する"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-MEDIA-PER-MEDIUM-HARNESS-P",
+        "MHH-AC-MEDIA-PER-MEDIUM-HARNESS-N",
+        "MHH-AC-MEDIA-PER-MEDIUM-HARNESS-B"
+      ],
+      "requirement_id": "MHH-REQ-MEDIA-PER-MEDIUM-HARNESS",
+      "semantic_digest": "sha256:2cd7762deb17c10787faab5471557d4cfd92c000cb0de3eb3c403f7571d892e0",
+      "source_projection": "local_refinement_registry",
+      "statement": "actors: PO / 媒体運用者 / 製品runtime\nbeneficiaries: 媒体別に承認・障害影響を分離して監督したいPO / 媒体運用者\nvalue: 媒体ごとに1つの独立ハーネスへ分離し、承認境界・write境界・障害影響・route policyを媒体単位で独立に凍結・運用できる\ntasks: 対象媒体一覧を確定する / 媒体別ハーネスの承認境界・write境界を定義する / 共通基盤とハーネス分離の境界線を確定する / 既存の共通ハーネス前提候補を媒体別refinementへ再割当する\nworkflow: candidate→媒体一覧のPO確定→媒体別refinement降下→媒体別PO凍結→媒体別release受入\nscope_in: 媒体単位のハーネス分離構成 / 媒体別の承認境界・write境界・route policy束縛 / 媒体別の障害影響分離\nscope_out: 対象媒体一覧の確定（PO判断） / 共通基盤の実装方式選択（design-later） / PO approval又は要求freeze\nprohibitions: 複数媒体の承認・write境界を単一ハーネスへ暗黙に混載しない / 媒体別分離を理由に承認境界・禁止事項・fail-close規律を弱めない\nhuman_judgement: 対象媒体一覧・分離境界・共有基盤範囲・採否・freezeはPOが判断する\nside_effects: 要求候補とrefinement構成だけ。製品runtime・媒体への外部writeを変更しない\nevidence: 媒体一覧のPO確定record / 媒体別refinement subjectの降下 / 媒体別承認境界のtyped contract\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "draft",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-MEDIA-PER-MEDIUM-HARNESS",
+    "refinement_contract_id": "RRF-MEDIA-PER-MEDIUM-HARNESS",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "MEDIA-PER-MEDIUM-HARNESS",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:3c990c01cf03523419587649878a36ca99d2ae86741d136bc1dc355080dc86d6",
+    "source": {
+      "acceptance_digest": "sha256:e1fdc6cf627d1f8906e9c4081f27058577e61a6f80d19b81f26214ca9af83b40",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-MEDIA-PER-MEDIUM-HARNESS/acceptance_cases",
+      "requirement_digest": "sha256:2cd7762deb17c10787faab5471557d4cfd92c000cb0de3eb3c403f7571d892e0",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-MEDIA-PER-MEDIUM-HARNESS"
+    },
+    "supporting_requirements": []
+  },
   "RRF-MEDIA-POC-SCRUM-RELEASE": {
     "acceptance_cases": [
       {
