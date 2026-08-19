@@ -322,6 +322,23 @@
     "system_contract_id": "MHH-SC-MEDIA-HARNESS-DISCORD-COMMUNITY",
     "system_test_id": "MHH-ST-MEDIA-HARNESS-DISCORD-COMMUNITY"
   },
+  "MHH-ST-MEDIA-HARNESS-LINE": {
+    "acceptance_ids": [
+      "MHH-AC-MEDIA-HARNESS-LINE-P",
+      "MHH-AC-MEDIA-HARNESS-LINE-N",
+      "MHH-AC-MEDIA-HARNESS-LINE-B"
+    ],
+    "negative_boundary": "LINEの承認・write境界を他媒体ハーネスへ混載しない / 分離を理由に承認境界・禁止事項・fail-close規律を弱めない / PO指示なしに外部リポジトリを作成しない",
+    "required_evidence": "LINE別refinementのPO凍結receipt / LINE承認境界のtyped contract / 独立リポジトリ分離条件の記録",
+    "revision": 1,
+    "scenario": "requirements meaning review for MEDIA-HARNESS-LINE; no L2+ design or runtime execution",
+    "schema_version": "helix-system-test.v1",
+    "semantic_digest": "sha256:f3cb87e4ba361fc6001075d67e7748ab8c54e683c91f823fb196edcc867dc4a7",
+    "status": "designed_not_implemented",
+    "supporting_test_ids": [],
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-LINE",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-LINE"
+  },
   "MHH-ST-MEDIA-HARNESS-WORDPRESS": {
     "acceptance_ids": [
       "MHH-AC-MEDIA-HARNESS-WORDPRESS-P",

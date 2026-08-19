@@ -41,7 +41,8 @@
     "RDQ-MEDIA-HARNESS-WORDPRESS-01": "requirements_policy",
     "RDQ-MEDIA-PER-MEDIUM-HARNESS-01": "requirements_policy",
     "RDQ-MEDIA-PER-MEDIUM-HARNESS-02": "requirements_policy",
-    "RDQ-MEDIA-HARNESS-DISCORD-COMMUNITY-01": "requirements_policy"
+    "RDQ-MEDIA-HARNESS-DISCORD-COMMUNITY-01": "requirements_policy",
+    "RDQ-MEDIA-HARNESS-LINE-01": "requirements_policy"
   },
   "decision_class_contracts": {
     "requirements_policy": [
@@ -47715,7 +47716,8 @@
     "REQUIREMENT-SEMANTIC-COVERAGE-POLICY-V2": "requirements_governance",
     "MEDIA-PER-MEDIUM-HARNESS": "requirements_governance",
     "MEDIA-HARNESS-WORDPRESS": "follow_on_candidate",
-    "MEDIA-HARNESS-DISCORD-COMMUNITY": "follow_on_candidate"
+    "MEDIA-HARNESS-DISCORD-COMMUNITY": "follow_on_candidate",
+    "MEDIA-HARNESS-LINE": "deferred_candidate"
   },
   "candidate_requirement_bindings": {
     "PRC-01": [
@@ -47852,7 +47854,8 @@
     "PRC-36": [
       "MEDIA-PER-MEDIUM-HARNESS",
       "MEDIA-HARNESS-WORDPRESS",
-      "MEDIA-HARNESS-DISCORD-COMMUNITY"
+      "MEDIA-HARNESS-DISCORD-COMMUNITY",
+      "MEDIA-HARNESS-LINE"
     ]
   },
   "decision_packets": [
@@ -47956,6 +47959,15 @@
         "MEDIA-HARNESS-DISCORD-COMMUNITY"
       ],
       "decision_question": "Discord communityを独立ハーネス1つとして分離構成するか、その承認境界・共有基盤分離線・リポジトリ分離条件をどう確定するか",
+      "bulk_decision_forbidden": true
+    },
+    {
+      "packet_id": "RDP-MEDIA-HARNESS-LINE",
+      "decision_order": 9,
+      "subject_ids": [
+        "MEDIA-HARNESS-LINE"
+      ],
+      "decision_question": "LINEを独立ハーネス1つとして分離構成するか、その承認境界・共有基盤分離線・リポジトリ分離条件をどう確定するか",
       "bulk_decision_forbidden": true
     }
   ],
@@ -52198,6 +52210,90 @@
       ],
       "approval": null,
       "semantic_digest": "sha256:378dc3e00a9b55a482d4f97f08d9563e4ddcc5ad58329c799991e7ba3775dc62"
+    },
+    {
+      "refinement_id": "RRF-MEDIA-HARNESS-LINE",
+      "subject_id": "MEDIA-HARNESS-LINE",
+      "revision": 1,
+      "lifecycle_status": "draft",
+      "source_event_ids": [
+        "RDE-000193",
+        "RDE-000194"
+      ],
+      "source_set_digest": "sha256:47cd510f2c21adcfd12d9625235b0bb952d26a446ce919fe95060a74cd7c28f5",
+      "semantic_dimensions": {
+        "actors": [
+          "PO",
+          "LINE媒体運用者",
+          "製品runtime"
+        ],
+        "beneficiaries": [
+          "LINEを他媒体から分離して監督したいPO",
+          "LINE媒体運用者"
+        ],
+        "value": "LINEを1つの独立ハーネスとして分離し、承認境界・write境界・障害影響・route policyをLINE単位で独立に凍結・運用でき、将来の独立リポジトリ分離を自己完結に行える",
+        "tasks": [
+          "LINEハーネスの承認境界・write境界を定義する",
+          "LINEのroute policy・credential scope・証跡を自媒体refinementへ束縛する",
+          "共有基盤との分離線と独立リポジトリ分離条件を確定する"
+        ],
+        "workflow": [
+          "candidate→媒体別refinement降下→媒体別PO凍結→媒体別release受入→将来の独立リポジトリ分離"
+        ],
+        "scope_in": [
+          "LINE専用ハーネスの構成",
+          "LINEの承認境界・write境界・route policy束縛",
+          "独立リポジトリ分離前提の自己完結設計"
+        ],
+        "scope_out": [
+          "他媒体ハーネスの内容",
+          "共有基盤の実装方式選択（design-later）",
+          "外部リポジトリの実作成（PO明示指示まで行わない）",
+          "PO approval又は要求freeze"
+        ],
+        "prohibitions": [
+          "LINEの承認・write境界を他媒体ハーネスへ混載しない",
+          "分離を理由に承認境界・禁止事項・fail-close規律を弱めない",
+          "PO指示なしに外部リポジトリを作成しない"
+        ],
+        "human_judgement": [
+          "LINEハーネスの境界確定・採否・freeze・リポジトリ分離時期はPOが判断する"
+        ],
+        "side_effects": [
+          "要求候補とrefinement構成だけ。製品runtime・媒体への外部writeを変更しない"
+        ],
+        "evidence": [
+          "LINE別refinementのPO凍結receipt",
+          "LINE承認境界のtyped contract",
+          "独立リポジトリ分離条件の記録"
+        ],
+        "phase": "requirements"
+      },
+      "acceptance_cases": [
+        {
+          "acceptance_id": "RAC-MEDIA-HARNESS-LINE-P",
+          "polarity": "positive",
+          "statement": "LINEの承認境界・write境界・route policyがLINE専用refinementだけへ束縛された独立ハーネスとして構成される",
+          "system_test_id": "RST-MEDIA-HARNESS-LINE-P"
+        },
+        {
+          "acceptance_id": "RAC-MEDIA-HARNESS-LINE-N",
+          "polarity": "negative",
+          "statement": "LINEと他媒体の承認境界・write境界を単一ハーネスへ混載した構成、及びPO指示なしの外部リポジトリ作成を拒否する",
+          "system_test_id": "RST-MEDIA-HARNESS-LINE-N"
+        },
+        {
+          "acceptance_id": "RAC-MEDIA-HARNESS-LINE-B",
+          "polarity": "boundary",
+          "statement": "LINEハーネスの失敗・停止時も他媒体ハーネスの承認・運用状態を変更せずfail-closeで自媒体側だけを停止する",
+          "system_test_id": "RST-MEDIA-HARNESS-LINE-B"
+        }
+      ],
+      "pending_resolution": [
+        "LINEハーネスの承認境界・write境界・共有基盤との分離線、及び独立リポジトリ分離の時期・条件はどこで確定するか"
+      ],
+      "approval": null,
+      "semantic_digest": "sha256:1f38341edf7eb4e2149c43b7d5e32920679036784f42ed3a3d86f069e7cdda18"
     }
   ],
   "automated_publishing_admission_policy": {

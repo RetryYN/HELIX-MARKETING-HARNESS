@@ -626,6 +626,39 @@
     "system_contract_id": "MHH-SC-MEDIA-HARNESS-DISCORD-COMMUNITY",
     "system_test_id": "MHH-ST-MEDIA-HARNESS-DISCORD-COMMUNITY"
   },
+  "MHH-AC-MEDIA-HARNESS-LINE-B": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-LINE-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:2e103988c788775f61420020cf050eb9ce8948a0611d923c97d26cd641b167ee",
+    "statement": "LINEハーネスの失敗・停止時も他媒体ハーネスの承認・運用状態を変更せずfail-closeで自媒体側だけを停止する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-LINE",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-LINE"
+  },
+  "MHH-AC-MEDIA-HARNESS-LINE-N": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-LINE-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:ab72b06d9a3d9ceac2981c9ee0ce16026cc87076a8bb4b99e43b03868bf43063",
+    "statement": "LINEと他媒体の承認境界・write境界を単一ハーネスへ混載した構成、及びPO指示なしの外部リポジトリ作成を拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-LINE",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-LINE"
+  },
+  "MHH-AC-MEDIA-HARNESS-LINE-P": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-LINE-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:aad5fc1cc03906276d66565e0cc5dba2d3114c0970ec5748dd288de86c8e821c",
+    "statement": "LINEの承認境界・write境界・route policyがLINE専用refinementだけへ束縛された独立ハーネスとして構成される",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-LINE",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-LINE"
+  },
   "MHH-AC-MEDIA-HARNESS-WORDPRESS-B": {
     "acceptance_id": "MHH-AC-MEDIA-HARNESS-WORDPRESS-B",
     "polarity": "boundary",

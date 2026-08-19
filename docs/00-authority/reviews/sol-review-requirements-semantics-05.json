@@ -1,0 +1,31 @@
+{
+ "review_id": "REV-SOL-REQUIREMENTS-SEMANTICS-05",
+ "reviewer_principal": "codex-sol-reviewer",
+ "author_principal": "claude-fable-primary",
+ "author_execution_id": "claude-fable-20260820-media-per-harness",
+ "reviewer_execution_id": "01a01b30-68ab-7c61-b024-5f187774fc8b",
+ "review_run_id": "REV-SOL-REQUIREMENTS-SEMANTICS-05-R1",
+ "reviewer_provider": "openai-codex-cli",
+ "review_log_path": "docs/00-authority/reviews/logs/REV-SOL-REQUIREMENTS-SEMANTICS-05.jsonl",
+ "review_log_digest": "348b40f5e4484b02",
+ "separation_status": "self_attested",
+ "model": "gpt-5.6-sol",
+ "target_commit": "4f083d58f4ae360a2718c619a767bca2b76ba715",
+ "target_tree": "9dcb280dcb1be05295e76831d1e1de44e70e19d0",
+ "scope": "媒体別ハーネス分離（LINE）: MEDIA-HARNESS-LINE候補（draft・deferred維持・write無効・外部リポジトリ作成禁止）、IR 42 records、pin/baseline更新",
+ "supersedes_review": [
+  "REV-SOL-REQUIREMENTS-SEMANTICS-04"
+ ],
+ "reviewed_artifact_digests": {
+  "docs/00-authority/artifact-manifest.json": "82e42e7a1dfd8c7c",
+  "docs/00-authority/baselines/baseline.json": "a1a2b713b227e498",
+  "docs/00-authority/development/requirement-discovery-events.json": "9f3cfb3256807516"
+ },
+ "resolution_commits": [
+  "4f083d58f4ae360a2718c619a767bca2b76ba715"
+ ],
+ "verdict": "Go",
+ "completed_at": "2026-08-20",
+ "rounds": 1,
+ "findings": []
+}
