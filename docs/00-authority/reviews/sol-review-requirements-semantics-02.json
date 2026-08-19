@@ -3,8 +3,8 @@
  "reviewer_principal": "codex-sol-reviewer",
  "separation_status": "unverified",
  "model": "gpt-5.6-sol",
- "target_commit": "abcbd90b06c5f2b30b00ff999f3e02e0d75fcd51",
- "target_tree": "446e7be5a19b35c6ccb7c2f27199d829cf49d245",
+ "target_commit": "45b3a7184dee021ae29f886156a9ad6572dde694",
+ "target_tree": "1bc3f68852910d363bcc879f3dbef65c515b9190",
  "scope": "G-REQ-REFINEMENT schema束縛、CLAUDE.md鉄則5例外明文化、MEDIA-PER-MEDIUM-HARNESS要求候補追加（discovery ledger／refinement／scope／decision packet／PRC-36）、連鎖authority digest再計算、candidate IR再生成、テスト分母pin更新のSol最終レビュー",
  "supersedes_review": [
   "REV-CLAUDE-REQUIREMENTS-SEMANTICS-01",
@@ -88,7 +88,7 @@
   "tools/gates/template_alignment.py": "486d30ee475e771c"
  },
  "resolution_commits": [
-  "abcbd90b06c5f2b30b00ff999f3e02e0d75fcd51"
+  "45b3a7184dee021ae29f886156a9ad6572dde694"
  ],
  "verdict": "Go",
  "completed_at": "2026-08-20",
