@@ -593,6 +593,39 @@
     "system_contract_id": "MHH-SC-LEGACY-MEDIA-ADMISSION-INVENTORY",
     "system_test_id": "MHH-ST-LEGACY-MEDIA-ADMISSION-INVENTORY"
   },
+  "MHH-AC-MEDIA-HARNESS-DISCORD-COMMUNITY-B": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-DISCORD-COMMUNITY-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:b1e531aab2bd429565ae82a3a59d530d06157056b4d65469e618090252cb1c12",
+    "statement": "Discord communityハーネスの失敗・停止時も他媒体ハーネスの承認・運用状態を変更せずfail-closeで自媒体側だけを停止する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-DISCORD-COMMUNITY",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-DISCORD-COMMUNITY"
+  },
+  "MHH-AC-MEDIA-HARNESS-DISCORD-COMMUNITY-N": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-DISCORD-COMMUNITY-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:340f1ca9f7bddd39d4fd6d42c77de227988f7f47d3279c4b81b6b0344603a84e",
+    "statement": "Discord communityと他媒体の承認境界・write境界を単一ハーネスへ混載した構成、及びPO指示なしの外部リポジトリ作成を拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-DISCORD-COMMUNITY",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-DISCORD-COMMUNITY"
+  },
+  "MHH-AC-MEDIA-HARNESS-DISCORD-COMMUNITY-P": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-DISCORD-COMMUNITY-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:3ac471076e4d4eb0f401eb71a08ff2d16231a4893f5f3c19a5c52ea70b5d9ce5",
+    "statement": "Discord communityの承認境界・write境界・route policyがDiscord community専用refinementだけへ束縛された独立ハーネスとして構成される",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-DISCORD-COMMUNITY",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-DISCORD-COMMUNITY"
+  },
   "MHH-AC-MEDIA-HARNESS-WORDPRESS-B": {
     "acceptance_id": "MHH-AC-MEDIA-HARNESS-WORDPRESS-B",
     "polarity": "boundary",

@@ -5154,6 +5154,31 @@
       "previous_paths": [],
       "approval_digest": null,
       "review_digest": null
+    },
+    {
+      "artifact_id": "AUTH-DEVELOPMENT-MEDIA-HARNESS-DISCORD-COMMUNITY-CANDIDATE",
+      "layer": "00-authority",
+      "slice": "cross",
+      "domain": "requirements",
+      "artifact_type": "requirement-doc",
+      "authority_format": "markdown",
+      "authority_status": "active",
+      "lifecycle_status": "draft",
+      "applicability_status": "proposal_only",
+      "implementation_input": false,
+      "canonical_path": "docs/00-authority/development/media-harness/discord-community/README.md",
+      "view_path": null,
+      "view_generation": "none",
+      "pair_artifact_id": null,
+      "supersedes": [],
+      "extends_artifact_ids": [],
+      "depends_on_artifact_ids": [
+        "AUTH-DEVELOPMENT-REQUIREMENT-REFINEMENTS",
+        "AUTH-DEVELOPMENT-REQUIREMENT-DISCOVERY-EVENTS"
+      ],
+      "previous_paths": [],
+      "approval_digest": null,
+      "review_digest": null
     }
   ]
 }
