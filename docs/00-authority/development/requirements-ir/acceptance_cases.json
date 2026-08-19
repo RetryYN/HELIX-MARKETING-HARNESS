@@ -593,6 +593,39 @@
     "system_contract_id": "MHH-SC-LEGACY-MEDIA-ADMISSION-INVENTORY",
     "system_test_id": "MHH-ST-LEGACY-MEDIA-ADMISSION-INVENTORY"
   },
+  "MHH-AC-MEDIA-HARNESS-AFFILIATE-B": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-AFFILIATE-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:f8b3fc8ec0b41b68b8d4a9272fa6eccb617b0d57b71c0bef9f90015e7f7baecd",
+    "statement": "アフィリエイトハーネスの失敗・停止時も他媒体ハーネスの承認・運用状態を変更せずfail-closeで自媒体側だけを停止する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-AFFILIATE",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-AFFILIATE"
+  },
+  "MHH-AC-MEDIA-HARNESS-AFFILIATE-N": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-AFFILIATE-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:33032234e21c650ce321554d85b3b1046c9b4c0d95981ca04912c3bc8620a574",
+    "statement": "アフィリエイトと他媒体の承認境界・write境界を単一ハーネスへ混載した構成、及びPO指示なしの外部リポジトリ作成を拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-AFFILIATE",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-AFFILIATE"
+  },
+  "MHH-AC-MEDIA-HARNESS-AFFILIATE-P": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-AFFILIATE-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:ad48f90205bf6b5169c19a3374494fd8aa6abda5bd2c91aba2d5dd456b527806",
+    "statement": "アフィリエイトの承認境界・write境界・route policyがアフィリエイト専用refinementだけへ束縛された独立ハーネスとして構成される",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-AFFILIATE",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-AFFILIATE"
+  },
   "MHH-AC-MEDIA-HARNESS-DISCORD-COMMUNITY-B": {
     "acceptance_id": "MHH-AC-MEDIA-HARNESS-DISCORD-COMMUNITY-B",
     "polarity": "boundary",

@@ -5,7 +5,7 @@
 > [!CAUTION]
 > **提案専用の生成view。現行要求の正本・PO承認・設計・実装入力ではない。**  `requirements_baseline_status=revising` / `implementation_authorized=false`。
 > 各候補は個別のPO receiptで承認・freezeされ、Full Vを再降下してauthority cutoverするまでcurrentにならない。本view全体を一括承認として扱わない。
-> 集計: 候補 **43** 件 ／ approval receiptあり **0** 件 ／ 未承認 **43** 件。
+> 集計: 候補 **44** 件 ／ approval receiptあり **0** 件 ／ 未承認 **44** 件。
 
 ## PO確認順（decision packets）
 
@@ -21,6 +21,7 @@
 8. **RDP-MEDIA-HARNESS-DISCORD-COMMUNITY** — Discord communityを独立ハーネス1つとして分離構成するか、その承認境界・共有基盤分離線・リポジトリ分離条件をどう確定するか  対象: MEDIA-HARNESS-DISCORD-COMMUNITY
 9. **RDP-MEDIA-HARNESS-LINE** — LINEを独立ハーネス1つとして分離構成するか、その承認境界・共有基盤分離線・リポジトリ分離条件をどう確定するか  対象: MEDIA-HARNESS-LINE
 10. **RDP-MEDIA-HARNESS-GENAI** — 生成AIを独立ハーネス1つとして分離構成するか、その承認境界・共有基盤分離線・リポジトリ分離条件をどう確定するか  対象: MEDIA-HARNESS-GENAI
+11. **RDP-MEDIA-HARNESS-AFFILIATE** — アフィリエイトを独立ハーネス1つとして分離構成するか、その承認境界・共有基盤分離線・リポジトリ分離条件をどう確定するか  対象: MEDIA-HARNESS-AFFILIATE
 
 ## 回答済み事項（要求へ再降下前）
 
@@ -75,7 +76,7 @@
 - **PRC-33**: CONTENT-QUALITY-GATE-LEARNING
 - **PRC-34**: CONTENT-RISK-CLASSIFICATION
 - **PRC-35**: RESEARCH-LED-CONTENT-GROWTH
-- **PRC-36**: MEDIA-PER-MEDIUM-HARNESS, MEDIA-HARNESS-WORDPRESS, MEDIA-HARNESS-DISCORD-COMMUNITY, MEDIA-HARNESS-LINE, MEDIA-HARNESS-GENAI
+- **PRC-36**: MEDIA-PER-MEDIUM-HARNESS, MEDIA-HARNESS-WORDPRESS, MEDIA-HARNESS-DISCORD-COMMUNITY, MEDIA-HARNESS-LINE, MEDIA-HARNESS-GENAI, MEDIA-HARNESS-AFFILIATE
 
 ## 旧L0 clause disposition候補
 
@@ -738,6 +739,31 @@
   - `boundary` RAC-LEGACY-MEDIA-B: 一部operationだけ成立する場合はそのoperationだけ再開し媒体全体をenabledにしない （RST-LEGACY-MEDIA-B）
 - **PO個別質問**: なし（ただしsubject approval receiptとfreezeは別）
 - **semantic digest**: `sha256:6f8d4c56fa4d22900b6ba39d6c7392e766f8adc3ea0eb62a3f910638d888cd0e`
+
+## RRF-MEDIA-HARNESS-AFFILIATE — MEDIA-HARNESS-AFFILIATE
+
+- **状態**: `draft` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
+- **scope候補**: `deferred_candidate` （PO receiptとFull V再降下までは実装不可）
+- **source events**: RDE-000197 RDE-000198
+- **主体**: PO／アフィリエイト媒体運用者／製品runtime
+- **受益者**: アフィリエイトを他媒体から分離して監督したいPO／アフィリエイト媒体運用者
+- **価値**: アフィリエイトを1つの独立ハーネスとして分離し、承認境界・write境界・障害影響・route policyをアフィリエイト単位で独立に凍結・運用でき、将来の独立リポジトリ分離を自己完結に行える
+- **task**: アフィリエイトハーネスの承認境界・write境界を定義する／アフィリエイトのroute policy・credential scope・証跡を自媒体refinementへ束縛する／共有基盤との分離線と独立リポジトリ分離条件を確定する
+- **workflow**: candidate→媒体別refinement降下→媒体別PO凍結→媒体別release受入→将来の独立リポジトリ分離
+- **対象範囲**: アフィリエイト専用ハーネスの構成／アフィリエイトの承認境界・write境界・route policy束縛／独立リポジトリ分離前提の自己完結設計
+- **対象外**: 他媒体ハーネスの内容／共有基盤の実装方式選択（design-later）／外部リポジトリの実作成（PO明示指示まで行わない）／PO approval又は要求freeze
+- **禁止事項**: アフィリエイトの承認・write境界を他媒体ハーネスへ混載しない／分離を理由に承認境界・禁止事項・fail-close規律を弱めない／PO指示なしに外部リポジトリを作成しない
+- **人間判断**: アフィリエイトハーネスの境界確定・採否・freeze・リポジトリ分離時期はPOが判断する
+- **副作用**: 要求候補とrefinement構成だけ。製品runtime・媒体への外部writeを変更しない
+- **証跡**: アフィリエイト別refinementのPO凍結receipt／アフィリエイト承認境界のtyped contract／独立リポジトリ分離条件の記録
+- **phase**: `requirements`
+- **受入候補**:
+  - `positive` RAC-MEDIA-HARNESS-AFFILIATE-P: アフィリエイトの承認境界・write境界・route policyがアフィリエイト専用refinementだけへ束縛された独立ハーネスとして構成される （RST-MEDIA-HARNESS-AFFILIATE-P）
+  - `negative` RAC-MEDIA-HARNESS-AFFILIATE-N: アフィリエイトと他媒体の承認境界・write境界を単一ハーネスへ混載した構成、及びPO指示なしの外部リポジトリ作成を拒否する （RST-MEDIA-HARNESS-AFFILIATE-N）
+  - `boundary` RAC-MEDIA-HARNESS-AFFILIATE-B: アフィリエイトハーネスの失敗・停止時も他媒体ハーネスの承認・運用状態を変更せずfail-closeで自媒体側だけを停止する （RST-MEDIA-HARNESS-AFFILIATE-B）
+- **PO個別質問**:
+  - `RDQ-MEDIA-HARNESS-AFFILIATE-01` (`requirements_policy`): アフィリエイトハーネスの承認境界・write境界・共有基盤との分離線、及び独立リポジトリ分離の時期・条件はどこで確定するか （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
+- **semantic digest**: `sha256:c441fd35643a1d5580ce750983f4e679fb3fa326769d00d8e8fd635a9a7ccb70`
 
 ## RRF-MEDIA-HARNESS-DISCORD-COMMUNITY — MEDIA-HARNESS-DISCORD-COMMUNITY
 

@@ -1151,6 +1151,70 @@
     },
     "supporting_requirements": []
   },
+  "RRF-MEDIA-HARNESS-AFFILIATE": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-MEDIA-HARNESS-AFFILIATE-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-MEDIA-HARNESS-AFFILIATE"
+        ],
+        "semantic_digest": "sha256:ad48f90205bf6b5169c19a3374494fd8aa6abda5bd2c91aba2d5dd456b527806",
+        "source_projection": "local_refinement_registry",
+        "statement": "アフィリエイトの承認境界・write境界・route policyがアフィリエイト専用refinementだけへ束縛された独立ハーネスとして構成される"
+      },
+      {
+        "acceptance_id": "MHH-AC-MEDIA-HARNESS-AFFILIATE-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-MEDIA-HARNESS-AFFILIATE"
+        ],
+        "semantic_digest": "sha256:33032234e21c650ce321554d85b3b1046c9b4c0d95981ca04912c3bc8620a574",
+        "source_projection": "local_refinement_registry",
+        "statement": "アフィリエイトと他媒体の承認境界・write境界を単一ハーネスへ混載した構成、及びPO指示なしの外部リポジトリ作成を拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-MEDIA-HARNESS-AFFILIATE-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-MEDIA-HARNESS-AFFILIATE"
+        ],
+        "semantic_digest": "sha256:f8b3fc8ec0b41b68b8d4a9272fa6eccb617b0d57b71c0bef9f90015e7f7baecd",
+        "source_projection": "local_refinement_registry",
+        "statement": "アフィリエイトハーネスの失敗・停止時も他媒体ハーネスの承認・運用状態を変更せずfail-closeで自媒体側だけを停止する"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-MEDIA-HARNESS-AFFILIATE-P",
+        "MHH-AC-MEDIA-HARNESS-AFFILIATE-N",
+        "MHH-AC-MEDIA-HARNESS-AFFILIATE-B"
+      ],
+      "requirement_id": "MHH-REQ-MEDIA-HARNESS-AFFILIATE",
+      "semantic_digest": "sha256:c441fd35643a1d5580ce750983f4e679fb3fa326769d00d8e8fd635a9a7ccb70",
+      "source_projection": "local_refinement_registry",
+      "statement": "actors: PO / アフィリエイト媒体運用者 / 製品runtime\nbeneficiaries: アフィリエイトを他媒体から分離して監督したいPO / アフィリエイト媒体運用者\nvalue: アフィリエイトを1つの独立ハーネスとして分離し、承認境界・write境界・障害影響・route policyをアフィリエイト単位で独立に凍結・運用でき、将来の独立リポジトリ分離を自己完結に行える\ntasks: アフィリエイトハーネスの承認境界・write境界を定義する / アフィリエイトのroute policy・credential scope・証跡を自媒体refinementへ束縛する / 共有基盤との分離線と独立リポジトリ分離条件を確定する\nworkflow: candidate→媒体別refinement降下→媒体別PO凍結→媒体別release受入→将来の独立リポジトリ分離\nscope_in: アフィリエイト専用ハーネスの構成 / アフィリエイトの承認境界・write境界・route policy束縛 / 独立リポジトリ分離前提の自己完結設計\nscope_out: 他媒体ハーネスの内容 / 共有基盤の実装方式選択（design-later） / 外部リポジトリの実作成（PO明示指示まで行わない） / PO approval又は要求freeze\nprohibitions: アフィリエイトの承認・write境界を他媒体ハーネスへ混載しない / 分離を理由に承認境界・禁止事項・fail-close規律を弱めない / PO指示なしに外部リポジトリを作成しない\nhuman_judgement: アフィリエイトハーネスの境界確定・採否・freeze・リポジトリ分離時期はPOが判断する\nside_effects: 要求候補とrefinement構成だけ。製品runtime・媒体への外部writeを変更しない\nevidence: アフィリエイト別refinementのPO凍結receipt / アフィリエイト承認境界のtyped contract / 独立リポジトリ分離条件の記録\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "draft",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-MEDIA-HARNESS-AFFILIATE",
+    "refinement_contract_id": "RRF-MEDIA-HARNESS-AFFILIATE",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "MEDIA-HARNESS-AFFILIATE",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:e7388ac4cbe973ee33d1c2a0f99fdc06c1fd321d22f01caef1f8954839a6f657",
+    "source": {
+      "acceptance_digest": "sha256:c38470c268231bf8d2a093260ee35cb7fea95e53bbbfe86c600fa6627028f267",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-MEDIA-HARNESS-AFFILIATE/acceptance_cases",
+      "requirement_digest": "sha256:c441fd35643a1d5580ce750983f4e679fb3fa326769d00d8e8fd635a9a7ccb70",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-MEDIA-HARNESS-AFFILIATE"
+    },
+    "supporting_requirements": []
+  },
   "RRF-MEDIA-HARNESS-DISCORD-COMMUNITY": {
     "acceptance_cases": [
       {

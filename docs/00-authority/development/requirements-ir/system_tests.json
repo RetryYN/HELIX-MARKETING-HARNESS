@@ -305,6 +305,23 @@
     "system_contract_id": "MHH-SC-LEGACY-MEDIA-ADMISSION-INVENTORY",
     "system_test_id": "MHH-ST-LEGACY-MEDIA-ADMISSION-INVENTORY"
   },
+  "MHH-ST-MEDIA-HARNESS-AFFILIATE": {
+    "acceptance_ids": [
+      "MHH-AC-MEDIA-HARNESS-AFFILIATE-P",
+      "MHH-AC-MEDIA-HARNESS-AFFILIATE-N",
+      "MHH-AC-MEDIA-HARNESS-AFFILIATE-B"
+    ],
+    "negative_boundary": "アフィリエイトの承認・write境界を他媒体ハーネスへ混載しない / 分離を理由に承認境界・禁止事項・fail-close規律を弱めない / PO指示なしに外部リポジトリを作成しない",
+    "required_evidence": "アフィリエイト別refinementのPO凍結receipt / アフィリエイト承認境界のtyped contract / 独立リポジトリ分離条件の記録",
+    "revision": 1,
+    "scenario": "requirements meaning review for MEDIA-HARNESS-AFFILIATE; no L2+ design or runtime execution",
+    "schema_version": "helix-system-test.v1",
+    "semantic_digest": "sha256:7ac9b6bb329da59bd82a61669e3ff271b55c95ae3c295da16ed21ffb36245cf5",
+    "status": "designed_not_implemented",
+    "supporting_test_ids": [],
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-AFFILIATE",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-AFFILIATE"
+  },
   "MHH-ST-MEDIA-HARNESS-DISCORD-COMMUNITY": {
     "acceptance_ids": [
       "MHH-AC-MEDIA-HARNESS-DISCORD-COMMUNITY-P",
