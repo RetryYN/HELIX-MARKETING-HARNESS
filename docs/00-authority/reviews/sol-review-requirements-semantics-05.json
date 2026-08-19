@@ -10,8 +10,8 @@
  "review_log_digest": "348b40f5e4484b02",
  "separation_status": "self_attested",
  "model": "gpt-5.6-sol",
- "target_commit": "4f083d58f4ae360a2718c619a767bca2b76ba715",
- "target_tree": "9dcb280dcb1be05295e76831d1e1de44e70e19d0",
+ "target_commit": "7eb8c20294f04438c183ab7f234e0b37b4eaee0a",
+ "target_tree": "e004ce36efe7a89fa90e85d585f47d85dbba34ab",
  "scope": "媒体別ハーネス分離（LINE）: MEDIA-HARNESS-LINE候補（draft・deferred維持・write無効・外部リポジトリ作成禁止）、IR 42 records、pin/baseline更新",
  "supersedes_review": [
   "REV-SOL-REQUIREMENTS-SEMANTICS-04"
@@ -22,7 +22,7 @@
   "docs/00-authority/development/requirement-discovery-events.json": "9f3cfb3256807516"
  },
  "resolution_commits": [
-  "4f083d58f4ae360a2718c619a767bca2b76ba715"
+  "7eb8c20294f04438c183ab7f234e0b37b4eaee0a"
  ],
  "verdict": "Go",
  "completed_at": "2026-08-20",
