@@ -407,6 +407,23 @@
     "system_contract_id": "MHH-SC-MEDIA-HARNESS-LINE",
     "system_test_id": "MHH-ST-MEDIA-HARNESS-LINE"
   },
+  "MHH-ST-MEDIA-HARNESS-TIKTOK": {
+    "acceptance_ids": [
+      "MHH-AC-MEDIA-HARNESS-TIKTOK-P",
+      "MHH-AC-MEDIA-HARNESS-TIKTOK-N",
+      "MHH-AC-MEDIA-HARNESS-TIKTOK-B"
+    ],
+    "negative_boundary": "TikTokの承認・write境界を他媒体ハーネスへ混載しない / 分離を理由に承認境界・禁止事項・fail-close規律を弱めない / PO指示なしに外部リポジトリを作成しない",
+    "required_evidence": "TikTok別refinementのPO凍結receipt / TikTok承認境界のtyped contract / 独立リポジトリ分離条件の記録",
+    "revision": 1,
+    "scenario": "requirements meaning review for MEDIA-HARNESS-TIKTOK; no L2+ design or runtime execution",
+    "schema_version": "helix-system-test.v1",
+    "semantic_digest": "sha256:3be82dd2a7b7de23dbfa7d5dc1a53eea04e5237c44f3f10e01f012592d66bc4c",
+    "status": "designed_not_implemented",
+    "supporting_test_ids": [],
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-TIKTOK",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-TIKTOK"
+  },
   "MHH-ST-MEDIA-HARNESS-WORDPRESS": {
     "acceptance_ids": [
       "MHH-AC-MEDIA-HARNESS-WORDPRESS-P",

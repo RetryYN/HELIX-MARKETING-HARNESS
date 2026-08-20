@@ -48,7 +48,8 @@
     "RDQ-MEDIA-HARNESS-CANVA-01": "requirements_policy",
     "RDQ-MEDIA-HARNESS-X-TWITTER-01": "requirements_policy",
     "RDQ-MEDIA-HARNESS-INSTAGRAM-01": "requirements_policy",
-    "RDQ-MEDIA-HARNESS-YOUTUBE-01": "requirements_policy"
+    "RDQ-MEDIA-HARNESS-YOUTUBE-01": "requirements_policy",
+    "RDQ-MEDIA-HARNESS-TIKTOK-01": "requirements_policy"
   },
   "decision_class_contracts": {
     "requirements_policy": [
@@ -47729,7 +47730,8 @@
     "MEDIA-HARNESS-CANVA": "deferred_candidate",
     "MEDIA-HARNESS-X-TWITTER": "deferred_candidate",
     "MEDIA-HARNESS-INSTAGRAM": "deferred_candidate",
-    "MEDIA-HARNESS-YOUTUBE": "deferred_candidate"
+    "MEDIA-HARNESS-YOUTUBE": "deferred_candidate",
+    "MEDIA-HARNESS-TIKTOK": "deferred_candidate"
   },
   "candidate_requirement_bindings": {
     "PRC-01": [
@@ -47873,7 +47875,8 @@
       "MEDIA-HARNESS-CANVA",
       "MEDIA-HARNESS-X-TWITTER",
       "MEDIA-HARNESS-INSTAGRAM",
-      "MEDIA-HARNESS-YOUTUBE"
+      "MEDIA-HARNESS-YOUTUBE",
+      "MEDIA-HARNESS-TIKTOK"
     ]
   },
   "decision_packets": [
@@ -48040,6 +48043,15 @@
         "MEDIA-HARNESS-YOUTUBE"
       ],
       "decision_question": "YouTubeを独立ハーネス1つとして分離構成するか、その承認境界・共有基盤分離線・リポジトリ分離条件をどう確定するか",
+      "bulk_decision_forbidden": true
+    },
+    {
+      "packet_id": "RDP-MEDIA-HARNESS-TIKTOK",
+      "decision_order": 16,
+      "subject_ids": [
+        "MEDIA-HARNESS-TIKTOK"
+      ],
+      "decision_question": "TikTokを独立ハーネス1つとして分離構成するか、その承認境界・共有基盤分離線・リポジトリ分離条件をどう確定するか",
       "bulk_decision_forbidden": true
     }
   ],
@@ -52874,6 +52886,90 @@
       ],
       "approval": null,
       "semantic_digest": "sha256:ade8e528e0fc5feca7bc4b0c3ae3dc586564a2816e09716433af53c726b93b53"
+    },
+    {
+      "refinement_id": "RRF-MEDIA-HARNESS-TIKTOK",
+      "subject_id": "MEDIA-HARNESS-TIKTOK",
+      "revision": 1,
+      "lifecycle_status": "draft",
+      "source_event_ids": [
+        "RDE-000210",
+        "RDE-000211"
+      ],
+      "source_set_digest": "sha256:7c4c8261d4cddfdf91e65bdc0be251bcadd7e3e2dfe6a41b8cf805d8d586e696",
+      "semantic_dimensions": {
+        "actors": [
+          "PO",
+          "TikTok媒体運用者",
+          "製品runtime"
+        ],
+        "beneficiaries": [
+          "TikTokを他媒体から分離して監督したいPO",
+          "TikTok媒体運用者"
+        ],
+        "value": "TikTokを1つの独立ハーネスとして分離し、承認境界・write境界・障害影響・route policyをTikTok単位で独立に凍結・運用でき、将来の独立リポジトリ分離を自己完結に行える",
+        "tasks": [
+          "TikTokハーネスの承認境界・write境界を定義する",
+          "TikTokのroute policy・credential scope・証跡を自媒体refinementへ束縛する",
+          "共有基盤との分離線と独立リポジトリ分離条件を確定する"
+        ],
+        "workflow": [
+          "candidate→媒体別refinement降下→媒体別PO凍結→媒体別release受入→将来の独立リポジトリ分離"
+        ],
+        "scope_in": [
+          "TikTok専用ハーネスの構成",
+          "TikTokの承認境界・write境界・route policy束縛",
+          "独立リポジトリ分離前提の自己完結設計"
+        ],
+        "scope_out": [
+          "他媒体ハーネスの内容",
+          "共有基盤の実装方式選択（design-later）",
+          "外部リポジトリの実作成（PO明示指示まで行わない）",
+          "PO approval又は要求freeze"
+        ],
+        "prohibitions": [
+          "TikTokの承認・write境界を他媒体ハーネスへ混載しない",
+          "分離を理由に承認境界・禁止事項・fail-close規律を弱めない",
+          "PO指示なしに外部リポジトリを作成しない"
+        ],
+        "human_judgement": [
+          "TikTokハーネスの境界確定・採否・freeze・リポジトリ分離時期はPOが判断する"
+        ],
+        "side_effects": [
+          "要求候補とrefinement構成だけ。製品runtime・媒体への外部writeを変更しない"
+        ],
+        "evidence": [
+          "TikTok別refinementのPO凍結receipt",
+          "TikTok承認境界のtyped contract",
+          "独立リポジトリ分離条件の記録"
+        ],
+        "phase": "requirements"
+      },
+      "acceptance_cases": [
+        {
+          "acceptance_id": "RAC-MEDIA-HARNESS-TIKTOK-P",
+          "polarity": "positive",
+          "statement": "TikTokの承認境界・write境界・route policyがTikTok専用refinementだけへ束縛された独立ハーネスとして構成される",
+          "system_test_id": "RST-MEDIA-HARNESS-TIKTOK-P"
+        },
+        {
+          "acceptance_id": "RAC-MEDIA-HARNESS-TIKTOK-N",
+          "polarity": "negative",
+          "statement": "TikTokと他媒体の承認境界・write境界を単一ハーネスへ混載した構成、及びPO指示なしの外部リポジトリ作成を拒否する",
+          "system_test_id": "RST-MEDIA-HARNESS-TIKTOK-N"
+        },
+        {
+          "acceptance_id": "RAC-MEDIA-HARNESS-TIKTOK-B",
+          "polarity": "boundary",
+          "statement": "TikTokハーネスの失敗・停止時も他媒体ハーネスの承認・運用状態を変更せずfail-closeで自媒体側だけを停止する",
+          "system_test_id": "RST-MEDIA-HARNESS-TIKTOK-B"
+        }
+      ],
+      "pending_resolution": [
+        "TikTokハーネスの承認境界・write境界・共有基盤との分離線、及び独立リポジトリ分離の時期・条件はどこで確定するか"
+      ],
+      "approval": null,
+      "semantic_digest": "sha256:d1dcdd7d1937fca383b06111ae25b6c77a2c5f00407bf44456129520d99cc684"
     }
   ],
   "automated_publishing_admission_policy": {

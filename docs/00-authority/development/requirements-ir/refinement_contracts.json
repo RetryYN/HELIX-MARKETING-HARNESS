@@ -1535,6 +1535,70 @@
     },
     "supporting_requirements": []
   },
+  "RRF-MEDIA-HARNESS-TIKTOK": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-MEDIA-HARNESS-TIKTOK-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-MEDIA-HARNESS-TIKTOK"
+        ],
+        "semantic_digest": "sha256:5bc6cc16373d6aeac44d860b66421beabc48059a6e10504f65c3c0eb021c1b1a",
+        "source_projection": "local_refinement_registry",
+        "statement": "TikTokの承認境界・write境界・route policyがTikTok専用refinementだけへ束縛された独立ハーネスとして構成される"
+      },
+      {
+        "acceptance_id": "MHH-AC-MEDIA-HARNESS-TIKTOK-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-MEDIA-HARNESS-TIKTOK"
+        ],
+        "semantic_digest": "sha256:50eef73450c094de886758f7fa39bd0064bd864609b2e133690cc1d9f39ea70d",
+        "source_projection": "local_refinement_registry",
+        "statement": "TikTokと他媒体の承認境界・write境界を単一ハーネスへ混載した構成、及びPO指示なしの外部リポジトリ作成を拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-MEDIA-HARNESS-TIKTOK-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-MEDIA-HARNESS-TIKTOK"
+        ],
+        "semantic_digest": "sha256:284f5766293818b62c99ed2cbd757411a8580d5dfdd95f9ac8b537a54e712214",
+        "source_projection": "local_refinement_registry",
+        "statement": "TikTokハーネスの失敗・停止時も他媒体ハーネスの承認・運用状態を変更せずfail-closeで自媒体側だけを停止する"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-MEDIA-HARNESS-TIKTOK-P",
+        "MHH-AC-MEDIA-HARNESS-TIKTOK-N",
+        "MHH-AC-MEDIA-HARNESS-TIKTOK-B"
+      ],
+      "requirement_id": "MHH-REQ-MEDIA-HARNESS-TIKTOK",
+      "semantic_digest": "sha256:d1dcdd7d1937fca383b06111ae25b6c77a2c5f00407bf44456129520d99cc684",
+      "source_projection": "local_refinement_registry",
+      "statement": "actors: PO / TikTok媒体運用者 / 製品runtime\nbeneficiaries: TikTokを他媒体から分離して監督したいPO / TikTok媒体運用者\nvalue: TikTokを1つの独立ハーネスとして分離し、承認境界・write境界・障害影響・route policyをTikTok単位で独立に凍結・運用でき、将来の独立リポジトリ分離を自己完結に行える\ntasks: TikTokハーネスの承認境界・write境界を定義する / TikTokのroute policy・credential scope・証跡を自媒体refinementへ束縛する / 共有基盤との分離線と独立リポジトリ分離条件を確定する\nworkflow: candidate→媒体別refinement降下→媒体別PO凍結→媒体別release受入→将来の独立リポジトリ分離\nscope_in: TikTok専用ハーネスの構成 / TikTokの承認境界・write境界・route policy束縛 / 独立リポジトリ分離前提の自己完結設計\nscope_out: 他媒体ハーネスの内容 / 共有基盤の実装方式選択（design-later） / 外部リポジトリの実作成（PO明示指示まで行わない） / PO approval又は要求freeze\nprohibitions: TikTokの承認・write境界を他媒体ハーネスへ混載しない / 分離を理由に承認境界・禁止事項・fail-close規律を弱めない / PO指示なしに外部リポジトリを作成しない\nhuman_judgement: TikTokハーネスの境界確定・採否・freeze・リポジトリ分離時期はPOが判断する\nside_effects: 要求候補とrefinement構成だけ。製品runtime・媒体への外部writeを変更しない\nevidence: TikTok別refinementのPO凍結receipt / TikTok承認境界のtyped contract / 独立リポジトリ分離条件の記録\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "draft",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-MEDIA-HARNESS-TIKTOK",
+    "refinement_contract_id": "RRF-MEDIA-HARNESS-TIKTOK",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "MEDIA-HARNESS-TIKTOK",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:bbd3f7411267aed0f0e204c748463382b251ff9f3f701b6a6469b567a301bd3f",
+    "source": {
+      "acceptance_digest": "sha256:70ee30df565ab7ff7f50a31078821309c5cb4d1e9cb2cc04e1b90dd1c3b5180c",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-MEDIA-HARNESS-TIKTOK/acceptance_cases",
+      "requirement_digest": "sha256:d1dcdd7d1937fca383b06111ae25b6c77a2c5f00407bf44456129520d99cc684",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-MEDIA-HARNESS-TIKTOK"
+    },
+    "supporting_requirements": []
+  },
   "RRF-MEDIA-HARNESS-WORDPRESS": {
     "acceptance_cases": [
       {

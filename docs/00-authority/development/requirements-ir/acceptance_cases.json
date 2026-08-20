@@ -791,6 +791,39 @@
     "system_contract_id": "MHH-SC-MEDIA-HARNESS-LINE",
     "system_test_id": "MHH-ST-MEDIA-HARNESS-LINE"
   },
+  "MHH-AC-MEDIA-HARNESS-TIKTOK-B": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-TIKTOK-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:284f5766293818b62c99ed2cbd757411a8580d5dfdd95f9ac8b537a54e712214",
+    "statement": "TikTokハーネスの失敗・停止時も他媒体ハーネスの承認・運用状態を変更せずfail-closeで自媒体側だけを停止する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-TIKTOK",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-TIKTOK"
+  },
+  "MHH-AC-MEDIA-HARNESS-TIKTOK-N": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-TIKTOK-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:50eef73450c094de886758f7fa39bd0064bd864609b2e133690cc1d9f39ea70d",
+    "statement": "TikTokと他媒体の承認境界・write境界を単一ハーネスへ混載した構成、及びPO指示なしの外部リポジトリ作成を拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-TIKTOK",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-TIKTOK"
+  },
+  "MHH-AC-MEDIA-HARNESS-TIKTOK-P": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-TIKTOK-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:5bc6cc16373d6aeac44d860b66421beabc48059a6e10504f65c3c0eb021c1b1a",
+    "statement": "TikTokの承認境界・write境界・route policyがTikTok専用refinementだけへ束縛された独立ハーネスとして構成される",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-TIKTOK",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-TIKTOK"
+  },
   "MHH-AC-MEDIA-HARNESS-WORDPRESS-B": {
     "acceptance_id": "MHH-AC-MEDIA-HARNESS-WORDPRESS-B",
     "polarity": "boundary",

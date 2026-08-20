@@ -1404,6 +1404,61 @@
       "共有基盤との分離線と独立リポジトリ分離条件を確定する"
     ]
   },
+  "MHH-REQ-MEDIA-HARNESS-TIKTOK": {
+    "acceptance_ids": [
+      "MHH-AC-MEDIA-HARNESS-TIKTOK-P",
+      "MHH-AC-MEDIA-HARNESS-TIKTOK-N",
+      "MHH-AC-MEDIA-HARNESS-TIKTOK-B"
+    ],
+    "actor_ids": [
+      "PO",
+      "TikTok媒体運用者",
+      "製品runtime"
+    ],
+    "assertion_id": "MHH-AS-MEDIA-HARNESS-TIKTOK",
+    "definition_status": "unfrozen",
+    "design_obligation_ids": [],
+    "design_template_ids": [],
+    "downstream_obligation": {
+      "obligation_id": "MHH-DOWNSTREAM-MEDIA-HARNESS-TIKTOK",
+      "owner_id": "MHH-SC-MEDIA-HARNESS-TIKTOK",
+      "route_issue_ids": [],
+      "status": "pending_requirements_freeze"
+    },
+    "evidence_origin": "current_refinement_registry",
+    "kind": "business",
+    "pending_resolution": [
+      "TikTokハーネスの承認境界・write境界・共有基盤との分離線、及び独立リポジトリ分離の時期・条件はどこで確定するか",
+      "PO receipt and requirements freeze remain pending"
+    ],
+    "primary_system_contract_id": "MHH-SC-MEDIA-HARNESS-TIKTOK",
+    "required_design_artifact_kinds": [],
+    "requirement_id": "MHH-REQ-MEDIA-HARNESS-TIKTOK",
+    "revision": 1,
+    "schema_version": "helix-requirement.v1",
+    "semantic_digest": "sha256:6c6b71dac4a454a6531b734c2cbec9bafbe5c2dc3b43d9882f2116b068928460",
+    "source": {
+      "authority_id": "RRF-MEDIA-HARNESS-TIKTOK",
+      "canonical_pointer": "requirements-ir/requirements.json#/MHH-REQ-MEDIA-HARNESS-TIKTOK",
+      "migration_source_pointer": "docs/00-authority/development/requirement-refinements.json#/records/RRF-MEDIA-HARNESS-TIKTOK"
+    },
+    "statement": {
+      "semantic_digest": "sha256:16a1b0e0673dff1d198063b59f541809d8fd4e419084cbaeafbcc3e9018eb76a",
+      "text": "actors: PO / TikTok媒体運用者 / 製品runtime\nbeneficiaries: TikTokを他媒体から分離して監督したいPO / TikTok媒体運用者\nvalue: TikTokを1つの独立ハーネスとして分離し、承認境界・write境界・障害影響・route policyをTikTok単位で独立に凍結・運用でき、将来の独立リポジトリ分離を自己完結に行える\ntasks: TikTokハーネスの承認境界・write境界を定義する / TikTokのroute policy・credential scope・証跡を自媒体refinementへ束縛する / 共有基盤との分離線と独立リポジトリ分離条件を確定する\nworkflow: candidate→媒体別refinement降下→媒体別PO凍結→媒体別release受入→将来の独立リポジトリ分離\nscope_in: TikTok専用ハーネスの構成 / TikTokの承認境界・write境界・route policy束縛 / 独立リポジトリ分離前提の自己完結設計\nscope_out: 他媒体ハーネスの内容 / 共有基盤の実装方式選択（design-later） / 外部リポジトリの実作成（PO明示指示まで行わない） / PO approval又は要求freeze\nprohibitions: TikTokの承認・write境界を他媒体ハーネスへ混載しない / 分離を理由に承認境界・禁止事項・fail-close規律を弱めない / PO指示なしに外部リポジトリを作成しない\nhuman_judgement: TikTokハーネスの境界確定・採否・freeze・リポジトリ分離時期はPOが判断する\nside_effects: 要求候補とrefinement構成だけ。製品runtime・媒体への外部writeを変更しない\nevidence: TikTok別refinementのPO凍結receipt / TikTok承認境界のtyped contract / 独立リポジトリ分離条件の記録\nphase: requirements"
+    },
+    "status": "candidate_unratified",
+    "surface_ids": [
+      "TikTok専用ハーネスの構成",
+      "TikTokの承認境界・write境界・route policy束縛",
+      "独立リポジトリ分離前提の自己完結設計"
+    ],
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-TIKTOK",
+    "task_ids": [
+      "TikTokハーネスの承認境界・write境界を定義する",
+      "TikTokのroute policy・credential scope・証跡を自媒体refinementへ束縛する",
+      "共有基盤との分離線と独立リポジトリ分離条件を確定する"
+    ]
+  },
   "MHH-REQ-MEDIA-HARNESS-WORDPRESS": {
     "acceptance_ids": [
       "MHH-AC-MEDIA-HARNESS-WORDPRESS-P",
