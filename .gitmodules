@@ -1,6 +1,6 @@
 [submodule "media/wp"]
 	path = media/wp
 	url = https://github.com/RetryYN/HELIX-WP-HARNESS.git
-[submodule "base/agent-neo"]
-	path = base/agent-neo
-	url = https://github.com/RetryYN/AGENT-NEO.git
+[submodule "base/wp-theme"]
+	path = base/wp-theme
+	url = https://github.com/RetryYN/HELIX-WP-THEME.git

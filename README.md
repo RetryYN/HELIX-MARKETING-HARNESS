@@ -14,7 +14,7 @@
 
 | ディレクトリ | リポジトリ | 役割 |
 | --- | --- | --- |
-| `base/agent-neo/` | RetryYN/AGENT-NEO | WP テーマの開発ベース |
+| `base/wp-theme/` | RetryYN/HELIX-WP-THEME | WP テーマの開発ベース |
 
 ## 経緯
 
