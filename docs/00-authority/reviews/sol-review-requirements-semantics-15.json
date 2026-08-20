@@ -1,0 +1,31 @@
+{
+ "review_id": "REV-SOL-REQUIREMENTS-SEMANTICS-15",
+ "reviewer_principal": "codex-sol-reviewer",
+ "author_principal": "claude-fable-primary",
+ "author_execution_id": "claude-fable-20260820-media-per-harness",
+ "reviewer_execution_id": "01a01fbe-ed15-7922-8520-bb1ef846c90c",
+ "review_run_id": "REV-SOL-REQUIREMENTS-SEMANTICS-15-R1",
+ "reviewer_provider": "openai-codex-cli",
+ "review_log_path": "docs/00-authority/reviews/logs/REV-SOL-REQUIREMENTS-SEMANTICS-15.jsonl",
+ "review_log_digest": "be034b871d157131",
+ "separation_status": "self_attested",
+ "model": "gpt-5.6-sol",
+ "target_commit": "b871f63607b555b14241c7bed744adeb87b0aff6",
+ "target_tree": "9f0b00a3e172a4e78885b87264a5a3ffdb7365a5",
+ "scope": "媒体別ハーネス分離（CRM（HubSpot想定））: MEDIA-HARNESS-CRM-HUBSPOT候補（draft・deferred・write無効）、IR 51 records、pin/baseline更新",
+ "supersedes_review": [
+  "REV-SOL-REQUIREMENTS-SEMANTICS-14"
+ ],
+ "reviewed_artifact_digests": {
+  "docs/00-authority/artifact-manifest.json": "afe4d98b318a8360",
+  "docs/00-authority/baselines/baseline.json": "794cd6830a1ae5dd",
+  "docs/00-authority/development/requirement-discovery-events.json": "cc7ceb273dcaa5d1"
+ },
+ "resolution_commits": [
+  "b871f63607b555b14241c7bed744adeb87b0aff6"
+ ],
+ "verdict": "Go",
+ "completed_at": "2026-08-20",
+ "rounds": 1,
+ "findings": []
+}

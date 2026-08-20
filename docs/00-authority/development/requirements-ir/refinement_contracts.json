@@ -1279,6 +1279,70 @@
     },
     "supporting_requirements": []
   },
+  "RRF-MEDIA-HARNESS-CRM-HUBSPOT": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-MEDIA-HARNESS-CRM-HUBSPOT-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-MEDIA-HARNESS-CRM-HUBSPOT"
+        ],
+        "semantic_digest": "sha256:1a66ae75e36cdf274d9b1256bf0a3bb1c2cbccd6a54b6e56e1591a2cf673f3e2",
+        "source_projection": "local_refinement_registry",
+        "statement": "CRM（HubSpot想定）の承認境界・write境界・route policyがCRM（HubSpot想定）専用refinementだけへ束縛された独立ハーネスとして構成される"
+      },
+      {
+        "acceptance_id": "MHH-AC-MEDIA-HARNESS-CRM-HUBSPOT-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-MEDIA-HARNESS-CRM-HUBSPOT"
+        ],
+        "semantic_digest": "sha256:94237d55292992d8cee7db6002527952fb599db35bcd1fae5e7344010f104ca1",
+        "source_projection": "local_refinement_registry",
+        "statement": "CRM（HubSpot想定）と他媒体の承認境界・write境界を単一ハーネスへ混載した構成、及びPO指示なしの外部リポジトリ作成を拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-MEDIA-HARNESS-CRM-HUBSPOT-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-MEDIA-HARNESS-CRM-HUBSPOT"
+        ],
+        "semantic_digest": "sha256:50806b4b283a49dafb3df11e8224a4143b2ac909aa732a0ed31637b51d6160fe",
+        "source_projection": "local_refinement_registry",
+        "statement": "CRM（HubSpot想定）ハーネスの失敗・停止時も他媒体ハーネスの承認・運用状態を変更せずfail-closeで自媒体側だけを停止する"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-MEDIA-HARNESS-CRM-HUBSPOT-P",
+        "MHH-AC-MEDIA-HARNESS-CRM-HUBSPOT-N",
+        "MHH-AC-MEDIA-HARNESS-CRM-HUBSPOT-B"
+      ],
+      "requirement_id": "MHH-REQ-MEDIA-HARNESS-CRM-HUBSPOT",
+      "semantic_digest": "sha256:3a25ac3ab8ca1df366d6ac0bc33724eac3e6813f77143c3b3406af434baf607e",
+      "source_projection": "local_refinement_registry",
+      "statement": "actors: PO / CRM（HubSpot想定）媒体運用者 / 製品runtime\nbeneficiaries: CRM（HubSpot想定）を他媒体から分離して監督したいPO / CRM（HubSpot想定）媒体運用者\nvalue: CRM（HubSpot想定）を1つの独立ハーネスとして分離し、承認境界・write境界・障害影響・route policyをCRM（HubSpot想定）単位で独立に凍結・運用でき、将来の独立リポジトリ分離を自己完結に行える\ntasks: CRM（HubSpot想定）ハーネスの承認境界・write境界を定義する / CRM（HubSpot想定）のroute policy・credential scope・証跡を自媒体refinementへ束縛する / 共有基盤との分離線と独立リポジトリ分離条件を確定する\nworkflow: candidate→媒体別refinement降下→媒体別PO凍結→媒体別release受入→将来の独立リポジトリ分離\nscope_in: CRM（HubSpot想定）専用ハーネスの構成 / CRM（HubSpot想定）の承認境界・write境界・route policy束縛 / 独立リポジトリ分離前提の自己完結設計\nscope_out: 他媒体ハーネスの内容 / 共有基盤の実装方式選択（design-later） / 外部リポジトリの実作成（PO明示指示まで行わない） / PO approval又は要求freeze\nprohibitions: CRM（HubSpot想定）の承認・write境界を他媒体ハーネスへ混載しない / 分離を理由に承認境界・禁止事項・fail-close規律を弱めない / PO指示なしに外部リポジトリを作成しない\nhuman_judgement: CRM（HubSpot想定）ハーネスの境界確定・採否・freeze・リポジトリ分離時期はPOが判断する\nside_effects: 要求候補とrefinement構成だけ。製品runtime・媒体への外部writeを変更しない\nevidence: CRM（HubSpot想定）別refinementのPO凍結receipt / CRM（HubSpot想定）承認境界のtyped contract / 独立リポジトリ分離条件の記録\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "draft",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-MEDIA-HARNESS-CRM-HUBSPOT",
+    "refinement_contract_id": "RRF-MEDIA-HARNESS-CRM-HUBSPOT",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "MEDIA-HARNESS-CRM-HUBSPOT",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:90bfe8f5cb9377eb5fbf39a156523e6b0a278c1ed4ade0816bc0a8743cc88dca",
+    "source": {
+      "acceptance_digest": "sha256:a2b82477fcea66e619824cf94b1c65a859757aa7d75fc9d2d13522d3bf9fb15b",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-MEDIA-HARNESS-CRM-HUBSPOT/acceptance_cases",
+      "requirement_digest": "sha256:3a25ac3ab8ca1df366d6ac0bc33724eac3e6813f77143c3b3406af434baf607e",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-MEDIA-HARNESS-CRM-HUBSPOT"
+    },
+    "supporting_requirements": []
+  },
   "RRF-MEDIA-HARNESS-DISCORD-COMMUNITY": {
     "acceptance_cases": [
       {

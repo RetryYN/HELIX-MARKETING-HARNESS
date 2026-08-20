@@ -339,6 +339,23 @@
     "system_contract_id": "MHH-SC-MEDIA-HARNESS-CANVA",
     "system_test_id": "MHH-ST-MEDIA-HARNESS-CANVA"
   },
+  "MHH-ST-MEDIA-HARNESS-CRM-HUBSPOT": {
+    "acceptance_ids": [
+      "MHH-AC-MEDIA-HARNESS-CRM-HUBSPOT-P",
+      "MHH-AC-MEDIA-HARNESS-CRM-HUBSPOT-N",
+      "MHH-AC-MEDIA-HARNESS-CRM-HUBSPOT-B"
+    ],
+    "negative_boundary": "CRM（HubSpot想定）の承認・write境界を他媒体ハーネスへ混載しない / 分離を理由に承認境界・禁止事項・fail-close規律を弱めない / PO指示なしに外部リポジトリを作成しない",
+    "required_evidence": "CRM（HubSpot想定）別refinementのPO凍結receipt / CRM（HubSpot想定）承認境界のtyped contract / 独立リポジトリ分離条件の記録",
+    "revision": 1,
+    "scenario": "requirements meaning review for MEDIA-HARNESS-CRM-HUBSPOT; no L2+ design or runtime execution",
+    "schema_version": "helix-system-test.v1",
+    "semantic_digest": "sha256:3b9d468e529234acdf61e23d9f8ebb7abc28de7576708431e4e2d1cdf4499086",
+    "status": "designed_not_implemented",
+    "supporting_test_ids": [],
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-CRM-HUBSPOT",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-CRM-HUBSPOT"
+  },
   "MHH-ST-MEDIA-HARNESS-DISCORD-COMMUNITY": {
     "acceptance_ids": [
       "MHH-AC-MEDIA-HARNESS-DISCORD-COMMUNITY-P",

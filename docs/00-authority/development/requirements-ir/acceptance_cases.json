@@ -659,6 +659,39 @@
     "system_contract_id": "MHH-SC-MEDIA-HARNESS-CANVA",
     "system_test_id": "MHH-ST-MEDIA-HARNESS-CANVA"
   },
+  "MHH-AC-MEDIA-HARNESS-CRM-HUBSPOT-B": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-CRM-HUBSPOT-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:50806b4b283a49dafb3df11e8224a4143b2ac909aa732a0ed31637b51d6160fe",
+    "statement": "CRM（HubSpot想定）ハーネスの失敗・停止時も他媒体ハーネスの承認・運用状態を変更せずfail-closeで自媒体側だけを停止する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-CRM-HUBSPOT",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-CRM-HUBSPOT"
+  },
+  "MHH-AC-MEDIA-HARNESS-CRM-HUBSPOT-N": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-CRM-HUBSPOT-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:94237d55292992d8cee7db6002527952fb599db35bcd1fae5e7344010f104ca1",
+    "statement": "CRM（HubSpot想定）と他媒体の承認境界・write境界を単一ハーネスへ混載した構成、及びPO指示なしの外部リポジトリ作成を拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-CRM-HUBSPOT",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-CRM-HUBSPOT"
+  },
+  "MHH-AC-MEDIA-HARNESS-CRM-HUBSPOT-P": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-CRM-HUBSPOT-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:1a66ae75e36cdf274d9b1256bf0a3bb1c2cbccd6a54b6e56e1591a2cf673f3e2",
+    "statement": "CRM（HubSpot想定）の承認境界・write境界・route policyがCRM（HubSpot想定）専用refinementだけへ束縛された独立ハーネスとして構成される",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-CRM-HUBSPOT",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-CRM-HUBSPOT"
+  },
   "MHH-AC-MEDIA-HARNESS-DISCORD-COMMUNITY-B": {
     "acceptance_id": "MHH-AC-MEDIA-HARNESS-DISCORD-COMMUNITY-B",
     "polarity": "boundary",
