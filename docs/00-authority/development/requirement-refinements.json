@@ -51998,9 +51998,10 @@
         "RDE-000185",
         "RDE-000186",
         "RDE-000187",
-        "RDE-000188"
+        "RDE-000188",
+        "RDE-000201"
       ],
-      "source_set_digest": "sha256:ae0653f97243ad812260e48b0e1136c2a6bfc9dd9b71455ef2ee15e86cd27f3c",
+      "source_set_digest": "sha256:2d57b946ab42a4470b9c24cec2f1bfcdcc85413ade36c61c2d27a1e2ca3a61fe",
       "semantic_dimensions": {
         "actors": [
           "PO",
@@ -52025,14 +52026,15 @@
           "媒体単位のハーネス分離構成",
           "媒体別の承認境界・write境界・route policy束縛",
           "媒体別の障害影響分離",
-          "PO確定済み6媒体（WordPress・Discord community・LINE・生成AI・アフィリエイト・Canva）の媒体別分離",
-          "将来の媒体別独立リポジトリ分離前提の自己完結設計"
+          "将来の媒体別独立リポジトリ分離前提の自己完結設計",
+          "PO改訂済み11媒体（WordPress・Discord community・LINE・アフィリエイト・X・Instagram・YouTube・TikTok・Threads・CRM(HubSpot想定)・Google Tag Manager）の媒体別分離"
         ],
         "scope_out": [
           "共通基盤の実装方式選択（design-later）",
           "PO approval又は要求freeze",
           "外部リポジトリの実作成（PO明示指示まで行わない）",
-          "旧媒体（LINE・生成AI・アフィリエイト・Canva）のdeferred運用の再開（分離は構成単位の分離であり運用再開を意味しない）"
+          "旧媒体（LINE・生成AI・アフィリエイト・Canva）のdeferred運用の再開（分離は構成単位の分離であり運用再開を意味しない）",
+          "生成AI・Canvaの媒体ハーネス（PO改訂で撤回。生成AIはGENAI-EXECUTION-ROUTE、Canvaは制作ツールとして別扱い）"
         ],
         "prohibitions": [
           "複数媒体の承認・write境界を単一ハーネスへ暗黙に混載しない",
@@ -52077,7 +52079,7 @@
         "既存の共通ハーネス前提の要求候補（route policy・content gate等）を媒体別refinementへどう再割当するか"
       ],
       "approval": null,
-      "semantic_digest": "sha256:31c4dc7ede336f95b42c169b6c562f13de43246e04cfe5b12a512cdde628227f"
+      "semantic_digest": "sha256:77bbcddf90abf3d1fc4b7a8bbf04eefe6d36a5853edd5e184ad74ebcf2cd02bd"
     },
     {
       "refinement_id": "RRF-MEDIA-HARNESS-WORDPRESS",
@@ -52335,12 +52337,13 @@
       "refinement_id": "RRF-MEDIA-HARNESS-GENAI",
       "subject_id": "MEDIA-HARNESS-GENAI",
       "revision": 1,
-      "lifecycle_status": "draft",
+      "lifecycle_status": "rejected",
       "source_event_ids": [
         "RDE-000195",
-        "RDE-000196"
+        "RDE-000196",
+        "RDE-000202"
       ],
-      "source_set_digest": "sha256:79cd67b871b1c00994b4f45c3c28b08814600e82821e358b3d91c3189db73800",
+      "source_set_digest": "sha256:b326ea16df46f7124a169941b48d49871b33f71b6c2f329652ec8533f92f8fad",
       "semantic_dimensions": {
         "actors": [
           "PO",
@@ -52413,7 +52416,7 @@
         "生成AIハーネスの承認境界・write境界・共有基盤との分離線、及び独立リポジトリ分離の時期・条件はどこで確定するか"
       ],
       "approval": null,
-      "semantic_digest": "sha256:f0465b10db621c0c010ac273083dfe884d687663dd01d117ed7ada1c79bd6ac8"
+      "semantic_digest": "sha256:842f5c521b450694bac59cffb3843ed34af611b543da0ec16537f63022314111"
     },
     {
       "refinement_id": "RRF-MEDIA-HARNESS-AFFILIATE",
@@ -52503,12 +52506,13 @@
       "refinement_id": "RRF-MEDIA-HARNESS-CANVA",
       "subject_id": "MEDIA-HARNESS-CANVA",
       "revision": 1,
-      "lifecycle_status": "draft",
+      "lifecycle_status": "rejected",
       "source_event_ids": [
         "RDE-000199",
-        "RDE-000200"
+        "RDE-000200",
+        "RDE-000203"
       ],
-      "source_set_digest": "sha256:fc3f808d21094b202102f205f3bc3aac8703cc09d108a6813c91b9cb97ece271",
+      "source_set_digest": "sha256:db76ac40ed4bbf5c350bff1acc0d26263d30a94c25634460da9f2859f877df79",
       "semantic_dimensions": {
         "actors": [
           "PO",
@@ -52581,7 +52585,7 @@
         "Canvaハーネスの承認境界・write境界・共有基盤との分離線、及び独立リポジトリ分離の時期・条件はどこで確定するか"
       ],
       "approval": null,
-      "semantic_digest": "sha256:7222135a2e70f84de7344419a92cc3ec0d62547bdb292a8e3436b2d44f9089ff"
+      "semantic_digest": "sha256:a588be5196502530dae688f0c487444a81094b258f80c33b779c799b9ffa6fab"
     }
   ],
   "automated_publishing_admission_policy": {

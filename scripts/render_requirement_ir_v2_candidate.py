@@ -68,7 +68,7 @@ def _kind(subject_id: str) -> str:
 
 
 def _candidate_status(record: dict[str, Any]) -> tuple[str, str, str]:
-    if record.get("lifecycle_status") == "superseded":
+    if record.get("lifecycle_status") in {"superseded", "rejected"}:
         return "historical_superseded", "superseded_history", "historical_refinement_registry"
     return "candidate_unratified", "unfrozen", "current_refinement_registry"
 

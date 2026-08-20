@@ -768,9 +768,9 @@
 
 ## RRF-MEDIA-HARNESS-CANVA — MEDIA-HARNESS-CANVA
 
-- **状態**: `draft` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
+- **状態**: `rejected` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
 - **scope候補**: `deferred_candidate` （PO receiptとFull V再降下までは実装不可）
-- **source events**: RDE-000199 RDE-000200
+- **source events**: RDE-000199 RDE-000200 RDE-000203
 - **主体**: PO／Canva媒体運用者／製品runtime
 - **受益者**: Canvaを他媒体から分離して監督したいPO／Canva媒体運用者
 - **価値**: Canvaを1つの独立ハーネスとして分離し、承認境界・write境界・障害影響・route policyをCanva単位で独立に凍結・運用でき、将来の独立リポジトリ分離を自己完結に行える
@@ -789,7 +789,7 @@
   - `boundary` RAC-MEDIA-HARNESS-CANVA-B: Canvaハーネスの失敗・停止時も他媒体ハーネスの承認・運用状態を変更せずfail-closeで自媒体側だけを停止する （RST-MEDIA-HARNESS-CANVA-B）
 - **PO個別質問**:
   - `RDQ-MEDIA-HARNESS-CANVA-01` (`requirements_policy`): Canvaハーネスの承認境界・write境界・共有基盤との分離線、及び独立リポジトリ分離の時期・条件はどこで確定するか （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
-- **semantic digest**: `sha256:7222135a2e70f84de7344419a92cc3ec0d62547bdb292a8e3436b2d44f9089ff`
+- **semantic digest**: `sha256:a588be5196502530dae688f0c487444a81094b258f80c33b779c799b9ffa6fab`
 
 ## RRF-MEDIA-HARNESS-DISCORD-COMMUNITY — MEDIA-HARNESS-DISCORD-COMMUNITY
 
@@ -818,9 +818,9 @@
 
 ## RRF-MEDIA-HARNESS-GENAI — MEDIA-HARNESS-GENAI
 
-- **状態**: `draft` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
+- **状態**: `rejected` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
 - **scope候補**: `deferred_candidate` （PO receiptとFull V再降下までは実装不可）
-- **source events**: RDE-000195 RDE-000196
+- **source events**: RDE-000195 RDE-000196 RDE-000202
 - **主体**: PO／生成AI媒体運用者／製品runtime
 - **受益者**: 生成AIを他媒体から分離して監督したいPO／生成AI媒体運用者
 - **価値**: 生成AIを1つの独立ハーネスとして分離し、承認境界・write境界・障害影響・route policyを生成AI単位で独立に凍結・運用でき、将来の独立リポジトリ分離を自己完結に行える
@@ -839,7 +839,7 @@
   - `boundary` RAC-MEDIA-HARNESS-GENAI-B: 生成AIハーネスの失敗・停止時も他媒体ハーネスの承認・運用状態を変更せずfail-closeで自媒体側だけを停止する （RST-MEDIA-HARNESS-GENAI-B）
 - **PO個別質問**:
   - `RDQ-MEDIA-HARNESS-GENAI-01` (`requirements_policy`): 生成AIハーネスの承認境界・write境界・共有基盤との分離線、及び独立リポジトリ分離の時期・条件はどこで確定するか （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
-- **semantic digest**: `sha256:f0465b10db621c0c010ac273083dfe884d687663dd01d117ed7ada1c79bd6ac8`
+- **semantic digest**: `sha256:842f5c521b450694bac59cffb3843ed34af611b543da0ec16537f63022314111`
 
 ## RRF-MEDIA-HARNESS-LINE — MEDIA-HARNESS-LINE
 
@@ -895,14 +895,14 @@
 
 - **状態**: `draft` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
 - **scope候補**: `requirements_governance` （PO receiptとFull V再降下までは実装不可）
-- **source events**: RDE-000184 RDE-000185 RDE-000186 RDE-000187 RDE-000188
+- **source events**: RDE-000184 RDE-000185 RDE-000186 RDE-000187 RDE-000188 RDE-000201
 - **主体**: PO／媒体運用者／製品runtime
 - **受益者**: 媒体別に承認・障害影響を分離して監督したいPO／媒体運用者
 - **価値**: 媒体ごとに1つの独立ハーネスへ分離し、承認境界・write境界・障害影響・route policyを媒体単位で独立に凍結・運用できる
 - **task**: 対象媒体一覧を確定する／媒体別ハーネスの承認境界・write境界を定義する／共通基盤とハーネス分離の境界線を確定する／既存の共通ハーネス前提候補を媒体別refinementへ再割当する
 - **workflow**: candidate→媒体一覧のPO確定→媒体別refinement降下→媒体別PO凍結→媒体別release受入
-- **対象範囲**: 媒体単位のハーネス分離構成／媒体別の承認境界・write境界・route policy束縛／媒体別の障害影響分離／PO確定済み6媒体（WordPress・Discord community・LINE・生成AI・アフィリエイト・Canva）の媒体別分離／将来の媒体別独立リポジトリ分離前提の自己完結設計
-- **対象外**: 共通基盤の実装方式選択（design-later）／PO approval又は要求freeze／外部リポジトリの実作成（PO明示指示まで行わない）／旧媒体（LINE・生成AI・アフィリエイト・Canva）のdeferred運用の再開（分離は構成単位の分離であり運用再開を意味しない）
+- **対象範囲**: 媒体単位のハーネス分離構成／媒体別の承認境界・write境界・route policy束縛／媒体別の障害影響分離／将来の媒体別独立リポジトリ分離前提の自己完結設計／PO改訂済み11媒体（WordPress・Discord community・LINE・アフィリエイト・X・Instagram・YouTube・TikTok・Threads・CRM(HubSpot想定)・Google Tag Manager）の媒体別分離
+- **対象外**: 共通基盤の実装方式選択（design-later）／PO approval又は要求freeze／外部リポジトリの実作成（PO明示指示まで行わない）／旧媒体（LINE・生成AI・アフィリエイト・Canva）のdeferred運用の再開（分離は構成単位の分離であり運用再開を意味しない）／生成AI・Canvaの媒体ハーネス（PO改訂で撤回。生成AIはGENAI-EXECUTION-ROUTE、Canvaは制作ツールとして別扱い）
 - **禁止事項**: 複数媒体の承認・write境界を単一ハーネスへ暗黙に混載しない／媒体別分離を理由に承認境界・禁止事項・fail-close規律を弱めない／媒体別ハーネス分離を根拠に旧媒体（LINE・生成AI・アフィリエイト・Canva）のdeferred運用を暗黙に再開しない
 - **人間判断**: 対象媒体一覧・分離境界・共有基盤範囲・採否・freezeはPOが判断する
 - **副作用**: 要求候補とrefinement構成だけ。製品runtime・媒体への外部writeを変更しない
@@ -915,7 +915,7 @@
 - **PO個別質問**:
   - `RDQ-MEDIA-PER-MEDIUM-HARNESS-01` (`requirements_policy`): 媒体横断で共有する共通基盤（credential store・evidence・kernel）の範囲と、ハーネス分離の境界線はどこか （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
   - `RDQ-MEDIA-PER-MEDIUM-HARNESS-02` (`requirements_policy`): 既存の共通ハーネス前提の要求候補（route policy・content gate等）を媒体別refinementへどう再割当するか （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
-- **semantic digest**: `sha256:31c4dc7ede336f95b42c169b6c562f13de43246e04cfe5b12a512cdde628227f`
+- **semantic digest**: `sha256:77bbcddf90abf3d1fc4b7a8bbf04eefe6d36a5853edd5e184ad74ebcf2cd02bd`
 
 ## RRF-MEDIA-POC-SCRUM-RELEASE — MEDIA-POC-SCRUM-RELEASE
 

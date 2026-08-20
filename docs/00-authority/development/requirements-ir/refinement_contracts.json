@@ -1223,7 +1223,7 @@
         "requirement_ids": [
           "MHH-REQ-MEDIA-HARNESS-CANVA"
         ],
-        "semantic_digest": "sha256:477f1f9dba97054da8cdcc1e61a1ad29aa9b34abb07ce301c1d389bfb2150d48",
+        "semantic_digest": "sha256:1404edf47c406c0af9372061c27176f531b6efe9760d115dafb7706051d8db7a",
         "source_projection": "local_refinement_registry",
         "statement": "Canvaの承認境界・write境界・route policyがCanva専用refinementだけへ束縛された独立ハーネスとして構成される"
       },
@@ -1233,7 +1233,7 @@
         "requirement_ids": [
           "MHH-REQ-MEDIA-HARNESS-CANVA"
         ],
-        "semantic_digest": "sha256:09ff704439f99bd59cf60d6549b23c85d7a07cf0b4998d755b234b38e63d481f",
+        "semantic_digest": "sha256:f240fe7d5e4d896081fc6af6f7078d31cfd623e3cfb5f5101e7742ed1449b4ee",
         "source_projection": "local_refinement_registry",
         "statement": "Canvaと他媒体の承認境界・write境界を単一ハーネスへ混載した構成、及びPO指示なしの外部リポジトリ作成を拒否する"
       },
@@ -1243,7 +1243,7 @@
         "requirement_ids": [
           "MHH-REQ-MEDIA-HARNESS-CANVA"
         ],
-        "semantic_digest": "sha256:ecae113499fe07ad9def00a1b32f84ac743bd4b53c2f93a9b6c5fb4ada4ea2f2",
+        "semantic_digest": "sha256:133b50e92a1f91a125f2fc26d533a26c192d32e539d4349c84e4ad39fd7d730b",
         "source_projection": "local_refinement_registry",
         "statement": "Canvaハーネスの失敗・停止時も他媒体ハーネスの承認・運用状態を変更せずfail-closeで自媒体側だけを停止する"
       }
@@ -1257,12 +1257,12 @@
         "MHH-AC-MEDIA-HARNESS-CANVA-B"
       ],
       "requirement_id": "MHH-REQ-MEDIA-HARNESS-CANVA",
-      "semantic_digest": "sha256:7222135a2e70f84de7344419a92cc3ec0d62547bdb292a8e3436b2d44f9089ff",
+      "semantic_digest": "sha256:a588be5196502530dae688f0c487444a81094b258f80c33b779c799b9ffa6fab",
       "source_projection": "local_refinement_registry",
       "statement": "actors: PO / Canva媒体運用者 / 製品runtime\nbeneficiaries: Canvaを他媒体から分離して監督したいPO / Canva媒体運用者\nvalue: Canvaを1つの独立ハーネスとして分離し、承認境界・write境界・障害影響・route policyをCanva単位で独立に凍結・運用でき、将来の独立リポジトリ分離を自己完結に行える\ntasks: Canvaハーネスの承認境界・write境界を定義する / Canvaのroute policy・credential scope・証跡を自媒体refinementへ束縛する / 共有基盤との分離線と独立リポジトリ分離条件を確定する\nworkflow: candidate→媒体別refinement降下→媒体別PO凍結→媒体別release受入→将来の独立リポジトリ分離\nscope_in: Canva専用ハーネスの構成 / Canvaの承認境界・write境界・route policy束縛 / 独立リポジトリ分離前提の自己完結設計\nscope_out: 他媒体ハーネスの内容 / 共有基盤の実装方式選択（design-later） / 外部リポジトリの実作成（PO明示指示まで行わない） / PO approval又は要求freeze\nprohibitions: Canvaの承認・write境界を他媒体ハーネスへ混載しない / 分離を理由に承認境界・禁止事項・fail-close規律を弱めない / PO指示なしに外部リポジトリを作成しない\nhuman_judgement: Canvaハーネスの境界確定・採否・freeze・リポジトリ分離時期はPOが判断する\nside_effects: 要求候補とrefinement構成だけ。製品runtime・媒体への外部writeを変更しない\nevidence: Canva別refinementのPO凍結receipt / Canva承認境界のtyped contract / 独立リポジトリ分離条件の記録\nphase: requirements"
     },
     "downstream_issue_ids": [],
-    "lifecycle_status": "draft",
+    "lifecycle_status": "rejected",
     "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
     "primary_system_contract_id": "MHH-SC-MEDIA-HARNESS-CANVA",
     "refinement_contract_id": "RRF-MEDIA-HARNESS-CANVA",
@@ -1270,11 +1270,11 @@
     "responsibility_owner": "MEDIA-HARNESS-CANVA",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:9dd50061d35a831cd702664216e540edf9a53c0d74ab98092d32f322d618ed2d",
+    "semantic_digest": "sha256:f916e86b9d87a32bdd9dc86f85f111eb34404df75d45d6153e8e12697a5065e3",
     "source": {
       "acceptance_digest": "sha256:f67bfbc331d7f61221a690ff12b01b3b31c72fba77e890021f2427e7ea417285",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-MEDIA-HARNESS-CANVA/acceptance_cases",
-      "requirement_digest": "sha256:7222135a2e70f84de7344419a92cc3ec0d62547bdb292a8e3436b2d44f9089ff",
+      "requirement_digest": "sha256:a588be5196502530dae688f0c487444a81094b258f80c33b779c799b9ffa6fab",
       "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-MEDIA-HARNESS-CANVA"
     },
     "supporting_requirements": []
@@ -1351,7 +1351,7 @@
         "requirement_ids": [
           "MHH-REQ-MEDIA-HARNESS-GENAI"
         ],
-        "semantic_digest": "sha256:b4bda8e0e53cc2c8cddc3b152f68df4aee781c9198bcb29eacdccab0a0e0e388",
+        "semantic_digest": "sha256:30b6452387ee2244a9fdc38846919dd9532c9f11b561e27051d451c724b6fbcf",
         "source_projection": "local_refinement_registry",
         "statement": "生成AIの承認境界・write境界・route policyが生成AI専用refinementだけへ束縛された独立ハーネスとして構成される"
       },
@@ -1361,7 +1361,7 @@
         "requirement_ids": [
           "MHH-REQ-MEDIA-HARNESS-GENAI"
         ],
-        "semantic_digest": "sha256:e349072eb0916d341eccdcf2378b4c09fe207e0da2dcf7b5e4467232e3c4f2ef",
+        "semantic_digest": "sha256:fa18af8862ab40afb8f3911742e26a3b14f14fb38e9ebe399059625eabc30576",
         "source_projection": "local_refinement_registry",
         "statement": "生成AIと他媒体の承認境界・write境界を単一ハーネスへ混載した構成、及びPO指示なしの外部リポジトリ作成を拒否する"
       },
@@ -1371,7 +1371,7 @@
         "requirement_ids": [
           "MHH-REQ-MEDIA-HARNESS-GENAI"
         ],
-        "semantic_digest": "sha256:42cdca92a9d09b52e7df59e4abe7b080452e41236a916def71db7dc93c894e1a",
+        "semantic_digest": "sha256:fa5f3a4ae23365358db736b84cb66adfe23785a29b9a77cd69efe142f10f4cff",
         "source_projection": "local_refinement_registry",
         "statement": "生成AIハーネスの失敗・停止時も他媒体ハーネスの承認・運用状態を変更せずfail-closeで自媒体側だけを停止する"
       }
@@ -1385,12 +1385,12 @@
         "MHH-AC-MEDIA-HARNESS-GENAI-B"
       ],
       "requirement_id": "MHH-REQ-MEDIA-HARNESS-GENAI",
-      "semantic_digest": "sha256:f0465b10db621c0c010ac273083dfe884d687663dd01d117ed7ada1c79bd6ac8",
+      "semantic_digest": "sha256:842f5c521b450694bac59cffb3843ed34af611b543da0ec16537f63022314111",
       "source_projection": "local_refinement_registry",
       "statement": "actors: PO / 生成AI媒体運用者 / 製品runtime\nbeneficiaries: 生成AIを他媒体から分離して監督したいPO / 生成AI媒体運用者\nvalue: 生成AIを1つの独立ハーネスとして分離し、承認境界・write境界・障害影響・route policyを生成AI単位で独立に凍結・運用でき、将来の独立リポジトリ分離を自己完結に行える\ntasks: 生成AIハーネスの承認境界・write境界を定義する / 生成AIのroute policy・credential scope・証跡を自媒体refinementへ束縛する / 共有基盤との分離線と独立リポジトリ分離条件を確定する\nworkflow: candidate→媒体別refinement降下→媒体別PO凍結→媒体別release受入→将来の独立リポジトリ分離\nscope_in: 生成AI専用ハーネスの構成 / 生成AIの承認境界・write境界・route policy束縛 / 独立リポジトリ分離前提の自己完結設計\nscope_out: 他媒体ハーネスの内容 / 共有基盤の実装方式選択（design-later） / 外部リポジトリの実作成（PO明示指示まで行わない） / PO approval又は要求freeze\nprohibitions: 生成AIの承認・write境界を他媒体ハーネスへ混載しない / 分離を理由に承認境界・禁止事項・fail-close規律を弱めない / PO指示なしに外部リポジトリを作成しない\nhuman_judgement: 生成AIハーネスの境界確定・採否・freeze・リポジトリ分離時期はPOが判断する\nside_effects: 要求候補とrefinement構成だけ。製品runtime・媒体への外部writeを変更しない\nevidence: 生成AI別refinementのPO凍結receipt / 生成AI承認境界のtyped contract / 独立リポジトリ分離条件の記録\nphase: requirements"
     },
     "downstream_issue_ids": [],
-    "lifecycle_status": "draft",
+    "lifecycle_status": "rejected",
     "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
     "primary_system_contract_id": "MHH-SC-MEDIA-HARNESS-GENAI",
     "refinement_contract_id": "RRF-MEDIA-HARNESS-GENAI",
@@ -1398,11 +1398,11 @@
     "responsibility_owner": "MEDIA-HARNESS-GENAI",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:a728c47ba9f939e6c425658ce09d7567911295ff06b6feb4502834224b1a7b4e",
+    "semantic_digest": "sha256:993d1703b0f1eb2860ba6b63cb50df745f36ed92377aa8dad9a6cb3b19123fe0",
     "source": {
       "acceptance_digest": "sha256:0e423ec43af4241287e1830261ce33f22d8acac1c193a763b717f9956424731e",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-MEDIA-HARNESS-GENAI/acceptance_cases",
-      "requirement_digest": "sha256:f0465b10db621c0c010ac273083dfe884d687663dd01d117ed7ada1c79bd6ac8",
+      "requirement_digest": "sha256:842f5c521b450694bac59cffb3843ed34af611b543da0ec16537f63022314111",
       "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-MEDIA-HARNESS-GENAI"
     },
     "supporting_requirements": []
@@ -1577,9 +1577,9 @@
         "MHH-AC-MEDIA-PER-MEDIUM-HARNESS-B"
       ],
       "requirement_id": "MHH-REQ-MEDIA-PER-MEDIUM-HARNESS",
-      "semantic_digest": "sha256:31c4dc7ede336f95b42c169b6c562f13de43246e04cfe5b12a512cdde628227f",
+      "semantic_digest": "sha256:77bbcddf90abf3d1fc4b7a8bbf04eefe6d36a5853edd5e184ad74ebcf2cd02bd",
       "source_projection": "local_refinement_registry",
-      "statement": "actors: PO / 媒体運用者 / 製品runtime\nbeneficiaries: 媒体別に承認・障害影響を分離して監督したいPO / 媒体運用者\nvalue: 媒体ごとに1つの独立ハーネスへ分離し、承認境界・write境界・障害影響・route policyを媒体単位で独立に凍結・運用できる\ntasks: 対象媒体一覧を確定する / 媒体別ハーネスの承認境界・write境界を定義する / 共通基盤とハーネス分離の境界線を確定する / 既存の共通ハーネス前提候補を媒体別refinementへ再割当する\nworkflow: candidate→媒体一覧のPO確定→媒体別refinement降下→媒体別PO凍結→媒体別release受入\nscope_in: 媒体単位のハーネス分離構成 / 媒体別の承認境界・write境界・route policy束縛 / 媒体別の障害影響分離 / PO確定済み6媒体（WordPress・Discord community・LINE・生成AI・アフィリエイト・Canva）の媒体別分離 / 将来の媒体別独立リポジトリ分離前提の自己完結設計\nscope_out: 共通基盤の実装方式選択（design-later） / PO approval又は要求freeze / 外部リポジトリの実作成（PO明示指示まで行わない） / 旧媒体（LINE・生成AI・アフィリエイト・Canva）のdeferred運用の再開（分離は構成単位の分離であり運用再開を意味しない）\nprohibitions: 複数媒体の承認・write境界を単一ハーネスへ暗黙に混載しない / 媒体別分離を理由に承認境界・禁止事項・fail-close規律を弱めない / 媒体別ハーネス分離を根拠に旧媒体（LINE・生成AI・アフィリエイト・Canva）のdeferred運用を暗黙に再開しない\nhuman_judgement: 対象媒体一覧・分離境界・共有基盤範囲・採否・freezeはPOが判断する\nside_effects: 要求候補とrefinement構成だけ。製品runtime・媒体への外部writeを変更しない\nevidence: 媒体一覧のPO確定record / 媒体別refinement subjectの降下 / 媒体別承認境界のtyped contract\nphase: requirements"
+      "statement": "actors: PO / 媒体運用者 / 製品runtime\nbeneficiaries: 媒体別に承認・障害影響を分離して監督したいPO / 媒体運用者\nvalue: 媒体ごとに1つの独立ハーネスへ分離し、承認境界・write境界・障害影響・route policyを媒体単位で独立に凍結・運用できる\ntasks: 対象媒体一覧を確定する / 媒体別ハーネスの承認境界・write境界を定義する / 共通基盤とハーネス分離の境界線を確定する / 既存の共通ハーネス前提候補を媒体別refinementへ再割当する\nworkflow: candidate→媒体一覧のPO確定→媒体別refinement降下→媒体別PO凍結→媒体別release受入\nscope_in: 媒体単位のハーネス分離構成 / 媒体別の承認境界・write境界・route policy束縛 / 媒体別の障害影響分離 / 将来の媒体別独立リポジトリ分離前提の自己完結設計 / PO改訂済み11媒体（WordPress・Discord community・LINE・アフィリエイト・X・Instagram・YouTube・TikTok・Threads・CRM(HubSpot想定)・Google Tag Manager）の媒体別分離\nscope_out: 共通基盤の実装方式選択（design-later） / PO approval又は要求freeze / 外部リポジトリの実作成（PO明示指示まで行わない） / 旧媒体（LINE・生成AI・アフィリエイト・Canva）のdeferred運用の再開（分離は構成単位の分離であり運用再開を意味しない） / 生成AI・Canvaの媒体ハーネス（PO改訂で撤回。生成AIはGENAI-EXECUTION-ROUTE、Canvaは制作ツールとして別扱い）\nprohibitions: 複数媒体の承認・write境界を単一ハーネスへ暗黙に混載しない / 媒体別分離を理由に承認境界・禁止事項・fail-close規律を弱めない / 媒体別ハーネス分離を根拠に旧媒体（LINE・生成AI・アフィリエイト・Canva）のdeferred運用を暗黙に再開しない\nhuman_judgement: 対象媒体一覧・分離境界・共有基盤範囲・採否・freezeはPOが判断する\nside_effects: 要求候補とrefinement構成だけ。製品runtime・媒体への外部writeを変更しない\nevidence: 媒体一覧のPO確定record / 媒体別refinement subjectの降下 / 媒体別承認境界のtyped contract\nphase: requirements"
     },
     "downstream_issue_ids": [],
     "lifecycle_status": "draft",
@@ -1590,11 +1590,11 @@
     "responsibility_owner": "MEDIA-PER-MEDIUM-HARNESS",
     "revision": 1,
     "schema_version": "helix-requirement-refinement.v1",
-    "semantic_digest": "sha256:59075f8b0a8013cb9826952827d4ab74cbc507535c42a980897d6c41a33aa6fc",
+    "semantic_digest": "sha256:e897ec31f30cc1f9a4068813bc5a090c706448b95aa2df187414994e6669dfec",
     "source": {
       "acceptance_digest": "sha256:f7138940fa6feefd33b753bf2f6929c49d55c8227c91ca4b61107ef89e150cea",
       "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-MEDIA-PER-MEDIUM-HARNESS/acceptance_cases",
-      "requirement_digest": "sha256:31c4dc7ede336f95b42c169b6c562f13de43246e04cfe5b12a512cdde628227f",
+      "requirement_digest": "sha256:77bbcddf90abf3d1fc4b7a8bbf04eefe6d36a5853edd5e184ad74ebcf2cd02bd",
       "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-MEDIA-PER-MEDIUM-HARNESS"
     },
     "supporting_requirements": []

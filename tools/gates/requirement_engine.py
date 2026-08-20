@@ -620,7 +620,7 @@ def candidate_ir_v2_faults() -> list[str]:
                 if record.get("status") not in {"designed_not_implemented", "historical_superseded"}:
                     faults.append(f"candidate IR {stable_id} が未着手テスト境界を外れる")
             else:
-                if record.get("lifecycle_status") not in {"draft", "specified", "superseded"}:
+                if record.get("lifecycle_status") not in {"draft", "specified", "superseded", "rejected"}:
                     faults.append(f"candidate IR {stable_id} lifecycle が候補閉包外")
                 source = record.get("source")
                 if not isinstance(source, dict) or set(source) != {"requirement_path", "requirement_digest", "acceptance_path", "acceptance_digest"}:
@@ -12032,7 +12032,7 @@ def legacy_fault_stage_audit_faults(
                 faults.append(f"{gate_id}: known quarantined fault集合が増減又は意味反転")
         if _digest(source_digests) != "sha256:ed8691d9069dca0e391996994c834f36f49beef33cf8dc9aad7440623d7ecbb9":
             faults.append("legacy contract source artifact集合digestがstale")
-        if _digest(expanded_source_digests) != "sha256:35ab1d1308209a50ae099cff03404679d4511903d3a30ae650dfa63ff620bc9d":
+        if _digest(expanded_source_digests) != "sha256:5656e6e85c7f92222335c5a064d0fad5f0e88c7f57ba07a6f3c8ad2033067262":
             faults.append("legacy ADR/L2/refinement raw source snapshot digestがstale")
     elif cutover_complete and any(raw_faults.values()):
         faults.append("approved cutoverでは旧raw faultをquarantineせずzero closureが必要")

@@ -232,7 +232,7 @@ slice: cross
 
 | ゲート | 検証内容 | 違反の意味 |
 |---|---|---|
-| G-REQ-IR-PROJECTION | 9契約JSON＋refinement registryをstable ID keyedに正規化し、`requirements`／`system_contracts`／`acceptance_cases`／`system_tests`／`refinement_contracts`の5 shard、各count/digest、root digestを決定的に生成する。加えてHELIX-HARNESS v2のmanifest＋5 shard形式を`candidate_non_authoritative`として同じregistryから再生成し、未批准要求をcanonical/frozenや設計・実装入力へ昇格させない。projectionは手編集可能な第二正本ではない | IR未生成・区画欠落・入力順依存・二重正本化・candidateのcanonical/frozen過大主張 |
+| G-REQ-IR-PROJECTION | 9契約JSON＋refinement registryをstable ID keyedに正規化し、`requirements`／`system_contracts`／`acceptance_cases`／`system_tests`／`refinement_contracts`の5 shard、各count/digest、root digestを決定的に生成する。加えてHELIX-HARNESS v2のmanifest＋5 shard形式を`candidate_non_authoritative`として同じregistryから再生成し、未批准要求をcanonical/frozenや設計・実装入力へ昇格させない（rejected／superseded refinementはhistorical扱いへ写像する）。projectionは手編集可能な第二正本ではない | IR未生成・区画欠落・入力順依存・二重正本化・candidateのcanonical/frozen過大主張 |
 | G-REQ-SEMANTIC-DRIFT | compatibility requirements viewと契約正本の同一IDについてsliceとupstream/downstream traceを比較し、L1 REQ MarkdownとREQ JSON ledgerの本文・出典・下流・充填・優先度も比較する | 同じIDを保ったまま別の責務・導入時期・追跡先を提示する意味ドリフト |
 | G-REQ-LEGACY-FAULT-STAGE-AUDIT | revisingかつimplementation未承認の間だけ旧raw semantic/trace/phase/runtime fault集合を件数・sorted digest・全入力source digest・disposition authorityへexact固定し、approved cutoverではraw fault zeroを要求する | 旧faultの無条件skip、fault増減や入力差替えの黙認、authority不健全時の隔離、cutover後の旧fault再利用 |
 | G-REQ-TRACE-BIDIR | BR.trace_downとFR/SR.trace_upを双方向に照合し、孤児と片方向参照を拒否する | 上位価値・actor・scopeに戻れない要求、又は下流で実現されないBR |

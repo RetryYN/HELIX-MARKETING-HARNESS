@@ -333,8 +333,8 @@
     "revision": 1,
     "scenario": "requirements meaning review for MEDIA-HARNESS-CANVA; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:2b0a24bff6592fe4be8c08efeef5fe8f3dde9b2f45577391cf79d7b97a3305ab",
-    "status": "designed_not_implemented",
+    "semantic_digest": "sha256:b1e65fff89e0517d1ab881d4a698b6daaab23f65e26c70085e04bb84cf682207",
+    "status": "historical_superseded",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-MEDIA-HARNESS-CANVA",
     "system_test_id": "MHH-ST-MEDIA-HARNESS-CANVA"
@@ -367,8 +367,8 @@
     "revision": 1,
     "scenario": "requirements meaning review for MEDIA-HARNESS-GENAI; no L2+ design or runtime execution",
     "schema_version": "helix-system-test.v1",
-    "semantic_digest": "sha256:6d1c6e761c90a5cd3941cef2ff8cf57413bb679a83b51e39cbbe32a40ef25d06",
-    "status": "designed_not_implemented",
+    "semantic_digest": "sha256:889841839523955c6059dea27595b488f57084d12ebed215bccf2f6494ecce37",
+    "status": "historical_superseded",
     "supporting_test_ids": [],
     "system_contract_id": "MHH-SC-MEDIA-HARNESS-GENAI",
     "system_test_id": "MHH-ST-MEDIA-HARNESS-GENAI"

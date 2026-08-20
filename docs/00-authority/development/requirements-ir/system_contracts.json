@@ -373,8 +373,8 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:9fb800265a7a1212af3f5898489de3fdd6cc65851299e55a988fcc763191d915",
-    "status": "candidate_unratified",
+    "semantic_digest": "sha256:13cdd410d880e1e2013912d88d6afd7d4563273eb419a93429a5b9b1ba2bfd75",
+    "status": "historical_superseded",
     "system_contract_id": "MHH-SC-MEDIA-HARNESS-CANVA",
     "system_test_id": "MHH-ST-MEDIA-HARNESS-CANVA",
     "transition_contract": "candidate_unratified -> frozen only after individual PO receipt; no design or runtime transition is admitted"
@@ -411,8 +411,8 @@
     ],
     "revision": 1,
     "schema_version": "helix-system-contract.v1",
-    "semantic_digest": "sha256:c9cb2c5474e188cb35c94b1858da6f5eee3b605c1f37db819d694405e38b9435",
-    "status": "candidate_unratified",
+    "semantic_digest": "sha256:99cc9738eb450f9ae2c42ad045cc81171f7857404326a6d1619ffbd40b19bd32",
+    "status": "historical_superseded",
     "system_contract_id": "MHH-SC-MEDIA-HARNESS-GENAI",
     "system_test_id": "MHH-ST-MEDIA-HARNESS-GENAI",
     "transition_contract": "candidate_unratified -> frozen only after individual PO receipt; no design or runtime transition is admitted"

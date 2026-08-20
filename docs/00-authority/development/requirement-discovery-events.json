@@ -6995,6 +6995,71 @@
         "question": "Canvaハーネスの承認境界・write境界・共有基盤との分離線、及び独立リポジトリ分離の時期・条件はどこで確定するか",
         "dimension": "constraints"
       }
+    },
+    {
+      "event_id": "RDE-000201",
+      "sequence": 201,
+      "subject_id": "MEDIA-PER-MEDIUM-HARNESS",
+      "event_type": "question_answered",
+      "occurred_at": "2026-08-20T03:00:00Z",
+      "recorded_at": "2026-08-20T03:00:00Z",
+      "actor_principal": "po",
+      "references": [
+        {
+          "kind": "event",
+          "id": "RDE-000185"
+        }
+      ],
+      "payload": {
+        "question_event_id": "RDE-000185",
+        "answer": "POは対象媒体一覧を改訂する。生成AIとCanvaの媒体ハーネスは不要として撤回し、SNSはプラットフォーム別（X・Instagram・YouTube・TikTok・Threads）、CRM（HubSpot想定）、Google Tag Manager（計測タグ設定）を追加する。改訂後の閉じた一覧はWordPress・Discord community・LINE・アフィリエイト・X・Instagram・YouTube・TikTok・Threads・CRM（HubSpot想定）・Google Tag Managerの11媒体。追加分は全てdeferredで登録し、運用開始は別途PO凍結。媒体別1ハーネス・将来独立リポジトリ前提は維持する。"
+      }
+    },
+    {
+      "event_id": "RDE-000202",
+      "sequence": 202,
+      "subject_id": "MEDIA-HARNESS-GENAI",
+      "event_type": "withdrawn",
+      "occurred_at": "2026-08-20T03:00:00Z",
+      "recorded_at": "2026-08-20T03:00:00Z",
+      "actor_principal": "po",
+      "references": [
+        {
+          "kind": "event",
+          "id": "RDE-000195"
+        },
+        {
+          "kind": "event",
+          "id": "RDE-000201"
+        }
+      ],
+      "payload": {
+        "reason": "PO改訂判断: 生成AIの媒体ハーネスは不要。生成AIは媒体ではなく実行route（GENAI-EXECUTION-ROUTE・deferred維持）として扱う。",
+        "withdrawn_event_id": "RDE-000195"
+      }
+    },
+    {
+      "event_id": "RDE-000203",
+      "sequence": 203,
+      "subject_id": "MEDIA-HARNESS-CANVA",
+      "event_type": "withdrawn",
+      "occurred_at": "2026-08-20T03:00:00Z",
+      "recorded_at": "2026-08-20T03:00:00Z",
+      "actor_principal": "po",
+      "references": [
+        {
+          "kind": "event",
+          "id": "RDE-000199"
+        },
+        {
+          "kind": "event",
+          "id": "RDE-000201"
+        }
+      ],
+      "payload": {
+        "reason": "PO改訂判断: Canvaの媒体ハーネスは不要。Canvaは配信媒体ではなく制作ツールであり媒体別ハーネスの対象外とする。",
+        "withdrawn_event_id": "RDE-000199"
+      }
     }
   ]
 }
