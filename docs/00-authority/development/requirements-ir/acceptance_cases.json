@@ -857,6 +857,39 @@
     "system_contract_id": "MHH-SC-MEDIA-HARNESS-X-TWITTER",
     "system_test_id": "MHH-ST-MEDIA-HARNESS-X-TWITTER"
   },
+  "MHH-AC-MEDIA-HARNESS-YOUTUBE-B": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-YOUTUBE-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:d500ed0c2301e5eef646486df207747d65d0686431cf56d74c10152d0c1b89f7",
+    "statement": "YouTubeハーネスの失敗・停止時も他媒体ハーネスの承認・運用状態を変更せずfail-closeで自媒体側だけを停止する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-YOUTUBE",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-YOUTUBE"
+  },
+  "MHH-AC-MEDIA-HARNESS-YOUTUBE-N": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-YOUTUBE-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:974d0f40f8b4b801ebd2d060562b2cc6b76f760f2d14d25355264130df5253f5",
+    "statement": "YouTubeと他媒体の承認境界・write境界を単一ハーネスへ混載した構成、及びPO指示なしの外部リポジトリ作成を拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-YOUTUBE",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-YOUTUBE"
+  },
+  "MHH-AC-MEDIA-HARNESS-YOUTUBE-P": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-YOUTUBE-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:5b44ee206ebcfe30f2db4bdd381d22660f9af035a708390ebd69165aa52ad0a7",
+    "statement": "YouTubeの承認境界・write境界・route policyがYouTube専用refinementだけへ束縛された独立ハーネスとして構成される",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-YOUTUBE",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-YOUTUBE"
+  },
   "MHH-AC-MEDIA-PER-MEDIUM-HARNESS-B": {
     "acceptance_id": "MHH-AC-MEDIA-PER-MEDIUM-HARNESS-B",
     "polarity": "boundary",

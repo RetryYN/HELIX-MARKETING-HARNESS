@@ -441,6 +441,23 @@
     "system_contract_id": "MHH-SC-MEDIA-HARNESS-X-TWITTER",
     "system_test_id": "MHH-ST-MEDIA-HARNESS-X-TWITTER"
   },
+  "MHH-ST-MEDIA-HARNESS-YOUTUBE": {
+    "acceptance_ids": [
+      "MHH-AC-MEDIA-HARNESS-YOUTUBE-P",
+      "MHH-AC-MEDIA-HARNESS-YOUTUBE-N",
+      "MHH-AC-MEDIA-HARNESS-YOUTUBE-B"
+    ],
+    "negative_boundary": "YouTubeの承認・write境界を他媒体ハーネスへ混載しない / 分離を理由に承認境界・禁止事項・fail-close規律を弱めない / PO指示なしに外部リポジトリを作成しない",
+    "required_evidence": "YouTube別refinementのPO凍結receipt / YouTube承認境界のtyped contract / 独立リポジトリ分離条件の記録",
+    "revision": 1,
+    "scenario": "requirements meaning review for MEDIA-HARNESS-YOUTUBE; no L2+ design or runtime execution",
+    "schema_version": "helix-system-test.v1",
+    "semantic_digest": "sha256:a552fe4b4421993a90486b6f51e2acfa94945c2d45717cffea627e698e47351b",
+    "status": "designed_not_implemented",
+    "supporting_test_ids": [],
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-YOUTUBE",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-YOUTUBE"
+  },
   "MHH-ST-MEDIA-PER-MEDIUM-HARNESS": {
     "acceptance_ids": [
       "MHH-AC-MEDIA-PER-MEDIUM-HARNESS-P",

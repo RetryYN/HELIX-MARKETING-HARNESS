@@ -47,7 +47,8 @@
     "RDQ-MEDIA-HARNESS-AFFILIATE-01": "requirements_policy",
     "RDQ-MEDIA-HARNESS-CANVA-01": "requirements_policy",
     "RDQ-MEDIA-HARNESS-X-TWITTER-01": "requirements_policy",
-    "RDQ-MEDIA-HARNESS-INSTAGRAM-01": "requirements_policy"
+    "RDQ-MEDIA-HARNESS-INSTAGRAM-01": "requirements_policy",
+    "RDQ-MEDIA-HARNESS-YOUTUBE-01": "requirements_policy"
   },
   "decision_class_contracts": {
     "requirements_policy": [
@@ -47727,7 +47728,8 @@
     "MEDIA-HARNESS-AFFILIATE": "deferred_candidate",
     "MEDIA-HARNESS-CANVA": "deferred_candidate",
     "MEDIA-HARNESS-X-TWITTER": "deferred_candidate",
-    "MEDIA-HARNESS-INSTAGRAM": "deferred_candidate"
+    "MEDIA-HARNESS-INSTAGRAM": "deferred_candidate",
+    "MEDIA-HARNESS-YOUTUBE": "deferred_candidate"
   },
   "candidate_requirement_bindings": {
     "PRC-01": [
@@ -47870,7 +47872,8 @@
       "MEDIA-HARNESS-AFFILIATE",
       "MEDIA-HARNESS-CANVA",
       "MEDIA-HARNESS-X-TWITTER",
-      "MEDIA-HARNESS-INSTAGRAM"
+      "MEDIA-HARNESS-INSTAGRAM",
+      "MEDIA-HARNESS-YOUTUBE"
     ]
   },
   "decision_packets": [
@@ -48028,6 +48031,15 @@
         "MEDIA-HARNESS-INSTAGRAM"
       ],
       "decision_question": "Instagramを独立ハーネス1つとして分離構成するか、その承認境界・共有基盤分離線・リポジトリ分離条件をどう確定するか",
+      "bulk_decision_forbidden": true
+    },
+    {
+      "packet_id": "RDP-MEDIA-HARNESS-YOUTUBE",
+      "decision_order": 15,
+      "subject_ids": [
+        "MEDIA-HARNESS-YOUTUBE"
+      ],
+      "decision_question": "YouTubeを独立ハーネス1つとして分離構成するか、その承認境界・共有基盤分離線・リポジトリ分離条件をどう確定するか",
       "bulk_decision_forbidden": true
     }
   ],
@@ -52778,6 +52790,90 @@
       ],
       "approval": null,
       "semantic_digest": "sha256:3233ecaf073b185108c83c9a0f7a42c8e3c390a7d2bbe896cfd43711f4f217f1"
+    },
+    {
+      "refinement_id": "RRF-MEDIA-HARNESS-YOUTUBE",
+      "subject_id": "MEDIA-HARNESS-YOUTUBE",
+      "revision": 1,
+      "lifecycle_status": "draft",
+      "source_event_ids": [
+        "RDE-000208",
+        "RDE-000209"
+      ],
+      "source_set_digest": "sha256:d617ddfc204785e00fa2abdfa43477ec50cba49d55eeb91c0211db3492f9abc5",
+      "semantic_dimensions": {
+        "actors": [
+          "PO",
+          "YouTube媒体運用者",
+          "製品runtime"
+        ],
+        "beneficiaries": [
+          "YouTubeを他媒体から分離して監督したいPO",
+          "YouTube媒体運用者"
+        ],
+        "value": "YouTubeを1つの独立ハーネスとして分離し、承認境界・write境界・障害影響・route policyをYouTube単位で独立に凍結・運用でき、将来の独立リポジトリ分離を自己完結に行える",
+        "tasks": [
+          "YouTubeハーネスの承認境界・write境界を定義する",
+          "YouTubeのroute policy・credential scope・証跡を自媒体refinementへ束縛する",
+          "共有基盤との分離線と独立リポジトリ分離条件を確定する"
+        ],
+        "workflow": [
+          "candidate→媒体別refinement降下→媒体別PO凍結→媒体別release受入→将来の独立リポジトリ分離"
+        ],
+        "scope_in": [
+          "YouTube専用ハーネスの構成",
+          "YouTubeの承認境界・write境界・route policy束縛",
+          "独立リポジトリ分離前提の自己完結設計"
+        ],
+        "scope_out": [
+          "他媒体ハーネスの内容",
+          "共有基盤の実装方式選択（design-later）",
+          "外部リポジトリの実作成（PO明示指示まで行わない）",
+          "PO approval又は要求freeze"
+        ],
+        "prohibitions": [
+          "YouTubeの承認・write境界を他媒体ハーネスへ混載しない",
+          "分離を理由に承認境界・禁止事項・fail-close規律を弱めない",
+          "PO指示なしに外部リポジトリを作成しない"
+        ],
+        "human_judgement": [
+          "YouTubeハーネスの境界確定・採否・freeze・リポジトリ分離時期はPOが判断する"
+        ],
+        "side_effects": [
+          "要求候補とrefinement構成だけ。製品runtime・媒体への外部writeを変更しない"
+        ],
+        "evidence": [
+          "YouTube別refinementのPO凍結receipt",
+          "YouTube承認境界のtyped contract",
+          "独立リポジトリ分離条件の記録"
+        ],
+        "phase": "requirements"
+      },
+      "acceptance_cases": [
+        {
+          "acceptance_id": "RAC-MEDIA-HARNESS-YOUTUBE-P",
+          "polarity": "positive",
+          "statement": "YouTubeの承認境界・write境界・route policyがYouTube専用refinementだけへ束縛された独立ハーネスとして構成される",
+          "system_test_id": "RST-MEDIA-HARNESS-YOUTUBE-P"
+        },
+        {
+          "acceptance_id": "RAC-MEDIA-HARNESS-YOUTUBE-N",
+          "polarity": "negative",
+          "statement": "YouTubeと他媒体の承認境界・write境界を単一ハーネスへ混載した構成、及びPO指示なしの外部リポジトリ作成を拒否する",
+          "system_test_id": "RST-MEDIA-HARNESS-YOUTUBE-N"
+        },
+        {
+          "acceptance_id": "RAC-MEDIA-HARNESS-YOUTUBE-B",
+          "polarity": "boundary",
+          "statement": "YouTubeハーネスの失敗・停止時も他媒体ハーネスの承認・運用状態を変更せずfail-closeで自媒体側だけを停止する",
+          "system_test_id": "RST-MEDIA-HARNESS-YOUTUBE-B"
+        }
+      ],
+      "pending_resolution": [
+        "YouTubeハーネスの承認境界・write境界・共有基盤との分離線、及び独立リポジトリ分離の時期・条件はどこで確定するか"
+      ],
+      "approval": null,
+      "semantic_digest": "sha256:ade8e528e0fc5feca7bc4b0c3ae3dc586564a2816e09716433af53c726b93b53"
     }
   ],
   "automated_publishing_admission_policy": {

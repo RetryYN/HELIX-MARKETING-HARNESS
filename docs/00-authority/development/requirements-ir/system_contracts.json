@@ -493,6 +493,25 @@
     "system_test_id": "MHH-ST-MEDIA-HARNESS-X-TWITTER",
     "transition_contract": "candidate_unratified -> frozen only after individual PO receipt; no design or runtime transition is admitted"
   },
+  "MHH-SC-MEDIA-HARNESS-YOUTUBE": {
+    "acceptance_ids": [
+      "MHH-AC-MEDIA-HARNESS-YOUTUBE-P",
+      "MHH-AC-MEDIA-HARNESS-YOUTUBE-N",
+      "MHH-AC-MEDIA-HARNESS-YOUTUBE-B"
+    ],
+    "behavior": "requirements candidate only: YouTubeハーネスの承認境界・write境界を定義する / YouTubeのroute policy・credential scope・証跡を自媒体refinementへ束縛する / 共有基盤との分離線と独立リポジトリ分離条件を確定する",
+    "failure_and_evidence": "prohibitions: YouTubeの承認・write境界を他媒体ハーネスへ混載しない / 分離を理由に承認境界・禁止事項・fail-close規律を弱めない / PO指示なしに外部リポジトリを作成しない; evidence: YouTube別refinementのPO凍結receipt / YouTube承認境界のtyped contract / 独立リポジトリ分離条件の記録",
+    "requirement_ids": [
+      "MHH-REQ-MEDIA-HARNESS-YOUTUBE"
+    ],
+    "revision": 1,
+    "schema_version": "helix-system-contract.v1",
+    "semantic_digest": "sha256:5f5b99d3c43991f77a1caedebdc60b2feff3114abf8b0f61ff3acced8d6f70d7",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-YOUTUBE",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-YOUTUBE",
+    "transition_contract": "candidate_unratified -> frozen only after individual PO receipt; no design or runtime transition is admitted"
+  },
   "MHH-SC-MEDIA-PER-MEDIUM-HARNESS": {
     "acceptance_ids": [
       "MHH-AC-MEDIA-PER-MEDIUM-HARNESS-P",
