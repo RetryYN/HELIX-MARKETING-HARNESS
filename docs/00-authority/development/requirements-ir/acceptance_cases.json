@@ -725,6 +725,39 @@
     "system_contract_id": "MHH-SC-MEDIA-HARNESS-GENAI",
     "system_test_id": "MHH-ST-MEDIA-HARNESS-GENAI"
   },
+  "MHH-AC-MEDIA-HARNESS-INSTAGRAM-B": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-INSTAGRAM-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:c7d70d7292efbffc92e62472f956c3c5312310a3a23f05a14c369e579369eef6",
+    "statement": "Instagramハーネスの失敗・停止時も他媒体ハーネスの承認・運用状態を変更せずfail-closeで自媒体側だけを停止する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-INSTAGRAM",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-INSTAGRAM"
+  },
+  "MHH-AC-MEDIA-HARNESS-INSTAGRAM-N": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-INSTAGRAM-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:57c35c9fd5c95f2abafcfa4b21eeec0ca53e5cf9948bf71f13a9b58f99297ed6",
+    "statement": "Instagramと他媒体の承認境界・write境界を単一ハーネスへ混載した構成、及びPO指示なしの外部リポジトリ作成を拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-INSTAGRAM",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-INSTAGRAM"
+  },
+  "MHH-AC-MEDIA-HARNESS-INSTAGRAM-P": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-INSTAGRAM-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:ce17e9ada7b8dc2a6e40aca3cfb10f16b70eb8ab8f07e6b1d7de11f55c0f3483",
+    "statement": "Instagramの承認境界・write境界・route policyがInstagram専用refinementだけへ束縛された独立ハーネスとして構成される",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-INSTAGRAM",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-INSTAGRAM"
+  },
   "MHH-AC-MEDIA-HARNESS-LINE-B": {
     "acceptance_id": "MHH-AC-MEDIA-HARNESS-LINE-B",
     "polarity": "boundary",

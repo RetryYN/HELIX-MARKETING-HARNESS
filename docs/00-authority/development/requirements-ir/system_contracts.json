@@ -417,6 +417,25 @@
     "system_test_id": "MHH-ST-MEDIA-HARNESS-GENAI",
     "transition_contract": "candidate_unratified -> frozen only after individual PO receipt; no design or runtime transition is admitted"
   },
+  "MHH-SC-MEDIA-HARNESS-INSTAGRAM": {
+    "acceptance_ids": [
+      "MHH-AC-MEDIA-HARNESS-INSTAGRAM-P",
+      "MHH-AC-MEDIA-HARNESS-INSTAGRAM-N",
+      "MHH-AC-MEDIA-HARNESS-INSTAGRAM-B"
+    ],
+    "behavior": "requirements candidate only: Instagramハーネスの承認境界・write境界を定義する / Instagramのroute policy・credential scope・証跡を自媒体refinementへ束縛する / 共有基盤との分離線と独立リポジトリ分離条件を確定する",
+    "failure_and_evidence": "prohibitions: Instagramの承認・write境界を他媒体ハーネスへ混載しない / 分離を理由に承認境界・禁止事項・fail-close規律を弱めない / PO指示なしに外部リポジトリを作成しない; evidence: Instagram別refinementのPO凍結receipt / Instagram承認境界のtyped contract / 独立リポジトリ分離条件の記録",
+    "requirement_ids": [
+      "MHH-REQ-MEDIA-HARNESS-INSTAGRAM"
+    ],
+    "revision": 1,
+    "schema_version": "helix-system-contract.v1",
+    "semantic_digest": "sha256:0fbfc18cff6b940522f288d794894a24889e1ffdb45b82fafa16a46a56b65e7b",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-INSTAGRAM",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-INSTAGRAM",
+    "transition_contract": "candidate_unratified -> frozen only after individual PO receipt; no design or runtime transition is admitted"
+  },
   "MHH-SC-MEDIA-HARNESS-LINE": {
     "acceptance_ids": [
       "MHH-AC-MEDIA-HARNESS-LINE-P",

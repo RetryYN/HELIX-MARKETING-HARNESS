@@ -1,0 +1,31 @@
+{
+ "review_id": "REV-SOL-REQUIREMENTS-SEMANTICS-11",
+ "reviewer_principal": "codex-sol-reviewer",
+ "author_principal": "claude-fable-primary",
+ "author_execution_id": "claude-fable-20260820-media-per-harness",
+ "reviewer_execution_id": "01a01fa3-c1c1-78d1-b519-768467874dc1",
+ "review_run_id": "REV-SOL-REQUIREMENTS-SEMANTICS-11-R1",
+ "reviewer_provider": "openai-codex-cli",
+ "review_log_path": "docs/00-authority/reviews/logs/REV-SOL-REQUIREMENTS-SEMANTICS-11.jsonl",
+ "review_log_digest": "b7e5add6d8ef22b7",
+ "separation_status": "self_attested",
+ "model": "gpt-5.6-sol",
+ "target_commit": "5f2423e17f4248b2f6a0dbdf06ca79c94346e957",
+ "target_tree": "b9e7b49c5d112d64a176afff5597e43ce6567345",
+ "scope": "媒体別ハーネス分離（Instagram）: MEDIA-HARNESS-INSTAGRAM候補（draft・deferred・write無効）、IR 47 records、pin/baseline更新",
+ "supersedes_review": [
+  "REV-SOL-REQUIREMENTS-SEMANTICS-10"
+ ],
+ "reviewed_artifact_digests": {
+  "docs/00-authority/artifact-manifest.json": "c3539058477999bf",
+  "docs/00-authority/baselines/baseline.json": "39178c5692558ab9",
+  "docs/00-authority/development/requirement-discovery-events.json": "4e5990637f68bea9"
+ },
+ "resolution_commits": [
+  "5f2423e17f4248b2f6a0dbdf06ca79c94346e957"
+ ],
+ "verdict": "Go",
+ "completed_at": "2026-08-20",
+ "rounds": 1,
+ "findings": []
+}

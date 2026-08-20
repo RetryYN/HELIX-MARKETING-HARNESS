@@ -5,7 +5,7 @@
 > [!CAUTION]
 > **提案専用の生成view。現行要求の正本・PO承認・設計・実装入力ではない。**  `requirements_baseline_status=revising` / `implementation_authorized=false`。
 > 各候補は個別のPO receiptで承認・freezeされ、Full Vを再降下してauthority cutoverするまでcurrentにならない。本view全体を一括承認として扱わない。
-> 集計: 候補 **46** 件 ／ approval receiptあり **0** 件 ／ 未承認 **46** 件。
+> 集計: 候補 **47** 件 ／ approval receiptあり **0** 件 ／ 未承認 **47** 件。
 
 ## PO確認順（decision packets）
 
@@ -24,6 +24,7 @@
 11. **RDP-MEDIA-HARNESS-AFFILIATE** — アフィリエイトを独立ハーネス1つとして分離構成するか、その承認境界・共有基盤分離線・リポジトリ分離条件をどう確定するか  対象: MEDIA-HARNESS-AFFILIATE
 12. **RDP-MEDIA-HARNESS-CANVA** — Canvaを独立ハーネス1つとして分離構成するか、その承認境界・共有基盤分離線・リポジトリ分離条件をどう確定するか  対象: MEDIA-HARNESS-CANVA
 13. **RDP-MEDIA-HARNESS-X-TWITTER** — X（Twitter）を独立ハーネス1つとして分離構成するか、その承認境界・共有基盤分離線・リポジトリ分離条件をどう確定するか  対象: MEDIA-HARNESS-X-TWITTER
+14. **RDP-MEDIA-HARNESS-INSTAGRAM** — Instagramを独立ハーネス1つとして分離構成するか、その承認境界・共有基盤分離線・リポジトリ分離条件をどう確定するか  対象: MEDIA-HARNESS-INSTAGRAM
 
 ## 回答済み事項（要求へ再降下前）
 
@@ -78,7 +79,7 @@
 - **PRC-33**: CONTENT-QUALITY-GATE-LEARNING
 - **PRC-34**: CONTENT-RISK-CLASSIFICATION
 - **PRC-35**: RESEARCH-LED-CONTENT-GROWTH
-- **PRC-36**: MEDIA-PER-MEDIUM-HARNESS, MEDIA-HARNESS-WORDPRESS, MEDIA-HARNESS-DISCORD-COMMUNITY, MEDIA-HARNESS-LINE, MEDIA-HARNESS-GENAI, MEDIA-HARNESS-AFFILIATE, MEDIA-HARNESS-CANVA, MEDIA-HARNESS-X-TWITTER
+- **PRC-36**: MEDIA-PER-MEDIUM-HARNESS, MEDIA-HARNESS-WORDPRESS, MEDIA-HARNESS-DISCORD-COMMUNITY, MEDIA-HARNESS-LINE, MEDIA-HARNESS-GENAI, MEDIA-HARNESS-AFFILIATE, MEDIA-HARNESS-CANVA, MEDIA-HARNESS-X-TWITTER, MEDIA-HARNESS-INSTAGRAM
 
 ## 旧L0 clause disposition候補
 
@@ -841,6 +842,31 @@
 - **PO個別質問**:
   - `RDQ-MEDIA-HARNESS-GENAI-01` (`requirements_policy`): 生成AIハーネスの承認境界・write境界・共有基盤との分離線、及び独立リポジトリ分離の時期・条件はどこで確定するか （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
 - **semantic digest**: `sha256:842f5c521b450694bac59cffb3843ed34af611b543da0ec16537f63022314111`
+
+## RRF-MEDIA-HARNESS-INSTAGRAM — MEDIA-HARNESS-INSTAGRAM
+
+- **状態**: `draft` ／ revision 1 ／ **承認**: 未承認（approval receiptなし）
+- **scope候補**: `deferred_candidate` （PO receiptとFull V再降下までは実装不可）
+- **source events**: RDE-000206 RDE-000207
+- **主体**: PO／Instagram媒体運用者／製品runtime
+- **受益者**: Instagramを他媒体から分離して監督したいPO／Instagram媒体運用者
+- **価値**: Instagramを1つの独立ハーネスとして分離し、承認境界・write境界・障害影響・route policyをInstagram単位で独立に凍結・運用でき、将来の独立リポジトリ分離を自己完結に行える
+- **task**: Instagramハーネスの承認境界・write境界を定義する／Instagramのroute policy・credential scope・証跡を自媒体refinementへ束縛する／共有基盤との分離線と独立リポジトリ分離条件を確定する
+- **workflow**: candidate→媒体別refinement降下→媒体別PO凍結→媒体別release受入→将来の独立リポジトリ分離
+- **対象範囲**: Instagram専用ハーネスの構成／Instagramの承認境界・write境界・route policy束縛／独立リポジトリ分離前提の自己完結設計
+- **対象外**: 他媒体ハーネスの内容／共有基盤の実装方式選択（design-later）／外部リポジトリの実作成（PO明示指示まで行わない）／PO approval又は要求freeze
+- **禁止事項**: Instagramの承認・write境界を他媒体ハーネスへ混載しない／分離を理由に承認境界・禁止事項・fail-close規律を弱めない／PO指示なしに外部リポジトリを作成しない
+- **人間判断**: Instagramハーネスの境界確定・採否・freeze・リポジトリ分離時期はPOが判断する
+- **副作用**: 要求候補とrefinement構成だけ。製品runtime・媒体への外部writeを変更しない
+- **証跡**: Instagram別refinementのPO凍結receipt／Instagram承認境界のtyped contract／独立リポジトリ分離条件の記録
+- **phase**: `requirements`
+- **受入候補**:
+  - `positive` RAC-MEDIA-HARNESS-INSTAGRAM-P: Instagramの承認境界・write境界・route policyがInstagram専用refinementだけへ束縛された独立ハーネスとして構成される （RST-MEDIA-HARNESS-INSTAGRAM-P）
+  - `negative` RAC-MEDIA-HARNESS-INSTAGRAM-N: Instagramと他媒体の承認境界・write境界を単一ハーネスへ混載した構成、及びPO指示なしの外部リポジトリ作成を拒否する （RST-MEDIA-HARNESS-INSTAGRAM-N）
+  - `boundary` RAC-MEDIA-HARNESS-INSTAGRAM-B: Instagramハーネスの失敗・停止時も他媒体ハーネスの承認・運用状態を変更せずfail-closeで自媒体側だけを停止する （RST-MEDIA-HARNESS-INSTAGRAM-B）
+- **PO個別質問**:
+  - `RDQ-MEDIA-HARNESS-INSTAGRAM-01` (`requirements_policy`): Instagramハーネスの承認境界・write境界・共有基盤との分離線、及び独立リポジトリ分離の時期・条件はどこで確定するか （未回答=`defer`。回答はsubject revisionとsemantic digestへ束縛）
+- **semantic digest**: `sha256:3233ecaf073b185108c83c9a0f7a42c8e3c390a7d2bbe896cfd43711f4f217f1`
 
 ## RRF-MEDIA-HARNESS-LINE — MEDIA-HARNESS-LINE
 
