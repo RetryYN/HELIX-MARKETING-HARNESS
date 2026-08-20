@@ -10,8 +10,8 @@
  "review_log_digest": "c6d710f448682d23",
  "separation_status": "self_attested",
  "model": "gpt-5.6-sol",
- "target_commit": "50a88fed248def3b7faaf7667065250457f4ee39",
- "target_tree": "40c64d328f03c3a86d67eeecc635b2c499e6f67f",
+ "target_commit": "70fed4dc13034a269ddb2415e72c0a041a4ead6f",
+ "target_tree": "25965c33685eb74af5c1f06de9a5fe3b027949b4",
  "scope": "媒体別ハーネス分離（TikTok）: MEDIA-HARNESS-TIKTOK候補（draft・deferred・write無効）、IR 49 records、pin/baseline更新",
  "supersedes_review": [
   "REV-SOL-REQUIREMENTS-SEMANTICS-12"
@@ -22,7 +22,7 @@
   "docs/00-authority/development/requirement-discovery-events.json": "9b98d5299f29ce75"
  },
  "resolution_commits": [
-  "50a88fed248def3b7faaf7667065250457f4ee39"
+  "70fed4dc13034a269ddb2415e72c0a041a4ead6f"
  ],
  "verdict": "Go",
  "completed_at": "2026-08-20",
