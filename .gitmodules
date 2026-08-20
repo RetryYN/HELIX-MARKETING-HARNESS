@@ -1,0 +1,3 @@
+[submodule "media/wp"]
+	path = media/wp
+	url = https://github.com/RetryYN/HELIX-WP-HARNESS.git
