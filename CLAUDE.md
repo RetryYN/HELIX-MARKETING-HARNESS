@@ -108,7 +108,12 @@ Codex／CI／人間作業者も本規約を共通入力として適用する。
    （G-CONFIRM）し、manifest の `approval_digest` を内容に一致させる（G-MANIFEST-STATUS）。
 5. push 前に `python3 tools/gates/run_all.py`（全ゲート — 件数の正本は
    docs/00-authority/baselines/baseline.json の gate_count。散文に件数をハードコードしない）と
-   markdownlint・pytest を通す。
+   markdownlint・pytest を通す。**例外**: 要求cutover系ゲート（G-REQ-STRATEGY-TEST-AUTHORITY／
+   G-REQ-LEGACY-\*-MEANING-INVENTORY／G-REQ-OPEN-REFINEMENTS）の「PO 未承認・未凍結による赤」は
+   `requirements_baseline_status=revising` の間は**意図した赤**であり push を妨げない
+   （根拠: docs/00-authority/development/requirement-definition-workflow_v0.1.md）。この例外を
+   他ゲートへ拡大しない。上記以外のゲートの赤、及び cutover 系でも PO 未承認以外の原因による赤は
+   通常どおり修正してから push する。
 
 6. 要件候補〜L3再検証と旧L2 5点書式の評価用draftの開発入口は `make setup`／`make doctor`／`make requirements`／
    `make docs-check`／`make lint`／`make typecheck`／`make imports`／`make build`／`make gates`／`make test`／`make check`。

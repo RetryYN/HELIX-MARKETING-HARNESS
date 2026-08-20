@@ -11261,7 +11261,10 @@ def active_approval_requests(data: dict[str, Any]) -> list[str]:
 
 def refinement_faults(data: dict[str, Any], discovery: dict[str, Any]) -> list[str]:
     """refinement recordの意味閉包・digest・承認束縛を検査する。"""
-    faults: list[str] = []
+    faults: list[str] = [
+        f"refinement schema: {fault}"
+        for fault in schema_check(load(REFINEMENT_SCHEMA), data)
+    ]
     if data.get("schema_version") != "marketing-harness-requirements-refinement.v1":
         faults.append("refinement schema_version が不正")
     if data.get("authority") != "canonical":

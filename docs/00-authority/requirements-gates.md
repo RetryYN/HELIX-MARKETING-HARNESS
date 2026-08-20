@@ -312,7 +312,7 @@ slice: cross
 | G-REQ-LEGACY-TEST-AUTHORITY-DISPOSITION | DUが参照する未解決の旧TC 14 IDをexact inventory化し、各IDをPO判断前の`pending_po_mapping`へ固定する。重複する集約AC-SR-01〜06の一般AC台帳と戦略AC台帳は、どちらも旧再検証資料とし、新revision・PO cutover後の単一acceptance契約だけをcurrent owner候補にする | 旧TC IDを同名・類似名のTCC/STCへ黙示統合又は黙示廃止すること、二つのAC-SR台帳をunionして現行受入証拠とみなすこと |
 | G-REQ-AUTHORITY-REVISION-CANDIDATE | 新revisionの単一JSON正本＋生成Markdown＋旧IDへのsupersedes mappingを推奨案として保持し、PO未回答の間は旧ID書換え、authority cutover及び設計開始を拒否する。旧requirements consumerをinventory化し、選択後に一括置換又はhistorical隔離する | 推奨案をPO決定とみなすこと、旧MD/JSONを自動unionすること、旧Discord・API-only UI・WSL・provider・phaseを新revisionへ暗黙移植すること |
 | G-REQ-OBJECTIVE-COMPLETION-AUDIT | 意味全件棚卸し、旧参照隔離、VPS UI/inbox要求、設計未着手、新要求正本freezeを目的別に`proven`／`incomplete`／`blocked_by_po`へ分類し、証拠と残条件を要求する | 構造的棚卸し完了を新要求freeze又は設計完了と読み替えること、UI候補を実装済みとみなすこと、PO未承認を完了扱いすること |
-| G-REQ-REFINEMENT | subject/revision、source event集合digest、12意味軸、positive/negative/boundary acceptanceとsystem test、pending解消、semantic digest、approved/frozen時のPO receipt束縛を検査する | 要約だけの仕様化、根拠差替え、反例・境界なしの承認、未解決事項を残した凍結 |
+| G-REQ-REFINEMENT | refinement registry全文をrequirement-refinement.schema.jsonへfail-close束縛（意味軸の非空・minItems/minLengthを機械強制）した上で、subject/revision、source event集合digest、12意味軸、positive/negative/boundary acceptanceとsystem test、pending解消、semantic digest、approved/frozen時のPO receipt束縛を検査する | 要約だけの仕様化、根拠差替え、反例・境界なしの承認、未解決事項を残した凍結 |
 | G-REQ-REFINEMENT-COVERAGE | discoveryへ記録した全要求候補が、同じsubject IDの個別refinementを持つことを検査する | 質問又は候補を記録しただけで仕様化対象から欠落させること |
 | G-REQ-OPEN-REFINEMENTS | 全refinementでpending_resolution=0、PO receipt、lifecycle=frozenの同時成立を要求する | draft候補、未回答質問、AI回答、部分承認を要求完了とみなすこと |
 | G-REQ-APPROVAL-ADMISSION | activeなapproval requestがある場合、semantic driftと双方向trace違反が0でなければ承認工程を拒否する | 未精査要求の一括承認・構造だけを根拠にしたauthority cutover |

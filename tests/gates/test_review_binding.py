@@ -77,14 +77,10 @@ def test_review_artifacts_are_bound() -> None:
             encoding="utf-8"
         )
     )
-    if policy["requirements_baseline_status"] == "revising" and not policy["implementation_authorized"]:
-        # The old Claude artifacts are intentionally not promoted to a current
-        # review while the requirements candidate is still unratified.  The
-        # production gate must remain red; this test only verifies that the
-        # expected fail-close evidence is present in the candidate stage.
-        assert faults
-    else:
-        assert faults == []
+    # REV-SOL-REQUIREMENTS-SEMANTICS-02 の後続 Go レビュー鎖により、revising 中でも
+    # 全レビュー束縛は解消済みでなければならない（0 faults を常時要求する側へ強化）。
+    assert policy["requirements_baseline_status"] in {"revising", "approved"}
+    assert faults == []
 
 
 def test_commit_tree_returns_root_tree_of_commit() -> None:
