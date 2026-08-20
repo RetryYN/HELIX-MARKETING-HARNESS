@@ -407,6 +407,23 @@
     "system_contract_id": "MHH-SC-MEDIA-HARNESS-LINE",
     "system_test_id": "MHH-ST-MEDIA-HARNESS-LINE"
   },
+  "MHH-ST-MEDIA-HARNESS-THREADS": {
+    "acceptance_ids": [
+      "MHH-AC-MEDIA-HARNESS-THREADS-P",
+      "MHH-AC-MEDIA-HARNESS-THREADS-N",
+      "MHH-AC-MEDIA-HARNESS-THREADS-B"
+    ],
+    "negative_boundary": "Threadsの承認・write境界を他媒体ハーネスへ混載しない / 分離を理由に承認境界・禁止事項・fail-close規律を弱めない / PO指示なしに外部リポジトリを作成しない",
+    "required_evidence": "Threads別refinementのPO凍結receipt / Threads承認境界のtyped contract / 独立リポジトリ分離条件の記録",
+    "revision": 1,
+    "scenario": "requirements meaning review for MEDIA-HARNESS-THREADS; no L2+ design or runtime execution",
+    "schema_version": "helix-system-test.v1",
+    "semantic_digest": "sha256:a2a453a06e37b3605395ae0c92813c48a6ac8c0b844b5cbb57b97f709df1f55a",
+    "status": "designed_not_implemented",
+    "supporting_test_ids": [],
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-THREADS",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-THREADS"
+  },
   "MHH-ST-MEDIA-HARNESS-TIKTOK": {
     "acceptance_ids": [
       "MHH-AC-MEDIA-HARNESS-TIKTOK-P",

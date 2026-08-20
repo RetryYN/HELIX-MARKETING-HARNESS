@@ -1535,6 +1535,70 @@
     },
     "supporting_requirements": []
   },
+  "RRF-MEDIA-HARNESS-THREADS": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-MEDIA-HARNESS-THREADS-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-MEDIA-HARNESS-THREADS"
+        ],
+        "semantic_digest": "sha256:a1cdb05e26b5f6cbb52b1c14b108aa0caf30f748098686f92dfc1fcde78f43ea",
+        "source_projection": "local_refinement_registry",
+        "statement": "Threadsの承認境界・write境界・route policyがThreads専用refinementだけへ束縛された独立ハーネスとして構成される"
+      },
+      {
+        "acceptance_id": "MHH-AC-MEDIA-HARNESS-THREADS-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-MEDIA-HARNESS-THREADS"
+        ],
+        "semantic_digest": "sha256:26aad8743e7c6a1fcbd3180e5c5d3795b48fc2361707efa0bf45faf0dbdf3506",
+        "source_projection": "local_refinement_registry",
+        "statement": "Threadsと他媒体の承認境界・write境界を単一ハーネスへ混載した構成、及びPO指示なしの外部リポジトリ作成を拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-MEDIA-HARNESS-THREADS-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-MEDIA-HARNESS-THREADS"
+        ],
+        "semantic_digest": "sha256:76d18a9fff896c750ffced5c9f524a5a5d2c4d155c75ed29ed58d70d64fc1fcc",
+        "source_projection": "local_refinement_registry",
+        "statement": "Threadsハーネスの失敗・停止時も他媒体ハーネスの承認・運用状態を変更せずfail-closeで自媒体側だけを停止する"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-MEDIA-HARNESS-THREADS-P",
+        "MHH-AC-MEDIA-HARNESS-THREADS-N",
+        "MHH-AC-MEDIA-HARNESS-THREADS-B"
+      ],
+      "requirement_id": "MHH-REQ-MEDIA-HARNESS-THREADS",
+      "semantic_digest": "sha256:45023e5a02bb76e828d737e5b20d8ce629e5557ea5fa5620b058bd46666bd3d0",
+      "source_projection": "local_refinement_registry",
+      "statement": "actors: PO / Threads媒体運用者 / 製品runtime\nbeneficiaries: Threadsを他媒体から分離して監督したいPO / Threads媒体運用者\nvalue: Threadsを1つの独立ハーネスとして分離し、承認境界・write境界・障害影響・route policyをThreads単位で独立に凍結・運用でき、将来の独立リポジトリ分離を自己完結に行える\ntasks: Threadsハーネスの承認境界・write境界を定義する / Threadsのroute policy・credential scope・証跡を自媒体refinementへ束縛する / 共有基盤との分離線と独立リポジトリ分離条件を確定する\nworkflow: candidate→媒体別refinement降下→媒体別PO凍結→媒体別release受入→将来の独立リポジトリ分離\nscope_in: Threads専用ハーネスの構成 / Threadsの承認境界・write境界・route policy束縛 / 独立リポジトリ分離前提の自己完結設計\nscope_out: 他媒体ハーネスの内容 / 共有基盤の実装方式選択（design-later） / 外部リポジトリの実作成（PO明示指示まで行わない） / PO approval又は要求freeze\nprohibitions: Threadsの承認・write境界を他媒体ハーネスへ混載しない / 分離を理由に承認境界・禁止事項・fail-close規律を弱めない / PO指示なしに外部リポジトリを作成しない\nhuman_judgement: Threadsハーネスの境界確定・採否・freeze・リポジトリ分離時期はPOが判断する\nside_effects: 要求候補とrefinement構成だけ。製品runtime・媒体への外部writeを変更しない\nevidence: Threads別refinementのPO凍結receipt / Threads承認境界のtyped contract / 独立リポジトリ分離条件の記録\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "draft",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-MEDIA-HARNESS-THREADS",
+    "refinement_contract_id": "RRF-MEDIA-HARNESS-THREADS",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "MEDIA-HARNESS-THREADS",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:19a5ead6c49653ccca1f53a135d1cf64f7f4b9d891b2e3b1ba5bf12ed8ed0c3d",
+    "source": {
+      "acceptance_digest": "sha256:da087f0f01a767860b155162502e89650b6e25ba0d7493dbc60f1bee8e657b24",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-MEDIA-HARNESS-THREADS/acceptance_cases",
+      "requirement_digest": "sha256:45023e5a02bb76e828d737e5b20d8ce629e5557ea5fa5620b058bd46666bd3d0",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-MEDIA-HARNESS-THREADS"
+    },
+    "supporting_requirements": []
+  },
   "RRF-MEDIA-HARNESS-TIKTOK": {
     "acceptance_cases": [
       {

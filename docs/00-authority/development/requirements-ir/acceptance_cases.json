@@ -791,6 +791,39 @@
     "system_contract_id": "MHH-SC-MEDIA-HARNESS-LINE",
     "system_test_id": "MHH-ST-MEDIA-HARNESS-LINE"
   },
+  "MHH-AC-MEDIA-HARNESS-THREADS-B": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-THREADS-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:76d18a9fff896c750ffced5c9f524a5a5d2c4d155c75ed29ed58d70d64fc1fcc",
+    "statement": "Threadsハーネスの失敗・停止時も他媒体ハーネスの承認・運用状態を変更せずfail-closeで自媒体側だけを停止する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-THREADS",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-THREADS"
+  },
+  "MHH-AC-MEDIA-HARNESS-THREADS-N": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-THREADS-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:26aad8743e7c6a1fcbd3180e5c5d3795b48fc2361707efa0bf45faf0dbdf3506",
+    "statement": "Threadsと他媒体の承認境界・write境界を単一ハーネスへ混載した構成、及びPO指示なしの外部リポジトリ作成を拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-THREADS",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-THREADS"
+  },
+  "MHH-AC-MEDIA-HARNESS-THREADS-P": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-THREADS-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:a1cdb05e26b5f6cbb52b1c14b108aa0caf30f748098686f92dfc1fcde78f43ea",
+    "statement": "Threadsの承認境界・write境界・route policyがThreads専用refinementだけへ束縛された独立ハーネスとして構成される",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-THREADS",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-THREADS"
+  },
   "MHH-AC-MEDIA-HARNESS-TIKTOK-B": {
     "acceptance_id": "MHH-AC-MEDIA-HARNESS-TIKTOK-B",
     "polarity": "boundary",

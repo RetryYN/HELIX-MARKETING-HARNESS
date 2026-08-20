@@ -7436,6 +7436,100 @@
         "question": "TikTokハーネスの承認境界・write境界・共有基盤との分離線、及び独立リポジトリ分離の時期・条件はどこで確定するか",
         "dimension": "constraints"
       }
+    },
+    {
+      "event_id": "RDE-000212",
+      "sequence": 212,
+      "subject_id": "MEDIA-HARNESS-THREADS",
+      "event_type": "candidate_recorded",
+      "occurred_at": "2026-08-20T01:01:00Z",
+      "recorded_at": "2026-08-20T01:01:00Z",
+      "actor_principal": "po",
+      "references": [
+        {
+          "kind": "event",
+          "id": "RDE-000184"
+        }
+      ],
+      "payload": {
+        "title": "Threadsを独立ハーネス1つとして分離構成する",
+        "problem_statement": "MEDIA-PER-MEDIUM-HARNESSのPO回答により対象媒体一覧が6媒体で確定した。Threadsの承認境界・write境界・route policy・credential scope・証跡を他媒体と混載しない独立ハーネスとして媒体別に定義する必要がある。",
+        "value_hypothesis": "Threadsハーネスを独立に凍結・運用できれば、Threadsの失敗・仕様変更が他媒体へ波及せず、将来の独立リポジトリ分離も自己完結に行える。",
+        "unresolved_questions": [
+          "Threadsハーネスの承認境界・write境界・共有基盤との分離線、及び独立リポジトリ分離の時期・条件はどこで確定するか"
+        ],
+        "semantic_dimensions": {
+          "business_actors": [
+            "PO",
+            "Threads媒体運用者",
+            "製品runtime"
+          ],
+          "beneficiaries": [
+            "Threadsを他媒体から分離して監督したいPO",
+            "Threads媒体運用者"
+          ],
+          "workflow": [
+            "candidate→媒体別refinement降下→媒体別PO凍結→媒体別release受入→将来の独立リポジトリ分離"
+          ],
+          "scope_in": [
+            "Threads専用ハーネスの構成",
+            "Threadsの承認境界・write境界・route policy束縛",
+            "独立リポジトリ分離前提の自己完結設計"
+          ],
+          "scope_out": [
+            "他媒体ハーネスの内容",
+            "共有基盤の実装方式選択（design-later）",
+            "外部リポジトリの実作成（PO明示指示まで行わない）",
+            "PO approval又は要求freeze"
+          ],
+          "constraints": [
+            "1媒体=1ハーネスとしてThreadsの構成・承認・運用単位を一致させる",
+            "既存のfail-close・PO凍結・全媒体write無効の現行候補規律に従う"
+          ],
+          "prohibitions": [
+            "Threadsの承認・write境界を他媒体ハーネスへ混載しない",
+            "分離を理由に承認境界・禁止事項を弱めない",
+            "PO指示なしに外部リポジトリを作成しない"
+          ],
+          "human_judgement": [
+            "Threadsハーネスの境界確定・採否・freeze・リポジトリ分離時期はPO"
+          ],
+          "external_side_effects": [
+            "要求候補とrefinement構成だけ。製品runtime・媒体への外部writeを変更しない"
+          ],
+          "completion_evidence": [
+            "Threads別refinementのPO凍結",
+            "Threads承認境界のtyped contract",
+            "独立リポジトリ分離条件の記録"
+          ],
+          "target_phase": "requirements",
+          "unknown_dimensions": [
+            {
+              "dimension": "constraints",
+              "question": "Threadsハーネスの承認境界・write境界・共有基盤との分離線、及び独立リポジトリ分離の時期・条件はどこで確定するか"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "event_id": "RDE-000213",
+      "sequence": 213,
+      "subject_id": "MEDIA-HARNESS-THREADS",
+      "event_type": "question_raised",
+      "occurred_at": "2026-08-20T01:02:00Z",
+      "recorded_at": "2026-08-20T01:02:00Z",
+      "actor_principal": "po",
+      "references": [
+        {
+          "kind": "event",
+          "id": "RDE-000212"
+        }
+      ],
+      "payload": {
+        "question": "Threadsハーネスの承認境界・write境界・共有基盤との分離線、及び独立リポジトリ分離の時期・条件はどこで確定するか",
+        "dimension": "constraints"
+      }
     }
   ]
 }
