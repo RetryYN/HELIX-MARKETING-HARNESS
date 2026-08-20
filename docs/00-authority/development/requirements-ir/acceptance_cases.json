@@ -791,6 +791,39 @@
     "system_contract_id": "MHH-SC-MEDIA-HARNESS-WORDPRESS",
     "system_test_id": "MHH-ST-MEDIA-HARNESS-WORDPRESS"
   },
+  "MHH-AC-MEDIA-HARNESS-X-TWITTER-B": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-X-TWITTER-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:e1e9df2c98229694316ab216be928ab404c3a53d8a9fcd6af6e55c99573e8e0c",
+    "statement": "X（Twitter）ハーネスの失敗・停止時も他媒体ハーネスの承認・運用状態を変更せずfail-closeで自媒体側だけを停止する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-X-TWITTER",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-X-TWITTER"
+  },
+  "MHH-AC-MEDIA-HARNESS-X-TWITTER-N": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-X-TWITTER-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:21e0b65180c2ab0a08db68436b23daf31eced6656b4f05944853e517219371ed",
+    "statement": "X（Twitter）と他媒体の承認境界・write境界を単一ハーネスへ混載した構成、及びPO指示なしの外部リポジトリ作成を拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-X-TWITTER",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-X-TWITTER"
+  },
+  "MHH-AC-MEDIA-HARNESS-X-TWITTER-P": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-X-TWITTER-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:2b790a47a1b46c0f920d22c8dd1d72b9a5b67cc1d044f16e5c26cd43d437d26c",
+    "statement": "X（Twitter）の承認境界・write境界・route policyがX（Twitter）専用refinementだけへ束縛された独立ハーネスとして構成される",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-X-TWITTER",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-X-TWITTER"
+  },
   "MHH-AC-MEDIA-PER-MEDIUM-HARNESS-B": {
     "acceptance_id": "MHH-AC-MEDIA-PER-MEDIUM-HARNESS-B",
     "polarity": "boundary",

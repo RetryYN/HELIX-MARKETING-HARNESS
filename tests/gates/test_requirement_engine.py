@@ -73,11 +73,11 @@ def test_candidate_ir_v2_matches_helix_harness_shape_without_authority_promotion
     assert manifest["source_authority"] == "requirement_refinement_registry_projection"
     assert [row["kind"] for row in manifest["shards"]] == list(PARTITIONS)
     assert [row["path"] for row in manifest["shards"]] == [f"requirements-ir/{kind}.json" for kind in PARTITIONS]
-    assert len(built["shards"]["requirements"]) == 45
-    assert len(built["shards"]["system_contracts"]) == 45
-    assert len(built["shards"]["acceptance_cases"]) == 135
-    assert len(built["shards"]["system_tests"]) == 45
-    assert len(built["shards"]["refinement_contracts"]) == 45
+    assert len(built["shards"]["requirements"]) == 46
+    assert len(built["shards"]["system_contracts"]) == 46
+    assert len(built["shards"]["acceptance_cases"]) == 138
+    assert len(built["shards"]["system_tests"]) == 46
+    assert len(built["shards"]["refinement_contracts"]) == 46
     assert all(
         row["definition_status"] != "frozen"
         for row in built["shards"]["requirements"].values()

@@ -1,0 +1,31 @@
+{
+ "review_id": "REV-SOL-REQUIREMENTS-SEMANTICS-10",
+ "reviewer_principal": "codex-sol-reviewer",
+ "author_principal": "claude-fable-primary",
+ "author_execution_id": "claude-fable-20260820-media-per-harness",
+ "reviewer_execution_id": "01a01f9d-a035-76d3-8386-134cb952676d",
+ "review_run_id": "REV-SOL-REQUIREMENTS-SEMANTICS-10-R1",
+ "reviewer_provider": "openai-codex-cli",
+ "review_log_path": "docs/00-authority/reviews/logs/REV-SOL-REQUIREMENTS-SEMANTICS-10.jsonl",
+ "review_log_digest": "e51dbdc2919752a1",
+ "separation_status": "self_attested",
+ "model": "gpt-5.6-sol",
+ "target_commit": "f1fab7e56d1b850a0e3275f544adfcfd923c11cb",
+ "target_tree": "d9e5632d46bafce678ffd2c472289967f25768cc",
+ "scope": "媒体別ハーネス分離（X（Twitter））: MEDIA-HARNESS-X-TWITTER候補（draft・deferred・write無効）、IR 46 records、pin/baseline更新",
+ "supersedes_review": [
+  "REV-SOL-REQUIREMENTS-SEMANTICS-09"
+ ],
+ "reviewed_artifact_digests": {
+  "docs/00-authority/artifact-manifest.json": "1d07f3f6beef2010",
+  "docs/00-authority/baselines/baseline.json": "dda8c7be1154ca27",
+  "docs/00-authority/development/requirement-discovery-events.json": "0e25e2de87d1320e"
+ },
+ "resolution_commits": [
+  "f1fab7e56d1b850a0e3275f544adfcfd923c11cb"
+ ],
+ "verdict": "Go",
+ "completed_at": "2026-08-20",
+ "rounds": 1,
+ "findings": []
+}
