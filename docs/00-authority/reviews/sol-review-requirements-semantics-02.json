@@ -10,8 +10,8 @@
  "review_log_digest": "9b6faff473c1743a",
  "separation_status": "self_attested",
  "model": "gpt-5.6-sol",
- "target_commit": "abcbd90b06c5f2b30b00ff999f3e02e0d75fcd51",
- "target_tree": "2ee577934b4b8b84e242e3996039f6272b190019",
+ "target_commit": "df459ffda0fce0cbe6f03954c02305bbe7e7bee1",
+ "target_tree": "ab4e2793f9b2299d2571bdaedb6dfcbe7075b88d",
  "scope": "品質修正のみのSol最終レビュー: G-REQ-REFINEMENTへのrequirement-refinement.schema.json fail-close束縛、CLAUDE.md鉄則5の要求cutover系「意図した赤」例外明文化、pre-git hookのrevising状態検査・違反item閉集合照合・validator異常遮断（負例テスト8件付き）。媒体別ハーネス候補・discovery event追加は含まない",
  "supersedes_review": [
   "REV-CLAUDE-REQUIREMENTS-SEMANTICS-01",
@@ -95,7 +95,7 @@
   "tools/gates/template_alignment.py": "486d30ee475e771c"
  },
  "resolution_commits": [
-  "abcbd90b06c5f2b30b00ff999f3e02e0d75fcd51"
+  "df459ffda0fce0cbe6f03954c02305bbe7e7bee1"
  ],
  "verdict": "Go",
  "completed_at": "2026-08-21",
