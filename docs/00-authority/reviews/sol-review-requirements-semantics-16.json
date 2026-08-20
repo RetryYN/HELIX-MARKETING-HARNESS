@@ -10,8 +10,8 @@
  "review_log_digest": "29b8101c1bc61a57",
  "separation_status": "self_attested",
  "model": "gpt-5.6-sol",
- "target_commit": "aabc8403fb909f45a8e5105487c4725bda5a5039",
- "target_tree": "a97ac3c1cc6579add09129522d8d56a21b6e8005",
+ "target_commit": "1771aac80a79e48120f68ead85d58c9b378e64a5",
+ "target_tree": "3be42338d420ab7119b8a694cd3a4138232a7ea9",
  "scope": "媒体別ハーネス分離（Google Tag Manager）: MEDIA-HARNESS-GTM候補（draft・deferred・GTM固有write境界明示）、記載誤り訂正RDE-000218、IR 52 records、pin/baseline更新",
  "supersedes_review": [
   "REV-SOL-REQUIREMENTS-SEMANTICS-15"
@@ -22,7 +22,7 @@
   "docs/00-authority/development/requirement-discovery-events.json": "2cc9765f5b4e4383"
  },
  "resolution_commits": [
-  "aabc8403fb909f45a8e5105487c4725bda5a5039"
+  "1771aac80a79e48120f68ead85d58c9b378e64a5"
  ],
  "verdict": "Go",
  "completed_at": "2026-08-20",
