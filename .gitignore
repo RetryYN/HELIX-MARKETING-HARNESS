@@ -1,2 +1,4 @@
 .claude/settings.local.json
 scripts/hooks/pre-git-gate.sh
+__pycache__/
+*.pyc
