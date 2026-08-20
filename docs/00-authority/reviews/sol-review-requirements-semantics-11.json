@@ -10,8 +10,8 @@
  "review_log_digest": "b7e5add6d8ef22b7",
  "separation_status": "self_attested",
  "model": "gpt-5.6-sol",
- "target_commit": "5f2423e17f4248b2f6a0dbdf06ca79c94346e957",
- "target_tree": "b9e7b49c5d112d64a176afff5597e43ce6567345",
+ "target_commit": "fe57283b348291211f4cd08644c6245ed09d8b0e",
+ "target_tree": "d3c509a4baa56e14e8e06ed9b170f4551e4007b9",
  "scope": "媒体別ハーネス分離（Instagram）: MEDIA-HARNESS-INSTAGRAM候補（draft・deferred・write無効）、IR 47 records、pin/baseline更新",
  "supersedes_review": [
   "REV-SOL-REQUIREMENTS-SEMANTICS-10"
@@ -22,7 +22,7 @@
   "docs/00-authority/development/requirement-discovery-events.json": "4e5990637f68bea9"
  },
  "resolution_commits": [
-  "5f2423e17f4248b2f6a0dbdf06ca79c94346e957"
+  "fe57283b348291211f4cd08644c6245ed09d8b0e"
  ],
  "verdict": "Go",
  "completed_at": "2026-08-20",
