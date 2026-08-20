@@ -10,6 +10,12 @@
 | --- | --- | --- |
 | `media/wp/` | RetryYN/HELIX-WP-HARNESS | PoC 証跡から要求定義を新規に起こす段階 |
 
+## 開発ベース
+
+| ディレクトリ | リポジトリ | 役割 |
+| --- | --- | --- |
+| `base/agent-neo/` | RetryYN/AGENT-NEO | WP テーマの開発ベース |
+
 ## 経緯
 
 - 開発構造の出どころは `RetryYN/HELIX-HARNESS`（read-only 参照）。
