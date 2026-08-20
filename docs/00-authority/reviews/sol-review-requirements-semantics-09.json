@@ -10,8 +10,8 @@
  "review_log_digest": "c9571538e62eb59e",
  "separation_status": "self_attested",
  "model": "gpt-5.6-sol",
- "target_commit": "2e641e7ef3991b03ede0273a7606c8c9a4b97003",
- "target_tree": "78439917bd6e2e445a82a073d7ef49bfa31eb5b5",
+ "target_commit": "e8a5730efbf7a1941c53b61f04e4793967131ed3",
+ "target_tree": "a4529fae240d4ee82a51e871e35f4aaf27781421",
  "scope": "媒体別ハーネス分離（媒体一覧改訂）: PO改訂（11媒体一覧・生成AI/Canva撤回・rejected→historical写像）、IR/pin/baseline更新",
  "supersedes_review": [
   "REV-SOL-REQUIREMENTS-SEMANTICS-08"
@@ -22,7 +22,7 @@
   "docs/00-authority/requirements-gates.md": "8ba6d8aa8738c6b6"
  },
  "resolution_commits": [
-  "2e641e7ef3991b03ede0273a7606c8c9a4b97003"
+  "e8a5730efbf7a1941c53b61f04e4793967131ed3"
  ],
  "verdict": "Go",
  "completed_at": "2026-08-20",
