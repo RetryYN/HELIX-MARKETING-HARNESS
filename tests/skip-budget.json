@@ -1,8 +1,0 @@
-{
-  "note": "pytest skipped の上限ラチェット（scripts/check_skip_budget.py が python-ci で強制）。S0.1 実装で該当スタブを red→green 化するたびに理由付きで下げる。増加は設計追加（du-contracts の UT 追補）と同一コミットのみ許可。",
-  "max_skipped": 220,
-  "as_of": "2026-08-10",
-  "reason": "S0.2/S0.3設計クロージャー — 未被覆APIと受入基準未設定節を直接観測するtest-firstスタブ16本を追加。credential非永続化、browser scope/screenshot/read lifecycle、playbook隔離、WP冪等・承認・rate・unknown、approval binding、GA4取得異常、非PV列除外を個別検証し、各実装sliceでred→green化して下げる。DU-18 の再送・競合 CAS 2 UT は DDL fixture の直接 SQL 検証として実装済み。作業ツリー全体の実測 skip=220 に整合し、親 baseline から上限を増やさない",
-  "s0_impl_started": false,
-  "s0_impl_note": "S0.1 実装に着手したら true にする。以後、DU-01〜12 の API に対応する UT の skip は G-S0-TEST-REALITY が CI を落とす（実 red→green を強制）。着手は本クロージャー完了後。"
-}

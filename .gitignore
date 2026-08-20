@@ -1,9 +1,2 @@
-.venv/
-__pycache__/
-*.pyc
-.coverage
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-dist/
-reports/
+.claude/settings.local.json
+scripts/hooks/pre-git-gate.sh

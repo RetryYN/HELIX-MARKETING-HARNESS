@@ -1,5 +1,0 @@
-{"type":"session_meta","payload":{"session_id":"sol-review-round2-20260809"}}
-{"type":"turn_context","payload":{"model":"gpt-5.6-sol"}}
-{"type":"review_result","payload":{"round":1,"verdict":"No-Go","summary":"FR-11証跡矛盾、NFR検証接続欠落、擬似SQL、媒体上限曖昧を指摘"}}
-{"type":"review_result","payload":{"round":2,"verdict":"No-Go","summary":"NFR意味被覆、projected支出、復旧範囲、operation_log責務の残存不整合を指摘"}}
-{"type":"review_result","payload":{"round":3,"verdict":"Go","summary":"NFR4状態統一、観点別assert、NFR7乱数契約、NFR10設定追随を確認し意味監査Go"}}
