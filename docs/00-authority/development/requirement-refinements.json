@@ -51,7 +51,8 @@
     "RDQ-MEDIA-HARNESS-YOUTUBE-01": "requirements_policy",
     "RDQ-MEDIA-HARNESS-TIKTOK-01": "requirements_policy",
     "RDQ-MEDIA-HARNESS-THREADS-01": "requirements_policy",
-    "RDQ-MEDIA-HARNESS-CRM-HUBSPOT-01": "requirements_policy"
+    "RDQ-MEDIA-HARNESS-CRM-HUBSPOT-01": "requirements_policy",
+    "RDQ-MEDIA-HARNESS-GTM-01": "requirements_policy"
   },
   "decision_class_contracts": {
     "requirements_policy": [
@@ -47735,7 +47736,8 @@
     "MEDIA-HARNESS-YOUTUBE": "deferred_candidate",
     "MEDIA-HARNESS-TIKTOK": "deferred_candidate",
     "MEDIA-HARNESS-THREADS": "deferred_candidate",
-    "MEDIA-HARNESS-CRM-HUBSPOT": "deferred_candidate"
+    "MEDIA-HARNESS-CRM-HUBSPOT": "deferred_candidate",
+    "MEDIA-HARNESS-GTM": "deferred_candidate"
   },
   "candidate_requirement_bindings": {
     "PRC-01": [
@@ -47882,7 +47884,8 @@
       "MEDIA-HARNESS-YOUTUBE",
       "MEDIA-HARNESS-TIKTOK",
       "MEDIA-HARNESS-THREADS",
-      "MEDIA-HARNESS-CRM-HUBSPOT"
+      "MEDIA-HARNESS-CRM-HUBSPOT",
+      "MEDIA-HARNESS-GTM"
     ]
   },
   "decision_packets": [
@@ -48076,6 +48079,15 @@
         "MEDIA-HARNESS-CRM-HUBSPOT"
       ],
       "decision_question": "CRM（HubSpot想定）を独立ハーネス1つとして分離構成するか、その承認境界・共有基盤分離線・リポジトリ分離条件をどう確定するか",
+      "bulk_decision_forbidden": true
+    },
+    {
+      "packet_id": "RDP-MEDIA-HARNESS-GTM",
+      "decision_order": 19,
+      "subject_ids": [
+        "MEDIA-HARNESS-GTM"
+      ],
+      "decision_question": "Google Tag Managerを独立ハーネス1つとして分離構成するか、その承認境界・共有基盤分離線・リポジトリ分離条件をどう確定するか",
       "bulk_decision_forbidden": true
     }
   ],
@@ -53162,6 +53174,92 @@
       ],
       "approval": null,
       "semantic_digest": "sha256:3a25ac3ab8ca1df366d6ac0bc33724eac3e6813f77143c3b3406af434baf607e"
+    },
+    {
+      "refinement_id": "RRF-MEDIA-HARNESS-GTM",
+      "subject_id": "MEDIA-HARNESS-GTM",
+      "revision": 1,
+      "lifecycle_status": "draft",
+      "source_event_ids": [
+        "RDE-000216",
+        "RDE-000217"
+      ],
+      "source_set_digest": "sha256:f85bebb8bb2a87ca96343c4edbfe6f0e470ed2c50a208fd9ea09ae30107ae72b",
+      "semantic_dimensions": {
+        "actors": [
+          "PO",
+          "Google Tag Manager媒体運用者",
+          "製品runtime"
+        ],
+        "beneficiaries": [
+          "Google Tag Managerを他媒体から分離して監督したいPO",
+          "Google Tag Manager媒体運用者"
+        ],
+        "value": "Google Tag Managerを計測タグ設定の独立ハーネス1つとして分離し、container・workspace・tag・trigger・variable・version publish等の設定変更write境界をGTM単位で独立に凍結・運用できる",
+        "tasks": [
+          "Google Tag Managerハーネスの承認境界・write境界を定義する",
+          "Google Tag Managerのroute policy・credential scope・証跡を自媒体refinementへ束縛する",
+          "共有基盤との分離線と独立リポジトリ分離条件を確定する"
+        ],
+        "workflow": [
+          "candidate→媒体別refinement降下→媒体別PO凍結→媒体別release受入→将来の独立リポジトリ分離"
+        ],
+        "scope_in": [
+          "Google Tag Manager専用ハーネスの構成",
+          "Google Tag Managerの承認境界・write境界・route policy束縛",
+          "独立リポジトリ分離前提の自己完結設計",
+          "GTM設定write（container/workspace/tag/trigger/variable/version publish）の境界定義"
+        ],
+        "scope_out": [
+          "他媒体ハーネスの内容",
+          "共有基盤の実装方式選択（design-later）",
+          "外部リポジトリの実作成（PO明示指示まで行わない）",
+          "PO approval又は要求freeze"
+        ],
+        "prohibitions": [
+          "Google Tag Managerの承認・write境界を他媒体ハーネスへ混載しない",
+          "分離を理由に承認境界・禁止事項・fail-close規律を弱めない",
+          "PO指示なしに外部リポジトリを作成しない",
+          "PO凍結・release受入・個別grant前にGTMのcontainer・workspace・tag・trigger・variable・version publish等の設定変更writeを実行しない"
+        ],
+        "human_judgement": [
+          "Google Tag Managerハーネスの境界確定・採否・freeze・リポジトリ分離時期はPOが判断する"
+        ],
+        "side_effects": [
+          "要求候補とrefinement構成だけ。製品runtime・媒体への外部writeを変更しない"
+        ],
+        "evidence": [
+          "Google Tag Manager別refinementのPO凍結receipt",
+          "Google Tag Manager承認境界のtyped contract",
+          "独立リポジトリ分離条件の記録"
+        ],
+        "phase": "requirements"
+      },
+      "acceptance_cases": [
+        {
+          "acceptance_id": "RAC-MEDIA-HARNESS-GTM-P",
+          "polarity": "positive",
+          "statement": "Google Tag Managerの承認境界・write境界・route policyがGoogle Tag Manager専用refinementだけへ束縛された独立ハーネスとして構成される",
+          "system_test_id": "RST-MEDIA-HARNESS-GTM-P"
+        },
+        {
+          "acceptance_id": "RAC-MEDIA-HARNESS-GTM-N",
+          "polarity": "negative",
+          "statement": "Google Tag Managerと他媒体の承認境界・write境界を単一ハーネスへ混載した構成、及びPO指示なしの外部リポジトリ作成を拒否する。PO凍結・release受入・個別grant前のGTM container/workspace/tag/trigger/variable/version publish設定writeも拒否する",
+          "system_test_id": "RST-MEDIA-HARNESS-GTM-N"
+        },
+        {
+          "acceptance_id": "RAC-MEDIA-HARNESS-GTM-B",
+          "polarity": "boundary",
+          "statement": "Google Tag Managerハーネスの失敗・停止時も他媒体ハーネスの承認・運用状態を変更せずfail-closeで自媒体側だけを停止する。GTM設定writeの失敗・部分適用時はversion publishを行わずfail-closeで停止する",
+          "system_test_id": "RST-MEDIA-HARNESS-GTM-B"
+        }
+      ],
+      "pending_resolution": [
+        "Google Tag Managerハーネスの承認境界・write境界・共有基盤との分離線、及び独立リポジトリ分離の時期・条件はどこで確定するか"
+      ],
+      "approval": null,
+      "semantic_digest": "sha256:d0120f50b957d75dc09f4041d325a1b69e2fe9498315a6a914350caab0e28a97"
     }
   ],
   "automated_publishing_admission_policy": {

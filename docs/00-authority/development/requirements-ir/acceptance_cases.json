@@ -758,6 +758,39 @@
     "system_contract_id": "MHH-SC-MEDIA-HARNESS-GENAI",
     "system_test_id": "MHH-ST-MEDIA-HARNESS-GENAI"
   },
+  "MHH-AC-MEDIA-HARNESS-GTM-B": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-GTM-B",
+    "polarity": "boundary",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:8ab2d14143ff39ea0dd854cd059ade7872e2a418f172cfffca2889198a502c94",
+    "statement": "Google Tag Managerハーネスの失敗・停止時も他媒体ハーネスの承認・運用状態を変更せずfail-closeで自媒体側だけを停止する。GTM設定writeの失敗・部分適用時はversion publishを行わずfail-closeで停止する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-GTM",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-GTM"
+  },
+  "MHH-AC-MEDIA-HARNESS-GTM-N": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-GTM-N",
+    "polarity": "negative",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:35b04733fd80069439bee3a59174300623cd514b1709f5fb28c0bc3e350da3d8",
+    "statement": "Google Tag Managerと他媒体の承認境界・write境界を単一ハーネスへ混載した構成、及びPO指示なしの外部リポジトリ作成を拒否する。PO凍結・release受入・個別grant前のGTM container/workspace/tag/trigger/variable/version publish設定writeも拒否する",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-GTM",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-GTM"
+  },
+  "MHH-AC-MEDIA-HARNESS-GTM-P": {
+    "acceptance_id": "MHH-AC-MEDIA-HARNESS-GTM-P",
+    "polarity": "positive",
+    "revision": 1,
+    "schema_version": "helix-acceptance-case.v1",
+    "semantic_digest": "sha256:c2c73fc3bd51e1708e5f5a96c77634ad24bf926667d110780dd1a51030fddffe",
+    "statement": "Google Tag Managerの承認境界・write境界・route policyがGoogle Tag Manager専用refinementだけへ束縛された独立ハーネスとして構成される",
+    "status": "candidate_unratified",
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-GTM",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-GTM"
+  },
   "MHH-AC-MEDIA-HARNESS-INSTAGRAM-B": {
     "acceptance_id": "MHH-AC-MEDIA-HARNESS-INSTAGRAM-B",
     "polarity": "boundary",

@@ -390,6 +390,23 @@
     "system_contract_id": "MHH-SC-MEDIA-HARNESS-GENAI",
     "system_test_id": "MHH-ST-MEDIA-HARNESS-GENAI"
   },
+  "MHH-ST-MEDIA-HARNESS-GTM": {
+    "acceptance_ids": [
+      "MHH-AC-MEDIA-HARNESS-GTM-P",
+      "MHH-AC-MEDIA-HARNESS-GTM-N",
+      "MHH-AC-MEDIA-HARNESS-GTM-B"
+    ],
+    "negative_boundary": "Google Tag Managerの承認・write境界を他媒体ハーネスへ混載しない / 分離を理由に承認境界・禁止事項・fail-close規律を弱めない / PO指示なしに外部リポジトリを作成しない / PO凍結・release受入・個別grant前にGTMのcontainer・workspace・tag・trigger・variable・version publish等の設定変更writeを実行しない",
+    "required_evidence": "Google Tag Manager別refinementのPO凍結receipt / Google Tag Manager承認境界のtyped contract / 独立リポジトリ分離条件の記録",
+    "revision": 1,
+    "scenario": "requirements meaning review for MEDIA-HARNESS-GTM; no L2+ design or runtime execution",
+    "schema_version": "helix-system-test.v1",
+    "semantic_digest": "sha256:174286f73e232264112048b00beb9de43e54ef9558e2d1a23d4c51259663e713",
+    "status": "designed_not_implemented",
+    "supporting_test_ids": [],
+    "system_contract_id": "MHH-SC-MEDIA-HARNESS-GTM",
+    "system_test_id": "MHH-ST-MEDIA-HARNESS-GTM"
+  },
   "MHH-ST-MEDIA-HARNESS-INSTAGRAM": {
     "acceptance_ids": [
       "MHH-AC-MEDIA-HARNESS-INSTAGRAM-P",

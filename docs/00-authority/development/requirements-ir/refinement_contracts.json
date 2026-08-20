@@ -1471,6 +1471,70 @@
     },
     "supporting_requirements": []
   },
+  "RRF-MEDIA-HARNESS-GTM": {
+    "acceptance_cases": [
+      {
+        "acceptance_id": "MHH-AC-MEDIA-HARNESS-GTM-P",
+        "polarity": "positive",
+        "requirement_ids": [
+          "MHH-REQ-MEDIA-HARNESS-GTM"
+        ],
+        "semantic_digest": "sha256:c2c73fc3bd51e1708e5f5a96c77634ad24bf926667d110780dd1a51030fddffe",
+        "source_projection": "local_refinement_registry",
+        "statement": "Google Tag Managerの承認境界・write境界・route policyがGoogle Tag Manager専用refinementだけへ束縛された独立ハーネスとして構成される"
+      },
+      {
+        "acceptance_id": "MHH-AC-MEDIA-HARNESS-GTM-N",
+        "polarity": "negative",
+        "requirement_ids": [
+          "MHH-REQ-MEDIA-HARNESS-GTM"
+        ],
+        "semantic_digest": "sha256:35b04733fd80069439bee3a59174300623cd514b1709f5fb28c0bc3e350da3d8",
+        "source_projection": "local_refinement_registry",
+        "statement": "Google Tag Managerと他媒体の承認境界・write境界を単一ハーネスへ混載した構成、及びPO指示なしの外部リポジトリ作成を拒否する。PO凍結・release受入・個別grant前のGTM container/workspace/tag/trigger/variable/version publish設定writeも拒否する"
+      },
+      {
+        "acceptance_id": "MHH-AC-MEDIA-HARNESS-GTM-B",
+        "polarity": "boundary",
+        "requirement_ids": [
+          "MHH-REQ-MEDIA-HARNESS-GTM"
+        ],
+        "semantic_digest": "sha256:8ab2d14143ff39ea0dd854cd059ade7872e2a418f172cfffca2889198a502c94",
+        "source_projection": "local_refinement_registry",
+        "statement": "Google Tag Managerハーネスの失敗・停止時も他媒体ハーネスの承認・運用状態を変更せずfail-closeで自媒体側だけを停止する。GTM設定writeの失敗・部分適用時はversion publishを行わずfail-closeで停止する"
+      }
+    ],
+    "acceptance_owners": [],
+    "approval": null,
+    "contract_requirement": {
+      "acceptance_ids": [
+        "MHH-AC-MEDIA-HARNESS-GTM-P",
+        "MHH-AC-MEDIA-HARNESS-GTM-N",
+        "MHH-AC-MEDIA-HARNESS-GTM-B"
+      ],
+      "requirement_id": "MHH-REQ-MEDIA-HARNESS-GTM",
+      "semantic_digest": "sha256:d0120f50b957d75dc09f4041d325a1b69e2fe9498315a6a914350caab0e28a97",
+      "source_projection": "local_refinement_registry",
+      "statement": "actors: PO / Google Tag Manager媒体運用者 / 製品runtime\nbeneficiaries: Google Tag Managerを他媒体から分離して監督したいPO / Google Tag Manager媒体運用者\nvalue: Google Tag Managerを計測タグ設定の独立ハーネス1つとして分離し、container・workspace・tag・trigger・variable・version publish等の設定変更write境界をGTM単位で独立に凍結・運用できる\ntasks: Google Tag Managerハーネスの承認境界・write境界を定義する / Google Tag Managerのroute policy・credential scope・証跡を自媒体refinementへ束縛する / 共有基盤との分離線と独立リポジトリ分離条件を確定する\nworkflow: candidate→媒体別refinement降下→媒体別PO凍結→媒体別release受入→将来の独立リポジトリ分離\nscope_in: Google Tag Manager専用ハーネスの構成 / Google Tag Managerの承認境界・write境界・route policy束縛 / 独立リポジトリ分離前提の自己完結設計 / GTM設定write（container/workspace/tag/trigger/variable/version publish）の境界定義\nscope_out: 他媒体ハーネスの内容 / 共有基盤の実装方式選択（design-later） / 外部リポジトリの実作成（PO明示指示まで行わない） / PO approval又は要求freeze\nprohibitions: Google Tag Managerの承認・write境界を他媒体ハーネスへ混載しない / 分離を理由に承認境界・禁止事項・fail-close規律を弱めない / PO指示なしに外部リポジトリを作成しない / PO凍結・release受入・個別grant前にGTMのcontainer・workspace・tag・trigger・variable・version publish等の設定変更writeを実行しない\nhuman_judgement: Google Tag Managerハーネスの境界確定・採否・freeze・リポジトリ分離時期はPOが判断する\nside_effects: 要求候補とrefinement構成だけ。製品runtime・媒体への外部writeを変更しない\nevidence: Google Tag Manager別refinementのPO凍結receipt / Google Tag Manager承認境界のtyped contract / 独立リポジトリ分離条件の記録\nphase: requirements"
+    },
+    "downstream_issue_ids": [],
+    "lifecycle_status": "draft",
+    "plan_id": "PLAN-REQUIREMENTS-FREEZE-PENDING",
+    "primary_system_contract_id": "MHH-SC-MEDIA-HARNESS-GTM",
+    "refinement_contract_id": "RRF-MEDIA-HARNESS-GTM",
+    "related_system_contract_ids": [],
+    "responsibility_owner": "MEDIA-HARNESS-GTM",
+    "revision": 1,
+    "schema_version": "helix-requirement-refinement.v1",
+    "semantic_digest": "sha256:f77b790286a2d7585db1bf86fc7ad64bdbdbd71f8bb284f56584490fb16b2d16",
+    "source": {
+      "acceptance_digest": "sha256:5585023d28b1585acbe3aaa02557552060004ec8b1737f3d6fa8269e7d031cdd",
+      "acceptance_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-MEDIA-HARNESS-GTM/acceptance_cases",
+      "requirement_digest": "sha256:d0120f50b957d75dc09f4041d325a1b69e2fe9498315a6a914350caab0e28a97",
+      "requirement_path": "docs/00-authority/development/requirement-refinements.json#/records/RRF-MEDIA-HARNESS-GTM"
+    },
+    "supporting_requirements": []
+  },
   "RRF-MEDIA-HARNESS-INSTAGRAM": {
     "acceptance_cases": [
       {

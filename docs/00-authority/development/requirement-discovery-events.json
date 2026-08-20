@@ -7624,6 +7624,143 @@
         "question": "CRM（HubSpot想定）ハーネスの承認境界・write境界・共有基盤との分離線、及び独立リポジトリ分離の時期・条件はどこで確定するか",
         "dimension": "constraints"
       }
+    },
+    {
+      "event_id": "RDE-000216",
+      "sequence": 216,
+      "subject_id": "MEDIA-HARNESS-GTM",
+      "event_type": "candidate_recorded",
+      "occurred_at": "2026-08-20T01:01:00Z",
+      "recorded_at": "2026-08-20T01:01:00Z",
+      "actor_principal": "po",
+      "references": [
+        {
+          "kind": "event",
+          "id": "RDE-000184"
+        }
+      ],
+      "payload": {
+        "title": "Google Tag Managerを独立ハーネス1つとして分離構成する",
+        "problem_statement": "MEDIA-PER-MEDIUM-HARNESSのPO改訂回答（RDE-000201）により対象媒体一覧が11媒体で確定した。Google Tag Managerの承認境界・write境界・route policy・credential scope・証跡を他媒体と混載しない独立ハーネスとして媒体別に定義する必要がある。",
+        "value_hypothesis": "Google Tag Managerハーネスを独立に凍結・運用できれば、Google Tag Managerの失敗・仕様変更が他媒体へ波及せず、将来の独立リポジトリ分離も自己完結に行える。",
+        "unresolved_questions": [
+          "Google Tag Managerハーネスの承認境界・write境界・共有基盤との分離線、及び独立リポジトリ分離の時期・条件はどこで確定するか"
+        ],
+        "semantic_dimensions": {
+          "business_actors": [
+            "PO",
+            "Google Tag Manager媒体運用者",
+            "製品runtime"
+          ],
+          "beneficiaries": [
+            "Google Tag Managerを他媒体から分離して監督したいPO",
+            "Google Tag Manager媒体運用者"
+          ],
+          "workflow": [
+            "candidate→媒体別refinement降下→媒体別PO凍結→媒体別release受入→将来の独立リポジトリ分離"
+          ],
+          "scope_in": [
+            "Google Tag Manager専用ハーネスの構成",
+            "Google Tag Managerの承認境界・write境界・route policy束縛",
+            "独立リポジトリ分離前提の自己完結設計"
+          ],
+          "scope_out": [
+            "他媒体ハーネスの内容",
+            "共有基盤の実装方式選択（design-later）",
+            "外部リポジトリの実作成（PO明示指示まで行わない）",
+            "PO approval又は要求freeze"
+          ],
+          "constraints": [
+            "1媒体=1ハーネスとしてGoogle Tag Managerの構成・承認・運用単位を一致させる",
+            "既存のfail-close・PO凍結・全媒体write無効の現行候補規律に従う"
+          ],
+          "prohibitions": [
+            "Google Tag Managerの承認・write境界を他媒体ハーネスへ混載しない",
+            "分離を理由に承認境界・禁止事項を弱めない",
+            "PO指示なしに外部リポジトリを作成しない"
+          ],
+          "human_judgement": [
+            "Google Tag Managerハーネスの境界確定・採否・freeze・リポジトリ分離時期はPO"
+          ],
+          "external_side_effects": [
+            "要求候補とrefinement構成だけ。製品runtime・媒体への外部writeを変更しない"
+          ],
+          "completion_evidence": [
+            "Google Tag Manager別refinementのPO凍結",
+            "Google Tag Manager承認境界のtyped contract",
+            "独立リポジトリ分離条件の記録"
+          ],
+          "target_phase": "requirements",
+          "unknown_dimensions": [
+            {
+              "dimension": "constraints",
+              "question": "Google Tag Managerハーネスの承認境界・write境界・共有基盤との分離線、及び独立リポジトリ分離の時期・条件はどこで確定するか"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "event_id": "RDE-000217",
+      "sequence": 217,
+      "subject_id": "MEDIA-HARNESS-GTM",
+      "event_type": "question_raised",
+      "occurred_at": "2026-08-20T01:02:00Z",
+      "recorded_at": "2026-08-20T01:02:00Z",
+      "actor_principal": "po",
+      "references": [
+        {
+          "kind": "event",
+          "id": "RDE-000216"
+        }
+      ],
+      "payload": {
+        "question": "Google Tag Managerハーネスの承認境界・write境界・共有基盤との分離線、及び独立リポジトリ分離の時期・条件はどこで確定するか",
+        "dimension": "constraints"
+      }
+    },
+    {
+      "event_id": "RDE-000218",
+      "sequence": 218,
+      "subject_id": "MEDIA-PER-MEDIUM-HARNESS",
+      "event_type": "observation_recorded",
+      "occurred_at": "2026-08-21T00:00:00Z",
+      "recorded_at": "2026-08-21T00:00:00Z",
+      "actor_principal": "po",
+      "references": [
+        {
+          "kind": "event",
+          "id": "RDE-000201"
+        },
+        {
+          "kind": "event",
+          "id": "RDE-000204"
+        },
+        {
+          "kind": "event",
+          "id": "RDE-000206"
+        },
+        {
+          "kind": "event",
+          "id": "RDE-000208"
+        },
+        {
+          "kind": "event",
+          "id": "RDE-000210"
+        },
+        {
+          "kind": "event",
+          "id": "RDE-000212"
+        },
+        {
+          "kind": "event",
+          "id": "RDE-000214"
+        }
+      ],
+      "payload": {
+        "observation": "RDE-000204・000206・000208・000210・000212・000214のproblem_statementにある「対象媒体一覧が6媒体で確定した」は、RDE-000201のPO改訂（11媒体）を指すべき記載誤りである。台帳はappend-onlyのため原イベントは改変せず、本observationを正とする。各候補の意味内容・scope・deferred境界には影響しない。",
+        "evidence_ref": "event:RDE-000201"
+      }
     }
   ]
 }
