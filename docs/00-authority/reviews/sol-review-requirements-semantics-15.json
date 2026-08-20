@@ -10,8 +10,8 @@
  "review_log_digest": "be034b871d157131",
  "separation_status": "self_attested",
  "model": "gpt-5.6-sol",
- "target_commit": "b871f63607b555b14241c7bed744adeb87b0aff6",
- "target_tree": "9f0b00a3e172a4e78885b87264a5a3ffdb7365a5",
+ "target_commit": "0be28bd438d080edbeb88825ab8b8ca6fde53468",
+ "target_tree": "c445dbb71972354570aa07eb5b9c764bff36bb04",
  "scope": "媒体別ハーネス分離（CRM（HubSpot想定））: MEDIA-HARNESS-CRM-HUBSPOT候補（draft・deferred・write無効）、IR 51 records、pin/baseline更新",
  "supersedes_review": [
   "REV-SOL-REQUIREMENTS-SEMANTICS-14"
@@ -22,7 +22,7 @@
   "docs/00-authority/development/requirement-discovery-events.json": "cc7ceb273dcaa5d1"
  },
  "resolution_commits": [
-  "b871f63607b555b14241c7bed744adeb87b0aff6"
+  "0be28bd438d080edbeb88825ab8b8ca6fde53468"
  ],
  "verdict": "Go",
  "completed_at": "2026-08-20",
