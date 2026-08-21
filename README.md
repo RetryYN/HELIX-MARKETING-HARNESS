@@ -8,7 +8,7 @@
 
 | ディレクトリ | リポジトリ | 状態 |
 | --- | --- | --- |
-| `media/wp/` | RetryYN/HELIX-WP-HARNESS | PoC 証跡から要求定義を新規に起こす段階 |
+| `media/wp/` | RetryYN/HELIX-WP-HARNESS | PoC完了・R6詳細要求策定済み。最初のL2 PLANを開始し、S1下書き投稿要求を起草済み。Claude/Codex実往復はconsumer authority解決待ち |
 
 ## 開発ベース
 

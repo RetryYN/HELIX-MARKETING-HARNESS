@@ -1,0 +1,19 @@
+name: Structure check
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  structure-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Verify integration-layer instruction boundaries
+        run: bash scripts/check-structure.sh
