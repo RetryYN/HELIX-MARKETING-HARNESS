@@ -15,6 +15,7 @@
 | ディレクトリ | リポジトリ | 役割 |
 | --- | --- | --- |
 | `base/wp-theme/` | RetryYN/HELIX-WP-THEME | WP テーマの開発ベース |
+| `base/graphix-neo/` | RetryYN/GRAPHIX-NEO（**private**） | 次世代型 WP テーマ Graphix NEO。Context Page 構造の企画・要求・PoC。PO 判断（2026-08-26）により白紙から出発 |
 
 ## 経緯
 
@@ -26,3 +27,6 @@
 ```bash
 git clone --recurse-submodules git@github.com:RetryYN/HELIX-MARKETING-HARNESS.git
 ```
+
+`base/graphix-neo/` は private リポジトリのため、submodule の取得には
+対象リポジトリへのアクセス権が必要（権限がない場合はそのサブモジュールだけ取得に失敗する）。

@@ -4,3 +4,6 @@
 [submodule "base/wp-theme"]
 	path = base/wp-theme
 	url = https://github.com/RetryYN/HELIX-WP-THEME.git
+[submodule "base/graphix-neo"]
+	path = base/graphix-neo
+	url = https://github.com/RetryYN/GRAPHIX-NEO.git
