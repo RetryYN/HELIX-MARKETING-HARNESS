@@ -55,6 +55,7 @@
   Required companion paths / Scope expansion: none）。`src/` を触る PR は PLAN と tests companion を同 diff に含める。
   Claude 作成 PR の ready/merge は Codex lane に委譲する。
 - **事前承認済み（確認不要）**: Issue の作成・編集・label、Draft PR の作成・更新、
-  非 main ブランチへの push、リポ内起票スクリプト（`create-issues-helix.sh` 等）の実行。
-- **引き続き PO 明示判断が要る**: main への merge、force-push、tag/release/cutover、ブランチ・Issue の削除、
+  非 main ブランチへの push、統合層（本リポ）main への直接 push（docs・設定・pin 更新）、
+  リポ内起票スクリプト（`create-issues-helix.sh` 等）の実行。
+- **引き続き PO 明示判断が要る**: 媒体リポ main への merge、force-push、tag/release/cutover、ブランチ・Issue の削除、
   `HELIX-HARNESS` / `TAKUMI_CMO-Claude_Cowark` への write、本番 WP・第三者サービスへの write。
