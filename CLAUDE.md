@@ -35,3 +35,26 @@
 - 媒体リポへの push: SSH deploy key は本リポ限定のため
   `git -c credential.helper='!gh auth git-credential' push` を使う。
 - レビューが必要な変更は codex-sol（effort low）、通常タスクは codex-luna（effort max）。
+
+## GitHub 運用ルール（HELIX 本体を継承）
+
+正本は `RetryYN/HELIX-HARNESS` の `docs/governance/github-operation-rules.md` と
+`github-issue-hierarchy-rules.md`（vendor 版: `media/wp/node_modules/helix/docs/governance/`）。
+本節の「事前承認済み」範囲は PO が 2026-08-27 に承認済みで、都度の確認なしに実行してよい。
+
+- **Issue**: root / capability / task / finding の階層。本文に
+  `issue_role / parent_issue / blocks / blocked_by / duplicate_search / disposition / duplicate_of` の exact block。
+  依存があれば `# helix-issue-dependency.v1` block（`depends_on` / `blocks` を双方向一致）。
+  label は type（`bug|feature|enhancement|update`）+ `priority:*`（または `state:*`）を同一操作で付与、
+  責務が分かれば `area:*` も付ける。起票前に duplicate search。
+  公開リポでは第三者製品名・ベンダー名・ドメインを伏せ字にする。
+- **Branch**: governed prefix のみ（`feature/ design/ research/ poc/ reverse/ add/ hotfix/ refactor/ docs/ chore/`、
+  automation は `codex/`）。`fix/ work/ bugfix/` と未登録 prefix は使わない。
+- **PR**: Draft で作り、本文に 6 項目の `## HELIX scope manifest`
+  （Behavior contract / Responsibility owner / Allowed path families / Expected changed paths /
+  Required companion paths / Scope expansion: none）。`src/` を触る PR は PLAN と tests companion を同 diff に含める。
+  Claude 作成 PR の ready/merge は Codex lane に委譲する。
+- **事前承認済み（確認不要）**: Issue の作成・編集・label、Draft PR の作成・更新、
+  非 main ブランチへの push、リポ内起票スクリプト（`create-issues-helix.sh` 等）の実行。
+- **引き続き PO 明示判断が要る**: main への merge、force-push、tag/release/cutover、ブランチ・Issue の削除、
+  `HELIX-HARNESS` / `TAKUMI_CMO-Claude_Cowark` への write、本番 WP・第三者サービスへの write。
