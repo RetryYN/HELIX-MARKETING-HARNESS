@@ -14,8 +14,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          submodules: true
           fetch-depth: 0
+      - name: Initialize public submodules
+        run: git submodule update --init --force media/wp base/wp-theme
       - name: Verify integration-layer instruction boundaries
         run: bash scripts/check-structure.sh
       - name: Test public-safety guard failure modes

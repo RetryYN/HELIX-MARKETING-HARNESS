@@ -29,6 +29,9 @@ Issue、PR、CI log、ハーネスメモリへ残ることを防ぐ。
 5. PR では統合層の CI が root 差分と submodule の旧 pin→新 pin 差分を検査する。
 6. 検査結果を回避するための分割、難読化、無期限 allowlist、実値を含む allowlist を禁止する。
 
+CI は標準トークンで取得できる公開 submodule を検査する。private submodule の pin を変更するPRは、
+read token がない状態では検査不能としてfail-closeするため、公開前に権限付きの検査laneを用意する。
+
 初回 clone と submodule 追加後は `bash scripts/install-public-safety-hooks.sh` を実行する。
 tracked `pre-commit` / `pre-push` hook が統合層と初期化済み submodule の Git 操作へ割り込み、
 commit 前の staged 差分と push 前の送信範囲を検査する。既存の `core.hooksPath` がある場合、installer は
