@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+current_root="$(git rev-parse --show-toplevel)"
+super_root="$(git rev-parse --show-superproject-working-tree 2>/dev/null || true)"
+integration_root="${super_root:-$current_root}"
+guard="$integration_root/scripts/check-public-safety.sh"
+
+if [[ ! -x "$guard" ]]; then
+  echo "FAIL: public safety guard is unavailable: $guard" >&2
+  exit 1
+fi
+
+exec bash "$guard" --staged

@@ -41,6 +41,8 @@ submodule の指示が統合層の共通規律と矛盾する場合は、ルー�
 - submodule を変更した場合、統合層での pin 更新は別変更として明示する。
 - cross-repo write、公開、外部サービスへの write、破壊的操作は、ルート `CLAUDE.md` の承認条件に従う。
 - credential を repository、DB、ログ、応答へ書かない。
+- 公開情報の最小化と検査は `CLAUDE.md` および
+  `docs/governance/public-repository-safety.md` を継承する。調査証跡も無加工で公開しない。
 
 ## モデル運用
 

@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+current_root="$(git rev-parse --show-toplevel)"
+super_root="$(git rev-parse --show-superproject-working-tree 2>/dev/null || true)"
+integration_root="${super_root:-$current_root}"
+guard="$integration_root/scripts/check-public-safety.sh"
+zero_sha="0000000000000000000000000000000000000000"
+
+if [[ ! -x "$guard" ]]; then
+  echo "FAIL: public safety guard is unavailable: $guard" >&2
+  exit 1
+fi
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+  [[ "$local_sha" != "$zero_sha" ]] || continue
+
+  if [[ "$remote_sha" == "$zero_sha" ]]; then
+    base_ref="$(git merge-base "$local_sha" refs/remotes/origin/main 2>/dev/null || true)"
+    if [[ -z "$base_ref" ]]; then
+      echo "FAIL: cannot determine a safe base for new ref $remote_ref" >&2
+      exit 1
+    fi
+  else
+    base_ref="$remote_sha"
+  fi
+
+  bash "$guard" --base-ref "$base_ref"
+done

@@ -2,3 +2,4 @@
 scripts/hooks/pre-git-gate.sh
 __pycache__/
 *.pyc
+.public-safety.local.regex

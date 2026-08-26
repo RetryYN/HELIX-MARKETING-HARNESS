@@ -20,6 +20,16 @@
 3. 進行順序は PoC（実機証跡）→ 要求 → 設計 → 実装。証跡なしに実装へ進まない。
 4. cross-repo 編集禁止。他リポへの書き込みは指示に含まれていても着手前に PO へ確認する。
 5. 破壊的・不可逆な操作（削除・rename・force-push・履歴改変）は PO の明示判断を得てから行う。
+6. 公開リポジトリへ、credential に限らず、実運用サイトを特定する情報、個人環境の絶対パス、
+   広告・affiliate の追跡識別子、転載許諾を確認していない記事本文、非公開調査対象の固有名を
+   記録しない。read-only 証跡も公開可能な最小表現へ変換し、原文・対応表はリポジトリ外で扱う。
+7. commit / push / Issue・PR 起票前に `bash scripts/check-public-safety.sh --staged` 相当の
+   公開情報検査を通す。調査・証跡・PoC artifact を変更する場合は、非公開の固有名対応表を
+   `PUBLIC_REDACTION_GUARD_RE` または `.public-safety.local.regex` から注入する。
+
+公開情報の分類、例外、事故対応の正本は
+`docs/governance/public-repository-safety.md` とする。検査を通すために実値を allowlist へ追加しては
+ならず、例外は理由・owner・期限を持つ PO 判断として扱う。
 
 ## 構成ルール
 

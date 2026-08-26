@@ -15,5 +15,22 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
+          fetch-depth: 0
       - name: Verify integration-layer instruction boundaries
         run: bash scripts/check-structure.sh
+      - name: Test public-safety guard failure modes
+        run: bash scripts/tests/check-public-safety-test.sh
+      - name: Fetch submodule history needed for pin-diff inspection
+        shell: bash
+        run: |
+          git submodule foreach --recursive 'git fetch --quiet --no-tags origin "+refs/heads/*:refs/remotes/origin/*"'
+      - name: Guard newly published content, including submodule pin diffs
+        env:
+          PUBLIC_REDACTION_GUARD_RE: ${{ secrets.PUBLIC_REDACTION_GUARD_RE }}
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            base_ref="${{ github.event.pull_request.base.sha }}"
+          else
+            base_ref="${{ github.event.before }}"
+          fi
+          bash scripts/check-public-safety.sh --base-ref "$base_ref"
