@@ -4,12 +4,15 @@
       "Bash(gh:*)",
       "Bash(git push:*)",
       "Bash(git -c credential.helper=*)",
-      "Bash(bash */create-issues-helix.sh:*)"
+      "Bash(bash */create-issues-helix.sh:*)",
+      "Bash(ssh -o BatchMode=yes*xs887843@xs887843.xsrv.jp*)",
+      "Bash(bash */extract-jinr-attrs.sh*)"
     ]
   },
   "autoMode": {
     "allow": [
       "$defaults",
+      "Read-only SSH to the XServer production host xs887843.xsrv.jp (key ~/.ssh/id_ed25519_xserver, port 10022) for evidence collection: wp db query SELECT, wp option list/get, cat/grep of theme PHP files, ls. No writes, no option updates, no file modification. Pre-approved by the PO on 2026-08-27.",
       "GitHub operations on RetryYN/* repositories that follow the HELIX-HARNESS GitHub operation rules (docs/governance/github-operation-rules.md, github-issue-hierarchy-rules.md): creating/editing/labeling Issues with issue_role/parent_issue blocks and type+priority labels; creating/updating Draft PRs with the 6-item HELIX scope manifest; pushing to non-main branches with governed prefixes (feature/ design/ research/ poc/ reverse/ add/ hotfix/ refactor/ docs/ chore/ codex/); running repo-local issue-filing scripts such as create-issues-helix.sh. Pre-approved by the PO on 2026-08-27 (see CLAUDE.md 'GitHub 運用ルール').",
       "Pushing commits to non-main branches of RetryYN/HELIX-MARKETING-HARNESS, RetryYN/HELIX-WP-HARNESS, RetryYN/HELIX-WP-THEME, RetryYN/GRAPHIX-NEO via git push or git -c credential.helper=... push."
     ],
