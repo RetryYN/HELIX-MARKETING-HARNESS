@@ -12,11 +12,12 @@
       "$defaults",
       "Read-only SSH to the project's production WordPress host for evidence collection (host/key are defined in the gitignored .claude/settings.local.json): wp db query SELECT, wp option list/get, cat/grep of theme files, ls. No writes, no option updates, no file modification. Pre-approved by the PO on 2026-08-27.",
       "GitHub operations on RetryYN/* repositories that follow the HELIX-HARNESS GitHub operation rules (docs/governance/github-operation-rules.md, github-issue-hierarchy-rules.md): creating/editing/labeling Issues with issue_role/parent_issue blocks and type+priority labels; creating/updating Draft PRs with the 6-item HELIX scope manifest; pushing to non-main branches with governed prefixes (feature/ design/ research/ poc/ reverse/ add/ hotfix/ refactor/ docs/ chore/ codex/); running repo-local issue-filing scripts such as create-issues-helix.sh. Pre-approved by the PO on 2026-08-27 (see CLAUDE.md 'GitHub 運用ルール').",
-      "Pushing commits to non-main branches of RetryYN/HELIX-MARKETING-HARNESS, RetryYN/HELIX-WP-HARNESS, RetryYN/HELIX-WP-THEME, RetryYN/GRAPHIX-NEO via git push or git -c credential.helper=... push."
+      "Pushing commits to non-main branches of RetryYN/HELIX-MARKETING-HARNESS, RetryYN/HELIX-WP-HARNESS, RetryYN/HELIX-WP-THEME, RetryYN/GRAPHIX-NEO via git push or git -c credential.helper=... push.",
+      "Marking a PR ready (gh pr ready) and merging it into main with a merge commit (gh pr merge --merge, never --squash/--rebase, never --delete-branch, never --admin) on RetryYN/HELIX-MARKETING-HARNESS, RetryYN/HELIX-WP-HARNESS, RetryYN/HELIX-WP-THEME, RetryYN/GRAPHIX-NEO, when all of the following hold: the PO directed the merge in this conversation, a codex-sol final review returned 'merge 可' on the PR's current head, and CI is green on that head. Pre-approved by the PO on 2026-09-02 (HELIX-HARNESS main-branch operation parity)."
     ],
     "soft_deny": [
       "$defaults",
-      "Merging to main, force-push, tag/release/cutover, deleting branches or Issues, and any write to RetryYN/HELIX-HARNESS or RetryYN/TAKUMI_CMO-Claude_Cowark (read-only references) still require explicit PO approval in the conversation."
+      "Merging to main without a codex-sol 'merge 可' verdict on the current head, force-push, tag/release/cutover, deleting branches or Issues, and any write to RetryYN/HELIX-HARNESS or RetryYN/TAKUMI_CMO-Claude_Cowark (read-only references) still require explicit PO approval in the conversation."
     ]
   }
 }

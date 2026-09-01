@@ -67,5 +67,8 @@
 - **事前承認済み（確認不要）**: Issue の作成・編集・label、Draft PR の作成・更新、
   非 main ブランチへの push、統合層（本リポ）main への直接 push（docs・設定・pin 更新）、
   リポ内起票スクリプト（`create-issues-helix.sh` 等）の実行。
-- **引き続き PO 明示判断が要る**: 媒体リポ main への merge、force-push、tag/release/cutover、ブランチ・Issue の削除、
+- **条件付き事前承認（PO 2026-09-02、HELIX 本体の main 運用と同等）**: 傘下リポ main への merge は、
+  会話で PO が merge を指示し、codex-sol の最終レビューが現 head に対して「merge 可」を返し、CI が green のとき、
+  `gh pr ready` → `gh pr merge --merge`（merge commit。squash / rebase / ブランチ削除 / admin 強行は不可）で実行してよい。
+- **引き続き PO 明示判断が要る**: Sol「merge 可」なしの main merge、force-push、tag/release/cutover、ブランチ・Issue の削除、
   `HELIX-HARNESS` / `TAKUMI_CMO-Claude_Cowark` への write、本番 WP・第三者サービスへの write。
