@@ -59,3 +59,7 @@ commit 前の staged 差分と push 前の送信範囲を検査する。既存�
 
 機械検査は高確度の credential、個人環境パス、追跡 URL、および非公開正規表現を検出する。
 記事転載や文脈上の公開可否を完全には判定できないため、人の公開レビューを置き換えない。
+
+## 事故記録
+
+- `incidents/2026-09-05-third-party-names-in-merged-research.md` — merge 済み調査文書への第三者製品名・商標名の混入（PR #135 で是正）
