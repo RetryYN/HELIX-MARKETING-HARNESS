@@ -44,7 +44,7 @@
 
 - 媒体リポへの push: SSH deploy key は本リポ限定のため
   `git -c credential.helper='!gh auth git-credential' push` を使う。
-- レビューが必要な変更は codex-sol（effort low）、通常タスクは codex-luna（effort max）。
+- レビューが必要な変更は codex-astra（gpt-6-astra、effort low。PO 判断 2026-09-05、Sol の上位として採用。Astra 不可時は codex-sol）、通常タスクは codex-luna（effort max）。
 
 ## GitHub 運用ルール（HELIX 本体を継承）
 
@@ -68,7 +68,7 @@
   非 main ブランチへの push、統合層（本リポ）main への直接 push（docs・設定・pin 更新）、
   リポ内起票スクリプト（`create-issues-helix.sh` 等）の実行。
 - **条件付き事前承認（PO 2026-09-02、HELIX 本体の main 運用と同等）**: 傘下リポ main への merge は、
-  会話で PO が merge を指示し、codex-sol の最終レビューが現 head に対して「merge 可」を返し、CI が green のとき、
+  会話で PO が merge を指示し、codex-astra（代替時は codex-sol）の最終レビューが現 head に対して「merge 可」を返し、CI が green のとき、
   `gh pr ready` → `gh pr merge --merge`（merge commit。squash / rebase / ブランチ削除 / admin 強行は不可）で実行してよい。
-- **引き続き PO 明示判断が要る**: Sol「merge 可」なしの main merge、force-push、tag/release/cutover、ブランチ・Issue の削除、
+- **引き続き PO 明示判断が要る**: Astra / Sol「merge 可」なしの main merge、force-push、tag/release/cutover、ブランチ・Issue の削除、
   `HELIX-HARNESS` / `TAKUMI_CMO-Claude_Cowark` への write、本番 WP・第三者サービスへの write。
