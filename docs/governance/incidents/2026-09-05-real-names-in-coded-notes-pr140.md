@@ -7,7 +7,7 @@
 - 内容: 12 並列の画像コーディング agent が `note`（任意・20 字以内の自由記述）に、実サイトの媒体名・第三者 SaaS / ベンダー名・個人名を書いた。
   Claude 側の commit 前検査（`check-public-safety.sh --staged` + ローカル伏せ字 regex）は、これらの名が regex に無かったため通過した。
 - 是正（済、commit aa9552d）: 全 coded 行から `note` フィールドを削除（tags は語彙値のみ）。CODING-BRIEF に「自由記述フィールドを置かない」を明記。検出した名をローカル regex（リポ外）へ追加。
-- 未是正: ブランチ履歴 6c2cc9c に実名が残る。main には未 merge。
+- 履歴: PO 判断 2026-09-05「A」により、ブランチを 1 commit（24ff1ea）に squash して force-push（--force-with-lease）。実名を含む 6c2cc9c / aa9552d はブランチ履歴から除去（GitHub 側の到達不能オブジェクトの消滅はプラットフォーム依存）。main には未 merge。
 
 ## 原因
 
@@ -17,6 +17,6 @@
 
 ## 対応案（Claude 案、PO 判断待ち）
 
-- A: ブランチを 1 commit に squash して force-push し（非 main・Claude 作成ブランチ）、履歴から実名を除いてから merge。共通規律 5（force-push は PO 明示判断）に該当するため PO の判断を要する。
+- A（PO 採択 2026-09-05）: ブランチを 1 commit に squash して force-push し（非 main・Claude 作成ブランチ）、履歴から実名を除いてから merge。共通規律 5 に基づく PO 明示判断を得て実行。
 - B: 現状のまま merge（main の履歴に実名が永続する）。推奨しない。
 - 再発防止（PO 判断不要・次回から適用）: 公開成果物の自由記述フィールドを廃止。agent 出力を commit 前に「固有名らしい語の抽出」で機械検査。調査対象サイトの名をローカル regex へ一括投入する手順を `redaction-map` 運用に加える。

@@ -63,4 +63,4 @@ commit 前の staged 差分と push 前の送信範囲を検査する。既存�
 ## 事故記録
 
 - `incidents/2026-09-05-third-party-names-in-merged-research.md` — merge 済み調査文書への第三者製品名・商標名の混入（PR #135 で是正）
-- `incidents/2026-09-05-real-names-in-coded-notes-pr140.md` — 画像コーディングの自由記述 note への実名混入（非 main ブランチ、PR #140。履歴の扱いは PO 判断待ち）
+- `incidents/2026-09-05-real-names-in-coded-notes-pr140.md` — 画像コーディングの自由記述 note への実名混入（非 main ブランチ、PR #140。PO 判断 A で squash 済み）
