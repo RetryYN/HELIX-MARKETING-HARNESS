@@ -30,3 +30,16 @@ git clone --recurse-submodules git@github.com:RetryYN/HELIX-MARKETING-HARNESS.gi
 
 `base/graphix-neo/` は private リポジトリのため、submodule の取得には
 対象リポジトリへのアクセス権が必要（権限がない場合はそのサブモジュールだけ取得に失敗する）。
+
+## Claude へのテーマ PR レビュー通知
+
+統合層で開いた Claude Code は `.claude/settings.json` の Stop hook から
+`base/wp-theme` の package-local HELIX を実行し、テーマの Git common dir にある
+harness-memory inbox を待機する（依存パッケージのインストールが必要）。
+テーマの作業 worktree で `npm run helix -- github pr-notify --pr <番号> --json` を実行すると、
+GitHub の current HEAD と CI を確認した PR レビュー依頼が同じ inbox に入る。
+独立したリポジトリの inbox は共有されないため、統合層直下への投入で代用しない。
+
+送信結果の queued は受領を意味しない。Claude の応答終了後に Stop hook が起動し、
+claim / delivery が記録されたことを確認する。レビュー完了は
+`helix github pr-review-receipt` の receipt で別途確認する。

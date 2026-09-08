@@ -19,5 +19,20 @@
       "$defaults",
       "Merging to main without a codex-sol 'merge 可' verdict on the current head, force-push, tag/release/cutover, deleting branches or Issues, and any write to RetryYN/HELIX-HARNESS or RetryYN/TAKUMI_CMO-Claude_Cowark (read-only references) still require explicit PO approval in the conversation."
     ]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR/base/wp-theme\" && exec ./node_modules/.bin/tsx ./node_modules/helix/src/cli.ts hook claude-memory-wake",
+            "timeout": 7230,
+            "asyncRewake": true,
+            "statusMessage": "harness-memory: WP theme の Claude 宛て PR レビュー通知を待機"
+          }
+        ]
+      }
+    ]
   }
 }
