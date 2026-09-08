@@ -33,6 +33,18 @@
           }
         ]
       }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && exec ./base/wp-theme/node_modules/.bin/tsx ./base/wp-theme/node_modules/helix/src/cli.ts memory surface-v2 --layer harness --layer project",
+            "timeout": 15,
+            "statusMessage": "harness-memory: 統合層の共有ルールを読み込む"
+          }
+        ]
+      }
     ]
   }
 }

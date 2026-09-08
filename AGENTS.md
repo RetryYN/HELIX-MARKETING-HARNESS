@@ -23,9 +23,10 @@ submodule の指示が統合層の共通規律と矛盾する場合は、ルー�
 ## セッション開始時の確認
 
 1. ルート `CLAUDE.md` と `README.md` を読む。
-2. `git status --short --branch` と `git submodule status` で統合層と pin を確認する。
-3. 対象媒体が指定されている場合だけ、その submodule の指示・handover・進捗正本を読む。
-4. 対象媒体が未指定なら、統合層全体の状況を答え、特定 submodule のフェーズを全体進捗として代用しない。
+2. `CLAUDE.md` の「共有ハーネスメモリの開始・再開手順」を実行する。Hosted/APIではローカルhookが動いたと仮定せず、CLI出力を確認する。
+3. `git status --short --branch` と `git submodule status` で統合層と pin を確認する。
+4. 対象媒体が指定されている場合だけ、その submodule の指示・handover・進捗正本を読む。
+5. 対象媒体が未指定なら、統合層全体の状況を答え、特定 submodule のフェーズを全体進捗として代用しない。
 
 ## 進捗回答のルール
 

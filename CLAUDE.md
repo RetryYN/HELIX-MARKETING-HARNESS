@@ -72,3 +72,18 @@
   `gh pr ready` → `gh pr merge --merge`（merge commit。squash / rebase / ブランチ削除 / admin 強行は不可）で実行してよい。
 - **引き続き PO 明示判断が要る**: Astra / Sol「merge 可」なしの main merge、force-push、tag/release/cutover、ブランチ・Issue の削除、
   `HELIX-HARNESS` / `TAKUMI_CMO-Claude_Cowark` への write、本番 WP・第三者サービスへの write。
+
+## 共有ハーネスメモリの開始・再開手順
+
+恒久ルールの共有正本は `.helix/memory/harness.jsonl` とし、Gitで共有する。
+通知inboxはGit common dir経由でworktree間共有されるが、ルールJSONLの読込先は実行cwdである。両者を同じ共有方式と見なさない。
+
+開始・再開時は、本ファイルとAGENTS.mdを読んだ後、統合層で次を実行し、返った制約を適用する。ClaudeのSessionStart hookも同じ取得を行う。hook出力を確認できなければ手動実行する。
+
+```sh
+./base/wp-theme/node_modules/.bin/tsx ./base/wp-theme/node_modules/helix/src/cli.ts memory surface-v2 --layer harness --layer project
+```
+
+対象が指定された作業では、その実作業worktreeでも `npm run helix -- memory surface-v2 --layer harness --layer project` を実行する。baseのpin側だけを読んで別worktreeのメモリも取得したと扱わない。省略表示がある場合は `memory list harness --json` / `memory list project --json` で本文を確認する。
+
+取得0件は設定済みの証拠ではない。恒久制約の配置・Git共有・hookの実行結果を確認する。通知投入、Claude受領、現HEADへのレビュー結果、正式receiptは別々に確認する。
